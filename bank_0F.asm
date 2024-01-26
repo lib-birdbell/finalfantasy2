@@ -36,12 +36,17 @@ L3C009:
     STX $6F25                ; C037  $8E $25 $6F
     TXS                      ; C03A  $9A
     LDA #$00                 ; C03B  $A9 $00
+; Set APU
     JSR $C4A0                ; C03D  $20 $A0 $C4
+; RAM init $00 - $EF = #$00, $3C0 - $3DF = #$0F
     JSR $C486                ; C040  $20 $86 $C4
+; RAM init $200 - $2FF = #$F0
     JSR $C46E                ; C043  $20 $6E $C4
+; Set NMI
     JSR $FE00                ; C046  $20 $00 $FE
     LDA #$02                 ; C049  $A9 $02
     STA SpriteDma_4014       ; C04B  $8D $14 $40
+; Palettes init
     JSR $DC30                ; C04E  $20 $30 $DC
     LDA $FA                  ; C051  $A5 $FA
     CMP #$77                 ; C053  $C9 $77
@@ -7080,6 +7085,9 @@ F4D8:
     STA $62                  ; F509  $85 $62
     LDA #$01                 ; F50B  $A9 $01
     STA $64                  ; F50D  $85 $64
+;; For intro logo uppper code
+;; For intro logo
+;; For intro logo lower code
 L3F50F:
     LDY #$00                 ; F50F  $A0 $00
     LDA ($3E),Y              ; F511  $B1 $3E
@@ -7204,6 +7212,7 @@ L3F5E3:
     JSR $F689                ; F5EE  $20 $89 $F6
     LDA #$04                 ; F5F1  $A9 $04
     STA $65                  ; F5F3  $85 $65
+; Image shift to down 1 line in $0350
 L3F5F5:
     LDX #$05                 ; F5F5  $A2 $05
 L3F5F7:
@@ -7213,6 +7222,7 @@ L3F5F7:
     STA $0352,X              ; F600  $9D $52 $03
     DEX                      ; F603  $CA
     BPL L3F5F7               ; F604  $10 $F1
+; Image shift to down 1 line in $0350(fill empty 1 line)
     LDA $034E                ; F606  $AD $4E $03
     STA $0358                ; F609  $8D $58 $03
     LDA $0346                ; F60C  $AD $46 $03
@@ -7222,6 +7232,7 @@ L3F5F7:
     LDA $0347                ; F618  $AD $47 $03
     STA $0351                ; F61B  $8D $51 $03
     LDX #$05                 ; F61E  $A2 $05
+; Image shift to right in $0340 for ready
 L3F620:
     LDA $0348,X              ; F620  $BD $48 $03
     STA $034A,X              ; F623  $9D $4A $03
@@ -7230,6 +7241,7 @@ L3F620:
     DEX                      ; F62C  $CA
     BPL L3F620               ; F62D  $10 $F1
     JSR $FE00                ; F62F  $20 $00 $FE
+;copy 16bytes from RAM $0350- to PPU $0800- (Flow motion on title)
     LDA #$08                 ; F632  $A9 $08
     STA PpuAddr_2006         ; F634  $8D $06 $20
     LDA #$00                 ; F637  $A9 $00
@@ -8075,39 +8087,50 @@ OnReset:
     BPL :-                   ; FE43  $10 $FB
     DEX                      ; FE45  $CA
     BNE :-                   ; FE46  $D0 $F8
+; Clear the shift register to its initial state.
     LDA #$80                 ; FE48  $A9 $80
     STA $9FFF                ; FE4A  $8D $FF $9F
     STA $BFFF                ; FE4D  $8D $FF $BF
     STA $DFFF                ; FE50  $8D $FF $DF
     STA $FFF9                ; FE53  $8D $F9 $FF
+; Set switch CHR ROM 8KB, switch 16KB bank at $8000, fix last bank at $C000, vertical Mirroring
     LDA #$0E                 ; FE56  $A9 $0E
     JSR $FE06                ; FE58  $20 $06 $FE
+; Set CHR bank 0
     STA $BFFF                ; FE5B  $8D $FF $BF
     STA $BFFF                ; FE5E  $8D $FF $BF
     STA $BFFF                ; FE61  $8D $FF $BF
     STA $BFFF                ; FE64  $8D $FF $BF
     STA $BFFF                ; FE67  $8D $FF $BF
+; Set CHR bank 1(ignored in 8KB mode)
     STA $DFFF                ; FE6A  $8D $FF $DF
     STA $DFFF                ; FE6D  $8D $FF $DF
     STA $DFFF                ; FE70  $8D $FF $DF
     STA $DFFF                ; FE73  $8D $FF $DF
     STA $DFFF                ; FE76  $8D $FF $DF
+; Set bank6($18000)
     LDA #$06                 ; FE79  $A9 $06
     JSR Swap_PRG             ; FE7B  $20 $1A $FE
+; Init PAD, APU
     STA Ctrl1_4016           ; FE7E  $8D $16 $40
     STA ApuStatus_4015       ; FE81  $8D $15 $40
     STA DmcFreq_4010         ; FE84  $8D $10 $40
     LDA #$C0                 ; FE87  $A9 $C0
     STA Ctrl2_FrameCtr_4017  ; FE89  $8D $17 $40
+; Set SP init
     DEX                      ; FE8C  $CA
     TXS                      ; FE8D  $9A
     STX $0100                ; FE8E  $8E $00 $01
+; PPU
     JSR $FEBF                ; FE91  $20 $BF $FE
     LDA #$06                 ; FE94  $A9 $06
     JSR Swap_PRG             ; FE96  $20 $1A $FE
     LDA #$40                 ; FE99  $A9 $40
     STA $0100                ; FE9B  $8D $00 $01
     JMP $C000                ; FE9E  $4C $00 $C0
+
+; < NMI routine >
+; Remarks : set RTI on $0100(NMI) and Return
 L3FEA1:
     LDA PpuStatus_2002       ; FEA1  $AD $02 $20
     LDA #$40                 ; FEA4  $A9 $40
@@ -8117,6 +8140,7 @@ L3FEA1:
     PLA                      ; FEAB  $68
     RTS                      ; FEAC  $60
 
+;set JMP to $FEA1 on $0100(NMI) and wait NMI
 L3FEAD:
     LDA #$A1                 ; FEAD  $A9 $A1
     STA $0101                ; FEAF  $8D $01 $01
@@ -8125,9 +8149,13 @@ L3FEAD:
     LDA #$4C                 ; FEB7  $A9 $4C
     STA $0100                ; FEB9  $8D $00 $01
 
+; Endless loop
 OnIRQ:
 L3FEBC:
     JMP L3FEBC               ; FEBC  $4C $BC $FE
+; Function name	:
+; Remarks
+; Palettes init
     LDA #$00                 ; FEBF  $A9 $00
     STA PpuMask_2001         ; FEC1  $8D $01 $20
     LDA PpuStatus_2002       ; FEC4  $AD $02 $20
