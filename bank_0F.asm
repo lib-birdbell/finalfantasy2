@@ -25,28 +25,39 @@ L3C009:
     JSR $9C0C                ; C01D  $20 $0C $9C
     LDA #$0E                 ; C020  $A9 $0E
     JMP L3FE03               ; C022  $4C $03 $FE
+	; PPU disable
     LDA #$00                 ; C025  $A9 $00
     STA PpuMask_2001         ; C027  $8D $01 $20
     STA $FE                  ; C02A  $85 $FE
     LDA #$88                 ; C02C  $A9 $88
     STA $FF                  ; C02E  $85 $FF
     STA $FD                  ; C030  $85 $FD
+	; Set PPU
+	; 7bit NMI on
+	; 6bit ?
+	; 5bit Sprite size = 8x8 
+	; 4bit Background pattern table = $0000
+	; 3bit Sprite pattern table address for 8x8 = $1000
+	; 2bit VRAM address increment per CPU read/write of PPUDATA = add 1, going across
+	; 0-1bits Base nametable address = $2000
     STA PpuControl_2000      ; C032  $8D $00 $20
+	; Set current BGM ID
     LDX #$FF                 ; C035  $A2 $FF
-    STX $6F25                ; C037  $8E $25 $6F
+    STX current_BGM_ID		; STX $6F25                ; C037  $8E $25 $6F
     TXS                      ; C03A  $9A
     LDA #$00                 ; C03B  $A9 $00
-; Set APU
+	; Init APU
     JSR $C4A0                ; C03D  $20 $A0 $C4
-; RAM init $00 - $EF = #$00, $3C0 - $3DF = #$0F
-    JSR $C486                ; C040  $20 $86 $C4
-; RAM init $200 - $2FF = #$F0
-    JSR $C46E                ; C043  $20 $6E $C4
-; Set NMI
-    JSR $FE00                ; C046  $20 $00 $FE
+	; RAM init $00 - $EF = #$00, $3C0 - $3DF = #$0F
+    JSR RAM_init		; JSR $C486                ; C040  $20 $86 $C4
+	; RAM init $200 - $2FF = #$F0
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; C043  $20 $6E $C4
+	; Set NMI
+    JSR Wait_NMI		; JSR $FE00                ; C046  $20 $00 $FE
+	; Fill OAM
     LDA #$02                 ; C049  $A9 $02
     STA SpriteDma_4014       ; C04B  $8D $14 $40
-; Palettes init
+	; Palettes init
     JSR $DC30                ; C04E  $20 $30 $DC
     LDA $FA                  ; C051  $A5 $FA
     CMP #$77                 ; C053  $C9 $77
@@ -62,7 +73,7 @@ C066:
     JSR L3FE03               ; C068  $20 $03 $FE
     JSR $B642                ; C06B  $20 $42 $B6
     PHP                      ; C06E  $08
-    JSR $C486                ; C06F  $20 $86 $C4
+    JSR RAM_init		; JSR $C486                ; C06F  $20 $86 $C4
     LDA $6010                ; C072  $AD $10 $60
     STA $27                  ; C075  $85 $27
     LDA $6011                ; C077  $AD $11 $60
@@ -104,7 +115,7 @@ L3C0C3:
     TXS                      ; C0C5  $9A
     JSR $C75C                ; C0C6  $20 $5C $C7
 L3C0C9:
-    JSR $FE00                ; C0C9  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; C0C9  $20 $00 $FE
     LDA #$02                 ; C0CC  $A9 $02
     STA SpriteDma_4014       ; C0CE  $8D $14 $40
     JSR $C2F3                ; C0D1  $20 $F3 $C2
@@ -135,7 +146,7 @@ L3C0FB:
     JSR $C159                ; C103  $20 $59 $C1
     JSR $C266                ; C106  $20 $66 $C2
 L3C109:
-    JSR $C46E                ; C109  $20 $6E $C4
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; C109  $20 $6E $C4
     JSR $E009                ; C10C  $20 $09 $E0
     LDA $6004                ; C10F  $AD $04 $60
     ORA $6C                  ; C112  $05 $6C
@@ -600,6 +611,9 @@ L3C469:
     STA $36                  ; C46B  $85 $36
     RTS                      ; C46D  $60
 
+; Name	: Fill_F0_200_2FF
+; Marks	: Fill #$F0 $0200 - @02FF
+Fill_F0_200_2FF:
 ;; sub start ;;
     LDX #$3F                 ; C46E  $A2 $3F
     LDA #$F0                 ; C470  $A9 $F0
@@ -614,6 +628,11 @@ L3C472:
     STA $26                  ; C483  $85 $26
     RTS                      ; C485  $60
 
+; Name	: RAM_init
+; Marks	: RAM init $01 - $EF = #$00
+;	  $F4 = 1B | $F4
+;	  RAM init $3C0 - $3DF = #$0F
+RAM_init:
     LDX #$EF                 ; C486  $A2 $EF
     LDA #$00                 ; C488  $A9 $00
 C48A:
@@ -631,7 +650,10 @@ C499:
     BPL C499                 ; C49D  $10 $FA
     RTS                      ; C49F  $60
 
- LDA #$30                 ; C4A0  $A9 $30
+; Name	: APU_init
+; A	: Not used ??
+; Marks	: APU initialization
+    LDA #$30                 ; C4A0  $A9 $30
     STA Sq0Duty_4000         ; C4A2  $8D $00 $40
     STA Sq1Duty_4004         ; C4A5  $8D $04 $40
     STA TrgLinear_4008       ; C4A8  $8D $08 $40
@@ -1151,7 +1173,7 @@ C817:
     ORA #$88                 ; C876  $09 $88
     STA $FD                  ; C878  $85 $FD
     STA $FF                  ; C87A  $85 $FF
-    JSR $FE00                ; C87C  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; C87C  $20 $00 $FE
     JSR $DC30                ; C87F  $20 $30 $DC
     JSR L3C380               ; C882  $20 $80 $C3
     LDA #$00                 ; C885  $A9 $00
@@ -1393,7 +1415,7 @@ C9E8:
 L3CA41:
     JSR $D06F                ; CA41  $20 $6F $D0
 L3CA44:
-    JSR $FE00                ; CA44  $20 $00 $FE
+    JSR Wait_NMI		;JSR $FE00                ; CA44  $20 $00 $FE
     LDA #$02                 ; CA47  $A9 $02
     STA SpriteDma_4014       ; CA49  $8D $14 $40
     JSR $CDD0                ; CA4C  $20 $D0 $CD
@@ -1426,7 +1448,7 @@ L3CA7D:
     BEQ L3CA84               ; CA7F  $F0 $03
     JSR $E8AA                ; CA81  $20 $AA $E8
 L3CA84:
-    JSR $C46E                ; CA84  $20 $6E $C4
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; CA84  $20 $6E $C4
     JSR $E30C                ; CA87  $20 $0C $E3
     JMP L3CA44               ; CA8A  $4C $44 $CA
 L3CA8D:
@@ -1509,7 +1531,7 @@ L3CB20:
     BEQ L3CB83               ; CB22  $F0 $5F
     LDA #$00                 ; CB24  $A9 $00
     STA $24                  ; CB26  $85 $24
-    JSR $FE00                ; CB28  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; CB28  $20 $00 $FE
     JSR L3C746               ; CB2B  $20 $46 $C7
     LDA $33                  ; CB2E  $A5 $33
     JSR $CD21                ; CB30  $20 $21 $CD
@@ -1539,7 +1561,7 @@ L3CB4B:
     STA $93                  ; CB62  $85 $93
 L3CB64:
     JSR $E8D8                ; CB64  $20 $D8 $E8
-    JSR $FE00                ; CB67  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; CB67  $20 $00 $FE
     LDA #$02                 ; CB6A  $A9 $02
     STA SpriteDma_4014       ; CB6C  $8D $14 $40
     JSR L3CDF5               ; CB6F  $20 $F5 $CD
@@ -2344,7 +2366,7 @@ L3D07B:
     ORA #$88                 ; D0DD  $09 $88
     STA $FD                  ; D0DF  $85 $FD
     STA $FF                  ; D0E1  $85 $FF
-    JSR $FE00                ; D0E3  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; D0E3  $20 $00 $FE
     JSR $DC30                ; D0E6  $20 $30 $DC
     JSR L3CDF5               ; D0E9  $20 $F5 $CD
     LDA #$00                 ; D0EC  $A9 $00
@@ -2453,7 +2475,7 @@ L3D186:
     STA $33                  ; D19B  $85 $33
 L3D19D:
     JSR L3D209               ; D19D  $20 $09 $D2
-    JSR $FE00                ; D1A0  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; D1A0  $20 $00 $FE
     JSR $D21B                ; D1A3  $20 $1B $D2
     LDA $2F                  ; D1A6  $A5 $2F
     PHA                      ; D1A8  $48
@@ -3523,7 +3545,7 @@ L3D910:
 L3D932:
     JMP L3CDF5               ; D932  $4C $F5 $CD
    ;; sub start ;;
-    JSR $FE00                ; D935  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; D935  $20 $00 $FE
     JSR $D922                ; D938  $20 $22 $D9
     LDX #$0A                 ; D93B  $A2 $0A
 L3D93D:
@@ -3573,7 +3595,7 @@ L3D981:
     STA $0200,X              ; D981  $9D $00 $02
     INX                      ; D984  $E8
     BNE L3D981               ; D985  $D0 $FA
-    JSR $FE00                ; D987  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; D987  $20 $00 $FE
     LDA #$02                 ; D98A  $A9 $02
     STA SpriteDma_4014       ; D98C  $8D $14 $40
     RTS                      ; D98F  $60
@@ -3950,6 +3972,8 @@ L3DC29:
 L3DC2F:
     RTS                      ; DC2F  $60
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     LDA PpuStatus_2002       ; DC30  $AD $02 $20
     LDA #$3F                 ; DC33  $A9 $3F
@@ -3973,8 +3997,8 @@ L3DC3F:
     RTS                      ; DC5D  $60
 
 L3DC5E:
-    JSR $C46E                ; DC5E  $20 $6E $C4
-    JSR $FE00                ; DC61  $20 $00 $FE
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; DC5E  $20 $6E $C4
+    JSR Wait_NMI		; JSR $FE00                ; DC61  $20 $00 $FE
     LDA #$02                 ; DC64  $A9 $02
     STA SpriteDma_4014       ; DC66  $8D $14 $40
     RTS                      ; DC69  $60
@@ -3985,7 +4009,7 @@ L3DC5E:
     LDA #$00                 ; DC6F  $A9 $00
     STA $8C                  ; DC71  $85 $8C
 L3DC73:
-    JSR $FE00                ; DC73  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DC73  $20 $00 $FE
     LDA $2D                  ; DC76  $A5 $2D
     LSR A                    ; DC78  $4A
     BCC L3DC81               ; DC79  $90 $06
@@ -4067,7 +4091,7 @@ L3DD06:
     CPY #$00                 ; DD0E  $C0 $00
     BEQ L3DD25               ; DD10  $F0 $13
 L3DD12:
-    JSR $FE00                ; DD12  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DD12  $20 $00 $FE
     JSR $DCB5                ; DD15  $20 $B5 $DC
     JSR L3CDF5               ; DD18  $20 $F5 $CD
     JSR L3C746               ; DD1B  $20 $46 $C7
@@ -4087,13 +4111,13 @@ L3DD27:
     LDA $20                  ; DD31  $A5 $20
     STA $82                  ; DD33  $85 $82
 L3DD35:
-    JSR $FE00                ; DD35  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DD35  $20 $00 $FE
     JSR L3C746               ; DD38  $20 $46 $C7
     JSR $DBA9                ; DD3B  $20 $A9 $DB
     LDA $20                  ; DD3E  $A5 $20
     CMP $82                  ; DD40  $C5 $82
     BEQ L3DD35               ; DD42  $F0 $F1
-    JSR $FE00                ; DD44  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DD44  $20 $00 $FE
     JSR $DC30                ; DD47  $20 $30 $DC
     JSR L3CDF5               ; DD4A  $20 $F5 $CD
     LDA $57                  ; DD4D  $A5 $57
@@ -4106,7 +4130,7 @@ L3DD35:
     STA $0208                ; DD61  $8D $08 $02
     LDA $DD76,X              ; DD64  $BD $76 $DD
     STA $020C                ; DD67  $8D $0C $02
-    JSR $FE00                ; DD6A  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DD6A  $20 $00 $FE
     LDA #$02                 ; DD6D  $A9 $02
     STA SpriteDma_4014       ; DD6F  $8D $14 $40
     RTS                      ; DD72  $60
@@ -4156,7 +4180,7 @@ L3DDAE:
     CPY #$00                 ; DDB6  $C0 $00
     BEQ L3DDCD               ; DDB8  $F0 $13
 L3DDBA:
-    JSR $FE00                ; DDBA  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DDBA  $20 $00 $FE
     JSR $DCB5                ; DDBD  $20 $B5 $DC
     JSR $DDDD                ; DDC0  $20 $DD $DD
     JSR L3C746               ; DDC3  $20 $46 $C7
@@ -4282,7 +4306,7 @@ L3DE78:
     RTS                      ; DE88  $60
 
 ;; sub start ;;
-    JSR $FE00                ; DE89  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DE89  $20 $00 $FE
     LDA #$7C                 ; DE8C  $A9 $7C
     STA Sq1Duty_4004         ; DE8E  $8D $04 $40
     LDA #$89                 ; DE91  $A9 $89
@@ -4448,7 +4472,7 @@ DFA0:
     STA NoiseVolume_400C     ; DFB7  $8D $0C $40
     RTS                      ; DFBA  $60
 
-    JSR $FE00                ; DFBB  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; DFBB  $20 $00 $FE
     LDA #$02                 ; DFBE  $A9 $02
     STA SpriteDma_4014       ; DFC0  $8D $14 $40
     LDA $F0                  ; DFC3  $A5 $F0
@@ -4456,7 +4480,7 @@ DFA0:
     ADC #$01                 ; DFC6  $69 $01
     STA $F0                  ; DFC8  $85 $F0
     JSR L3C380               ; DFCA  $20 $80 $C3
-    JSR $C46E                ; DFCD  $20 $6E $C4
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; DFCD  $20 $6E $C4
     JSR L3C746               ; DFD0  $20 $46 $C7
     LDA #$70                 ; DFD3  $A9 $70
     STA $40                  ; DFD5  $85 $40
@@ -5585,7 +5609,7 @@ L3E8F8:
     LDA $20                  ; E8FB  $A5 $20
     CMP $86                  ; E8FD  $C5 $86
     BNE L3E90C               ; E8FF  $D0 $0B
-    JSR $FE00                ; E901  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; E901  $20 $00 $FE
     INC $F0                  ; E904  $E6 $F0
     JSR L3C746               ; E906  $20 $46 $C7
     JMP L3E8F8               ; E909  $4C $F8 $E8
@@ -5594,7 +5618,7 @@ L3E90C:
     JMP L3FE03               ; E90E  $4C $03 $FE
 
 ;; sub start ;;
-    JSR $FE00                ; E911  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; E911  $20 $00 $FE
     INC $F0                  ; E914  $E6 $F0
     JSR L3C746               ; E916  $20 $46 $C7
     LDA $93                  ; E919  $A5 $93
@@ -5687,7 +5711,7 @@ L3E9A9:
     LDA $3C                  ; E9BA  $A5 $3C
     STA $90                  ; E9BC  $85 $90
     JSR $D13D                ; E9BE  $20 $3D $D1
-    JSR $FE00                ; E9C1  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; E9C1  $20 $00 $FE
     LDA #$02                 ; E9C4  $A9 $02
     STA SpriteDma_4014       ; E9C6  $8D $14 $40
     JSR $F069                ; E9C9  $20 $69 $F0
@@ -6539,7 +6563,7 @@ L3F048:
     RTS                      ; F052  $60
 
 ;; sub start ;;
-    JSR $FE00                ; F053  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F053  $20 $00 $FE
     INC $F0                  ; F056  $E6 $F0
     JSR $F069                ; F058  $20 $69 $F0
     JSR $E9D5                ; F05B  $20 $D5 $E9
@@ -6633,8 +6657,8 @@ L3F0DF:
     STA $3D                  ; F104  $85 $3D
     LDA #$01                 ; F106  $A9 $01
     STA $37                  ; F108  $85 $37
-    JSR $C46E                ; F10A  $20 $6E $C4
-    JSR $FE00                ; F10D  $20 $00 $FE
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; F10A  $20 $6E $C4
+    JSR Wait_NMI		; JSR $FE00                ; F10D  $20 $00 $FE
     JSR $DC30                ; F110  $20 $30 $DC
     LDA #$02                 ; F113  $A9 $02
     STA SpriteDma_4014       ; F115  $8D $14 $40
@@ -6669,7 +6693,7 @@ L3F0DF:
     BMI F15C                 ; F158  $30 $02
     INC $67                  ; F15A  $E6 $67
 F15C:
-    JSR $FE00                ; F15C  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F15C  $20 $00 $FE
     LDA #$02                 ; F15F  $A9 $02
     STA SpriteDma_4014       ; F161  $8D $14 $40
     LDA $FF                  ; F164  $A5 $FF
@@ -6683,7 +6707,7 @@ F15C:
     LDA #$0E                 ; F178  $A9 $0E
     STA $57                  ; F17A  $85 $57
     JSR L3C74F               ; F17C  $20 $4F $C7
-    JSR $C46E                ; F17F  $20 $6E $C4
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; F17F  $20 $6E $C4
     JSR $F212                ; F182  $20 $12 $F2
     JSR $F200                ; F185  $20 $00 $F2
     JSR $F1A1                ; F188  $20 $A1 $F1
@@ -6925,7 +6949,7 @@ L3F346:
     LDA #$E8                 ; F3BC  $A9 $E8
 F3BE:
     PHA                      ; F3BE  $48
-    JSR $FE00                ; F3BF  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F3BF  $20 $00 $FE
     LDA #$02                 ; F3C2  $A9 $02
     STA SpriteDma_4014       ; F3C4  $8D $14 $40
     JSR L3C746               ; F3C7  $20 $46 $C7
@@ -6951,7 +6975,7 @@ F3D1:
     BNE F3D1                 ; F3E8  $D0 $E7
     RTS                      ; F3EA  $60
 
-    JSR $FE00                ; F3EB  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F3EB  $20 $00 $FE
     LDA $62                  ; F3EE  $A5 $62
     STA PpuAddr_2006         ; F3F0  $8D $06 $20
     LDA $61                  ; F3F3  $A5 $61
@@ -6964,8 +6988,8 @@ F3FC:
     BNE F3FC                 ; F400  $D0 $FA
     JSR $F453                ; F402  $20 $53 $F4
     JMP L3C746               ; F405  $4C $46 $C7
-    JSR $C46E                ; F408  $20 $6E $C4
-    JSR $FE00                ; F40B  $20 $00 $FE
+    JSR Fill_F0_200_2FF		; JSR $C46E                ; F408  $20 $6E $C4
+    JSR Wait_NMI		; JSR $FE00                ; F40B  $20 $00 $FE
     LDA #$1E                 ; F40E  $A9 $1E
     STA PpuMask_2001         ; F410  $8D $01 $20
     LDA #$02                 ; F413  $A9 $02
@@ -7048,7 +7072,7 @@ F4B1:
     BNE F4B1                 ; F4B5  $D0 $FA
     DEX                      ; F4B7  $CA
     BNE F4B1                 ; F4B8  $D0 $F7
-    JSR $FE00                ; F4BA  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F4BA  $20 $00 $FE
     BIT PpuStatus_2002       ; F4BD  $2C $02 $20
     LDA #$3F                 ; F4C0  $A9 $3F
     STA PpuAddr_2006         ; F4C2  $8D $06 $20
@@ -7115,7 +7139,7 @@ L3F534:
     LDA $20                  ; F53B  $A5 $20
     STA $80                  ; F53D  $85 $80
 L3F53F:
-    JSR $FE00                ; F53F  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F53F  $20 $00 $FE
     JSR $DBA9                ; F542  $20 $A9 $DB
     LDA $F0                  ; F545  $A5 $F0
     CLC                      ; F547  $18
@@ -7135,7 +7159,7 @@ L3F55C:
     RTS                      ; F561  $60
 
 ;; sub start ;;
-    JSR $FE00                ; F562  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F562  $20 $00 $FE
     LDA $62                  ; F565  $A5 $62
     STA PpuAddr_2006         ; F567  $8D $06 $20
     LDA $61                  ; F56A  $A5 $61
@@ -7196,7 +7220,7 @@ L3F5C5:
     BPL L3F5C5               ; F5CB  $10 $F8
     LDA $61                  ; F5CD  $A5 $61
     STA $80                  ; F5CF  $85 $80
-    JSR $FE00                ; F5D1  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F5D1  $20 $00 $FE
     BIT PpuStatus_2002       ; F5D4  $2C $02 $20
     LDA $62                  ; F5D7  $A5 $62
     STA PpuAddr_2006         ; F5D9  $8D $06 $20
@@ -7240,7 +7264,7 @@ L3F620:
     STA $0342,X              ; F629  $9D $42 $03
     DEX                      ; F62C  $CA
     BPL L3F620               ; F62D  $10 $F1
-    JSR $FE00                ; F62F  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F62F  $20 $00 $FE
 ;copy 16bytes from RAM $0350- to PPU $0800- (Flow motion on title)
     LDA #$08                 ; F632  $A9 $08
     STA PpuAddr_2006         ; F634  $8D $06 $20
@@ -7256,7 +7280,7 @@ L3F63E:
     JSR $F689                ; F649  $20 $89 $F6
     DEC $65                  ; F64C  $C6 $65
     BNE L3F5F5               ; F64E  $D0 $A5
-    JSR $FE00                ; F650  $20 $00 $FE
+    JSR Wait_NMI		; JSR $FE00                ; F650  $20 $00 $FE
     LDA $64                  ; F653  $A5 $64
     LSR A                    ; F655  $4A
     LSR A                    ; F656  $4A
@@ -8046,10 +8070,20 @@ L3FDC1:
 ;; [FDF5 : 3FE05]
 .byte $11,$D0,$F3,$4C,$34,$FA,$00,$00,$00,$00,$00
 
+; Name	: Wait_NMI
+; Marks	: fall in loop for wait NMI
+Wait_NMI:
 ;; sub start ;;
     JMP L3FEAD               ; FE00  $4C $AD $FE
 L3FE03:
     JMP Swap_PRG             ; FE03  $4C $1A $FE
+; Name	: MMC1_CONTROL_REGISTER
+; A	: 4bit : CHR ROM bank mode
+;	  3-2bits : PRG ROM bank mode
+;	  1-0bits : Mirroring
+; Marks	: MMC1 control REGISTER
+;		  A will be 0
+MMC1_CONTROL_REGISTER:
     STA $9FFF                ; FE06  $8D $FF $9F
     LSR A                    ; FE09  $4A
     STA $9FFF                ; FE0A  $8D $FF $9F
@@ -8061,6 +8095,9 @@ L3FE03:
     STA $9FFF                ; FE16  $8D $FF $9F
     RTS                      ; FE19  $60
 
+; Name	: Swap_PRG
+; A	: ROM bank 0($00000)-F($3C000)
+; Marks	: Change Program Rom Bank
 Swap_PRG:
     STA $FFF9                ; FE1A  $8D $F9 $FF
     LSR A                    ; FE1D  $4A
@@ -8082,51 +8119,54 @@ OnReset:
     LDA #$06                 ; FE38  $A9 $06
     STA PpuMask_2001         ; FE3A  $8D $01 $20
     CLD                      ; FE3D  $D8
+	; Wait 2 frame
     LDX #$02                 ; FE3E  $A2 $02
   : BIT PpuStatus_2002       ; FE40  $2C $02 $20
     BPL :-                   ; FE43  $10 $FB
     DEX                      ; FE45  $CA
     BNE :-                   ; FE46  $D0 $F8
-; Clear the shift register to its initial state.
+	; Clear the shift register to its initial state.
     LDA #$80                 ; FE48  $A9 $80
     STA $9FFF                ; FE4A  $8D $FF $9F
     STA $BFFF                ; FE4D  $8D $FF $BF
     STA $DFFF                ; FE50  $8D $FF $DF
     STA $FFF9                ; FE53  $8D $F9 $FF
-; Set switch CHR ROM 8KB, switch 16KB bank at $8000, fix last bank at $C000, vertical Mirroring
+	; Set switch CHR ROM 8KB, switch 16KB bank at $8000, fix last bank at $C000, vertical Mirroring
     LDA #$0E                 ; FE56  $A9 $0E
-    JSR $FE06                ; FE58  $20 $06 $FE
-; Set CHR bank 0
+    JSR MMC1_CONTROL_REGISTER                ; FE58  $20 $06 $FE = JSR $FE06                ; FE58  $20 $06 $FE
+	; Set CHR bank 0 = already set 8KB CHR RAM mode
     STA $BFFF                ; FE5B  $8D $FF $BF
     STA $BFFF                ; FE5E  $8D $FF $BF
     STA $BFFF                ; FE61  $8D $FF $BF
     STA $BFFF                ; FE64  $8D $FF $BF
     STA $BFFF                ; FE67  $8D $FF $BF
-; Set CHR bank 1(ignored in 8KB mode)
+	; Set CHR bank 1 = already set 8KB CHR RAM mode(ignored in 8KB mode)
     STA $DFFF                ; FE6A  $8D $FF $DF
     STA $DFFF                ; FE6D  $8D $FF $DF
     STA $DFFF                ; FE70  $8D $FF $DF
     STA $DFFF                ; FE73  $8D $FF $DF
     STA $DFFF                ; FE76  $8D $FF $DF
-; Set bank6($18000)
+	; Set bank_06($18000)
     LDA #$06                 ; FE79  $A9 $06
     JSR Swap_PRG             ; FE7B  $20 $1A $FE
-; Init PAD, APU
+	; Init PAD, APU
     STA Ctrl1_4016           ; FE7E  $8D $16 $40
     STA ApuStatus_4015       ; FE81  $8D $15 $40
     STA DmcFreq_4010         ; FE84  $8D $10 $40
     LDA #$C0                 ; FE87  $A9 $C0
     STA Ctrl2_FrameCtr_4017  ; FE89  $8D $17 $40
-; Set SP init
+	; Set SP init
     DEX                      ; FE8C  $CA
     TXS                      ; FE8D  $9A
     STX $0100                ; FE8E  $8E $00 $01
-; PPU
-    JSR $FEBF                ; FE91  $20 $BF $FE
+	; PPU Palettes init
+    JSR Palettes_init        ; JSR $FEBF                ; FE91  $20 $BF $FE
+	; Why called twice ??
     LDA #$06                 ; FE94  $A9 $06
     JSR Swap_PRG             ; FE96  $20 $1A $FE
     LDA #$40                 ; FE99  $A9 $40
     STA $0100                ; FE9B  $8D $00 $01
+	; How about go to $C025 ??
     JMP $C000                ; FE9E  $4C $00 $C0
 
 ; < NMI routine >
@@ -8153,9 +8193,10 @@ L3FEAD:
 OnIRQ:
 L3FEBC:
     JMP L3FEBC               ; FEBC  $4C $BC $FE
-; Function name	:
-; Remarks
-; Palettes init
+; Name	:
+; A	:
+; Marks	: Palettes init
+Palettes_init:
     LDA #$00                 ; FEBF  $A9 $00
     STA PpuMask_2001         ; FEC1  $8D $01 $20
     LDA PpuStatus_2002       ; FEC4  $AD $02 $20
