@@ -3,7 +3,8 @@
 
 .segment "BANK_00"
 
-.incbin "nesheader.bin"
+; Commented out due to  compilation order change.
+;.incbin "nesheader.bin"
 
 ;; [$8000 :: 0x00010]
 

@@ -191,6 +191,8 @@ battle_min_mresist       = ch_skills + $32
 ;                        = ch_skills + $34
 battle_row               = ch_skills + $35 ; $00 = back row, $01 = front row, $80 = no character portrait visible
 
+current_BGM_ID		 = $6F25
+
 
 
 
@@ -199,7 +201,6 @@ battle_result            = $7B48 ; not sure yet
 
 statup_confirmation      = $7B62 ; 8 bytes, all $FF during testing 
 ; but the next $10 bytes are 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
-
 
 
 
@@ -264,6 +265,7 @@ btl_stat_ailmentbackup   = battle_stats + $2C
 btl_stat_btlstat09backup = battle_stats + $2D
 btl_stat_unknown         = battle_stats + $2E
 btl_stat_unknown_2       = battle_stats + $2F
+
 
 
 
