@@ -17,7 +17,7 @@ L3C003:
 L3C009:
     JMP L3C74F               ; C009  $4C $4F $C7
     JMP L3DBA2               ; C00C  $4C $A2 $DB
-    JMP $DC30                ; C00F  $4C $30 $DC
+    JMP Palette_copy		; JMP $DC30                ; C00F  $4C $30 $DC
     JMP $C018                ; C012  $4C $18 $C0
     JMP $F2C8                ; C015  $4C $C8 $F2
     LDA #$00                 ; C018  $A9 $00
@@ -58,7 +58,7 @@ L3C009:
     LDA #$02                 ; C049  $A9 $02
     STA SpriteDma_4014       ; C04B  $8D $14 $40
 	; Palettes init
-    JSR $DC30                ; C04E  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; C04E  $20 $30 $DC
     LDA $FA                  ; C051  $A5 $FA
     CMP #$77                 ; C053  $C9 $77
     BEQ C066                 ; C055  $F0 $0F
@@ -1174,7 +1174,7 @@ C817:
     STA $FD                  ; C878  $85 $FD
     STA $FF                  ; C87A  $85 $FF
     JSR Wait_NMI		; JSR $FE00                ; C87C  $20 $00 $FE
-    JSR $DC30                ; C87F  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; C87F  $20 $30 $DC
     JSR L3C380               ; C882  $20 $80 $C3
     LDA #$00                 ; C885  $A9 $00
     STA PpuMask_2001         ; C887  $8D $01 $20
@@ -2367,7 +2367,7 @@ L3D07B:
     STA $FD                  ; D0DF  $85 $FD
     STA $FF                  ; D0E1  $85 $FF
     JSR Wait_NMI		; JSR $FE00                ; D0E3  $20 $00 $FE
-    JSR $DC30                ; D0E6  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; D0E6  $20 $30 $DC
     JSR L3CDF5               ; D0E9  $20 $F5 $CD
     LDA #$00                 ; D0EC  $A9 $00
     STA PpuMask_2001         ; D0EE  $8D $01 $20
@@ -3401,7 +3401,7 @@ L3D812:
     JSR $FE00                ; D81E  $20 $00 $FE
     LDA #$0A                 ; D821  $A9 $0A
     STA PpuMask_2001         ; D823  $8D $01 $20
-    JSR $DC30                ; D826  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; D826  $20 $30 $DC
     JSR $D889                ; D829  $20 $89 $D8
     JSR $D8BA                ; D82C  $20 $BA $D8
     LDX $84                  ; D82F  $A6 $84
@@ -3537,7 +3537,7 @@ L3D910:
 ;; sub start ;;
     LDA #$02                 ; D922  $A9 $02
     STA SpriteDma_4014       ; D924  $8D $14 $40
-    JSR $DC30                ; D927  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; D927  $20 $30 $DC
     LDA $2D                  ; D92A  $A5 $2D
     LSR A                    ; D92C  $4A
     BCS L3D932               ; D92D  $B0 $03
@@ -3972,8 +3972,11 @@ L3DC29:
 L3DC2F:
     RTS                      ; DC2F  $60
 
-; Name	:
-; Marks	:
+; Name	: Palette_copy
+; Dest	: PPU $3F00 - $3F1F : Palette RAM indexs.
+; Src	: RAM $03C0 - $03DF ($1F)
+; Marks	: Fill PPU Palette indexes from RAM
+Palette_copy:
 ;; sub start ;;
     LDA PpuStatus_2002       ; DC30  $AD $02 $20
     LDA #$3F                 ; DC33  $A9 $3F
@@ -4118,7 +4121,7 @@ L3DD35:
     CMP $82                  ; DD40  $C5 $82
     BEQ L3DD35               ; DD42  $F0 $F1
     JSR Wait_NMI		; JSR $FE00                ; DD44  $20 $00 $FE
-    JSR $DC30                ; DD47  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; DD47  $20 $30 $DC
     JSR L3CDF5               ; DD4A  $20 $F5 $CD
     LDA $57                  ; DD4D  $A5 $57
     JMP L3FE03               ; DD4F  $4C $03 $FE
@@ -6659,7 +6662,7 @@ L3F0DF:
     STA $37                  ; F108  $85 $37
     JSR Fill_F0_200_2FF		; JSR $C46E                ; F10A  $20 $6E $C4
     JSR Wait_NMI		; JSR $FE00                ; F10D  $20 $00 $FE
-    JSR $DC30                ; F110  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; F110  $20 $30 $DC
     LDA #$02                 ; F113  $A9 $02
     STA SpriteDma_4014       ; F115  $8D $14 $40
     LDA $FF                  ; F118  $A5 $FF
@@ -6994,7 +6997,7 @@ F3FC:
     STA PpuMask_2001         ; F410  $8D $01 $20
     LDA #$02                 ; F413  $A9 $02
     STA SpriteDma_4014       ; F415  $8D $14 $40
-    JSR $DC30                ; F418  $20 $30 $DC
+    JSR Palette_copy		; JSR $DC30                ; F418  $20 $30 $DC
     BIT PpuStatus_2002       ; F41B  $2C $02 $20
     LDA #$00                 ; F41E  $A9 $00
     STA PpuScroll_2005       ; F420  $8D $05 $20

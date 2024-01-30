@@ -268,7 +268,6 @@ btl_stat_unknown_2       = battle_stats + $2F
 
 
 
-
 battle_magiclist         = $7CE3 ; List of spell item IDs for the character choosing a spell in battle
 
 ;; Command counters - rise when confirming attack, does not reset between turns; 4 bytes per character ;;
