@@ -2,6 +2,7 @@
 
 tmp                = $00 ; $10 bytes I assume
 
+key1p		   = $20
 division_result    = $22
 
 charstat_pointer   = $7A ; 2 bytes
@@ -10,6 +11,11 @@ battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
 charstat_pointer2  = $A1 ; 2 bytes ; Mixed pointer? A1 = 7A, A2 = 81
 
 entity_counter     = $9E 
+
+timer_frame	   = $F0	; Timer, Increases by 1 every frame.
+timer_screen	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every time values hits a multiple of 40, the airship flies over the screen
+
+skip_intro	   = $FA	; $77 is already saw the logo screen, else is Show logo screen.
 
 
 

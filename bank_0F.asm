@@ -59,15 +59,18 @@ L3C009:
     STA SpriteDma_4014       ; C04B  $8D $14 $40
 	; Palettes init
     JSR Palette_copy		; JSR $DC30                ; C04E  $20 $30 $DC
-    LDA $FA                  ; C051  $A5 $FA
+	; #$77 is intro skip flag in $FA
+    LDA skip_intro		; LDA $FA                  ; C051  $A5 $FA
     CMP #$77                 ; C053  $C9 $77
     BEQ C066                 ; C055  $F0 $0F
     LDA #$77                 ; C057  $A9 $77
-    STA $FA                  ; C059  $85 $FA
+    STA skip_intro		; STA $FA                  ; C059  $85 $FA
+	; Show intro screen
     JSR $F476                ; C05B  $20 $76 $F4
     LDA #$0E                 ; C05E  $A9 $0E
     JSR L3FE03               ; C060  $20 $03 $FE
     JSR $B890                ; C063  $20 $90 $B8
+	; Save file select screen
 C066:
     LDA #$0E                 ; C066  $A9 $0E
     JSR L3FE03               ; C068  $20 $03 $FE
@@ -210,7 +213,7 @@ L3C181:
     LDA #$30                 ; C185  $A9 $30
     STA NoiseVolume_400C     ; C187  $8D $0C $40
     JSR L3DDA4               ; C18A  $20 $A4 $DD
-    LDA $20                  ; C18D  $A5 $20
+    LDA key1p			; LDA $20                  ; C18D  $A5 $20
     AND #$40                 ; C18F  $29 $40
     BEQ C1A5                 ; C191  $F0 $12
     LDA $601A                ; C193  $AD $1A $60
@@ -331,7 +334,7 @@ C265:
 
 L3C270:
     JSR $DB5C                ; C270  $20 $5C $DB
-    LDA $20                  ; C273  $A5 $20
+    LDA key1p			; LDA $20                  ; C273  $A5 $20
     AND #$0F                 ; C275  $29 $0F
     BNE L3C290               ; C277  $D0 $17
     LDA #$00                 ; C279  $A9 $00
@@ -372,7 +375,7 @@ L3C2AA:
     JSR $C6C7                ; C2BB  $20 $C7 $C6
     BCS L3C2DB               ; C2BE  $B0 $1B
 L3C2C0:
-    LDA $20                  ; C2C0  $A5 $20
+    LDA key1p			; LDA $20                  ; C2C0  $A5 $20
     AND #$0F                 ; C2C2  $29 $0F
     STA $33                  ; C2C4  $85 $33
     JMP L3D209               ; C2C6  $4C $09 $D2
@@ -1598,7 +1601,7 @@ L3CB9B:
     JMP L3D07B               ; CBB0  $4C $7B $D0
 L3CBB3:
     JSR $DB5C                ; CBB3  $20 $5C $DB
-    LDA $20                  ; CBB6  $A5 $20
+    LDA key1p			; LDA $20                  ; CBB6  $A5 $20
     AND #$0F                 ; CBB8  $29 $0F
     BNE L3CBBD               ; CBBA  $D0 $01
 L3CBBC:
@@ -3883,10 +3886,13 @@ L3DB95:
     LDA #$0E                 ; DB9D  $A9 $0E
     JMP L3FE03               ; DB9F  $4C $03 $FE
 L3DBA2:
-    JSR $DBA9                ; DBA2  $20 $A9 $DB
+    JSR Get_key			; JSR $DBA9                ; DBA2  $20 $A9 $DB
     JSR $DBC2                ; DBA5  $20 $C2 $DB
     RTS                      ; DBA8  $60
 
+; Name	: Get_Key
+; Marks	: store key status in $20(key1p)
+Get_key:
 ;; sub start ;;
     LDA #$01                 ; DBA9  $A9 $01
     STA Ctrl1_4016           ; DBAB  $8D $16 $40
@@ -3897,35 +3903,35 @@ L3DBB5:
     LDA Ctrl1_4016           ; DBB5  $AD $16 $40
     AND #$03                 ; DBB8  $29 $03
     CMP #$01                 ; DBBA  $C9 $01
-    ROL $20                  ; DBBC  $26 $20
+    ROL key1p			; ROL $20                  ; DBBC  $26 $20
     DEX                      ; DBBE  $CA
     BNE L3DBB5               ; DBBF  $D0 $F4
     RTS                      ; DBC1  $60
 
 ;; sub start ;;
-    LDA $20                  ; DBC2  $A5 $20
+    LDA key1p			; LDA $20                  ; DBC2  $A5 $20
     AND #$03                 ; DBC4  $29 $03
     BEQ L3DBCA               ; DBC6  $F0 $02
     LDX #$03                 ; DBC8  $A2 $03
 L3DBCA:
     STX $81                  ; DBCA  $86 $81
-    LDA $20                  ; DBCC  $A5 $20
+    LDA key1p			; LDA $20                  ; DBCC  $A5 $20
     AND #$0C                 ; DBCE  $29 $0C
     BEQ L3DBD7               ; DBD0  $F0 $05
     TXA                      ; DBD2  $8A
     ORA #$0C                 ; DBD3  $09 $0C
     STA $81                  ; DBD5  $85 $81
 L3DBD7:
-    LDA $20                  ; DBD7  $A5 $20
+    LDA key1p			; LDA $20                  ; DBD7  $A5 $20
     EOR $21                  ; DBD9  $45 $21
     AND $81                  ; DBDB  $25 $81
     EOR $21                  ; DBDD  $45 $21
     STA $21                  ; DBDF  $85 $21
-    EOR $20                  ; DBE1  $45 $20
+    EOR key1p			; EOR $20                  ; DBE1  $45 $20
     TAX                      ; DBE3  $AA
     AND #$10                 ; DBE4  $29 $10
     BEQ L3DBF6               ; DBE6  $F0 $0E
-    LDA $20                  ; DBE8  $A5 $20
+    LDA key1p			; LDA $20                  ; DBE8  $A5 $20
     AND #$10                 ; DBEA  $29 $10
     BEQ L3DBF0               ; DBEC  $F0 $02
     INC $23                  ; DBEE  $E6 $23
@@ -3937,7 +3943,7 @@ L3DBF6:
     TXA                      ; DBF6  $8A
     AND #$20                 ; DBF7  $29 $20
     BEQ L3DC09               ; DBF9  $F0 $0E
-    LDA $20                  ; DBFB  $A5 $20
+    LDA key1p			; LDA $20                  ; DBFB  $A5 $20
     AND #$20                 ; DBFD  $29 $20
     BEQ DC03                 ; DBFF  $F0 $02
     INC $22                  ; DC01  $E6 $22
@@ -3949,7 +3955,7 @@ L3DC09:
     TXA                      ; DC09  $8A
     AND #$40                 ; DC0A  $29 $40
     BEQ L3DC1C               ; DC0C  $F0 $0E
-    LDA $20                  ; DC0E  $A5 $20
+    LDA key1p			; LDA $20                  ; DC0E  $A5 $20
     AND #$40                 ; DC10  $29 $40
     BEQ L3DC16               ; DC12  $F0 $02
     INC $25                  ; DC14  $E6 $25
@@ -3961,7 +3967,7 @@ L3DC1C:
     TXA                      ; DC1C  $8A
     AND #$80                 ; DC1D  $29 $80
     BEQ L3DC2F               ; DC1F  $F0 $0E
-    LDA $20                  ; DC21  $A5 $20
+    LDA key1p			; LDA $20                  ; DC21  $A5 $20
     AND #$80                 ; DC23  $29 $80
     BEQ L3DC29               ; DC25  $F0 $02
     INC $24                  ; DC27  $E6 $24
@@ -4110,14 +4116,14 @@ L3DD27:
     LDA #$02                 ; DD27  $A9 $02
     STA $61                  ; DD29  $85 $61
     JSR L3DCEC               ; DD2B  $20 $EC $DC
-    JSR $DBA9                ; DD2E  $20 $A9 $DB
-    LDA $20                  ; DD31  $A5 $20
+    JSR Get_key			; JSR $DBA9                ; DD2E  $20 $A9 $DB
+    LDA key1p			; LDA $20                  ; DD31  $A5 $20
     STA $82                  ; DD33  $85 $82
 L3DD35:
     JSR Wait_NMI		; JSR $FE00                ; DD35  $20 $00 $FE
     JSR L3C746               ; DD38  $20 $46 $C7
-    JSR $DBA9                ; DD3B  $20 $A9 $DB
-    LDA $20                  ; DD3E  $A5 $20
+    JSR Get_key			; JSR $DBA9                ; DD3B  $20 $A9 $DB
+    LDA key1p			; LDA $20                  ; DD3E  $A5 $20
     CMP $82                  ; DD40  $C5 $82
     BEQ L3DD35               ; DD42  $F0 $F1
     JSR Wait_NMI		; JSR $FE00                ; DD44  $20 $00 $FE
@@ -5604,12 +5610,12 @@ L3E8E5:
     JMP L3D164               ; E8EE  $4C $64 $D1
 
 ;; sub start ;;
-    JSR $DBA9                ; E8F1  $20 $A9 $DB
-    LDA $20                  ; E8F4  $A5 $20
+    JSR Get_key			; JSR $DBA9                ; E8F1  $20 $A9 $DB
+    LDA key1p			; LDA $20                  ; E8F4  $A5 $20
     STA $86                  ; E8F6  $85 $86
 L3E8F8:
-    JSR $DBA9                ; E8F8  $20 $A9 $DB
-    LDA $20                  ; E8FB  $A5 $20
+    JSR Get_key			; JSR $DBA9                ; E8F8  $20 $A9 $DB
+    LDA key1p			; LDA $20                  ; E8FB  $A5 $20
     CMP $86                  ; E8FD  $C5 $86
     BNE L3E90C               ; E8FF  $D0 $0B
     JSR Wait_NMI		; JSR $FE00                ; E901  $20 $00 $FE
@@ -6677,7 +6683,7 @@ L3F0DF:
     JSR L3E91E               ; F12E  $20 $1E $E9
     JSR $F246                ; F131  $20 $46 $F2
     JSR L3DBA2               ; F134  $20 $A2 $DB
-    LDA $20                  ; F137  $A5 $20
+    LDA key1p			; LDA $20                  ; F137  $A5 $20
     AND #$0C                 ; F139  $29 $0C
     STA $66                  ; F13B  $85 $66
     LDA #$00                 ; F13D  $A9 $00
@@ -6732,7 +6738,7 @@ F1A0:
     BNE F194                 ; F1A6  $D0 $EC
     LDA $24                  ; F1A8  $A5 $24
     BNE F1DB                 ; F1AA  $D0 $2F
-    LDA $20                  ; F1AC  $A5 $20
+    LDA key1p			; LDA $20                  ; F1AC  $A5 $20
     AND #$0C                 ; F1AE  $29 $0C
     CMP $66                  ; F1B0  $C5 $66
     BEQ F1A0                 ; F1B2  $F0 $EC
@@ -7041,8 +7047,17 @@ F464:
     STA PpuScroll_2005       ; F472  $8D $05 $20
     RTS                      ; F475  $60
 
+; Name	:
+; Marks	:
     LDA #$88                 ; F476  $A9 $88
     STA $FF                  ; F478  $85 $FF
+	; Set PPU : bit7 1 Generate NMI
+	;	  : bit6 0
+	;	  : bit5 0 Sprite size 8x8
+	;	  : bit4 0 Background table address $0000
+	;	  : bit3 1 Sprite pattern table address $1000
+	;	  : bit2 0 VRAM address increment add 1
+	;	  : bit1-bit0 00 Base nametable address
     STA PpuControl_2000      ; F47A  $8D $00 $20
     LDA #$00                 ; F47D  $A9 $00
     STA PpuMask_2001         ; F47F  $8D $01 $20
@@ -7050,6 +7065,7 @@ F464:
     BIT PpuStatus_2002       ; F485  $2C $02 $20
     LDY #$00                 ; F488  $A0 $00
     LDX #$04                 ; F48A  $A2 $04
+	; Init to zero PPU Nametable0 ($2000 - $23FF)
     LDA #$20                 ; F48C  $A9 $20
     STA PpuAddr_2006         ; F48E  $8D $06 $20
     LDA #$00                 ; F491  $A9 $00
@@ -7060,6 +7076,7 @@ F496:
     BNE F496                 ; F49A  $D0 $FA
     DEX                      ; F49C  $CA
     BNE F496                 ; F49D  $D0 $F7
+	; Init to zero RAM ($0350 - $035F)
     LDX #$0F                 ; F49F  $A2 $0F
 F4A1:
     STA $0350,X              ; F4A1  $9D $50 $03
@@ -7068,6 +7085,7 @@ F4A1:
     LDA #$00                 ; F4A7  $A9 $00
     STA PpuAddr_2006         ; F4A9  $8D $06 $20
     STA PpuAddr_2006         ; F4AC  $8D $06 $20
+	; Init to zero PPU Pattern table 0 (CHR RAM : $0000 - $08FF)
     LDX #$09                 ; F4AF  $A2 $09
 F4B1:
     STA PpuData_2007         ; F4B1  $8D $07 $20
@@ -7077,6 +7095,9 @@ F4B1:
     BNE F4B1                 ; F4B8  $D0 $F7
     JSR Wait_NMI		; JSR $FE00                ; F4BA  $20 $00 $FE
     BIT PpuStatus_2002       ; F4BD  $2C $02 $20
+	; Set to Palette RAM indexes ($3F00 - $3FFF)
+	; 0F 30 02 02 02 02 02 02 02 02 02 02 02 02 02 02
+	; 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
     LDA #$3F                 ; F4C0  $A9 $3F
     STA PpuAddr_2006         ; F4C2  $8D $06 $20
     LDA #$00                 ; F4C5  $A9 $00
@@ -7091,6 +7112,7 @@ F4D8:
     STA PpuData_2007         ; F4D8  $8D $07 $20
     DEX                      ; F4DB  $CA
     BNE F4D8                 ; F4DC  $D0 $FA
+	; Initialize ??
     LDA #$3F                 ; F4DE  $A9 $3F
     STA PpuAddr_2006         ; F4E0  $8D $06 $20
     LDA #$00                 ; F4E3  $A9 $00
@@ -7100,16 +7122,23 @@ F4D8:
     LDA #$00                 ; F4EE  $A9 $00
     STA PpuScroll_2005       ; F4F0  $8D $05 $20
     STA PpuScroll_2005       ; F4F3  $8D $05 $20
+	; PPU MASK	: Bit3 Show background = 1
+	;		: Bit2 Show sprites in leftmost 8pixels of screen is Hide = 0
+	;		: Bit1 Show background in leftmost 8 pixels of screen = 1
+	;		: Bit0 Display type is color = 1
     LDA #$0A                 ; F4F6  $A9 $0A
     STA PpuMask_2001         ; F4F8  $8D $01 $20
+	; $3E(ADDRESS) = #$F692
     LDA #$92                 ; F4FB  $A9 $92
     STA $3E                  ; F4FD  $85 $3E
     LDA #$F6                 ; F4FF  $A9 $F6
     STA $3F                  ; F501  $85 $3F
+	; $61(ADDRESS) = #$2102
     LDA #$02                 ; F503  $A9 $02
     STA $61                  ; F505  $85 $61
     LDA #$21                 ; F507  $A9 $21
     STA $62                  ; F509  $85 $62
+	; $64 = #$01
     LDA #$01                 ; F50B  $A9 $01
     STA $64                  ; F50D  $85 $64
 ;; For intro logo uppper code
@@ -7135,25 +7164,31 @@ L3F524:
     ADC #$00                 ; F52D  $69 $00
     STA $3F                  ; F52F  $85 $3F
     JMP L3F50F               ; F531  $4C $0F $F5
+	; Show intro logo done.
+	; Wait for timeout or key pressed.
 L3F534:
     LDA #$00                 ; F534  $A9 $00
     STA $F1                  ; F536  $85 $F1
-    JSR $DBA9                ; F538  $20 $A9 $DB
-    LDA $20                  ; F53B  $A5 $20
+    JSR Get_key			; JSR $DBA9                ; F538  $20 $A9 $DB
+    LDA key1p			; LDA $20                  ; F53B  $A5 $20
     STA $80                  ; F53D  $85 $80
 L3F53F:
     JSR Wait_NMI		; JSR $FE00                ; F53F  $20 $00 $FE
-    JSR $DBA9                ; F542  $20 $A9 $DB
-    LDA $F0                  ; F545  $A5 $F0
+    JSR Get_key			; JSR $DBA9                ; F542  $20 $A9 $DB
+	; Increase timer_frame and timer_screen
+    LDA timer_frame		; LDA $F0                  ; F545  $A5 $F0
     CLC                      ; F547  $18
     ADC #$01                 ; F548  $69 $01
-    STA $F0                  ; F54A  $85 $F0
-    LDA $F1                  ; F54C  $A5 $F1
+    STA timer_frame		; STA $F0                  ; F54A  $85 $F0
+    LDA timer_screen		; LDA $F1                  ; F54C  $A5 $F1
     ADC #$00                 ; F54E  $69 $00
-    STA $F1                  ; F550  $85 $F1
+    STA timer_screen		; STA $F1                  ; F550  $85 $F1
+	; Next screen after about 12sec
     CMP #$03                 ; F552  $C9 $03
     BCS L3F55C               ; F554  $B0 $06
-    LDA $20                  ; F556  $A5 $20
+	; Press any key to move to the next screen
+    LDA key1p			; LDA $20                  ; F556  $A5 $20
+	; $80 = previous key1p(temp)
     CMP $80                  ; F558  $C5 $80
     BEQ L3F53F               ; F55A  $F0 $E3
 L3F55C:
@@ -7161,6 +7196,8 @@ L3F55C:
     STA PpuMask_2001         ; F55E  $8D $01 $20
     RTS                      ; F561  $60
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     JSR Wait_NMI		; JSR $FE00                ; F562  $20 $00 $FE
     LDA $62                  ; F565  $A5 $62
@@ -7195,7 +7232,14 @@ L3F587:
     RTS                      ; F59E  $60
 
 ; Name	: 
-; Marks	: logo??
+; Dest	: $80(ADDR) temp address
+; Src	: RAM $3E(2byte address) + Y, $61
+; Marks	: Set upper 4bit -> Set lower 4bit to $81
+;	  $81 and operate with #$B0
+;	  Set lower 4bit -> Set upper 4bit to $80
+;	  Copy $61 to $80(lower byte address)
+;	  From $F692 -> until ??
+;	  $80(ADDR) is tile address, copy to $0340 - $034F
 ;; sub start ;;
     LDY #$00                 ; F59F  $A0 $00
     LDA ($3E),Y              ; F5A1  $B1 $3E
@@ -7219,6 +7263,7 @@ L3F587:
 	; Swap PAGE 09
     JSR L3FE03               ; F5C0  $20 $03 $FE
     LDY #$0F                 ; F5C3  $A0 $0F
+	; copy to $0340 - $034F
 L3F5C5:
     LDA ($80),Y              ; F5C5  $B1 $80
     STA $0340,Y              ; F5C7  $99 $40 $03
@@ -7344,7 +7389,7 @@ L3F667:
 ;; sub start ;;
     STA $32                  ; F750  $85 $32
     STA $34                  ; F752  $85 $34
-    LDA $20                  ; F754  $A5 $20
+    LDA key1p			; LDA $20                  ; F754  $A5 $20
     AND #$40                 ; F756  $29 $40
     BEQ L3F75C               ; F758  $F0 $02
     INC $34                  ; F75A  $E6 $34
