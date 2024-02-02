@@ -7098,6 +7098,7 @@ F4B1:
 	; Set to Palette RAM indexes ($3F00 - $3FFF)
 	; 0F 30 02 02 02 02 02 02 02 02 02 02 02 02 02 02
 	; 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
+	; 02 = blue, 04 = purple, 0F = black, 30 = white
     LDA #$3F                 ; F4C0  $A9 $3F
     STA PpuAddr_2006         ; F4C2  $8D $06 $20
     LDA #$00                 ; F4C5  $A9 $00
@@ -7156,6 +7157,7 @@ L3F50F:
 L3F521:
     JSR $F59F                ; F521  $20 $9F $F5
 L3F524:
+	; Increase address
     LDA $3E                  ; F524  $A5 $3E
     CLC                      ; F526  $18
     ADC #$01                 ; F527  $69 $01
@@ -7213,6 +7215,7 @@ L3F575:
     LDA $80                  ; F57A  $A5 $80
     AND #$1F                 ; F57C  $29 $1F
     BNE L3F575               ; F57E  $D0 $F5
+	; Scroll_reset??
     JSR $F689                ; F580  $20 $89 $F6
     LDX #$0F                 ; F583  $A2 $0F
     LDA #$00                 ; F585  $A9 $00
@@ -7272,6 +7275,7 @@ L3F5C5:
     LDA $61                  ; F5CD  $A5 $61
     STA $80                  ; F5CF  $85 $80
     JSR Wait_NMI		; JSR $FE00                ; F5D1  $20 $00 $FE
+	; Write Nametable0 ($2104?? about $1F)
     BIT PpuStatus_2002       ; F5D4  $2C $02 $20
     LDA $62                  ; F5D7  $A5 $62
     STA PpuAddr_2006         ; F5D9  $8D $06 $20
@@ -7284,10 +7288,12 @@ L3F5E3:
     LDA $80                  ; F5E8  $A5 $80
     AND #$1F                 ; F5EA  $29 $1F
     BNE L3F5E3               ; F5EC  $D0 $F5
+	; Scroll_reset??
     JSR $F689                ; F5EE  $20 $89 $F6
+	; $65 ??
     LDA #$04                 ; F5F1  $A9 $04
     STA $65                  ; F5F3  $85 $65
-; Image shift to down 1 line in $0350
+	; Image shift to down 1 line in $0350
 L3F5F5:
     LDX #$05                 ; F5F5  $A2 $05
 L3F5F7:
@@ -7362,12 +7368,15 @@ L3F667:
     INC $61                  ; F686  $E6 $61
     RTS                      ; F688  $60
 
+; Name	: Scroll_reset ??
+; Marks	:
 ;; sub start ;;
     LDA #$00                 ; F689  $A9 $00
     STA PpuScroll_2005       ; F68B  $8D $05 $20
     STA PpuScroll_2005       ; F68E  $8D $05 $20
     RTS                      ; F691  $60
 
+; Title screen tile address ($13 means $B130)
  ;data block---
 ;; [F692 : 3F6A2]
 .byte $00,$00,$00,$00,$00,$00,$06,$09,$0E,$01,$0C,$00,$06,$01
