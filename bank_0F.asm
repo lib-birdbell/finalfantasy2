@@ -66,7 +66,7 @@ L3C009:
     LDA #$77                 ; C057  $A9 $77
     STA skip_intro		; STA $FA                  ; C059  $85 $FA
 	; Show intro screen
-    JSR $F476                ; C05B  $20 $76 $F4
+    JSR Show_intro_screen	; JSR $F476                ; C05B  $20 $76 $F4
     LDA #$0E                 ; C05E  $A9 $0E
     JSR L3FE03               ; C060  $20 $03 $FE
     JSR $B890                ; C063  $20 $90 $B8
@@ -7047,8 +7047,12 @@ F464:
     STA PpuScroll_2005       ; F472  $8D $05 $20
     RTS                      ; F475  $60
 
-; Name	:
-; Marks	:
+; Name	: Show_intro_screen
+; Marks	: $61(ADDR) Nametable0 address
+;	  $64 ??
+;	  $80 pad1 key buffer
+;	  $3E, $3F - Address??
+Show_intro_screen:
     LDA #$88                 ; F476  $A9 $88
     STA $FF                  ; F478  $85 $FF
 	; Set PPU : bit7 1 Generate NMI
@@ -7134,7 +7138,7 @@ F4D8:
     STA $3E                  ; F4FD  $85 $3E
     LDA #$F6                 ; F4FF  $A9 $F6
     STA $3F                  ; F501  $85 $3F
-	; $61(ADDRESS) = #$2102
+	; Title tile start address $61(ADDR) = #$2102 ( col : 8 = $100, row : 2 )
     LDA #$02                 ; F503  $A9 $02
     STA $61                  ; F505  $85 $61
     LDA #$21                 ; F507  $A9 $21
@@ -7145,6 +7149,9 @@ F4D8:
 ;; For intro logo uppper code
 ;; For intro logo
 ;; For intro logo lower code
+	; Get Title screen tile address(compressed)
+	; Title screen tile address #$FF = end
+	; Title screen tile address #$FE = next line ??
 L3F50F:
     LDY #$00                 ; F50F  $A0 $00
     LDA ($3E),Y              ; F511  $B1 $3E
@@ -7155,9 +7162,9 @@ L3F50F:
     JSR $F562                ; F51B  $20 $62 $F5
     JMP L3F524               ; F51E  $4C $24 $F5
 L3F521:
-    JSR $F59F                ; F521  $20 $9F $F5
+    JSR Title_flow_effect	; JSR $F59F                ; F521  $20 $9F $F5
 L3F524:
-	; Increase address
+	; Increase Title screen tile address(compressed) from $F692
     LDA $3E                  ; F524  $A5 $3E
     CLC                      ; F526  $18
     ADC #$01                 ; F527  $69 $01
@@ -7197,6 +7204,7 @@ L3F55C:
     LDA #$00                 ; F55C  $A9 $00
     STA PpuMask_2001         ; F55E  $8D $01 $20
     RTS                      ; F561  $60
+; End of Show_intro_screen()
 
 ; Name	:
 ; Marks	:
@@ -7215,8 +7223,8 @@ L3F575:
     LDA $80                  ; F57A  $A5 $80
     AND #$1F                 ; F57C  $29 $1F
     BNE L3F575               ; F57E  $D0 $F5
-	; Scroll_reset??
-    JSR $F689                ; F580  $20 $89 $F6
+	; PPU Scroll reset
+    JSR PpuScroll_reset		; JSR $F689                ; F580  $20 $89 $F6
     LDX #$0F                 ; F583  $A2 $0F
     LDA #$00                 ; F585  $A9 $00
 L3F587:
@@ -7234,15 +7242,19 @@ L3F587:
     STA $62                  ; F59C  $85 $62
     RTS                      ; F59E  $60
 
-; Name	: 
-; Dest	: $80(ADDR) temp address
-; Src	: RAM $3E(2byte address) + Y, $61
+; Name	: Title_flow_effect
+; Dest	: $80(ADDR) temp address ??
+; Src	: RAM $3E(2byte address) + Y, $61 ??
 ; Marks	: Set upper 4bit -> Set lower 4bit to $81
 ;	  $81 and operate with #$B0
 ;	  Set lower 4bit -> Set upper 4bit to $80
 ;	  Copy $61 to $80(lower byte address)
 ;	  From $F692 -> until ??
-;	  $80(ADDR) is tile address, copy to $0340 - $034F
+;	  $80(ADDR) is tile address count, copy to $0340 - $034F
+;	  $80 start from PPU row line address and INC to #$1F($80) - End PPU row line
+;	  $64(temp variable)
+;	  $65(temp variable) 4 times for flow effect(2 line down)
+Title_flow_effect:
 ;; sub start ;;
     LDY #$00                 ; F59F  $A0 $00
     LDA ($3E),Y              ; F5A1  $B1 $3E
@@ -7266,12 +7278,13 @@ L3F587:
 	; Swap PAGE 09
     JSR L3FE03               ; F5C0  $20 $03 $FE
     LDY #$0F                 ; F5C3  $A0 $0F
-	; copy to $0340 - $034F
+	; Tile copy to $0340 - $034F (temp buffer)
 L3F5C5:
     LDA ($80),Y              ; F5C5  $B1 $80
     STA $0340,Y              ; F5C7  $99 $40 $03
     DEY                      ; F5CA  $88
     BPL L3F5C5               ; F5CB  $10 $F8
+	; $61 = PPU Nametable low address(Row number??)
     LDA $61                  ; F5CD  $A5 $61
     STA $80                  ; F5CF  $85 $80
     JSR Wait_NMI		; JSR $FE00                ; F5D1  $20 $00 $FE
@@ -7281,6 +7294,7 @@ L3F5C5:
     STA PpuAddr_2006         ; F5D9  $8D $06 $20
     LDA $61                  ; F5DC  $A5 $61
     STA PpuAddr_2006         ; F5DE  $8D $06 $20
+	; Fill #$80 till PPU 1 H line (256 = 32 tiles) - erase tile ??
     LDX #$80                 ; F5E1  $A2 $80
 L3F5E3:
     STX PpuData_2007         ; F5E3  $8E $07 $20
@@ -7288,12 +7302,12 @@ L3F5E3:
     LDA $80                  ; F5E8  $A5 $80
     AND #$1F                 ; F5EA  $29 $1F
     BNE L3F5E3               ; F5EC  $D0 $F5
-	; Scroll_reset??
-    JSR $F689                ; F5EE  $20 $89 $F6
+	; Scroll reset
+    JSR PpuScroll_reset		; JSR $F689                ; F5EE  $20 $89 $F6
 	; $65 ??
     LDA #$04                 ; F5F1  $A9 $04
     STA $65                  ; F5F3  $85 $65
-	; Image shift to down 1 line in $0350
+	; Image shift to down 2 line in ($0350-$035F)
 L3F5F5:
     LDX #$05                 ; F5F5  $A2 $05
 L3F5F7:
@@ -7303,7 +7317,7 @@ L3F5F7:
     STA $0352,X              ; F600  $9D $52 $03
     DEX                      ; F603  $CA
     BPL L3F5F7               ; F604  $10 $F1
-; Image shift to down 1 line in $0350(fill empty 1 line)
+	; Image fill empty 2 line for shift in ($0350-$035F)
     LDA $034E                ; F606  $AD $4E $03
     STA $0358                ; F609  $8D $58 $03
     LDA $0346                ; F60C  $AD $46 $03
@@ -7313,7 +7327,7 @@ L3F5F7:
     LDA $0347                ; F618  $AD $47 $03
     STA $0351                ; F61B  $8D $51 $03
     LDX #$05                 ; F61E  $A2 $05
-; Image shift to right in $0340 for ready
+	; Image shift to down 2 line in ($0340-$034F) for 
 L3F620:
     LDA $0348,X              ; F620  $BD $48 $03
     STA $034A,X              ; F623  $9D $4A $03
@@ -7321,8 +7335,9 @@ L3F620:
     STA $0342,X              ; F629  $9D $42 $03
     DEX                      ; F62C  $CA
     BPL L3F620               ; F62D  $10 $F1
+	; Tile buffer ready and Nametable0 Screen refresh
     JSR Wait_NMI		; JSR $FE00                ; F62F  $20 $00 $FE
-;copy 16bytes from RAM $0350- to PPU $0800- (Flow motion on title)
+	; copy tile(16bytes) from RAM ($0350-$035F) to PPU $0800- (Flow motion on title)
     LDA #$08                 ; F632  $A9 $08
     STA PpuAddr_2006         ; F634  $8D $06 $20
     LDA #$00                 ; F637  $A9 $00
@@ -7334,10 +7349,13 @@ L3F63E:
     INX                      ; F644  $E8
     CPX #$10                 ; F645  $E0 $10
     BCC L3F63E               ; F647  $90 $F5
-    JSR $F689                ; F649  $20 $89 $F6
+	; PPU scroll reset
+    JSR PpuScroll_reset		; JSR $F689                ; F649  $20 $89 $F6
     DEC $65                  ; F64C  $C6 $65
+	; Until 4 times flow effect(2 line down)
     BNE L3F5F5               ; F64E  $D0 $A5
     JSR Wait_NMI		; JSR $FE00                ; F650  $20 $00 $FE
+	; Store CHR RAM($0000-
     LDA $64                  ; F653  $A5 $64
     LSR A                    ; F655  $4A
     LSR A                    ; F656  $4A
@@ -7357,20 +7375,24 @@ L3F667:
     INX                      ; F66D  $E8
     CPX #$10                 ; F66E  $E0 $10
     BCC L3F667               ; F670  $90 $F5
+	; Copy PPU Nametable0(Specific Col and Row)
     LDA $62                  ; F672  $A5 $62
     STA PpuAddr_2006         ; F674  $8D $06 $20
     LDA $61                  ; F677  $A5 $61
     STA PpuAddr_2006         ; F679  $8D $06 $20
     LDA $64                  ; F67C  $A5 $64
     STA PpuData_2007         ; F67E  $8D $07 $20
-    JSR $F689                ; F681  $20 $89 $F6
+	; Scroll reset
+    JSR PpuScroll_reset		; JSR $F689                ; F681  $20 $89 $F6
     INC $64                  ; F684  $E6 $64
     INC $61                  ; F686  $E6 $61
     RTS                      ; F688  $60
+; End of ()
 
-; Name	: Scroll_reset ??
+; Name	: PpuScroll_reset
 ; Marks	:
 ;; sub start ;;
+PpuScroll_reset:
     LDA #$00                 ; F689  $A9 $00
     STA PpuScroll_2005       ; F68B  $8D $05 $20
     STA PpuScroll_2005       ; F68E  $8D $05 $20
