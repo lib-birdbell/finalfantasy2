@@ -7159,7 +7159,7 @@ L3F50F:
     BEQ L3F534               ; F515  $F0 $1D
     CMP #$FE                 ; F517  $C9 $FE
     BNE L3F521               ; F519  $D0 $06
-    JSR $F562                ; F51B  $20 $62 $F5
+    JSR Fill_empty_line		; JSR $F562                ; F51B  $20 $62 $F5
     JMP L3F524               ; F51E  $4C $24 $F5
 L3F521:
     JSR Title_flow_effect	; JSR $F59F                ; F521  $20 $9F $F5
@@ -7206,9 +7206,11 @@ L3F55C:
     RTS                      ; F561  $60
 ; End of Show_intro_screen()
 
-; Name	:
-; Marks	:
+; Name	: Fill_empty_line
+; Marks	: 1 line of title screen, fill the rest with blank spaces.
+;	  Copy tile to ($0350-$035F)
 ;; sub start ;;
+Fill_empty_line:
     JSR Wait_NMI		; JSR $FE00                ; F562  $20 $00 $FE
     LDA $62                  ; F565  $A5 $62
     STA PpuAddr_2006         ; F567  $8D $06 $20
@@ -7225,6 +7227,7 @@ L3F575:
     BNE L3F575               ; F57E  $D0 $F5
 	; PPU Scroll reset
     JSR PpuScroll_reset		; JSR $F689                ; F580  $20 $89 $F6
+	; Copy empty tile to $0350
     LDX #$0F                 ; F583  $A2 $0F
     LDA #$00                 ; F585  $A9 $00
 L3F587:
@@ -7234,13 +7237,16 @@ L3F587:
     LDA $61                  ; F58D  $A5 $61
     AND #$E0                 ; F58F  $29 $E0
     CLC                      ; F591  $18
+	; Next line
     ADC #$40                 ; F592  $69 $40
+	; First column is 2
     ORA #$02                 ; F594  $09 $02
     STA $61                  ; F596  $85 $61
     LDA $62                  ; F598  $A5 $62
     ADC #$00                 ; F59A  $69 $00
     STA $62                  ; F59C  $85 $62
     RTS                      ; F59E  $60
+; End of Fill_empty_line
 
 ; Name	: Title_flow_effect
 ; Dest	: $80(ADDR) temp address ??
@@ -7401,11 +7407,10 @@ PpuScroll_reset:
 ; Title screen tile address ($13 means $B130)
  ;data block---
 ;; [F692 : 3F6A2]
+;                               F   I   N   A   L       F   A
 .byte $00,$00,$00,$00,$00,$00,$06,$09,$0E,$01,$0C,$00,$06,$01
-;; [F6A0 : 3F6A7]
-.byte $0E,$14,$01,$13,$19,$00,$09,$09
-;; [F6A8 : 3F6B0]
-.byte $00,$FE,$FE,$FE,$FE,$FE,$00,$00
+;       N   T   A   S   Y       I   I
+.byte $0E,$14,$01,$13,$19,$00,$09,$09,$00,$FE,$FE,$FE,$FE,$FE,$00,$00
 .byte $00,$00,$00,$00,$00,$1D,$1E,$1F,$20,$21,$22,$22,$00,$13,$11,$15
 .byte $01,$12,$05,$00,$FE,$FE,$00,$00,$00,$00,$10,$12,$0F,$07,$12,$01
 .byte $0D,$0D,$05,$04,$00,$02,$19,$00,$0E,$01,$13,$09,$12,$00,$FE,$03
