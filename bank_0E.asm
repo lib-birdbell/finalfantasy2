@@ -1,6 +1,12 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.import	Fill_F0_200_2FF
+.import Get_key
+.import Palette_copy
+.import Clear_Nametable0
+.import Wait_NMI
+
 .segment "BANK_0E"
 
 ;; [$8000 :: 0x38010]
@@ -288,8 +294,26 @@
 .byte $85,$A2,$85,$A3,$85,$A4,$20,$CA,$95,$20,$A9,$DB,$A5,$20,$D0,$F6
 .byte $20,$CA,$95,$20,$A9,$DB,$A5,$20,$F0,$F6,$60,$0A,$0A,$0A,$18,$6D
 .byte $80,$83,$85,$80,$AD,$81,$83,$69,$00,$85,$81,$A0,$0F,$B1,$80,$99
-.byte $00,$7B,$88,$10,$F8,$60,$A9,$00,$85,$24,$85,$25,$85,$47,$85,$A3
-.byte $85,$A4,$20,$A9,$DB,$A5,$20,$29,$0F,$85,$A1,$A9,$0E,$85,$57,$60
+.byte $00,$7B,$88,$10,$F8,$60
+
+; Name	: Init_var
+; Marks	: Init var and bank set t0 #$0E
+Init_var:
+	LDA #$00		; 8EB6 $A9 $00
+	STA dialog_box		; 8EB8 $85 $24
+	STA b_pressing		; 8EB8 $85 $25
+	STA player_mv_timer	; 8EB8 $85 $47
+	STA $A3			; 8EB8 $85 $A3
+	STA $A4			; 8EB8 $85 $A4
+	JSR Get_key		; 8EC2 $20 $A9 $DB
+	LDA $20			; 8EC5 $A5 $20
+	AND #$0F		; 8EC7 $29 $0F
+	STA $A1			; 8EC9 $85 $A1
+	LDA #$0E		; 8ECB $A9 $0E
+	STA bank		; 8ECD $85 $57
+	RTS			; 8ECF
+; End of Init_var
+
 .byte $C9,$E0,$90,$01,$60,$C9,$DC,$90,$16,$D0,$03,$4C,$00,$8E,$C9,$DD
 .byte $D0,$03,$4C,$27,$8C,$C9,$DE,$D0,$03,$4C,$83,$8D,$4C,$B2,$8C,$A9
 .byte $05,$20,$3E,$96,$A5,$A0,$29,$1F,$20,$9B,$8E,$20,$FD,$90,$20,$B6
@@ -995,17 +1019,43 @@
 .byte $84,$9E,$A9,$1E,$4C,$C8,$B3,$60,$48,$20,$86,$B4,$68,$20,$F1,$DA
 .byte $A9,$0A,$85,$93,$A9,$00,$85,$3E,$A9,$7B,$85,$3F,$4C,$AC,$E7,$85
 .byte $92,$A9,$84,$85,$95,$A9,$00,$85,$94,$A9,$0A,$85,$93,$4C,$54,$EA
-.byte $85,$92,$A9,$84,$85,$95,$A9,$00,$85,$94,$A9,$0A,$85,$93,$4C,$8C
+; Name	:
+; Marks	:
+	STA $92			; B3F0	$85 $92
+	LDA #$84		; B3F2	$A9 $84
+	STA $95			; B3F4	$85 $95
+	LDA #$00		; B3F6	$A9 $00
+	STA $94			; B3F8	$85 $94
+	LDA #$0A		; B3FA	$A9 $0A
+	STA $93			; B3FC	$85 $93
+	JMP $EA8C		; B3FE	$4C $8C $EA
 
 ;; [$8000 :: 0x3B410]
 
-.byte $EA,$20,$00,$FE,$A9,$02,$8D,$14,$40,$20,$4F,$C7,$20,$6E,$C4,$20
+.byte $20,$00,$FE,$A9,$02,$8D,$14,$40,$20,$4F,$C7,$20,$6E,$C4,$20
 .byte $52,$96,$20,$63,$96,$4C,$74,$96,$AD,$F0,$79,$18,$69,$04,$CD,$F1
 .byte $79,$D0,$DE,$20,$00,$FE,$A9,$02,$8D,$14,$40,$20,$4F,$C7,$20,$6E
 .byte $C4,$E6,$F0,$A5,$F0,$29,$03,$0A,$0A,$8D,$F0,$79,$18,$69,$04,$CD
 .byte $F1,$79,$F0,$03,$20,$63,$96,$AD,$F1,$79,$38,$E9,$04,$8D,$F0,$79
-.byte $60,$20,$67,$B4,$E6,$38,$E6,$39,$A5,$3C,$38,$E9,$02,$85,$3C,$A5
-.byte $3D,$38,$E9,$02,$85,$3D,$60
+.byte $60
+
+; Name	:
+; Marks	:
+L3B451:
+	JSR $B467		; B451	$20,$67,$B4
+	INC $38			; B454	$E6 $38
+	INC $39			; B456	$E6 $39
+	LDA $3C			; B458	$A5 $3C
+	SEC			; B45A	$38
+	SBC #$02		; B45B	$E9 $02
+	STA $3C			; B45D	$85 $3C
+	LDA $3D			; B45F	$A5 $3D
+	SEC			; B461	$38
+	SBC #$02		; B462	$E9 $02
+	STA $3D			; B464	$85 $3D
+	RTS			; B466	$60
+; End of 
+
 ; Function name :
 ; Remarks	: Read data $B48C+x, $B4A5+x, $B4BE+x, $B4D7
 ;		  And write $38, $97, $39, $3C, $3D
@@ -1127,30 +1177,176 @@
 .byte $61,$A5,$9E,$29,$03,$AA,$B5,$88,$F0,$17,$A9,$01,$8D,$01,$7B,$8D
 .byte $02,$7B,$A9,$00,$8D,$03,$7B,$4C,$81,$B8,$20,$F1,$DA,$A5,$08,$85
 .byte $61,$A9,$0A,$85,$93,$A9,$00,$85,$3E,$A9,$7B,$85,$3F,$4C,$AC,$E7
-.byte $A9,$00,$8D,$01,$20,$A2,$1F,$A9,$0F,$9D,$C0,$03,$CA,$10,$FA,$20
-.byte $91,$E4,$20,$06,$B9,$AD,$02,$20,$A9,$20,$8D,$06,$20,$A9,$00,$8D
-.byte $06,$20,$A2,$F0,$A9,$FF,$8D,$07,$20,$8D,$07,$20,$8D,$07,$20,$8D
-.byte $07,$20,$CA,$D0,$F1,$A2,$40,$A9,$55,$8D,$07,$20,$CA,$D0,$FA,$A9
-.byte $02,$8D,$C6,$03,$8D,$C7,$03,$8D,$CA,$03,$8D,$CB,$03,$20,$00,$FE
-.byte $20,$30,$DC,$A9,$00,$8D,$05,$20,$8D,$05,$20,$A9,$0A,$8D,$01,$20
-.byte $A2,$18,$20,$51,$B4,$A9,$49,$20,$F0,$B3,$20,$32,$B9,$A9,$00,$8D
+; Name	:
+; Marks	: Show Title story ??
+	; Disable PPU
+	LDA #$00		; B890 $A9 $00
+	STA PpuMask_2001	; B892 $8D $01 $20
+	; Palette buffer($03C0-$03DF) to set #$0F ??
+	LDX #$1F		; B895 $A2 $1F
+	LDA #$0F		; B897 $A9 $0F
+L3B899:
+	STA $03C0,X		; B899 $9D $C0 $03
+	DEX			; B89C $CA
+	BPL L3B899		; B89D $10 $FA
+	; Copy some tiles
+	JSR $E491		; B89F $20 $91 $E4
+	; Init some variables and PPU
+	JSR NT0_OAM_init	; B8A2 $20 $06 $B9
+	LDA PpuStatus_2002	; B8A5 $Ad $02 $20
+	LDA #$20		; B8A5 $A9 $20
+	STA PpuAddr_2006	; B8AA $8D $06 $20
+	LDA #$00		; B8AD $A9 $00
+	STA PpuAddr_2006	; B8AF $8D $06 $20
+	LDX #$F0		; B8B2 $A2 $F0
+	LDA #$FF		; B8B4 $A9 $FF
+	; Fill Nametable0 to #$FF ($2000-$23C0)
+L3B8B6:
+	STA PpuData_2007	; B8B6 $8D $07 $20
+	STA PpuData_2007	; B8B9 $8D $07 $20
+	STA PpuData_2007	; B8BC $8D $07 $20
+	STA PpuData_2007	; B8BF $8D $07 $20
+	DEX			; B8C2
+	BNE L3B8B6		; B8C3 $D0 $F1
+	LDX #$40		; B8C5 $A2 $40
+	LDA #$55		; B8C7 $A9 $55
+	; Fill Nametable0 attribute set #$55
+L3B8C9:
+	STA PpuData_2007	; B8C9 $8D $07 $20
+	DEX			; B8CC $CA
+	BNE L3B8C9		; B8CD $D0 $FA
+	LDA #$02		; B8CF $A9 $02
+	STA palette_BG11	; B8D1 $8D $C6 $03
+	STA palette_BG12	; B8D4 $8D $C7 $03
+	STA palette_BG21	; B8D7 $8D $CA $03
+	STA palette_BG22	; B8DA $8D $CB $03
+	JSR Wait_NMI		; B8DD $20 $00 $FE
+	JSR Palette_copy	; B8E0 $20 $30 $DC
+	LDA #$00		; B8E3 $A9 $00
+	STA PpuScroll_2005	; B8E5 $8D $05 $20
+	STA PpuScroll_2005	; B8E8 $8D $05 $20
+	LDA #$0A		; B8E8 $A9 $0A
+	STA PpuMask_2001	; B8ED $8D $01 $20
+	LDX #$18		; B8F0 $A2 $18
+	JSR L3B451		; B8F2 $20 $51 $B4
+	LDA #$49		; B8F5 $A9 $49
+	JSR $B3F0		; B8F7 $20 $F0 $B3
+	; Wait key ?? Next screen ??
+	JSR $B932		; B8FA $20 $32 $B9
+	LDA #$00		; B8FD $A9 $00
+	STA ApuStatus_4015	; B8FF $8D $15 $40
+	STA PpuMask_2001	; B902 $8D $01 $20
+	RTS			; B905
+; End of
 
 ;; [$8000 :: 0x3B910]
 
-.byte $15,$40,$8D,$01,$20,$60,$A9,$41,$85,$E0,$20,$21,$F3,$A9,$88,$85
-.byte $FF,$8D,$00,$20,$A9,$01,$85,$37,$20,$B6,$8E,$A9,$00,$85,$A2,$85
-.byte $A3,$85,$A4,$20,$6E,$C4,$20,$00,$FE,$20,$00,$FE,$A9,$02,$8D,$14
-.byte $40,$60,$A9,$C0,$85,$62,$20,$4A,$B9,$A5,$62,$18,$69,$08,$85,$62
-.byte $C9,$F8,$90,$F2,$20,$B0,$B9,$4C,$44,$B9,$A9,$5A,$85,$63,$20,$65
-.byte $B9,$A5,$62,$C9,$E8,$F0,$07,$A9,$AF,$85,$63,$20,$65,$B9,$A9,$FF
-.byte $85,$63,$4C,$B0,$B9,$A9,$00,$85,$64,$A5,$64,$8D,$CB,$03,$20,$B0
-.byte $B9,$E6,$F0,$A5,$F0,$29,$0F,$D0,$0C,$A5,$64,$18,$69,$10,$85,$64
+; Name	: NT0_OAM_init
+; Marks	: PPU enable
+;	  Clear nametable0
+;	  Variables initialization
+;	  PPU init OAM to #$F0
+NT0_OAM_init:
+	LDA #$41		; B906 $A9 $41
+	STA $E0			; B908 $85 $E0
+	JSR Clear_Nametable0	; B90A $20 $21 $F3
+	LDA #$88		; B90D $A9 $88
+	STA $FF			; B90F $85 $FF
+	STA PpuControl_2000	; B911 $8D $00 $20
+	LDA #$01		; B914 $A9 $01
+	STA $37			; B916 $85 $37
+	JSR Init_var		; B918 $20 $B6 $8E
+	LDA #$00		; B91B $A9 $00
+	STA $A2			; B91D $85 $A2
+	STA $A3			; B91F $85 $A3
+	STA $A4			; B921 $85 $A4
+	JSR Fill_F0_200_2FF	; B923 $20 $6E $C4
+	JSR Wait_NMI		; B926 $20 $00 $FE
+	JSR Wait_NMI		; B929 $20 $00 $FE
+	LDA #$02		; B92C $A9 $02
+	STA SpriteDma_4014	; B92E $8D $14 $40
+	RTS			; B931 $60
+; End of NT0_OAM_init
+
+; Name	:
+; Mark	:
+	LDA #$C0		; B932 $A9 $C0
+	STA $62			; B934 $85 $62
+L3B936:
+	JSR $B94A		; B936 $20 $4A $B9
+	LDA $62			; B939 $A5 $62
+	CLC			; B93B $18
+	ADC #$08		; B93C $69 $08
+	STA $62			; B93E $85 $62
+	CMP #$F8		; B940 $C9 $F8
+	BCC L3B936		; B942 $90 $F2
+L3B944:
+	JSR $B9B0		; B944 $20 $B0 $B9
+	JMP L3B944		; B947 $4C $44 $B9
+; Name	:
+; Mark	:
+	LDA #$5A		; B94A $A9 $5A
+	STA $63			; B94C $85 $63
+	JSR $B965		; B94E $20 $65 $B9
+.byte $A5,$62,$C9,$E8,$F0,$07,$A9,$AF,$85,$63,$20,$65,$B9,$A9,$FF
+.byte $85,$63,$4C,$B0,$B9
+; Name	:
+; Mark	: Set palette BG
+	LDA #$00		; B965 $A9 $00
+	STA $64			; B967 $85 $64
+	LDA $64			; B969 $A5 $64
+	STA palette_BG22	; B96B $8D $CB $03
+	JSR L3B9B0		; B96E $20 $B0 $B9
+.byte $E6,$F0,$A5,$F0,$29,$0F,$D0,$0C,$A5,$64,$18,$69,$10,$85,$64
 .byte $C9,$40,$90,$E5,$60,$4A,$90,$E1,$AD,$CB,$03,$38,$E9,$10,$10,$02
-.byte $A9,$01,$8D,$CB,$03,$4C,$6E,$B9,$AD,$02,$20,$A9,$23,$8D,$06,$20
-.byte $A5,$62,$8D,$06,$20,$A2,$08,$A5,$63,$8D,$07,$20,$CA,$D0,$FA,$60
-.byte $20,$00,$FE,$20,$98,$B9,$20,$30,$DC,$A5,$FF,$8D,$00,$20,$A9,$00
-.byte $8D,$05,$20,$8D,$05,$20,$85,$24,$85,$25,$A9,$0E,$85,$57,$20,$4F
-.byte $C7,$20,$A2,$DB,$A5,$24,$05,$25,$D0,$01,$60,$68,$68,$60,$A9,$0F
+.byte $A9,$01,$8D,$CB,$03,$4C,$6E,$B9
+; Name	:
+; Mark	:
+	LDA PpuStatus_2002	; B998 $AD $02 $20
+	LDA #$23		; B99B $A9 $23
+	STA PpuAddr_2006	; B99D $8D $06 $20
+	LDA $62			; B9A0 $A5 $62
+	STA PpuAddr_2006	; B9A2 $8D $06 $20
+	LDX #$08		; B9A5 $A2 $08
+	LDA $63			; B9A7 $A5 $63
+L3B9A9:
+	STA PpuData_2007	; B9A9 $8D $07 $20
+	DEX			; B9AC $CA
+	BNE L3B9A9		; B9AD $D0 $FA
+	RTS			; B9AF $60
+; End of
+
+; Name	:
+; Marks	:
+L3B9B0:
+	JSR Wait_NMI		; B9B0 $20 $00 $FE
+	JSR $B998		; B9B3 $20 $98 $B9
+	JSR Palette_copy	; B9B6 $20 $30 $DC
+	LDA $FF			; B9B9 $A5 $FF
+	STA PpuControl_2000	; B9BB $8D $00 $20
+	; PpuScroll set to 0
+	LDA #$00		; B9BE $A9 $00
+	STA PpuScroll_2005	; B9C0 $8D $05 $20
+	STA PpuScroll_2005	; B9C3 $8D $05 $20
+	STA dialog_box		; B9C6 $85 $24
+	STA b_pressing		; B9C8 $85 $24
+	LDA #$0E		; B9CA $A9 $0E
+	STA bank		; B9CC $85 $57
+	JSR $C74F		; B9CE $20 $4F $C7
+	; key ??
+	JSR $DBA2		; B9D1 $20 $A2 $DB
+	LDA dialog_box		; B9D4 $A5 $24
+	ORA b_pressing		; B9D6 $05 $25
+	; Break routine
+	BNE L3B9DB		; B9D8 $D0 $01
+	RTS			; B9DA $60
+; Return to Previous routine
+L3B9DB:
+	PLA			; B9DB
+	PLA			; B9DC
+	RTS			; B9DD
+; Return to upper routine
+.byte $A9,$0F
 .byte $8D,$C1,$03,$A9,$0E,$85,$57,$A9,$00,$8D,$00,$70,$20,$E0,$BA,$20
 .byte $FA,$BB,$20,$17,$BA,$EE,$00,$70,$20,$2F,$BC,$20,$E0,$BA,$20,$17
 

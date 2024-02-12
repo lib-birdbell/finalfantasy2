@@ -2,13 +2,44 @@
 
 tmp                = $00 ; $10 bytes I assume
 
+1C_unknown		= $1C
+1D_unknown		= $1D
+1E_unknown		= $1E
+1F_unknown		= $1F
+
 key1p		   = $20
 division_result    = $22
+dialog_box	   = $24
+b_pressing	   = $25
+
+38_unknown		= $38
+39_unknown		= $39
+3A_unknown		= $3A
+3B_unknown		= $3B
+3C_unknown		= $3C
+3D_unknown		= $3D
+3E_unknown		= $3E
+3F_unknown		= $3F
+
+player_mv_timer	   = $47
+
+bank		   = $57
 
 charstat_pointer   = $7A ; 2 bytes
 charskill_pointer  = $7E ; 2 bytes
 battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
+
+90_unknown		= $90
+91_unknown		= $91
+93_unknown		= $93
+94_unknown		= $94
+95_unknown		= $95
+98_unknown		= $98
+
 charstat_pointer2  = $A1 ; 2 bytes ; Mixed pointer? A1 = 7A, A2 = 81
+A2_unknown		= $A2
+A3_unknown		= $A3
+A4_unknown		= $A4
 
 entity_counter     = $9E 
 
@@ -17,6 +48,31 @@ timer_screen	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every ti
 
 skip_intro	   = $FA	; $77 is already saw the logo screen, else is Show logo screen.
 
+palette_UBGC	   = $03C0
+palette_BG00	   = $03C1
+palette_BG01	   = $03C2
+palette_BG02	   = $03C3
+palette_BG10	   = $03C5
+palette_BG11	   = $03C6
+palette_BG12	   = $03C7
+palette_BG20	   = $03C9
+palette_BG21	   = $03CA
+palette_BG22	   = $03CB
+palette_BG30	   = $03CD
+palette_BG31	   = $03CE
+palette_BG32	   = $03CF
+palette_OAM00	   = $03D1
+palette_OAM01	   = $03D2
+palette_OAM02	   = $03D3
+palette_OAM10	   = $03D5
+palette_OAM11	   = $03D6
+palette_OAM12	   = $03D7
+palette_OAM20	   = $03D9
+palette_OAM21	   = $03DA
+palette_OAM22	   = $03DB
+palette_OAM30	   = $03DD
+palette_OAM31	   = $03DE
+palette_OAM32	   = $03DF
 
 
 ;; Some kind of dialogue text buffer/box drawing stuff at $0780-07FF
@@ -80,6 +136,10 @@ event_flags              = unsram + $40 ; similar to chests, 1s get turned to 0s
 inventory                = unsram + $60 ; $20 bytes
 passwords                = unsram + $80 ; $10 bytes ; password item IDs start at $F1 and end at $FF
 
+ch_stats_1		 = unsram + $0100
+ch_stats_2		 = unsram + $0140
+ch_stats_3		 = unsram + $0180
+ch_stats_4		 = unsram + $01C0
 ch_stats                 = unsram + $0100 ; $40 bytes per character, so use 00,40,80,C0 to index ch_stats
 ch_id                    = ch_stats + $00 ; portrait and sprite; high bit set = don't display anything
 ;	00 = Firion
@@ -197,6 +257,7 @@ battle_min_mresist       = ch_skills + $32
 ;                        = ch_skills + $34
 battle_row               = ch_skills + $35 ; $00 = back row, $01 = front row, $80 = no character portrait visible
 
+SQ2_Note_Value		 = $6F1F
 current_BGM_ID		 = $6F25
 
 

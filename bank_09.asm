@@ -3,6 +3,7 @@
 
 .segment "BANK_09"
 
+; Tiles
 ;; [$8000 :: 0x24010]
 
 .incbin "chr/portraits.chr"
@@ -203,11 +204,14 @@
 ;;; [$8A00 :: 0x24A10]
 ;
 ;.byte $14,$15,$15,$5F,$7F,$7F,$3F,$1E,$EB,$FE,$FF,$B5,$DF,$BF,$DE,$E9
+; Shield icon tile 0x24A10
 ;.byte $7F,$7F,$7F,$77,$7F,$3E,$1C,$08,$80,$BE,$AA,$AA,$A2,$D5,$EB,$F7
+; Knife icon tile 0x24A20
 ;.byte $00,$00,$00,$10,$18,$0C,$06,$03,$FF,$FF,$FF,$FF,$EF,$F7,$F9,$FC
 ;.byte $C0,$E0,$70,$38,$0C,$06,$03,$01,$FF,$FF,$FF,$CF,$F7,$FB,$FD,$FF
 ;.byte $C0,$C0,$20,$10,$08,$04,$02,$01,$BF,$7F,$DF,$EF,$F7,$FB,$FD,$FE
 ;.byte $80,$C0,$60,$30,$1A,$0E,$1E,$03,$FF,$7F,$BF,$DF,$ED,$F5,$E1,$FC
+; Axe icon tile 0x24A60
 ;.byte $00,$18,$70,$F0,$68,$24,$02,$01,$FF,$E7,$8F,$8F,$D7,$FB,$FD,$FE
 ;.byte $06,$0A,$12,$FF,$12,$0A,$06,$00,$FD,$FD,$FD,$90,$FD,$FD,$FD,$FF
 ;.byte $00,$00,$00,$18,$FF,$00,$7E,$7E,$FF,$FF,$FF,$F7,$FF,$80,$D4,$D4
@@ -874,6 +878,9 @@
 
 .incbin "chr/title.chr"
 
+; Title screen tiles
+; $B000 : $27000
+; Empty tile
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;.byte $00,$0E,$1A,$1A,$32,$3E,$62,$F2,$FF,$F1,$E5,$E5,$CD,$C1,$9D,$0D
 ;.byte $00,$7C,$32,$32,$3C,$32,$32,$7C,$FF,$83,$CD,$CD,$C3,$CD,$CD,$83
