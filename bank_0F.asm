@@ -3803,6 +3803,8 @@ L3DAD4:
 L3DAF0:
     RTS                      ; DAF0  $60
 
+; Name	:
+; Marks	: Some data copy.
 ;; sub start ;;
     PHA                      ; DAF1  $48
     LDA #$0A                 ; DAF2  $A9 $0A
@@ -3837,6 +3839,7 @@ L3DB21:
     BNE L3DB06               ; DB27  $D0 $DD
     LDA #$0E                 ; DB29  $A9 $0E
     JMP Swap_PRG_               ; DB2B  $4C $03 $FE
+;
 L3DB2E:
     LDA #$7D                 ; DB2E  $A9 $7D
     STA Sq1Duty_4004         ; DB30  $8D $04 $40
@@ -5918,6 +5921,8 @@ L3EA8C:
     LDA ($80),Y              ; EAA8  $B1 $80
     STA $3F                  ; EAAA  $85 $3F
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     LDA $93                  ; EAAC  $A5 $93
     JSR Swap_PRG_               ; EAAE  $20 $03 $FE
@@ -7696,9 +7701,15 @@ L3FA7F:
     STA $3E                  ; FA7F  $85 $3E
 L3FA81:
     JMP Swap_PRG             ; FA81  $4C $1A $FE
+; Name	: Swap_PRG_RTS
+; SRC	: $3E - bank
+; Marks	:
+Swap_PRG_RTS:
 L3FA84:
     LDA $3E                  ; FA84  $A5 $3E
     BPL L3FA81               ; FA86  $10 $F9
+; Jump to Swap_PRG
+
 L3FA88:
     PHA                      ; FA88  $48
     LDA $3E                  ; FA89  $A5 $3E
@@ -7869,6 +7880,8 @@ L3FBAE:
     JSR L3FD6F               ; FBB4  $20 $6F $FD
     JMP L3FA84               ; FBB7  $4C $84 $FA
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     JSR $FA75                ; FBBA  $20 $75 $FA
     JSR $FBF3                ; FBBD  $20 $F3 $FB
@@ -7899,6 +7912,9 @@ L3FBAE:
     JSR $FBF3                ; FBED  $20 $F3 $FB
     JMP L3FA65               ; FBF0  $4C $65 $FA
 
+; Name	:
+; Y	: Size of copy data.
+; Marks	: Char tile copy to SRAM
 ;; sub start ;;
     STY $02                  ; FBF3  $84 $02
     LDY #$00                 ; FBF5  $A0 $00
@@ -7910,6 +7926,7 @@ L3FBF7:
     CPY $02                  ; FBFE  $C4 $02
     BNE L3FBF7               ; FC00  $D0 $F5
     RTS                      ; FC02  $60
+; End of
 
 ;; sub start ;;
     LDA #$00                 ; FC03  $A9 $00
