@@ -1,21 +1,15 @@
 ;; FE06 start - FE03 end <- begin
-L3FE06:
-	LDA #$06		; FE06  $A9 $06
-    	JSR Swap_PRG		; FE08  $20 $1A $FE
-    	LDA #$40		; FE0B  $A9 $40
-    	STA $0100		; FE0D  $8D $00 $01
-	; How about go to $C025 ??
-    	JMP $C000		; FE10  $4C $00 $C0
-
-;; [7FE13-7FE19] dummy bytes
-.byte $00,$00,$00,$00,$00,$00,$00
+;; [7FE06-7FE0F] dummy bytes
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;; [7FE10-7FE19] dummy bytes
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$0
 
 ; Name	: Swap_PRG
 ; A	: Swap bank #$00 0 #$0E
 ; Marks	: bank switch
 ;	  Example>
-;	  Original bank_0E -> $8000 -> bank28, $A000 -> bank29
-;	  Set bank_0E(MMC1) to bank_28, bank_29 (MMC3)
+;	  Original bank_0E -> $8000 = bank_1C, $A000 = bank_1D
+;	  Set bank_0E(MMC1) to bank_1C, bank_1D (MMC3)
 Swap_PRG:
 	PHA			; FE1A	$48
 	PHA			; FE1B	$48
@@ -45,31 +39,24 @@ Swap_PRG:
 	STA $A000		; FE55	$8D $00 $A0
 	; IRQ disable
 	STA $E000		; FE58	$8D $00 $E0
-	; R0 - 0
-	LDA #$00		; FE5B	$A9 $00
-	STA $8000		; FE5D	$8D $00 $80
-	STA $8001		; FE60	$8D $01 $80
-	; R1 - 2
-	LDA #$01		; FE63	$A9 $01
-	STA $8000		; FE65	$8D $00 $80
-	ASL A			; FE68	$0A
-	STA $8001		; FE69	$8D $01 $80
-	; R2, R3, R4, R5 -> 4, 5, 6, 7
-L3FE6C:
-	STA $8000		; FE6C	$8D $00 $80
-	ADC #$02		; FE6F	$69 $02
-	STA $8001		; FE71	$8D $01 $80
-	SBC #$00		; FE74	$E9 $00
-	CMP #$06		; FE76	$C9 $06
-	BNE L3FE6C		; FE78	$D0 $FE
+	; R0,R1,R2,R3,R4,R5 -> 0, 2, 4, 5, 6, 7
+	LDY #$00		; FE5B	$A0 $00
+L7FE5D:
+	STY $8000		; FE5D	$8C $00 $80
+	LDA CHR_BANK_ARR,Y	; FE60	$B9 $93 $FE
+	STA $8001		; FE63	$8D $01 $80
+	INY			; FE66	$C8
+	CMP #$07		; FE67	$C9 $07
+	BNE L7FE5D		; FE69	$D0 $F2
 ;; FE70 end - FE79 start -> end
 
 
-
-;; FE94 start - FEBF end <- begin
-	JMP L3FE06		; FE95	$4C $06 $FE
-
-;; [7FE98-7FEA0] dummy bytes
-.byte $00,$00,$00,$00,$00,$00,$00,$00
+;; FE9E end - FEA1 start <- begin
+;;[FE93-FE98]
+CHR_BANK_ARR:
+.byte $00,$02,$04,$05,$06,$07
+;;[FE99-FE9F] dummy bytes
+.byte $00,$00,$00,$00,$00,$00,$00
+;;[FEA0] dummy byte
 .byte $00
 ;; End FE9E - FEA1 start -> end
