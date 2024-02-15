@@ -2,44 +2,54 @@
 
 tmp                = $00 ; $10 bytes I assume
 
-1C_unknown		= $1C
-1D_unknown		= $1D
-1E_unknown		= $1E
-1F_unknown		= $1F
+_1C_unknown		= $1C
+_1D_unknown		= $1D
+_1E_unknown		= $1E
+_1F_unknown		= $1F
 
 key1p		   = $20
 division_result    = $22
 dialog_box	   = $24
 b_pressing	   = $25
 
-38_unknown		= $38
-39_unknown		= $39
-3A_unknown		= $3A
-3B_unknown		= $3B
-3C_unknown		= $3C
-3D_unknown		= $3D
-3E_unknown		= $3E
-3F_unknown		= $3F
+_38_unknown		= $38
+_39_unknown		= $39
+_3A_unknown		= $3A
+_3B_unknown		= $3B
+_3C_unknown		= $3C
+_3D_unknown		= $3D
+_3E_unknown		= $3E
+_3F_unknown		= $3F
 
 player_mv_timer	   = $47
 
 bank		   = $57
 
+ch_name1buf		= $5A
+ch_name2buf		= $5B
+ch_name3buf		= $5C
+ch_name4buf		= $5D
+ch_name5buf		= $5E
+ch_name6buf		= $5F
+
+_67_unknown		= $67
+
 charstat_pointer   = $7A ; 2 bytes
 charskill_pointer  = $7E ; 2 bytes
 battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
 
-90_unknown		= $90
-91_unknown		= $91
-93_unknown		= $93
-94_unknown		= $94
-95_unknown		= $95
-98_unknown		= $98
+_84_unknown		= $84
+_90_unknown		= $90
+_91_unknown		= $91
+_93_unknown		= $93	; bank buffer ??
+_94_unknown		= $94
+_95_unknown		= $95
+_98_unknown		= $98
 
 charstat_pointer2  = $A1 ; 2 bytes ; Mixed pointer? A1 = 7A, A2 = 81
-A2_unknown		= $A2
-A3_unknown		= $A3
-A4_unknown		= $A4
+_A2_unknown		= $A2
+_A3_unknown		= $A3
+_A4_unknown		= $A4
 
 entity_counter     = $9E 
 
@@ -162,7 +172,12 @@ ch_ailments              = ch_stats + $01
 ;	40 = Stone
 ;	80 = Dead 
 
-ch_name                  = ch_stats + $02 ; 6 bytes
+ch_name1		= ch_stats + $02 ; 6 bytes
+ch_name2		= ch_stats + $03
+ch_name3		= ch_stats + $04
+ch_name4		= ch_stats + $05
+ch_name5		= ch_stats + $06
+ch_name6		= ch_stats + $07
 ch_current_hp            = ch_stats + $08 ; 2 bytes, low then high
 ch_max_hp                = ch_stats + $0A ; 2 bytes, low then high
 ch_current_mp            = ch_stats + $0C ; 2 bytes, low then high

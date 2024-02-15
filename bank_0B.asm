@@ -678,7 +678,7 @@
 	ADC #$9E		; A332	$69 $9E
 	STA $04			; A334	$85 $04
 	LDX $00			; A336	$A6 $00
-	BEQ $A36F		; A338	$F0 $35
+	BEQ L2E36F		; A338	$F0 $35
 	DEX			; A33A	$CA
 	LDA #$06		; A33B	$A9 $06
 	JSR $FC79		; A33D	$20 $79 $FC
@@ -686,6 +686,7 @@
 	STA $05			; A342	$85 $05
 	LDA #$00		; A344	$A9 $00
 	STA $03			; A346	$85 $03
+L2E348:
 	LDA #$00		; A348	$A9 $00
 	STA $01			; A34A	$85 $01
 	LDX $05			; A34C	$A6 $05
@@ -703,7 +704,8 @@
 	JSR $FBBA		; A366	$20 $BA $FB
 	STX $03			; A369	$86 $03
 	CPX #$60		; A36B	$E0 $60
-	BNE $A348		; A36D	$D0 $D9
+	BNE L2E348		; A36D	$D0 $D9
+L2E36F:
 	RTS			; A36F	$60
 ; End of
 .byte $A9,$9D,$85,$01,$BC,$A2,$7B,$88,$98,$20,$A4,$AD,$85,$02,$A4,$00
