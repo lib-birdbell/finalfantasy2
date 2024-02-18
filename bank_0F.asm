@@ -4,7 +4,8 @@
 .export L3FD8C
 .export L3FA0F
 .export L3FD46
-.export L3FA2A
+.export L3FA2A			;FA2A
+.export Set_IRQ_JMP		;FA2A
 .export L3FD5B
 .export Fill_F0_200_2FF		;C46E
 .export Get_key			;DBA9
@@ -84,15 +85,16 @@ C066:
     JSR $B642                ; C06B  $20 $42 $B6
     PHP                      ; C06E  $08
     JSR RAM_init		; JSR $C486                ; C06F  $20 $86 $C4
-    LDA $6010                ; C072  $AD $10 $60
-    STA $27                  ; C075  $85 $27
-    LDA $6011                ; C077  $AD $11 $60
-    STA $28                  ; C07A  $85 $28
+    LDA ow_save_pos_x		; LDA $6010                ; C072  $AD $10 $60
+    STA ow_x_pos		; STA $27                  ; C075  $85 $27
+    LDA ow_save_pos_y		; LDA $6011                ; C077  $AD $11 $60
+    STA ow_y_pos		; STA $28                  ; C07A  $85 $28
     LDA $6018                ; C07C  $AD $18 $60
-    STA $46                  ; C07F  $85 $46
+    STA p_map2			; STA $46                  ; C07F  $85 $46
     STA $42                  ; C081  $85 $42
     PLP                      ; C083  $28
     BCS L3C0B8               ; C084  $B0 $32
+	; ch_stats_4 character is Leon
     LDA #$08                 ; C086  $A9 $08
     STA $61C0                ; C088  $8D $C0 $61
     LDX #$00                 ; C08B  $A2 $00
@@ -3839,7 +3841,7 @@ L3DB21:
     BNE L3DB06               ; DB27  $D0 $DD
     LDA #$0E                 ; DB29  $A9 $0E
     JMP Swap_PRG_               ; DB2B  $4C $03 $FE
-;
+; Sound
 L3DB2E:
     LDA #$7D                 ; DB2E  $A9 $7D
     STA Sq1Duty_4004         ; DB30  $8D $04 $40
@@ -3983,6 +3985,7 @@ L3DC16:
     STA $21                  ; DC1A  $85 $21
 L3DC1C:
     TXA                      ; DC1C  $8A
+	; key A pressed
     AND #$80                 ; DC1D  $29 $80
     BEQ L3DC2F               ; DC1F  $F0 $0E
     LDA key1p			; LDA $20                  ; DC21  $A5 $20
@@ -7679,12 +7682,14 @@ F840:
 ;; [F9F0 : 3FA00]
 .byte $C1,$01,$EF,$F9,$FA,$E4,$5F,$18,$B9,$B2,$39,$D4,$15,$E2,$EA,$45
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     JMP L3FA9E               ; FA00  $4C $9E $FA
 
 ;; sub start ;;
     PHA                      ; FA03  $48
-    JSR $FA1F                ; FA04  $20 $1F $FA
+    JSR Zpage_copy		; JSR $FA1F                ; FA04  $20 $1F $FA
     LDA #$0E                 ; FA07  $A9 $0E
     STA $3E                  ; FA09  $85 $3E
     PLA                      ; FA0B  $68
@@ -7700,6 +7705,9 @@ L3FA16:
     BNE L3FA16               ; FA1C  $D0 $F8
     RTS                      ; FA1E  $60
 
+; Name	: Zpage_copy
+; Marks	: Copy ($00-$AF) -> ($7C00-$7CAF)
+Zpage_copy:
 ;; sub start ;;
     LDX #$B0                 ; FA1F  $A2 $B0
 L3FA21:
@@ -7708,7 +7716,12 @@ L3FA21:
     DEX                      ; FA26  $CA
     BNE L3FA21               ; FA27  $D0 $F8
     RTS                      ; FA29  $60
+; End of Zpage_copy
 
+; Name	: Set_IRQ_JMP
+; Marks	: Set IRQ instruction JMP
+;	  Set JMP address to $FA3C
+Set_IRQ_JMP:
 L3FA2A:
     LDA #$3C                 ; FA2A  $A9 $3C
     STA $0101                ; FA2C  $8D $01 $01
@@ -7718,6 +7731,10 @@ L3FA2A:
     STA $0100                ; FA36  $8D $00 $01
 L3FA39:
     JMP L3FA39               ; FA39  $4C $39 $FA
+; End of Set_IRQ_JMP
+
+; Name	:
+; Marks	: IRQ subroutine
 L3FA3C:
     LDA #$40                 ; FA3C  $A9 $40
     STA $0100                ; FA3E  $8D $00 $01
@@ -7726,6 +7743,7 @@ L3FA3C:
     PLA                      ; FA45  $68
     PLA                      ; FA46  $68
     RTS                      ; FA47  $60
+; End of
 
 L3FA48:
     JSR $FA6D                ; FA48  $20 $6D $FA
@@ -7753,12 +7771,15 @@ L3FA65:
     BNE L3FA81               ; FA77  $D0 $08
 L3FA79:
     LDA #$0B                 ; FA79  $A9 $0B
+	; Branch must happen
     BNE L3FA7F               ; FA7B  $D0 $02
     LDA #$0C                 ; FA7D  $A9 $0C
 L3FA7F:
     STA $3E                  ; FA7F  $85 $3E
 L3FA81:
     JMP Swap_PRG             ; FA81  $4C $1A $FE
+;
+
 ; Name	: Swap_PRG_RTS
 ; SRC	: $3E - bank
 ; Marks	:
@@ -7782,15 +7803,16 @@ L3FA88:
     LDA $3F                  ; FA9A  $A5 $3F
     BPL L3FA7F               ; FA9C  $10 $E1
 L3FA9E:
+	; Set some battle status ??
     STA $7B48                ; FA9E  $8D $48 $7B
     TXA                      ; FAA1  $8A
     AND #$0F                 ; FAA2  $29 $0F
     STA $7B49                ; FAA4  $8D $49 $7B
-    JSR $FA1F                ; FAA7  $20 $1F $FA
+    JSR Zpage_copy		; JSR $FA1F                ; FAA7  $20 $1F $FA
     STX $E5                  ; FAAA  $86 $E5
     STX $6F60                ; FAAC  $8E $60 $6F
     LDA #$40                 ; FAAF  $A9 $40
-    STA $E0                  ; FAB1  $85 $E0
+    STA current_song_ID		; STA $E0                  ; FAB1  $85 $E0
     JSR L3FA79               ; FAB3  $20 $79 $FA
     JSR L3FA48               ; FAB6  $20 $48 $FA
     JMP $9639                ; FAB9  $4C $39 $96
@@ -7881,12 +7903,16 @@ L3FB48:
     LDA #$05                 ; FB4E  $A9 $05
     JMP L3FA88               ; FB50  $4C $88 $FA
 
+; Name	:
+; SRC	: $7B49
+; Marks	:
 ;; sub start ;;
     LDA $7B49                ; FB53  $AD $49 $7B
     LSR A                    ; FB56  $4A
     JSR $FB7C                ; FB57  $20 $7C $FB
     TAY                      ; FB5A  $A8
     TAX                      ; FB5B  $AA
+	; Tile copy to SRAM
     JSR $FBF3                ; FB5C  $20 $F3 $FB
     JMP L3FA84               ; FB5F  $4C $84 $FA
 
@@ -7904,12 +7930,16 @@ L3FB6C:
     BNE L3FB6C               ; FB77  $D0 $F3
     JMP L3FA84               ; FB79  $4C $84 $FA
 
+; Name	:
+; A	:
+; Marks	: Swap Program bank to A/4 + #$07
 ;; sub start ;;
     LSR A                    ; FB7C  $4A
     LSR A                    ; FB7D  $4A
     CLC                      ; FB7E  $18
     ADC #$07                 ; FB7F  $69 $07
     JMP Swap_PRG             ; FB81  $4C $1A $FE
+; End of
 
 ;; sub start ;;
     JSR $FA75                ; FB84  $20 $75 $FA
@@ -7934,7 +7964,7 @@ L3FB9B:
     JMP L3FA84               ; FBAB  $4C $84 $FA
 L3FBAE:
     JSR $FA75                ; FBAE  $20 $75 $FA
-    JSR L3FA2A               ; FBB1  $20 $2A $FA
+    JSR Set_IRQ_JMP		; JSR L3FA2A               ; FBB1  $20 $2A $FA
     JSR L3FD6F               ; FBB4  $20 $6F $FD
     JMP L3FA84               ; FBB7  $4C $84 $FA
 
@@ -7972,6 +8002,7 @@ L3FBAE:
 
 ; Name	:
 ; Y	: Size of copy data.
+; DEST	: SRAM $7600-
 ; Marks	: Char tile copy to SRAM
 ;; sub start ;;
     STY $02                  ; FBF3  $84 $02

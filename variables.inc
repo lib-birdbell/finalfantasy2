@@ -12,15 +12,20 @@ division_result    = $22
 dialog_box	   = $24
 b_pressing	   = $25
 
+ow_x_pos			= $27
+ow_y_pos			= $28
+
 _38_unknown		= $38
 _39_unknown		= $39
 _3A_unknown		= $3A
 _3B_unknown		= $3B
 _3C_unknown		= $3C
 _3D_unknown		= $3D
-_3E_unknown		= $3E
+_3E_unknown		= $3E	; bank temp buffer ??
 _3F_unknown		= $3F
 
+p_map1			= $45
+p_map2			= $46
 player_mv_timer	   = $47
 
 bank		   = $57
@@ -51,7 +56,12 @@ _A2_unknown		= $A2
 _A3_unknown		= $A3
 _A4_unknown		= $A4
 
+_AF_unknown		= $AF
+
 entity_counter     = $9E 
+
+current_song_ID		= $E0
+_E5_unknown		= $E5
 
 timer_frame	   = $F0	; Timer, Increases by 1 every frame.
 timer_screen	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every time values hits a multiple of 40, the airship flies over the screen
@@ -280,6 +290,7 @@ current_BGM_ID		 = $6F25
 
 
 battle_result            = $7B48 ; not sure yet
+_7B49_unknown		= $7B49
 
 statup_confirmation      = $7B62 ; 8 bytes, all $FF during testing 
 ; but the next $10 bytes are 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...

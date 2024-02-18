@@ -2,30 +2,30 @@
 ;; [7FE06-7FE0F] dummy bytes
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;; [7FE10-7FE19] dummy bytes
-.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$0
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
 ; Name	: Swap_PRG
-; A	: Swap bank #$00 0 #$0E
+; A	: Swap bank #$00 to #$0E as MMC3
 ; Marks	: bank switch
 ;	  Example>
 ;	  Original bank_0E -> $8000 = bank_1C, $A000 = bank_1D
 ;	  Set bank_0E(MMC1) to bank_1C, bank_1D (MMC3)
+;	  Carry flag must remain intact.
 Swap_PRG:
 	PHA			; FE1A	$48
-	PHA			; FE1B	$48
-	LDA #$06		; FE1C	$A9 $06
-	STA $8000		; FE1E	$8D $00 $80
-	PLA			; FE21	$68
-	ASL A			; FE22	$0A
-	PHA			; FE23	$48
-	STA $8001		; FE24	$8D $01 $80
-	LDA #$07		; FE27	$A9 $07
-	STA $8000		; FE29	$8D $00 $80
-	PLA			; FE2C	$68
-	ORA #$01		; FE2D	$09 $01
-	STA $8001		; FE2F	$8D $01 $80
-	CMP #$10		; FE32	$C9 $10
-	PLA			; FE34	$68
+	LDA #$06		; FE1B	$A9 $06
+	STA $8000		; FE1D	$8D $00 $80
+	PLA			; FE20	$68
+	ASL A			; FE21	$0A
+	PHA			; FE22	$48
+	STA $8001		; FE23	$8D $01 $80
+	LDA #$07		; FE26	$A9 $07
+	STA $8000		; FE28	$8D $00 $80
+	PLA			; FE2B	$68
+	ORA #$01		; FE2C	$09 $01
+	STA $8001		; FE2E	$8D $01 $80
+	CMP #$10		; FE31	$C9 $10
+	LDA #$00		; FE33	$A9 $00
 	RTS			; FE35	$60
 ; End of Swap_PRG
 ;; FE35 end - FE36 start -> end
