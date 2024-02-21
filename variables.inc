@@ -81,6 +81,7 @@ palette_BG22	   = $03CB
 palette_BG30	   = $03CD
 palette_BG31	   = $03CE
 palette_BG32	   = $03CF
+palette_UOAM	   = $03D0
 palette_OAM00	   = $03D1
 palette_OAM01	   = $03D2
 palette_OAM02	   = $03D3

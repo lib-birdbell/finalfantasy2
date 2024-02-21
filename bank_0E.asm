@@ -1077,6 +1077,7 @@ Init_var:
 .byte $85
 .byte $92,$A9,$84,$85,$95,$A9,$00,$85,$94,$A9,$0A,$85,$93,$4C,$54,$EA
 ; Name	:
+; A	:
 ; Marks	:
 	STA $92			; B3F0	$85 $92
 	LDA #$84		; B3F2	$A9 $84
@@ -1086,8 +1087,9 @@ Init_var:
 	LDA #$0A		; B3FA	$A9 $0A
 	STA $93			; B3FC	$85 $93
 	JMP $EA8C		; B3FE	$4C $8C $EA
+; End of
 
-;; [$8000 :: 0x3B410]
+;; [$8000 :: 0x3B400]
 
 .byte $20,$00,$FE,$A9,$02,$8D,$14,$40,$20,$4F,$C7,$20,$6E,$C4,$20
 .byte $52,$96,$20,$63,$96,$4C,$74,$96,$AD,$F0,$79,$18,$69,$04,$CD,$F1
@@ -1099,6 +1101,7 @@ Init_var:
 ; Name	:
 ; Marks	:
 L3B451:
+	; Set some variables
 	JSR $B467		; B451	$20,$67,$B4
 	INC $38			; B454	$E6 $38
 	INC $39			; B456	$E6 $39
@@ -1113,9 +1116,16 @@ L3B451:
 	RTS			; B466	$60
 ; End of 
 
-; Function name :
-; Remarks	: Read data $B48C+x, $B4A5+x, $B4BE+x, $B4D7
-;		  And write $38, $97, $39, $3C, $3D
+; Name	:
+; X	: Address Index($B48C, $B4A5, B4BE, B4D7)
+; Marks	: Read data $B48C+X, $B4A5+X, $B4BE+X, $B4D7+X
+;	  And write $38, $97, $39, $98, $3C, $3D
+;	  $B48C,X -> $38
+;		  -1 -> $97
+;	  $B4A5,X -> $39
+;		  +2 -> $98
+;	  $B4BE,X -> $3C
+;	  $B4D7,X -> $3D
 	LDA $B48C,X		; B467	$BD $8C $B4
 	STA $38			; B46A	$85 $38
 	SEC			; B46C	$38
@@ -1131,17 +1141,26 @@ L3B451:
 	LDA $B4D7,X		; B480	$BD $D7 $B4
 	STA $3D			; B483	$85 $3D
 	RTS			; B485	$60
+; End of
 
 ; Function name	:
 ; Remarks	:
 	JSR $B467		; B486	$20 $67 $B4
 
-.byte $4C,$1E,$E9,$01,$0F,$03,$11
+.byte $4C,$1E,$E9
+; [$B48C-
+.byte $01,$0F,$03,$11
 .byte $01,$06,$01,$00,$00,$0B,$11,$01,$00,$00,$01,$02,$01,$04,$04,$04
-.byte $04,$04,$07,$04,$01,$01,$01,$0B,$0B,$15,$19,$01,$04,$01,$01,$01
-.byte $07,$07,$13,$01,$02,$15,$02,$07,$0C,$11,$17,$03,$0B,$01,$0E,$0E
+.byte $04,$04,$07,$04,$01
+; [$B4A5-
+.byte $01,$01,$0B,$0B,$15,$19,$01,$04,$01,$01,$01
+.byte $07,$07,$13,$01,$02,$15,$02,$07,$0C,$11,$17,$03,$0B,$01
+; [$B4BE-
+.byte $0E,$0E
 .byte $0E,$0E,$1E,$0D,$09,$20,$0B,$06,$0F,$1E,$20,$20,$06,$1D,$1E,$18
-.byte $18,$18,$18,$18,$12,$18,$1E,$0A,$0A,$0A,$0A,$04,$04,$04,$18,$06
+.byte $18,$18,$18,$18,$12,$18,$1E
+; [$B4D7-
+.byte $0A,$0A,$0A,$0A,$04,$04,$04,$18,$06
 .byte $06,$06,$14,$0C,$0A,$06,$1A,$08,$06,$06,$06,$06,$04,$06,$0E,$1C
 .byte $10,$13,$11,$12,$20,$80,$B3,$20,$B6,$8E,$A9,$00,$8D,$F0,$7A,$A2
 
@@ -1318,10 +1337,10 @@ L3B722:
 	LDX #$1F		; B895 $A2 $1F
 	LDA #$0F		; B897 $A9 $0F
 L3B899:
-	STA $03C0,X		; B899 $9D $C0 $03
+	STA palette_UBGC,X	; B899 $9D $C0 $03
 	DEX			; B89C $CA
 	BPL L3B899		; B89D $10 $FA
-	; Copy some tiles
+	; Set some tile(ICONS) and palettes to PPU
 	JSR $E491		; B89F $20 $91 $E4
 	; Init some variables and PPU
 	JSR NT0_OAM_init	; B8A2 $20 $06 $B9
@@ -1360,6 +1379,7 @@ L3B8C9:
 	LDA #$0A		; B8E8 $A9 $0A
 	STA PpuMask_2001	; B8ED $8D $01 $20
 	LDX #$18		; B8F0 $A2 $18
+	; ?? Some calcuration
 	JSR L3B451		; B8F2 $20 $51 $B4
 	LDA #$49		; B8F5 $A9 $49
 	JSR $B3F0		; B8F7 $20 $F0 $B3

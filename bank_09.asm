@@ -4,10 +4,11 @@
 .segment "BANK_09"
 
 ; Tiles
-;; [$8000 :: 0x24010]
+;; [$8000 :: 0x24000]
 
 .incbin "chr/portraits.chr"
 
+; Firion face potrait 0x24000
 ;.byte $00,$00,$00,$00,$00,$00,$12,$24,$04,$1F,$7F,$CC,$3B,$64,$DF,$BF
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$DF,$FF,$FF,$FF,$FF,$7F,$BF,$43
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$80,$F8,$E4,$F8,$FC,$FE,$FE,$FE
@@ -20,12 +21,13 @@
 ;.byte $00,$00,$06,$1F,$7A,$78,$5F,$27,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $06,$0E,$1C,$3D,$32,$01,$FE,$01,$FF,$7F,$7E,$7C,$72,$F0,$00,$00
 ;.byte $E0,$9E,$7F,$E3,$14,$EB,$0A,$EA,$E0,$94,$35,$A0,$04,$0B,$0B,$0B
+; Maria face potrait 0x240C0
 ;.byte $00,$03,$07,$0F,$0F,$1F,$1F,$3E,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $FF,$FF,$F7,$FB,$FF,$7B,$FB,$D5,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $00,$C0,$E0,$F0,$F0,$F8,$F8,$7C,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $3D,$3D,$7D,$7B,$7A,$76,$76,$6C,$00,$00,$00,$00,$00,$00,$00,$00
 ;
-;;; [$8100 :: 0x24110]
+;;; [$8100 :: 0x24100]
 ;
 ;.byte $3B,$7F,$7F,$7F,$FF,$FF,$1F,$FE,$31,$7F,$7F,$7F,$FF,$FF,$1F,$1E
 ;.byte $BC,$DC,$DC,$DE,$DA,$DA,$EB,$05,$80,$C0,$C0,$C0,$C0,$C0,$E0,$00
@@ -35,6 +37,7 @@
 ;.byte $A9,$A9,$A8,$D4,$54,$54,$B4,$A9,$01,$01,$00,$00,$00,$00,$00,$01
 ;.byte $FF,$DB,$E7,$7E,$3D,$82,$E6,$FE,$FF,$CB,$FF,$7E,$3C,$80,$E0,$F8
 ;.byte $DB,$A9,$2D,$25,$35,$05,$79,$FC,$C0,$80,$00,$00,$00,$00,$38,$7C
+; Guy face potrait 0x24180
 ;.byte $00,$03,$1F,$3F,$3F,$7F,$7F,$FF,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $7E,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $00,$E0,$FE,$F3,$FD,$FE,$B6,$9B,$00,$00,$00,$00,$00,$00,$00,$00
@@ -44,12 +47,13 @@
 ;.byte $22,$60,$60,$40,$58,$3C,$7C,$73,$08,$08,$04,$06,$03,$01,$00,$0C
 ;.byte $BD,$B0,$B0,$30,$71,$7E,$78,$79,$01,$0F,$0F,$0F,$0E,$01,$07,$06
 ;
-;;; [$8200 :: 0x24210]
+;;; [$8200 :: 0x24200]
 ;
 ;.byte $44,$00,$00,$62,$42,$20,$18,$00,$38,$FC,$FC,$9C,$BC,$C0,$E0,$00
 ;.byte $65,$E4,$A4,$84,$A2,$02,$02,$00,$1A,$1B,$5B,$7B,$5D,$FD,$FD,$00
 ;.byte $39,$CC,$62,$70,$38,$1F,$07,$00,$06,$03,$81,$80,$C0,$E0,$F8,$00
 ;.byte $08,$00,$18,$F0,$00,$9E,$3F,$00,$F0,$C0,$E0,$00,$00,$0E,$01,$00
+; Minwu face potrait 0x24240
 ;.byte $00,$00,$0B,$00,$33,$00,$07,$8F,$00,$07,$1F,$3C,$7B,$70,$47,$8F
 ;.byte $23,$80,$1F,$FF,$C1,$3E,$FF,$C0,$FF,$E1,$1F,$FF,$C1,$3E,$FF,$C0
 ;.byte $00,$00,$E0,$F0,$F4,$3A,$80,$7E,$00,$80,$E0,$F0,$F2,$38,$80,$7E
@@ -63,8 +67,9 @@
 ;.byte $00,$80,$80,$46,$20,$80,$40,$71,$FF,$70,$7F,$39,$1F,$0E,$80,$81
 ;.byte $0B,$0B,$1B,$13,$33,$72,$E6,$C6,$CB,$CB,$9B,$97,$37,$76,$EE,$DE
 ;
-;;; [$8300 :: 0x24310]
+;;; [$8300 :: 0x24300]
 ;
+; Josef face potrait 0x24300
 ;.byte $00,$06,$04,$08,$18,$18,$18,$38,$00,$01,$03,$07,$07,$07,$07,$07
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;.byte $00,$00,$00,$00,$00,$00,$80,$C0,$00,$E0,$F8,$FC,$FC,$FC,$7E,$3E
@@ -77,12 +82,13 @@
 ;.byte $01,$0D,$0E,$0E,$0D,$0D,$49,$E0,$00,$00,$00,$00,$00,$00,$44,$EE
 ;.byte $08,$07,$41,$20,$10,$80,$C0,$E0,$70,$78,$3E,$1F,$0F,$00,$00,$01
 ;.byte $40,$80,$00,$08,$00,$20,$00,$03,$38,$70,$F0,$E0,$D8,$18,$7C,$F3
+; Gordon face potrait 0x243C0
 ;.byte $00,$07,$1F,$1F,$1F,$39,$68,$44,$00,$00,$00,$00,$00,$00,$02,$06
 ;.byte $FF,$FF,$FF,$FF,$BF,$DF,$FF,$EF,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $E0,$F8,$FC,$FE,$FE,$FE,$FF,$FF,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $CE,$C0,$C8,$C8,$C8,$41,$4F,$07,$0E,$01,$1F,$1F,$0E,$01,$0F,$0F
 ;
-;;; [$8400 :: 0x24410]
+;;; [$8400 :: 0x24400]
 ;
 ;.byte $6D,$6E,$36,$33,$19,$86,$C1,$80,$00,$00,$80,$80,$00,$E0,$F0,$C2
 ;.byte $FF,$FF,$FF,$7B,$7D,$9E,$26,$03,$00,$00,$00,$00,$00,$00,$00,$00
@@ -92,6 +98,7 @@
 ;.byte $00,$00,$00,$00,$00,$17,$60,$DD,$00,$00,$00,$00,$00,$10,$60,$DD
 ;.byte $3E,$FC,$3C,$70,$01,$00,$80,$80,$3F,$FE,$7C,$71,$03,$10,$9B,$AB
 ;.byte $08,$10,$60,$81,$02,$04,$18,$20,$49,$53,$E6,$9C,$78,$E1,$C3,$07
+; Layla face potrait 0x24480
 ;.byte $00,$01,$02,$02,$0A,$0D,$05,$60,$00,$05,$0A,$12,$32,$31,$19,$06
 ;.byte $A6,$79,$98,$94,$63,$0C,$63,$F7,$99,$06,$66,$68,$80,$10,$0A,$24
 ;.byte $20,$90,$5C,$DE,$3E,$FD,$F9,$F6,$20,$18,$00,$0E,$06,$05,$69,$90
@@ -101,12 +108,13 @@
 ;.byte $08,$04,$0F,$07,$07,$07,$03,$03,$40,$C4,$CC,$C7,$C7,$67,$6B,$2B
 ;.byte $F8,$F6,$FF,$FF,$FF,$FF,$FF,$BF,$F8,$76,$FF,$FF,$FF,$7F,$7F,$9F
 ;
-;;; [$8500 :: 0x24510]
+;;; [$8500 :: 0x24500]
 ;
 ;.byte $08,$28,$E8,$E8,$D0,$D0,$C0,$90,$0A,$2A,$2B,$E1,$D1,$D2,$C3,$B9
 ;.byte $01,$01,$00,$00,$00,$00,$00,$00,$29,$35,$34,$34,$66,$6A,$6A,$6A
 ;.byte $FF,$87,$CE,$7C,$39,$07,$03,$03,$FF,$FF,$FE,$7C,$B8,$C0,$60,$60
 ;.byte $90,$40,$E0,$F8,$F0,$CF,$9F,$3F,$BA,$16,$23,$7B,$70,$CF,$9F,$3F
+; Ricard face potrait 0x24540
 ;.byte $00,$00,$00,$00,$00,$03,$06,$0C,$00,$00,$80,$80,$80,$80,$80,$80
 ;.byte $10,$10,$10,$38,$84,$CF,$5F,$5F,$20,$20,$00,$40,$00,$00,$00,$00
 ;.byte $00,$00,$00,$00,$00,$00,$C0,$E0,$00,$00,$01,$01,$01,$01,$01,$01
@@ -120,8 +128,9 @@
 ;.byte $5F,$5F,$5E,$DC,$50,$03,$06,$DD,$08,$08,$00,$08,$00,$00,$00,$00
 ;.byte $8C,$1A,$37,$6F,$DF,$BF,$7F,$FF,$00,$00,$00,$02,$07,$0C,$14,$02
 ;
-;;; [$8600 :: 0x24610]
+;;; [$8600 :: 0x24600]
 ;
+; Leon face potrait 0x24600
 ;.byte $00,$01,$03,$0F,$1F,$1F,$3C,$7A,$00,$01,$03,$0F,$1F,$1F,$3C,$7F
 ;.byte $73,$FD,$FE,$FF,$FF,$FD,$06,$0D,$72,$FD,$FE,$FF,$FF,$FD,$7E,$83
 ;.byte $80,$E8,$F4,$FA,$EE,$EE,$74,$B6,$00,$88,$C4,$F2,$EA,$EC,$74,$A4
@@ -134,12 +143,13 @@
 ;.byte $80,$84,$C4,$E3,$E0,$FC,$7F,$3F,$46,$43,$23,$10,$1C,$03,$00,$00
 ;.byte $40,$20,$11,$40,$23,$10,$0C,$C7,$3E,$1F,$8E,$8F,$00,$00,$C0,$30
 ;.byte $02,$03,$83,$03,$87,$01,$00,$00,$00,$C0,$00,$80,$00,$04,$04,$08
+; Cross potrait 0x246C0
 ;.byte $00,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $58,$B4,$62,$B4,$B4,$B4,$BC,$BC,$08,$1C,$3E,$1C,$1C,$1C,$1C,$1C
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $00,$18,$37,$65,$37,$5F,$20,$17,$00,$08,$1F,$3B,$1F,$08,$00,$00
 ;
-;;; [$8700 :: 0x24710]
+;;; [$8700 :: 0x24700]
 ;
 ;.byte $BC,$BC,$FF,$77,$FF,$FF,$3C,$BF,$1C,$14,$E3,$EB,$E3,$14,$1C,$1C
 ;.byte $00,$08,$F4,$52,$F4,$F8,$08,$F0,$00,$08,$FC,$EE,$FC,$08,$00,$00
@@ -149,6 +159,7 @@
 ;.byte $00,$00,$00,$00,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $B4,$B4,$BC,$B4,$B4,$62,$B4,$58,$1C,$1C,$1C,$1C,$1C,$3E,$1C,$08
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; Frog potrait 0x24780
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -158,12 +169,13 @@
 ;.byte $03,$04,$01,$04,$07,$03,$03,$01,$10,$08,$02,$08,$08,$04,$04,$00
 ;.byte $BE,$DF,$5F,$D3,$76,$3E,$18,$01,$01,$00,$00,$8C,$49,$60,$79,$36
 ;
-;;; [$8800 :: 0x24810]
+;;; [$8800 :: 0x24800]
 ;
 ;.byte $64,$72,$F2,$D9,$F9,$0C,$03,$F1,$90,$88,$08,$24,$04,$02,$F0,$0C
 ;.byte $07,$3E,$0A,$24,$00,$00,$00,$00,$00,$00,$14,$08,$00,$00,$00,$00
 ;.byte $02,$01,$01,$1E,$01,$0E,$00,$00,$14,$06,$00,$00,$06,$00,$00,$00
 ;.byte $06,$F8,$EE,$1C,$F0,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; Unknown 0x24840
 ;.byte $3C,$5E,$02,$04,$0E,$18,$00,$42,$00,$20,$14,$E8,$E1,$C0,$24,$00
 ;.byte $00,$10,$18,$1C,$1E,$1F,$17,$2E,$80,$80,$48,$20,$00,$60,$28,$00
 ;.byte $03,$06,$04,$0D,$0B,$03,$06,$03,$00,$01,$03,$02,$04,$04,$01,$00
@@ -177,7 +189,7 @@
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$FE,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
-;;; [$8900 :: 0x24910]
+;;; [$8900 :: 0x24900]
 ;
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$C0,$C0,$E0,$E0,$E0
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$3F,$1F,$07,$03,$00,$00,$00,$00
@@ -201,144 +213,257 @@
 
 .incbin "chr/menu_text.chr"
 
-;;; [$8A00 :: 0x24A10]
-;
+;;; [$8A00 :: 0x24A00]
+; Hand icon(Weapon) tile 0x24A00
 ;.byte $14,$15,$15,$5F,$7F,$7F,$3F,$1E,$EB,$FE,$FF,$B5,$DF,$BF,$DE,$E9
-; Shield icon tile 0x24A10
+; Shield icon(Weapon) tile 0x24A10
 ;.byte $7F,$7F,$7F,$77,$7F,$3E,$1C,$08,$80,$BE,$AA,$AA,$A2,$D5,$EB,$F7
-; Knife icon tile 0x24A20
+; Knife icon(Weapon) tile 0x24A20
 ;.byte $00,$00,$00,$10,$18,$0C,$06,$03,$FF,$FF,$FF,$FF,$EF,$F7,$F9,$FC
+; Mace icon(Weapon) tile 0x24A30
 ;.byte $C0,$E0,$70,$38,$0C,$06,$03,$01,$FF,$FF,$FF,$CF,$F7,$FB,$FD,$FF
+; Spear icon(Weapon) tile 0x24A40
 ;.byte $C0,$C0,$20,$10,$08,$04,$02,$01,$BF,$7F,$DF,$EF,$F7,$FB,$FD,$FE
+; Sword icon(Weapon) tile 0x24A50
 ;.byte $80,$C0,$60,$30,$1A,$0E,$1E,$03,$FF,$7F,$BF,$DF,$ED,$F5,$E1,$FC
-; Axe icon tile 0x24A60
+; Axe icon(Weapon) tile 0x24A60
 ;.byte $00,$18,$70,$F0,$68,$24,$02,$01,$FF,$E7,$8F,$8F,$D7,$FB,$FD,$FE
+; Bow icon(Weapon) tile 0x24A70
 ;.byte $06,$0A,$12,$FF,$12,$0A,$06,$00,$FD,$FD,$FD,$90,$FD,$FD,$FD,$FF
+; Trash top icon tile 0x24A80
 ;.byte $00,$00,$00,$18,$FF,$00,$7E,$7E,$FF,$FF,$FF,$F7,$FF,$80,$D4,$D4
+; Trash bottom icon tile 0x24A90
 ;.byte $7E,$7E,$7E,$7E,$7E,$7E,$42,$00,$D4,$D4,$D4,$D4,$80,$FE,$C2,$BD
+; Left brace letter tile 0x24AA0
 ;.byte $0E,$0C,$08,$08,$08,$08,$0C,$0E,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; Right brace letter tile 0x24AB0
 ;.byte $38,$18,$08,$08,$08,$08,$18,$38,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; Slash text tile 0x24AC0
 ;.byte $01,$02,$04,$08,$10,$20,$40,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'tt' letter tile 0x24AD0
 ;.byte $66,$66,$FF,$66,$66,$66,$3B,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; Bell icon tile 0x24AE0
 ;.byte $00,$10,$38,$38,$38,$7C,$00,$10,$EF,$D7,$9B,$9B,$8B,$7D,$01,$CF
+; 'ai' letter tile 0x24AF0
 ;.byte $00,$03,$70,$DB,$DB,$DB,$6F,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
-;;; [$8B00 :: 0x24B10]
+;;; [$8B00 :: 0x24B00]
 ;
+; 'la' letter tile 0x24B00
 ;.byte $C0,$C0,$CE,$DB,$DB,$DB,$CD,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'le' letter tile 0x24B10
 ;.byte $60,$60,$66,$6D,$6F,$6C,$67,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '0' letter tile 0x24B20
 ;.byte $3E,$63,$63,$63,$63,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '1' letter tile 0x24B30
 ;.byte $18,$38,$18,$18,$18,$18,$3C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '2' letter tile 0x24B40
 ;.byte $3E,$63,$63,$06,$18,$30,$7F,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '3' letter tile 0x24B50
 ;.byte $3E,$63,$03,$1E,$03,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '4' letter tile 0x24B60
 ;.byte $0E,$1E,$36,$26,$66,$7F,$06,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '5' letter tile 0x24B70
 ;.byte $7F,$60,$7E,$63,$03,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '6' letter tile 0x24B80
 ;.byte $3E,$63,$60,$7E,$63,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '7' letter tile 0x24B90
 ;.byte $7F,$63,$06,$0C,$0C,$18,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '8' letter tile 0x24BA0
 ;.byte $3E,$63,$63,$3E,$63,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '9' letter tile 0x24BB0
 ;.byte $3E,$63,$63,$3F,$03,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'A' letter tile 0x24BC0
 ;.byte $1C,$36,$22,$63,$7F,$63,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'B' letter tile 0x24BD0
 ;.byte $7E,$63,$63,$7E,$63,$63,$7E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'C' letter tile 0x24BE0
 ;.byte $1E,$33,$60,$60,$60,$33,$1E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'D' letter tile 0x24BF0
 ;.byte $7C,$66,$63,$63,$63,$66,$7C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
-;;; [$8C00 :: 0x24C10]
+;;; [$8C00 :: 0x24C00]
 ;
+; 'E' letter tile 0x24C00
 ;.byte $7F,$60,$60,$7E,$60,$60,$7F,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'F' letter tile 0x24C10
 ;.byte $7F,$60,$60,$7E,$60,$60,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'G' letter tile 0x24C20
 ;.byte $3E,$63,$60,$6F,$63,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'H' letter tile 0x24C30
 ;.byte $63,$63,$63,$7F,$63,$63,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'I' letter tile 0x24C40
 ;.byte $3C,$18,$18,$18,$18,$18,$3C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'J' letter tile 0x24C50
 ;.byte $0F,$06,$06,$06,$06,$66,$3C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'K' letter tile 0x24C60
 ;.byte $63,$66,$6C,$78,$6C,$66,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'L' letter tile 0x24C70
 ;.byte $60,$60,$60,$60,$60,$60,$7F,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'M' letter tile 0x24C80
 ;.byte $41,$63,$77,$7F,$6B,$63,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'N' letter tile 0x24C90
 ;.byte $61,$71,$79,$6D,$67,$63,$61,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'O' letter tile 0x24CA0
 ;.byte $3E,$63,$63,$63,$63,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'P' letter tile 0x24CB0
 ;.byte $7E,$63,$63,$63,$7E,$60,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'Q' letter tile 0x24CC0
 ;.byte $3E,$63,$63,$63,$6B,$67,$3E,$01,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'R' letter tile 0x24CD0
 ;.byte $7E,$63,$63,$66,$7C,$66,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'S' letter tile 0x24CE0
 ;.byte $3E,$63,$60,$3E,$03,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'T' letter tile 0x24CF0
 ;.byte $7E,$18,$18,$18,$18,$18,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
-;;; [$8D00 :: 0x24D10]
+;;; [$8D00 :: 0x24D00]
 ;
+; 'U' letter tile 0x24D00
 ;.byte $63,$63,$63,$63,$63,$63,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'V' letter tile 0x24D10
 ;.byte $63,$63,$63,$63,$36,$36,$1C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'W' letter tile 0x24D20
 ;.byte $63,$63,$6B,$6B,$7F,$77,$22,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'X' letter tile 0x24D30
 ;.byte $63,$63,$36,$1C,$36,$63,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'Y' letter tile 0x24D40
 ;.byte $66,$66,$66,$3C,$18,$18,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'Z' letter tile 0x24D50
 ;.byte $7F,$03,$06,$18,$30,$60,$7F,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'a' letter tile 0x24D60
 ;.byte $00,$00,$3C,$66,$66,$66,$3B,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'b' letter tile 0x24D70
 ;.byte $60,$60,$7C,$66,$66,$66,$7C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'c' letter tile 0x24D80
 ;.byte $00,$00,$3E,$60,$60,$60,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'd' letter tile 0x24D90
 ;.byte $06,$06,$3E,$66,$66,$66,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'e' letter tile 0x24DA0
 ;.byte $00,$00,$3C,$66,$7E,$60,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'f' letter tile 0x24DB0
 ;.byte $0E,$18,$18,$7E,$18,$18,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'g' letter tile 0x24DC0
 ;.byte $00,$00,$3E,$66,$66,$3E,$06,$3C,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'h' letter tile 0x24DD0
 ;.byte $60,$60,$7C,$66,$66,$66,$66,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'i' letter tile 0x24DE0
 ;.byte $00,$18,$00,$18,$18,$18,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'j' letter tile 0x24DF0
 ;.byte $00,$06,$00,$06,$06,$06,$66,$3C,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
 ;;; [$8E00 :: 0x24E10]
 ;
+; 'k' letter tile 0x24E00
 ;.byte $60,$60,$62,$64,$68,$7C,$66,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'l' letter tile 0x24E10
 ;.byte $38,$18,$18,$18,$18,$18,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'm' letter tile 0x24E20
 ;.byte $00,$00,$76,$6B,$6B,$6B,$6B,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'n' letter tile 0x24E30
 ;.byte $00,$00,$7C,$66,$66,$66,$66,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'o' letter tile 0x24E40
 ;.byte $00,$00,$3C,$66,$66,$66,$3C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'p' letter tile 0x24E50
 ;.byte $00,$00,$7C,$66,$66,$7C,$60,$60,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'q' letter tile 0x24E60
 ;.byte $00,$00,$3E,$66,$66,$3E,$06,$06,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'r' letter tile 0x24E70
 ;.byte $00,$00,$6E,$70,$60,$60,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 's' letter tile 0x24E80
 ;.byte $00,$00,$3C,$60,$3C,$06,$7C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 't' letter tile 0x24E90
 ;.byte $18,$18,$7E,$18,$18,$18,$0E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'u' letter tile 0x24EA0
 ;.byte $00,$00,$66,$66,$66,$66,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'v' letter tile 0x24EB0
 ;.byte $00,$00,$66,$66,$66,$24,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'w' letter tile 0x24EC0
 ;.byte $00,$00,$63,$6B,$6B,$6B,$36,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'x' letter tile 0x24ED0
 ;.byte $00,$00,$63,$36,$1C,$36,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'y' letter tile 0x24EE0
 ;.byte $00,$00,$66,$66,$2C,$18,$30,$60,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'z' letter tile 0x24EF0
 ;.byte $00,$00,$7E,$0C,$18,$30,$7E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
 ;;; [$8F00 :: 0x24F10]
 ;
+; ''' letter tile 0x24F00
 ;.byte $18,$18,$10,$00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; ',' letter tile 0x24F10
 ;.byte $00,$00,$00,$00,$00,$60,$60,$40,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '.' letter tile 0x24F20
 ;.byte $00,$00,$00,$00,$00,$60,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; ':' letter tile 0x24F30
 ;.byte $00,$60,$60,$00,$00,$60,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '-' letter tile 0x24F40
 ;.byte $00,$00,$00,$00,$7E,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '...' letter tile 0x24F50
 ;.byte $00,$00,$00,$00,$00,$54,$54,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '!' letter tile 0x24F60
 ;.byte $60,$60,$60,$60,$60,$00,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '?' letter tile 0x24F70
 ;.byte $3C,$66,$06,$0C,$18,$00,$18,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; '%' letter tile 0x24F80
 ;.byte $21,$52,$24,$08,$12,$25,$42,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'm' letter tile 0x24F90
 ;.byte $00,$00,$00,$76,$6A,$62,$62,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'h' letter tile 0x24FA0
 ;.byte $00,$00,$00,$62,$7E,$62,$62,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'p' letter tile 0x24FB0
 ;.byte $00,$00,$00,$7C,$62,$7C,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; armor icon tile 0x24FC0
 ;.byte $63,$77,$77,$6B,$1C,$22,$1C,$49,$22,$77,$63,$00,$80,$A2,$9C,$49
+; helm icon tile 0x24FD0
 ;.byte $00,$22,$41,$5D,$3E,$22,$41,$41,$C9,$88,$41,$59,$B8,$A0,$40,$5D
+; gauntlet icon tile 0x24FE0
 ;.byte $3E,$0F,$FF,$0F,$FF,$0E,$70,$00,$A9,$86,$A3,$01,$A3,$86,$D1,$FF
+; 'rr' letter tile 0x24FF0
 ;.byte $00,$00,$DD,$EE,$CC,$CC,$CC,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
-;;; [$8000 :: 0x25010]
+;;; [$9000 :: 0x25000]
 ;
+; Potion icon tile 0x25000
 ;.byte $00,$3C,$18,$18,$3C,$42,$42,$24,$FF,$E3,$F7,$F7,$E3,$C1,$C1,$C3
+; Book icon tile 0x25010
 ;.byte $00,$7C,$54,$7C,$7C,$7C,$7C,$00,$01,$05,$05,$05,$05,$05,$05,$01
+; Robe icon tile 0x25020
 ;.byte $00,$63,$77,$77,$6B,$1C,$08,$00,$9C,$22,$36,$63,$08,$88,$A2,$F7
+; 'll' letter tile 0x25030
 ;.byte $EE,$66,$66,$66,$66,$66,$66,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'il' letter tile 0x25040
 ;.byte $0E,$66,$06,$66,$66,$66,$66,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'li' letter tile 0x25050
 ;.byte $E0,$66,$60,$66,$66,$66,$66,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'ui' letter tile 0x25060
 ;.byte $00,$03,$D8,$DB,$DB,$DB,$7B,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'ti' letter tile 0x25070
 ;.byte $60,$63,$F8,$63,$63,$63,$3B,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'ie' letter tile 0x25080
 ;.byte $00,$60,$06,$6D,$6F,$6C,$67,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 're' letter tile 0x25090
 ;.byte $00,$00,$56,$6D,$6F,$6C,$67,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'th' letter tile 0x250A0
 ;.byte $CC,$CC,$EE,$CD,$CD,$CD,$6D,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'te' letter tile 0x250B0
 ;.byte $C0,$C0,$E6,$CD,$CF,$CC,$67,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'lt' letter tile 0x250C0
 ;.byte $E6,$66,$6F,$66,$66,$66,$63,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'im' letter tile 0x250D0
 ;.byte $00,$60,$0E,$6D,$6D,$6D,$6D,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'ar' letter tile 0x250E0
 ;.byte $00,$00,$8E,$5B,$5B,$5B,$4D,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; ''S' letter tile 0x250F0
 ;.byte $00,$00,$68,$70,$60,$60,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
+;;; [$9100 :: 0x25100]
+;
+; ''l' letter tile 0x25100
 ;.byte $C0,$C0,$9E,$30,$1E,$03,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; ''t' letter tile 0x25110
 ;.byte $DC,$CC,$8C,$0C,$0C,$0C,$0C,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; ''d' letter tile 0x25120
 ;.byte $CC,$CC,$BF,$0C,$0C,$0C,$07,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;.byte $C6,$C6,$BE,$66,$66,$66,$3E,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;.byte $00,$00,$39,$6D,$7D,$61,$3D,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -349,29 +474,55 @@
 ;.byte $00,$00,$B8,$B5,$B5,$B5,$B4,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;.byte $60,$60,$E6,$6D,$6F,$6C,$E7,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;.byte $00,$00,$68,$70,$60,$60,$60,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'li' letter tile 0x251C0
 ;.byte $E0,$6C,$61,$6C,$6C,$6D,$6D,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'zz' letter tile 0x251D0
 ;.byte $00,$00,$FE,$67,$CD,$99,$FE,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'za' letter tile 0x251E0
 ;.byte $00,$00,$E6,$B7,$B6,$B6,$D6,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'rd' letter tile 0x251F0
 ;.byte $18,$18,$B8,$58,$58,$58,$38,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 ;
+;;; [$9200 :: 0x25200]
+;
+; ' a' letter tile 0x25200
 ;.byte $00,$00,$38,$6C,$6C,$6C,$36,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'su' letter tile 0x25210
 ;.byte $00,$00,$76,$C6,$66,$36,$E3,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'ln' letter tile 0x25220
 ;.byte $00,$00,$B8,$B5,$B5,$B5,$B4,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'a ' letter tile 0x25230
 ;.byte $00,$00,$E0,$B0,$B0,$B0,$D8,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'u' letter tile 0x25240
 ;.byte $00,$00,$CD,$CD,$CD,$CD,$7D,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'n' letter tile 0x25250
 ;.byte $00,$00,$F1,$9B,$9B,$9B,$99,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'a' letter tile 0x25260
 ;.byte $00,$00,$E0,$30,$30,$30,$D8,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'nc' letter tile 0x25270
 ;.byte $00,$00,$C7,$AC,$AC,$AC,$A7,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; 'e ' letter tile 0x25280
 ;.byte $00,$00,$30,$68,$78,$60,$38,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+; Text box left top icon tile 0x25290
 ;.byte $00,$1F,$3F,$7F,$7F,$7C,$78,$78,$00,$00,$0F,$18,$30,$23,$27,$27
+; Text box top icon tile 0x252A0
 ;.byte $00,$FF,$FF,$FF,$FF,$00,$00,$00,$00,$00,$FF,$00,$00,$FF,$FF,$FF
+; Text box right top icon tile 0x252B0
 ;.byte $00,$F8,$FC,$FE,$FE,$3E,$1E,$1E,$00,$00,$F0,$18,$0C,$C4,$E4,$E4
+; Text box left icon tile 0x252C0
 ;.byte $78,$78,$78,$78,$78,$78,$78,$78,$27,$27,$27,$27,$27,$27,$27,$27
+; Text box right icon tile 0x252D0
 ;.byte $1E,$1E,$1E,$1E,$1E,$1E,$1E,$1E,$E4,$E4,$E4,$E4,$E4,$E4,$E4,$E4
+; Text box left bottom icon tile 0x252E0
 ;.byte $78,$78,$7C,$7F,$7F,$3F,$1F,$00,$27,$27,$33,$18,$0F,$00,$00,$00
+; Text box bottom icon tile 0x252F0
 ;.byte $00,$00,$00,$FF,$FF,$FF,$FF,$00,$FF,$FF,$FF,$00,$FF,$00,$00,$00
 ;
+;;; [$9300 :: 0x25300]
+;
+; Text box right bottom icon tile 0x25300
 ;.byte $1E,$1E,$3E,$FE,$FE,$FC,$F8,$00,$E4,$E4,$CC,$18,$F0,$00,$00,$00
+; Blank icon tile 0x25310
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
 .incbin "chr/battle_sprites.chr"

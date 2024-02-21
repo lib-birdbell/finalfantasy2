@@ -5022,23 +5022,24 @@ E3E0:
     LDA #$09                 ; E471  $A9 $09
     JSR Swap_PRG_               ; E473  $20 $03 $FE
     LDA #$00                 ; E476  $A9 $00
-    JSR L3E503               ; E478  $20 $03 $E5
+    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E478  $20 $03 $E5
     LDA #$80                 ; E47B  $A9 $80
     STA $81                  ; E47D  $85 $81
     LDX #$0A                 ; E47F  $A2 $0A
     LDA #$10                 ; E481  $A9 $10
-    JSR L3E503               ; E483  $20 $03 $E5
+    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E483  $20 $03 $E5
     LDA #$0E                 ; E486  $A9 $0E
     JMP Swap_PRG_               ; E488  $4C $03 $FE
-    JSR $E6E1                ; E48B  $20 $E1 $E6
-    JMP L3E6FA               ; E48E  $4C $FA $E6
+    JSR Init_ICONs		; JSR $E6E1                ; E48B  $20 $E1 $E6
+    JMP Init_char_tile		; JMP L3E6FA               ; E48E  $4C $FA $E6
+; End of
 
 ; Name	:
-; Marks	: Set buffer ??
+; Marks	: Set some tile(ICONS) and palettes to PPU
 ;; sub start ;;
-	; Set RAM $03CD,$03CE,$03CF - $00,$02,$30
-    JSR $E6E1                ; E491  $20 $E1 $E6
-    JMP L3E6FA               ; E494  $4C $FA $E6
+    JSR Init_ICONs		; JSR $E6E1                ; E491  $20 $E1 $E6
+    JMP Init_char_tile		; JMP L3E6FA               ; E494  $4C $FA $E6
+; End of
 
 ;; sub start ;;
     LDA #$02                 ; E497  $A9 $02
@@ -5075,13 +5076,13 @@ L3E4C7:
     STA $81                  ; E4CF  $85 $81
     LDX #$01                 ; E4D1  $A2 $01
     LDA #$10                 ; E4D3  $A9 $10
-    JMP L3E503               ; E4D5  $4C $03 $E5
+    JMP Set_PpuAddrData_XPage	; JMP L3E503               ; E4D5  $4C $03 $E5
 L3E4D8:
     LDA #$90                 ; E4D8  $A9 $90
     STA $81                  ; E4DA  $85 $81
     LDX #$0B                 ; E4DC  $A2 $0B
     LDA #$11                 ; E4DE  $A9 $11
-    JSR L3E503               ; E4E0  $20 $03 $E5
+    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E4E0  $20 $03 $E5
     LDA #$80                 ; E4E3  $A9 $80
     STA $80                  ; E4E5  $85 $80
     LDA #$95                 ; E4E7  $A9 $95
@@ -5090,7 +5091,7 @@ L3E4D8:
     JSR Swap_PRG_               ; E4ED  $20 $03 $FE
     LDA #$1C                 ; E4F0  $A9 $1C
     LDX #$02                 ; E4F2  $A2 $02
-    JMP L3E503               ; E4F4  $4C $03 $E5
+    JMP Set_PpuAddrData_XPage	; JMP L3E503               ; E4F4  $4C $03 $E5
 
 ;; sub start ;;
     LDA #$00                 ; E4F7  $A9 $00
@@ -5099,17 +5100,24 @@ L3E4D8:
     STA $81                  ; E4FD  $85 $81
     LDX #$10                 ; E4FF  $A2 $10
     LDA #$00                 ; E501  $A9 $00
+
+; Name	: Set_PpuAddrData_XPage
+; A	: PpuAddr(H)
+; X	: Count of copied data(1 unit is #$100)
+; Marks	: Set PpuAddr and copy to PPU
+Set_PpuAddrData_XPage:
 L3E503:
     LDY PpuStatus_2002       ; E503  $AC $02 $20
     STA PpuAddr_2006         ; E506  $8D $06 $20
     LDA #$00                 ; E509  $A9 $00
     STA PpuAddr_2006         ; E50B  $8D $06 $20
 
-; Name	: Set_PpuData_X_100h
+; Name	: Set_PpuData_XPage
 ; X	: Count of copied data(1 unit is #$100)
+; SRC	: $80(ADDR) is tile address
 ; Marks	: Y index of start address( $80(ADDR) is base address)
 ;	  Data size to be copied is #$FF
-Set_PpuData_X_100h:
+Set_PpuData_XPage:
 L3E50E:
     LDY #$00                 ; E50E  $A0 $00
 L3E510:
@@ -5121,7 +5129,8 @@ L3E510:
     DEX                      ; E51A  $CA
     BNE L3E510               ; E51B  $D0 $F3
     RTS                      ; E51D  $60
-; End of Set_PpuData_X_100h
+; End of Set_PpuData_XPage
+; End of Set_PpuAddrData_XPage
 
 ; Name	: Set_PpuData_XY
 ; X	: Data size to be copied
@@ -5171,7 +5180,7 @@ L3E568:
     STA $80                  ; E568  $85 $80
     STX $81                  ; E56A  $86 $81
     LDX #$02                 ; E56C  $A2 $02
-    JSR Set_PpuData_X_100h	; JSR L3E50E               ; E56E  $20 $0E $E5
+    JSR Set_PpuData_XPage	; JSR L3E50E               ; E56E  $20 $0E $E5
     LDX #$40                 ; E571  $A2 $40
     JSR Set_PpuData_XY		; JSR L3E51E               ; E573  $20 $1E $E5
     LDA #$00                 ; E576  $A9 $00
@@ -5221,14 +5230,16 @@ L3E568:
     ADC #$8C                 ; E5C0  $69 $8C
     STA $81                  ; E5C2  $85 $81
     LDX #$03                 ; E5C4  $A2 $03
-    JSR Set_PpuData_X_100h	; JSR L3E50E               ; E5C6  $20 $0E $E5
+    JSR Set_PpuData_XPage	; JSR L3E50E               ; E5C6  $20 $0E $E5
     LDX #$C0                 ; E5C9  $A2 $C0
     JSR Set_PpuData_XY		; JSR L3E51E               ; E5CB  $20 $1E $E5
 
-; Name	:
-; Marks	: Set $80-$81 to $8A00
-;	  Copy to PPU CHR $06E0
+; Name	: Init_ICON
+; Marks	: Set $80(ADDR) to ($8A00-$931F:$920) (ICON image)
+;	  Copy to PPU CHR RAM ($06E0-$0FEF:$920)
+;	  ICON image rom bank is #$09
 ;; sub start ;;
+Init_ICON:
     LDA #$09                 ; E5CE  $A9 $09
     JSR Swap_PRG_               ; E5D0  $20 $03 $FE
 	; ROM ($8A00 - $8A20) $24A00
@@ -5244,14 +5255,14 @@ L3E568:
     STA PpuAddr_2006         ; E5E5  $8D $06 $20
     LDY #$00                 ; E5E8  $A0 $00
     LDX #$20                 ; E5EA  $A2 $20
-	; PRG $24A00 -> PPU $06E0 (#$20)
+	; PRG $24A00 -> PPU $06E0 (#$20) = Copy 2 icons(32 bytes)
     JSR Set_PpuData_XY		; JSR L3E51E               ; E5EC  $20 $1E $E5
     LDA #$20                 ; E5EF  $A9 $20
     STA $80                  ; E5F1  $85 $80
-	; $80(ADDR) to PPU (ROM 0x24A20 : $8A20-$9320 to PPU $06F0-$0FF0)
+	; $80(ADDR) to PPU (ROM 0x24A20 : $8A20-$9320 to PPU $06F0-$0FF0) = Copy rest 16*9 icons(2304 bytes)
     LDX #$09                 ; E5F3  $A2 $09
-    JMP Set_PpuData_X_100h	; JMP L3E50E               ; E5F5  $4C $0E $E5
-; End of
+    JMP Set_PpuData_XPage	; JMP L3E50E               ; E5F5  $4C $0E $E5
+; End of Init_ICON
 
 ;data block---
 ;; [E5F8 : 3E608]
@@ -5357,9 +5368,14 @@ L3E69E:
     DEC $61                  ; E6AB  $C6 $61
     BNE L3E669               ; E6AD  $D0 $BA
 
-; Name	:
-; Marks	: Char tile copy ??
+; Name	: Set_spritesA
+; DEST	: $80(ADDR) sprite tile address
+; Marks	: Char tile copy to PPU
+;	  Set $80(ADDR) to $BD00(tile address)
+;	  And swap bank_02
+;	  Set tile to PPU ($1D00-$1FFF)
 ;; sub start ;;
+Set_spritesA:
     LDA #$00                 ; E6AF  $A9 $00
     STA $80                  ; E6B1  $85 $80
     LDA #$BD                 ; E6B3  $A9 $BD
@@ -5368,7 +5384,8 @@ L3E69E:
     JSR Swap_PRG_               ; E6B9  $20 $03 $FE
     LDX #$03                 ; E6BC  $A2 $03
     LDA #$1D                 ; E6BE  $A9 $1D
-    JMP L3E503               ; E6C0  $4C $03 $E5
+    JMP Set_PpuAddrData_XPage	; JMP L3E503               ; E6C0  $4C $03 $E5
+; End of  Set_spritesA
 
  ;data block---
 ;; [E6C3 : 3E6D3]
@@ -5376,11 +5393,14 @@ L3E69E:
 .byte $02,$C0,$02,$00,$03,$40,$03,$80,$03,$C0,$03,$00,$04,$40,$04,$80
 .byte $04
 
-; Name	:
-; Marks	:
+; Name	: Init_ICONs
+; Marks	: Init ICON(Text, Weapons..)
+;	  Tile0 Set blank
+;	  Set palette BG3 buffer
 ;; sub start ;;
+Init_ICONs:
 	; CHR Tile copy to PPU
-    JSR $E5CE                ; E6E1  $20 $CE $E5
+    JSR Init_ICON		; JSR $E5CE                ; E6E1  $20 $CE $E5
     BIT PpuStatus_2002       ; E6E4  $2C $02 $20
 	; Tile0 set blank ??
     LDA #$00                 ; E6E7  $A9 $00
@@ -5392,10 +5412,15 @@ L3E6F1:
     DEX                      ; E6F4  $CA
     BNE L3E6F1               ; E6F5  $D0 $FA
     JMP Set_palette_BG3_buf	; JMP L3E776               ; E6F7  $4C $76 $E7
+; End of Init_ICONs
+
+; Marks	: Set character potraits to PPU($1000)
+Init_char_tile:
 L3E6FA:
     LDA #$09                 ; E6FA  $A9 $09
     JSR Swap_PRG_               ; E6FC  $20 $03 $FE
     LDA PpuStatus_2002       ; E6FF  $AD $02 $20
+	; PPU CHR RAM $1000
     LDA #$10                 ; E702  $A9 $10
     STA PpuAddr_2006         ; E704  $8D $06 $20
     LDA #$00                 ; E707  $A9 $00
@@ -5413,28 +5438,31 @@ L3E6FA:
     JSR Load_char_tile		; JSR $E745                ; E728  $20 $45 $E7
     LDA #$09                 ; E72B  $A9 $09
     JSR Load_char_tile		; JSR $E745                ; E72D  $20 $45 $E7
-	; Last fill blank ??
+	; Last fill blank(#$FF) to PPU($1480-$148F)
     LDX #$10                 ; E730  $A2 $10
     LDA #$FF                 ; E732  $A9 $FF
 L3E734:
     STA PpuData_2007         ; E734  $8D $07 $20
     DEX                      ; E737  $CA
     BNE L3E734               ; E738  $D0 $FA
-    JSR $E6AF                ; E73A  $20 $AF $E6
-    JSR $E786                ; E73D  $20 $86 $E7
+    JSR Set_spritesA		; JSR $E6AF                ; E73A  $20 $AF $E6
+    JSR Init_OAM_palettes	; JSR $E786                ; E73D  $20 $86 $E7
     LDA #$0E                 ; E740  $A9 $0E
     JMP Swap_PRG_               ; E742  $4C $03 $FE
 ; End of
 
 ; Name	: Load_char_tile
-; Marks	: Character tile CHR compressed address(from $E76A-$E775)
+; A	: Load char tile address offset(#$00-#$0F actually #$0B)
+; DEST	: $80(ADDR) is tile address
+; Marks	: Get Character tile CHR compressed address(from $E76A-$E775)
+;	  Copy Character tile to PPU
 ;; sub start ;;
 Load_char_tile:
     AND #$0F                 ; E745  $29 $0F
     TAX                      ; E747  $AA
     LDA #$00                 ; E748  $A9 $00
     STA $81                  ; E74A  $85 $81
-    LDA $E76A,X              ; E74C  $BD $6A $E7
+    LDA CHR_TILE_ADDR,X		; LDA $E76A,X              ; E74C  $BD $6A $E7
     ASL A                    ; E74F  $0A
     ROL $81                  ; E750  $26 $81
     ASL A                    ; E752  $0A
@@ -5456,6 +5484,12 @@ Load_char_tile:
  ;data block---
 ; Character tile CHR compressed address ( #$00 -> #$8000 )
 ; #$0C -> #$80C0, #$6C -> #$86C0
+;; #$00 = Firion($8000),	#$01 = Maria($80C0),	#$02 = Guy($8180),	#$03 = Minwu($8240)
+;; #$04 = Josef($8300),		#$05 = Gordon($83C0),	#$06 = Layla($8480),	#$07 = Ricard($8540)
+;; #$08 = Leon($8600),		#$09 = Cross($86C0),	#$0A = Frog($8780), 	#$0B($8840)
+;; There is no table
+;; #$0C = ($8A90),	#$0D =($8000)		#$0E = ($88D0)		#$0F = ($8CD0)
+CHR_TILE_ADDR:
 ;; [E76A - E76F : 3E76A]
 .byte $00,$0C,$18,$24,$30,$3C
 ;; [E770 - E775 : 3E770]
@@ -5463,6 +5497,7 @@ Load_char_tile:
 
 ; Name	: Set_palette_BG3_buf
 ; Marks	: Set RAM $03CD,$03CE,$03CF - $00,$02,$30
+;	  Gray, Blue, White
 ;	  Background palette 3 buffers
 Set_palette_BG3_buf:
 L3E776:
@@ -5475,15 +5510,18 @@ L3E776:
     RTS                      ; E785  $60
 ; End of Set_palette_BG3_buf
 
-; Name	:
-; Marks	: Copy $83B2,X:003B2 to $03D0,X
+; Name	: Init_OAM_palettes
+; Marks	: Copy OAM palettes to buffer
+;	  OAM palettes ($083B2-$03C2) to PPU OAM palettes ($03D0-$03DF)
 ;; sub start ;;
+Init_OAM_palettes:
     LDA #$00                 ; E786  $A9 $00
     JSR Swap_PRG_               ; E788  $20 $03 $FE
     LDX #$0F                 ; E78B  $A2 $0F
+	; Copy OAM palette to buffer
 L3E78D:
     LDA $83B2,X              ; E78D  $BD $B2 $83
-    STA $03D0,X              ; E790  $9D $D0 $03
+    STA palette_UOAM,X		; STA $03D0,X              ; E790  $9D $D0 $03
     DEX                      ; E793  $CA
     BNE L3E78D               ; E794  $D0 $F7
     RTS                      ; E796  $60
@@ -5904,6 +5942,11 @@ L3EA81:
 L3EA8B:
     RTS                      ; EA8B  $60
 
+; SRC	: $93 - bank to swap
+; Marks	: 
+;	  $3E(ADDR??) - example $8492->#$B8E6
+;	  $80(ADDR) -
+;	  $92 - 
 L3EA8C:
     LDA $93                  ; EA8C  $A5 $93
     JSR Swap_PRG_               ; EA8E  $20 $03 $FE
@@ -5926,7 +5969,13 @@ L3EA8C:
 
 ; Name	:
 ; Src	: $93 - bank to Swap
-; Marks	:
+; Marks	: Some variables copy
+;	  $1C(ADDR)
+;	  $1E = #$00
+;	  $1C <- $3E
+;	  $1D <- $3F
+;	  $3A <- $38
+;	  $3B <- $39
 ;; sub start ;;
     LDA $93                  ; EAAC  $A5 $93
     JSR Swap_PRG_               ; EAAE  $20 $03 $FE
@@ -5975,7 +6024,7 @@ L3EADF:
 L3EAE6:
     LDY #$00                 ; EAE6  $A0 $00
     LDA ($3E),Y              ; EAE8  $B1 $3E
-	; Address increase $3E(ADDR)
+	; Address increase $3E(ADDR) -> Next data
 	; if A == #$00 (ZERO)
     BEQ L3EADD               ; EAEA  $F0 $F1
     INC $3E                  ; EAEC  $E6 $3E
@@ -7068,7 +7117,7 @@ L3F346:
     LDA #$88                 ; F36B  $A9 $88
     STA $FF                  ; F36D  $85 $FF
     STA PpuControl_2000      ; F36F  $8D $00 $20
-    JSR $E5CE                ; F372  $20 $CE $E5
+    JSR Init_ICON		; JSR $E5CE                ; F372  $20 $CE $E5
     JSR Clear_Nametable0	; JSR $F321                ; F375  $20 $21 $F3
     JSR $F427                ; F378  $20 $27 $F4
     LDA #$0F                 ; F37B  $A9 $0F
