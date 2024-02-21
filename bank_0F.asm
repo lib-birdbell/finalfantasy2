@@ -1963,6 +1963,8 @@ L3CDBF:
 L3CDF4:
     RTS                      ; CDF4  $60
 
+; Name	:
+; Marks	:
 L3CDF5:
     LDA $FD                  ; CDF5  $A5 $FD
     STA $FF                  ; CDF7  $85 $FF
@@ -1982,6 +1984,7 @@ L3CDF5:
     ORA $36                  ; CE0D  $05 $36
     STA PpuScroll_2005       ; CE0F  $8D $05 $20
     RTS                      ; CE12  $60
+; End of
 
 L3CE13:
     LDA $32                  ; CE13  $A5 $32
@@ -5837,15 +5840,19 @@ L3E9A9:
     JSR $E9D5                ; E9CF  $20 $D5 $E9
     JMP L3C746               ; E9D2  $4C $46 $C7
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     LDA $37                  ; E9D5  $A5 $37
     BNE L3E9DC               ; E9D7  $D0 $03
     JMP L3CDF5               ; E9D9  $4C $F5 $CD
+; End of
 L3E9DC:
     LDA #$00                 ; E9DC  $A9 $00
     STA PpuScroll_2005       ; E9DE  $8D $05 $20
     STA PpuScroll_2005       ; E9E1  $8D $05 $20
     RTS                      ; E9E4  $60
+; End of
 
 ;; sub start ;;
     LDX #$01                 ; E9E5  $A2 $01
@@ -6011,16 +6018,17 @@ L3EADF:
     RTS                      ; EAE5  $60
 
 ; Name	:
-; SRC	: $3E(ADDR)
+; SRC	: $3E(ADDR) - data_buf
 ;	  $84 -
-;	  $90 - 
+;	  $90 - Y INDEX(Count)
 ; DEST	: $0780
-;	: $07A0
+;	: $07A0 - Text buffer
 ; Marks	: Get data from $3E(ADDR) and process
 ; Title story text set some buffer
 ; Text range (#$3B < text < ??)
 ; Case #$01-#$07, #$0F
 ; text < #$6E ??
+;
 L3EAE6:
     LDY #$00                 ; EAE6  $A0 $00
     LDA ($3E),Y              ; EAE8  $B1 $3E
@@ -6502,11 +6510,16 @@ L3EE1E:
     RTS                      ; EE1E  $60
 ; End of Check_nameFF
 
+; Name	:
+; DEST	: PPU addr
+; Marks	: $3A -
+;	  $3B -
 ;; sub start ;;
     LDA PpuStatus_2002       ; EE1F  $AD $02 $20
     LDX $3A                  ; EE22  $A6 $3A
     LDY $3B                  ; EE24  $A4 $3B
     CPX #$20                 ; EE26  $E0 $20
+	; if X >= #$20
     BCS L3EE38               ; EE28  $B0 $0E
     LDA $EEC2,Y              ; EE2A  $B9 $C2 $EE
     STA PpuAddr_2006         ; EE2D  $8D $06 $20
@@ -6514,7 +6527,7 @@ L3EE1E:
     ORA $EEA2,Y              ; EE31  $19 $A2 $EE
     STA PpuAddr_2006         ; EE34  $8D $06 $20
     RTS                      ; EE37  $60
-
+; End of
 L3EE38:
     LDA $EEC2,Y              ; EE38  $B9 $C2 $EE
     ORA #$04                 ; EE3B  $09 $04
@@ -6524,6 +6537,7 @@ L3EE38:
     ORA $EEA2,Y              ; EE43  $19 $A2 $EE
     STA PpuAddr_2006         ; EE46  $8D $06 $20
     RTS                      ; EE49  $60
+; End of
 
     LDX $3B                  ; EE4A  $A6 $3B
     DEX                      ; EE4C  $CA
@@ -6587,6 +6601,7 @@ L3EE84:
 .byte $21,$21,$22,$22,$22,$22,$22,$22,$22,$22,$23,$23,$23,$23,$23,$23
 .byte $20,$20,$00,$AC,$B7,$A8,$A4,$AC,$B1,$A8,$FF,$B2,$B2,$AF,$B6,$A7
 .byte $FF,$B5,$FF,$FF,$A8,$FF,$B7,$BC,$B2,$A4,$B2,$AB,$AB,$A8,$B1,$AC
+;; [EF00-EF47]
 .byte $A7,$A8,$B6,$FF,$B2,$B1,$B7,$B7,$AC,$B9,$AF,$AF,$FF,$A4,$FF,$AA
 .byte $FF,$A4,$FF,$B0,$A8,$00,$B1,$AB,$A7,$B1,$B6,$AA,$B5,$A4,$B1,$B8
 .byte $AF,$FF,$FF,$B7,$A8,$A6,$BA,$FF,$A5,$FF,$FF,$B5,$B7,$FF,$A8,$A4
@@ -6753,6 +6768,8 @@ L3F048:
     RTS                      ; F052  $60
 ; End of Text_buf_init
 
+; Name	:
+; Marks	: $93 - bank to swap
 ;; sub start ;;
     JSR Wait_NMI		; JSR $FE00                ; F053  $20 $00 $FE
     INC $F0                  ; F056  $E6 $F0
@@ -6763,9 +6780,12 @@ L3F048:
     JSR Swap_PRG_               ; F063  $20 $03 $FE
     JMP L3F044               ; F066  $4C $44 $F0
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     LDA $38                  ; F069  $A5 $38
     STA $3A                  ; F06B  $85 $3A
+	; Set PpuAddr
     JSR $EE1F                ; F06D  $20 $1F $EE
     LDX #$00                 ; F070  $A2 $00
 L3F072:
@@ -6773,8 +6793,10 @@ L3F072:
     STA PpuData_2007         ; F075  $8D $07 $20
     INX                      ; F078  $E8
     CPX $91                  ; F079  $E4 $91
+	; if X < $91
     BCC L3F072               ; F07B  $90 $F5
     CPX $3C                  ; F07D  $E4 $3C
+	; if X >= $3C
     BCS L3F099               ; F07F  $B0 $18
     LDA $3A                  ; F081  $A5 $3A
     AND #$20                 ; F083  $29 $20
@@ -6798,12 +6820,15 @@ L3F099:
     JSR $EE1F                ; F0A4  $20 $1F $EE
     LDX #$00                 ; F0A7  $A2 $00
 L3F0A9:
+	; Text buffer
     LDA $07A0,X              ; F0A9  $BD $A0 $07
     STA PpuData_2007         ; F0AC  $8D $07 $20
     INX                      ; F0AF  $E8
     CPX $91                  ; F0B0  $E4 $91
+	; if X < $91
     BCC L3F0A9               ; F0B2  $90 $F5
     CPX $3C                  ; F0B4  $E4 $3C
+	; if X >= $3C
     BCS L3F0D0               ; F0B6  $B0 $18
     LDA $3A                  ; F0B8  $A5 $3A
     AND #$20                 ; F0BA  $29 $20
@@ -6824,12 +6849,13 @@ L3F0D0:
     CLC                      ; F0D6  $18
     ADC #$01                 ; F0D7  $69 $01
     CMP #$1E                 ; F0D9  $C9 $1E
+	; if A < #$1E
     BCC L3F0DF               ; F0DB  $90 $02
     SBC #$1E                 ; F0DD  $E9 $1E
 L3F0DF:
     STA $3B                  ; F0DF  $85 $3B
     RTS                      ; F0E1  $60
-
+; End of
     LDA #$00                 ; F0E2  $A9 $00
     STA PpuMask_2001         ; F0E4  $8D $01 $20
     LDA #$88                 ; F0E7  $A9 $88
