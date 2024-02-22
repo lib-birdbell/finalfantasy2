@@ -1376,6 +1376,7 @@ L3B8C9:
 	LDA #$00		; B8E3 $A9 $00
 	STA PpuScroll_2005	; B8E5 $8D $05 $20
 	STA PpuScroll_2005	; B8E8 $8D $05 $20
+	; Show background
 	LDA #$0A		; B8E8 $A9 $0A
 	STA PpuMask_2001	; B8ED $8D $01 $20
 	LDX #$18		; B8F0 $A2 $18

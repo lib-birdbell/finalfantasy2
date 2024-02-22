@@ -60,6 +60,8 @@ _AF_unknown		= $AF
 
 entity_counter     = $9E 
 
+SQ1FramePosition	= $B0
+
 current_song_ID		= $E0
 _E5_unknown		= $E5
 
@@ -283,8 +285,13 @@ battle_min_mresist       = ch_skills + $32
 ;                        = ch_skills + $34
 battle_row               = ch_skills + $35 ; $00 = back row, $01 = front row, $80 = no character portrait visible
 
+song_tempo		= $6F00
+SQ1vol			= $6F04
+SQ2vol			= $6F05
+_6F06_unknown		= $6F06
 SQ2_Note_Value		 = $6F1F
 current_BGM_ID		 = $6F25
+_6F26_unknown		= $6F26
 
 
 

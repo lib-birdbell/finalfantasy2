@@ -19,6 +19,8 @@ ca65 bank_0F.asm -g
 
 ld65 -C nes.cfg bank_00.o bank_01.o bank_02.o bank_03.o bank_04.o bank_05.o bank_06.o bank_07.o bank_08.o bank_09.o bank_0A.o bank_0B.o bank_0C.o bank_0D.o bank_0E.o bank_0F.o -m mapfile.txt -Ln labels.txt -o %TEMP_ROM_FILE_NAME%.nes --dbgfile FinalFantasy2.dbg
 
+echo off
+
 if exist "%TEMP_ROM_FILE_NAME%.nes" (
 
 copy /B nesheader.bin+%TEMP_ROM_FILE_NAME%.nes /b FinalFantasy2.nes
@@ -29,6 +31,7 @@ del %TEMP_ROM_FILE_NAME%.nes
 del *.o
 ) else (
 del *.o
+echo on
 echo !
 echo !
 echo build failed!! - Some error occurs!!

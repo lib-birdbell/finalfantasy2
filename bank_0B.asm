@@ -585,10 +585,11 @@
 	STA PpuAddr_2006	; 9DA9	$8D $06 $20
 	LDA $00			; 9DAC	$A5 $00
 	STA PpuAddr_2006	; 9DAE	$8D $06 $20
+L2DDB1:
 	LDA ($02),Y		; 9DB1	$B1 $02
 	STA PpuData_2007	; 9DB3	$8D $07 $20
 	INY			; 9DB6	$C8
-	BPL $9DB1		; 9DB7	$10 $F8
+	BPL L2DDB1		;BPL $9DB1		; 9DB7	$10 $F8
 	RTS			; 9DB9	$60
 ; End of
 

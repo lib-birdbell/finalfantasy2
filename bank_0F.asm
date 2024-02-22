@@ -1028,7 +1028,9 @@ L3C746:
     LDA #$0D                 ; C746  $A9 $0D
     JSR Swap_PRG_               ; C748  $20 $03 $FE
     JMP $9800                ; C74B  $4C $00 $98
+; This is real end.
     RTS                      ; C74E  $60
+; End of
 
 ; Name	:
 ; Marks	: sound ??
@@ -6017,17 +6019,17 @@ L3EADF:
     SEC                      ; EAE4  $38
     RTS                      ; EAE5  $60
 
-; Name	:
+; Name	: Set text??
 ; SRC	: $3E(ADDR) - data_buf
 ;	  $84 -
 ;	  $90 - Y INDEX(Count)
-; DEST	: $0780
+; DEST	: $0780 - Upper text buffer ??
 ;	: $07A0 - Text buffer
 ; Marks	: Get data from $3E(ADDR) and process
-; Title story text set some buffer
-; Text range (#$3B < text < ??)
-; Case #$01-#$07, #$0F
-; text < #$6E ??
+; Title story text set some buffer ??
+;	  Special compressed text (#$3B <= text < #$6E)
+;	  Normal text range (#$6E <= text)
+;	  Case #$01-#$07, #$0F
 ;
 L3EAE6:
     LDY #$00                 ; EAE6  $A0 $00
@@ -6044,7 +6046,7 @@ L3EAF2:
 	; if A < #$3B (It's not text)
     BCC L3EB20               ; EAF4  $90 $2A
     CMP #$6E                 ; EAF6  $C9 $6E
-	; if A < #$6E (Special text??)
+	; if A < #$6E (Special compressed text)
     BCC L3EB09               ; EAF8  $90 $0F
     LDY $90                  ; EAFA  $A4 $90
     STA $07A0,Y              ; EAFC  $99 $A0 $07
@@ -6080,7 +6082,7 @@ L3EB27:
     BCC L3EB3A               ; EB36  $90 $02
     SEC                      ; EB38  $38
     RTS                      ; EB39  $60
-
+; End of
 L3EB3A:
     JMP L3EAE6               ; EB3A  $4C $E6 $EA
 L3EB3D:
@@ -6251,7 +6253,7 @@ L3EC46:
 L3EC6A:
     BNE L3EC98               ; EC6A  $D0 $2C
 L3EC6C:
-    JSR Set_daddr_99h		; JSR $EDF9                ; EC6C  $20 $F9 $ED
+    JSR Copy_daddr_99h		; JSR $EDF9                ; EC6C  $20 $F9 $ED
     LDA #$0A                 ; EC6F  $A9 $0A
     JSR Swap_PRG_               ; EC71  $20 $03 $FE
     LDA $84                  ; EC74  $A5 $84
@@ -6361,7 +6363,7 @@ L3ED26:
 L3ED29:
     ASL A                    ; ED29  $0A
     TAX                      ; ED2A  $AA
-    JSR Set_daddr_99h		; JSR $EDF9                ; ED2B  $20 $F9 $ED
+    JSR Copy_daddr_99h		; JSR $EDF9                ; ED2B  $20 $F9 $ED
     LDA #$0A                 ; ED2E  $A9 $0A
     JSR Swap_PRG_               ; ED30  $20 $03 $FE
 	; if A >= #$10
@@ -6397,7 +6399,7 @@ L3ED53:
     LDA ch_name6,X		; LDA $6107,X              ; ED72  $BD $07 $61
     STA $5F                  ; ED75  $85 $5F
 L3ED77:
-    JSR Set_daddr_99h		; JSR $EDF9                ; ED77  $20 $F9 $ED
+    JSR Copy_daddr_99h		; JSR $EDF9                ; ED77  $20 $F9 $ED
     LDA #$5A                 ; ED7A  $A9 $5A
     STA $3E                  ; ED7C  $85 $3E
     LDA #$00                 ; ED7E  $A9 $00
@@ -6430,7 +6432,7 @@ L3ED9D:
 L3EDAF:
     ADC $67                  ; EDAF  $65 $67
     TAX                      ; EDB1  $AA
-    JSR Set_daddr_99h		; JSR $EDF9                ; EDB2  $20 $F9 $ED
+    JSR Copy_daddr_99h		; JSR $EDF9                ; EDB2  $20 $F9 $ED
     LDA #$0A                 ; EDB5  $A9 $0A
     JSR Swap_PRG_               ; EDB7  $20 $03 $FE
     LDA $6100,X              ; EDBA  $BD $00 $61
@@ -6466,10 +6468,10 @@ L3EDF1:
     BVC L3EDCF               ; EDF3  $50 $DA
     LDA #$0F                 ; EDF5  $A9 $0F
     BNE L3EDCF               ; EDF7  $D0 $D6
-; Name	: Set_daddr_99h
+; Name	: Copy_daddr_99h
 ; Marks	: $3E -> $99, $3F -> $9A
 ;	  Data address 2bytes, $3E(ADDR)
-Set_daddr_99h:
+Copy_daddr_99h:
    ;; sub start ;;
     LDA $3E                  ; EDF9  $A5 $3E
     STA $99                  ; EDFB  $85 $99
@@ -6512,8 +6514,12 @@ L3EE1E:
 
 ; Name	:
 ; DEST	: PPU addr
-; Marks	: $3A -
-;	  $3B -
+; Marks	: $3A - screen Y position ??
+;	  $3B - screen X position ??
+;	  $EEC2 - screen position data High byte
+;	  $EEA2 - screen position data Low byte
+;	  Set some data to PPU address
+;	  Set text position
 ;; sub start ;;
     LDA PpuStatus_2002       ; EE1F  $AD $02 $20
     LDX $3A                  ; EE22  $A6 $3A
@@ -6593,6 +6599,8 @@ L3EE84:
     JMP Swap_PRG_               ; EE9F  $4C $03 $FE
 
  ;data block---
+; Title story position ??
+; EEC2,Y(High), EEA2,Y(Low)
 ;; [EEA2 : 3EEB2]
 .byte $00,$20,$40,$60,$80,$A0,$C0,$E0,$00,$20,$40,$60,$80,$A0
 ;; [EEB0 : 3EEC0]
@@ -6770,11 +6778,13 @@ L3F048:
 
 ; Name	:
 ; Marks	: $93 - bank to swap
+;	  timer++
 ;; sub start ;;
     JSR Wait_NMI		; JSR $FE00                ; F053  $20 $00 $FE
-    INC $F0                  ; F056  $E6 $F0
+    INC timer_frame		; INC $F0                  ; F056  $E6 $F0
     JSR $F069                ; F058  $20 $69 $F0
     JSR $E9D5                ; F05B  $20 $D5 $E9
+	; Set bank 0D
     JSR L3C746               ; F05E  $20 $46 $C7
     LDA $93                  ; F061  $A5 $93
     JSR Swap_PRG_               ; F063  $20 $03 $FE
@@ -6824,9 +6834,11 @@ L3F0A9:
     LDA $07A0,X              ; F0A9  $BD $A0 $07
     STA PpuData_2007         ; F0AC  $8D $07 $20
     INX                      ; F0AF  $E8
+	; $91 = text length(1 line)
     CPX $91                  ; F0B0  $E4 $91
 	; if X < $91
     BCC L3F0A9               ; F0B2  $90 $F5
+	; $3C = ??
     CPX $3C                  ; F0B4  $E4 $3C
 	; if X >= $3C
     BCS L3F0D0               ; F0B6  $B0 $18
@@ -6842,6 +6854,7 @@ L3F0C5:
     INX                      ; F0CB  $E8
     CPX $3C                  ; F0CC  $E4 $3C
     BCC L3F0C5               ; F0CE  $90 $F5
+	; Check line
 L3F0D0:
     LDA #$00                 ; F0D0  $A9 $00
     STA $90                  ; F0D2  $85 $90
