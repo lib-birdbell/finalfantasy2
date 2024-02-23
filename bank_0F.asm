@@ -1024,6 +1024,8 @@ L3C744:
     CLC                      ; C744  $18
     RTS                      ; C745  $60
 
+; Name	:
+; Marks	: Sound process ??
 L3C746:
     LDA #$0D                 ; C746  $A9 $0D
     JSR Swap_PRG_               ; C748  $20 $03 $FE
@@ -3908,10 +3910,15 @@ L3DB95:
     JSR $A000                ; DB9A  $20 $00 $A0
     LDA #$0E                 ; DB9D  $A9 $0E
     JMP Swap_PRG_               ; DB9F  $4C $03 $FE
+; End of
+
+; Name	:
+; Marks	:
 L3DBA2:
     JSR Get_key			; JSR $DBA9                ; DBA2  $20 $A9 $DB
     JSR $DBC2                ; DBA5  $20 $C2 $DB
     RTS                      ; DBA8  $60
+; End of
 
 ; Name	: Get_Key
 ; Marks	: store key status in $20(key1p)
@@ -5843,7 +5850,7 @@ L3E9A9:
     JMP L3C746               ; E9D2  $4C $46 $C7
 
 ; Name	:
-; Marks	:
+; Marks	: Scroll process
 ;; sub start ;;
     LDA $37                  ; E9D5  $A5 $37
     BNE L3E9DC               ; E9D7  $D0 $03
@@ -6005,7 +6012,7 @@ L3EA8C:
     STA $1F                  ; EACE  $85 $1F
     JSR L3EAE6               ; EAD0  $20 $E6 $EA
     BCS L3EADF               ; EAD3  $B0 $0A
-    JSR $F053                ; EAD5  $20 $53 $F0
+    JSR Frame_end		; JSR $F053                ; EAD5  $20 $53 $F0
     LDA $57                  ; EAD8  $A5 $57
     JSR Swap_PRG_               ; EADA  $20 $03 $FE
 L3EADD:
@@ -6029,7 +6036,10 @@ L3EADF:
 ; Title story text set some buffer ??
 ;	  Special compressed text (#$3B <= text < #$6E)
 ;	  Normal text range (#$6E <= text)
+;	  Case (#$10 <= #$3B) = 
 ;	  Case #$01-#$07, #$0F
+;	  Case #$00 = End
+;	  Case #$01 = End Frame and do something
 ;
 L3EAE6:
     LDY #$00                 ; EAE6  $A0 $00
@@ -6074,11 +6084,12 @@ L3EB27:
     CMP #$01                 ; EB27  $C9 $01
 	; if A != #$01
     BNE L3EB3D               ; EB29  $D0 $12
-    JSR $F053                ; EB2B  $20 $53 $F0
+    JSR Frame_end		; JSR $F053                ; EB2B  $20 $53 $F0
     INC $1F                  ; EB2E  $E6 $1F
     INC $1F                  ; EB30  $E6 $1F
     LDA $1F                  ; EB32  $A5 $1F
     CMP $3D                  ; EB34  $C5 $3D
+	; if A < $3D
     BCC L3EB3A               ; EB36  $90 $02
     SEC                      ; EB38  $38
     RTS                      ; EB39  $60
@@ -6200,12 +6211,14 @@ L3EC0D:
     BCS L3EC15               ; EC10  $B0 $03
     JMP L3ECD0               ; EC12  $4C $D0 $EC
 L3EC15:
+	; if A != #$14
     BNE L3EC1E               ; EC15  $D0 $07
     LDA $84                  ; EC17  $A5 $84
     STA $90                  ; EC19  $85 $90
     JMP L3EAE6               ; EC1B  $4C $E6 $EA
 L3EC1E:
     CMP #$18                 ; EC1E  $C9 $18
+	; if A >= #$18
     BCS L3EC6A               ; EC20  $B0 $48
     SEC                      ; EC22  $38
     SBC #$15                 ; EC23  $E9 $15
@@ -6251,6 +6264,7 @@ L3EC46:
     STA ($80),Y              ; EC65  $91 $80
     JMP L3EAE6               ; EC67  $4C $E6 $EA
 L3EC6A:
+	; if A != #$18
     BNE L3EC98               ; EC6A  $D0 $2C
 L3EC6C:
     JSR Copy_daddr_99h		; JSR $EDF9                ; EC6C  $20 $F9 $ED
@@ -6259,6 +6273,8 @@ L3EC6C:
     LDA $84                  ; EC74  $A5 $84
     ASL A                    ; EC76  $0A
     TAX                      ; EC77  $AA
+	; A is offset
+	; if A compare bit7 is 1(#$80-#$FF)
     BCS L3EC85               ; EC78  $B0 $0B
     LDA $8200,X              ; EC7A  $BD $00 $82
     STA $3E                  ; EC7D  $85 $3E
@@ -6271,8 +6287,10 @@ L3EC85:
 L3EC8D:
     STA $3F                  ; EC8D  $85 $3F
     JSR L3EAE6               ; EC8F  $20 $E6 $EA
-    JSR Get_daddr_3eh		; JSR $EE02                ; EC92  $20 $02 $EE
+    JSR Set_daddr_swap_bank		; JSR $EE02                ; EC92  $20 $02 $EE
     JMP L3EAE6               ; EC95  $4C $E6 $EA
+; End of
+
 L3EC98:
     CMP #$19                 ; EC98  $C9 $19
     BNE L3ECB1               ; EC9A  $D0 $15
@@ -6378,7 +6396,7 @@ L3ED40:
     LDA $8501,X              ; ED45  $BD $01 $85
     STA $3F                  ; ED48  $85 $3F
     JSR L3EAE6               ; ED4A  $20 $E6 $EA
-    JSR Get_daddr_3eh		; JSR $EE02                ; ED4D  $20 $02 $EE
+    JSR Set_daddr_swap_bank		; JSR $EE02                ; ED4D  $20 $02 $EE
     JMP L3EAE6               ; ED50  $4C $E6 $EA
 L3ED53:
     CMP #$02                 ; ED53  $C9 $02
@@ -6406,7 +6424,7 @@ L3ED77:
     STA $3F                  ; ED80  $85 $3F
     JSR Check_nameFF		; JSR $EE0F                ; ED82  $20 $0F $EE
     JSR L3EAE6               ; ED85  $20 $E6 $EA
-    JSR Get_daddr_3eh		; JSR $EE02                ; ED88  $20 $02 $EE
+    JSR Set_daddr_swap_bank		; JSR $EE02                ; ED88  $20 $02 $EE
     JMP L3EAE6               ; ED8B  $4C $E6 $EA
 L3ED8E:
     LDX #$00                 ; ED8E  $A2 $00
@@ -6461,7 +6479,7 @@ L3EDDE:
 L3EDE6:
     STA $3F                  ; EDE6  $85 $3F
     JSR L3EAE6               ; EDE8  $20 $E6 $EA
-    JSR Get_daddr_3eh		; JSR $EE02                ; EDEB  $20 $02 $EE
+    JSR Set_daddr_swap_bank		; JSR $EE02                ; EDEB  $20 $02 $EE
     JMP L3EAE6               ; EDEE  $4C $E6 $EA
 L3EDF1:
     BIT $03                  ; EDF1  $24 $03
@@ -6480,19 +6498,19 @@ Copy_daddr_99h:
     RTS                      ; EE01  $60
 ; End of Set_data_addr_99h
 
-; Name	: Get_daddr_3eh
-; Marks	: $3E -> $99, $3F -> $9A
-;	  Data address 2bytes, $3E(ADDR)
+; Name	: Set_daddr_3eh
+; Marks	: $99 -> $3E, $9A -> $3F
+;	  Set data address 2bytes, $3E(ADDR)
 ;	  $93 is bank buffer
-Get_daddr_3eh:
+Set_daddr_swap_bank:
 ;; sub start ;;
     LDA $99                  ; EE02  $A5 $99
     STA $3E                  ; EE04  $85 $3E
     LDA $9A                  ; EE06  $A5 $9A
     STA $3F                  ; EE08  $85 $3F
-    LDA $93                  ; EE0A  $A5 $93
+    LDA bank_tmp		; LDA $93                  ; EE0A  $A5 $93
     JMP Swap_PRG_               ; EE0C  $4C $03 $FE
-; End of Get_daddr_3eh
+; End of Set_daddr_swap_bank
 
 ; Name	: Check_nameFF
 ; Marks	: If name is all #$FF, how do this work??
@@ -6586,7 +6604,7 @@ L3EE84:
     STA $07A0,Y              ; EE87  $99 $A0 $07
     DEY                      ; EE8A  $88
     BPL L3EE84               ; EE8B  $10 $F7
-    JSR $F053                ; EE8D  $20 $53 $F0
+    JSR Frame_end		; JSR $F053                ; EE8D  $20 $53 $F0
     LDA $3B                  ; EE90  $A5 $3B
     SEC                      ; EE92  $38
     SBC #$04                 ; EE93  $E9 $04
@@ -6768,6 +6786,7 @@ L3F044:
     LDY #$1D                 ; F044  $A0 $1D
     LDA #$FF                 ; F046  $A9 $FF
 L3F048:
+	; Fill buffer #$FF
     STA $0780,Y              ; F048  $99 $80 $07
     STA $07A0,Y              ; F04B  $99 $A0 $07
     DEY                      ; F04E  $88
@@ -6776,19 +6795,22 @@ L3F048:
     RTS                      ; F052  $60
 ; End of Text_buf_init
 
-; Name	:
-; Marks	: $93 - bank to swap
+; Name	: Frame_end
+; Marks	: bank_tmp($93) - bank to swap
 ;	  timer++
+;	  1 frame process end.
 ;; sub start ;;
+Frame_end:
     JSR Wait_NMI		; JSR $FE00                ; F053  $20 $00 $FE
     INC timer_frame		; INC $F0                  ; F056  $E6 $F0
     JSR $F069                ; F058  $20 $69 $F0
     JSR $E9D5                ; F05B  $20 $D5 $E9
-	; Set bank 0D
+	; Sound process ??
     JSR L3C746               ; F05E  $20 $46 $C7
-    LDA $93                  ; F061  $A5 $93
+    LDA bank_tmp		; LDA $93                  ; F061  $A5 $93
     JSR Swap_PRG_               ; F063  $20 $03 $FE
     JMP L3F044               ; F066  $4C $44 $F0
+; End of Frame_end
 
 ; Name	:
 ; Marks	:

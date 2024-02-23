@@ -1383,9 +1383,10 @@ L3B8C9:
 	; ?? Some calcuration
 	JSR L3B451		; B8F2 $20 $51 $B4
 	LDA #$49		; B8F5 $A9 $49
+	; Very long processing ?? - text parsing ??
 	JSR $B3F0		; B8F7 $20 $F0 $B3
-	; Wait key ?? Next screen ??
-	JSR $B932		; B8FA $20 $32 $B9
+	; Show title story text with flow and blink effect. Wait key input for Next screen.
+	JSR Show_flow_blink	; B8FA $20 $32 $B9
 	LDA #$00		; B8FD $A9 $00
 	STA ApuStatus_4015	; B8FF $8D $15 $40
 	STA PpuMask_2001	; B902 $8D $01 $20
@@ -1421,59 +1422,115 @@ NT0_OAM_init:
 	RTS			; B931 $60
 ; End of NT0_OAM_init
 
-; Name	:
-; Mark	:
-	LDA #$C0		; B932 $A9 $C0
-	STA $62			; B934 $85 $62
+attr_laddr = $62
+attr_color = $63
+; Name	: Show_flow_blink
+; Mark	: Add attribute table address
+Show_flow_blink:
+	LDA #$C0		; B932	$A9 $C0
+	STA attr_laddr		; B934	$85 $62
 L3B936:
-	JSR $B94A		; B936 $20 $4A $B9
-	LDA $62			; B939 $A5 $62
-	CLC			; B93B $18
-	ADC #$08		; B93C $69 $08
-	STA $62			; B93E $85 $62
-	CMP #$F8		; B940 $C9 $F8
-	BCC L3B936		; B942 $90 $F2
+	JSR Blink_2line		; B936	$20 $4A $B9
+	LDA attr_laddr		; B939	$A5 $62
+	CLC			; B93B	$18
+	ADC #$08		; B93C	$69 $08
+	STA attr_laddr		; B93E	$85 $62
+	CMP #$F8		; B940	$C9 $F8
+	BCC L3B936		; B942	$90 $F2
 L3B944:
-	JSR $B9B0		; B944 $20 $B0 $B9
-	JMP L3B944		; B947 $4C $44 $B9
-; Name	:
-; Mark	:
-	LDA #$5A		; B94A $A9 $5A
-	STA $63			; B94C $85 $63
-	JSR $B965		; B94E $20 $65 $B9
-.byte $A5,$62,$C9,$E8,$F0,$07,$A9,$AF,$85,$63,$20,$65,$B9,$A9,$FF
-.byte $85,$63,$4C,$B0,$B9
-; Name	:
-; Mark	: Set palette BG
-	LDA #$00		; B965 $A9 $00
-	STA $64			; B967 $85 $64
-	LDA $64			; B969 $A5 $64
-	STA palette_BG22	; B96B $8D $CB $03
-	JSR L3B9B0		; B96E $20 $B0 $B9
-.byte $E6,$F0,$A5,$F0,$29,$0F,$D0,$0C,$A5,$64,$18,$69,$10,$85,$64
-.byte $C9,$40,$90,$E5,$60,$4A,$90,$E1,$AD,$CB,$03,$38,$E9,$10,$10,$02
-.byte $A9,$01,$8D,$CB,$03,$4C,$6E,$B9
-; Name	:
-; Mark	:
+	JSR $B9B0		; B944	$20 $B0 $B9
+	JMP L3B944		; B947	$4C $44 $B9
+; End of
+
+; Name	: Blink_2line
+; Mark	: Blink 2 text line(4 background tile)
+Blink_2line:
+	; Bottom right 01,Bottom left 01,Top right 10,Top left 10
+	LDA #$5A		; B94A	$A9 $5A
+	STA attr_color		; B94C	$85 $63
+	; Blink 16*4 frame - top line
+	JSR Blink_effect	; B94E	$20 $65 $B9
+	LDA attr_laddr		; B951	$A5 $62
+	CMP #$E8		; B953	$C9 $E8
+	; if A == #$E8
+	BEQ L3B95E		; B955	$F0 $07
+	; Bottom right 10,Bottom left 10,Top right 11,Top left 11
+	LDA #$AF		; B957	$A9 $AF
+	STA attr_color		; B959	$85 $63
+	; Blink 16*4 frame - top bottom
+	JSR Blink_effect	; B95B	$20 $65 $B9
+L3B95E:
+	; Bottom right 11,Bottom left 11,Top right 11,Top left 11
+	LDA #$FF		; B95E	$A9 $FF
+	STA attr_color		; B960	$85 $63
+	JMP $B9B0		; B962	$4C $B0 $B9
+; End of Blink_2line
+
+; Name	: Blink_effect
+; Mark	: Set palette BG for blink effect
+palette_tmp = $64
+Blink_effect:
+	LDA #$00		; B965	$A9 $00
+	STA palette_tmp		; B967	$85 $64
+L3B969:
+	LDA palette_tmp		; B969	$A5 $64
+	STA palette_BG22	; B96B	$8D $CB $03
+L3B96E:
+	; Wait NMI and some process(sound, key)
+	JSR L3B9B0		; B96E	$20 $B0 $B9
+	; Blink effect ??
+	INC timer_frame		; B971	$E6 $F0
+	LDA $F0			; B973	$A5 $F0
+	; Every 16 frame
+	AND #$0F		; B975	$29 $0F
+	BNE L3B985		; B977	$D0 $0C
+	LDA palette_tmp		; B979	$A5 $64
+	CLC			; B97B	$18
+	ADC #$10		; B97C	$69 $10
+	STA palette_tmp		; B97E	$85 $64
+	CMP #$40		; B980	$C9 $40
+	BCC L3B969		; B982	$90 $E5
+	RTS			; B984	$60
+; End of
+
+L3B985:
+	LSR A			; B985	$4A
+	BCC L3B969		; B986	$90 $E1
+	LDA palette_BG22	; B988	$AD $CB $03
+	SEC			; B98B	$38
+	SBC #$10		; B98C	$E9 $10
+	BPL L3B992		; B98E	$10 $02
+	LDA #$01		; B990	$A9 $01
+L3B992:
+	STA palette_BG22	; B992	$8D $CB $03
+	JMP L3B96E		; B995	$4C $6E $B9
+; End of
+
+; Name	: attr_set
+; Mark	: attr palette
+;	  $62 attribute address
+;	  $63 attribute color
+;	  Set 4line color fill
+attr_set:
 	LDA PpuStatus_2002	; B998 $AD $02 $20
 	LDA #$23		; B99B $A9 $23
 	STA PpuAddr_2006	; B99D $8D $06 $20
-	LDA $62			; B9A0 $A5 $62
+	LDA attr_laddr		; B9A0 $A5 $62
 	STA PpuAddr_2006	; B9A2 $8D $06 $20
 	LDX #$08		; B9A5 $A2 $08
-	LDA $63			; B9A7 $A5 $63
+	LDA attr_color		; B9A7 $A5 $63
 L3B9A9:
 	STA PpuData_2007	; B9A9 $8D $07 $20
 	DEX			; B9AC $CA
 	BNE L3B9A9		; B9AD $D0 $FA
 	RTS			; B9AF $60
-; End of
+; End of attr_set
 
 ; Name	:
 ; Marks	:
 L3B9B0:
 	JSR Wait_NMI		; B9B0 $20 $00 $FE
-	JSR $B998		; B9B3 $20 $98 $B9
+	JSR attr_set		; B9B3 $20 $98 $B9
 	JSR Palette_copy	; B9B6 $20 $30 $DC
 	LDA $FF			; B9B9 $A5 $FF
 	STA PpuControl_2000	; B9BB $8D $00 $20
@@ -1485,6 +1542,7 @@ L3B9B0:
 	STA b_pressing		; B9C8 $85 $24
 	LDA #$0E		; B9CA $A9 $0E
 	STA bank		; B9CC $85 $57
+	; Sound??
 	JSR $C74F		; B9CE $20 $4F $C7
 	; key ??
 	JSR $DBA2		; B9D1 $20 $A2 $DB

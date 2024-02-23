@@ -15,6 +15,7 @@ b_pressing	   = $25
 ow_x_pos			= $27
 ow_y_pos			= $28
 
+_37_unknown		= $37	; PPU scroll variable?? - 01 = scroll disable
 _38_unknown		= $38
 _39_unknown		= $39
 _3A_unknown		= $3A
@@ -37,6 +38,9 @@ ch_name4buf		= $5D
 ch_name5buf		= $5E
 ch_name6buf		= $5F
 
+_62_unknown		= $62
+_63_unknown		= $63
+_64_palette_tmp		= $64
 _67_unknown		= $67
 
 charstat_pointer   = $7A ; 2 bytes
@@ -46,7 +50,7 @@ battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
 _84_unknown		= $84
 _90_unknown		= $90
 _91_unknown		= $91
-_93_unknown		= $93	; bank buffer ??
+bank_tmp		= $93
 _94_unknown		= $94
 _95_unknown		= $95
 _98_unknown		= $98
