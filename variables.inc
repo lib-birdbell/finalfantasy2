@@ -67,6 +67,9 @@ entity_counter     = $9E
 SQ1FramePosition	= $B0
 
 current_song_ID		= $E0
+;	#$41 = title prelude
+;	#$43 = chocobo
+;	#$44 = Main thema
 _E5_unknown		= $E5
 
 timer_frame	   = $F0	; Timer, Increases by 1 every frame.
@@ -411,7 +414,6 @@ SpriteDma_4014           = $4014
 ApuStatus_4015           = $4015
 Ctrl1_4016               = $4016
 Ctrl2_FrameCtr_4017      = $4017
-
 
 
 

@@ -7,7 +7,7 @@
 .export L3FA2A			;FA2A
 .export Set_IRQ_JMP		;FA2A
 .export L3FD5B
-.export Fill_F0_200_2FF		;C46E
+.export Init_Page2		;C46E
 .export Get_key			;DBA9
 .export Palette_copy		;DC30
 .export Clear_Nametable0	;F321
@@ -58,7 +58,7 @@ L3C009:
 	; RAM init $00 - $EF = #$00, $3C0 - $3DF = #$0F
     JSR RAM_init		; JSR $C486                ; C040  $20 $86 $C4
 	; RAM init $200 - $2FF = #$F0
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; C043  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; C043  $20 $6E $C4
 	; Set NMI
     JSR Wait_NMI		; JSR $FE00                ; C046  $20 $00 $FE
 	; Fill OAM
@@ -158,7 +158,7 @@ L3C0FB:
     JSR $C159                ; C103  $20 $59 $C1
     JSR $C266                ; C106  $20 $66 $C2
 L3C109:
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; C109  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; C109  $20 $6E $C4
     JSR $E009                ; C10C  $20 $09 $E0
     LDA $6004                ; C10F  $AD $04 $60
     ORA $6C                  ; C112  $05 $6C
@@ -623,9 +623,9 @@ L3C469:
     STA $36                  ; C46B  $85 $36
     RTS                      ; C46D  $60
 
-; Name	: Fill_F0_200_2FF
+; Name	: Init_Page2
 ; Marks	: Fill #$F0 $0200 - @02FF
-Fill_F0_200_2FF:
+Init_Page2:
 ;; sub start ;;
     LDX #$3F                 ; C46E  $A2 $3F
     LDA #$F0                 ; C470  $A9 $F0
@@ -639,7 +639,7 @@ L3C472:
     LDA #$00                 ; C481  $A9 $00
     STA $26                  ; C483  $85 $26
     RTS                      ; C485  $60
-; End of Fill_F0_200_2FF
+; End of Init_Page2
 
 ; Name	: RAM_init
 ; Marks	: RAM init $01 - $EF = #$00
@@ -1470,7 +1470,7 @@ L3CA7D:
     BEQ L3CA84               ; CA7F  $F0 $03
     JSR $E8AA                ; CA81  $20 $AA $E8
 L3CA84:
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; CA84  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; CA84  $20 $6E $C4
     JSR $E30C                ; CA87  $20 $0C $E3
     JMP L3CA44               ; CA8A  $4C $44 $CA
 L3CA8D:
@@ -4041,7 +4041,7 @@ L3DC3F:
     RTS                      ; DC5D  $60
 
 L3DC5E:
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; DC5E  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; DC5E  $20 $6E $C4
     JSR Wait_NMI		; JSR $FE00                ; DC61  $20 $00 $FE
     LDA #$02                 ; DC64  $A9 $02
     STA SpriteDma_4014       ; DC66  $8D $14 $40
@@ -4524,7 +4524,7 @@ DFA0:
     ADC #$01                 ; DFC6  $69 $01
     STA $F0                  ; DFC8  $85 $F0
     JSR L3C380               ; DFCA  $20 $80 $C3
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; DFCD  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; DFCD  $20 $6E $C4
     JSR L3C746               ; DFD0  $20 $46 $C7
     LDA #$70                 ; DFD3  $A9 $70
     STA $40                  ; DFD5  $85 $40
@@ -6909,7 +6909,7 @@ L3F0DF:
     STA $3D                  ; F104  $85 $3D
     LDA #$01                 ; F106  $A9 $01
     STA $37                  ; F108  $85 $37
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; F10A  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; F10A  $20 $6E $C4
     JSR Wait_NMI		; JSR $FE00                ; F10D  $20 $00 $FE
     JSR Palette_copy		; JSR $DC30                ; F110  $20 $30 $DC
     LDA #$02                 ; F113  $A9 $02
@@ -6959,7 +6959,7 @@ F15C:
     LDA #$0E                 ; F178  $A9 $0E
     STA $57                  ; F17A  $85 $57
     JSR L3C74F               ; F17C  $20 $4F $C7
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; F17F  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; F17F  $20 $6E $C4
     JSR $F212                ; F182  $20 $12 $F2
     JSR $F200                ; F185  $20 $00 $F2
     JSR $F1A1                ; F188  $20 $A1 $F1
@@ -7246,7 +7246,7 @@ F3FC:
     BNE F3FC                 ; F400  $D0 $FA
     JSR $F453                ; F402  $20 $53 $F4
     JMP L3C746               ; F405  $4C $46 $C7
-    JSR Fill_F0_200_2FF		; JSR $C46E                ; F408  $20 $6E $C4
+    JSR Init_Page2		; JSR $C46E                ; F408  $20 $6E $C4
     JSR Wait_NMI		; JSR $FE00                ; F40B  $20 $00 $FE
     LDA #$1E                 ; F40E  $A9 $1E
     STA PpuMask_2001         ; F410  $8D $01 $20

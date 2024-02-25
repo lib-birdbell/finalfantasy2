@@ -1,13 +1,15 @@
 .include "Constants.inc"
 .include "variables.inc"
 
-.import	Fill_F0_200_2FF
+.import	Init_Page2
 .import Get_key
 .import Palette_copy
 .import Clear_Nametable0
 .import Wait_NMI
 
+
 .segment "BANK_0E"
+
 
 ;; [$8000 :: 0x38010]
 
@@ -1248,32 +1250,110 @@ L3B5AF:
 .byte $F0,$29,$08,$D0,$F9,$A6,$26,$A9,$27,$9D,$00,$02,$A9,$48,$9D,$01
 .byte $02,$A9,$03,$9D,$02,$02,$A5,$08,$0A,$0A,$0A,$18,$69,$78,$9D,$03
 .byte $02,$60
-; Almost begin
+; Almost begin - after title story end
 	LDA #$00		; B642	$A9 $00
 	STA PpuMask_2001
 	STA ApuStatus_4015
 	LDA #$05
 	STA $08
 	JSR $FFB0
-.byte $A9,$08,$8D,$C0,$61,$20,$91,$E4,$20,$06,$B9,$20,$30,$DC,$A9
-.byte $1E,$8D,$01,$20,$A9,$00,$20,$C1,$DA,$85,$88,$A9,$01,$20,$C1,$DA
-.byte $85,$89,$A9,$02,$20,$C1,$DA,$85,$8A,$A9,$03,$20,$C1,$DA,$85,$8B
-.byte $A9,$00,$8D,$F0,$78,$8D,$F0,$79,$8D,$F0,$7A,$20,$FC,$B7,$A9,$10
-; STA $9E	; B690
-.byte $85,$9E,$20,$EC,$B7,$A5,$9E,$18,$69,$01,$85,$9E,$C9,$14,$90,$F2
-.byte $20,$E2,$B7,$20,$B4,$B7,$A5,$FF,$8D,$00,$20,$20,$00,$FE
+	LDA #$08		; B651	$A9 $08
+	STA $61C0		; B653	$8D $C0 $61
+	JSR $E491		; B656	$20 $91 $E4
+	JSR $B906		; B65C	$20 $06 $B9
+	JSR $DC30		; B65F	$20 $30 $DC
+	LDA #$1E		; B65F	$A9 $1E
+	STA PpuMask_2001	; B661	$8D $01 $20
+	LDA #$00		; B664	$A9 $00
+	JSR $DAC1		; B666	$20 $C1 $DA
+	STA $88			; B669	$85 $88
+	LDA #$01		; B66B	$A9 $01
+	JSR $DAC1		; B66D	$20 $C1 $DA
+	STA $89			; B670	$85 $89
+	LDA #$02		; B672	$A9 $02
+	JSR $DAC1		; B674	$20 $C1 $DA
+	STA $8A			; B677	$85 $8A
+	LDA #$03		; B679	$A9 $03
+	JSR $DAC1		; B67B	$20 $C1 $DA
+	STA $8B			; B67E	$85 $8B
+	LDA #$00		; B680	$A9 $00
+	STA $78F0		; B682	$8D $F0 $78
+	STA $79F0		; B685	$8D $F0 $79
+	STA $7AF0		; B688	$8D $F0 $7A
+	JSR $B7FC		; B68B	$20 $FC $B7
+	LDA #$10		; B68E	$A9 $10
+	STA $9E			; B690	$85 $9E
+L3B692:
+	JSR $B7EC		; B692	$20 $EC $B7
+	LDA $9E			; B695	$A5 $9E
+	CLC			; B697	$18
+	ADC #$01		; B698	$69 $01
+	STA $9E			; B69A	$85 $9E
+	CMP #$14		; B69C	$C9 $14
+	BCC L3B692		; B69E	$90 $F2
+	JSR $B7E2		; B6A0	$20 $E2 $B7
+	JSR $B7B4		; B6A3	$20 $B4 $B7
+	LDA $FF			; B6A6	$A5 $FF
+	STA PpuControl_2000	; B6A8	$8D $00 $20
+	; Choose the Save file or New game select loop
+L3B6AB:
+	JSR $FE00		; B6AB	$20 $00 $FE
 	LDA #$02		; B6AE	$A9 $02
 	STA SpriteDma_4014	; B6B0	$8D $14 $40
 	JSR $C46E		; B6B3	$20 $6E $C4
-.byte $20,$4F,$C7,$20,$52,$96,$20,$2D,$B7,$A5
-.byte $24,$F0,$E8,$20,$5E,$90,$AD,$F0,$78,$C9,$10,$B0,$43,$4A,$4A,$85
-.byte $80,$A8,$4A,$6A,$6A,$AA,$BD,$10,$61,$AA,$B9,$88,$00,$D0,$31,$A5
-.byte $80,$0A,$18,$65,$80,$69,$63,$85,$81,$A9,$00,$85,$80,$A0,$00,$B1
-.byte $80,$99,$00,$60,$C8,$D0,$F8,$E6,$81,$B1,$80,$99,$00,$61,$C8,$D0
+	JSR $C74F		; B6B6	$20 $4F $C7
+	JSR $9652		; B6B9	$20 $52 $96
+	JSR $B72D		; B6BC	$20 $2D $B7
+	LDA $24			; B6BF	$A5 $24
+	BEQ L3B6AB		; B6C1	$F0 $E8
+	JSR $905E		; B6C3	$20 $5E $90
+	LDA $78F0		; B6C6	$AD $F0 $78
+	CMP #$10		; B6C9	$C9 $10
+	BCS L3B710		; B6CB	$B0 $43
+	LSR A			; B6CD	$4A
+	LSR A			; B6CE	$4A
+	STA $80			; B6CF	$85 $80
+	TAY			; B6D1	$A8
+	LSR A			; B6D2	$4A
+	ROR A			; B6D3	$6A
+	ROR A			; B6D4	$6A
+	TAX			; B6D5	$AA
+	LDA $6110,X		; B6D6	$BD $10 $61
+	TAX			; B6D9	$AA
+	LDA $0088,Y		; B6DA	$B9 $88 $00
+	BNE L3B710		; B6DD	$D0 $31
+	LDA $80			; B6DF	$A5 $80
+	ASL A			; B6E1	$0A
+	CLC			; B6E2	$18
+	ADC $80			; B6E3	$65 $80
+	ADC #$63		; B6E5	$69 $63
+	STA $81			; B6E7	$85 $81
+	LDA #$00		; B6E9	$A9 $00
+	STA $80			; B6EB	$85 $80
+	LDY #$00		; B6ED	$A0 $00
+L3B6EF:
+	LDA ($80),Y		; B6EF	$B1 $80
+	STA $6000,Y		; B6F1	$99 $00 $60
+	INY			; B6F4	$C8
+	BNE L3B6EF		; B6F5	$D0 $F8
+	INC $81			; B6F7	$E6 $81
+L3B6F9:
+	LDA ($80),Y		; B6F9	$B1 $80
+	STA $6100,Y		; B6FB	$99 $00 $61
+	INY			; B6FE	$C8
+	BNE L3B6F9		; B6FF	$D0 $F8
+	INC $81			; B701	$E6 $81
+L3B703:
+	LDA ($80),Y		; B703	$B1 $80
+	STA $6200,Y		; B705	$99 $00 $62
+	INY			; B708	$C8
+	BNE L3B703		; B709	$D0 $F8
+	STX $601F		; B70B	$8E $1F $60
+	SEC			; B70E	$38
+	RTS			; B70F	$60
+; End of
 
-;; [$8000 :: 0x3B710]
-
-.byte $F8,$E6,$81,$B1,$80,$99,$00,$62,$C8,$D0,$F8,$8E,$1F,$60,$38,$60
+L3B710:
 	JSR $FFB0		; B710	$20 $B0 $Ff
 	LDA #$08		; B713	$A9 $08
 	; ch_stats_4
@@ -1402,7 +1482,7 @@ L3B8C9:
 ;	  PPU init OAM to #$F0
 NT0_OAM_init:
 	LDA #$41		; B906 $A9 $41
-	STA $E0			; B908 $85 $E0
+	STA current_song_ID	; B908 $85 $E0
 	JSR Clear_Nametable0	; B90A $20 $21 $F3
 	LDA #$88		; B90D $A9 $88
 	STA $FF			; B90F $85 $FF
@@ -1414,7 +1494,7 @@ NT0_OAM_init:
 	STA $A2			; B91D $85 $A2
 	STA $A3			; B91F $85 $A3
 	STA $A4			; B921 $85 $A4
-	JSR Fill_F0_200_2FF	; B923 $20 $6E $C4
+	JSR Init_Page2	; B923 $20 $6E $C4
 	JSR Wait_NMI		; B926 $20 $00 $FE
 	JSR Wait_NMI		; B929 $20 $00 $FE
 	LDA #$02		; B92C $A9 $02
