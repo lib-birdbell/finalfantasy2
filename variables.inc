@@ -48,7 +48,7 @@ charskill_pointer  = $7E ; 2 bytes
 battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
 
 _84_unknown		= $84
-_90_unknown		= $90
+text_x_offset		= $90
 _91_unknown		= $91
 bank_tmp		= $93
 _94_unknown		= $94
@@ -68,8 +68,11 @@ SQ1FramePosition	= $B0
 
 current_song_ID		= $E0
 ;	#$41 = title prelude
+;	#$42 = suprise
 ;	#$43 = chocobo
 ;	#$44 = Main thema
+;	#$45 = Main thema
+;	#$46 = Main thema
 _E5_unknown		= $E5
 
 timer_frame	   = $F0	; Timer, Increases by 1 every frame.

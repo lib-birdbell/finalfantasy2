@@ -157,6 +157,7 @@
 
 ;; [$8800 :: 0x34810]
 
+; Text data
 .byte $B2,$B2,$B7,$01,$51,$FF,$A8,$AF,$B6,$A8,$C4,$01,$01,$01,$8A,$69
 .byte $AC,$68,$4F,$BC,$4D,$BA,$3F,$5F,$B1,$BE,$C5,$01,$A2,$4D,$A9,$B2
 .byte $B2,$AF,$B6,$C3,$90,$6D,$FF,$BE,$A8,$B0,$BF,$A5,$B2,$BC,$B6,$C4
@@ -479,9 +480,12 @@ L3581A:
 	ASL A			; 981C	$0A
 	BCC L35832		; 981D	$90 $13
 	JSR $98A9		; 981F	$20 $A9 $98
-
-.byte $A9,$00,$85,$E0,$8D,$1B,$6F,$8D,$1F,$6F,$8D,$23,$6F,$4C
-.byte $63,$98
+	LDA #$00		; 9822	$A9 $00
+	STA $E0			; 9824	$85 $E0
+	STA $6F1B		; 9826	$8D $1B $6F
+	STA $6F1F		; 9829	$8D $1F $6F
+	STA $6F23		; 982C	$8D $23 $6F
+	JMP $9863		; 982F	$4C $63 $98
 L35832:
 	ASL A			; 9832	$0A
 	BCC L35863		; 9833	$90 $2E
@@ -549,9 +553,23 @@ L3589C:
 	RTS			; 98A8	$60
 ; End of
 
-.byte $A2,$00,$BD,$26,$6F,$95,$B0
-.byte $E8,$E0,$12,$90,$F6,$A0,$00,$BD,$26,$6F,$99,$00,$6F,$E8,$C8,$C0
-.byte $26,$90,$F4,$60
+	LDX #$00		; 98A9	$A2 $00
+L358AB:
+	LDA $6F26,X		; 98AB	$BD $26 $6F
+	STA $B0,X		; 98AE	$95 $B0
+	INX			; 98B0	$E8
+	CPX #$12		; 98B1	$E0 $12
+	BCC L358AB		; 98B3	$90 $F6
+	LDY #$00		; 98B5	$A0 $00
+L358B7:
+	LDA $6F26,X		; 98B7	$BD $26 $6F
+	STA $6F00,Y		; 98BA	$99 $00 $6F
+	INX			; 98BD	$E8
+	INY			; 98BE	$C8
+	CPY #$26		; 98BF	$C0 $26
+	BCC L358B7		; 98C1	$90 $F4
+	RTS			; 98C3	$60
+; End of
 
 ; Name	:
 ; Marks	:
@@ -591,41 +609,245 @@ L358F6:
 	RTS			; 9901	$60
 ; End of
 
-;; [$9900 :: 0x35900]
+;; [$9902 :: 0x35902]
+; data
+.byte $30,$08,$00,$00,$30,$08,$00,$00,$80,$00,$00,$00
 
-.byte $30,$08,$00,$00,$30,$08,$00,$00,$80,$00,$00,$00,$AD,$00
-.byte $6F,$18,$6D,$06,$6F,$8D,$06,$6F,$AD,$06,$6F,$C9,$4B,$90,$0B,$E9
-.byte $4B,$8D,$06,$6F,$20,$31,$99,$4C,$18,$99,$20,$22,$9B,$20,$1F,$9C
-.byte $60,$A9,$00,$85,$C5,$A5,$C5,$A8,$0A,$85,$C6,$AA,$0A,$85,$C7,$B5
-.byte $B0,$85,$C3,$B5,$B1,$85,$C4,$C9,$FF,$F0,$1D,$B9,$07,$6F,$D0,$13
-.byte $A0,$00,$20,$71,$99,$A6,$C6,$98,$18,$65,$C3,$95,$B0,$A9,$00,$65
-.byte $C4,$95,$B1,$A6,$C5,$DE,$07,$6F,$E6,$C5,$A5,$C5,$C9,$03,$90,$C5
-.byte $60,$B1,$C3,$C8,$C9,$E0,$B0,$04,$20,$C8,$99,$60,$D0,$06,$20,$4C
-.byte $9A,$4C,$71,$99,$C9,$F0,$B0,$06,$20,$53,$9A,$4C,$71,$99,$C9,$F6
-.byte $B0,$06,$20,$5B,$9A,$4C,$71,$99,$D0,$06,$20,$63,$9A,$4C,$71,$99
-.byte $C9,$FC,$B0,$06,$20,$82,$9A,$4C,$71,$99,$D0,$06,$20,$95,$9A,$4C
-.byte $71,$99,$C9,$FE,$B0,$06,$20,$B1,$9A,$4C,$71,$99,$D0,$06,$20,$CE
-.byte $9A,$4C,$71,$99,$20,$DF,$9A,$60,$85,$C8,$29,$0F,$AA,$BD,$FD,$9C
-.byte $A6,$C5,$9D,$07,$6F,$A5,$C8,$C9,$D0,$90,$01,$60,$C9,$C0,$90,$1E
-.byte $A9,$01,$95,$C0,$A6,$C7,$A9,$00,$9D,$1B,$6F,$E0,$08,$F0,$09,$BD
-.byte $19,$6F,$29,$F0,$9D,$19,$6F,$60,$A9,$80,$8D,$21,$6F,$60,$E0,$02
+; Name	:
+; Marks	: ??
+	LDA $6F00		; 990E	$AD $00 $6F
+	CLC			; 9911	$18
+	ADC $6F06		; 9912	$6D $06 $6F
+	STA $6F06		; 9915	$8D $06 $6F
+	LDA $6F06		; 9918	$AD $06 $6F
+	CMP #$4B		; 991B	$C9 $4B
+	BCC L3592A		; 991D	$90 $0B
+	SBC #$4B		; 991F	$E9 $4B
+	STA $6F06		; 9921	$8D $06 $6F
+	JSR $9931		; 9924	$20 $31 $99
+	JMP $9918		; 9927	$4C $18 $99
+L3592A:
+	JSR $9B22		; 992A	$20 $22 $9B
+	JSR $9C1F		; 992D	$20 $1F $9C
+	RTS			; 9930	$60
+; End of
 
-;; [$9A00 :: 0x35A00]
+; Name	:
+; Marks	:
+	LDA #$00		; 9931	$A9 $00
+	STA $C5			; 9933	$85 $C5
+L35935:
+	LDA $C5			; 9935	$A5 $C5
+	TAY			; 9937	$A8
+	ASL A			; 9938	$0A
+	STA $C6			; 9939	$85 $C6
+	TAX			; 993B	$AA
+	ASL A			; 993C	$0A
+	STA $C7			; 993D	$85 $C7
+	LDA $B0,X		; 993F	$B5 $B0
+	STA $C3			; 9941	$85 $C3
+	LDA $B1,X		; 9943	$B5 $B1
+	STA $C4			; 9945	$85 $C4
+	CMP #$FF		; 9947	$C9 $FF
+	BEQ L35968		; 9949	$F0 $1D
+	LDA $6F07,Y		; 994B	$B9 $07 $6F
+	BNE L35963		; 994E	$D0 $13
+	LDY #$00		; 9950	$A0 $00
+	JSR $9971		; 9952	$20 $71 $99
+	LDX $C6			; 9955	$A6 $C6
+	TYA			; 9957	$98
+	CLC			; 9958	$18
+	ADC $C3			; 9959	$65 $C3
+	STA $B0,X		; 995B	$95 $B0
+	LDA #$00		; 995D	$A9 $00
+	ADC $C4			; 995F	$65 $C4
+	STA $B1,X		; 9961	$95 $B1
+L35963:
+	LDX $C5			; 9963	$A6 $C5
+	DEC $6F07,X		; 9965	$DE $07 $6F
+L35968:
+	INC $C5			; 9968	$E6 $C5
+	LDA $C5			; 996A	$A5 $C5
+	CMP #$03		; 996C	$C9 $03
+	BCC L35935		; 996E	$90 $C5
+	RTS			; 9970	$60
+; End of
+	LDA ($C3),Y		; 9971	$B1 $C3
+	INY			; 9973	$C8
+	CMP #$E0		; 9974	$C9 $E0
+	BCS L3597C		; 9976	$B0 $04
+	JSR $99C8		; 9978	$20 $C8 $99
+	RTS			; 997B	$60
+; Enf of
+L3597C:
+	BNE L35984		; 997C	$D0 $06
+	JSR $9A4C		; 997E	$20 $4C $9A
+	JMP $9971		; 9981	$4C $71 $99
+L35984:
+	CMP #$F0		; 9984	$C9 $F0
+	BCS L3598E		; 9986	$B0 $06
+	JSR $9A53		; 9988	$20 $53 $9A
+	JMP $9971		; 998B	$4C $71 $99
+L3598E:
+	CMP #$F6		; 998E	$C9 $F6
+	BCS L35998		; 9990	$B0 $06
+	JSR $9A5B		; 9992	$20 $5B $9A
+L35995:
+	JMP $9971		; 9995	$4C $71 $99
+L35998:
+	BNE L359A0		; 9998	$D0 $06
+	JSR $9A63		; 999A	$20 $63 $9A
+	JMP $9971		; 999D	$4C $71 $99
+L359A0:
+	CMP #$FC		; 99A0	$C9 $FC
+	BCS L359AA		; 99A2	$B0 $06
+	JSR $9A82		; 99A4	$20 $82 $9A
+.byte $4C,$71,$99
+L359AA:
+	BNE L359B2		; 99AA	$D0 $06
+	JSR $9A95		; 99AC	$20 $95 $9A
+.byte $4C
+.byte $71,$99
+L359B2:
+	CMP #$FE		; 99B2	$C9 $FE
+	BCS L359BC		; 99B4	$B0 $06
+	JSR $9AB1		; 99B6	$20 $B1 $9A
+.byte $4C,$71,$99
+L359BC:
+	BNE L359C4		; 99BC	$D0 $06
+	JSR $9ACE		; 99BE	$20 $CE $9A
+	JMP $9971		; 99C1	$4C $71 $99
+L359C4:
+	JSR $9ADF		; 99C4	$20 $DF $9A
+	RTS			; 99C7	$60
+; End of
+	STA $C8			; 99C8	$85 $C8
+	AND #$0F		; 99CA	$29 $0F
+	TAX			; 99CC	$AA
+	LDA $9CFD,X		; 99CD	$BD $FD $9C
+	LDX $C5			; 99D0	$A6 $C5
+	STA $6F07,X		; 99D2	$9D $07 $6F
+	LDA $C8			; 99D5	$A5 $C8
+	CMP #$D0		; 99D7	$C9 $D0
+	BCC L359DC		; 99D9	$90 $01
+	RTS			; 99DB	$60
+; End of
+L359DC:
+	CMP #$C0		; 99DC	$C9 $C0
+	BCC L359FE		; 99DE	$90 $1E
+	LDA #$01		; 99E0	$A9 $01
+	STA $C0,X		; 99E2	$95 $C0
+	LDX $C7			; 99E4	$A6 $C7
+	LDA #$00		; 99E6	$A9 $00
+	STA $6F1B,X		; 99E8	$9D $1B $6F
+	CPX #$08		; 99EB	$E0 $08
+	BEQ L359F8		; 99ED	$F0 $09
+	LDA $6F19,X		; 99EF	$BD $19 $6F
+	AND #$F0		; 99F2	$29 $F0
+	STA $6F19,X		; 99F4	$9D $19 $6F
+	RTS			; 99F7	$60
+;End of
 
-.byte $D0,$05,$A9,$FF,$8D,$21,$6F,$A9,$00,$9D,$13,$6F,$9D,$0A,$6F,$9D
-.byte $16,$6F,$9D,$0D,$6F,$A9,$0F,$95,$C0,$BD,$01,$6F,$0A,$0A,$0A,$85
-.byte $C9,$BD,$01,$6F,$0A,$0A,$65,$C9,$85,$C9,$A5,$C8,$4A,$4A,$4A,$4A
-.byte $18,$65,$C9,$0A,$AA,$BD,$6D,$9C,$85,$C8,$BD,$6E,$9C,$85,$C9,$A6
-.byte $C7,$A5,$C8,$9D,$1B,$6F,$A5,$C9,$9D,$1C,$6F,$60,$B1,$C3,$C8,$8D
-.byte $00,$6F,$60,$29,$0F,$A6,$C5,$9D,$04,$6F,$60,$29,$0F,$A6,$C5,$9D
-.byte $01,$6F,$60,$B1,$C3,$C8,$A6,$C7,$9D,$19,$6F,$A6,$C6,$B1,$C3,$C8
-.byte $95,$B6,$B1,$C3,$C8,$95,$B7,$B1,$C3,$C8,$95,$BA,$B1,$C3,$C8,$95
-.byte $BB,$60,$A6,$C5,$C9,$F8,$90,$06,$E9,$F6,$9D,$10,$6F,$60,$B1,$C3
+L359F8:
+.byte $A9,$80,$8D,$21,$6F,$60
+L359FE:
+	CPX #$02		; 99FE	$E0 $02
+	BNE L35A07		; 9A00	$D0 $05
+	LDA #$FF		; 9A02	$A9 $FF
+	STA $6F21		; 9A04	$8D $21 $6F
+L35A07:
+	LDA #$00		; 9A07	$A9 $00
+	STA $6F13,X		; 9A09	$9D $13 $6F
+	STA $6F0A,X		; 9A0C	$9D $0A $6F
+	STA $6F16,X		; 9A0F	$9D $16 $6F
+	STA $6F0D,X		; 9A12	$9D $0D $6F
+	LDA #$0F		; 9A15	$A9 $0F
+	STA $C0,X		; 9A17	$95 $C0
+	LDA $6F01,X		; 9A19	$BD $01 $6F
+	ASL A			; 9A1C	$0A
+	ASL A			; 9A1D	$0A
+	ASL A			; 9A1E	$0A
+	STA $C9			; 9A1F	$85 $C9
+	LDA $6F01,X		; 9A21	$BD $01 $6F
+	ASL A			; 9A24	$0A
+	ASL A			; 9A25	$0A
+	ADC $C9			; 9A26	$65 $C9
+	STA $C9			; 9A28	$85 $C9
+	LDA $C8			; 9A2A	$A5 $C8
+	LSR A			; 9A2C	$4A
+	LSR A			; 9A2D	$4A
+	LSR A			; 9A2E	$4A
+	LSR A			; 9A2F	$4A
+	CLC			; 9A30	$18
+	ADC $C9			; 9A31	$65 $C9
+	ASL A			; 9A33	$0A
+	TAX			; 9A34	$AA
+	LDA $9C6D,X		; 9A35	$BD $6D $9C
+	STA $C8			; 9A38	$85 $C8
+	LDA $9C6E,X		; 9A3A	$BD $6E $9C
+	STA $C9			; 9A3D	$85 $C9
+	LDX $C7			; 9A3F	$A6 $C7
+	LDA $C8			; 9A41	$A5 $C8
+	STA $6F1B,X		; 9A43	$9D $1B $6F
+	LDA $C9			; 9A46	$A5 $C9
+	STA $6F1C,X		; 9A48	$9D $1C $6F
+	RTS			; 9A4B	$60
+; End of
+	LDA ($C3),Y		; 9A4C	$B1 $C3
+	INY			; 9A4E	$C8
+	STA $6F00		; 9A4F	$8D $00 $6F
+	RTS			; 9A52	$60
+; End of
+	AND #$0F		; 9A53	$29 $0F
+	LDX $C5			; 9A55	$A6 $C5
+	STA $6F04,X		; 9A57	$9D $04 $6F
+	RTS			; 9A5A	$60
+; End of
+	AND #$0F		; 9A5B	$29 $0F
+	LDX $C5			; 9A5D	$A6 $C5
+	STA $6F01,X		; 9A5F	$9D $01 $6F
+	RTS			; 9A60	$60
+; End of
+	LDA ($C3),Y		; 9A63	$B1 $C3
+	INY			; 9A65	$C8
+	LDX $C7			; 9A66	$A6 $C7
+	STA $6F19,X		; 9A68	$9D $19 $6F
+	LDX $C6			; 9A6B	$A6 $C6
+	LDA ($C3),Y		; 9A6D	$B1 $C3
+	INY			; 9A6F	$C8
+	STA $B6,X		; 9A70	$95 $B6
+	LDA($C3),Y		; 9A72	$B1 $C3
+	INY			; 9A74	$C8
+	STA $B7,X		; 9A75	$95 $B7
+	LDA ($C3),Y		; 9A77	$B1 $C3
+	INY			; 9A79	$C8
+	STA $BA,X		; 9A7A	$95 $BA
+	LDA ($C3),Y		; 9A7C	$B1 $C3
+	INY			; 9A7E	$C8
+	STA $BB,X		; 9A7F	$95 $BB
+	RTS			; 9A81	$60
+; End of
+.byte $A6,$C5,$C9,$F8,$90,$06,$E9,$F6,$9D,$10,$6F,$60,$B1,$C3
 .byte $C8,$9D,$10,$6F,$60,$B1,$C3,$C8,$85,$C8,$B1,$C3,$C8,$85,$C9,$A6
 .byte $C5,$DE,$10,$6F,$F0,$0A,$A5,$C8,$85,$C3,$A5,$C9,$85,$C4,$A0,$00
 .byte $60,$B1,$C3,$C8,$85,$C8,$B1,$C3,$C8,$85,$C9,$A6,$C5,$BD,$10,$6F
-.byte $4A,$90,$0A,$A5,$C8,$85,$C3,$A5,$C9,$85,$C4,$A0,$00,$60,$B1,$C3
-.byte $C8,$85,$C8,$B1,$C3,$C8,$85,$C4,$A5,$C8,$85,$C3,$A0,$00,$60
+.byte $4A,$90,$0A,$A5,$C8,$85,$C3,$A5,$C9,$85,$C4,$A0,$00,$60
+; Name	:
+; Marks	:
+	LDA ($C3),Y		; 9ACE	$B1 $C3
+	INY			; 9AD0	$C8
+	STA $C8			; 9AD1	$85 $C8
+	LDA ($C3),Y		; 9AD3	$B1 $C3
+	INY			; 9AD5	$C8
+	STA $C4			; 9AD6	$85 $C4
+	LDA $C8			; 9AD8	$A5 $C8
+	STA $C3			; 9ADA	$85 $C3
+	LDY #$00		; 9ADC	$A0 $00
+	RTS			; 9ADE	$60
+; End of
+
+; Name	:
+; Marks	:
 	LDX $C6			; 9ADF	$A6 $C6
 	LDA #$FF		; 9AE1	$A9 $FF
 	STA $B6,X		; 9AE3	$95 $B6
@@ -665,32 +887,195 @@ L35B21:
 	RTS			; 9B21	$60
 ; End of
 
-;; [$9B00 :: 0x35B00]
+; Name	:
+; Marks	:
+	LDA #$00		; 9B22	$A9 $00
+	STA $C5			; 9B24	$85 $C5
+L35B26:
+	LDA $C5			; 9B26	$A5 $C5
+	ASL A			; 9B28	$0A
+	STA $C6			; 9B29	$85 $C6
+	TAX			; 9B2B	$AA
+	ASL A			; 9B2C	$0A
+	STA $C7			; 9B2D	$85 $C7
+	TAY			; 9B2F	$A8
+	LDA $6F1B,Y		; 9B30	$B9 $1B $6F
+	BEQ L35B4D		; 9B33	$F0 $18
+	LDA $B6,X		; 9B35	$B5 $B6
+	STA $C3			; 9B37	$85 $C3
+	LDA $B7,X		; 9B39	$B5 $B7
+	STA $C4			; 9B3B	$85 $C4
+	JSR $9B56		; 9B3D	$20 $56 $9B
+	LDX $C6			; 9B40	$A6 $C6
+	LDA $BA,X		; 9B42	$B5 $BA
+	STA $C3			; 9B44	$85 $C3
+	LDA $BB,X		; 9B46	$B5 $BB
+	STA $C4			; 9B48	$85 $C4
+	JSR $9BB6		; 9B4A	$20 $B6 $9B
+L35B4D:
+	INC $C5			; 9B4D	$E6 $C5
+	LDA $C5			; 9B4F	$A5 $C5
+	CMP #$03		; 9B51	$C9 $03
+	BCC L35B26		; 9B53	$90 $D1
+	RTS			; 9B55	$60
+; End of
+	LDA $C4			; 9B56	$A5 $C4
+	CMP #$FF		; 9B58	$C9 $FF
+	BNE L35B5D		; 9B5A	$D0 $01
+	RTS			; 9B5C	$60
+; End of
+L35B5D:
+	LDX $C5			; 9B5D	$A6 $C5
+	LDA $6F0A,X		; 9B5F	$BD $0A $6F
+	BNE L35BB2		; 9B62	$D0 $4E
+	LDY $6F13,X		; 9B64	$BC $13 $6F
+	LDA ($C3),Y		; 9B67	$B1 $C3
+	AND #$F0		; 9B69	$29 $F0
+	BNE L35B81		; 9B6B	$D0 $14
+	LDA ($C3),Y		; 9B6D	$B1 $C3
+	AND #$0F		; 9B6F	$29 $0F
+	BEQ L35BB2		; 9B71	$F0 $3F
+	STA $C8			; 9B73	$85 $C8
+	LDA $6F13,X		; 9B75	$BD $13 $6F
+	SEC			; 9B78	$38
+	SBC $C8			; 9B79	$E5 $C8
+	STA $6F13,X		; 9B7B	$9D $13 $6F
+	JMP $9B64		; 9B7E	$4C $64 $9B
+L35B81:
+	LSR A			; 9B81	$4A
+	LSR A			; 9B82	$4A
+	LSR A			; 9B83	$4A
+	LSR A			; 9B84	$4A
+	STA $6F0A,X		; 9B85	$9D $0A $6F
+	INC $6F13,X		; 9B88	$FE $13 $6F
+	LDA $6F04,X		; 9B8B	$BD $04 $6F
+	ASL A			; 9B8E	$0A
+	ASL A			; 9B8F	$0A
+	ASL A			; 9B90	$0A
+	ASL A			; 9B91	$0A
+	STA $C8			; 9B92	$85 $C8
+	LDA ($C3),Y		; 9B94	$B1 $C3
+	AND #$0F		; 9B96	$29 $0F
+	ORA $C8			; 9B98	$05 $C8
+	TAY			; 9B9A	$A8
+	LDA $9D0D,Y		; 9B9B	$B9 $0D $9D
+	STA $C8			; 9B9E	$85 $C8
+	LDY $C7			; 9BA0	$A4 $C7
+	LDA $6F19,Y		; 9BA2	$B9 $19 $6F
+	AND #$F0		; 9BA5	$29 $F0
+	ORA $C8			; 9BA7	$05 $C8
+	STA $6F19,Y		; 9BA9	$99 $19 $6F
+	LDA #$01		; 9BAC	$A9 $01
+	ORA $C0,X		; 9BAE	$15 $C0
+	STA $C0,X		; 9BB0	$95 $C0
+L35BB2:
+	DEC $6F0A,X		; 9BB2	$DE $0A $6F
+	RTS			; 9BB5	$60
+; End of
+	LDA $C4			; 9BB6	$A5 $C4
+	CMP #$FF		; 9BB8	$C9 $FF
+	BNE L35BBD		; 9BBA	$D0 $01
+	RTS			; 9BBC	$60
+L35BBD:
+	LDX $C5			; 9BBD	$A6 $C5
+	LDA $6F0D,X		; 9BBF	$BD $0D $6F
+	BNE L35C1B		; 9BC2	$D0 $57
+	LDY $6F16,X		; 9BC4	$BC $16 $6F
+	LDA ($C3),Y		; 9BC7	$B1 $C3
+	AND #$F0		; 9BC9	$29 $F0
+	BNE L35BE1		; 9BCB	$D0 $14
+	LDA ($C3),Y		; 9BCD	$B1 $C3
+	AND #$0F		; 9BCF	$29 $0F
+	BEQ L35C1B		; 9BD1	$F0 $48
+	STA $C8			; 9BD3	$85 $C8
+	LDA $6F16,X		; 9BD5	$BD $16 $6F
+	SEC			; 9BD8	$38
+	SBC $C8			; 9BD9	$E5 $C8
+	STA $6F16,X		; 9BDB	$9D $16 $6F
+	JMP $9BC4		; 9BDE	$4C $C4 $9B
+L35BE1:
+	LSR A			; 9BE1	$4A
+	LSR A			; 9BE2	$4A
+	LSR A			; 9BE3	$4A
+	LSR A			; 9BE4	$4A
+	STA $6F0D,X		; 9BE5	$9D $0D $6F
+	INC $6F16,X		; 9BE8	$FE $16 $6F
+	LDA ($C3),Y		; 9BEB	$B1 $C3
+	AND #$0F		; 9BED	$29 $0F
+	STA $C8			; 9BEF	$85 $C8
+	LDY $C7			; 9BF1	$A4 $C7
+	AND #$08		; 9BF3	$29 $08
+	BNE L35C02		; 9BF5	$D0 $0B
+	LDA $6F1B,Y		; 9BF7	$B9 $1B $6F
+	CLC			; 9BFA	$18
+	ADC $C8			; 9BFB	$65 $C8
+	BCS L35C1B		; 9BFD	$B0 $1C
+	JMP $9C12		; 9BFF	$4C $12 $9C
+L35C02:
+	LDA $C8			; 9C02	$A5 $C8
+	AND #$07		; 9C04	$29 $07
+	STA $C8			; 9C06	$85 $C8
+	LDA $6F1B,Y		; 9C08	$B9 $1B $6F
+	SEC			; 9C0B	$38
+	SBC $C8			; 9C0C	$E5 $C8
+	BEQ L35C1B		; 9C0E	$F0 $0B
+	BCC L35C1B		; 9C10	$90 $09
+	STA $6F1B,Y		; 9C12	$99 $1B $6F
+	LDA #$04		; 9C15	$A9 $04
+	ORA $C0,X		; 9C17	$15 $C0
+	STA $C0,X		; 9C19	$95 $C0
+L35C1B:
+	DEC $6F0D,X		; 9C1B	$DE $0D $6F
+	RTS			; 9C1E	$60
+; End of
 
-.byte $A9,$00,$85,$C5,$A5,$C5,$0A,$85,$C6,$AA,$0A,$85,$C7,$A8
-.byte $B9,$1B,$6F,$F0,$18,$B5,$B6,$85,$C3,$B5,$B7,$85,$C4,$20,$56,$9B
-.byte $A6,$C6,$B5,$BA,$85,$C3,$B5,$BB,$85,$C4,$20,$B6,$9B,$E6,$C5,$A5
-.byte $C5,$C9,$03,$90,$D1,$60,$A5,$C4,$C9,$FF,$D0,$01,$60,$A6,$C5,$BD
-.byte $0A,$6F,$D0,$4E,$BC,$13,$6F,$B1,$C3,$29,$F0,$D0,$14,$B1,$C3,$29
-.byte $0F,$F0,$3F,$85,$C8,$BD,$13,$6F,$38,$E5,$C8,$9D,$13,$6F,$4C,$64
-.byte $9B,$4A,$4A,$4A,$4A,$9D,$0A,$6F,$FE,$13,$6F,$BD,$04,$6F,$0A,$0A
-.byte $0A,$0A,$85,$C8,$B1,$C3,$29,$0F,$05,$C8,$A8,$B9,$0D,$9D,$85,$C8
-.byte $A4,$C7,$B9,$19,$6F,$29,$F0,$05,$C8,$99,$19,$6F,$A9,$01,$15,$C0
-.byte $95,$C0,$DE,$0A,$6F,$60,$A5,$C4,$C9,$FF,$D0,$01,$60,$A6,$C5,$BD
-.byte $0D,$6F,$D0,$57,$BC,$16,$6F,$B1,$C3,$29,$F0,$D0,$14,$B1,$C3,$29
-.byte $0F,$F0,$48,$85,$C8,$BD,$16,$6F,$38,$E5,$C8,$9D,$16,$6F,$4C,$C4
-.byte $9B,$4A,$4A,$4A,$4A,$9D,$0D,$6F,$FE,$16,$6F,$B1,$C3,$29,$0F,$85
-.byte $C8,$A4,$C7,$29,$08,$D0,$0B,$B9,$1B,$6F,$18,$65,$C8,$B0,$1C,$4C
-
-;; [$9C00 :: 0x35C00]
-
-.byte $12,$9C,$A5,$C8,$29,$07,$85,$C8,$B9,$1B,$6F,$38,$E5,$C8,$F0,$0B
-.byte $90,$09,$99,$1B,$6F,$A9,$04,$15,$C0,$95,$C0,$DE,$0D,$6F,$60,$AD
-.byte $15,$40,$09,$0F,$8D,$15,$40,$A5,$E6,$85,$E7,$A2,$00,$A0,$00,$46
-.byte $E7,$B0,$30,$E0,$01,$D0,$04,$A5,$E5,$D0,$28,$56,$C0,$90,$06,$B9
-.byte $19,$6F,$99,$00,$40,$56,$C0,$90,$06,$B9,$1A,$6F,$99,$01,$40,$56
-.byte $C0,$90,$06,$B9,$1B,$6F,$99,$02,$40,$56,$C0,$90,$06,$B9,$1C,$6F
-.byte $99,$03,$40,$C8,$C8,$C8,$C8,$E8,$E0,$03,$90,$C3,$60,$AB,$06,$4D
+; Name	:
+; Marks	:
+	LDA ApuStatus_4015	; 9C1F	$AD $15 $40
+	ORA #$0F		; 9C22	$09 $0F
+	STA ApuStatus_4015	; 9C24	$8D $15 $40
+	LDA $E6			; 9C27	$A5 $E6
+	STA $E7			; 9C29	$85 $E7
+	LDX #$00		; 9C2B	$A2 $00
+	LDY #$00		; 9C2D	$A0 $00
+L35C2F:
+	LSR $E7			; 9C2F	$46 $E7
+	BCS L35C63		; 9C31	$B0 $30
+	CPX #$01		; 9C33	$E0 $01
+	BNE L35C3B		; 9C35	$D0 $04
+	LDA $E5			; 9C37	$A5 $E5
+	BNE L35C63		; 9C39	$D0 $28
+L35C3B:
+	LSR $C0,X		; 9C3B	$56 $C0
+	BCC L35C45		; 9C3D	$90 $06
+	LDA $6F19,Y		; 9C3F	$B9 $19 $6F
+	STA Sq0Duty_4000,Y	; 9C42	$99 $00 $40
+L35C45:
+	LSR $C0,X		; 9C45	$56 $C0
+	BCC L35C4F		; 9C47	$90 $06
+	LDA $6F1A,Y		; 9C49	$B9 $1A $6F
+	STA Sq0Sweep_4001,Y	; 9C4C	$99 $01 $40
+L35C4F:
+	LSR $C0,X		; 9C4F	$56 $C0
+	BCC L35C59		; 9C51	$90 $06
+	LDA $6F1B,Y		; 9C53	$B9 $1B $6F
+	STA Sq0Timer_4002,Y	; 9C56	$99 $02 $40
+L35C59:
+	LSR $C0,X		; 9C59	$56 $C0
+	BCC L35C63		; 9C5B	$90 $06
+	LDA $6F1C,Y		; 9C5D	$B9 $1C $6F
+	STA Sq0Length_4003,Y	; 9C60	$99 $03 $40
+L35C63:
+	INY			; 9C63	$C8
+	INY			; 9C64	$C8
+	INY			; 9C65	$C8
+	INY			; 9C66	$C8
+	INX			; 9C67	$E8
+	CPX #$03		; 9C68	$E0 $03
+	BCC L35C2F		; 9C6A	$90 $C3
+	RTS			; 9C6C	$60
+; End of
+.byte $AB,$06,$4D
 .byte $06,$F3,$05,$9D,$05,$4C,$05,$01,$05,$B8,$04,$74,$04,$34,$04,$F7
 .byte $03,$BE,$03,$88,$03,$55,$03,$26,$03,$F9,$02,$CE,$02,$A6,$02,$80
 .byte $02,$5C,$02,$3A,$02,$19,$02,$FB,$01,$DE,$01,$C4,$01,$AA,$01,$93
