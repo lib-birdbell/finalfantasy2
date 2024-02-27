@@ -17,6 +17,8 @@
 
 .segment "BANK_FIXED"
 
+; Name	:
+; Marks	: Some init code
     JMP $C025                ; C000  $4C $25 $C0
 L3C003:
     JMP L3DCE3               ; C003  $4C $E3 $DC
@@ -1441,33 +1443,33 @@ L3CA44:
     LDA #$02                 ; CA47  $A9 $02
     STA SpriteDma_4014       ; CA49  $8D $14 $40
     JSR $CDD0                ; CA4C  $20 $D0 $CD
-    LDA $F0                  ; CA4F  $A5 $F0
+	LDA frame_cnt_L		; CA4F  $A5 $F0
     CLC                      ; CA51  $18
     ADC #$01                 ; CA52  $69 $01
-    STA $F0                  ; CA54  $85 $F0
-    LDA $F1                  ; CA56  $A5 $F1
+	STA frame_cnt_L		; CA54  $85 $F0
+	LDA frame_cnt_H		; CA56  $A5 $F1
     ADC #$00                 ; CA58  $69 $00
-    STA $F1                  ; CA5A  $85 $F1
-    JSR L3C746               ; CA5C  $20 $46 $C7
-    LDA $36                  ; CA5F  $A5 $36
-    ORA $35                  ; CA61  $05 $35
+	STA frame_cnt_H		; CA5A  $85 $F1
+    JSR L3C746               ; CA5C  $20 $46 $C7	sound process ??
+    LDA $36                  ; CA5F  $A5 $36		button_repeat_counter
+    ORA $35                  ; CA61  $05 $35		buttons_held
     CMP #$08                 ; CA63  $C9 $08
-    BNE L3CA6D               ; CA65  $D0 $06
+    BNE L3CA6D               ; CA65  $D0 $06		if A != 08h
     LDA $44                  ; CA67  $A5 $44
     AND #$06                 ; CA69  $29 $06
     STA $43                  ; CA6B  $85 $43
 L3CA6D:
-    LDA $34                  ; CA6D  $A5 $34
-    BNE L3CA7D               ; CA6F  $D0 $0C
+    LDA $34                  ; CA6D  $A5 $34		rlduseba buttons pressed
+    BNE L3CA7D               ; CA6F  $D0 $0C		if A != 00h
     LDA $44                  ; CA71  $A5 $44
     AND #$E0                 ; CA73  $29 $E0
-    BEQ L3CA7A               ; CA75  $F0 $03
+    BEQ L3CA7A               ; CA75  $F0 $03		if A == 00h
     JMP L3CA8D               ; CA77  $4C $8D $CA
 L3CA7A:
-    JSR L3CB20               ; CA7A  $20 $20 $CB
+    JSR L3CB20               ; CA7A  $20 $20 $CB	check key ??
 L3CA7D:
     LDA $76                  ; CA7D  $A5 $76
-    BEQ L3CA84               ; CA7F  $F0 $03
+    BEQ L3CA84               ; CA7F  $F0 $03		if A == 00h
     JSR $E8AA                ; CA81  $20 $AA $E8
 L3CA84:
     JSR Init_Page2		; JSR $C46E                ; CA84  $20 $6E $C4
@@ -1548,12 +1550,14 @@ L3CAFF:
     SBC #$07                 ; CB19  $E9 $07
     STA $28                  ; CB1B  $85 $28
     JMP L3C0B8               ; CB1D  $4C $B8 $C0
+; Name	:
+; Marks	:
 L3CB20:
-    LDA $24                  ; CB20  $A5 $24
-    BEQ L3CB83               ; CB22  $F0 $5F
+    LDA $24                  ; CB20  $A5 $24		crit flag
+    BEQ L3CB83               ; CB22  $F0 $5F		if A == 00h
     LDA #$00                 ; CB24  $A9 $00
-    STA $24                  ; CB26  $85 $24
-    JSR Wait_NMI		; JSR $FE00                ; CB28  $20 $00 $FE
+    STA $24                  ; CB26  $85 $24		crit flag
+	JSR Wait_NMI		; CB28  $20 $00 $FE
     JSR L3C746               ; CB2B  $20 $46 $C7
     LDA $33                  ; CB2E  $A5 $33
     JSR $CD21                ; CB30  $20 $21 $CD
@@ -1598,7 +1602,7 @@ L3CB64:
 
 L3CB83:
     LDA $23                  ; CB83  $A5 $23
-    BEQ L3CB9B               ; CB85  $F0 $14
+    BEQ L3CB9B               ; CB85  $F0 $14		if A == 00h
     LDA #$00                 ; CB87  $A9 $00
     STA $23                  ; CB89  $85 $23
     LDA #$02                 ; CB8B  $A9 $02
@@ -1609,7 +1613,7 @@ L3CB83:
     JMP L3D07B               ; CB98  $4C $7B $D0
 L3CB9B:
     LDA $22                  ; CB9B  $A5 $22
-    BEQ L3CBB3               ; CB9D  $F0 $14
+    BEQ L3CBB3               ; CB9D  $F0 $14		if A == 00h
     LDA #$00                 ; CB9F  $A9 $00
     STA $22                  ; CBA1  $85 $22
     LDA #$02                 ; CBA3  $A9 $02
@@ -1619,12 +1623,13 @@ L3CB9B:
     JSR $F0E2                ; CBAD  $20 $E2 $F0
     JMP L3D07B               ; CBB0  $4C $7B $D0
 L3CBB3:
-    JSR $DB5C                ; CBB3  $20 $5C $DB
-    LDA key1p			; LDA $20                  ; CBB6  $A5 $20
+    JSR $DB5C                ; CBB3  $20 $5C $DB	; Get key
+	LDA key1p		; CBB6  $A5 $20
     AND #$0F                 ; CBB8  $29 $0F
-    BNE L3CBBD               ; CBBA  $D0 $01
+    BNE L3CBBD               ; CBBA  $D0 $01		if A != 00h
 L3CBBC:
     RTS                      ; CBBC  $60
+; End of
 
 L3CBBD:
     STA $33                  ; CBBD  $85 $33
@@ -1948,13 +1953,17 @@ L3CDBF:
     LDA $82                  ; CDCD  $A5 $82
     RTS                      ; CDCF  $60
 
+; Name	:
+; Marks	:
 ;; sub start ;;
+	; Display enable
     LDA #$1E                 ; CDD0  $A9 $1E
     STA PpuMask_2001         ; CDD2  $8D $01 $20
+	; Check item?? door??
     JSR $D02B                ; CDD5  $20 $2B $D0
     LDA PpuStatus_2002       ; CDD8  $AD $02 $20
     LDA $34                  ; CDDB  $A5 $34
-    BEQ L3CDF5               ; CDDD  $F0 $16
+    BEQ L3CDF5               ; CDDD  $F0 $16	if A == 00h
     JSR $CE6F                ; CDDF  $20 $6F $CE
     JSR L3C8E7               ; CDE2  $20 $E7 $C8
     LDA $44                  ; CDE5  $A5 $44
@@ -1968,24 +1977,24 @@ L3CDF4:
     RTS                      ; CDF4  $60
 
 ; Name	:
-; Marks	:
+; Marks	: PpuScroll ??
 L3CDF5:
-    LDA $FD                  ; CDF5  $A5 $FD
-    STA $FF                  ; CDF7  $85 $FF
+    LDA $FD                  ; CDF5  $A5 $FD	ppu_control(pending)
+    STA $FF                  ; CDF7  $85 $FF	ppu_control(current)
     STA PpuControl_2000      ; CDF9  $8D $00 $20
     LDA $29                  ; CDFC  $A5 $29
     ASL A                    ; CDFE  $0A
     ASL A                    ; CDFF  $0A
     ASL A                    ; CE00  $0A
     ASL A                    ; CE01  $0A
-    ORA $35                  ; CE02  $05 $35
+    ORA $35                  ; CE02  $05 $35	buttons_held
     STA PpuScroll_2005       ; CE04  $8D $05 $20
     LDA $2F                  ; CE07  $A5 $2F
     ASL A                    ; CE09  $0A
     ASL A                    ; CE0A  $0A
     ASL A                    ; CE0B  $0A
     ASL A                    ; CE0C  $0A
-    ORA $36                  ; CE0D  $05 $36
+    ORA $36                  ; CE0D  $05 $36	buttons_repeat_count
     STA PpuScroll_2005       ; CE0F  $8D $05 $20
     RTS                      ; CE12  $60
 ; End of
@@ -2290,9 +2299,13 @@ L3CFEB:
 
 L3D02A:
     RTS                      ; D02A  $60
+; End of
 
+; Name	:
+; Marks	: Check box? door?
 ;; sub start ;;
-    LDA $0D                  ; D02B  $A5 $0D
+	LDA open_tile_ID	; D02B  $A5 $0D
+	; if A == #$00
     BEQ L3D02A               ; D02D  $F0 $FB
     LDA $34                  ; D02F  $A5 $34
     BEQ L3D03D               ; D031  $F0 $0A
@@ -3873,9 +3886,11 @@ L3DB2E:
     STA $E5                  ; DB59  $85 $E5
     RTS                      ; DB5B  $60
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     LDA $6C                  ; DB5C  $A5 $6C
-    BEQ L3DBA2               ; DB5E  $F0 $42
+    BEQ L3DBA2               ; DB5E  $F0 $42		if A == 00h
     CMP #$01                 ; DB60  $C9 $01
     BNE L3DB95               ; DB62  $D0 $31
     LDA $17                  ; DB64  $A5 $17
@@ -3913,9 +3928,9 @@ L3DB95:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Get key and process and save key data to $??
 L3DBA2:
-    JSR Get_key			; JSR $DBA9                ; DBA2  $20 $A9 $DB
+	JSR Get_key			; DBA2  $20 $A9 $DB
     JSR $DBC2                ; DBA5  $20 $C2 $DB
     RTS                      ; DBA8  $60
 ; End of
@@ -4561,11 +4576,14 @@ L3E003:
     CPY #$02                 ; E013  $C0 $02
     BEQ L3E06D               ; E015  $F0 $56
 
+; Name	:
+; SRC	: $43 == ??
+; Marks	:
 ;; sub start ;;
-    JSR $E073                ; E017  $20 $73 $E0
+    JSR $E073                ; E017  $20 $73 $E0	Tile move??
     LDA $43                  ; E01A  $A5 $43
     AND #$12                 ; E01C  $29 $12
-    BEQ L3E030               ; E01E  $F0 $10
+    BEQ L3E030               ; E01E  $F0 $10		if A == 00h
     LDA $0206                ; E020  $AD $06 $02
     EOR #$20                 ; E023  $49 $20
     STA $0206                ; E025  $8D $06 $02
@@ -4575,7 +4593,7 @@ L3E003:
 L3E030:
     LDA $43                  ; E030  $A5 $43
     AND #$04                 ; E032  $29 $04
-    BEQ L3E046               ; E034  $F0 $10
+    BEQ L3E046               ; E034  $F0 $10		if A == 00h
     LDA $0202                ; E036  $AD $02 $02
     EOR #$20                 ; E039  $49 $20
     STA $0202                ; E03B  $8D $02 $02
@@ -4585,8 +4603,9 @@ L3E030:
 L3E046:
     LDA $2D                  ; E046  $A5 $2D
     LSR A                    ; E048  $4A
-    BCC L3E04C               ; E049  $90 $01
+    BCC L3E04C               ; E049  $90 $01		if A.bit0 == 0
     RTS                      ; E04B  $60
+; End of
 
 L3E04C:
     JSR $E1E0                ; E04C  $20 $E0 $E1
@@ -4606,28 +4625,31 @@ L3E06D:
     JSR $E073                ; E06D  $20 $73 $E0
     JMP L3E04C               ; E070  $4C $4C $E0
 
+; Name	:
+; Y	:
+; Marks	:
 ;; sub start ;;
     LDA #$70                 ; E073  $A9 $70
     STA $40                  ; E075  $85 $40
     LDA $E16B,Y              ; E077  $B9 $6B $E1
     CPY #$08                 ; E07A  $C0 $08
-    BNE L3E086               ; E07C  $D0 $08
+    BNE L3E086               ; E07C  $D0 $08		if Y != 08h
     STA $41                  ; E07E  $85 $41
     LDA $F0                  ; E080  $A5 $F0
     ASL A                    ; E082  $0A
     JMP L3E08E               ; E083  $4C $8E $E0
 L3E086:
     STA $41                  ; E086  $85 $41
-    LDA $35                  ; E088  $A5 $35
-    BNE L3E08E               ; E08A  $D0 $02
-    LDA $36                  ; E08C  $A5 $36
+    LDA $35                  ; E088  $A5 $35		buttons_held
+    BNE L3E08E               ; E08A  $D0 $02		if A != 00h
+    LDA $36                  ; E08C  $A5 $36		button_repeat_counter
 L3E08E:
     AND #$08                 ; E08E  $29 $08
     LDX $33                  ; E090  $A6 $33
     ORA $E31F,X              ; E092  $1D $1F $E3
     STA $80                  ; E095  $85 $80
     CPY #$01                 ; E097  $C0 $01
-    BEQ L3E0E1               ; E099  $F0 $46
+    BEQ L3E0E1               ; E099  $F0 $46		if Y == 01h
     CPY #$02                 ; E09B  $C0 $02
     BEQ E0CC                 ; E09D  $F0 $2D
     CPY #$04                 ; E09F  $C0 $04
@@ -4671,7 +4693,7 @@ L3E0E1:
     LDA $2D                  ; E0E1  $A5 $2D
     AND #$01                 ; E0E3  $29 $01
     LSR A                    ; E0E5  $4A
-    BCS L3E0F3               ; E0E6  $B0 $0B
+    BCS L3E0F3               ; E0E6  $B0 $0B		if A.bit0 == 01h
     LDA $6008                ; E0E8  $AD $08 $60
     AND #$02                 ; E0EB  $29 $02
     BEQ L3E0F3               ; E0ED  $F0 $04
@@ -4686,6 +4708,7 @@ L3E0F3:
     LDA #$E3                 ; E0FC  $A9 $E3
     ADC #$00                 ; E0FE  $69 $00
     STA $81                  ; E100  $85 $81
+	; Some tile move??
 L3E102:
     LDY #$00                 ; E102  $A0 $00
     LDX $26                  ; E104  $A6 $26
@@ -4739,6 +4762,7 @@ L3E102:
     ADC #$10                 ; E166  $69 $10
     STA $26                  ; E168  $85 $26
     RTS                      ; E16A  $60
+; End of
 
    ;data block---
 .byte $6C,$6C,$6F,$6F,$6F
@@ -4918,6 +4942,9 @@ E275:
 .byte $02,$08,$00,$96,$02,$08,$00,$97,$02,$08,$FF,$00,$B8,$02,$00,$00
 .byte $B9,$02,$08,$00,$B9,$02,$08,$00,$B8,$42,$08,$FF
 
+; Name	:
+; DEST	: $40 = ??
+; Marks	:
 ;; sub start ;;
     LDY #$01                 ; E30C  $A0 $01
     JSR $E017                ; E30E  $20 $17 $E0
@@ -4925,10 +4952,12 @@ E275:
     STA $26                  ; E313  $85 $26
     LDX #$06                 ; E315  $A2 $06
     LDA #$03                 ; E317  $A9 $03
-    JSR Swap_PRG_               ; E319  $20 $03 $FE
+    JSR Swap_PRG_               ; E319  $20 $03 $FE	bank_03 swap
     JMP $A003                ; E31C  $4C $03 $A0
+; End of
 
 ;data block---
+;; [E31F
 .byte $00
 ;; [E320 : 3E330]
 .byte $00,$10,$00,$30,$00,$10,$00,$20,$00,$10,$00,$30,$00,$10,$00,$09
@@ -5743,7 +5772,7 @@ L3E8F8:
     CMP $86                  ; E8FD  $C5 $86
     BNE L3E90C               ; E8FF  $D0 $0B
     JSR Wait_NMI		; JSR $FE00                ; E901  $20 $00 $FE
-	INC timer_frame		; E904  $E6 $F0
+	INC frame_cnt_L		; E904  $E6 $F0
     JSR L3C746               ; E906  $20 $46 $C7
     JMP L3E8F8               ; E909  $4C $F8 $E8
 L3E90C:
@@ -5754,7 +5783,7 @@ L3E90C:
 ; Marks	:
 ;; sub start ;;
     JSR Wait_NMI		; JSR $FE00                ; E911  $20 $00 $FE
-	INC timer_frame		; E914  $E6 $F0
+	INC frame_cnt_L		; E914  $E6 $F0
     JSR L3C746               ; E916  $20 $46 $C7
 	LDA bank_tmp		; E919  $A5 $93
     JMP Swap_PRG_               ; E91B  $4C $03 $FE
@@ -5939,11 +5968,11 @@ L3EA59:
 L3EA61:
     PHA                      ; EA61  $48
     LDA #$00                 ; EA62  $A9 $00
-	STA timer_frame		; EA64  $85 $F0
+	STA frame_cnt_L		; EA64  $85 $F0
 	; Wait 3 frame - delay
 L3EA66:
     JSR $E911                ; EA66  $20 $11 $E9
-	LDA timer_frame		; EA69  $A5 $F0
+	LDA frame_cnt_L		; EA69  $A5 $F0
     AND #$03                 ; EA6B  $29 $03
     BNE L3EA66               ; EA6D  $D0 $F7
     JSR $E7D4                ; EA6F  $20 $D4 $E7
@@ -6017,6 +6046,7 @@ L3EA8C:
     LDA #$00                 ; EACA  $A9 $00
 	STA text_x_offset	; EACC  $85 $90
     STA $1F                  ; EACE  $85 $1F
+	; insert string
     JSR L3EAE6               ; EAD0  $20 $E6 $EA
     BCS L3EADF               ; EAD3  $B0 $0A
     JSR Frame_end		; JSR $F053                ; EAD5  $20 $53 $F0
@@ -6073,6 +6103,7 @@ L3EAF2:
     LDA #$FF                 ; EAFF  $A9 $FF
     STA $0780,Y              ; EB01  $99 $80 $07
 	INC text_x_offset	; EB04  $E6 $90
+	; loop
     JMP L3EAE6               ; EB06  $4C $E6 $EA
 L3EB09:
     TAX                      ; EB09  $AA
@@ -6084,6 +6115,7 @@ L3EB09:
     NOP                      ; EB18  $EA
 	INC text_x_offset	; EB19  $E6 $90
 	INC text_x_offset	; EB1B  $E6 $90
+	; loop
     JMP L3EAE6               ; EB1D  $4C $E6 $EA
 L3EB20:
     CMP #$10                 ; EB20  $C9 $10
@@ -6105,6 +6137,7 @@ L3EB27:
     RTS                      ; EB39  $60
 ; End of
 L3EB3A:
+	; loop
     JMP L3EAE6               ; EB3A  $4C $E6 $EA
 L3EB3D:
     CMP #$02                 ; EB3D  $C9 $02
@@ -6127,6 +6160,7 @@ L3EB50:
     JSR $89F3                ; EB5E  $20 $F3 $89
     LDA $93                  ; EB61  $A5 $93
     JSR Swap_PRG_               ; EB63  $20 $03 $FE
+	; loop
     JMP L3EAE6               ; EB66  $4C $E6 $EA
 L3EB69:
     CMP #$04                 ; EB69  $C9 $04
@@ -6143,6 +6177,7 @@ L3EB69:
     JSR $89F3                ; EB7E  $20 $F3 $89
     LDA $93                  ; EB81  $A5 $93
     JSR Swap_PRG_               ; EB83  $20 $03 $FE
+	; loop
     JMP L3EAE6               ; EB86  $4C $E6 $EA
 L3EB89:
     CMP #$05                 ; EB89  $C9 $05
@@ -6153,6 +6188,7 @@ L3EB89:
     JSR $89B5                ; EB92  $20 $B5 $89
     LDA $93                  ; EB95  $A5 $93
     JSR Swap_PRG_               ; EB97  $20 $03 $FE
+	; loop
     JMP L3EAE6               ; EB9A  $4C $E6 $EA
 L3EB9D:
     CMP #$06                 ; EB9D  $C9 $06
@@ -6168,6 +6204,7 @@ L3EB9D:
     JSR $89C7                ; EBAF  $20 $C7 $89
     LDA $93                  ; EBB2  $A5 $93
     JSR Swap_PRG_               ; EBB4  $20 $03 $FE
+	; loop
     JMP L3EAE6               ; EBB7  $4C $E6 $EA
 L3EBBA:
     CMP #$07                 ; EBBA  $C9 $07
@@ -6204,6 +6241,7 @@ L3EBDF:
     ADC #$04                 ; EBFB  $69 $04
 	STA text_x_offset	; EBFD  $85 $90
 L3EBFF:
+	; loop
     JMP L3EAE6               ; EBFF  $4C $E6 $EA
 	; Case : A == #$10
 	; Get 1 data from $3E(ADDR) and Set to $84 and increase $3E(ADDR)
@@ -6226,6 +6264,7 @@ L3EC15:
     BNE L3EC1E               ; EC15  $D0 $07
     LDA $84                  ; EC17  $A5 $84
 	STA text_x_offset	; EC19  $85 $90
+	; loop
     JMP L3EAE6               ; EC1B  $4C $E6 $EA
 L3EC1E:
     CMP #$18                 ; EC1E  $C9 $18
@@ -6273,6 +6312,7 @@ L3EC46:
     LDA $83                  ; EC62  $A5 $83
     INY                      ; EC64  $C8
     STA ($80),Y              ; EC65  $91 $80
+	; loop
     JMP L3EAE6               ; EC67  $4C $E6 $EA
 L3EC6A:
 	; if A != #$18
@@ -6297,8 +6337,10 @@ L3EC85:
     LDA $8301,X              ; EC8A  $BD $01 $83
 L3EC8D:
     STA $3F                  ; EC8D  $85 $3F
+	; insert string
     JSR L3EAE6               ; EC8F  $20 $E6 $EA
     JSR Load_dbuf		; JSR $EE02                ; EC92  $20 $02 $EE
+	; loop
     JMP L3EAE6               ; EC95  $4C $E6 $EA
 ; End of
 
@@ -6312,7 +6354,10 @@ L3EC98:
     JSR $89F3                ; ECA6  $20 $F3 $89
     LDA $93                  ; ECA9  $A5 $93
     JSR Swap_PRG_               ; ECAB  $20 $03 $FE
+	; loop
     JMP L3EAE6               ; ECAE  $4C $E6 $EA
+; End of
+
 L3ECB1:
     CMP #$1A                 ; ECB1  $C9 $1A
     BNE L3ECBF               ; ECB3  $D0 $0A
@@ -6328,6 +6373,7 @@ L3ECBF:
     STA $84                  ; ECC8  $85 $84
     JMP L3EC6C               ; ECCA  $4C $6C $EC
 L3ECCD:
+	; loop
     JMP L3EAE6               ; ECCD  $4C $E6 $EA
 L3ECD0:
 	; Find xxxx xooxb -> ooxx xxxxb = $02,$04,$06 -> $40,$80,$C0
@@ -6347,6 +6393,7 @@ L3ECD0:
     JSR $8924                ; ECE4  $20 $24 $89
     LDA $93                  ; ECE7  $A5 $93
     JSR Swap_PRG_               ; ECE9  $20 $03 $FE
+	; loop
     JMP L3EAE6               ; ECEC  $4C $E6 $EA
 L3ECEF:
     CMP #$00                 ; ECEF  $C9 $00
@@ -6406,8 +6453,10 @@ L3ED40:
     STA $3E                  ; ED43  $85 $3E
     LDA $8501,X              ; ED45  $BD $01 $85
     STA $3F                  ; ED48  $85 $3F
+	; insert string
     JSR L3EAE6               ; ED4A  $20 $E6 $EA
     JSR Load_dbuf		; JSR $EE02                ; ED4D  $20 $02 $EE
+	; loop
     JMP L3EAE6               ; ED50  $4C $E6 $EA
 L3ED53:
     CMP #$02                 ; ED53  $C9 $02
@@ -6436,6 +6485,7 @@ L3ED77:
     JSR Check_nameFF		; JSR $EE0F                ; ED82  $20 $0F $EE
     JSR L3EAE6               ; ED85  $20 $E6 $EA
     JSR Load_dbuf		; JSR $EE02                ; ED88  $20 $02 $EE
+	; loop
     JMP L3EAE6               ; ED8B  $4C $E6 $EA
 L3ED8E:
     LDX #$00                 ; ED8E  $A2 $00
@@ -6489,8 +6539,10 @@ L3EDDE:
     LDA $8301,X              ; EDE3  $BD $01 $83
 L3EDE6:
     STA $3F                  ; EDE6  $85 $3F
+	; insert string
     JSR L3EAE6               ; EDE8  $20 $E6 $EA
     JSR Load_dbuf		; JSR $EE02                ; EDEB  $20 $02 $EE
+	; loop
     JMP L3EAE6               ; EDEE  $4C $E6 $EA
 L3EDF1:
     BIT $03                  ; EDF1  $24 $03
@@ -6826,7 +6878,7 @@ L3F048:
 ;; sub start ;;
 Frame_end:
     JSR Wait_NMI		; JSR $FE00                ; F053  $20 $00 $FE
-    INC timer_frame		; INC $F0                  ; F056  $E6 $F0
+    INC frame_cnt_L		; INC $F0                  ; F056  $E6 $F0
     JSR $F069                ; F058  $20 $69 $F0
     JSR $E9D5                ; F05B  $20 $D5 $E9
 	; Sound process ??
@@ -7457,14 +7509,14 @@ L3F534:
 L3F53F:
     JSR Wait_NMI		; JSR $FE00                ; F53F  $20 $00 $FE
     JSR Get_key			; JSR $DBA9                ; F542  $20 $A9 $DB
-	; Increase timer_frame and timer_screen
-    LDA timer_frame		; LDA $F0                  ; F545  $A5 $F0
+	; Increase frame_counter
+    LDA frame_cnt_L		; LDA $F0                  ; F545  $A5 $F0
     CLC                      ; F547  $18
     ADC #$01                 ; F548  $69 $01
-    STA timer_frame		; STA $F0                  ; F54A  $85 $F0
-    LDA timer_screen		; LDA $F1                  ; F54C  $A5 $F1
+    STA frame_cnt_L		; STA $F0                  ; F54A  $85 $F0
+    LDA frame_cnt_H		; LDA $F1                  ; F54C  $A5 $F1
     ADC #$00                 ; F54E  $69 $00
-    STA timer_screen		; STA $F1                  ; F550  $85 $F1
+    STA frame_cnt_H		; STA $F1                  ; F550  $85 $F1
 	; Next screen after about 12sec
     CMP #$03                 ; F552  $C9 $03
     BCS L3F55C               ; F554  $B0 $06
@@ -7715,6 +7767,7 @@ L3F75C:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
+;; Unused code ??
     BIT PpuStatus_2002       ; F800  $2C $02 $20
     LDA $FF                  ; F803  $A5 $FF
     STA PpuControl_2000      ; F805  $8D $00 $20
@@ -7767,7 +7820,9 @@ F840:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;; End of Unused code ??
 
+; random number table
 ;; [F900 : 3F910]
 .byte $1F,$A6,$DE,$BA,$CC,$12,$7D,$74,$1B,$F3,$B4,$88,$F8,$52,$F4,$07
 
@@ -7816,8 +7871,12 @@ F840:
 ;; [F9F0 : 3FA00]
 .byte $C1,$01,$EF,$F9,$FA,$E4,$5F,$18,$B9,$B2,$39,$D4,$15,$E2,$EA,$45
 
+
+
+;========== BATTLE CODE START($FA00-$FFE0) ==========
+
 ; Name	:
-; Marks	:
+; Marks	: Battle code
 ;; sub start ;;
     JMP L3FA9E               ; FA00  $4C $9E $FA
 
@@ -8568,6 +8627,7 @@ OnReset:
 
 ; < NMI routine >
 ; Marks	: set RTI on $0100(NMI) and Return
+;	  NMI routine(Wait NMI) and return
 L3FEA1:
     LDA PpuStatus_2002       ; FEA1  $AD $02 $20
     LDA #$40                 ; FEA4  $A9 $40
@@ -8576,6 +8636,7 @@ L3FEA1:
     PLA                      ; FEAA  $68
     PLA                      ; FEAB  $68
     RTS                      ; FEAC  $60
+; End of NMI
 
 ;set JMP to $FEA1 on $0100(NMI) and wait NMI
 L3FEAD:
@@ -8590,7 +8651,8 @@ L3FEAD:
 OnIRQ:
 L3FEBC:
     JMP L3FEBC               ; FEBC  $4C $BC $FE
-; Name	:
+
+; Name	: Palettes_init
 ; A	:
 ; Marks	: Palettes init
 Palettes_init:
@@ -8663,12 +8725,14 @@ FF97:
 .byte $A9,$01,$20,$03,$FE,$20,$B0,$BF,$A9,$09,$4C,$03,$FE,$00,$00,$00
 ;; [FFD0 : 3FFE0]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-;; [FFE0 : 3FFF0]
+
+;========== BATTLE CODE END($FA00-$FFE0) ==========
+
+
+
+;; [FFE0-FFF9 : 3FFE0] - rom info
 .byte $20
-
- .byte "F2eBETAv93-Demi"
-
-;; [FFF0 : 40000]
+.byte "F2eBETAv93-Demi"
 .byte $14,$58,$00,$00,$48,$04,$01,$0E,$C3,$E2
 
 .segment "VECTORS"

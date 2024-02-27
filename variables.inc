@@ -1,6 +1,7 @@
 ;; Zero page ;; 
 
 tmp                = $00 ; $10 bytes I assume
+open_tile_ID		= $0D
 
 _1C_unknown		= $1C
 _1D_unknown		= $1D
@@ -73,10 +74,35 @@ current_song_ID		= $E0
 ;	#$44 = Main thema
 ;	#$45 = Main thema
 ;	#$46 = Main thema
+;	#$47 = victory
+;	#$48 = item get
+;	#$49 = keyword get
+;	#$4A = company joined
+;	#$4B = pandemonium
+;	#$4C = Castle
+;	#$4D = crystal tower
+;	#$4E = airplane
+;	#$4F = doungueon
+;	#$50 = viliage
+;	#$51 = fin castle
+;	#$52 = battle
+;	#$53 = final battle
+;	#$54 = fall sound
+;	#$55 = battle win
+;	#$56 = game over
+;	#$57 = lamia
+;	#$58 = first room
+;	#$59 = first meet
+;	#$5A = escape
+;	#$5B = celebrate
+;	#$5C = warning
+;	#$5D = ending
+;	#$5E = laser?
+;	#$5F = ??
 _E5_unknown		= $E5
 
-timer_frame	   = $F0	; Timer, Increases by 1 every frame.
-timer_screen	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every time values hits a multiple of 40, the airship flies over the screen
+frame_cnt_L	   = $F0	; Timer, Increases by 1 every frame.
+frame_cnt_H	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every time values hits a multiple of 40, the airship flies over the screen
 
 skip_intro	   = $FA	; $77 is already saw the logo screen, else is Show logo screen.
 
