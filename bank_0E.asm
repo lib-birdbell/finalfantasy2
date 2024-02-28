@@ -1482,7 +1482,7 @@ L3B8C9:
 ;	  Variables initialization
 ;	  PPU init OAM to #$F0
 NT0_OAM_init:
-	LDA #$41		; B906 $A9 $41
+	LDA BGM_prelude		; B906 $A9 $41
 	STA current_song_ID	; B908 $85 $E0
 	JSR Clear_Nametable0	; B90A $20 $21 $F3
 	LDA #$88		; B90D $A9 $88

@@ -3,6 +3,7 @@
 
 .segment "BANK_0A"
 
+; pointers to text 2
 ;; [$8000 :: 0x28000]
 
 .byte $00,$86,$01,$86,$3B,$86,$4D,$86,$70,$86,$C2,$86,$DE,$86,$28,$87
@@ -118,6 +119,7 @@
 .byte $AB,$BF,$B0,$BF,$B5,$BF,$BA,$BF,$BF,$BF,$C4,$BF,$C9,$BF,$CA,$BF
 .byte $CF,$BF,$D4,$BF,$D9,$BF,$DE,$BF,$E3,$BF,$E8,$BF,$ED,$BF,$F2,$BF
 
+; text 2 (768 items)
 ;; [$8600 :: 0x28600]
 
 .byte $00,$9D,$AB,$40,$5C,$47,$3D,$4D,$AE,$3C,$AA,$DE,$FF,$B5,$B2,$B2

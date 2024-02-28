@@ -1202,14 +1202,14 @@ C817:
     JSR L3C380               ; C882  $20 $80 $C3
     LDA #$00                 ; C885  $A9 $00
     STA PpuMask_2001         ; C887  $8D $01 $20
-    LDA #$44                 ; C88A  $A9 $44
-    LDX $42                  ; C88C  $A6 $42
+	LDA BGM_feild		; C88A  $A9 $44
+	LDX vehicle_ID		; C88C  $A6 $42
     CPX #$01                 ; C88E  $E0 $01
     BNE L3C89B               ; C890  $D0 $09
     LDX $6008                ; C892  $AE $08 $60
     CPX #$02                 ; C895  $E0 $02
     BNE L3C89B               ; C897  $D0 $02
-    LDA #$43                 ; C899  $A9 $43
+	LDA BGM_chocobo		; C899  $A9 $43
 L3C89B:
     STA $E0                  ; C89B  $85 $E0
     LDA $6008                ; C89D  $AD $08 $60
@@ -2394,7 +2394,7 @@ L3D07B:
     LDY #$0F                 ; D0C9  $A0 $0F
     LDA ($80),Y              ; D0CB  $B1 $80
     ORA #$40                 ; D0CD  $09 $40
-    STA $E0                  ; D0CF  $85 $E0
+	STA current_song_ID	; D0CF  $85 $E0
     JSR $D1D3                ; D0D1  $20 $D3 $D1
     LDA $29                  ; D0D4  $A5 $29
     AND #$10                 ; D0D6  $29 $10

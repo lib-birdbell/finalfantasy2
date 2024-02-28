@@ -26,6 +26,8 @@ _3D_unknown		= $3D
 _3E_unknown		= $3E	; bank temp buffer ??
 _3F_unknown		= $3F
 
+vehicle_ID		= $42
+
 p_map1			= $45
 p_map2			= $46
 player_mv_timer	   = $47
@@ -84,14 +86,14 @@ current_song_ID		= $E0
 ;	#$4E = airplane
 ;	#$4F = doungueon
 ;	#$50 = viliage
-;	#$51 = fin castle
+;	#$51 = rebel_army
 ;	#$52 = battle
 ;	#$53 = final battle
 ;	#$54 = fall sound
 ;	#$55 = battle win
 ;	#$56 = game over
 ;	#$57 = lamia
-;	#$58 = first room
+;	#$58 = survive
 ;	#$59 = first meet
 ;	#$5A = escape
 ;	#$5B = celebrate
