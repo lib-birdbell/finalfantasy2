@@ -6066,7 +6066,7 @@ L3EADF:
 ; Name	: Set text??
 ; SRC	: $3E(ADDR) - data_buf
 ;	  $84 -
-;	  $90 - Y INDEX(Count)
+;	  $90 - Y INDEX(X Count)
 ; DEST	: $0780 - Upper text buffer ??
 ;	: $07A0 - Text buffer
 ; Marks	: Get data from $3E(ADDR) and process
