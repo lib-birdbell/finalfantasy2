@@ -27,3 +27,6 @@ BANK_MENU            = $0E
 BGM_prelude	= $41
 BGM_chocobo	= $43
 BGM_feild	= $44
+
+; $62FE = set to #$5A if save slot is valid
+SLOT_VALID	= $5A

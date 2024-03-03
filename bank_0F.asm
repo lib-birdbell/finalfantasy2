@@ -8,6 +8,7 @@
 .export Set_IRQ_JMP		;FA2A
 .export L3FD5B
 .export Init_Page2		;C46E
+.export Check_savefile		;DAC1
 .export Get_key			;DBA9
 .export Palette_copy		;DC30
 .export Clear_Nametable0	;F321
@@ -16,6 +17,9 @@
 .export Swap_PRG_		;FE03
 
 .segment "BANK_FIXED"
+
+
+; ========== map/menu code ($C000-$F7FF) START ==========
 
 ; Name	:
 ; Marks	: Some init code
@@ -1202,14 +1206,14 @@ C817:
     JSR L3C380               ; C882  $20 $80 $C3
     LDA #$00                 ; C885  $A9 $00
     STA PpuMask_2001         ; C887  $8D $01 $20
-	LDA BGM_feild		; C88A  $A9 $44
+	LDA #BGM_feild		; C88A  $A9 $44
 	LDX vehicle_ID		; C88C  $A6 $42
     CPX #$01                 ; C88E  $E0 $01
     BNE L3C89B               ; C890  $D0 $09
     LDX $6008                ; C892  $AE $08 $60
     CPX #$02                 ; C895  $E0 $02
     BNE L3C89B               ; C897  $D0 $02
-	LDA BGM_chocobo		; C899  $A9 $43
+	LDA #BGM_chocobo	; C899  $A9 $43
 L3C89B:
     STA $E0                  ; C89B  $85 $E0
     LDA $6008                ; C89D  $AD $08 $60
@@ -2450,8 +2454,10 @@ L3D11D:
 ;; sub start ;;
     RTS                      ; D13C  $60
 
+; Name	:
+; Marks	: if mode is map, return.
 ;; sub start ;;
-    LDA $37                  ; D13D  $A5 $37
+    LDA text_win_mode                  ; D13D  $A5 $37
     BNE L3D163               ; D13F  $D0 $22
     LDA $38                  ; D141  $A5 $38
     LSR A                    ; D143  $4A
@@ -2465,8 +2471,11 @@ L3D11D:
     LDA #$01                 ; D150  $A9 $01
     STA $2D                  ; D152  $85 $2D
     JMP L3D24E               ; D154  $4C $4E $D2
+
+; Name	:
+; Marks	: if menu mode(01h), return
    ;; sub start ;;
-    LDA $37                  ; D157  $A5 $37
+	LDA text_win_mode	; D157  $A5 $37
     BNE L3D163               ; D159  $D0 $08
     LDA $3C                  ; D15B  $A5 $3C
     LSR A                    ; D15D  $4A
@@ -2475,6 +2484,7 @@ L3D11D:
     JMP L3D308               ; D160  $4C $08 $D3
 L3D163:
     RTS                      ; D163  $60
+; End of
 
 L3D164:
     JSR $E837                ; D164  $20 $37 $E8
@@ -3794,14 +3804,18 @@ L3DAAC:
     STA $62FF                ; DABD  $8D $FF $62
     RTS                      ; DAC0  $60
 
+; Name	:
+; A	: Save file number - #$00, #$01, #$02, #$03
+; Marks	: Calculate save file checksum ??
 ;; sub start ;;
+Check_savefile:
     STA $80                  ; DAC1  $85 $80
     ASL A                    ; DAC3  $0A
     ADC $80                  ; DAC4  $65 $80
     ADC #$63                 ; DAC6  $69 $63
     STA $81                  ; DAC8  $85 $81
     LDA #$00                 ; DACA  $A9 $00
-    STA $80                  ; DACC  $85 $80
+    STA $80                  ; DACC  $85 $80	$80(ADDR) = $6300
     LDX #$03                 ; DACE  $A2 $03
     LDY #$00                 ; DAD0  $A0 $00
     LDA #$00                 ; DAD2  $A9 $00
@@ -3820,10 +3834,11 @@ L3DAD4:
     LDY #$FE                 ; DAE6  $A0 $FE
     DEC $81                  ; DAE8  $C6 $81
     LDA ($80),Y              ; DAEA  $B1 $80
-    EOR #$5A                 ; DAEC  $49 $5A
+	EOR #SLOT_VALID		; DAEC  $49 $5A
     CMP #$01                 ; DAEE  $C9 $01
 L3DAF0:
     RTS                      ; DAF0  $60
+; End of Check_savefile
 
 ; Name	:
 ; Marks	: Some data copy.
@@ -5788,6 +5803,9 @@ L3E90C:
 	LDA bank_tmp		; E919  $A5 $93
     JMP Swap_PRG_               ; E91B  $4C $03 $FE
 ; End of
+
+; Name	:
+; Marks	:
 L3E91E:
     LDX $96                  ; E91E  $A6 $96
     JSR $E96E                ; E920  $20 $6E $E9
@@ -5803,7 +5821,7 @@ L3E92E:
     LDA $3D                  ; E934  $A5 $3D
     LSR A                    ; E936  $4A
     PHA                      ; E937  $48
-    JSR $E9E5                ; E938  $20 $E5 $E9
+	JSR Draw_win_top	; E938  $20 $E5 $E9
     JSR $E9BA                ; E93B  $20 $BA $E9
     PLA                      ; E93E  $68
     SEC                      ; E93F  $38
@@ -5811,28 +5829,31 @@ L3E92E:
     BEQ L3E951               ; E942  $F0 $0D
 L3E944:
     PHA                      ; E944  $48
-    JSR $EA0C                ; E945  $20 $0C $EA
+	JSR Draw_win_mid	; E945  $20 $0C $EA
     JSR $E9BA                ; E948  $20 $BA $E9
     PLA                      ; E94B  $68
     SEC                      ; E94C  $38
     SBC #$01                 ; E94D  $E9 $01
     BNE L3E944               ; E94F  $D0 $F3
 L3E951:
-    JSR $EA2D                ; E951  $20 $2D $EA
+	JSR Draw_win_bot	; E951  $20 $2D $EA
     JSR $E9BA                ; E954  $20 $BA $E9
-    INC $38                  ; E957  $E6 $38
-    INC $39                  ; E959  $E6 $39
-    LDA $3C                  ; E95B  $A5 $3C
+	INC text_win_L		; E957  $E6 $38
+	INC text_win_T		; E959  $E6 $39
+	LDA menu_win_W		; E95B  $A5 $3C
     SEC                      ; E95D  $38
     SBC #$02                 ; E95E  $E9 $02
-    STA $3C                  ; E960  $85 $3C
-    LDA $3D                  ; E962  $A5 $3D
+	STA menu_win_W		; E960  $85 $3C
+	LDA menu_win_H		; E962  $A5 $3D
     SEC                      ; E964  $38
     SBC #$02                 ; E965  $E9 $02
-    STA $3D                  ; E967  $85 $3D
-    LDA $57                  ; E969  $A5 $57
-    JMP Swap_PRG_               ; E96B  $4C $03 $FE
+	STA menu_win_H		; E967  $85 $3D
+	LDA bank		; E969  $A5 $57
+	JMP Swap_PRG_		; E96B  $4C $03 $FE
+; End of
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     LDA $37                  ; E96E  $A5 $37
     BNE L3E9A9               ; E970  $D0 $37
@@ -5872,56 +5893,70 @@ L3E9A9:
 ;; [E9B0 : 3E9C0]
 .byte $12,$0E,$1C,$08,$16,$0C,$0A,$0A,$0A,$04
 
+; Name	:
+; Marks	: menu_win_W = $3C
+;	  Copy window text buffer($0780) to PPU ??
 ;; sub start ;;
-    LDA $3C                  ; E9BA  $A5 $3C
+	LDA menu_win_W		; E9BA  $A5 $3C
     STA $90                  ; E9BC  $85 $90
     JSR $D13D                ; E9BE  $20 $3D $D1
-    JSR Wait_NMI		; JSR $FE00                ; E9C1  $20 $00 $FE
+	JSR Wait_NMI		; E9C1  $20 $00 $FE
     LDA #$02                 ; E9C4  $A9 $02
     STA SpriteDma_4014       ; E9C6  $8D $14 $40
-    JSR $F069                ; E9C9  $20 $69 $F0
-    JSR $D157                ; E9CC  $20 $57 $D1
-    JSR $E9D5                ; E9CF  $20 $D5 $E9
+    JSR $F069                ; E9C9  $20 $69 $F0	Set text to ppu ??
+    JSR $D157                ; E9CC  $20 $57 $D1	Check menu mode ??
+	JSR Scroll		; E9CF  $20 $D5 $E9
     JMP L3C746               ; E9D2  $4C $46 $C7
-
-; Name	:
-; Marks	: Scroll process
-;; sub start ;;
-    LDA $37                  ; E9D5  $A5 $37
-    BNE L3E9DC               ; E9D7  $D0 $03
-    JMP L3CDF5               ; E9D9  $4C $F5 $CD
 ; End of
+
+; Name	: Scroll
+; Marks	: No scrolling when in menu mode($37==01h)
+;; sub start ;;
+Scroll:
+	LDA text_win_mode	; E9D5  $A5 $37
+	BNE L3E9DC		; E9D7  $D0 $03
+	JMP L3CDF5		; E9D9  $4C $F5 $CD
+; End of Scroll
 L3E9DC:
-    LDA #$00                 ; E9DC  $A9 $00
-    STA PpuScroll_2005       ; E9DE  $8D $05 $20
-    STA PpuScroll_2005       ; E9E1  $8D $05 $20
-    RTS                      ; E9E4  $60
-; End of
+	LDA #$00		; E9DC  $A9 $00
+	STA PpuScroll_2005	; E9DE  $8D $05 $20
+	STA PpuScroll_2005	; E9E1  $8D $05 $20
+	RTS			; E9E4  $60
+; End of Scroll
 
+; Name	: Draw_win_top
+; Marks	: menu_win_W = $3C
+;	  Draw text window top to buffer($0780,X)
 ;; sub start ;;
+Draw_win_top:
     LDX #$01                 ; E9E5  $A2 $01
-    LDA #$F7                 ; E9E7  $A9 $F7
+    LDA #$F7                 ; E9E7  $A9 $F7		LEFT TOP text box line tile
     STA $0780                ; E9E9  $8D $80 $07
-    LDA #$FA                 ; E9EC  $A9 $FA
+    LDA #$FA                 ; E9EC  $A9 $FA		LEFT text box line tile
     STA $07A0                ; E9EE  $8D $A0 $07
 L3E9F1:
-    LDA #$F8                 ; E9F1  $A9 $F8
+    LDA #$F8                 ; E9F1  $A9 $F8		TOP text box line tile
     STA $0780,X              ; E9F3  $9D $80 $07
     LDA #$FF                 ; E9F6  $A9 $FF
     STA $07A0,X              ; E9F8  $9D $A0 $07
     INX                      ; E9FB  $E8
-    CPX $3C                  ; E9FC  $E4 $3C
+	CPX menu_win_W		; E9FC  $E4 $3C
     BCC L3E9F1               ; E9FE  $90 $F1
     DEX                      ; EA00  $CA
-    LDA #$F9                 ; EA01  $A9 $F9
+    LDA #$F9                 ; EA01  $A9 $F9		RIGHT TOP text box line tile
     STA $0780,X              ; EA03  $9D $80 $07
-    LDA #$FB                 ; EA06  $A9 $FB
+    LDA #$FB                 ; EA06  $A9 $FB		RIGHT text box line tile
     STA $07A0,X              ; EA08  $9D $A0 $07
     RTS                      ; EA0B  $60
+; End of Draw_win_top
 
+; Name	: Draw_win_mid
+; Marks	: menu_win_W = $3C
+;	  Draw text window middle to buffer($0780,X)
 ;; sub start ;;
+Draw_win_mid:
     LDX #$01                 ; EA0C  $A2 $01
-    LDA #$FA                 ; EA0E  $A9 $FA
+    LDA #$FA                 ; EA0E  $A9 $FA		LEFT text box line tile
     STA $0780                ; EA10  $8D $80 $07
     STA $07A0                ; EA13  $8D $A0 $07
     LDA #$FF                 ; EA16  $A9 $FF
@@ -5929,34 +5964,40 @@ L3EA18:
     STA $0780,X              ; EA18  $9D $80 $07
     STA $07A0,X              ; EA1B  $9D $A0 $07
     INX                      ; EA1E  $E8
-    CPX $3C                  ; EA1F  $E4 $3C
+	CPX menu_win_W		; EA1F  $E4 $3C
     BCC L3EA18               ; EA21  $90 $F5
     DEX                      ; EA23  $CA
-    LDA #$FB                 ; EA24  $A9 $FB
+    LDA #$FB                 ; EA24  $A9 $FB		RIGHT text box line tile
     STA $0780,X              ; EA26  $9D $80 $07
     STA $07A0,X              ; EA29  $9D $A0 $07
     RTS                      ; EA2C  $60
+; End of Draw_win_mid
 
+; Name	: Draw_win_bot
+; Marks	: menu_win_W = $3C
+;	  Draw text window bottom to buffer($0780,X)
 ;; sub start ;;
+Draw_win_bot:
     LDX #$01                 ; EA2D  $A2 $01
-    LDA #$FA                 ; EA2F  $A9 $FA
+    LDA #$FA                 ; EA2F  $A9 $FA		LEFT text box line tile
     STA $0780                ; EA31  $8D $80 $07
-    LDA #$FC                 ; EA34  $A9 $FC
+    LDA #$FC                 ; EA34  $A9 $FC		LEFT BOTTOM text box line tile
     STA $07A0                ; EA36  $8D $A0 $07
 L3EA39:
     LDA #$FF                 ; EA39  $A9 $FF
     STA $0780,X              ; EA3B  $9D $80 $07
-    LDA #$FD                 ; EA3E  $A9 $FD
+    LDA #$FD                 ; EA3E  $A9 $FD		BOTTOM text box line tile
     STA $07A0,X              ; EA40  $9D $A0 $07
     INX                      ; EA43  $E8
     CPX $3C                  ; EA44  $E4 $3C
     BCC L3EA39               ; EA46  $90 $F1
     DEX                      ; EA48  $CA
-    LDA #$FB                 ; EA49  $A9 $FB
+    LDA #$FB                 ; EA49  $A9 $FB		RIGHT text box lint tile
     STA $0780,X              ; EA4B  $9D $80 $07
-    LDA #$FE                 ; EA4E  $A9 $FE
+    LDA #$FE                 ; EA4E  $A9 $FE		BOTTOM RIGHT text box line tile
     STA $07A0,X              ; EA50  $9D $A0 $07
     RTS                      ; EA53  $60
+; End of Draw_win_bot
 
 L3EA54:
     JSR L3EA8C               ; EA54  $20 $8C $EA
@@ -6880,7 +6921,7 @@ Frame_end:
     JSR Wait_NMI		; JSR $FE00                ; F053  $20 $00 $FE
     INC frame_cnt_L		; INC $F0                  ; F056  $E6 $F0
     JSR $F069                ; F058  $20 $69 $F0
-    JSR $E9D5                ; F05B  $20 $D5 $E9
+	JSR Scroll		; F05B  $20 $D5 $E9
 	; Sound process ??
     JSR L3C746               ; F05E  $20 $46 $C7
     LDA bank_tmp		; LDA $93                  ; F061  $A5 $93
@@ -6889,10 +6930,11 @@ Frame_end:
 ; End of Frame_end
 
 ; Name	:
-; Marks	:
+; Marks	: $91 = text length ??
+;	  set text ??
 ;; sub start ;;
-    LDA $38                  ; F069  $A5 $38
-    STA $3A                  ; F06B  $85 $3A
+	LDA text_win_L		; F069  $A5 $38
+	STA text_x		; F06B  $85 $3A
 	JSR Set_text_xy		; JSR $EE1F                ; F06D  $20 $1F $EE
 	; Set text x offset to 0
     LDX #$00                 ; F070  $A2 $00
@@ -6903,28 +6945,28 @@ L3F072:
     CPX $91                  ; F079  $E4 $91
 	; if X < $91
     BCC L3F072               ; F07B  $90 $F5
-    CPX $3C                  ; F07D  $E4 $3C
+	CPX menu_win_W		; F07D  $E4 $3C
 	; if X >= $3C
     BCS L3F099               ; F07F  $B0 $18
-    LDA $3A                  ; F081  $A5 $3A
+	LDA text_x		; F081  $A5 $3A
     AND #$20                 ; F083  $29 $20
     EOR #$20                 ; F085  $49 $20
-    STA $3A                  ; F087  $85 $3A
+	STA text_x		; F087  $85 $3A
 	JSR Set_text_xy		; JSR $EE1F                ; F089  $20 $1F $EE
     LDX $91                  ; F08C  $A6 $91
 L3F08E:
     LDA $0780,X              ; F08E  $BD $80 $07
     STA PpuData_2007         ; F091  $8D $07 $20
     INX                      ; F094  $E8
-    CPX $3C                  ; F095  $E4 $3C
+	CPX menu_win_W		; F095  $E4 $3C
     BCC L3F08E               ; F097  $90 $F5
 L3F099:
-    LDA $38                  ; F099  $A5 $38
-    STA $3A                  ; F09B  $85 $3A
-    LDA $3B                  ; F09D  $A5 $3B
+	LDA text_win_L		; F099  $A5 $38
+	STA text_x		; F09B  $85 $3A
+	LDA text_y		; F09D  $A5 $3B
     CLC                      ; F09F  $18
     ADC #$01                 ; F0A0  $69 $01
-    STA $3B                  ; F0A2  $85 $3B
+	STA text_y		; F0A2  $85 $3B
 	JSR Set_text_xy		; JSR $EE1F                ; F0A4  $20 $1F $EE
     LDX #$00                 ; F0A7  $A2 $00
 L3F0A9:
@@ -6944,7 +6986,7 @@ L3F0A9:
     AND #$20                 ; F0BA  $29 $20
     EOR #$20                 ; F0BC  $49 $20
     STA $3A                  ; F0BE  $85 $3A
-	JSR Set_text_xy		; JSR $EE1F                ; F0C0  $20 $1F $EE
+	JSR Set_text_xy		; F0C0  $20 $1F $EE
     LDX $91                  ; F0C3  $A6 $91
 L3F0C5:
     LDA $07A0,X              ; F0C5  $BD $A0 $07
@@ -6956,7 +6998,7 @@ L3F0C5:
 L3F0D0:
     LDA #$00                 ; F0D0  $A9 $00
     STA $90                  ; F0D2  $85 $90
-    LDA $3B                  ; F0D4  $A5 $3B
+	LDA text_y		; F0D4  $A5 $3B
     CLC                      ; F0D6  $18
     ADC #$01                 ; F0D7  $69 $01
     CMP #$1E                 ; F0D9  $C9 $1E
@@ -6964,7 +7006,7 @@ L3F0D0:
     BCC L3F0DF               ; F0DB  $90 $02
     SBC #$1E                 ; F0DD  $E9 $1E
 L3F0DF:
-    STA $3B                  ; F0DF  $85 $3B
+	STA text_y		; F0DF  $85 $3B
     RTS                      ; F0E1  $60
 ; End of
     LDA #$00                 ; F0E2  $A9 $00
@@ -7766,6 +7808,8 @@ L3F75C:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; ========== map/menu code ($C000-$F7FF) END ==========
+
 
 ;; Unused code ??
     BIT PpuStatus_2002       ; F800  $2C $02 $20
@@ -7873,7 +7917,7 @@ F840:
 
 
 
-;========== BATTLE CODE START($FA00-$FFE0) ==========
+;========== BATTLE CODE ($FA00-$FFE0) START ==========
 
 ; Name	:
 ; Marks	: Battle code
@@ -7926,6 +7970,7 @@ L3FA39:
     JMP L3FA39               ; FA39  $4C $39 $FA
 ; End of Set_IRQ_JMP
 
+; < NMI routine >
 ; Name	:
 ; Marks	: IRQ subroutine
 L3FA3C:
@@ -8508,6 +8553,7 @@ L3FDC1:
     STA $1F                  ; FDD8  $85 $1F
     LDA #$0B                 ; FDDA  $A9 $0B
     JMP Swap_PRG             ; FDDC  $4C $1A $FE
+; End of
 
 ;; sub start ;;
     LDX #$09                 ; FDDF  $A2 $09
@@ -8521,24 +8567,31 @@ L3FDC1:
     LDY #$00                 ; FDF0  $A0 $00
     LDA ($00),Y              ; FDF2  $B1 $00
     RTS                      ; FDF4  $60
+; End of
 
  ;data block---
 ;; [FDF5 : 3FE05]
 .byte $11,$D0,$F3,$4C,$34,$FA,$00,$00,$00,$00,$00
+;========== BATTLE CODE ($FA00-$FDFF) END ==========
 
+
+; ========== system code ($FE00-$FFDF) START ==========
 ; Name	: Wait_NMI
 ; Marks	: fall in loop for wait NMI
 Wait_NMI:
 ;; sub start ;;
     JMP L3FEAD               ; FE00  $4C $AD $FE
+; End of Wait_NMI
+
 Swap_PRG_:
     JMP Swap_PRG             ; FE03  $4C $1A $FE
+
 ; Name	: MMC1_CONTROL_REGISTER
 ; A	: 4bit : CHR ROM bank mode
 ;	  3-2bits : PRG ROM bank mode
 ;	  1-0bits : Mirroring
 ; Marks	: MMC1 control REGISTER
-;		  A will be 0
+;	  A will be 0
 MMC1_CONTROL_REGISTER:
     STA $9FFF                ; FE06  $8D $FF $9F
     LSR A                    ; FE09  $4A
@@ -8550,10 +8603,12 @@ MMC1_CONTROL_REGISTER:
     LSR A                    ; FE15  $4A
     STA $9FFF                ; FE16  $8D $FF $9F
     RTS                      ; FE19  $60
+; End of MMC1_CONTROL_REGISTER
 
 ; Name	: Swap_PRG
 ; A	: ROM bank 0($00000)-F($3C000)
 ; Marks	: Change Program Rom Bank
+;	  A will be 0
 Swap_PRG:
     STA $FFF9                ; FE1A  $8D $F9 $FF
     LSR A                    ; FE1D  $4A
@@ -8565,6 +8620,7 @@ Swap_PRG:
     LSR A                    ; FE29  $4A
     STA $FFF9                ; FE2A  $8D $F9 $FF
     RTS                      ; FE2D  $60
+; End of Swap_PRG
 
 OnReset:
     SEI                      ; FE2E  $78
@@ -8624,6 +8680,7 @@ OnReset:
     STA $0100                ; FE9B  $8D $00 $01
 	; How about go to $C025 ??
     JMP $C000                ; FE9E  $4C $00 $C0
+; End of OnReset
 
 ; < NMI routine >
 ; Marks	: set RTI on $0100(NMI) and Return
@@ -8646,14 +8703,13 @@ L3FEAD:
     STA $0102                ; FEB4  $8D $02 $01
     LDA #$4C                 ; FEB7  $A9 $4C
     STA $0100                ; FEB9  $8D $00 $01
-
-; Endless loop
+; Endless loop - wait NMI or IRQ
 OnIRQ:
 L3FEBC:
     JMP L3FEBC               ; FEBC  $4C $BC $FE
+; End of Wait_NMI
 
 ; Name	: Palettes_init
-; A	:
 ; Marks	: Palettes init
 Palettes_init:
     LDA #$00                 ; FEBF  $A9 $00
@@ -8676,6 +8732,7 @@ FED5:
     STA PpuAddr_2006         ; FEE5  $8D $06 $20
     STA PpuAddr_2006         ; FEE8  $8D $06 $20
     RTS                      ; FEEB  $60
+; End of Palettes_init
 
  ;data block---
 .byte $00,$00,$00,$00
@@ -8725,9 +8782,7 @@ FF97:
 .byte $A9,$01,$20,$03,$FE,$20,$B0,$BF,$A9,$09,$4C,$03,$FE,$00,$00,$00
 ;; [FFD0 : 3FFE0]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
-;========== BATTLE CODE END($FA00-$FFE0) ==========
-
+; ========== system code ($FE00-$FFDF) END ==========
 
 
 ;; [FFE0-FFF9 : 3FFE0] - rom info

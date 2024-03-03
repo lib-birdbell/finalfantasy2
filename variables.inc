@@ -11,18 +11,19 @@ _1F_unknown		= $1F
 key1p		   = $20
 division_result    = $22
 dialog_box	   = $24
+a_pressing	   = $24
 b_pressing	   = $25
 
 ow_x_pos			= $27
 ow_y_pos			= $28
 
-_37_unknown		= $37	; PPU scroll variable?? - 01 = scroll disable
-_38_unknown		= $38
-_39_unknown		= $39
-_3A_unknown		= $3A
-_3B_unknown		= $3B
-_3C_unknown		= $3C
-_3D_unknown		= $3D
+text_win_mode		= $37	; 0: map, 1: menu. PPU scroll variable?? - 01 = scroll disable
+text_win_L		= $38
+text_win_T		= $39
+text_x			= $3A
+text_y			= $3B
+menu_win_W		= $3C
+menu_win_H		= $3D
 _3E_unknown		= $3E	; bank temp buffer ??
 _3F_unknown		= $3F
 
