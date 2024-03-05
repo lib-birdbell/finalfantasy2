@@ -8,14 +8,27 @@ _1D_unknown		= $1D
 _1E_unknown		= $1E
 _1F_unknown		= $1F
 
-key1p		   = $20
+key1p			= $20
 division_result    = $22
+sel_pressing		= $22
+s_pressing		= $23
 dialog_box	   = $24
-a_pressing	   = $24
-b_pressing	   = $25
+a_pressing		= $24
+b_pressing		= $25
 
 ow_x_pos			= $27
 ow_y_pos			= $28
+
+;---- --hn
+scroll_dir_map		= $2D
+
+;udlr
+player_dir		= $33
+;player_movement_speed	= $34
+mov_spd			= $34
+;player_horizontal/vertical_subtile_position
+hor_stile_pos		= $35
+ver_stile_pos		= $36
 
 text_win_mode		= $37	; 0: map, 1: menu. PPU scroll variable?? - 01 = scroll disable
 text_win_L		= $38
@@ -28,6 +41,7 @@ _3E_unknown		= $3E	; bank temp buffer ??
 _3F_unknown		= $3F
 
 vehicle_ID		= $42
+; 01h:no vehicle, 02h:canoe/snowcraft, 04h:ship, 08h:airship
 
 p_map1			= $45
 p_map2			= $46
@@ -46,6 +60,9 @@ _62_unknown		= $62
 _63_unknown		= $63
 _64_palette_tmp		= $64
 _67_unknown		= $67
+
+event			= $6C
+map_water_cnt		= $6D
 
 charstat_pointer   = $7A ; 2 bytes
 charskill_pointer  = $7E ; 2 bytes
@@ -108,6 +125,9 @@ frame_cnt_L	   = $F0	; Timer, Increases by 1 every frame.
 frame_cnt_H	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every time values hits a multiple of 40, the airship flies over the screen
 
 skip_intro	   = $FA	; $77 is already saw the logo screen, else is Show logo screen.
+
+ppu_con_p		= $FD
+ppu_con_c		= $FF
 
 palette_UBGC	   = $03C0
 palette_BG00	   = $03C1
