@@ -28,7 +28,7 @@ Swap_PRG:
 	LDA #$00		; FE33	$A9 $00
 	RTS			; FE35	$60
 ; End of Swap_PRG
-;; FE35 end - FE36 start -> end
+;; FE2D end - FE2E start -> end
 
 
 

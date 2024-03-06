@@ -8,9 +8,10 @@ _1D_unknown		= $1D
 _1E_unknown		= $1E
 _1F_unknown		= $1F
 
+; abesudlr
 key1p			= $20
 division_result    = $22
-sel_pressing		= $22
+e_pressing		= $22
 s_pressing		= $23
 dialog_box	   = $24
 a_pressing		= $24
@@ -18,9 +19,12 @@ b_pressing		= $25
 
 ow_x_pos			= $27
 ow_y_pos			= $28
+in_x_pos			= $29
+in_y_pos			= $2A
 
 ;---- --hn
 scroll_dir_map		= $2D
+_2F_unknown		= $2F		; y position ??
 
 ;udlr
 player_dir		= $33
@@ -42,7 +46,7 @@ _3F_unknown		= $3F
 
 vehicle_ID		= $42
 ; 01h:no vehicle, 02h:canoe/snowcraft, 04h:ship, 08h:airship
-
+tile_property		= $44	; ??
 p_map1			= $45
 p_map2			= $46
 player_mv_timer	   = $47
@@ -71,9 +75,14 @@ battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
 _84_unknown		= $84
 text_x_offset		= $90
 _91_unknown		= $91
+text_ID			= $92
 bank_tmp		= $93
-_94_unknown		= $94
-_95_unknown		= $95
+text_bank		= $93
+text_offset		= $94
+_95_unknown		= $95		; text_offset_H ??
+; 00h: dialogue - 28x10 at (2,2), 01h: yes/no, buy/sell/exit - 8x10 at (2,10)
+; 02h: keyword/item select - 22x10 at (8,10), 03h: gil - 12x4 at (18,14)
+win_type		= $96
 _98_unknown		= $98
 
 charstat_pointer2  = $A1 ; 2 bytes ; Mixed pointer? A1 = 7A, A2 = 81
@@ -160,20 +169,29 @@ palette_OAM32	   = $03DF
 ;; Some kind of dialogue text buffer/box drawing stuff at $0780-07FF
 
 
+;; ========== WORK RAM ==========
+
+; 00h: hidden, 01h: caaught, 02h: riding??, 80h: running away
+;chocobo_stat		= $6008
+;chocobo_x		= $6009
+;chocobo_y		= $600A
+chocobo_x_		= $623E
+chocobo_y_		= $623F
 
 
 
 
 
 
-;; Save RAM ;; 
+;; ========== SAVE RAM START ==========
 
 sram_1                   = $6300
 sram_2                   = $6600
 sram_3                   = $6900
 sram_4                   = $6C00
 
-unsram                   = $6000        ; $300 bytes
+; $300 bytes
+unsram                   = $6000
 zeropage_5A              = unsram + $02FE
 checksum                 = unsram + $02FF
 
@@ -185,7 +203,9 @@ airship_flag             = unsram + $04 ; $01 = airship visible, $02 = trigger a
 airship_x                = unsram + $05
 airship_y                = unsram + $06
 airship_flyover          = unsram + $07 ; Counts down when airship is flying overhead 
-chocobo_flag             = unsram + $08 ; $02 = riding and in control of chocobo, $80 = animation?
+; 00h: hidden, 01h: caaught, 02h: riding??, 80h: running away
+; $02 = riding and in control of chocobo, $80 = animation?
+chocobo_stat             = unsram + $08
 chocobo_x                = unsram + $09
 chocobo_y                = unsram + $0A
 ;                        = unsram + $0B
@@ -344,6 +364,10 @@ battle_min_mresist       = ch_skills + $32
 ;                        = ch_skills + $34
 battle_row               = ch_skills + $35 ; $00 = back row, $01 = front row, $80 = no character portrait visible
 
+;; ========== SAVE RAM END ==========
+
+
+
 song_tempo		= $6F00
 SQ1vol			= $6F04
 SQ2vol			= $6F05
@@ -353,6 +377,8 @@ current_BGM_ID		 = $6F25
 _6F26_unknown		= $6F26
 
 
+cur_cur_pos		= $78F0		; ??
+len_cur_dat		= $78F1		; ??
 
 
 

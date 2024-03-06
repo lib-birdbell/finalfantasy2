@@ -228,7 +228,7 @@ C143:
     STA ApuStatus_4015       ; C17B  $8D $15 $40
     JMP L3C8BC               ; C17E  $4C $BC $C8
 L3C181:
-	LDA sel_pressing	; C181  $A5 $22
+	LDA e_pressing		; C181  $A5 $22
 	BEQ L3C1B0		; C183  $F0 $2B		if select key not pressing
     LDA #$30                 ; C185  $A9 $30
     STA NoiseVolume_400C     ; C187  $8D $0C $40
@@ -1667,7 +1667,7 @@ L3CBC7:
     STA $44                  ; CBC9  $85 $44
     LDA #$0E                 ; CBCB  $A9 $0E
     JSR Swap_PRG_               ; CBCD  $20 $03 $FE
-    JSR $9794                ; CBD0  $20 $94 $97
+    JSR $9794                ; CBD0  $20 $94 $97	chocobo ??
     STA $92                  ; CBD3  $85 $92
     LDA $A0                  ; CBD5  $A5 $A0
     CMP #$60                 ; CBD7  $C9 $60
@@ -1675,18 +1675,18 @@ L3CBC7:
     CMP #$C0                 ; CBDB  $C9 $C0
     BCC L3CBEE               ; CBDD  $90 $0F
 L3CBDF:
-    LDA $44                  ; CBDF  $A5 $44
+    LDA $44                  ; CBDF  $A5 $44		tile property ??
     AND #$E0                 ; CBE1  $29 $E0
-    ORA $6C                  ; CBE3  $05 $6C
-    BEQ L3CBF1               ; CBE5  $F0 $0A
-    LDA $6C                  ; CBE7  $A5 $6C
+	ORA event		; CBE3  $05 $6C
+	BEQ L3CBF1		; CBE5  $F0 $0A		if A == 00h
+	LDA event		; CBE7  $A5 $6C
     BEQ L3CBEE               ; CBE9  $F0 $03
     JSR L3C6F4               ; CBEB  $20 $F4 $C6
 L3CBEE:
     JMP L3CB64               ; CBEE  $4C $64 $CB
 L3CBF1:
     JSR $9145                ; CBF1  $20 $45 $91
-    LDA $6C                  ; CBF4  $A5 $6C
+	LDA event		; CBF4  $A5 $6C
     BEQ L3CBFB               ; CBF6  $F0 $03
     JMP L3C6F4               ; CBF8  $4C $F4 $C6
 L3CBFB:
@@ -4730,12 +4730,12 @@ E0CF:
     JMP L3E102               ; E0DE  $4C $02 $E1
 L3E0E1:
 	LDA scroll_dir_map	; E0E1  $A5 $2D
-    AND #$01                 ; E0E3  $29 $01
-    LSR A                    ; E0E5  $4A
-    BCS L3E0F3               ; E0E6  $B0 $0B		if A.bit0 == 01h
-    LDA $6008                ; E0E8  $AD $08 $60
-    AND #$02                 ; E0EB  $29 $02
-    BEQ L3E0F3               ; E0ED  $F0 $04
+	AND #$01		; E0E3  $29 $01		if normal map
+	LSR A			; E0E5  $4A
+	BCS L3E0F3		; E0E6  $B0 $0B		if A.bit0 == 01h
+	LDA chocobo_stat	; E0E8  $AD $08 $60	case : world map
+	AND #$02		; E0EB  $29 $02
+	BEQ L3E0F3		; E0ED  $F0 $04
     LDA #$70                 ; E0EF  $A9 $70
     BNE E0CF                 ; E0F1  $D0 $DC
 L3E0F3:
@@ -5713,47 +5713,51 @@ E829:
     LDA #$01                 ; E83F  $A9 $01
     BNE L3E845               ; E841  $D0 $02
 
+; Name	:
+; X	: INDEX
+; Marks	: OAM Search something from buffer($0200) ??
 ;; sub start ;;
-    LDA #$00                 ; E843  $A9 $00
+	LDA #$00                 ; E843  $A9 $00
 L3E845:
-    STA $84                  ; E845  $85 $84
-    LDA $E892,X              ; E847  $BD $92 $E8
-    STA $80                  ; E84A  $85 $80
-    LDA $E898,X              ; E84C  $BD $98 $E8
-    STA $81                  ; E84F  $85 $81
-    LDA $E89E,X              ; E851  $BD $9E $E8
-    STA $82                  ; E854  $85 $82
-    LDA $E8A4,X              ; E856  $BD $A4 $E8
-    STA $83                  ; E859  $85 $83
-    LDY #$40                 ; E85B  $A0 $40
+	STA $84                  ; E845  $85 $84
+	LDA $E892,X              ; E847  $BD $92 $E8
+	STA $80                  ; E84A  $85 $80
+	LDA $E898,X              ; E84C  $BD $98 $E8
+	STA $81                  ; E84F  $85 $81
+	LDA $E89E,X              ; E851  $BD $9E $E8
+	STA $82                  ; E854  $85 $82
+	LDA $E8A4,X              ; E856  $BD $A4 $E8
+	STA $83                  ; E859  $85 $83
+	LDY #$40                 ; E85B  $A0 $40
 L3E85D:
-    LDA $0203,Y              ; E85D  $B9 $03 $02
-    CMP $80                  ; E860  $C5 $80
-    BCC L3E88A               ; E862  $90 $26
-    CMP $81                  ; E864  $C5 $81
-    BCS L3E88A               ; E866  $B0 $22
-    LDA $0200,Y              ; E868  $B9 $00 $02
-    CMP $82                  ; E86B  $C5 $82
-    BCC L3E88A               ; E86D  $90 $1B
-    CMP $83                  ; E86F  $C5 $83
-    BCS L3E88A               ; E871  $B0 $17
-    LDA $84                  ; E873  $A5 $84
-    BNE L3E882               ; E875  $D0 $0B
-    LDA $0202,Y              ; E877  $B9 $02 $02
-    ORA #$20                 ; E87A  $09 $20
-    STA $0202,Y              ; E87C  $99 $02 $02
-    JMP L3E88A               ; E87F  $4C $8A $E8
+	LDA $0203,Y              ; E85D  $B9 $03 $02
+	CMP $80                  ; E860  $C5 $80
+	BCC L3E88A               ; E862  $90 $26
+	CMP $81                  ; E864  $C5 $81
+	BCS L3E88A               ; E866  $B0 $22
+	LDA $0200,Y              ; E868  $B9 $00 $02
+	CMP $82                  ; E86B  $C5 $82
+	BCC L3E88A               ; E86D  $90 $1B
+	CMP $83                  ; E86F  $C5 $83
+	BCS L3E88A               ; E871  $B0 $17
+	LDA $84                  ; E873  $A5 $84
+	BNE L3E882               ; E875  $D0 $0B
+	LDA $0202,Y              ; E877  $B9 $02 $02
+	ORA #$20                 ; E87A  $09 $20
+	STA $0202,Y              ; E87C  $99 $02 $02
+	JMP L3E88A               ; E87F  $4C $8A $E8
 L3E882:
-    LDA $0202,Y              ; E882  $B9 $02 $02
-    AND #$DF                 ; E885  $29 $DF
-    STA $0202,Y              ; E887  $99 $02 $02
+	LDA $0202,Y              ; E882  $B9 $02 $02
+	AND #$DF                 ; E885  $29 $DF
+	STA $0202,Y              ; E887  $99 $02 $02
 L3E88A:
-    TYA                      ; E88A  $98
-    CLC                      ; E88B  $18
-    ADC #$04                 ; E88C  $69 $04
-    TAY                      ; E88E  $A8
-    BCC L3E85D               ; E88F  $90 $CC
-    RTS                      ; E891  $60
+	TYA                      ; E88A  $98
+	CLC                      ; E88B  $18
+	ADC #$04                 ; E88C  $69 $04
+	TAY                      ; E88E  $A8
+	BCC L3E85D               ; E88F  $90 $CC
+	RTS                      ; E891  $60
+; End of
 
  ;data block---
 ;; [E892 : 3E8A2]
@@ -5778,13 +5782,16 @@ L3E88A:
     JSR L3E91E               ; E8C4  $20 $1E $E9
     JMP L3E8E5               ; E8C7  $4C $E5 $E8
 
+; Name	: Init_win_type
+; Marks	: Init text window type and key reset
 ;; sub start ;;
-    LDA #$00                 ; E8CA  $A9 $00
-    STA $96                  ; E8CC  $85 $96
-    STA $24                  ; E8CE  $85 $24
-    STA $25                  ; E8D0  $85 $25
-    JSR L3E91E               ; E8D2  $20 $1E $E9
-    JMP L3EA54               ; E8D5  $4C $54 $EA
+	LDA #$00                 ; E8CA  $A9 $00
+	STA win_type		; E8CC  $85 $96
+	STA a_pressing		; E8CE  $85 $24
+	STA b_pressing		; E8D0  $85 $25
+	JSR L3E91E               ; E8D2  $20 $1E $E9
+	JMP L3EA54               ; E8D5  $4C $54 $EA
+; End of Init_win_type
 
 ;; sub start ;;
     LDA #$00                 ; E8D8  $A9 $00
@@ -5829,88 +5836,91 @@ L3E90C:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Draw window(OO) and text(??)
 L3E91E:
-    LDX $96                  ; E91E  $A6 $96
-    JSR $E96E                ; E920  $20 $6E $E9
-    LDA $39                  ; E923  $A5 $39
-    STA $3B                  ; E925  $85 $3B
-    JSR Text_buf_init		; JSR $F031                ; E927  $20 $31 $F0
-    LDX #$0F                 ; E92A  $A2 $0F
-    LDA #$FF                 ; E92C  $A9 $FF
+	LDX win_type		; E91E  $A6 $96
+	JSR Set_map_win_size	; E920  $20 $6E $E9
+	LDA text_win_T		; E923  $A5 $39
+	STA text_y		; E925  $85 $3B
+	JSR Text_buf_init	; E927  $20 $31 $F0
+	LDX #$0F		; E92A  $A2 $0F
+	LDA #$FF		; E92C  $A9 $FF
 L3E92E:
-    STA $07C0,X              ; E92E  $9D $C0 $07
-    DEX                      ; E931  $CA
-    BPL L3E92E               ; E932  $10 $FA
-    LDA $3D                  ; E934  $A5 $3D
-    LSR A                    ; E936  $4A
-    PHA                      ; E937  $48
+	STA $07C0,X		; E92E  $9D $C0 $07
+	DEX			; E931  $CA
+	BPL L3E92E		; E932  $10 $FA
+	LDA menu_win_H		; E934  $A5 $3D
+	LSR A			; E936  $4A
+	PHA			; E937  $48
 	JSR Draw_win_top	; E938  $20 $E5 $E9
-    JSR $E9BA                ; E93B  $20 $BA $E9
-    PLA                      ; E93E  $68
-    SEC                      ; E93F  $38
-    SBC #$02                 ; E940  $E9 $02
-    BEQ L3E951               ; E942  $F0 $0D
+	JSR $E9BA		; E93B  $20 $BA $E9
+	PLA			; E93E  $68
+	SEC			; E93F  $38
+	SBC #$02		; E940  $E9 $02
+	BEQ L3E951		; E942  $F0 $0D
 L3E944:
-    PHA                      ; E944  $48
+	PHA			; E944  $48
 	JSR Draw_win_mid	; E945  $20 $0C $EA
-    JSR $E9BA                ; E948  $20 $BA $E9
-    PLA                      ; E94B  $68
-    SEC                      ; E94C  $38
-    SBC #$01                 ; E94D  $E9 $01
-    BNE L3E944               ; E94F  $D0 $F3
+	JSR $E9BA		; E948  $20 $BA $E9
+	PLA			; E94B  $68
+	SEC			; E94C  $38
+	SBC #$01		; E94D  $E9 $01
+	BNE L3E944		; E94F  $D0 $F3
 L3E951:
 	JSR Draw_win_bot	; E951  $20 $2D $EA
-    JSR $E9BA                ; E954  $20 $BA $E9
+	JSR $E9BA		; E954  $20 $BA $E9
 	INC text_win_L		; E957  $E6 $38
 	INC text_win_T		; E959  $E6 $39
 	LDA menu_win_W		; E95B  $A5 $3C
-    SEC                      ; E95D  $38
-    SBC #$02                 ; E95E  $E9 $02
+	SEC                      ; E95D  $38
+	SBC #$02                 ; E95E  $E9 $02
 	STA menu_win_W		; E960  $85 $3C
 	LDA menu_win_H		; E962  $A5 $3D
-    SEC                      ; E964  $38
-    SBC #$02                 ; E965  $E9 $02
+	SEC                      ; E964  $38
+	SBC #$02                 ; E965  $E9 $02
 	STA menu_win_H		; E967  $85 $3D
 	LDA bank		; E969  $A5 $57
 	JMP Swap_PRG_		; E96B  $4C $03 $FE
-; End of
+; End of Draw window(OO) and text(??)
 
-; Name	:
-; Marks	:
+; Name	: Set_map_win_size
+; X	: text window size = win_type($96) ??
+; Marks	: set map window size, ex> talk (not menu, but map)
 ;; sub start ;;
-    LDA $37                  ; E96E  $A5 $37
-    BNE L3E9A9               ; E970  $D0 $37
-    LDA $E9AA,X              ; E972  $BD $AA $E9
-    SEC                      ; E975  $38
-    SBC #$01                 ; E976  $E9 $01
-    STA $97                  ; E978  $85 $97
-    LDA $E9AE,X              ; E97A  $BD $AE $E9
-    CLC                      ; E97D  $18
-    ADC #$02                 ; E97E  $69 $02
-    STA $98                  ; E980  $85 $98
-    LDA $29                  ; E982  $A5 $29
-    ASL A                    ; E984  $0A
-    CLC                      ; E985  $18
-    ADC $E9AA,X              ; E986  $7D $AA $E9
-    AND #$3F                 ; E989  $29 $3F
-    STA $38                  ; E98B  $85 $38
-    LDA $2F                  ; E98D  $A5 $2F
-    ASL A                    ; E98F  $0A
-    CLC                      ; E990  $18
-    ADC $E9AE,X              ; E991  $7D $AE $E9
-    CMP #$1E                 ; E994  $C9 $1E
-    BCC L3E99A               ; E996  $90 $02
-    SBC #$1E                 ; E998  $E9 $1E
+Set_map_win_size:
+	LDA text_win_mode	; E96E  $A5 $37
+	BNE L3E9A9		; E970  $D0 $37		if A != 0 (menu)
+	LDA $E9AA,X		; E972  $BD $AA $E9
+	SEC			; E975  $38
+	SBC #$01		; E976  $E9 $01
+	STA $97			; E978  $85 $97
+	LDA $E9AE,X		; E97A  $BD $AE $E9
+	CLC			; E97D  $18
+	ADC #$02		; E97E  $69 $02
+	STA $98			; E980  $85 $98
+	LDA in_x_pos		; E982  $A5 $29
+	ASL A			; E984  $0A
+	CLC			; E985  $18
+	ADC $E9AA,X		; E986  $7D $AA $E9
+	AND #$3F		; E989  $29 $3F
+	STA text_win_L		; E98B  $85 $38
+	LDA $2F			; E98D  $A5 $2F
+	ASL A			; E98F  $0A
+	CLC			; E990  $18
+	ADC $E9AE,X		; E991  $7D $AE $E9
+	CMP #$1E		; E994  $C9 $1E
+	BCC L3E99A		; E996  $90 $02		if A < 1Eh
+	SBC #$1E		; E998  $E9 $1E
 L3E99A:
-    STA $39                  ; E99A  $85 $39
-    LDA $E9B2,X              ; E99C  $BD $B2 $E9
-    STA $3C                  ; E99F  $85 $3C
-    LDA $E9B6,X              ; E9A1  $BD $B6 $E9
-    STA $3D                  ; E9A4  $85 $3D
-    JSR $E843                ; E9A6  $20 $43 $E8
+	STA text_win_T		; E99A  $85 $39
+	LDA $E9B2,X		; E99C  $BD $B2 $E9
+	STA menu_win_W		; E99F  $85 $3C
+	LDA $E9B6,X		; E9A1  $BD $B6 $E9
+	STA menu_win_H		; E9A4  $85 $3D
+	JSR $E843		; E9A6  $20 $43 $E8
 L3E9A9:
-    RTS                      ; E9A9  $60
+	RTS			; E9A9  $60
+; End of Set_map_win_size
 
  ;data block---
 .byte $02,$02,$08,$12,$02,$12
@@ -6059,74 +6069,71 @@ L3EA81:
 L3EA8B:
     RTS                      ; EA8B  $60
 
-; SRC	: $93 - bank to swap
-; Marks	: 
-;	  $3E(ADDR??) - example $8492->#$B8E6
-;	  $80(ADDR) -
+; SRC	: $93 - text prg bank
+; Marks	: Get text pointer
+;	  $3E(ADDR) - text address ex> $8492->#$B8E6
+;	  $80(ADDR) - text pointer
 ;	  $92 - 
 L3EA8C:
-    LDA $93                  ; EA8C  $A5 $93
-    JSR Swap_PRG_               ; EA8E  $20 $03 $FE
-    LDA $92                  ; EA91  $A5 $92
-    ASL A                    ; EA93  $0A
-    PHP                      ; EA94  $08
-    CLC                      ; EA95  $18
-    ADC $94                  ; EA96  $65 $94
-    STA $80                  ; EA98  $85 $80
-    PLP                      ; EA9A  $28
-    LDA $95                  ; EA9B  $A5 $95
-    ADC #$00                 ; EA9D  $69 $00
-    STA $81                  ; EA9F  $85 $81
-    LDY #$00                 ; EAA1  $A0 $00
-    LDA ($80),Y              ; EAA3  $B1 $80
-    STA $3E                  ; EAA5  $85 $3E
-    INY                      ; EAA7  $C8
-    LDA ($80),Y              ; EAA8  $B1 $80
-    STA $3F                  ; EAAA  $85 $3F
-
+	LDA text_bank		; EA8C  $A5 $93
+	JSR Swap_PRG_		; EA8E  $20 $03 $FE
+	LDA text_ID		; EA91  $A5 $92
+	ASL A			; EA93  $0A
+	PHP			; EA94  $08
+	CLC			; EA95  $18
+	ADC text_offset		; EA96  $65 $94
+	STA $80			; EA98  $85 $80
+	PLP			; EA9A  $28
+	LDA $95			; EA9B  $A5 $95
+	ADC #$00		; EA9D  $69 $00
+	STA $81			; EA9F  $85 $81
+	LDY #$00		; EAA1  $A0 $00
+	LDA ($80),Y		; EAA3  $B1 $80
+	STA $3E			; EAA5  $85 $3E
+	INY			; EAA7  $C8
+	LDA ($80),Y		; EAA8  $B1 $80
+	STA $3F			; EAAA  $85 $3F
 ; Name	:
-; Src	: $93 - bank to Swap
-; Marks	: Some variables copy
+; SRC	: $93 - text prg bank
+; Marks	: Some variables copy - text copy ??
 ;	  $1C(ADDR)
 ;	  $1E = #$00
 ;	  $1C <- $3E
 ;	  $1D <- $3F
-;	  $3A <- $38
-;	  $3B <- $39
 ;; sub start ;;
-    LDA $93                  ; EAAC  $A5 $93
-    JSR Swap_PRG_               ; EAAE  $20 $03 $FE
-    LDA #$00                 ; EAB1  $A9 $00
-    STA $1E                  ; EAB3  $85 $1E
-    LDA $3E                  ; EAB5  $A5 $3E
-    STA $1C                  ; EAB7  $85 $1C
-    LDA $3F                  ; EAB9  $A5 $3F
-    STA $1D                  ; EABB  $85 $1D
-    STA $1D                  ; EABD  $85 $1D
-    LDA $38                  ; EABF  $A5 $38
-    STA $3A                  ; EAC1  $85 $3A
-    LDA $39                  ; EAC3  $A5 $39
-    STA $3B                  ; EAC5  $85 $3B
-    JSR Text_buf_init		; JSR $F031                ; EAC7  $20 $31 $F0
-    LDA #$00                 ; EACA  $A9 $00
+	LDA text_bank		; EAAC  $A5 $93
+	JSR Swap_PRG_		; EAAE  $20 $03 $FE
+	LDA #$00		; EAB1  $A9 $00
+	STA $1E			; EAB3  $85 $1E
+	LDA $3E			; EAB5  $A5 $3E
+	STA $1C			; EAB7  $85 $1C
+	LDA $3F			; EAB9  $A5 $3F
+	STA $1D			; EABB  $85 $1D
+	STA $1D			; EABD  $85 $1D
+	LDA text_win_L		; EABF  $A5 $38
+	STA text_x		; EAC1  $85 $3A
+	LDA text_win_T		; EAC3  $A5 $39
+	STA text_y		; EAC5  $85 $3B
+	JSR Text_buf_init	; EAC7  $20 $31 $F0
+	LDA #$00		; EACA  $A9 $00
 	STA text_x_offset	; EACC  $85 $90
-    STA $1F                  ; EACE  $85 $1F
-	; insert string
-    JSR L3EAE6               ; EAD0  $20 $E6 $EA
-    BCS L3EADF               ; EAD3  $B0 $0A
-    JSR Frame_end		; JSR $F053                ; EAD5  $20 $53 $F0
-    LDA $57                  ; EAD8  $A5 $57
-    JSR Swap_PRG_               ; EADA  $20 $03 $FE
+	STA $1F			; EACE  $85 $1F
+	JSR L3EAE6		; EAD0  $20 $E6 $EA	insert string
+	BCS L3EADF		; EAD3  $B0 $0A
+	JSR Frame_end		; EAD5  $20 $53 $F0
+	LDA bank		; EAD8  $A5 $57
+	JSR Swap_PRG_		; EADA  $20 $03 $FE
 L3EADD:
-    CLC                      ; EADD  $18
-    RTS                      ; EADE  $60
-; End of
+	CLC                      ; EADD  $18
+	RTS                      ; EADE  $60
+; End of text copy ??
 
 L3EADF:
-    LDA $57                  ; EADF  $A5 $57
-    JSR Swap_PRG_               ; EAE1  $20 $03 $FE
-    SEC                      ; EAE4  $38
-    RTS                      ; EAE5  $60
+	LDA bank		; EADF  $A5 $57
+	JSR Swap_PRG_		; EAE1  $20 $03 $FE
+	SEC			; EAE4  $38
+	RTS                      ; EAE5  $60
+; End of text copy ??
 
 ; Name	: Set text??
 ; SRC	: $3E(ADDR) - data_buf
