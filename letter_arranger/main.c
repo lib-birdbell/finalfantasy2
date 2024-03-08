@@ -15,6 +15,8 @@
 // 32 characters per Line
 #define	FONT_X_OFFSET	18
 
+#define VERSION		"1.00"
+
 #pragma pack(push,1)
 struct bmp_header {
 	char bmp[3];
@@ -47,6 +49,7 @@ int ConvertMode(int argc, char **argv);
 int anal_mode(char *font_value);
 int Check_duplicate(char *letter, char *letters, int nMaxLetterSize, int nEnd);
 int unicode(char *font_value);
+int utf8_to_unicode(char *uft8);
 
 
 
@@ -55,6 +58,10 @@ int main(int argc, char** argv){
 
 	if(argc < 2){
 		printf("How to use.\n");
+		printf(" [input file name].\n");
+		printf("It supprot UTF-8 format.\n");
+		printf("Date:20240308.\n");
+		printf("Version:%s.\n", VERSION);
 		return 0;
 	}
 
@@ -242,6 +249,7 @@ int anal_mode(char *input_file){
 	struct testList testlist;
 	unsigned short unicode;
 	int a, b, c;
+	FILE *fp;
 /*}
 	char *letter;
 	unsigned char *noJong;
@@ -343,9 +351,10 @@ int anal_mode(char *input_file){
 						repeatCnt[ret/4]++;
 						continue;
 					}
-					unicode = (oneLetter[0] & 0x0F) << 12;
-					unicode |= (oneLetter[1] & 0x3F) << 6;
-					unicode |= (oneLetter[2] & 0x3F);
+					unicode = utf8_to_unicode(oneLetter);
+					//unicode = (oneLetter[0] & 0x0F) << 12;
+					//unicode |= (oneLetter[1] & 0x3F) << 6;
+					//unicode |= (oneLetter[2] & 0x3F);
 					//printf("%04x\n", unicode);
 					//a = unicode & 0x03FF;
 					a = unicode - 0xAC00;
@@ -419,37 +428,52 @@ int anal_mode(char *input_file){
 		}
 	}
 
+	fp = fopen("./output.txt", "w");
 	// Result lettes
 	for(i=0;i<nLetters;i+=4){
 		if((letters[i] & 0x80) == 0x00){
-			printf("%02xh\n", letters[i+0]);
+			if(letters[i] < 0x20){
+				fprintf(fp, "%02xh", letters[i+0]);
+			}else if(letters[i] == 0x7F){
+				fprintf(fp, "%02xh", letters[i+0]);
+			}else{
+				fprintf(fp, "%c", letters[i+0]);
+			}
+			fprintf(fp, ":re%04d", repeatCnt[i/4]);
+			if(noJong[i/4]){
+				fprintf(fp, " No");
+			}
+			fprintf(fp, "\n");
 			continue;
 		}
-		printf("%c", letters[i+0]);
+		fprintf(fp, "%c", letters[i+0]);
 		if(letters[i+1] != '\0'){
-			printf("%c", letters[i+1]);
+			fprintf(fp, "%c", letters[i+1]);
 		}
 		if(letters[i+2] != '\0'){
-			printf("%c", letters[i+2]);
+			fprintf(fp, "%c", letters[i+2]);
 		}
-		if(letters[i+2] != '\0'){
-			printf("%c", letters[i+3]);
+		if(letters[i+3] != '\0'){
+			fprintf(fp, "%c", letters[i+3]);
 		}
-		printf(":re%04d", repeatCnt[i/4]);
+		fprintf(fp, ":re%04d", repeatCnt[i/4]);
 		if(noJong[i/4]){
-			printf(" No");
+			fprintf(fp, " No");
 		}
-		printf("\n");
+		fprintf(fp, "\n");
 	}
-	printf("Total letters = %d\n", nLetters/4);
+	fprintf(fp, "Total letters = %d", nLetters/4);
+	fprintf(fp, "\n");
 	ret = 0;
 	for(i=0;i<nLetters;i+=4){
 		if(noJong[i/4]){
 			ret++;
 		}
 	}
-	printf("Total no Jongsung = %d\n", ret);//// Chosung + Jungsung Only
+	fprintf(fp, "Total no Jongsung = %d", ret);//// Chosung + Jungsung Only
+	fprintf(fp, "\n");
 	//printf("");//// Chosung + Jungsung + Jongsung
+	fclose(fp);
 
 	free(letters);
 	free(pBuf);
@@ -481,6 +505,7 @@ int Check_duplicate(char *letter, char *letters, int nMaxLetterSize, int nEND){
 
 
 
+// 
 int unicode(char *font_value){
 	int refValue;
 	unsigned char cho, jung, jong;
@@ -513,3 +538,13 @@ int unicode(char *font_value){
 
 
 
+// utf-8 to unicode
+int utf8_to_unicode(char *uft8){
+	int unicode;
+
+	unicode = (uft8[0] & 0x0F) << 12;
+	unicode |= (uft8[1] & 0x3F) << 6;
+	unicode |= (uft8[2] & 0x3F);
+
+	return unicode;
+}
