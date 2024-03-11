@@ -237,6 +237,7 @@ event_flags              = unsram + $40 ; similar to chests, 1s get turned to 0s
 
 inventory                = unsram + $60 ; $20 bytes
 passwords                = unsram + $80 ; $10 bytes ; password item IDs start at $F1 and end at $FF
+keywords                = unsram + $80 ; $10 bytes ; password item IDs start at $F1 and end at $FF
 
 ch_stats_1		 = unsram + $0100
 ch_stats_2		 = unsram + $0140

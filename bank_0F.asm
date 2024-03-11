@@ -2508,6 +2508,8 @@ L3D163:
     RTS                      ; D163  $60
 ; End of
 
+; Name	:
+; Marks	:
 L3D164:
     JSR $E837                ; D164  $20 $37 $E8
     LDA #$05                 ; D167  $A9 $05
@@ -4414,6 +4416,7 @@ L3DE78:
     STA Sq1Length_4007       ; DE9D  $8D $07 $40
     RTS                      ; DEA0  $60
 
+; Marks	: $80(ADDR) ?? $82 ??
 L3DEA1:
     LDA #$E3                 ; DEA1  $A9 $E3
     STA $81                  ; DEA3  $85 $81
@@ -4750,7 +4753,7 @@ L3E0F3:
 	; Some tile move??
 L3E102:
     LDY #$00                 ; E102  $A0 $00
-    LDX $26                  ; E104  $A6 $26
+    LDX $26                  ; E104  $A6 $26	point to next available sprite ??
     LDA $41                  ; E106  $A5 $41
     STA $0200,X              ; E108  $9D $00 $02
     STA $0208,X              ; E10B  $9D $08 $02
@@ -4799,7 +4802,7 @@ L3E102:
     LDA $26                  ; E163  $A5 $26
     CLC                      ; E165  $18
     ADC #$10                 ; E166  $69 $10
-    STA $26                  ; E168  $85 $26
+    STA $26                  ; E168  $85 $26	point to next available sprites ??
     RTS                      ; E16A  $60
 ; End of
 
@@ -5703,6 +5706,8 @@ E829:
     STA $3F                  ; E834  $85 $3F
     RTS                      ; E836  $60
 
+; Name	:
+; Marks	:
 ;; sub start ;;
     LDX #$04                 ; E837  $A2 $04
     LDA #$01                 ; E839  $A9 $01
