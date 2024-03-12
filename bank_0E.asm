@@ -5,8 +5,9 @@
 .import Check_savefile		;DAC1
 .import Get_key
 .import Palette_copy		;DC30
-.import Clear_Nametable0
-.import Wait_NMI
+.import	Set_cursor		;DEA1
+.import Clear_Nametable0	;F321
+.import Wait_NMI		;FE00
 
 
 .segment "BANK_0E"
@@ -14,10 +15,12 @@
 ; ========== item prices (256 * 2) START ==========
 
 ;; [$8000 :: 0x38000]
-
+; Price to sell xx (2bytes 128 + 64 ??)
 .byte $00,$00,$01,$00,$02,$00,$03,$00,$04,$00,$05,$00,$06,$00,$07,$00
 .byte $08,$00,$09,$00,$0A,$00,$0B,$00,$0C,$00,$0D,$00,$0E,$00,$0F,$00
+; Potion(0x10), Antidote, Gold pin
 .byte $19,$00,$64,$00,$E2,$04,$F4,$01,$E2,$04,$E8,$03,$32,$00,$C4,$09
+; xx, xx, Hi-potion(0x1A)
 .byte $A8,$61,$E2,$04,$FA,$00,$C4,$09,$A0,$0F,$A0,$0F,$32,$00,$F4,$01
 .byte $F4,$01,$88,$13,$88,$13,$90,$01,$FA,$00,$DC,$05,$2C,$01,$A0,$0F
 .byte $2C,$01,$2C,$01,$90,$01,$FA,$00,$F4,$01,$F4,$01,$96,$00,$00,$00
@@ -147,22 +150,66 @@
 ; ========== npc scripts ($8382-$860C) END ==========
 
 ; ========== shop/ferry data (32 * 8 bytes) ($860D-$86FE) START ==========
-.byte $3A,$ED,$41
-.byte $EF,$4A,$F0,$53,$F1,$31,$E9,$70,$EA,$7A,$E6,$8E,$E9,$98,$F1,$99
-.byte $F1,$9A,$F1,$AC,$EE,$3C,$F4,$43,$F6,$4C,$F6,$55,$F7,$33,$F2,$72
-.byte $F0,$7D,$F5,$90,$F4,$4A,$F0,$53,$F1,$61,$F2,$68,$ED,$31,$E9,$70
-.byte $EA,$7B,$EB,$8E,$E9,$3B,$F1,$42,$F2,$61,$F2,$68,$ED,$32,$EE,$71
-.byte $EE,$85,$EE,$8F,$F0,$AC,$EE,$B1,$F1,$B2,$F1,$B3,$F1,$4C,$F6,$55
-.byte $F7,$63,$F8,$6A,$F5,$42,$F2,$54,$F3,$62,$F4,$69,$EF,$32,$EE,$71
-.byte $EE,$7C,$F1,$8F,$F0,$AD,$F6,$B8,$F6,$A8,$F6,$BE,$F6,$3B,$F1,$4B
-.byte $F2,$54,$F3,$69,$EF,$32,$EE,$71,$EE,$86,$F1,$8F,$F0,$BC,$F4,$AE
-.byte $F4,$AF,$F4,$B7,$F4,$44,$FA,$4D,$FC,$58,$FC,$6C,$FC,$34,$F5,$73
-.byte $F3,$7E,$F9,$88,$F5,$B5,$FA,$B6,$FA,$B9,$FA,$BA,$FA,$46,$FD,$4F
-.byte $E0,$65,$E0,$6D,$FC,$35,$FC,$7F,$FC,$91,$F5,$92,$F8,$B0,$FD,$B4
-.byte $FD,$BB,$FD,$BD,$E1,$64,$FE,$4E,$FE,$87,$F4,$1D,$FD,$10,$E9,$1A
-.byte $F2,$16,$EB,$11,$EE,$13,$F5,$15,$F8,$14,$F9,$12,$F9,$17,$FC,$19
-.byte $F9,$1B,$FC,$18,$E5,$A7,$FE,$A9,$FE,$AA,$E1,$9E,$E4,$AD,$3C,$64
-.byte $00,$7C,$23,$C8,$00,$6C,$2C,$2C,$01,$C7,$70,$90,$01,$20,$00
+; Actually 28 * 8
+; item1 price1 item2 price2 item3 price3 item4 price4
+; [$860D-$8614] Altea weapon shop
+.byte $3A,$ED,$41,$EF,$4A,$F0,$53,$F1
+; [$8615-$861C] Altea armor shop
+.byte $31,$E9,$70,$EA,$7A,$E6,$8E,$E9
+; [$861D-$8624] Altea magic shop
+.byte $98,$F1,$99,$F1,$9A,$F1,$AC,$EE
+; [$8625-$862C] Altea mithril weapon shop
+.byte $3C,$F4,$43,$F6,$4C,$F6,$55,$F7
+; [$862D-$8634] Altea mithril armor shop
+.byte $33,$F2,$72,$F0,$7D,$F5,$90,$F4
+; [$8635-$863C] Gatea weapon shop
+.byte $4A,$F0,$53,$F1,$61,$F2,$68,$ED
+; [$863D-$8644] Gatea armor shop
+.byte $31,$E9,$70,$EA,$7B,$EB,$8E,$E9
+; [$8645-$864C] Poft weapon shop
+.byte $3B,$F1,$42,$F2,$61,$F2,$68,$ED
+; [$864D-$8654] Poft armor shop
+.byte $32,$EE,$71,$EE,$85,$EE,$8F,$F0
+; [$865D-$865C] Poft magic shop
+.byte $AC,$EE,$B1,$F1,$B2,$F1,$B3,$F1
+; [$865D-$8664] Unknown mithril weapon shop
+.byte $4C,$F6,$55,$F7,$63,$F8,$6A,$F5
+; [$866D-$866C] Salamando weapon shop
+.byte $42,$F2,$54,$F3,$62,$F4,$69,$EF
+; [$866D-$8674] Salamando armor shop
+.byte $32,$EE,$71,$EE,$7C,$F1,$8F,$F0
+; [$867D-$867C] Salamando magic shop
+.byte $AD,$F6,$B8,$F6,$A8,$F6,$BE,$F6
+; [$867D-$8684] Bofsk weapon shop
+.byte $3B,$F1,$4B,$F2,$54,$F3,$69,$EF
+; [$868D-$868C] Bofsk armor shop
+.byte $32,$EE,$71,$EE,$86,$F1,$8F,$F0
+; [$868D-$8694] Bofsk magic shop
+.byte $BC,$F4,$AE,$F4,$AF,$F4,$B7,$F4
+; [$869D-$869C] Phin weapon shop
+.byte $44,$FA,$4D,$FC,$58,$FC,$6C,$FC
+; [$869D-$86A4] Phin armor shop
+.byte $34,$F5,$73,$F3,$7E,$F9,$88,$F5
+; [$86AD-$86AC] Phin magic shop
+.byte $B5,$FA,$B6,$FA,$B9,$FA,$BA,$FA
+; [$86AD-$86B4] Mysidia weapon shop
+.byte $46,$FD,$4F,$E0,$65,$E0,$6D,$FC
+; [$86BD-$86BC] Mysidia armor shop
+.byte $35,$FC,$7F,$FC,$91,$F5,$92,$F8
+; [$86BD-$86C4] Mysidia magic shop
+.byte $B0,$FD,$B4,$FD,$BB,$FD,$BD,$E1
+; [$86CD-$86CC] Tropical Island
+.byte $64,$FE,$4E,$FE,$87,$F4,$1D,$FD
+; [$86CD-$86D4, $86D5-$86DC, $86DD-$86E4] All three item shop
+.byte $10,$E9,$1A,$F2,$16,$EB,$11,$EE
+.byte $13,$F5,$15,$F8,$14,$F9,$12,$F9
+.byte $17,$FC,$19,$F9,$1B,$FC,$18,$E5
+; [$86E5-$86EC] Jade passage
+.byte $A7,$FE,$A9,$FE,$AA,$E1,$9E,$E4
+; [$86ED-$86FE] ????
+.byte $AD,$3C,$64,$00,$7C,$23,$C8,$00
+.byte $6C,$2C,$2C,$01,$C7,$70,$90,$01
+.byte $20,$00
 ; ========== shop/ferry data (32 * 8 bytes) ($860D-$86FE) END ==========
 
 ; ========== stale/unused data ($86FF-$87FF) START ==========
@@ -431,9 +478,9 @@ L39174:
 	LDA #$01		; 9183	$A9 $01
 	STA $A2			; 9185	$85 $A2
 L39187:
-	JSR $95CA		; 9187	$20 $CA $95
+	JSR $95CA		; 9187	$20 $CA $95	copy oam and some processing ??
 	LDA #$04		; 918A	$A9 $04
-	JSR $96C5		; 918C	$20 $C5 $96
+	JSR $96C5		; 918C	$20 $C5 $96	cursor position calcuration ??
 	LDA b_pressing		; 918F	$A5 $25
 	BNE L391B8		; 9191	$D0 $25
 	LDA a_pressing		; 9193	$A5 $24
@@ -619,16 +666,16 @@ L39243:
 	STA SpriteDma_4014	; 95CF	$8D $14 $40
 	INC frame_cnt_L		; 95D2	$E6 $F0
 	JSR $C74F		; 95D4	$20 $4F $C7	sound ??
-	JSR $95E3		; 95D7	$20 $E3 $95
+	JSR $95E3		; 95D7	$20 $E3 $95	Init OAM ??
 	JSR $9652		; 95DA	$20 $52 $96	sprite copy ??
 	JSR $9663		; 95DD	$20 $63 $96
 	JMP $9674		; 95E0	$4C $74 $96
 ; End of
 
 ; Name	:
-; Marks	: Copy something to PPU buffer
+; Marks	: Init to F0h something to PPU (OAM?) buffer
 	LDX #$2F		; 95E3	$A2 $2F
-	LDA #$F0		; 95E5	$A9 $F0
+	LDA #$F0		; 95E5	$A9 $F0		Hide ??
 L395E7:
 	STA $0210,X		; 95E7	$9D $10 $02
 	DEX			; 95EA	$CA
@@ -677,11 +724,11 @@ L395E7:
 	RTS			; 9656	$60
 ; End of
 L39657:
-	LDY $78F0		; 9657	$AC $F0 $78
+	LDY cur_pos		; 9657	$AC $F0 $78
 	LDX $7800,Y		; 965A	$BE $00 $78
 	LDA $7801,Y		; 965D	$B9 $01 $78
-	JMP $9682		; 9660	$4C $82 $96
-; End of
+	JMP Cursor		; 9660	$4C $82 $96
+; End of 9652
 	LDA $A3			; 9663	$A5 $A3
 	BNE L39668		; 9665	$D0 $01
 	RTS			; 9667	$60
@@ -690,7 +737,7 @@ L39668:
 	LDY $79F0		; 9668	$AC $F0 $79
 	LDX $7900,Y		; 966B	$BE $00 $79
 	LDA $7901,Y		; 966E	$B9 $01 $79
-	JMP $9682		; 9671	$4C $82 $96
+	JMP Cursor		; 9671	$4C $82 $96
 ; End of
 	LDA $A4			; 9674	$A5 $A4
 	BNE L39679		; 9676	$D0 $01
@@ -699,24 +746,27 @@ L39668:
 L39679:
 .byte $AC,$F0,$7A,$BE,$00,$7A,$B9
 .byte $01,$7A
-; Name	:
-; A	:
-; X	:
-; Marks	: $40(ADDR) ??
+
+; Name	: Cursor
+; A	: OAM Y position of left side of sprite
+; X	: OAM X position of top of sprite
+; DEST	: $40 = oam_x, $41 = oam_y
+; Marks	: 
+Cursor:
 	ASL A			; 9682	$0A
 	ASL A			; 9683	$0A
 	ASL A			; 9684	$0A
-	STA $41			; 9685	$85 $41
+	STA oam_y		; 9685	$85 $41
 	TXA			; 9687	$8A
 	ASL A			; 9688	$0A
 	ASL A			; 9689	$0A
 	ASL A			; 968A	$0A
-	STA $40			; 968B	$85 $40
-	ASL A			; 968D	$0A
+	STA oam_x		; 968B	$85 $40
+	ASL A			; 968D	$0A	What are you doing now?
 	ASL A			; 968E	$0A
 	ASL A			; 968F	$0A
-	JMP $DEA1		; 9690	$4C $A1 $DE
-; End of
+	JMP Set_cursor		; 9690	$4C $A1 $DE
+; End of Cursor
 
 ; Name	:
 ; Marks	:
@@ -727,8 +777,11 @@ L39679:
 	CMP $A1			; 969C	$C5 $A1
 	BEQ L396AF		; 969E	$F0 $0F
 	STA $A1			; 96A0	$85 $A1
-	JSR $DB45		; 96A2	$20 $45 $DB
-.byte $A5,$A1,$60
+	JSR $DB45		; 96A2	$20 $45 $DB	sound ??
+	LDA $A1			; 96A5	$A5 $A1
+	RTS			; 96A7	$60
+; End of
+
 L396A8:
 	LDA #$00		; 96A8	$A9 $00
 	STA $47			; 96AA	$85 $47
@@ -739,6 +792,9 @@ L396AF:
 .byte $A5
 .byte $47,$18,$69,$01,$85,$47,$C9,$10,$90,$08,$29,$03,$D0,$04,$A9,$00
 .byte $85,$A1,$A9,$00,$60
+; Name	:
+; A	:
+; Marks	: Check cursor position
 	STA $06			; 96C5	$85 $06
 	JSR $9693		; 96C7	$20 $93 $96
 	AND #$0F		; 96CA	$29 $0F
@@ -750,19 +806,29 @@ L396AF:
 L396D6:
 	AND #$05		; 96D6	$29 $05
 	BNE L396E9		; 96D8	$D0 $0F
-	LDA $78F0		; 96DA	$AD $F0 $78
+	LDA cur_pos		; 96DA	$AD $F0 $78
 	SEC			; 96DD	$38
 	SBC $06			; 96DE	$E5 $06
 	BCS L396E5		; 96E0	$B0 $03
-	ADC $78F1		; 96E2	$6D $F1 $78
+	ADC len_cur_dat		; 96E2	$6D $F1 $78
 L396E5:
-	STA $78F0		; 96E5	$8D $F0 $78
+	STA cur_pos		; 96E5	$8D $F0 $78
 L396E8:
 	RTS			; 96E8	$60
 ; End of
+
+; Marks	: down key pressed -> cursor
 L396E9:
-.byte $AD,$F0,$78,$18,$65,$06,$CD
-.byte $F1,$78,$90,$F1,$ED,$F1,$78,$B0,$EC,$85,$06,$20,$93,$96,$29,$0F
+	LDA cur_pos		; 96E9	$AD $F0 $78
+	CLC			; 96EC	$18
+	ADC $06			; 96ED	$65 $06
+	CMP len_cur_dat		; 96EF	$CD $F1 $78
+	BCC L396E5		; 96F2	$90 $F1
+	SBC len_cur_dat		; 96F4	$ED $F1 $78
+	BCS L396E5		; 96F7	$B0 $EC
+	STA $06			; 96F9	$85 $06
+	JSR $9693		; 96FB	$20 $93 $96
+.byte $29,$0F
 
 ;; [$9700 :: 0x39700]
 

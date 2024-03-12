@@ -44,6 +44,9 @@ menu_win_H		= $3D
 _3E_unknown		= $3E	; bank temp buffer ??
 _3F_unknown		= $3F
 
+oam_x			= $40
+oam_y			= $41
+
 vehicle_ID		= $42
 ; 01h:no vehicle, 02h:canoe/snowcraft, 04h:ship, 08h:airship
 tile_property		= $44	; ??
@@ -71,6 +74,12 @@ map_water_cnt		= $6D
 charstat_pointer   = $7A ; 2 bytes
 charskill_pointer  = $7E ; 2 bytes
 battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
+
+; map/field
+cur_oam_tbl		= $80
+cur_oam_tbl_L		= $80
+cur_oam_tbl_H		= $81
+cur_idx_base		= $82
 
 _84_unknown		= $84
 text_x_offset		= $90
@@ -378,7 +387,7 @@ current_BGM_ID		 = $6F25
 _6F26_unknown		= $6F26
 
 
-cur_cur_pos		= $78F0		; ??
+cur_pos			= $78F0		; ??
 len_cur_dat		= $78F1		; ??
 
 

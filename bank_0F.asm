@@ -11,6 +11,7 @@
 .export Check_savefile		;DAC1
 .export Get_key			;DBA9
 .export Palette_copy		;DC30
+.export	Set_cursor		;DEA1
 .export Clear_Nametable0	;F321
 .export DoDivision		;FCC3
 .export Wait_NMI		;FE00
@@ -3913,6 +3914,8 @@ L3DB2E:
     STA $E5                  ; DB42  $85 $E5
     RTS                      ; DB44  $60
 
+; Name	:
+; Marks	: sound ??
 ;; sub start ;;
     LDA #$7C                 ; DB45  $A9 $7C
     STA Sq1Duty_4004         ; DB47  $8D $04 $40
@@ -3924,6 +3927,7 @@ L3DB2E:
     LDA #$0C                 ; DB57  $A9 $0C
     STA $E5                  ; DB59  $85 $E5
     RTS                      ; DB5B  $60
+; End of
 
 ; Name	:
 ; Marks	: event ??
@@ -4416,15 +4420,21 @@ L3DE78:
     STA Sq1Length_4007       ; DE9D  $8D $07 $40
     RTS                      ; DEA0  $60
 
-; Marks	: $80(ADDR) ?? $82 ??
+; Marks	: $80(ADDR) = Index(offset), Attributes table address = $E3B7
+;	  $82 = cursor tile index base = $FC
+;	  Set cursor Index, Attributes table address
+;	  Set cursor tile index base
 L3DEA1:
-    LDA #$E3                 ; DEA1  $A9 $E3
-    STA $81                  ; DEA3  $85 $81
-    LDA #$B7                 ; DEA5  $A9 $B7
-    STA $80                  ; DEA7  $85 $80
-    LDA #$FC                 ; DEA9  $A9 $FC
-    STA $82                  ; DEAB  $85 $82
-    JMP L3E102               ; DEAD  $4C $02 $E1
+Set_cursor:
+	LDA #$E3		; DEA1  $A9 $E3
+	STA cur_oam_tbl_H	; DEA3  $85 $81
+	LDA #$B7		; DEA5  $A9 $B7
+	STA cur_oam_tbl_L	; DEA7  $85 $80
+	LDA #$FC		; DEA9  $A9 $FC
+	STA cur_idx_base	; DEAB  $85 $82
+	JMP Set_cur_data	; DEAD  $4C $02 $E1	Set OAM(2x2 tile)
+; End of
+
 L3DEB0:
     JSR $E238                ; DEB0  $20 $38 $E2
     BCS L3DEB8               ; DEB3  $B0 $03
@@ -4712,7 +4722,7 @@ L3E08E:
     STA $80                  ; E0BD  $85 $80
     LDA #$E3                 ; E0BF  $A9 $E3
     STA $81                  ; E0C1  $85 $81
-    JMP L3E102               ; E0C3  $4C $02 $E1
+	JMP Set_cur_data	; E0C3  $4C $02 $E1
 E0C6:
     RTS                      ; E0C6  $60
 
@@ -4730,7 +4740,7 @@ E0CF:
     LDA #$E3                 ; E0D8  $A9 $E3
     ADC #$00                 ; E0DA  $69 $00
     STA $81                  ; E0DC  $85 $81
-    JMP L3E102               ; E0DE  $4C $02 $E1
+	JMP Set_cur_data	; E0DE  $4C $02 $E1
 L3E0E1:
 	LDA scroll_dir_map	; E0E1  $A5 $2D
 	AND #$01		; E0E3  $29 $01		if normal map
@@ -4750,61 +4760,66 @@ L3E0F3:
     LDA #$E3                 ; E0FC  $A9 $E3
     ADC #$00                 ; E0FE  $69 $00
     STA $81                  ; E100  $85 $81
-	; Some tile move??
-L3E102:
-    LDY #$00                 ; E102  $A0 $00
-    LDX $26                  ; E104  $A6 $26	point to next available sprite ??
-    LDA $41                  ; E106  $A5 $41
-    STA $0200,X              ; E108  $9D $00 $02
-    STA $0208,X              ; E10B  $9D $08 $02
-    CLC                      ; E10E  $18
-    ADC #$08                 ; E10F  $69 $08
-    STA $0204,X              ; E111  $9D $04 $02
-    STA $020C,X              ; E114  $9D $0C $02
-    LDA $40                  ; E117  $A5 $40
-    STA $0203,X              ; E119  $9D $03 $02
-    STA $0207,X              ; E11C  $9D $07 $02
-    CLC                      ; E11F  $18
-    ADC #$08                 ; E120  $69 $08
-    STA $020B,X              ; E122  $9D $0B $02
-    STA $020F,X              ; E125  $9D $0F $02
-    LDA ($80),Y              ; E128  $B1 $80
-    INY                      ; E12A  $C8
-    CLC                      ; E12B  $18
-    ADC $82                  ; E12C  $65 $82
-    STA $0201,X              ; E12E  $9D $01 $02
-    LDA ($80),Y              ; E131  $B1 $80
-    INY                      ; E133  $C8
-    STA $0202,X              ; E134  $9D $02 $02
-    LDA ($80),Y              ; E137  $B1 $80
-    INY                      ; E139  $C8
-    CLC                      ; E13A  $18
-    ADC $82                  ; E13B  $65 $82
-    STA $0205,X              ; E13D  $9D $05 $02
-    LDA ($80),Y              ; E140  $B1 $80
-    INY                      ; E142  $C8
-    STA $0206,X              ; E143  $9D $06 $02
-    LDA ($80),Y              ; E146  $B1 $80
-    INY                      ; E148  $C8
-    CLC                      ; E149  $18
-    ADC $82                  ; E14A  $65 $82
-    STA $0209,X              ; E14C  $9D $09 $02
-    LDA ($80),Y              ; E14F  $B1 $80
-    INY                      ; E151  $C8
-    STA $020A,X              ; E152  $9D $0A $02
-    LDA ($80),Y              ; E155  $B1 $80
-    INY                      ; E157  $C8
-    CLC                      ; E158  $18
-    ADC $82                  ; E159  $65 $82
-    STA $020D,X              ; E15B  $9D $0D $02
-    LDA ($80),Y              ; E15E  $B1 $80
-    STA $020E,X              ; E160  $9D $0E $02
-    LDA $26                  ; E163  $A5 $26
-    CLC                      ; E165  $18
-    ADC #$10                 ; E166  $69 $10
-    STA $26                  ; E168  $85 $26	point to next available sprites ??
-    RTS                      ; E16A  $60
-; End of
+; Marks	: $80(ADDR) = Index(offset), Attributes address
+;	  $40 X position
+;	  $41 Y position
+;	  $82 Index base
+;	  Set OAM X, Y, Index, Attributes to buffer(2 by 2 tile = 16 x 16 pixel)
+Set_cur_data:
+;L3E102:
+	LDY #$00		; E102  $A0 $00
+	LDX $26			; E104  $A6 $26		point to next available sprite ??
+	LDA oam_y		; E106  $A5 $41
+	STA $0200,X		; E108  $9D $00 $02	Y(LT) ??
+	STA $0208,X		; E10B  $9D $08 $02	Y(RT) ??
+	CLC			; E10E  $18
+	ADC #$08		; E10F  $69 $08
+	STA $0204,X		; E111  $9D $04 $02	Y(LB) ??
+	STA $020C,X		; E114  $9D $0C $02	Y(RB) ??
+	LDA oam_x		; E117  $A5 $40
+	STA $0203,X		; E119  $9D $03 $02	X(LT) ??
+	STA $0207,X		; E11C  $9D $07 $02	X(LB) ??
+	CLC			; E11F  $18
+	ADC #$08		; E120  $69 $08
+	STA $020B,X		; E122  $9D $0B $02	X(RT) ??
+	STA $020F,X		; E125  $9D $0F $02	X(RB) ??
+	LDA (cur_oam_tbl),Y	; E128  $B1 $80
+	INY			; E12A  $C8
+	CLC			; E12B  $18
+	ADC cur_idx_base	; E12C  $65 $82
+	STA $0201,X		; E12E  $9D $01 $02	INDEX(LT)
+	LDA (cur_oam_tbl),Y	; E131  $B1 $80
+	INY			; E133  $C8
+	STA $0202,X		; E134  $9D $02 $02	ATTR(LT)
+	LDA (cur_oam_tbl),Y	; E137  $B1 $80
+	INY			; E139  $C8
+	CLC			; E13A  $18
+	ADC cur_idx_base	; E13B  $65 $82
+	STA $0205,X		; E13D  $9D $05 $02	INDEX(LB)
+	LDA (cur_oam_tbl),Y	; E140  $B1 $80
+	INY			; E142  $C8
+	STA $0206,X		; E143  $9D $06 $02	ATTR(LB)
+	LDA (cur_oam_tbl),Y	; E146  $B1 $80
+	INY			; E148  $C8
+	CLC			; E149  $18
+	ADC cur_idx_base	; E14A  $65 $82
+	STA $0209,X		; E14C  $9D $09 $02	INDEX(RT)
+	LDA (cur_oam_tbl),Y	; E14F  $B1 $80
+	INY			; E151  $C8
+	STA $020A,X		; E152  $9D $0A $02	ATTR(RT)
+	LDA (cur_oam_tbl),Y	; E155  $B1 $80
+	INY			; E157  $C8
+	CLC			; E158  $18
+	ADC cur_idx_base	; E159  $65 $82
+	STA $020D,X		; E15B  $9D $0D $02	INDEX(RB)
+	LDA (cur_oam_tbl),Y	; E15E  $B1 $80
+	STA $020E,X		; E160  $9D $0E $02	ATTR(RB)
+	LDA $26			; E163  $A5 $26		point to next available sprites ??
+	CLC			; E165  $18
+	ADC #$10		; E166  $69 $10
+	STA $26			; E168  $85 $26	point to next available sprites ??
+	RTS			; E16A  $60
+; End of Set_cur_data
 
    ;data block---
 .byte $6C,$6C,$6F,$6F,$6F
@@ -5011,7 +5026,12 @@ E275:
 .byte $02,$12,$02,$11,$02,$13,$02,$14,$02,$16,$02,$15,$02,$17,$02,$00
 .byte $02,$02,$02,$01,$02,$03,$02,$04,$02,$06,$02,$05,$02,$07,$02,$08
 .byte $02,$0A,$02,$09,$02,$0B,$02,$0C,$02,$0E,$02,$0D,$02,$0F,$02,$00
-.byte $02,$02,$02,$01,$02,$03,$02,$00,$03,$02,$03,$01,$03,$03,$03
+.byte $02,$02,$02,$01,$02,$03,$02
+; [$E3B7-$E3BE] OAM(2x2 tile) : Index offset, Attributes
+.byte $00,$03
+.byte $02,$03
+.byte $01,$03
+.byte $03,$03
 
 E3BF:
     RTS                      ; E3BF  $60
