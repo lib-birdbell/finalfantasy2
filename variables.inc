@@ -75,7 +75,7 @@ charstat_pointer   = $7A ; 2 bytes
 charskill_pointer  = $7E ; 2 bytes
 battlestat_pointer = $80 ; 2 bytes ; Pointer to Temp Battle Stats ($7D7A)
 
-; map/field
+; map/field - move to local variables, maybe
 cur_oam_tbl		= $80
 cur_oam_tbl_L		= $80
 cur_oam_tbl_H		= $81
@@ -176,6 +176,13 @@ palette_OAM32	   = $03DF
 
 
 ;; Some kind of dialogue text buffer/box drawing stuff at $0780-07FF
+
+; ppu address (hi) for text window attributes ($07D0-$07DF)
+ppu_addr_H		= $07D0
+; ppu address (lo) for text window attributes ($07E0-$07EF)
+ppu_addr_L		= $07E0
+; text window attribute data ($07F0-$07FF)
+textwin_attr		= $07F0
 
 
 ;; ========== WORK RAM ==========

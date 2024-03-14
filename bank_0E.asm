@@ -3,7 +3,9 @@
 
 .import	Init_Page2
 .import Check_savefile		;DAC1
-.import Get_key
+.import SndE_cur_sel		;DB2E
+.import SndE_cur_mov		;DB45
+.import Get_key			;DBA9
 .import Palette_copy		;DC30
 .import	Set_cursor		;DEA1
 .import Clear_Nametable0	;F321
@@ -418,13 +420,13 @@ Get_udlr:
 .byte $85,$62,$60,$BD,$00,$81,$85,$61,$BD,$01,$81,$85,$62,$60
 
 ; Name	: Sound_key_init
-; Marks	: B, A key init, Sound init
-Snd_key_init:
+; Marks	: B, A key init, Sound init or Make some sound effect ??
+KeyRst_SndE:
 	LDA #$00		; 905E	$A9 $00
 	STA a_pressing		; 9060	$85 $24
 	STA b_pressing		; 9062	$85 $25
-	JMP $DB2E		; 9604	$4C $2E $DB
-; End of Snd_key_init
+	JMP SndE_cur_sel	; 9604	$4C $2E $DB
+; End of KeyRst_SndE
 
 .byte $0A,$AA,$B0,$0B,$BD,$00,$80,$85,$80
 .byte $BD,$01,$80,$85,$81,$60,$BD,$00,$81,$85,$80,$BD,$01,$81,$85,$81
@@ -477,31 +479,40 @@ L39174:
 	JSR $95F2		; 9180	$20 $F2 $95
 	LDA #$01		; 9183	$A9 $01
 	STA $A2			; 9185	$85 $A2
+; Loop in message with keywords ??
 L39187:
 	JSR $95CA		; 9187	$20 $CA $95	copy oam and some processing ??
-	LDA #$04		; 918A	$A9 $04
-	JSR $96C5		; 918C	$20 $C5 $96	cursor position calcuration ??
+	LDA #$04		; 918A	$A9 $04		size of cursor step ??
+	JSR $96C5		; 918C	$20 $C5 $96	check key and cursor position calcuration ??
 	LDA b_pressing		; 918F	$A5 $25
 	BNE L391B8		; 9191	$D0 $25
 	LDA a_pressing		; 9193	$A5 $24
 	BEQ L39187		; 9195	$F0 $F0
-	JSR $905E		; 9197	$20 $5E $90
+	JSR $905E		; 9197	$20 $5E $90	key reset/sound effect
 	TSX			; 919A	$BA
-	STX $04			; 919B	$86 $04
-	LDA $78F0		; 919D	$AD $F0 $78	current cursor position ??
+	STX $04			; 919B	$86 $04		temp stack pointer
+	LDA cur_pos		; 919D	$AD $F0 $78
 	BNE L391A8		; 91A0	$D0 $06
-	JSR $9204		; 91A2	$20 $04 $92
+	JSR $9204		; 91A2	$20 $04 $92	?? loop
 .byte $4C,$74,$91
 L391A8:
-.byte $C9,$04,$D0,$06,$20,$3B,$93,$4C
-.byte $74,$91,$20,$81,$93,$4C,$74,$91
+	CMP #$04		; 91A8	$C9 $04
+	BNE L391B2		; 91AA	$D0 $06		A != 04h, not learn ??
+	JSR $933B		; 91AC	$20 $3B $93
+	JMP $9174		; 91AF	$4C $74 $91
+; loop
+L391B2:
+	JSR $9381		; 91B2	$20 $81 $93	item select in message loop
+	JMP $9174		; 91B5	$4C $74 $91
+; loop
+
 L391B8:
-	JSR $DB2E		; 91B8	$20 $2E $DB	sound ??
+	JSR SndE_cur_sel	; 91B8	$20 $2E $DB
 	JSR $95E3		; 91BB	$20 $E3 $95
 	JSR Wait_NMI		; 91BE	$20 $00 $FE
 	LDA #$02		; 91C1	$A9 $02
 	STA SpriteDma_4014	; 91C3	$8D $14 $40
-	JSR $C74F		; 91C6	$20 $4F $C7
+	JSR $C74F		; 91C6	$20 $4F $C7	sound ??
 	JSR $D164		; 91C9	$20 $64 $D1
 	JSR $D16F		; 91CC	$20 $6F $D1
 	LDA #$00		; 91CF	$A9 $00
@@ -533,6 +544,7 @@ L39203:
 	JSR $94EB		; 920B	$20 $EB $94	Save variables ??
 	LDA #$00		; 920E	$A9 $00
 	STA $7AF0		; 9210	$8D $F0 $7A
+	; Loop something
 L39213:
 	JSR $95CA		; 9213	$20 $CA $95
 ; Marks	: Choose B or A
@@ -543,7 +555,7 @@ L39213:
 	BNE L39203		; 921D	$D0 $E4
 	LDA a_pressing		; 921F	$A5 $24
 	BEQ L39213		; 9221	$F0 $F0
-	JSR $905E		; 9223	$20 $5E $90
+	JSR $905E		; 9223	$20 $5E $90	key reset/sound effect
 	LDX $7AF0		; 9226	$AE $F0 $7A
 	LDA $7A03,X		; 9229	$BD $03 $7A
 	TAX			; 922C	$AA
@@ -579,15 +591,56 @@ L39243:
 .byte $15,$E0,$03,$D0,$33,$A0,$23,$20,$9E,$98,$F0,$2C,$A0,$1B,$20,$C7
 .byte $98,$A0,$35,$4C,$73,$92,$C9,$58,$D0,$1E,$E0,$0A,$D0,$1A,$AD,$1B
 .byte $60,$29,$02,$F0,$13,$A9,$5F,$20,$73,$95,$A9,$47,$85,$E0,$A0,$57
-.byte $20,$07,$99,$A0,$58,$4C,$73,$92,$4C,$03,$92,$A5,$9F,$D0,$06,$A9
-.byte $3F,$20,$3E,$96,$60,$A9,$00,$8D,$F0,$79,$AD,$F1,$79,$D0,$05,$A5
+.byte $20,$07,$99,$A0,$58,$4C,$73,$92,$4C,$03,$92
+;; [$933B
+	LDA $9F			; 933B	$A5 $9F		learn keyword ??
+	BNE L39345		; 933D	$D0 $06
+	LDA #$3F		; 933F	$A9 $3F
+	JSR $963E		; 9341	$20 $3E $96	some process scroll ??
+	RTS			; 9344	$60
+; End of
+
+L39345:
+.byte $A9,$00,$8D,$F0,$79,$AD,$F1,$79,$D0,$05,$A5
 .byte $9D,$20,$14,$96,$A9,$01,$85,$A3,$20,$CA,$95,$A9,$04,$20,$F9,$96
 .byte $A5,$25,$D0,$1B,$A5,$24,$F0,$F0,$20,$5E,$90,$AE,$F0,$79,$BD,$03
 .byte $79,$20,$97,$95,$20,$5B,$95,$A9,$04,$8D,$F0,$78,$4C,$58,$93,$60
-.byte $60,$A9,$01,$85,$A4,$20,$67,$95,$20,$EB,$94,$A9,$00,$8D,$F0,$7A
-.byte $20,$CA,$95,$A9,$08,$20,$2D,$97,$A5,$25,$D0,$E4,$A5,$24,$F0,$F0
-.byte $20,$5E,$90,$AE,$F0,$7A,$BD,$03,$7A,$AA,$BD,$60,$60,$AA,$C9,$10
-.byte $B0,$05,$BD,$30,$7B,$D0,$08,$A9,$44,$20,$3E,$96,$4C,$80,$93,$86
+L39380:
+	RTS			; 9380	$60
+; Name	:
+; Marks	:
+	LDA #$01		; 9381	$A9 $01
+	STA $A4			; 9383	$85 $A4
+	JSR $9567		; 9385	$20 $67 $95
+	JSR $94EB		; 9388	$20 $EB $94	into 3.Item in message
+	LDA #$00		; 938B	$A9 $00
+	STA $7AF0		; 938D	$8D $F0 $7A
+	; Loop choose item on message
+MAP_ITEM_USE_LOOP:
+	JSR $95CA		; 9390	$20 $CA $95
+	LDA #$08		; 9393	$A9 $08
+	JSR $972D		; 9395	$20 $2D $97
+	LDA b_pressing		; 9398	$A5 $25
+	BNE L39380		; 939A	$D0 $E4
+	LDA a_pressing		; 939C	$A5 $24
+	BEQ MAP_ITEM_USE_LOOP	; 939E	$F0 $F0
+	JSR $905E		; 93A0	$20 $5E $90	key reset/sound effect
+	LDX $7AF0		; 93A3	$AE $F0 $7A
+	LDA $7A03,X		; 93A6	$BD $03 $7A
+	TAX			; 93A9	$AA
+	LDA $6060,X		; 93AA	$BD $60 $60
+	TAX			; 93AD	$AA
+	CMP #$10		; 93AE	$C9 $10
+	BCS L393B7		; 93B0	$B0 $05
+	LDA $7B30,X		; 93B2	$BD $30 $7B
+	BNE L393BF		; 93B5	$D0 $08
+L393B7:
+	LDA #$44		; 93B7	$A9 $44
+	JSR $963E		; 93B9	$20 $3E $96
+	JMP $9380		; 93BC	$4C $80 $93
+; End of
+L393BF:
+.byte $86
 .byte $08,$20,$14,$96,$AD,$F1,$79,$F0,$04,$A9,$49,$85,$E0,$A5,$A0,$A6
 .byte $08,$C9,$19,$D0,$17,$E0,$0D,$D0,$10,$A9,$08,$85,$61,$20,$18,$C0
 .byte $A9,$4A,$85,$E0,$A0,$19,$4C,$F6,$93,$4C,$80,$93,$C9,$32,$D0,$0C
@@ -651,9 +704,16 @@ L39243:
 	JMP $9603		; 9564	$4C $03 $96
 ; End of
 
-;; [$9567-
-.byte $A9,$02,$85,$96,$20,$1E,$E9,$A9,$42
-.byte $4C,$03,$96,$20,$7C,$95,$B0,$03,$4C,$73,$98,$60,$A2,$00,$DD,$60
+; Name	:
+; Marks	:
+	LDA #$02		; 9567	$A9 $02
+	STA $96			; 9569	$85 $96		text window size ??
+	JSR $E91E		; 956B	$20 $1E $E9
+	LDA #$42		; 956E	$A9 $42
+	JMP $9603		; 9570	$4C $03 $96
+; End of
+
+.byte $20,$7C,$95,$B0,$03,$4C,$73,$98,$60,$A2,$00,$DD,$60
 .byte $60,$F0,$07,$E8,$E0,$20,$90,$F6,$18,$60,$38,$60,$20,$7C,$95,$90
 .byte $05,$A9,$00,$9D,$60,$60,$60,$85,$80,$A2,$0F,$DD,$80,$60,$F0,$18
 .byte $CA,$10,$F8,$A2,$0E,$BD,$80,$60,$9D,$81,$60,$CA,$10,$F7,$A5,$80
@@ -667,9 +727,9 @@ L39243:
 	INC frame_cnt_L		; 95D2	$E6 $F0
 	JSR $C74F		; 95D4	$20 $4F $C7	sound ??
 	JSR $95E3		; 95D7	$20 $E3 $95	Init OAM ??
-	JSR $9652		; 95DA	$20 $52 $96	sprite copy ??
-	JSR $9663		; 95DD	$20 $63 $96
-	JMP $9674		; 95E0	$4C $74 $96
+	JSR $9652		; 95DA	$20 $52 $96	up ?? sprite copy ?? D0 ??
+	JSR $9663		; 95DD	$20 $63 $96	down ?? D1 ??
+	JMP $9674		; 95E0	$4C $74 $96	up ?? D2 ??
 ; End of
 
 ; Name	:
@@ -685,6 +745,8 @@ L395E7:
 	RTS			; 95F1	$60
 ; End of
 
+; Name	:
+; Marks	:
 	STA text_ID		; 95F2	$85 $92
 	LDA #$0A		; 95F4	$A9 $0A
 	STA text_bank		; 95F6	$85 $93
@@ -714,9 +776,16 @@ L395E7:
 ; Name	:
 ; Marks	:
 	PHA			; 963E	$48
-	JSR $D164		; 963F	$20 $64 $D1
-.byte $A9,$00,$85,$96,$20,$1E,$E9,$A9,$00,$8D,$F1,$79,$68,$4C
-.byte $F2,$95
+	JSR $D164		; 963F	$20 $64 $D1	some process(scroll) ??
+	LDA #$00		; 9642	$A9 $00
+	STA win_type		; 9644	$85 $96		dialogue - 28x10 at (2,2)
+	JSR $E91E		; 9646	$20 $1E $E9	draw window and text ??
+	LDA #$00		; 9649	$A9 $00
+	STA $79F1		; 964B	$8D $F1 $79	length cursor data B ??
+	PLA			; 964E	$68
+	JMP $95F2		; 964F	$4C $F2 $95
+; End of
+
 ; Name	:
 ; Marks	:
 	LDA $A2			; 9652	$A5 $A2
@@ -743,10 +812,11 @@ L39668:
 	BNE L39679		; 9676	$D0 $01
 	RTS			; 9678	$60
 ; End of
-L39679:
-.byte $AC,$F0,$7A,$BE,$00,$7A,$B9
-.byte $01,$7A
 
+L39679:
+	LDY $7AF0		; 9679	$AC $F0 $7A
+	LDX $7A00,Y		; 967C	$BE $00 $7A
+	LDA $7A01,Y		; 967F	$B9 $01 $7A
 ; Name	: Cursor
 ; A	: OAM Y position of left side of sprite
 ; X	: OAM X position of top of sprite
@@ -774,10 +844,10 @@ Cursor:
 	LDA key1p		; 9696	$A5 $20
 	AND #$0F		; 9698	$29 $0F
 	BEQ L396A8		; 969A	$F0 $0C
-	CMP $A1			; 969C	$C5 $A1
+	CMP $A1			; 969C	$C5 $A1		before key value ??
 	BEQ L396AF		; 969E	$F0 $0F
 	STA $A1			; 96A0	$85 $A1
-	JSR $DB45		; 96A2	$20 $45 $DB	sound ??
+	JSR SndE_cur_mov	; 96A2	$20 $45 $DB	cursor move sound effect
 	LDA $A1			; 96A5	$A5 $A1
 	RTS			; 96A7	$60
 ; End of
@@ -789,28 +859,40 @@ L396A8:
 	RTS			; 96AE	$60
 ; End of
 L396AF:
-.byte $A5
-.byte $47,$18,$69,$01,$85,$47,$C9,$10,$90,$08,$29,$03,$D0,$04,$A9,$00
-.byte $85,$A1,$A9,$00,$60
+	LDA $47			; 96AF	$A5 $47
+	CLC			; 96B1	$18
+	ADC #$01		; 96B2	$69 $01
+	STA $47			; 96B4	$85 $47
+	CMP #$10		; 96B6	$C9 $10
+	BCC L396C2		; 96B8	$90 $08
+	AND #$03		; 96BA	$29 $03
+	BNE L396C2		; 96BC	$D0 $04
+	LDA #$00		; 96BE	$A9 $00
+	STA $A1			; 96C0	$85 $A1
+L396C2:
+	LDA #$00		; 96C2	$A9 $00
+	RTS			; 96C4	$60
+; End of
+
 ; Name	:
-; A	:
+; A	: size of cursor step
 ; Marks	: Check cursor position
 	STA $06			; 96C5	$85 $06
-	JSR $9693		; 96C7	$20 $93 $96
+	JSR $9693		; 96C7	$20 $93 $96	event, key ??
 	AND #$0F		; 96CA	$29 $0F
-	BEQ L396E8		; 96CC	$F0 $1A
-	CMP #$04		; 96CE	$C9 $04
-	BCS L396D6		; 96D0	$B0 $04
+	BEQ L396E8		; 96CC	$F0 $1A		if key not pressing
+	CMP #$04		; 96CE	$C9 $04		up,down
+	BCS L396D6		; 96D0	$B0 $04		if up,down key pressing
 	LDX #$04		; 96D2	$A2 $04
 	STX $06			; 96D4	$86 $06
 L396D6:
 	AND #$05		; 96D6	$29 $05
-	BNE L396E9		; 96D8	$D0 $0F
+	BNE L396E9		; 96D8	$D0 $0F		if down,right key pressing
 	LDA cur_pos		; 96DA	$AD $F0 $78
 	SEC			; 96DD	$38
-	SBC $06			; 96DE	$E5 $06
-	BCS L396E5		; 96E0	$B0 $03
-	ADC len_cur_dat		; 96E2	$6D $F1 $78
+	SBC $06			; 96DE	$E5 $06		cursor position offset
+	BCS L396E5		; 96E0	$B0 $03		if A >= 0
+	ADC len_cur_dat		; 96E2	$6D $F1 $78	to last cursor position
 L396E5:
 	STA cur_pos		; 96E5	$8D $F0 $78
 L396E8:
@@ -1658,13 +1740,13 @@ L3B54C:
 	JSR $972D		; B567	$20 $2D $97
 	LDA $25			; B56A	$A5 $25
 	BEQ L3B580		; B56C	$F0 $12
-	JSR Snd_key_init	; B56E	$20 $5E $90
+	JSR KeyRst_SndE	; B56E	$20 $5E $90
 .byte $A5,$08,$38,$E9,$01,$85,$08,$10,$D2,$A9,$05,$85,$08,$38,$60
 L3B580:
 	LDA $24			; B580	$A5 $24
 	BEQ L3B54C		; B582	$F0 $C8
 	; Some var init
-	JSR Snd_key_init	; B584	$20 $5E $90
+	JSR KeyRst_SndE	; B584	$20 $5E $90
 	LDA $08			; B587	$A5 $08
 	CMP #$06		; B589	$C9 $06
 	BCC L3B593		; B58B	$90 $06
@@ -1765,7 +1847,7 @@ L3B6AB:
 	JSR $B72D		; B6BC	$20 $2D $B7
 	LDA a_pressing		; B6BF	$A5 $24
 	BEQ L3B6AB		; B6C1	$F0 $E8
-	JSR Snd_key_init	; B6C3	$20 $5E $90
+	JSR KeyRst_SndE	; B6C3	$20 $5E $90
 	LDA $78F0		; B6C6	$AD $F0 $78
 	CMP #$10		; B6C9	$C9 $10
 	BCS L3B710		; B6CB	$B0 $43
