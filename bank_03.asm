@@ -1173,11 +1173,45 @@ L0F1B0:
 	RTS			; B1B1	$60
 ; End of
 L0F1B2:
-.byte $85,$40,$86,$8F,$BD,$0D,$75,$30,$41,$BD,$01,$75,$29,$E0
-.byte $F0,$1B,$C9,$C0,$F0,$08,$29,$40,$D0,$0C,$A9,$00,$F0,$18,$A5,$F0
-.byte $4A,$29,$08,$4C,$E6,$B1,$A5,$F0,$29,$10,$4C,$E6,$B1,$BD,$06,$75
-.byte $1D,$07,$75,$0A,$29,$08,$18,$7D,$0E,$75,$85,$80,$BD,$0F,$75,$69
-.byte $00,$85,$81,$8A,$18,$69,$10,$85,$82,$4C,$1A,$AF,$29,$7F,$9D,$0D
+	STA $40			; B1B2	$85 $40
+	STX $8F			; B1B4	$86 $8F
+	LDA $750D,X		; B1B6	$BD $0D $75
+	BMI L0F1FC		; B1B9	$30 $41
+	LDA $7501,X		; B1BB	$BD $01 $75
+	AND #$E0		; B1BE	$29 $E0
+	BEQ L0F1DD		; B1C0	$F0 $1B
+	CMP #$C0		; B1C2	$C9 $C0
+	BEQ L0F1CE		; B1C4	$F0 $08
+	AND #$40		; B1C6	$29 $40
+	BNE L0F1D6		; B1C8	$D0 $0C
+	LDA #$00		; B1CA	$A9 $00
+	BEQ L0F1E6		; B1CC	$F0 $18
+L0F1CE:
+	LDA $F0			; B1CE	$A5 $F0
+	LSR A			; B1D0	$4A
+	AND #$08		; B1D1	$29 $08
+	JMP $B1E6		; B1D3	$4C $E6 $B1
+L0F1D6:
+.byte $A5,$F0,$29,$10,$4C,$E6,$B1
+L0F1DD:
+	LDA $7506,X		; B1DD	$BD $06 $75
+	ORA $7507,X		; B1E0	$1D $07 $75
+	ASL A			; B1E3	$0A
+	AND #$08		; B1E4	$29 $08
+L0F1E6:
+	CLC			; B1E6	$18
+	ADC $750E,X		; B1E7	$7D $0E $75
+	STA $80			; B1EA	$85 $80
+	LDA $750F,X		; B1EC	$BD $0F $75
+	ADC #$00		; B1EF	$69 $00
+	STA $81			; B1F1	$85 $81
+	TXA			; B1F3	$8A
+	CLC			; B1F4	$18
+	ADC #$10		; B1F5	$69 $10
+	STA $82			; B1F7	$85 $82
+	JMP $AF1A		; B1F9	$4C $1A $AF
+L0F1FC:
+.byte $29,$7F,$9D,$0D
 
 ;; [$B200 :: 0x0F200]
 

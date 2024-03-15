@@ -11,11 +11,13 @@
 
 #define	BMP_HEADER_SIZE	sizeof(struct bmp_header)
 #define	FILE_NAME	"./galmurim.bmp"
+#define	OUT_FILE_NAME	"./output.txt"
+#define	TBL_FILE_NAME	"./table.txt"
 
 // 32 characters per Line
 #define	FONT_X_OFFSET	18
 
-#define VERSION		"1.00"
+#define VERSION		"1.01"
 
 #pragma pack(push,1)
 struct bmp_header {
@@ -45,43 +47,75 @@ struct testList{
 
 unsigned char AtoI(unsigned char ch);
 int UNICODEtoInt(char *ch);
-int ConvertMode(int argc, char **argv);
-int anal_mode(char *font_value);
+int Table_mode(char *input_file, char *output_file);
+int Anal_mode(char *input_file, char *output_file);
 int Check_duplicate(char *letter, char *letters, int nMaxLetterSize, int nEnd);
-int unicode(char *font_value);
+//int unicode(char *font_value);
 int utf8_to_unicode(char *uft8);
+void ShowInfo(void);
 
 
 
 int main(int argc, char** argv){
 	int ret;
+	int nArgc = 0;
+	int nMode = 0;
+	int i;
+	char outputFileName[256] = OUT_FILE_NAME;
+	char *inputFileName;
 
 	if(argc < 2){
-		printf("How to use.\n");
-		printf(" [input file name].\n");
-		printf("It supprot UTF-8 format.\n");
-		printf("Date:20240308.\n");
-		printf("Version:%s.\n", VERSION);
+		ShowInfo();
 		return 0;
 	}
 
+	// -a : script analysis mode
+	// -t : make letter table mode
+	// -o : output file name
+	// -d : dictionary file name
+	// -s : script file name
+	for(i=1;i<argc;i++){
+		if(strcmp(argv[i], "-a") == 0){
+			if(i == argc -1){
+				ShowInfo();
+				return -EINVAL;
+			}
+			nMode = 'a';
+			inputFileName = argv[i+1];
+		}else if(strcmp(argv[i], "-t") == 0){
+			if(i == argc -1){
+				ShowInfo();
+				return -EINVAL;
+			}
+			nMode = 't';
+			inputFileName = argv[i+1];
+		}else if(strcmp(argv[i], "-o") == 0){
+			if(i == argc -1){
+				ShowInfo();
+				return -EINVAL;
+			}
+			memset(outputFileName, 0x00, 256);
+			outputFileName[0] = '.';
+			outputFileName[1] = '/';
+			strcpy(&outputFileName[2], argv[i+1]);
+		}
+	}
+
+	printf("output file name = %s\n", outputFileName);
+	printf("input file name = %s\n", inputFileName);
+
+	printf("mode = %d\n", nMode);
+
+	// Check input file
+
 	// Check mode
-	if(strcmp(argv[1], "-o") == 0){
-		printf("analyze and out mode.\n");
-		if(argc < 4){
-			printf("How to use.\n");
-			printf("-o option + [out file name] + [input file name].\n");
-			return 0;
-		}
-		//font_check_mode(argv[2]); out file name
-	}else{
-		printf("analyze mode.\n");
-		if(argc < 2){
-			printf("How to use.\n");
-			printf("need [input file name].\n");
-			return 0;
-		}
-		ret = anal_mode(argv[1]);
+	// Make bitmap(8k) from table
+	if(nMode == 't'){
+		printf("make letter table mode.\n");
+		ret = Table_mode(inputFileName, outputFileName);
+	}else if(nMode == 'a'){
+		printf("script analysis mode.\n");
+		ret = Anal_mode(inputFileName, outputFileName);
 	}
 
 	return ret;
@@ -145,94 +179,254 @@ int UNICODEtoInt(char *ch){
 
 
 
-int ConvertMode(int argc, char **argv){
+// 4K bytes letters counter
+#define	MAX_LETTERS_SIZE	(4*1024*4)
+int Table_mode(char *input_file, char *output_file){
 	int fd;
-	unsigned char *pBuf;
-	unsigned char *pBMP;
-	int nFileSize = 0;
-	unsigned int *pColorArr;
-	unsigned int *pColorCnt;
-	unsigned int tempColor;
-	int nColorCnt = 0;
-	int i, j;
-	int x, y;
 	struct stat st;
-	struct bmp_header *bmp_h;
-	int width, height;
+	int nFileSize = 0;
+	unsigned char *pBuf;
+	int nLine = 0;
+	int i, j;
 	int ret;
-	unsigned int refValue;
-	unsigned int convValue;
+	char *input_file_path;
+	char *letters;
+	char oneLetter[4];
+	int nLetters;
+	unsigned char *noJong;
+	struct testList testlist;
+	unsigned short unicode;
+	int a, b, c;
+	FILE *fp;
+	unsigned short *unicodes;
+/*}
+	char *letter;
+	unsigned char *noJong;
+	int *repeatCnt;
+};*/
 
-	if(strcmp(argv[1], "-c")){
-		printf("Not support %s. Only support -c. \n", argv[1]);
-		printf("How to use.\n");
-		printf("color_seperator -c [find value] [convert value]\n");
-		printf("value is decimal.(HEX will be support next version)");
-		return -EINVAL;
+	// Make letters buff
+	letters = (char*)malloc(sizeof(char) * MAX_LETTERS_SIZE);
+	if(letters == NULL){
+		printf("Memory not allocated. letters\n");
+		return -ENOMEM;
 	}
-	refValue = atoi(argv[2]);
-	convValue = atoi(argv[3]);
-	printf("refValue=%08x, convValue=%08x\n", refValue, convValue);
+	memset(letters, 0, MAX_LETTERS_SIZE);
 
-	fd = open(FILE_NAME, O_RDWR);
+	noJong = (unsigned char*)malloc(sizeof(char) * (MAX_LETTERS_SIZE/4));
+	if(noJong == NULL){
+		printf("Memory not allocated. noJong\n");
+		free(letters);
+		return -ENOMEM;
+	}
+	memset(noJong, 0, MAX_LETTERS_SIZE/4);
 
-	stat(FILE_NAME, &st);
+	unicodes = (unsigned short*)malloc(sizeof(unsigned short) * (MAX_LETTERS_SIZE/4));
+	if(unicodes == NULL){
+		printf("Memory not allocated. noJong\n");
+		free(noJong);
+		free(letters);
+		return -ENOMEM;
+	}
+	memset(unicodes, 0, MAX_LETTERS_SIZE/4*(sizeof(unsigned short)));
 
+	// Check file exist
+	input_file_path = (char*)malloc(sizeof(char) * 1024);
+	if(input_file_path == NULL){
+		printf("Memory not allocated. input_file_path\n");
+		free(letters);
+		return -ENOMEM;
+	}
+	input_file_path[0] = '\0';
+	strcpy(input_file_path, "./");
+	strcat(input_file_path, input_file);
+	ret = access(input_file_path, F_OK);
+	if(ret < 0){
+		printf("File not found %d %s\n", ret, input_file_path);
+		free(letters);
+		free(input_file_path);
+		return ret;
+	}
+	printf("file found : %s\n", input_file_path);
+
+	// File size check
+	stat(input_file_path, &st);
 	nFileSize = st.st_size;
 
+	// Open
+	fd = open(input_file_path, O_RDWR);
+	free(input_file_path);
+	if(fd < 0){
+		printf("File open failed %d\n", fd);
+		return fd;
+	}
 	pBuf = (unsigned char*)malloc(sizeof(unsigned char) * nFileSize);
-	pColorArr = (unsigned int*)malloc(sizeof(unsigned int) * nFileSize);
-	pColorCnt = (unsigned int*)malloc(sizeof(unsigned int) * nFileSize);
-	
+	if(pBuf == NULL){
+		printf("Memory allocation failed.\n");
+		close(fd);
+		return -ENOMEM;
+	}
+
+	// Read
 	read(fd, pBuf, nFileSize);
 
-	bmp_h = (struct bmp_header*)pBuf;
+	// Check letters - Only hangul is valid
+	nLetters = 0;
+	for(i=0;i<nFileSize;i++){
 
-	printf("bmp_h file size=%d\n", bmp_h->biSizeImage);
-	printf("bmp_h width=%d\n", bmp_h->biWidth);
-	printf("bmp_h height=%d\n", bmp_h->biHeight);
-	width = bmp_h->biWidth;
-	height = bmp_h->biHeight;
+		if(pBuf[i] & 0x80){	// UTF-8
+			switch(pBuf[i] & 0xF0)
+			{
+				case 0xF0:
+					oneLetter[0] = pBuf[i+0];
+					oneLetter[1] = pBuf[i+1];
+					oneLetter[2] = pBuf[i+2];
+					oneLetter[3] = pBuf[i+3];
+					i+=3;
+					ret = Check_duplicate(oneLetter, letters, nLetters, MAX_LETTERS_SIZE);
+					if(ret){	// Duplicated
+						continue;
+					}
+					break;
+				case 0xE0:
+					oneLetter[0] = pBuf[i+0];
+					oneLetter[1] = pBuf[i+1];
+					oneLetter[2] = pBuf[i+2];
+					oneLetter[3] = '\0';
+					i+=2;
+					ret = Check_duplicate(oneLetter, letters, nLetters, MAX_LETTERS_SIZE);
+					if(ret){	// Duplicated
+						continue;
+					}
+					unicode = utf8_to_unicode(oneLetter);
+					unicodes[nLetters/4] = unicode;
+					//unicode = (oneLetter[0] & 0x0F) << 12;
+					//unicode |= (oneLetter[1] & 0x3F) << 6;
+					//unicode |= (oneLetter[2] & 0x3F);
+					//printf("%04x\n", unicode);
+					//a = unicode & 0x03FF;
+					a = unicode - 0xAC00;
+					b = a / 21 / 28;
+					c = (a - (b * 21 * 28))/28;
+					if((a - (b * 21 * 28) - (c * 28)) == 0x00){
+						noJong[nLetters/4] = 1;
+					}
+					break;
+				case 0xC0:
+					oneLetter[0] = pBuf[i+0];
+					oneLetter[1] = pBuf[i+1];
+					oneLetter[2] = '\0';
+					oneLetter[3] = '\0';
+					i++;
+					ret = Check_duplicate(oneLetter, letters, nLetters, MAX_LETTERS_SIZE);
+					if(ret){	// Duplicated
+						continue;
+					}
+					break;
+				default:
+					printf("! Unexpected letter %02xh\n", pBuf[i]);
+					continue;
+					break;
+			}
+		}else{			// ASCII
+			continue;
+		}
+		memcpy(&letters[nLetters], oneLetter, 4);
+		nLetters += 4;
+	}
+#if 1
+	// Sort by unicode
+	for(i=0;i<nLetters;i+=4){
+		for(j=4;j<nLetters-i;j+=4){
+			// Swap
+			if(unicodes[(j/4) -1] > unicodes[j/4]){
+				// Swap count
+				ret = unicodes[(j/4) -1];
+				unicodes[(j/4) -1] = unicodes[j/4];
+				unicodes[j/4] = ret;
+				// Swap letter
+				oneLetter[0] = letters[j+0];
+				oneLetter[1] = letters[j+1];
+				oneLetter[2] = letters[j+2];
+				oneLetter[3] = letters[j+3];
 
-	nFileSize = bmp_h->biSizeImage;
+				letters[j+0] = letters[j-4];
+				letters[j+1] = letters[j-3];
+				letters[j+2] = letters[j-2];
+				letters[j+3] = letters[j-1];
 
-	for(y=0;y<height;y++){
-		pBMP = &pBuf[BMP_HEADER_SIZE+(y*((width*3)+((width*3)%4)))];
-		for(x=0;x<(width*3);x+=3){
-			tempColor = pBMP[x+0];
-			tempColor |= (pBMP[x+1] << 8);
-			tempColor |= (pBMP[x+2] << 16);
-
-			if(tempColor == refValue){
-				pBMP[x+0] = (convValue)&0xFF;
-				pBMP[x+1] = (convValue>>8)&0xFF;
-				pBMP[x+2] = (convValue>>16)&0xFF;
-				nColorCnt++;
+				letters[j-4] = oneLetter[0];
+				letters[j-3] = oneLetter[1];
+				letters[j-2] = oneLetter[2];
+				letters[j-1] = oneLetter[3];
+				// Swap nojong
+				ret = noJong[(j/4)-1];
+				noJong[(j/4)-1] = noJong[j/4];
+				noJong[j/4] = ret;
 			}
 		}
 	}
-
-	lseek(fd, 0, SEEK_SET);
-	ret = write(fd, pBuf, nFileSize);
-	printf("write ret=%d\n", ret);
-	if(nColorCnt){
-		printf("%d pixel converted from %08xh to %08xh.\n", nColorCnt, refValue, convValue);
+#endif
+	fp = fopen(output_file, "w");
+	// Result lettes
+	for(i=0;i<nLetters;i+=4){
+#if 0
+		if((letters[i] & 0x80) == 0x00){
+			if(letters[i] < 0x20){
+				fprintf(fp, "%02xh", letters[i+0]);
+			}else if(letters[i] == 0x7F){
+				fprintf(fp, "%02xh", letters[i+0]);
+			}else{
+				fprintf(fp, "%c", letters[i+0]);
+			}
+			fprintf(fp, ":%04xh", unicodes[i/4]);
+			if(noJong[i/4]){
+				fprintf(fp, " No");
+			}
+			fprintf(fp, "\n");
+			//continue;
+		}
+#endif
+		fprintf(fp, "%c", letters[i+0]);
+		if(letters[i+1] != '\0'){
+			fprintf(fp, "%c", letters[i+1]);
+		}
+		if(letters[i+2] != '\0'){
+			fprintf(fp, "%c", letters[i+2]);
+		}
+		if(letters[i+3] != '\0'){
+			fprintf(fp, "%c", letters[i+3]);
+		}
+		fprintf(fp, ":%04xh", unicodes[i/4]);
+		if(noJong[i/4]){
+			fprintf(fp, " No");
+		}
+		fprintf(fp, "\n");
 	}
+	fprintf(fp, "Total letters = %d", nLetters/4);
+	fprintf(fp, "\n");
+	ret = 0;
+	for(i=0;i<nLetters;i+=4){
+		if(noJong[i/4]){
+			ret++;
+		}
+	}
+	fprintf(fp, "Total no Jongsung = %d", ret);//// Chosung + Jungsung Only
+	fprintf(fp, "\n");
+	//printf("");//// Chosung + Jungsung + Jongsung
+	fclose(fp);
 
-	close(fd);
-
-	free(pColorCnt);
-	free(pColorArr);
+	free(unicodes);
+	free(letters);
 	free(pBuf);
+	close(fd);
 
 	return ret;
 }
 
 
 
-// 4K bytes letters counter
-#define	MAX_LETTERS_SIZE	(4*1024*4)
-int anal_mode(char *input_file){
+int Anal_mode(char *input_file, char *output_file){
 	int fd;
 	struct stat st;
 	int nFileSize = 0;
@@ -428,10 +622,10 @@ int anal_mode(char *input_file){
 		}
 	}
 
-	fp = fopen("./output.txt", "w");
+	fp = fopen(output_file, "w");
 	// Result lettes
 	for(i=0;i<nLetters;i+=4){
-		if((letters[i] & 0x80) == 0x00){
+		if((letters[i] & 0x80) == 0x00){	// ASCII
 			if(letters[i] < 0x20){
 				fprintf(fp, "%02xh", letters[i+0]);
 			}else if(letters[i] == 0x7F){
@@ -475,6 +669,7 @@ int anal_mode(char *input_file){
 	//printf("");//// Chosung + Jungsung + Jongsung
 	fclose(fp);
 
+	free(repeatCnt);
 	free(letters);
 	free(pBuf);
 	close(fd);
@@ -504,8 +699,7 @@ int Check_duplicate(char *letter, char *letters, int nMaxLetterSize, int nEND){
 //#include "font.h"
 
 
-
-// 
+#if 0
 int unicode(char *font_value){
 	int refValue;
 	unsigned char cho, jung, jong;
@@ -535,6 +729,7 @@ int unicode(char *font_value){
 
 	return 0;
 }
+#endif
 
 
 
@@ -547,4 +742,18 @@ int utf8_to_unicode(char *uft8){
 	unicode |= (uft8[2] & 0x3F);
 
 	return unicode;
+}
+
+
+
+void ShowInfo(void){
+	printf("How to use.\n");
+	printf(" It supprot UTF-8 format.\n");
+	printf("1] script analysis mode.\n");
+	printf(" > letter_arranger -a [input file(script) name].\n");
+	printf("2] make letter table mode.\n");
+	printf(" > letter_arranger -t [input file(script) name].\n");
+	printf("ETC] -o : output file name.\n");
+	printf("Date:20240315.\n");
+	printf("Version:%s.\n", VERSION);
 }
