@@ -10,6 +10,7 @@ _1F_unknown		= $1F
 
 ; abesudlr
 key1p			= $20
+new_btn			= $21
 division_result    = $22
 e_pressing		= $22
 s_pressing		= $23
@@ -17,14 +18,21 @@ dialog_box	   = $24
 a_pressing		= $24
 b_pressing		= $25
 
-ow_x_pos			= $27
-ow_y_pos			= $28
-in_x_pos			= $29
-in_y_pos			= $2A
+_26_unknown		= $26
+
+ow_x_pos		= $27
+ow_y_pos		= $28
+in_x_pos		= $29
+in_y_pos		= $2A
+
+_2B_unknown		= $2B
+_2C_unknown		= $2C
 
 ;---- --hn
 scroll_dir_map		= $2D
 _2F_unknown		= $2F		; y position ??
+
+map_update		= $32
 
 ;udlr
 player_dir		= $33
@@ -49,7 +57,7 @@ oam_y			= $41
 
 vehicle_ID		= $42
 ; 01h:no vehicle, 02h:canoe/snowcraft, 04h:ship, 08h:airship
-tile_property		= $44	; ??
+tile_prop		= $44	; ??
 p_map1			= $45
 p_map2			= $46
 player_mv_timer	   = $47
@@ -66,7 +74,9 @@ ch_name6buf		= $5F
 _62_unknown		= $62
 _63_unknown		= $63
 _64_palette_tmp		= $64
+_66_unknown		= $66
 _67_unknown		= $67
+_69_unknown		= $69
 
 event			= $6C
 map_water_cnt		= $6D
@@ -82,6 +92,9 @@ cur_oam_tbl_H		= $81
 cur_idx_base		= $82
 
 _84_unknown		= $84
+
+_86_unknown		= $86
+
 text_x_offset		= $90
 _91_unknown		= $91
 text_ID			= $92
@@ -393,6 +406,25 @@ SQ2_Note_Value		 = $6F1F
 current_BGM_ID		 = $6F25
 _6F26_unknown		= $6F26
 
+; map bg tilemap($7000-$73FF)
+
+obj_properties		= $7400
+cur_tile_prop		= $7400
+dest_tile_prop		= $7401
+mov_rate		= $7402
+rnd_mov_freq		= $7403
+
+npc_properties		= $7500
+npc_id			= $7500
+npc_un1			= $7501
+npc_x			= $7504
+npc_y			= $7505
+npc_x_stile_pos		= $7506
+npc_y_stile_pos		= $7507
+; a--- ---t interacted with player(a), touched by player(udlr)
+npc_und			= $750D
+npc_ani_L		= $750E
+npc_ani_H		= $750F
 
 cur_pos			= $78F0		; ??
 len_cur_dat		= $78F1		; ??

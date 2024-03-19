@@ -802,16 +802,18 @@ A045:
 ;; [$A900 :: 0x0E900]
 
 .byte $85,$81
+; Name	:
+; Marks	: $80(ADDR)
 	LDY #$00		; A902	$A0 $00
-	LDX $26			; A904	$A6 $26		pointer ??
-	LDA $41			; A906	$A5 $41
+	LDX $26			; A904	$A6 $26		pointer to next available sprite ?? 
+	LDA $41			; A906	$A5 $41		y ??
 	STA $0200,X		; A908	$9D $00 $02
 	STA $0208,X		; A90B	$9D $08 $02
 	CLC			; A90E	$18
 	ADC #$08		; A90F	$69 $08
 	STA $0204,X		; A911	$9D $04 $02
 	STA $020C,X		; A914	$9D $0C $02
-	LDA $40			; A917	$A5 $40
+	LDA $40			; A917	$A5 $40		x ??
 	STA $0203,X		; A919	$9D $03 $02
 	STA $0207,X		; A91C	$9D $07 $02
 	CLC			; A91F	$18
@@ -966,13 +968,15 @@ A045:
 
 .byte $02,$02,$02,$02,$02,$02,$02,$01,$03,$00,$02,$01,$03,$00,$02,$01
 .byte $03,$00,$02,$01,$03,$00,$02,$01,$03,$02
-	JSR $A902		; AF1A	$20 $02 $A9
+; Name	:
+; Marks	: check Object properties ??
+	JSR $A902		; AF1A	$20 $02 $A9	sprite ??
 	LDA $26			; AF1D	$A5 $26
 	SEC			; AF1F	$38
 	SBC #$10		; AF20	$E9 $10
 	TAY			; AF22	$A8
 	LDX $8F			; AF23	$A6 $8F
-	LDA $7401,X		; AF25	$BD $01 $74
+	LDA dest_tile_prop,X	; AF25	$BD $01 $74
 	AND #$04		; AF28	$29 $04
 	BEQ L0EF37		; AF2A	$F0 $0B
 	LDA $0202,Y		; AF2C	$B9 $02 $02
@@ -980,7 +984,7 @@ A045:
 	STA $0202,Y		; AF31	$99 $02 $02
 	STA $020A,Y		; AF34	$99 $0A $02
 L0EF37:
-	LDA $7401,X		; AF37	$BD $01 $74
+	LDA dest_tile_prop,X	; AF37	$BD $01 $74
 	AND #$02		; AF3A	$29 $02
 	BEQ L0EF49		; AF3C	$F0 $0B
 	LDA $0206,Y		; AF3E	$B9 $06 $02
@@ -989,7 +993,7 @@ L0EF37:
 	STA $020E,Y		; AF46	$99 $0E $02
 L0EF49:
 	RTS			; AF49	$60
-; End of
+; End of check object properties ??
 
 ; Name	:
 ; Marks	: event number 6
@@ -1022,20 +1026,22 @@ L0EF6F:
 	TAX			; AF73	$AA
 	BCS L0EF67		; AF74	$B0 $F1
 	JMP $AF91		; AF76	$4C $91 $AF
+
+; event code 08h
 	LDA #$40		; AF79	$A9 $40
-	STA $26			; AF7B	$85 $26			pointer to next available sprite??
+	STA $26			; AF7B	$85 $26		pointer to next available sprite??
 	LDX #$00		; AF7D	$A2 $00
 L0EF7F:
 	LDA $7500,X		; AF7F	$BD $00 $75
 	BEQ L0EF87		; AF82	$F0 $03
-	JSR $B15E		; AF84	$20 $5E $B1
+	JSR $B15E		; AF84	$20 $5E $B1	check object properties ??
 L0EF87:
 	TXA			; AF87	$8A
 	CLC			; AF88	$18
 	ADC #$10		; AF89	$69 $10
 	TAX			; AF8B	$AA
 	CMP #$C0		; AF8C	$C9 $C0
-	BCC L0EF7F		; AF8E	$90 $EF
+	BCC L0EF7F		; AF8E	$90 $EF		loop up to C0h(12)
 	RTS			; AF90	$60
 ; End of
 
@@ -1125,19 +1131,19 @@ L0F13D:
 	LDA $7503,X		; B158	$BD $03 $75
 	STA $7505,X		; B15B	$9D $05 $75
 L0F15E:
-	LDA $7506,X		; B15E	$BD $06 $75
-	ORA $7507,X		; B161	$1D $07 $75
+	LDA npc_x_stile_pos,X	; B15E	$BD $06 $75
+	ORA npc_y_stile_pos,X	; B161	$1D $07 $75
 	CMP #$08		; B164	$C9 $08
 	BNE L0F16E		; B166	$D0 $06
-	LDA $7400,X		; B168	$BD $00 $74
+	LDA cur_tile_prop,X	; B168	$BD $00 $74
 	STA $7401,X		; B16B	$9D $01 $74
 L0F16E:
-	LDA $7507,X		; B16E	$BD $07 $75
+	LDA npc_y_stile_pos,X	; B16E	$BD $07 $75
 	CLC			; B171	$18
 	SBC ver_stile_pos	; B172	$E5 $36		??
 	AND #$0F		; B174	$29 $0F
 	STA $80			; B176	$85 $80
-	LDA $7505,X		; B178	$BD $05 $75
+	LDA npc_y,X		; B178	$BD $05 $75
 	SBC in_y_pos		; B17B	$E5 $2A
 	AND #$3F		; B17D	$29 $3F
 	CMP #$10		; B17F	$C9 $10
@@ -1151,12 +1157,12 @@ L0F16E:
 	BCS L0F1B0		; B18B	$B0 $23
 	SBC #$02		; B18D	$E9 $02
 	STA $41			; B18F	$85 $41
-	LDA $7506,X		; B191	$BD $06 $75
+	LDA npc_x_stile_pos,X	; B191	$BD $06 $75
 	SEC			; B194	$38
 	SBC hor_stile_pos	; B195	$E5 $35
 	AND #$0F		; B197	$29 $0F
 	STA $80			; B199	$85 $80
-	LDA $7504,X		; B19B	$BD $04 $75
+	LDA npc_x,X		; B19B	$BD $04 $75
 	SBC in_x_pos		; B19E	$E5 $29
 	AND #$3F		; B1A0	$29 $3F
 	CMP #$10		; B1A2	$C9 $10
@@ -1194,15 +1200,15 @@ L0F1CE:
 L0F1D6:
 .byte $A5,$F0,$29,$10,$4C,$E6,$B1
 L0F1DD:
-	LDA $7506,X		; B1DD	$BD $06 $75
-	ORA $7507,X		; B1E0	$1D $07 $75
+	LDA npc_x_stile_pos,X	; B1DD	$BD $06 $75
+	ORA npc_y_stile_pos,X	; B1E0	$1D $07 $75
 	ASL A			; B1E3	$0A
 	AND #$08		; B1E4	$29 $08
 L0F1E6:
 	CLC			; B1E6	$18
-	ADC $750E,X		; B1E7	$7D $0E $75
+	ADC npc_ani_L,X		; B1E7	$7D $0E $75
 	STA $80			; B1EA	$85 $80
-	LDA $750F,X		; B1EC	$BD $0F $75
+	LDA npc_ani_H,X		; B1EC	$BD $0F $75
 	ADC #$00		; B1EF	$69 $00
 	STA $81			; B1F1	$85 $81
 	TXA			; B1F3	$8A
@@ -1220,6 +1226,7 @@ L0F1FC:
 .byte $A2,$B2,$D0,$04,$A9,$3F,$A2,$B2,$85,$80,$86,$81,$4C,$1A,$AF,$09
 .byte $42,$0B,$43,$08,$42,$0A,$43,$0D,$42,$0F,$43,$0C,$42,$0E,$43,$08
 .byte $02,$0A,$03,$09,$02,$0B,$03,$0C,$02,$0E,$03,$0D,$02,$0F,$03,$00
+; sprite data ??
 .byte $02,$02,$03,$01,$02,$03,$03,$00,$02,$03,$43,$01,$02,$02,$43,$04
 .byte $02,$06,$03,$05,$02,$07,$03,$04,$02,$07,$43,$05,$02,$06,$43,$A9
 .byte $00,$85,$8E,$A9,$75,$85,$8F,$A9,$0C,$85,$8B,$A9,$80,$85,$8C,$A9
