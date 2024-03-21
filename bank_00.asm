@@ -1,6 +1,8 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.export	Init_var		;9C09
+
 .segment "BANK_00"
 
 ; Commented out due to  compilation order change.
@@ -251,7 +253,7 @@
 
 ; ========== map BG attribute tables (3 * 64 bytes) ($8A00-$8ABF) START ==========
 ;; [$8A00 :: 0x00A00]
-
+map_BG_attr:
 .byte $00,$00,$00,$FF,$FF,$FF,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
 .byte $55,$FF,$55,$55,$55,$55,$55,$55,$55,$55,$00,$00,$FF,$AA,$AA,$55
 .byte $00,$AA,$55,$FF,$FF,$FF,$FF,$FF,$55,$FF,$FF,$FF,$FF,$FF,$FF,$55
@@ -267,13 +269,15 @@
 ; ========== map BG attribute tables (3 * 64 bytes) ($8A00-$8ABF) END ==========
 
 
-; ========== initial event switches ($8A00-$8AFF) START ==========
+; ========== initial event switches ($8AC0-$8AFF) START ==========
 ;; [$8AC0 :: 0x00AC0]
+init_event_sw:
 .byte $C4,$5D,$8B,$E6,$A3,$FB,$7F,$FF,$FF,$FF,$38,$FE,$7F,$E0,$FF,$F3
 .byte $0D,$FF,$03,$00,$00,$DC,$FF,$FF,$E7,$FB,$F1,$7F,$03,$24,$30,$00
+; $8AE0
 .byte $00,$76,$61,$00,$00,$94,$3A,$00,$00,$C8,$7A,$00,$00,$6F,$65,$00
 .byte $5B,$74,$36,$30,$01,$AA,$36,$00,$01,$00,$00,$00,$90,$01,$00,$03
-; ========== initial event switches ($8A00-$8AFF) END ==========
+; ========== initial event switches ($8AC0-$8AFF) END ==========
 
 
 ; ========== map tile properties (1 * 256 bytes) ($8B00-$8BFF) START ==========
@@ -344,7 +348,7 @@
 
 ; ========== map palettes ($8E00-$8F7F) START ==========
 ;; [$8E00 :: 0x00E10]
-
+; Map palettes (Universal Background Color)
 .byte $16,$22,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
 .byte $00,$00,$08,$00,$00,$00,$00,$01,$01,$02,$02,$02,$02,$02,$02,$03
 .byte $05,$06,$06,$07,$08,$08,$08,$09,$09,$09,$09,$1A,$0C,$05,$0B,$0C
@@ -353,6 +357,7 @@
 .byte $21,$21,$16,$22,$22,$22,$22,$29,$2C,$2C,$30,$30,$30,$31,$31,$22
 .byte $31,$3C,$3C,$3C,$0A,$18,$1C,$08,$0A,$1B,$02,$0F,$0F,$0F,$0F,$0F
 .byte $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+; Map palettes (Background Color:00)
 .byte $27,$32,$27,$27,$17,$26,$16,$30,$16,$19,$10,$13,$27,$15,$27,$12
 .byte $10,$10,$16,$16,$16,$10,$27,$11,$12,$12,$12,$13,$21,$21,$22,$13
 .byte $27,$16,$27,$27,$16,$18,$27,$17,$18,$18,$19,$2A,$1C,$15,$1B,$16
@@ -364,6 +369,7 @@
 
 ;; [$8F00 :: 0x00F00]
 
+; Map palettes (Background Color:01)
 .byte $30,$30,$30,$30,$36,$36,$36,$36,$27,$27,$28,$36,$30,$30,$36,$36
 .byte $30,$37,$28,$27,$28,$35,$37,$21,$21,$22,$32,$32,$31,$33,$31,$23
 .byte $37,$26,$37,$37,$28,$28,$37,$28,$19,$29,$29,$3A,$30,$25,$2B,$28
@@ -641,31 +647,164 @@
 ;; [$9C00 :: 0x01C00]
 
 ; ========== Map init code ($9C00-$9FFF) START ==========
-.byte $4C,$52,$9D,$4C,$A5,$9C,$4C,$C3,$9C,$4C,$51,$9C,$A5,$61,$38,$E9
+.byte $4C,$52,$9D
+	JMP $9CA5		; 9CC3	$4C $A5 $9C
+	JMP $9CC3		; 9C06	$4C $C3 $9C
+Init_var:
+	JMP Init_var_		; 9C09	$4C $51 $9C
+.byte $A5,$61,$38,$E9
 .byte $04,$0A,$AA,$BD,$45,$9C,$85,$80,$BD,$46,$9C,$85,$81,$A0,$3F,$B1
 .byte $80,$99,$C0,$61,$88,$10,$F8,$A0,$40,$B1,$80,$99,$80,$62,$C8,$C0
 .byte $76,$90,$F6,$A5,$61,$C9,$09,$D0,$0B,$A2,$05,$BD,$76,$62,$9D,$C2
 .byte $61,$CA,$10,$F7,$60,$00,$91,$80,$91,$00,$92,$80,$92,$00,$93,$80
-.byte $93,$A2,$1F,$BD,$E0,$8A,$9D,$00,$60,$BD,$C0,$8A,$9D,$40,$60,$A9
-.byte $00,$9D,$80,$60,$9D,$60,$60,$A9,$FF,$9D,$20,$60,$CA,$10,$E4,$A2
-.byte $3F,$BD,$80,$8F,$9D,$00,$61,$BD,$00,$90,$9D,$40,$61,$BD,$80,$90
-.byte $9D,$80,$61,$BD,$80,$8F,$9D,$C0,$61,$BD,$C0,$8F,$9D,$00,$62,$BD
-.byte $40,$90,$9D,$40,$62,$BD,$C0,$90,$9D,$80,$62,$BD,$C0,$8F,$9D,$C0
-.byte $62,$CA,$10,$CD,$60,$A2,$00,$BD,$00,$80,$9D,$00,$04,$BD,$00,$81
-.byte $9D,$00,$05,$BD,$00,$82,$9D,$00,$06,$BD,$00,$83,$9D,$00,$07,$E8
-.byte $D0,$E5,$60,$A2,$1F,$BD,$80,$83,$9D,$C0,$03,$CA,$10,$F7,$A2,$00
-.byte $BD,$01,$61,$29,$E0,$F0,$07,$8A,$18,$69,$40,$AA,$D0,$F2,$BD,$00
-.byte $61,$29,$0F,$0A,$AA,$BD,$A0,$83,$8D,$D2,$03,$BD,$A1,$83,$8D,$D6
-.byte $03,$A5,$2D,$4A,$B0,$01,$60,$A5,$48,$4A,$4A,$4A,$4A,$09,$A0,$85
+.byte $93
+; Name	: Init_var_
+; Marks	: Init variables(event/items/characters/palettes)
+;	  $6000-$609F, $6100-$62FF
+Init_var_:
+	LDX #$1F		; 9C51	$A2 $1F
+L01C53:
+	LDA $8AE0,X		; 9C53	$BD $E0 $8A
+	STA $6000,X		; 9C56	$9D $00 $60
+	LDA $8AC0,X		; 9C59	$BD $C0 $8A
+	STA event_npc_sw,X	; 9C5C	$9D $40 $60
+	LDA #$00		; 9C5F	$A9 $00
+	STA acq_keyword,X	; 9C61	$9D $80 $60
+	STA inventory,X		; 9C64	$9D $60 $60
+	LDA #$FF		; 9C67	$A9 $FF
+	STA treasure_sw,X	; 9C69	$9D $20 $60
+	DEX			; 9C6C	$CA
+	BPL L01C53		; 9C6D	$10 $E4		loop
+	LDX #$3F		; 9C6F	$A2 $3F
+L01C71:
+	LDA $8F80,X		; 9C71	$BD $80 $8F
+	STA ch_stats_1,X	; 9C74	$9D $00 $61
+	LDA $9000,X		; 9C77	$BD $00 $90
+	STA ch_stats_2,X	; 9C7A	$9D $40 $61
+	LDA $9080,X		; 9C7D	$BD $80 $90
+	STA ch_stats_3,X	; 9C80	$9D $80 $61
+	LDA $8F80,X		; 9C83	$BD $80 $8F
+	STA ch_stats_4,X	; 9C86	$9D $C0 $61
+	LDA $8FC0,X		; 9C89	$BD $C0 $8F
+	STA ch_skills_1,X	; 9C8C	$9D $00 $62
+	LDA $9040,X		; 9C8F	$BD $40 $90
+	STA ch_skills_2,X	; 9C92	$9D $40 $62
+	LDA $90C0,X		; 9C95	$BD $C0 $90
+	STA ch_skills_3,X	; 9C98	$9D $80 $62
+	LDA $8FC0,X		; 9C9B	$BD $C0 $8F
+	STA ch_skills_4,X	; 9C9E	$9D $C0 $62
+	DEX			; 9CA1	$CA
+	BPL L01C71		; 9CA2	$10 $CD		loop
+	RTS			; 9CA4	$60
+; End of Init_var_
 
-;; [$9D00 :: 0x01D00]
+; Name	:
+; Marks	:
+	LDX #$00		; 9CA5	$A2 $00
+L01CA7:
+	LDA $8000,X		; 9CA7	$BD $00 $80
+	STA $0400,X		; 9CAA	$9D $00 $04
+	LDA $8100,X		; 9CAD	$BD $00 $81
+	STA $0500,X		; 9CB0	$9D $00 $05
+	LDA $8200,X		; 9CB3	$BD $00 $82
+	STA $0600,X		; 9CB6	$9D $00 $06
+	LDA $8300,X		; 9CB9	$BD $00 $83
+	STA $0700,X		; 9CBC	$9D $00 $07
+	INX			; 9CBF	$E8
+	BNE L01CA7		; 9CC0	$D0 $E5
+	RTS			; 9CC2	$60
+; End of
 
-.byte $81,$A5,$48,$0A,$0A,$0A,$0A,$85,$80,$A0,$01,$A2,$01,$20,$3C,$9D
-.byte $A0,$02,$A2,$05,$20,$3C,$9D,$A0,$03,$A2,$09,$20,$3C,$9D,$A0,$04
-.byte $A2,$19,$20,$3C,$9D,$A0,$05,$A2,$1D,$20,$3C,$9D,$A9,$00,$8D,$CD
-.byte $03,$A9,$02,$8D,$CE,$03,$A9,$30,$8D,$CF,$03,$60,$B1,$80,$A8,$B9
-.byte $00,$8E,$9D,$C0,$03,$B9,$80,$8E,$9D,$C1,$03,$B9,$00,$8F,$9D,$C2
-.byte $03,$60,$A5,$48,$4A,$4A,$4A,$4A,$09,$A0,$85,$81,$A5,$48,$0A,$0A
+; Name	:
+; Marks	:
+	LDX #$1F		; 9CC3	$A2 $1F
+L01CC5:
+	LDA $8380,X		; 9CC5	$BD $80 $83
+	STA palette_UBGC,X	; 9CC8	$9D $C0 $03
+	DEX			; 9CCB	$CA
+	BPL L01CC5		; 9CCC	$10 $F7
+	LDX #$00		; 9CCE	$A2 $00
+L01CD0:
+	LDA $6101,X		; 9CD0	$BD $01 $61	ch_status
+	AND #$E0		; 9CD3	$29 $E0
+	BEQ L01CDE		; 9CD5	$F0 $07
+	TXA			; 9CD7	$8A
+	CLC			; 9CD8	$18
+	ADC #$40		; 9CD9	$69 $40
+	TAX			; 9CDB	$AA
+	BNE L01CD0		; 9CDC	$D0 $F2
+L01CDE:
+	LDA $6100,X		; 9CDE	$BD $00 $61	ch_id
+	AND #$0F		; 9CE1	$29 $0F
+	ASL A			; 9CE3	$0A
+	TAX			; 9CE4	$AA
+	LDA $83A0,X		; 9CE5	$BD $A0 $83
+	STA palette_OAM01	; 9CE8	$8D $D2 $03
+	LDA $83A1,X		; 9CEB	$BD $A1 $83
+	STA palette_OAM11	; 9CEE	$8D $D6 $03
+	LDA scroll_dir_map	; 9CF1	$A5 $2D
+	LSR A			; 9CF3	$4A
+	BCS L01CF7		; 9CF4	$B0 $01
+	RTS			; 9CF6	$60
+; End of
+; Marks	: $48(ADDR) = palette address
+L01CF7:
+	LDA $48			; 9CF7	$A5 $48		map id ??
+	LSR A			; 9CF9	$4A
+	LSR A			; 9CFA	$4A
+	LSR A			; 9CFB	$4A
+	LSR A			; 9CFC	$4A
+	ORA #$A0		; 9CFD	$09 $A0
+	STA $81			; 9CFF	$85 $81
+	LDA $48			; 9D01	$A5 $48		map id ??
+	ASL A			; 9D03	$0A
+	ASL A			; 9D04	$0A
+	ASL A			; 9D05	$0A
+	ASL A			; 9D06	$0A
+	STA $80			; 9D07	$85 $80
+	LDY #$01		; 9D09	$A0 $01
+	LDX #$01		; 9D0B	$A2 $01
+	JSR Set_palettes	; 9D0D	$20 $3C $9D
+	LDY #$02		; 9D10	$A0 $02
+	LDX #$05		; 9D12	$A2 $05
+	JSR Set_palettes	; 9D14	$20 $3C $9D
+	LDY #$03		; 9D17	$A0 $03
+	LDX #$09		; 9D19	$A2 $09
+	JSR Set_palettes	; 9D1B	$20 $3C $9D
+	LDY #$04		; 9D1E	$A0 $04
+	LDX #$19		; 9D20	$A2 $19
+	JSR Set_palettes	; 9D22	$20 $3C $9D
+	LDY #$05		; 9D25	$A0 $05
+	LDX #$1D		; 9D27	$A2 $1D
+	JSR Set_palettes	; 9D29	$20 $3C $9D
+	LDA #$00		; 9D2C	$A9 $00
+	STA palette_BG30	; 9D2E	$8D $CD $03
+	LDA #$02		; 9D31	$A9 $02
+	STA palette_BG31	; 9D33	$8D $CE $03
+	LDA #$30		; 9D36	$A9 $30
+	STA palette_BG32	; 9D38	$8D $CF $03
+	RTS			; 9D3B	$60
+; End of
+
+; Name	: Set_palettes
+; X	: palette background offset
+; Y	: palette address offset
+; Marks	: $80(ADDR)
+; 	  Load palette ??
+Set_palettes:
+	LDA ($80),Y		; 9D3C	$B1 $80
+	TAY			; 9D3E	$A8
+	LDA $8E00,Y		; 9D3F	$B9 $00 $8E
+	STA palette_UBGC,X	; 9D42	$9D $C0 $03
+	LDA $8E80,Y		; 9D45	$B9 $80 $8E
+	STA palette_BG00,X	; 9D48	$9D $C1 $03
+	LDA $8F00,Y		; 9D4B	$B9 $00 $8F
+	STA palette_BG01,X	; 9D4E	$9D $C2 $03
+	RTS			; 9D51	$60
+; End of Set_palettes
+
+.byte $A5,$48,$4A,$4A,$4A,$4A,$09,$A0,$85,$81,$A5,$48,$0A,$0A
+;; [$9D60 :: 0x01D60]
 .byte $0A,$0A,$85,$80,$A0,$0F,$B1,$80,$99,$80,$07,$88,$10,$F8,$20,$3B
 .byte $9E,$A9,$80,$85,$61,$A9,$A0,$85,$62,$A9,$B0,$85,$63,$A9,$C0,$85
 .byte $64,$A9,$D0,$85,$65,$A9,$E0,$85,$66,$A9,$F0,$85,$67,$A9,$00,$85

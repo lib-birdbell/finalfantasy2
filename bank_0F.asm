@@ -15,10 +15,14 @@
 .export Get_key			;DBA9
 .export Palette_copy		;DC30
 .export	Set_cursor		;DEA1
+.export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
 .export DoDivision		;FCC3
 .export Wait_NMI		;FE00
 .export Swap_PRG_		;FE03
+.export	Init_variables		;FFB0
+
+.import	Init_var		;9C09 - bank_00
 
 .segment "BANK_FIXED"
 
@@ -27,7 +31,7 @@
 
 ; Name	:
 ; Marks	: Some init code
-    JMP $C025                ; C000  $4C $25 $C0
+	JMP BOOT0		; C000  $4C $25 $C0
 L3C003:
     JMP L3DCE3               ; C003  $4C $E3 $DC
     JMP $F34D                ; C006  $4C $4D $F3
@@ -42,13 +46,13 @@ L3C009:
     JSR $9C0C                ; C01D  $20 $0C $9C
     LDA #$0E                 ; C020  $A9 $0E
     JMP Swap_PRG_               ; C022  $4C $03 $FE
-	; PPU disable
-    LDA #$00                 ; C025  $A9 $00
-    STA PpuMask_2001         ; C027  $8D $01 $20
-    STA $FE                  ; C02A  $85 $FE
-    LDA #$88                 ; C02C  $A9 $88
-    STA $FF                  ; C02E  $85 $FF
-    STA $FD                  ; C030  $85 $FD
+BOOT0:
+	LDA #$00		; C025  $A9 $00
+	STA PpuMask_2001	; C027  $8D $01 $20	PPU disable
+	STA ppu_mask		; C02A  $85 $FE
+	LDA #$88		; C02C  $A9 $88
+	STA ppu_con_c		; C02E  $85 $FF
+	STA ppu_con_p		; C030  $85 $FD
 	; Set PPU
 	; 7bit NMI on
 	; 6bit ?
@@ -57,44 +61,39 @@ L3C009:
 	; 3bit Sprite pattern table address for 8x8 = $1000
 	; 2bit VRAM address increment per CPU read/write of PPUDATA = add 1, going across
 	; 0-1bits Base nametable address = $2000
-    STA PpuControl_2000      ; C032  $8D $00 $20
-	; Set current BGM ID
-    LDX #$FF                 ; C035  $A2 $FF
-    STX current_BGM_ID		; STX $6F25                ; C037  $8E $25 $6F
-    TXS                      ; C03A  $9A
-    LDA #$00                 ; C03B  $A9 $00
-	; Init APU
-    JSR $C4A0                ; C03D  $20 $A0 $C4
+	STA PpuControl_2000	; C032  $8D $00 $20
+	LDX #$FF		; C035  $A2 $FF	current BGM ID
+	STX current_BGM_ID	; C037  $8E $25 $6F
+	TXS			; C03A  $9A
+	LDA #$00		; C03B  $A9 $00
+	JSR APU_init		; C03D  $20 $A0 $C4
 	; RAM init $00 - $EF = #$00, $3C0 - $3DF = #$0F
-    JSR RAM_init		; JSR $C486                ; C040  $20 $86 $C4
+	JSR RAM_init		; C040  $20 $86 $C4
 	; RAM init $200 - $2FF = #$F0
-    JSR Init_Page2		; JSR $C46E                ; C043  $20 $6E $C4
+	JSR Init_Page2		; C043  $20 $6E $C4
 	; Set NMI
-    JSR Wait_NMI		; JSR $FE00                ; C046  $20 $00 $FE
-	; Fill OAM
-    LDA #$02                 ; C049  $A9 $02
-    STA SpriteDma_4014       ; C04B  $8D $14 $40
-	; Palettes init
-    JSR Palette_copy		; JSR $DC30                ; C04E  $20 $30 $DC
+	JSR Wait_NMI		; C046  $20 $00 $FE
+	LDA #$02		; C049  $A9 $02		copy OAM buffer(200h) to PPU
+	STA SpriteDma_4014	; C04B  $8D $14 $40
+	JSR Palette_copy	; C04E  $20 $30 $DC
 	; #$77 is intro skip flag in $FA
-    LDA skip_intro		; LDA $FA                  ; C051  $A5 $FA
-    CMP #$77                 ; C053  $C9 $77
-    BEQ C066                 ; C055  $F0 $0F
-    LDA #$77                 ; C057  $A9 $77
-    STA skip_intro		; STA $FA                  ; C059  $85 $FA
-	; Show title screen
-    JSR Show_title_screen	; JSR $F476                ; C05B  $20 $76 $F4
-    LDA #$0E                 ; C05E  $A9 $0E
-    JSR Swap_PRG_               ; C060  $20 $03 $FE
+	LDA skip_intro		; C051  $A5 $FA
+	CMP #$77		; C053  $C9 $77
+	BEQ SAVEFILE_SEL	; C055  $F0 $0F
+	LDA #$77		; C057  $A9 $77
+	STA skip_intro		; C059  $85 $FA
+	JSR Show_title_screen	; C05B  $20 $76 $F4
+	LDA #$0E		; C05E  $A9 $0E
+	JSR Swap_PRG_		; C060  $20 $03 $FE
 	; Show title story
     JSR $B890                ; C063  $20 $90 $B8
 	; Save file select screen
-C066:
-    LDA #$0E                 ; C066  $A9 $0E
-    JSR Swap_PRG_               ; C068  $20 $03 $FE
-    JSR $B642                ; C06B  $20 $42 $B6
-    PHP                      ; C06E  $08
-    JSR RAM_init		; JSR $C486                ; C06F  $20 $86 $C4
+SAVEFILE_SEL:
+	LDA #$0E		; C066  $A9 $0E
+	JSR Swap_PRG_		; C068  $20 $03 $FE
+	JSR $B642		; C06B  $20 $42 $B6	select save file or new game
+	PHP			; C06E  $08
+	JSR RAM_init		; C06F  $20 $86 $C4
     LDA ow_save_pos_x		; LDA $6010                ; C072  $AD $10 $60
     STA ow_x_pos		; STA $27                  ; C075  $85 $27
     LDA ow_save_pos_y		; LDA $6011                ; C077  $AD $11 $60
@@ -208,8 +207,8 @@ C143:
     STA NoisePeriod_400E     ; C14E  $8D $0E $40
     LDA #$00                 ; C151  $A9 $00
     STA NoiseLength_400F     ; C153  $8D $0F $40
-    JMP L3C0C9               ; C156  $4C $C9 $C0
-; End of
+    JMP L3C0C9               ; C156  $4C $C9 $C0	loop
+; Loop
 
 ; Name	:
 ; Marks	: check tile properties and key ??
@@ -360,6 +359,8 @@ C265:
     RTS                      ; C26F  $60
 ; End of
 
+; Name	:
+; Marks	:
 L3C270:
     JSR $DB5C                ; C270  $20 $5C $DB	event, key processing ??
 	LDA key1p		; C273  $A5 $20
@@ -694,16 +695,17 @@ C499:
     RTS                      ; C49F  $60
 
 ; Name	: APU_init
-; A	: Not used ??
 ; Marks	: APU initialization
-    LDA #$30                 ; C4A0  $A9 $30
-    STA Sq0Duty_4000         ; C4A2  $8D $00 $40
-    STA Sq1Duty_4004         ; C4A5  $8D $04 $40
-    STA TrgLinear_4008       ; C4A8  $8D $08 $40
-    STA NoiseVolume_400C     ; C4AB  $8D $0C $40
-    LDA #$00                 ; C4AE  $A9 $00
-    STA ApuStatus_4015       ; C4B0  $8D $15 $40
-    RTS                      ; C4B3  $60
+APU_init:
+	LDA #$30		; C4A0  $A9 $30
+	STA Sq0Duty_4000	; C4A2  $8D $00 $40
+	STA Sq1Duty_4004	; C4A5  $8D $04 $40
+	STA TrgLinear_4008	; C4A8  $8D $08 $40
+	STA NoiseVolume_400C	; C4AB  $8D $0C $40
+	LDA #$00		; C4AE  $A9 $00
+	STA ApuStatus_4015	; C4B0  $8D $15 $40
+	RTS			; C4B3  $60
+; End of APU_init
 
 ;; sub start ;;
     LSR A                    ; C4B4  $4A
@@ -3937,27 +3939,29 @@ L3DAF0:
 ; End of Check_savefile
 
 ; Name	:
-; Marks	: Some data copy.
+; A	:
+; Marks	: $8400 = some address(may be text address)
+;	  Check text ??
 ;; sub start ;;
-    PHA                      ; DAF1  $48
-    LDA #$0A                 ; DAF2  $A9 $0A
-    JSR Swap_PRG_               ; DAF4  $20 $03 $FE
-    PLA                      ; DAF7  $68
-    ASL A                    ; DAF8  $0A
-    TAY                      ; DAF9  $A8
-    LDA $8400,Y              ; DAFA  $B9 $00 $84
-    STA $80                  ; DAFD  $85 $80
-    LDA $8401,Y              ; DAFF  $B9 $01 $84
-    STA $81                  ; DB02  $85 $81
-    LDY #$00                 ; DB04  $A0 $00
+	PHA			; DAF1  $48
+	LDA #$0A		; DAF2  $A9 $0A		text 2 bank
+	JSR Swap_PRG_		; DAF4  $20 $03 $FE
+	PLA			; DAF7  $68
+	ASL A			; DAF8  $0A
+	TAY			; DAF9  $A8
+	LDA $8400,Y		; DAFA  $B9 $00 $84
+	STA $80			; DAFD  $85 $80
+	LDA $8401,Y		; DAFF  $B9 $01 $84
+	STA $81			; DB02  $85 $81
+	LDY #$00		; DB04  $A0 $00
 L3DB06:
-    LDA ($80),Y              ; DB06  $B1 $80
-    CMP #$30                 ; DB08  $C9 $30
-    BCS L3DB21               ; DB0A  $B0 $15
-    CMP #$10                 ; DB0C  $C9 $10
-    BCC L3DB21               ; DB0E  $90 $11
-    BNE L3DB14               ; DB10  $D0 $02
-    LDA $9E                  ; DB12  $A5 $9E
+	LDA ($80),Y		; DB06  $B1 $80
+	CMP #$30		; DB08  $C9 $30
+	BCS L3DB21		; DB0A  $B0 $15
+	CMP #$10		; DB0C  $C9 $10
+	BCC L3DB21		; DB0E  $90 $11
+	BNE L3DB14		; DB10  $D0 $02
+	LDA $9E			; DB12  $A5 $9E
 L3DB14:
     STA $7B00,Y              ; DB14  $99 $00 $7B
     INY                      ; DB17  $C8
@@ -3966,12 +3970,12 @@ L3DB14:
     INY                      ; DB1D  $C8
     JMP L3DB06               ; DB1E  $4C $06 $DB
 L3DB21:
-    STA $7B00,Y              ; DB21  $99 $00 $7B
-    INY                      ; DB24  $C8
-    CMP #$00                 ; DB25  $C9 $00
-    BNE L3DB06               ; DB27  $D0 $DD
-    LDA #$0E                 ; DB29  $A9 $0E
-    JMP Swap_PRG_               ; DB2B  $4C $03 $FE
+	STA $7B00,Y		; DB21  $99 $00 $7B
+	INY			; DB24  $C8
+	CMP #$00		; DB25  $C9 $00
+	BNE L3DB06		; DB27  $D0 $DD		loop
+	LDA #$0E		; DB29  $A9 $0E
+	JMP Swap_PRG_		; DB2B  $4C $03 $FE
 ; End of
 
 ; Name	: SndE_cur_sel
@@ -4006,7 +4010,7 @@ SndE_cur_mov:
 ; End of SndE_cur_mov
 
 ; Name	:
-; Marks	: event ??
+; Marks	: event ?? if no event, check key
 ;; sub start ;;
 	LDA event		; DB5C  $A5 $6C
 	BEQ L3DBA2		; DB5E  $F0 $42		if A == 00h(no event)
@@ -4470,35 +4474,41 @@ L3DE61:
     BCC L3DE52               ; DE64  $90 $EC
     RTS                      ; DE66  $60
 
+; Name	:
+; Marks	: Sound effect ?? - caution
 L3DE67:
-    LDA #$01                 ; DE67  $A9 $01
-    STA $E5                  ; DE69  $85 $E5
-    LDA #$30                 ; DE6B  $A9 $30
-    STA Sq0Duty_4000         ; DE6D  $8D $00 $40
-    STA TrgLinear_4008       ; DE70  $8D $08 $40
-    STA NoiseVolume_400C     ; DE73  $8D $0C $40
-    LDY #$0F                 ; DE76  $A0 $0F
+	LDA #$01		; DE67  $A9 $01
+	STA $E5			; DE69  $85 $E5
+	LDA #$30		; DE6B  $A9 $30
+	STA Sq0Duty_4000	; DE6D  $8D $00 $40
+	STA TrgLinear_4008	; DE70  $8D $08 $40
+	STA NoiseVolume_400C	; DE73  $8D $0C $40
+	LDY #$0F		; DE76  $A0 $0F
 L3DE78:
-    JSR $DE89                ; DE78  $20 $89 $DE
-    DEY                      ; DE7B  $88
-    BPL L3DE78               ; DE7C  $10 $FA
-    LDA #$30                 ; DE7E  $A9 $30
-    STA Sq1Duty_4004         ; DE80  $8D $04 $40
-    LDA #$00                 ; DE83  $A9 $00
-    STA Sq1Timer_4006        ; DE85  $8D $06 $40
-    RTS                      ; DE88  $60
+	JSR $DE89		; DE78  $20 $89 $DE
+	DEY			; DE7B  $88
+	BPL L3DE78		; DE7C  $10 $FA
+	LDA #$30		; DE7E  $A9 $30
+	STA Sq1Duty_4004	; DE80  $8D $04 $40
+	LDA #$00		; DE83  $A9 $00
+	STA Sq1Timer_4006	; DE85  $8D $06 $40
+	RTS			; DE88  $60
+; End of
 
+; Name	:
+; Marks	:
 ;; sub start ;;
-    JSR Wait_NMI		; JSR $FE00                ; DE89  $20 $00 $FE
-    LDA #$7C                 ; DE8C  $A9 $7C
-    STA Sq1Duty_4004         ; DE8E  $8D $04 $40
-    LDA #$89                 ; DE91  $A9 $89
-    STA Sq1Sweep_4005        ; DE93  $8D $05 $40
-    LDA #$80                 ; DE96  $A9 $80
-    STA Sq1Timer_4006        ; DE98  $8D $06 $40
-    LDA #$00                 ; DE9B  $A9 $00
-    STA Sq1Length_4007       ; DE9D  $8D $07 $40
-    RTS                      ; DEA0  $60
+	JSR Wait_NMI		; DE89  $20 $00 $FE
+	LDA #$7C                 ; DE8C  $A9 $7C
+	STA Sq1Duty_4004         ; DE8E  $8D $04 $40
+	LDA #$89                 ; DE91  $A9 $89
+	STA Sq1Sweep_4005        ; DE93  $8D $05 $40
+	LDA #$80                 ; DE96  $A9 $80
+	STA Sq1Timer_4006        ; DE98  $8D $06 $40
+	LDA #$00                 ; DE9B  $A9 $00
+	STA Sq1Length_4007       ; DE9D  $8D $07 $40
+	RTS                      ; DEA0  $60
+; End of
 
 ; Marks	: $80(ADDR) = Index(offset), Attributes table address = $E3B7
 ;	  $82 = cursor tile index base = $FC
@@ -4670,7 +4680,7 @@ DFA0:
     ADC #$01                 ; DFC6  $69 $01
     STA $F0                  ; DFC8  $85 $F0
     JSR L3C380               ; DFCA  $20 $80 $C3
-    JSR Init_Page2		; JSR $C46E                ; DFCD  $20 $6E $C4
+	JSR Init_Page2		; DFCD  $20 $6E $C4
     JSR L3C746               ; DFD0  $20 $46 $C7
     LDA #$70                 ; DFD3  $A9 $70
     STA $40                  ; DFD5  $85 $40
@@ -5216,16 +5226,17 @@ E3E0:
     JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E483  $20 $03 $E5
     LDA #$0E                 ; E486  $A9 $0E
     JMP Swap_PRG_               ; E488  $4C $03 $FE
-    JSR Init_ICONs		; JSR $E6E1                ; E48B  $20 $E1 $E6
-    JMP Init_char_tile		; JMP L3E6FA               ; E48E  $4C $FA $E6
+	JSR Init_icon_tiles	; E48B  $20 $E1 $E6
+	JMP Init_char_tile	; E48E  $4C $FA $E6
 ; End of
 
-; Name	:
+; Name	: Init_CHR_RAM
 ; Marks	: Set some tile(ICONS) and palettes to PPU
 ;; sub start ;;
-    JSR Init_ICONs		; JSR $E6E1                ; E491  $20 $E1 $E6
-    JMP Init_char_tile		; JMP L3E6FA               ; E494  $4C $FA $E6
-; End of
+Init_CHR_RAM:
+	JSR Init_icon_tiles	; E491  $20 $E1 $E6
+	JMP Init_char_tile	; E494  $4C $FA $E6
+; End of Init_CHR_RAM
 
 ;; sub start ;;
     LDA #$02                 ; E497  $A9 $02
@@ -5318,19 +5329,20 @@ L3E510:
 ; End of Set_PpuData_XPage
 ; End of Set_PpuAddrData_XPage
 
-; Name	: Set_PpuData_XY
+; Name	: Set_PpuData
 ; X	: Data size to be copied
 ; Y	: index start point
 ; Marks	: Set PpuData from $80(ADDR)
-Set_PpuData_XY:
+;	  $80(ADDR) = data address(tile ??)
+Set_PpuData:
 L3E51E:
-    LDA ($80),Y              ; E51E  $B1 $80
-    STA PpuData_2007         ; E520  $8D $07 $20
-    INY                      ; E523  $C8
-    DEX                      ; E524  $CA
-    BNE L3E51E               ; E525  $D0 $F7
-    RTS                      ; E527  $60
-; End of Set_PpuData_XY
+	LDA ($80),Y		; E51E  $B1 $80
+	STA PpuData_2007	; E520  $8D $07 $20
+	INY			; E523  $C8
+	DEX			; E524  $CA
+	BNE L3E51E		; E525  $D0 $F7
+	RTS			; E527  $60
+; End of Set_PpuData
 
 ;; sub start ;;
     LDA #$00                 ; E528  $A9 $00
@@ -5354,7 +5366,7 @@ L3E51E:
     STA PpuAddr_2006         ; E551  $8D $06 $20
     LDY #$00                 ; E554  $A0 $00
     LDX #$20                 ; E556  $A2 $20
-    JSR Set_PpuData_XY		; JSR L3E51E               ; E558  $20 $1E $E5
+	JSR Set_PpuData		; E558  $20 $1E $E5
     LDX #$80                 ; E55B  $A2 $80
     LDA $67                  ; E55D  $A5 $67
     LSR A                    ; E55F  $4A
@@ -5368,7 +5380,7 @@ L3E568:
     LDX #$02                 ; E56C  $A2 $02
     JSR Set_PpuData_XPage	; JSR L3E50E               ; E56E  $20 $0E $E5
     LDX #$40                 ; E571  $A2 $40
-    JSR Set_PpuData_XY		; JSR L3E51E               ; E573  $20 $1E $E5
+	JSR Set_PpuData		; E573  $20 $1E $E5
     LDA #$00                 ; E576  $A9 $00
     STA $81                  ; E578  $85 $81
     LDA $67                  ; E57A  $A5 $67
@@ -5391,7 +5403,7 @@ L3E568:
     STA $81                  ; E597  $85 $81
     LDY #$00                 ; E599  $A0 $00
     LDX #$C0                 ; E59B  $A2 $C0
-    JSR Set_PpuData_XY		; JSR L3E51E               ; E59D  $20 $1E $E5
+	JSR Set_PpuData		; E59D  $20 $1E $E5
     LDA #$00                 ; E5A0  $A9 $00
     STA $81                  ; E5A2  $85 $81
     LDA $67                  ; E5A4  $A5 $67
@@ -5418,37 +5430,34 @@ L3E568:
     LDX #$03                 ; E5C4  $A2 $03
     JSR Set_PpuData_XPage	; JSR L3E50E               ; E5C6  $20 $0E $E5
     LDX #$C0                 ; E5C9  $A2 $C0
-    JSR Set_PpuData_XY		; JSR L3E51E               ; E5CB  $20 $1E $E5
+	JSR Set_PpuData		; E5CB  $20 $1E $E5
 
-; Name	: Init_ICON
-; Marks	: Set $80(ADDR) to ($8A00-$931F:$920) (ICON image)
-;	  Copy to PPU CHR RAM ($06E0-$0FEF:$920)
+; Name	: Init_tile
+; Marks	: Copy $80(ADDR) = ($8A00-$931F:$920,tile image) to PPU CHR RAM ($06E0-$0FFF)
 ;	  ICON image rom bank is #$09
+;	  $80(ADDR) = tile address
 ;; sub start ;;
-Init_ICON:
-    LDA #$09                 ; E5CE  $A9 $09
-    JSR Swap_PRG_               ; E5D0  $20 $03 $FE
-	; ROM ($8A00 - $8A20) $24A00
-    LDA #$00                 ; E5D3  $A9 $00
-    STA $80                  ; E5D5  $85 $80
-    LDA #$8A                 ; E5D7  $A9 $8A
-    STA $81                  ; E5D9  $85 $81
-    BIT PpuStatus_2002       ; E5DB  $2C $02 $20
-	; PPU $06E0
-    LDA #$06                 ; E5DE  $A9 $06
-    STA PpuAddr_2006         ; E5E0  $8D $06 $20
-    LDA #$E0                 ; E5E3  $A9 $E0
-    STA PpuAddr_2006         ; E5E5  $8D $06 $20
-    LDY #$00                 ; E5E8  $A0 $00
-    LDX #$20                 ; E5EA  $A2 $20
-	; PRG $24A00 -> PPU $06E0 (#$20) = Copy 2 icons(32 bytes)
-    JSR Set_PpuData_XY		; JSR L3E51E               ; E5EC  $20 $1E $E5
-    LDA #$20                 ; E5EF  $A9 $20
-    STA $80                  ; E5F1  $85 $80
-	; $80(ADDR) to PPU (ROM 0x24A20 : $8A20-$9320 to PPU $06F0-$0FF0) = Copy rest 16*9 icons(2304 bytes)
-    LDX #$09                 ; E5F3  $A2 $09
-    JMP Set_PpuData_XPage	; JMP L3E50E               ; E5F5  $4C $0E $E5
-; End of Init_ICON
+Init_tile:
+	LDA #$09		; E5CE  $A9 $09
+	JSR Swap_PRG_		; E5D0  $20 $03 $FE
+	LDA #$00		; E5D3  $A9 $00		ROM($8A00-$8A20)
+	STA $80			; E5D5  $85 $80
+	LDA #$8A		; E5D7  $A9 $8A
+	STA $81			; E5D9  $85 $81
+	BIT PpuStatus_2002	; E5DB  $2C $02 $20
+	LDA #$06		; E5DE  $A9 $06		PPU CHR RAM($06E0-$06FF)
+	STA PpuAddr_2006	; E5E0  $8D $06 $20
+	LDA #$E0		; E5E3  $A9 $E0
+	STA PpuAddr_2006	; E5E5  $8D $06 $20
+	LDY #$00		; E5E8  $A0 $00
+	LDX #$20		; E5EA  $A2 $20
+	JSR Set_PpuData		; E5EC  $20 $1E $E5	ROM to PPU (2 icon tiles=20h) from $24A00
+	LDA #$20		; E5EF  $A9 $20
+	STA $80			; E5F1  $85 $80
+	; $80(ADDR) to PPU (ROM 0x24A20 : $8A20-$9320 to PPU $0700-$0FF0) = Copy rest 16*9 icons(2304 bytes)
+	LDX #$09		; E5F3  $A2 $09
+	JMP Set_PpuData_XPage	; E5F5  $4C $0E $E5
+; End of Init_tile
 
 ;data block---
 ;; [E5F8 : 3E608]
@@ -5579,62 +5588,58 @@ Set_spritesA:
 .byte $02,$C0,$02,$00,$03,$40,$03,$80,$03,$C0,$03,$00,$04,$40,$04,$80
 .byte $04
 
-; Name	: Init_ICONs
-; Marks	: Init ICON(Text, Weapons..)
+; Name	: Init_icon_tiles
+; Marks	: Init tiles(Text, Weapons..)
 ;	  Tile0 Set blank
 ;	  Set palette BG3 buffer
 ;; sub start ;;
-Init_ICONs:
-	; CHR Tile copy to PPU
-    JSR Init_ICON		; JSR $E5CE                ; E6E1  $20 $CE $E5
-    BIT PpuStatus_2002       ; E6E4  $2C $02 $20
-	; Tile0 set blank ??
-    LDA #$00                 ; E6E7  $A9 $00
-    STA PpuAddr_2006         ; E6E9  $8D $06 $20
-    STA PpuAddr_2006         ; E6EC  $8D $06 $20
-    LDX #$10                 ; E6EF  $A2 $10
+Init_icon_tiles:
+	JSR Init_tile		; E6E1  $20 $CE $E5	CHR tile copy to PPU
+	BIT PpuStatus_2002	; E6E4  $2C $02 $20
+	LDA #$00		; E6E7  $A9 $00		Tile 0 set blank
+	STA PpuAddr_2006	; E6E9  $8D $06 $20
+	STA PpuAddr_2006	; E6EC  $8D $06 $20
+	LDX #$10		; E6EF  $A2 $10
 L3E6F1:
-    STA PpuData_2007         ; E6F1  $8D $07 $20
-    DEX                      ; E6F4  $CA
-    BNE L3E6F1               ; E6F5  $D0 $FA
-    JMP Set_palette_BG3_buf	; JMP L3E776               ; E6F7  $4C $76 $E7
-; End of Init_ICONs
+	STA PpuData_2007	; E6F1  $8D $07 $20
+	DEX			; E6F4  $CA
+	BNE L3E6F1		; E6F5  $D0 $FA
+	JMP Set_palette_BG3_buf	; E6F7  $4C $76 $E7
+; End of Init_icon_tiles
 
 ; Marks	: Set character potraits to PPU($1000)
 Init_char_tile:
 L3E6FA:
-    LDA #$09                 ; E6FA  $A9 $09
-    JSR Swap_PRG_               ; E6FC  $20 $03 $FE
-    LDA PpuStatus_2002       ; E6FF  $AD $02 $20
-	; PPU CHR RAM $1000
-    LDA #$10                 ; E702  $A9 $10
-    STA PpuAddr_2006         ; E704  $8D $06 $20
-    LDA #$00                 ; E707  $A9 $00
-    STA PpuAddr_2006         ; E709  $8D $06 $20
-    STA $80                  ; E70C  $85 $80
-    LDA ch_stats_1		; LDA $6100                ; E70E  $AD $00 $61
-    JSR Load_char_tile		; JSR $E745                ; E711  $20 $45 $E7
-    LDA ch_stats_2		; LDA $6140                ; E714  $AD $40 $61
-    JSR Load_char_tile		; JSR $E745                ; E717  $20 $45 $E7
-    LDA ch_stats_3		; LDA $6180                ; E71A  $AD $80 $61
-    JSR Load_char_tile		; JSR $E745                ; E71D  $20 $45 $E7
-    LDA ch_stats_4		; LDA $61C0                ; E720  $AD $C0 $61
-    JSR Load_char_tile		; JSR $E745                ; E723  $20 $45 $E7
-    LDA #$0A                 ; E726  $A9 $0A
-    JSR Load_char_tile		; JSR $E745                ; E728  $20 $45 $E7
-    LDA #$09                 ; E72B  $A9 $09
-    JSR Load_char_tile		; JSR $E745                ; E72D  $20 $45 $E7
-	; Last fill blank(#$FF) to PPU($1480-$148F)
-    LDX #$10                 ; E730  $A2 $10
-    LDA #$FF                 ; E732  $A9 $FF
+	LDA #$09		; E6FA  $A9 $09
+	JSR Swap_PRG_		; E6FC  $20 $03 $FE
+	LDA PpuStatus_2002	; E6FF  $AD $02 $20
+	LDA #$10		; E702  $A9 $10		PPU CHR RAM $1000
+	STA PpuAddr_2006	; E704  $8D $06 $20
+	LDA #$00		; E707  $A9 $00
+	STA PpuAddr_2006	; E709  $8D $06 $20
+	STA $80			; E70C  $85 $80
+	LDA ch_stats_1		; E70E  $AD $00 $61
+	JSR Load_char_tile	; E711  $20 $45 $E7
+	LDA ch_stats_2		; E714  $AD $40 $61
+	JSR Load_char_tile	; E717  $20 $45 $E7
+	LDA ch_stats_3		; E71A  $AD $80 $61
+	JSR Load_char_tile	; E71D  $20 $45 $E7
+	LDA ch_stats_4		; E720  $AD $C0 $61
+	JSR Load_char_tile	; E723  $20 $45 $E7
+	LDA #$0A		; E726  $A9 $0A
+	JSR Load_char_tile	; E728  $20 $45 $E7
+	LDA #$09		; E72B  $A9 $09
+	JSR Load_char_tile	; E72D  $20 $45 $E7
+	LDX #$10		; E730  $A2 $10		Last fill blank(#$FF) to PPU($1480-$148F)
+	LDA #$FF		; E732  $A9 $FF
 L3E734:
-    STA PpuData_2007         ; E734  $8D $07 $20
-    DEX                      ; E737  $CA
-    BNE L3E734               ; E738  $D0 $FA
-    JSR Set_spritesA		; JSR $E6AF                ; E73A  $20 $AF $E6
-    JSR Init_OAM_palettes	; JSR $E786                ; E73D  $20 $86 $E7
-    LDA #$0E                 ; E740  $A9 $0E
-    JMP Swap_PRG_               ; E742  $4C $03 $FE
+	STA PpuData_2007	; E734  $8D $07 $20
+	DEX			; E737  $CA
+	BNE L3E734		; E738  $D0 $FA		loop
+	JSR Set_spritesA	; E73A  $20 $AF $E6
+	JSR Init_OAM_palettes	; E73D  $20 $86 $E7
+	LDA #$0E		; E740  $A9 $0E
+	JMP Swap_PRG_		; E742  $4C $03 $FE
 ; End of
 
 ; Name	: Load_char_tile
@@ -5664,7 +5669,7 @@ Load_char_tile:
     LDX #$C0                 ; E763  $A2 $C0
     LDY #$00                 ; E765  $A0 $00
 	; PRG $24xxx -> PPU $06E0 (#$C0)
-    JMP Set_PpuData_XY		; JMP L3E51E               ; E767  $4C $1E $E5
+	JMP Set_PpuData		; E767  $4C $1E $E5
 ; End of Load_char_tile
 
  ;data block---
@@ -5686,14 +5691,13 @@ CHR_TILE_ADDR:
 ;	  Gray, Blue, White
 ;	  Background palette 3 buffers
 Set_palette_BG3_buf:
-L3E776:
-    LDA #$00                 ; E776  $A9 $00
-    STA palette_BG30		; STA $03CD                ; E778  $8D $CD $03
-    LDA #$02                 ; E77B  $A9 $02
-    STA palette_BG31		; STA $03CE                ; E77D  $8D $CE $03
-    LDA #$30                 ; E780  $A9 $30
-    STA palette_BG32		; STA $03CF                ; E782  $8D $CF $03
-    RTS                      ; E785  $60
+	LDA #$00		; E776  $A9 $00
+	STA palette_BG30	; E778  $8D $CD $03
+	LDA #$02		; E77B  $A9 $02
+	STA palette_BG31	; E77D  $8D $CE $03
+	LDA #$30		; E780  $A9 $30
+	STA palette_BG32	; E782  $8D $CF $03
+	RTS			; E785  $60
 ; End of Set_palette_BG3_buf
 
 ; Name	: Init_OAM_palettes
@@ -5727,11 +5731,12 @@ E7A2:
 E7A9:
     JSR $E7D4                ; E7A9  $20 $D4 $E7
 L3E7AC:
-    JSR $EAAC                ; E7AC  $20 $AC $EA
-    LDA $57                  ; E7AF  $A5 $57
-    JSR Swap_PRG_               ; E7B1  $20 $03 $FE
-    CLC                      ; E7B4  $18
-    RTS                      ; E7B5  $60
+	JSR $EAAC		; E7AC  $20 $AC $EA
+	LDA bank		; E7AF  $A5 $57
+	JSR Swap_PRG_		; E7B1  $20 $03 $FE
+	CLC			; E7B4  $18
+	RTS			; E7B5  $60
+; End of
 
 
     LDA $1C                  ; E7B6  $A5 $1C
@@ -6838,45 +6843,48 @@ EE51:
     STA $55                  ; EE5D  $85 $55
     RTS                      ; EE5F  $60
 
+; Name	:
+; Marks	: Calcurate window, remove text buffer ??
 ;; sub start ;;
     LDA #$08                 ; EE60  $A9 $08
     BNE L3EE66               ; EE62  $D0 $02
 L3EE64:
-    LDA #$1C                 ; EE64  $A9 $1C
+	LDA #$1C		; EE64  $A9 $1C		character name input window center top ??
 L3EE66:
-    STA $3D                  ; EE66  $85 $3D
-    LDA #$1B                 ; EE68  $A9 $1B
-    STA $39                  ; EE6A  $85 $39
-    STA $3B                  ; EE6C  $85 $3B
-    LDA #$00                 ; EE6E  $A9 $00
-    STA $38                  ; EE70  $85 $38
-    LDA #$20                 ; EE72  $A9 $20
-    STA $3C                  ; EE74  $85 $3C
-    LDA $3D                  ; EE76  $A5 $3D
-    LSR A                    ; EE78  $4A
+	STA menu_win_H		; EE66  $85 $3D
+	LDA #$1B		; EE68  $A9 $1B
+	STA text_win_T		; EE6A  $85 $39
+	STA text_y		; EE6C  $85 $3B
+	LDA #$00		; EE6E  $A9 $00
+	STA text_win_L		; EE70  $85 $38
+	LDA #$20		; EE72  $A9 $20
+	STA menu_win_W		; EE74  $85 $3C
+	LDA menu_win_H		; EE76  $A5 $3D
+	LSR A			; EE78  $4A
 L3EE79:
-    PHA                      ; EE79  $48
-    LDA $3C                  ; EE7A  $A5 $3C
-	STA text_x_offset	; EE7C  $85 $90
-    STA $91                  ; EE7E  $85 $91
-    LDY #$1F                 ; EE80  $A0 $1F
-    LDA #$00                 ; EE82  $A9 $00
+	PHA			; EE79  $48
+	LDA menu_win_W		; EE7A  $A5 $3C
+	STA text_x_offset	; EE7C  $85 $90		??
+	STA $91			; EE7E  $85 $91
+ 	LDY #$1F		; EE80  $A0 $1F
+	LDA #$00		; EE82  $A9 $00
 L3EE84:
-    STA $0780,Y              ; EE84  $99 $80 $07
-    STA $07A0,Y              ; EE87  $99 $A0 $07
-    DEY                      ; EE8A  $88
-    BPL L3EE84               ; EE8B  $10 $F7
-    JSR Frame_end		; JSR $F053                ; EE8D  $20 $53 $F0
-    LDA $3B                  ; EE90  $A5 $3B
-    SEC                      ; EE92  $38
-    SBC #$04                 ; EE93  $E9 $04
-    STA $3B                  ; EE95  $85 $3B
-    PLA                      ; EE97  $68
-    SEC                      ; EE98  $38
-    SBC #$01                 ; EE99  $E9 $01
-    BNE L3EE79               ; EE9B  $D0 $DC
-    LDA $57                  ; EE9D  $A5 $57
-    JMP Swap_PRG_               ; EE9F  $4C $03 $FE
+	STA $0780,Y		; EE84  $99 $80 $07	text buffer ??
+	STA $07A0,Y		; EE87  $99 $A0 $07
+	DEY			; EE8A  $88
+	BPL L3EE84		; EE8B  $10 $F7
+	JSR Frame_end		; EE8D  $20 $53 $F0
+	LDA text_y		; EE90  $A5 $3B
+	SEC			; EE92  $38
+	SBC #$04		; EE93  $E9 $04
+	STA text_y		; EE95  $85 $3B
+	PLA			; EE97  $68
+	SEC			; EE98  $38
+	SBC #$01		; EE99  $E9 $01
+	BNE L3EE79		; EE9B  $D0 $DC		loop -> remove text/window on screen ??
+	LDA bank		; EE9D  $A5 $57
+	JMP Swap_PRG_		; EE9F  $4C $03 $FE
+; End of
 
  ;data block---
 ; Title story position ??
@@ -7453,7 +7461,7 @@ L3F346:
     LDA #$88                 ; F36B  $A9 $88
     STA $FF                  ; F36D  $85 $FF
     STA PpuControl_2000      ; F36F  $8D $00 $20
-    JSR Init_ICON		; JSR $E5CE                ; F372  $20 $CE $E5
+	JSR Init_tile		; F372  $20 $CE $E5
     JSR Clear_Nametable0	; JSR $F321                ; F375  $20 $21 $F3
     JSR $F427                ; F378  $20 $27 $F4
     LDA #$0F                 ; F37B  $A9 $0F
@@ -8937,13 +8945,22 @@ FF97:
     RTS                      ; FF9F  $60
 
  ;data block---
-;; [FFA0 : 3FFB0]
+;; [FFA0 : 3FFAF]
 .byte $0F,$0F,$0F,$00,$0F,$00,$10,$0F,$10,$30,$0F,$30,$00,$00,$00,$00
-;; [FFB0 : 3FFC0]
-.byte $A9,$00,$20,$03,$FE,$20,$09,$9C,$A9,$0E,$4C,$03,$FE,$00,$00,$00
-;; [FFC0 : 3FFD0]
+; Name	: Init_variables
+; Marks	: Swap to bank_00(map) and Init variables
+Init_variables:
+	LDA #$00		; FFB0	$A9 $00
+	JSR Swap_PRG_		; FFB2	$20 $03 $FE
+	JSR Init_var		; FFB5	$20 $09 $9C
+	LDA #$0E		; FFB8	$A9 $0E
+	JMP Swap_PRG_		; FFBA	$4C $03 $FE
+; End of Init_variables
+;; [FFBD : 3FFBF]
+.byte $00,$00,$00
+;; [FFC0 : 3FFCF]
 .byte $A9,$01,$20,$03,$FE,$20,$B0,$BF,$A9,$09,$4C,$03,$FE,$00,$00,$00
-;; [FFD0 : 3FFE0]
+;; [FFD0 : 3FFDF]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ; ========== system code ($FE00-$FFDF) END ==========
 

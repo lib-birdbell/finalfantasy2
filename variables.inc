@@ -158,6 +158,7 @@ frame_cnt_H	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every tim
 skip_intro	   = $FA	; $77 is already saw the logo screen, else is Show logo screen.
 
 ppu_con_p		= $FD
+ppu_mask		= $FE
 ppu_con_c		= $FF
 
 palette_UBGC	   = $03C0
@@ -200,6 +201,8 @@ textwin_attr		= $07F0
 
 ;; ========== WORK RAM ==========
 
+_6000_base_stat		= $6000
+msg_spd			= $601F
 ; 00h: hidden, 01h: caaught, 02h: riding??, 80h: running away
 ;chocobo_stat		= $6008
 ;chocobo_x		= $6009
@@ -208,9 +211,19 @@ chocobo_x_		= $623E
 chocobo_y_		= $623F
 
 
+; 20h=256bit
+treasure_sw		= $6020
+; 20h=256bit
+; $6040-$604B(00-5F=96bit): npc with say/learn/item dialogue
+; $604C-$6057(60-BF=96bit): npcs with dialogue only
+; $6058-$605B(C0-DF=32bit): shop/ferry/inn/revive npcs
+; $605C-$605F(E0-FF=32bit): event switches
+event_npc_sw		= $6040
+;inventory		= $6060
+acq_keyword		= $6080
 
-
-
+; saved guest character name ($6276-$627B)
+sav_guest_name		= $6276
 
 ;; ========== SAVE RAM START ==========
 
@@ -284,7 +297,7 @@ ch_id                    = ch_stats + $00 ; portrait and sprite; high bit set = 
 ;	07 = Ricard
 ;	08 = Leon
 
-ch_ailments              = ch_stats + $01
+ch_status              = ch_stats + $01
 ;	01 = Blind
 ;	02 = 
 ;	04 = Venom
@@ -294,6 +307,7 @@ ch_ailments              = ch_stats + $01
 ;	40 = Stone
 ;	80 = Dead 
 
+ch_names		= $6102
 ch_name1		= ch_stats + $02 ; 6 bytes
 ch_name2		= ch_stats + $03
 ch_name3		= ch_stats + $04
@@ -338,6 +352,10 @@ ch_unknown4              = ch_stats + $2E
 ch_unknown5              = ch_stats + $2F
 ch_spells                = ch_stats + $30 ; saved as item ID
 
+ch_skills_1		= ch_stats + $0100
+ch_skills_2		= ch_stats + $0140
+ch_skills_3		= ch_stats + $0180
+ch_skills_4		= ch_stats + $01C0
 ch_skills                = ch_stats + $0100 ; $40 per character
 unarmed_level            = ch_skills + $00
 unarmed_exp              = ch_skills + $01

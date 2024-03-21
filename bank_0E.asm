@@ -1,15 +1,17 @@
 .include "Constants.inc"
 .include "variables.inc"
 
-.import	Init_Page2
+.import	Init_Page2		;C46E
 .import Check_savefile		;DAC1
 .import SndE_cur_sel		;DB2E
 .import SndE_cur_mov		;DB45
 .import Get_key			;DBA9
 .import Palette_copy		;DC30
 .import	Set_cursor		;DEA1
+.import Init_CHR_RAM		;E491		
 .import Clear_Nametable0	;F321
 .import Wait_NMI		;FE00
+.import	Init_variables		;FFB0
 
 
 .segment "BANK_0E"
@@ -244,23 +246,121 @@
 .byte $84,$85,$40,$A9,$0F,$85,$41,$20,$52,$88,$A2,$80,$A9,$24,$85,$40
 .byte $A9,$5F,$85,$41,$20,$52,$88,$A2,$C0,$A9,$94,$85,$40,$A9,$5F,$85
 .byte $41,$D0,$1F,$A9,$0F,$85,$41,$A9,$64,$85,$40,$D0,$15,$A9,$14,$85
-.byte $40,$A9,$0F,$85,$41,$D0,$0B,$A9,$44,$85,$40,$A9,$1F,$85,$41,$D0
-.byte $06,$60,$BD,$35,$62,$30,$FA,$A0,$0B,$BD,$01,$61,$0A,$B0,$0E,$88
-.byte $0A,$B0,$0A,$88,$0A,$B0,$06,$BD,$00,$61,$29,$0F,$A8,$B9,$0B,$89
-.byte $85,$80,$BD,$01,$61,$29,$A0,$F0,$0C,$29,$80,$F0,$04,$A9,$3C,$D0
-.byte $0C,$A9,$30,$D0,$08,$8A,$0A,$2A,$2A,$AA,$BD,$17,$89,$85,$82,$A6
-.byte $26,$A5,$40,$9D,$03,$02,$9D,$0F,$02,$9D,$1B,$02,$9D,$27,$02,$18
-.byte $69,$08,$9D,$07,$02,$9D,$13,$02,$9D,$1F,$02,$9D,$2B,$02,$18,$69
-.byte $08,$9D,$0B,$02,$9D,$17,$02,$9D,$23,$02,$9D,$2F,$02,$A5,$41,$9D
-.byte $00,$02,$9D,$04,$02,$9D,$08,$02,$18,$69,$08,$9D,$0C,$02,$9D,$10
-.byte $02,$9D,$14,$02,$18,$69,$08,$9D,$18,$02,$9D,$1C,$02,$9D,$20,$02
-.byte $18,$69,$08,$9D,$24,$02,$9D,$28,$02,$9D,$2C,$02,$A0,$00,$98,$18
-.byte $65,$82,$9D,$01,$02,$A5,$80,$9D,$02,$02,$E8,$E8,$E8,$E8,$C8,$C0
+.byte $40,$A9,$0F,$85,$41,$D0,$0B
+; Name	:
+; Marks	:
+	LDA #$44		; 8847	$A9 $44
+	STA $40			; 8849	$85 $40
+	LDA #$1F		; 884B	$A9 $1F
+	STA $41			; 884D	$85 $41
+	BNE L38857		; 884F	$D0 $06		must go to ??
+	RTS			; 8851	$60
+; End of
+.byte $BD,$35,$62,$30,$FA
+; X	:
+; Marks	:
+;	  OAM copy to buffer ?? Set character potrait ??
+L38857:
+	LDY #$0B		; 8857	$A0 $0B
+	LDA $6101,X		; 8859	$BD $01 $61
+	ASL A			; 885C	$0A
+	BCS L3886D		; 885D	$B0 $0E
+	DEY			; 885F	$88
+	ASL A			; 8860	$0A
+	BCS L3886D		; 8861	$B0 $0A
+	DEY			; 8863	$88
+	ASL A			; 8864	$0A
+	BCS L3886D		; 8865	$B0 $06
+	LDA ch_stats,X		; 8867	$BD $00 $61
+	AND #$0F		; 886A	$29 $0F		character ID(00h) to max mp(0Fh)
+	TAY			; 886C	$A8
+L3886D:
+	LDA $890B,Y		; 886D	$B9 $0B $89
+	STA cur_oam_tbl		; 8870	$85 $80
+	LDA $6101,X		; 8872	$BD $01 $61	character status ??
+	AND #$A0		; 8875	$29 $A0
+	BEQ L38885		; 8877	$F0 $0C
+	AND #$80		; 8879	$29 $80
+	BEQ L38881		; 887B	$F0 $04
+	LDA #$3C		; 887D	$A9 $3C
+	BNE L3888D		; 887F	$D0 $0C
+L38881:
+	LDA #$30		; 8881	$A9 $30
+	BNE L3888D		; 8883	$D0 $08
+L38885:
+	TXA			; 8885	$8A
+	ASL A			; 8886	$0A
+	ROL A			; 8887	$2A
+	ROL A			; 8888	$2A
+	TAX			; 8889	$AA
+	LDA $8917,X		; 888A	$BD $17 $89
+L3888D:
+	STA cur_idx_base	; 888D	$85 $82
+	LDX $26			; 888F	$A6 $26
+	LDA oam_x		; 8891	$A5 $40
+	STA $0203,X		; 8893	$9D $03 $02	X
+	STA $020F,X		; 8896	$9D $0F $02
+	STA $021B,X		; 8899	$9D $1B $02
+	STA $0227,X		; 889C	$9D $27 $02
+	CLC			; 889F	$18
+	ADC #$08		; 88A0	$69 $08
+	STA $0207,X		; 88A2	$9D $07 $02
+	STA $0213,X		; 88A5	$9D $13 $02
+	STA $021F,X		; 88A8	$9D $1F $02
+	STA $022B,X		; 88AB	$9D $2B $02
+	CLC			; 88AE	$18
+	ADC #$08		; 88AF	$69 $08
+	STA $020B,X		; 88B1	$9D $0B $02
+	STA $0217,X		; 88B4	$9D $17 $02
+	STA $0223,X		; 88B7	$9D $23 $02
+	STA $022F,X		; 88BA	$9D $2F $02
+	LDA oam_y		; 88BD	$A5 $41
+	STA $0200,X		; 88BF	$9D $00 $02	Y
+	STA $0204,X		; 88C2	$9D $04 $02
+	STA $0208,X		; 88C5	$9D $08 $02
+	CLC			; 88C8	$18
+	ADC #$08		; 88C9	$69 $08
+	STA $020C,X		; 88CB	$9D $0C $02
+	STA $0210,X		; 88CE	$9D $10 $02
+	STA $0214,X		; 88D1	$9D $14 $02
+	CLC			; 88D4	$18
+	ADC #$08		; 88D5	$69 $08          
+	STA $0218,X		; 88D7	$9D $18 $02       
+	STA $021C,X		; 88DA	$9D $1C $02       
+	STA $0220,X		; 88DD	$9D $20 $02       
+	CLC			; 88E0	$18
+	ADC #$08		; 88E1	$69 $08
+	STA $0224,X		; 88E3	$9D $24 $02
+	STA $0228,X		; 88E6	$9D $28 $02
+	STA $022C,X		; 88E9	$9D $2C $02
+	LDY #$00		; 88EC	$A0 $00          
+L388EE:
+	TYA			; 88EE	$98
+	CLC			; 88EF	$18
+	ADC cur_idx_base	; 88F0	$65 $82
+	STA $0201,X		; 88F2	$9D $01 $02	INDEX
+	LDA cur_oam_tbl		; 88F5	$A5 $80
+	STA $0202,X		; 88F7	$9D $02 $02	ATTR
+	INX			; 88FA	$E8
+	INX			; 88FB	$E8
+	INX			; 88FC	$E8
+	INX			; 88FD	$E8
+	INY			; 88FE	$C8
+	CPY #$0C		; 88FF	$C0 $0C
+	BCC L388EE		; 8901	$90 $EB		loop
+	LDA $26			; 8903	$A5 $26
+	CLC			; 8905	$18
+	ADC #$30		; 8906	$69 $30          
+	STA $26			; 8908	$85 $26          
+	RTS			; 890A	$60
+; End of
 
-;; [$8900 :: 0x38900]
-
-.byte $0C,$90,$EB,$A5,$26,$18,$69,$30,$85,$26,$60,$02,$00,$01,$01,$01
-.byte $02,$00,$00,$01,$01,$03,$01,$00,$0C,$18,$24,$30,$3C,$48,$54,$60
+; data block---
+; [$890B- cur_oam_tbl
+.byte $02,$00,$01,$01,$01
+.byte $02,$00,$00,$01,$01,$03,$01
+; [$8917- cur_idx_base
+.byte $00,$0C,$18,$24,$30,$3C,$48,$54,$60
 .byte $6C,$78,$84,$90,$48,$38,$E9,$20,$AA,$C9,$10,$90,$15,$E9,$10,$0A
 .byte $AA,$18,$65,$67,$AA,$BD,$01,$62,$85,$81,$BD,$00,$62,$85,$80,$4C
 .byte $53,$89,$BD,$A5,$89,$18,$65,$67,$AA,$BD,$00,$61,$85,$80,$BD,$01
@@ -372,19 +472,19 @@
 ;	  key udlr($A1)
 ; Marks	: Init var and bank set to #$0E
 Get_udlr:
-	LDA #$00		; 8EB6 $A9 $00
-	STA a_pressing		; 8EB8 $85 $24
-	STA b_pressing		; 8EB8 $85 $25
-	STA player_mv_timer	; 8EB8 $85 $47
-	STA $A3			; 8EB8 $85 $A3
-	STA $A4			; 8EB8 $85 $A4
-	JSR Get_key		; 8EC2 $20 $A9 $DB
-	LDA key1p		; 8EC5 $A5 $20
-	AND #$0F		; 8EC7 $29 $0F
-	STA $A1			; 8EC9 $85 $A1		; key udlr
-	LDA #$0E		; 8ECB $A9 $0E
-	STA bank		; 8ECD $85 $57
-	RTS			; 8ECF
+	LDA #$00		; 8EB6	$A9 $00
+	STA a_pressing		; 8EB8	$85 $24
+	STA b_pressing		; 8EB8	$85 $25
+	STA player_mv_timer	; 8EB8	$85 $47
+	STA $A3			; 8EB8	$85 $A3
+	STA $A4			; 8EB8	$85 $A4
+	JSR Get_key		; 8EC2	$20 $A9 $DB
+	LDA key1p		; 8EC5	$A5 $20
+	AND #$0F		; 8EC7	$29 $0F
+	STA $A1			; 8EC9	$85 $A1		; key udlr
+	LDA #$0E		; 8ECB	$A9 $0E
+	STA bank		; 8ECD	$85 $57
+	RTS			; 8ECF	$60
 ; End of Get_udlr
 
 .byte $C9,$E0,$90,$01,$60,$C9,$DC,$90,$16,$D0,$03,$4C,$00,$8E,$C9,$DD
@@ -787,7 +887,7 @@ L395E7:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: cursor ??
 	LDA $A2			; 9652	$A5 $A2
 	BNE L39657		; 9654	$D0 $01		if A != 00h
 	RTS			; 9656	$60
@@ -839,8 +939,9 @@ Cursor:
 ; End of Cursor
 
 ; Name	:
+; Ret	: A(key value ??)
 ; Marks	:
-	JSR $DB5C		; 9693	$20 $5C $DB	event ??
+	JSR $DB5C		; 9693	$20 $5C $DB	event and key check ??
 	LDA key1p		; 9696	$A5 $20
 	AND #$0F		; 9698	$29 $0F
 	BEQ L396A8		; 969A	$F0 $0C
@@ -917,11 +1018,14 @@ L396E9:
 .byte $F0,$1A,$C9,$04,$B0,$04,$A2,$04,$86,$06,$29,$05,$D0,$0F,$AD,$F0
 .byte $79,$38,$E5,$06,$B0,$03,$6D,$F1,$79,$8D,$F0,$79,$60,$AD,$F0,$79
 .byte $18,$65,$06,$CD,$F1,$79,$90,$F1,$ED,$F1,$79,$B0,$EC
+; Name	:
+; A	:
+; Marks	:
 	STA $05			; 972D	$85 $05
 	STA $06			; 972F	$85 $06
-	JSR $9693		; 9731	$20 $93 $96
+	JSR $9693		; 9731	$20 $93 $96	event? key check
 	AND #$0F		; 9734	$29 $0F
-	BEQ L39760		; 9736	$F0 $28
+	BEQ L39760		; 9736	$F0 $28		if pad not pressing
 	CMP #$04		; 9738	$C9 $04
 	BCS L39740		; 973A	$B0 $04
 	LDX #$04		; 973C	$A2 $04
@@ -940,7 +1044,7 @@ L39740:
 L3975D:
 	STA $7AF0		; 975D	$8D $F0 $7A
 L39760:
-	RTS			; 975F	$60
+	RTS			; 9760	$60
 ; End of
 L39761:
 	LDA $7AF0		; 9761	$AD $F0 $7A
@@ -1558,7 +1662,7 @@ L3A313:
 .byte $6E,$1D,$99,$B1,$AA,$BD,$00,$61,$C9,$10,$B0,$03,$4C,$67,$DE,$AD
 .byte $F0,$79,$4A,$4A,$AA,$A5,$6E,$1D,$99,$B1,$AA,$A5,$80,$9D,$00,$61
 
-;; [$8000 :: 0x3B110]
+;; [$B100 :: 0x3B100]
 
 .byte $60,$BD,$03,$7A,$AA,$85,$82,$BD,$60,$60,$85,$80,$F0,$1E,$AD,$F0
 .byte $79,$4A,$4A,$AA,$C9,$05,$B0,$2E,$A5,$80,$DD,$A1,$B1,$90,$24,$DD
@@ -1577,7 +1681,7 @@ L3A313:
 .byte $85,$A3,$A9,$00,$8D,$F0,$79,$20,$60,$EE,$A2,$10,$20,$86,$B4,$A9
 .byte $29,$20,$DF,$B3,$20,$01,$B4,$20,$00,$88,$A9,$04,$20,$F9,$96,$A5
 
-;; [$8000 :: 0x3B210]
+;; [$B200 :: 0x3B200]
 
 .byte $25,$F0,$04,$20,$5E,$90,$60,$A5,$24,$F0,$E9,$20,$5E,$90,$AD,$F0
 .byte $79,$4A,$4A,$29,$03,$48,$20,$C1,$DA,$68,$B0,$46,$48,$20,$C3,$B2
@@ -1596,7 +1700,7 @@ L3A313:
 .byte $8A,$91,$82,$C8,$D0,$F3,$E6,$81,$E6,$83,$A5,$83,$C9,$63,$90,$E9
 .byte $60,$A9,$00,$8D,$01,$20,$20,$FA,$E6,$20,$00,$FE,$A5,$FF,$8D,$00
 
-;; [$8000 :: 0x3B310]
+;; [$B300 :: 0x3B300]
 
 .byte $20,$A9,$00,$8D,$05,$20,$8D,$05,$20,$A9,$1E,$8D,$01,$20,$A9,$02
 .byte $8D,$14,$40,$60,$A2,$80,$BD,$00,$7A,$18,$69,$01,$9D,$00,$79,$BD
@@ -1606,8 +1710,16 @@ L3A313:
 .byte $9D,$02,$78,$BD,$03,$7A,$9D,$03,$78,$8A,$38,$E9,$04,$AA,$B0,$E1
 .byte $AD,$F1,$7A,$38,$E9,$04,$8D,$F1,$78,$60,$A6,$6E,$4C,$33,$88,$A2
 .byte $0F,$A9,$27,$20,$C8,$B3,$A2,$0E,$20,$86,$B4,$A9,$1D,$4C,$DF,$B3
-.byte $20,$6E,$C4,$20,$00,$FE,$A9,$02,$8D,$14,$40,$A9,$00,$8D,$05,$20
-.byte $8D,$05,$20,$4C,$64,$EE
+; Name	:
+; Marks	: Init page2, Copy by DMA, PpuScroll reset
+	JSR Init_Page2		; B380	$20 $6E $C4
+	JSR Wait_NMI		; B383	$20 $00 $FE
+	LDA #$02		; B386	$A9 $02
+	STA SpriteDma_4014	; B388	$8D $14 $40
+	LDA #$00		; B38B	$A9 $00
+	STA PpuScroll_2005	; B38D	$8D $05 $20
+	STA PpuScroll_2005	; B390	$8D $05 $20
+	JMP $EE64		; B393	$4C $64 $EE
 ; Name	:
 ; Marks	:
 	LDX #$00		; B396	$A2 $00
@@ -1634,19 +1746,19 @@ L3A313:
 .byte $85
 .byte $92,$A9,$84,$85,$95,$A9,$00,$85,$94,$A9,$0A,$85,$93,$4C,$54,$EA
 ; Name	:
-; A	:
+; A	: text ID
 ; Marks	:
-	STA $92			; B3F0	$85 $92
+	STA text_ID		; B3F0	$85 $92
 	LDA #$84		; B3F2	$A9 $84
 	STA $95			; B3F4	$85 $95
 	LDA #$00		; B3F6	$A9 $00
-	STA $94			; B3F8	$85 $94
-	LDA #$0A		; B3FA	$A9 $0A
-	STA $93			; B3FC	$85 $93
-	JMP $EA8C		; B3FE	$4C $8C $EA
+	STA text_offset		; B3F8	$85 $94
+	LDA #$0A		; B3FA	$A9 $0A		text 2 bank
+	STA bank_tmp		; B3FC	$85 $93
+	JMP $EA8C		; B3FE	$4C $8C $EA	text process ??
 ; End of
 
-;; [$8000 :: 0x3B400]
+;; [$B400 :: 0x3B400]
 
 .byte $20,$00,$FE,$A9,$02,$8D,$14,$40,$20,$4F,$C7,$20,$6E,$C4,$20
 .byte $52,$96,$20,$63,$96,$4C,$74,$96,$AD,$F0,$79,$18,$69,$04,$CD,$F1
@@ -1655,59 +1767,55 @@ L3A313:
 .byte $F1,$79,$F0,$03,$20,$63,$96,$AD,$F1,$79,$38,$E9,$04,$8D,$F0,$79
 .byte $60
 
-; Name	:
-; Marks	:
+; Name	: 
+; X	: Address Index($B48C, $B4A5, B4BE, B4D7)
+;	  16 = name input character potrait ??
+; Marks	: text_win Left/Top value increase.
+;	  menu_win width -2, menu_win height -2.
 L3B451:
-	; Set some variables
-	JSR Set_win_pos		; B451	$20,$67,$B4
-	INC $38			; B454	$E6 $38
-	INC $39			; B456	$E6 $39
-	LDA $3C			; B458	$A5 $3C
+	JSR Get_win_pos		; B451	$20,$67,$B4
+	INC text_win_L		; B454	$E6 $38
+	INC text_win_T		; B456	$E6 $39
+	LDA menu_win_W		; B458	$A5 $3C
 	SEC			; B45A	$38
 	SBC #$02		; B45B	$E9 $02
-	STA $3C			; B45D	$85 $3C
-	LDA $3D			; B45F	$A5 $3D
+	STA menu_win_W		; B45D	$85 $3C
+	LDA menu_win_H		; B45F	$A5 $3D
 	SEC			; B461	$38
 	SBC #$02		; B462	$E9 $02
-	STA $3D			; B464	$85 $3D
+	STA menu_win_H		; B464	$85 $3D
 	RTS			; B466	$60
 ; End of 
 
-; Name	: Set_win_pos
+; Name	: Get_win_pos
 ; X	: Address Index($B48C, $B4A5, B4BE, B4D7)
-; Marks	: Read data $B48C+X, $B4A5+X, $B4BE+X, $B4D7+X
-;	  And write $38, $97, $39, $98, $3C, $3D
-;	  $B48C,X -> $38
-;		  -1 -> $97
-;	  $B4A5,X -> $39
-;		  +2 -> $98
-;	  $B4BE,X -> $3C
-;	  $B4D7,X -> $3D
-;	  Set text window ??
-;	  $97, $98 = X, Y ??
-Set_win_pos:
+;	  15h = name input ??
+; Marks	: Get text window position(X/Y) and size(width/height)
+;	  text_win_Left -1 -> $97(X temp ??)
+;	  text_win_Top +2 -> $98(Y temp ??)
+Get_win_pos:
 	LDA $B48C,X		; B467	$BD $8C $B4
 	STA text_win_L		; B46A	$85 $38
 	SEC			; B46C	$38
 	SBC #$01		; B46D	$E9 $01
-	STA $97			; B46F	$85 $97
+	STA $97			; B46F	$85 $97		X ??
 	LDA $B4A5,X		; B471	$BD $A5 $B4
 	STA text_win_T		; B474	$85 $39
 	CLC			; B476	$18
 	ADC #$02		; B477	$69 $02
-	STA $98			; B479	$85 $98
+	STA $98			; B479	$85 $98		Y ??
 	LDA $B4BE,X		; B47B	$BD $BE $B4
 	STA menu_win_W		; B47E	$85 $3C
 	LDA $B4D7,X		; B480	$BD $D7 $B4
 	STA menu_win_H		; B483	$85 $3D
 	RTS			; B485	$60
-; End of Set_win_pos
+; End of Get_win_pos
 
 ; Name	:
 ; X	: Text window position INDEX
 ; Marks	:
-	JSR Set_win_pos		; B486	$20 $67 $B4
-	JMP $E91E		; B489	$4C $1E $E9
+	JSR Get_win_pos		; B486	$20 $67 $B4
+	JMP $E91E		; B489	$4C $1E $E9	draw window and text ??
 ; End of
 
 ; [$B48C- text window left position
@@ -1717,116 +1825,230 @@ Set_win_pos:
 ; [$B4A5- text window top position
 .byte $01,$01,$0B,$0B,$15,$19,$01,$04,$01,$01,$01
 .byte $07,$07,$13,$01,$02,$15,$02,$07,$0C,$11,$17,$03,$0B,$01
-; [$B4BE-
+; [$B4BE- menu window width ??
 .byte $0E,$0E
 .byte $0E,$0E,$1E,$0D,$09,$20,$0B,$06,$0F,$1E,$20,$20,$06,$1D,$1E,$18
 .byte $18,$18,$18,$18,$12,$18,$1E
-; [$B4D7-
+; [$B4D7- menu window height ??
 .byte $0A,$0A,$0A,$0A,$04,$04,$04,$18,$06
 .byte $06,$06,$14,$0C,$0A,$06,$1A,$08,$06,$06,$06,$06,$04,$06,$0E,$1C
-.byte $10,$13,$11,$12,$20,$80,$B3,$20,$B6,$8E,$A9,$00,$8D,$F0,$7A,$A2
+; [$B4F0- character order - character name select order(10h=firion,13h=leon,11h=maria,12h=guy)
+.byte $10,$13,$11,$12
 
-;; [$8000 :: 0x3B510]
-
-.byte $17,$20,$86,$B4,$A9,$46,$20,$F0,$B3,$20,$EB,$94,$A9,$01,$85,$A4
-.byte $A2,$16,$20,$86,$B4,$A9,$00,$85,$07,$85,$08
-L3B51B:
-	JSR $B53B		; B51B	$20 $3B $B5
-	BCC L3B52E		; B51E	$90 $0E
-	LDA $07			; B520	$A5 $07
+char_num_tmp	= $07
+name_num_tmp	= $08
+char_offset_tmp	= $6E
+.DEFINE MAX_CHAR_LEN	#$04
+.DEFINE	MAX_NAME_LEN	#$06
+; Name	: Char_name_sel
+; Marks	: character_name_select
+Char_name_sel:
+	JSR $B380		; B4F4	$20 $80 $B3	remove screen for next page(input name)
+	JSR Get_udlr		; B4F7	$20 $B6 $8E
+	LDA #$00		; B4FA	$A9 $00
+	STA $7AF0		; B4FC	$8D $F0 $7A	current cursor position
+	LDX #$17		; B4FF	$A2 $17
+	JSR $B486		; B501	$20 $86 $B4	draw window ?? -> letters window ??
+	LDA #$46		; B504	$A9 $46		text_ID = 46h
+	JSR $B3F0		; B506	$20 $F0 $B3	draw letters for input character name
+	JSR $94EB		; B509	$20 $EB $94	save window variables
+	LDA #$01		; B50C	$A9 $01
+	STA $A4			; B50E	$85 $A4
+	LDX #$16		; B510	$A2 $16
+	JSR $B486		; B512	$20 $86 $B4	set window position ?? -> character potrait window
+	LDA #$00		; B515	$A9 $00
+	STA char_num_tmp	; B517	$85 $07
+	STA name_num_tmp	; B519	$85 $08
+CNS_input_name:
+	JSR Input_char_name_proc; B51B	$20 $3B $B5	input character name process
+	BCC CNS_next_char	; B51E	$90 $0E		next character
+	LDA char_num_tmp	; B520	$A5 $07
 	CMP #$01		; B522	$C9 $01
-	BCC L3B51B		; B524	$90 $F5
+	BCC CNS_input_name	; B524	$90 $F5		if first character ??
 	SEC			; B526	$38
-.byte $E9,$01,$85,$07,$4C,$1B,$B5
-L3B52E:
-	LDA $07			; B52E	$A5 $07
+	SBC #$01		; B527	$E9 $01
+	STA char_num_tmp	; B529	$85 $07
+	JMP CNS_input_name	; B52B	$4C $1B $B5	loop
+CNS_next_char:
+	LDA char_num_tmp	; B52E	$A5 $07
 	CLC			; B530	$18
 	ADC #$01		; B531	$69 $01
-	STA $07			; B533	$85 $07
-	CMP #$04		; B535	$C9 $04
-	BCC L3B51B		; B537	$90 $E2
+	STA char_num_tmp	; B533	$85 $07
+	CMP MAX_CHAR_LEN	; B535	$C9 $04
+	BCC CNS_input_name	; B537	$90 $E2		if next character exist
 	CLC			; B539	$18
 	RTS			; B53A	$60
-; End of
-.byte $A6,$07,$BD,$F0,$B4
-.byte $85,$9E,$29,$03,$4A,$6A,$6A,$85,$6E,$20,$09,$B6
-L3B54C:
-	JSR $FE00		; B54C	$20 $00 $FE
+; End of Char_name_sel
+
+; Name	: Input_char_name_proc
+; Ret	: Carry(Clear = next character, Set = Last character)
+; Marks	: input char name process
+Input_char_name_proc:
+	LDX char_num_tmp	; B53B	$A6 $07
+	LDA $B4F0,X		; B53D	$BD $F0 $B4
+	STA $9E			; B540	$85 $9E		character order
+	AND #$03		; B542	$29 $03
+	LSR A			; B544	$4A
+	ROR A			; B545	$6A
+	ROR A			; B546	$6A
+	STA char_offset_tmp	; B547	$85 $6E
+	JSR $B609		; B549	$20 $09 $B6
+ICN_LOOP:
+	JSR Wait_NMI		; B54C	$20 $00 $FE
 	LDA #$02		; B54F	$A9 $02
 	STA SpriteDma_4014	; B551	$8D $14 $40
-	JSR $C46E		; B554	$20 $6E $C4
-	JSR $C74F		; B557	$20 $4F $C7
-	JSR $9674		; B55A	$20 $74 $96
-	LDX $6E			; B55D	$A6 $6E
-	JSR $8847		; B55F	$20 $47 $88
-	JSR $B616		; B562	$20 $16 $B6
+	JSR Init_Page2		; B554	$20 $6E $C4
+	JSR $C74F		; B557	$20 $4F $C7	sound ??
+	JSR $9674		; B55A	$20 $74 $96	up ?? D2 ??
+	LDX char_offset_tmp	; B55D	$A6 $6E
+	JSR $8847		; B55F	$20 $47 $88	Set character potrait to OAM buffer($0200-) ??
+	JSR $B616		; B562	$20 $16 $B6	Set character letter to OAM buffer($0240-) ??
 	LDA #$28		; B565	$A9 $28
-	JSR $972D		; B567	$20 $2D $97
-	LDA $25			; B56A	$A5 $25
-	BEQ L3B580		; B56C	$F0 $12
-	JSR KeyRst_SndE	; B56E	$20 $5E $90
-.byte $A5,$08,$38,$E9,$01,$85,$08,$10,$D2,$A9,$05,$85,$08,$38,$60
-L3B580:
-	LDA $24			; B580	$A5 $24
-	BEQ L3B54C		; B582	$F0 $C8
-	; Some var init
-	JSR KeyRst_SndE	; B584	$20 $5E $90
-	LDA $08			; B587	$A5 $08
-	CMP #$06		; B589	$C9 $06
-	BCC L3B593		; B58B	$90 $06
+	JSR $972D		; B567	$20 $2D $97	key check(pad) ??
+	LDA b_pressing		; B56A	$A5 $25
+	BEQ ICN_chk_a		; B56C	$F0 $12		if not b key pressing
+	JSR KeyRst_SndE		; B56E	$20 $5E $90	b pressing
+	LDA name_num_tmp	; B571	$A5 $08
+	SEC			; B573	$38
+	SBC #$01		; B574	$E9 $01
+	STA name_num_tmp	; B576	$85 $08
+	BPL ICN_LOOP		; B578	$10 $D2		LOOP [input character name] - back and continue input name
+	LDA #$05		; B57A	$A9 $05
+	STA name_num_tmp	; B57C	$85 $08
+	SEC			; B57E	$38
+	RTS			; B57F	$60
+; End of Input_char_name_proc
+ICN_chk_a:
+	LDA a_pressing		; B580	$A5 $24
+	BEQ ICN_LOOP		; B582	$F0 $C8		LOOP [input character name] - if not a pressing
+	JSR KeyRst_SndE		; B584	$20 $5E $90
+	LDA name_num_tmp	; B587	$A5 $08
+	CMP MAX_NAME_LEN	; B589	$C9 $06
+	BCC ICN_next		; B58B	$90 $06		if entering more letters
 	LDA #$00		; B58D	$A9 $00
-	STA $08			; B58F	$85 $08
+	STA name_num_tmp	; B58F	$85 $08
 	CLC			; B591	$18
 	RTS			; B592	$60
-; End of
-L3B593:
-	LDA $08			; B593	$A5 $08
-	ORA $6E			; B595	$05 $6E
+; End of Input_char_name_proc
+ICN_next:
+	LDA name_num_tmp	; B593	$A5 $08
+	ORA char_offset_tmp	; B595	$05 $6E
 	TAY			; B597	$A8
 	LDX $7AF0		; B598	$AE $F0 $7A
 	LDA $7A02,X		; B59B	$BD $02 $7A
-	STA $6102,Y		; B59E	$99 $02 $61
-	INC $08			; B5A1	$E6 $08
-	JSR $B609		; B5A3	$20 $09 $B6
-	LDA $08			; B5A6	$A5 $08
-	CMP #$06		; B5A8	$C9 $06
-	BCS L3B5AF		; B5AA	$B0 $03
-L3B5AC:
-	JMP L3B54C		; B5AC	$4C $4C $B5
+	STA ch_names,Y		; B59E	$99 $02 $61
+	INC name_num_tmp	; B5A1	$E6 $08
+	JSR $B609		; B5A3	$20 $09 $B6	letter ?? blink ??
+	LDA name_num_tmp	; B5A6	$A5 $08
+	CMP MAX_NAME_LEN	; B5A8	$C9 $06
+	BCS ICN_name_cmp	; B5AA	$B0 $03		if last letter
+ICN_loop:
+	JMP ICN_LOOP		; B5AC	$4C $4C $B5	LOOP [input character name] - next letter
+
+ICN_name_cmp:
+	LDA char_num_tmp	; B5AF	$A5 $07
+	BEQ ICN_loop		; B5B1	$F0 $F9		if first character
+	CMP #$01		; B5B3	$C9 $01
+	BEQ ICN_name_cmp2	; B5B5	$F0 $12		if 2nd character(leon)
+	CMP #$02		; B5B7	$C9 $02
+	BEQ ICN_name_cmp3	; B5B9	$F0 $07		if 3rd character(maria)
+	LDY char_offset_tmp	; B5BB	$A4 $6E
+	LDX #$40		; B5BD	$A2 $40		3rd character(maria)
+	JSR Namecmp		; B5BF	$20 $D3 $B5
+ICN_name_cmp3:
+	LDY char_offset_tmp	; B5C2	$A4 $6E
+	LDX #$C0		; B5C4	$A2 $C0		2nd character(leon)
+	JSR Namecmp		; B5C6	$20 $D3 $B5
+ICN_name_cmp2:
+	LDY char_offset_tmp	; B5C9	$A4 $6E
+	LDX #$00		; B5CB	$A2 $00		1st character(firion)
+	JSR Namecmp		; B5CD	$20 $D3 $B5
+	JMP ICN_LOOP		; B5D0	$4C $4C $B5	LOOP [input character name] - continue
+
+; Name	: Namecmp
+; X	: base name
+; Y	: comparison target
+; Marks	: Cannot allow duplicated name
+;	  In case of duplicate names, name number decrease
+Namecmp:
+	LDA ch_names,Y		; B5D3	$B9 $02 $61
+	CMP ch_names,X		; B5D6	$DD $02 $61
+	BNE L3B608		; B5D9	$D0 $2D
+	LDA $6103,Y		; B5DB	$B9 $03 $61
+	CMP $6103,X		; B5DE	$DD $03 $61
+	BNE L3B608		; B5E1	$D0 $25
+	LDA $6104,Y		; B5E3	$B9 $04 $61
+	CMP $6104,X		; B5E6	$DD $04 $61
+	BNE L3B608		; B5E9	$D0 $1D
+	LDA $6105,Y		; B5EB	$B9 $05 $61
+	CMP $6105,X		; B5EE	$DD $05 $61
+	BNE L3B608		; B5F1	$D0 $15
+	LDA $6106,Y		; B5F3	$B9 $06 $61
+	CMP $6106,X		; B5F6	$DD $06 $61
+	BNE L3B608		; B5F9	$D0 $0D
+	LDA $6107,Y		; B5FB	$B9 $07 $61
+	CMP $6107,X		; B5FE	$DD $07 $61
+	BNE L3B608		; B601	$D0 $05
+	DEC name_num_tmp	; B603	$C6 $08		in case of duplicate names
+	JSR $DE67		; B605	$20 $67 $DE	sound effect ?? - caution
+L3B608:
+	RTS			; B608	$60
+; End of Namecmp
+
+; Name	:
+; Marks	: letter on input name ??
+	LDX #$16		; B609	$A2 $16
+	JSR $B451		; B60B	$20 $51 $B4	text/menu calcuration
+	LDA #$45		; B60E	$A9,$45
+	JSR $DAF1		; B610	$20 $F1 $DA	check text ??
+	JMP $B881		; B613	$4C $81 $B8	text copy ??
 ; End of
-L3B5AF:
-	LDA $07			; B5AF	$A5 $07
-	BEQ L3B5AC		; B5B1	$F0 $F9
-.byte $C9,$01,$F0,$12,$C9,$02,$F0,$07,$A4,$6E,$A2,$40,$20
-.byte $D3,$B5,$A4,$6E,$A2,$C0,$20,$D3,$B5,$A4,$6E,$A2,$00,$20,$D3,$B5
-.byte $4C,$4C,$B5,$B9,$02,$61,$DD,$02,$61,$D0,$2D,$B9,$03,$61,$DD,$03
-.byte $61,$D0,$25,$B9,$04,$61,$DD,$04,$61,$D0,$1D,$B9,$05,$61,$DD,$05
-.byte $61,$D0,$15,$B9,$06,$61,$DD,$06,$61,$D0,$0D,$B9,$07,$61,$DD,$07
 
-;; [$8000 :: 0x3B610]
-
-.byte $61,$D0,$05,$C6,$08,$20,$67,$DE,$60,$A2,$16,$20,$51,$B4,$A9,$45
-.byte $20,$F1,$DA,$4C,$81,$B8,$E6,$F0,$A5,$08,$C9,$06,$90,$01,$60,$A5
-.byte $F0,$29,$08,$D0,$F9,$A6,$26,$A9,$27,$9D,$00,$02,$A9,$48,$9D,$01
-.byte $02,$A9,$03,$9D,$02,$02,$A5,$08,$0A,$0A,$0A,$18,$69,$78,$9D,$03
-.byte $02,$60
+; Name	:
+; Marks	:
+	INC frame_cnt_L		; B616	$E6 $F0
+	LDA name_num_tmp	; B618	$A5 $08
+	CMP MAX_NAME_LEN	; B61A	$C9 $06
+	BCC L3B61F		; B61C	$90 $01
+L3B61E:
+	RTS			; B61E	$60
+; End of
+L3B61F:
+	LDA $F0			; B61F	$A5 $F0
+	AND #$08		; B621	$29 $08
+	BNE L3B61E		; B623	$D0 $F9
+	LDX $26			; B625	$A6 $26
+	LDA #$27		; B627	$A9 $27
+	STA $0200,X		; B629	$9D $00 $02	Y
+	LDA #$48		; B62C	$A9 $48
+	STA $0201,X		; B62E	$9D $01 $02	INDEX
+	LDA #$03		; B631	$A9 $03
+	STA $0202,X		; B633	$9D $02 $02	ATTR
+	LDA $08			; B636	$A5 $08
+	ASL A			; B638	$0A
+	ASL A			; B639	$0A
+	ASL A			; B63A	$0A
+	CLC			; B63B	$18
+	ADC #$78		; B63C	$69 $78
+	STA $0203,X		; B63E	$9D $03 $02	X
+	RTS			; B641	$60
+; End of
 
 ; Name	:
 ; Makrs	:
-;	  Almost begin - after title story end
+;	  Almost begin - after title story end -> savefile select ??
 	LDA #$00		; B642	$A9 $00
-	STA PpuMask_2001
-	STA ApuStatus_4015
-	LDA #$05
-	STA $08
-	JSR $FFB0
+	STA PpuMask_2001	; B644	$8D $01 $20	PPU disable
+	STA ApuStatus_4015	; B647	$8D $15 $40	APU disable
+	LDA #$05		; B64A	$A9 $05
+	STA $08			; B64C	$85 $08
+	JSR Init_variables	; B64E	$20 $B0 $FF	Init_variables
 	LDA #$08		; B651	$A9 $08
-	STA $61C0		; B653	$8D $C0 $61
-	JSR $E491		; B656	$20 $91 $E4
-	JSR NT0_OAM_init	; B65C	$20 $06 $B9
-	JSR Palette_copy	; B65F	$20 $30 $DC
-	; Show sprite, background, left most
-	LDA #$1E		; B65F	$A9 $1E
+	STA ch_stats_4		; B653	$8D $C0 $61
+	JSR Init_CHR_RAM	; B656	$20 $91 $E4
+	JSR NT0_OAM_init	; B659	$20 $06 $B9
+	JSR Palette_copy	; B65C	$20 $30 $DC
+	LDA #$1E		; B65F	$A9 $1E 	Show sprite, background, left most
 	STA PpuMask_2001	; B661	$8D $01 $20
 	LDA #$00		; B664	$A9 $00
 	JSR Check_savefile	; B666	$20 $C1 $DA
@@ -1841,38 +2063,37 @@ L3B5AF:
 	JSR Check_savefile	; B67B	$20 $C1 $DA
 	STA $8B			; B67E	$85 $8B
 	LDA #$00		; B680	$A9 $00
-	; $F0 current cursor position
-	STA $78F0		; B682	$8D $F0 $78
+	STA $78F0		; B682	$8D $F0 $78 	$F0 current cursor position ??
 	STA $79F0		; B685	$8D $F0 $79
 	STA $7AF0		; B688	$8D $F0 $7A
-	JSR $B7FC		; B68B	$20 $FC $B7		save file check?? load??
+	JSR $B7FC		; B68B	$20 $FC $B7	save file check?? load?? show save files ??
 	LDA #$10		; B68E	$A9 $10
 	STA $9E			; B690	$85 $9E
 L3B692:
-	JSR $B7EC		; B692	$20 $EC $B7
-	LDA $9E			; B695	$A5 $9E
+	JSR $B7EC		; B692	$20 $EC $B7	draw save file text ??
+	LDA $9E			; B695	$A5 $9E		current save file step (10h-13h)
 	CLC			; B697	$18
 	ADC #$01		; B698	$69 $01
-	STA $9E			; B69A	$85 $9E
+	STA $9E			; B69A	$85 $9E		current save file step
 	CMP #$14		; B69C	$C9 $14
-	BCC L3B692		; B69E	$90 $F2
-	JSR $B7E2		; B6A0	$20 $E2 $B7
-	JSR $B7B4		; B6A3	$20 $B4 $B7
+	BCC L3B692		; B69E	$90 $F2		loop
+	JSR $B7E2		; B6A0	$20 $E2 $B7	draw text window and text ??
+	JSR $B7B4		; B6A3	$20 $B4 $B7	Init cursor ??
 	LDA $FF			; B6A6	$A5 $FF
 	STA PpuControl_2000	; B6A8	$8D $00 $20
 	; Choose the Save file or New game select loop
 L3B6AB:
-	JSR $FE00		; B6AB	$20 $00 $FE
+	JSR Wait_NMI		; B6AB	$20 $00 $FE
 	LDA #$02		; B6AE	$A9 $02
 	STA SpriteDma_4014	; B6B0	$8D $14 $40
-	JSR $C46E		; B6B3	$20 $6E $C4
-	JSR $C74F		; B6B6	$20 $4F $C7
-	JSR $9652		; B6B9	$20 $52 $96
-	JSR $B72D		; B6BC	$20 $2D $B7
+	JSR Init_Page2		; B6B3	$20 $6E $C4
+	JSR $C74F		; B6B6	$20 $4F $C7	sound ??
+	JSR $9652		; B6B9	$20 $52 $96	cursor draw ??
+	JSR $B72D		; B6BC	$20 $2D $B7	check key ??
 	LDA a_pressing		; B6BF	$A5 $24
-	BEQ L3B6AB		; B6C1	$F0 $E8
-	JSR KeyRst_SndE	; B6C3	$20 $5E $90
-	LDA $78F0		; B6C6	$AD $F0 $78
+	BEQ L3B6AB		; B6C1	$F0 $E8		LOOP [Save file select]
+	JSR KeyRst_SndE		; B6C3	$20 $5E $90
+	LDA cur_pos		; B6C6	$AD $F0 $78
 	CMP #$10		; B6C9	$C9 $10
 	BCS L3B710		; B6CB	$B0 $43
 	LSR A			; B6CD	$4A
@@ -1919,17 +2140,15 @@ L3B703:
 ; End of
 
 L3B710:
-	JSR $FFB0		; B710	$20 $B0 $Ff
+	JSR Init_variables	; B710	$20 $B0 $Ff
 	LDA #$08		; B713	$A9 $08
-	; ch_stats_4
-	STA $61C0		; B715	$8D $C0 $61
+	STA ch_stats_4		; B715	$8D $C0 $61
 	LDA $08			; B718	$A5 $08
-	STA $601F		; B71A	$8D $1F $60
-	JSR $B4F4		; B71D	$20 $F4 $B4
+	STA msg_spd		; B71A	$8D $1F $60
+	JSR Char_name_sel	; B71D	$20 $F4 $B4
 	LDX #$05		; B720	$A2 $05
-	; name copy 6bytes to $6276
 L3B722:
-	LDA $61C2,X		; B722	$BD $C2 $61
+	LDA $61C2,X		; B722	$BD $C2 $61 	name copy 6bytes to $6276
 	STA $6276,X		; B725	$9D $76 $62
 	DEX			; B728	$CA
 	BPL L3B722		; B729	$10 $F7
@@ -1937,7 +2156,9 @@ L3B722:
 	RTS			; B72C	$60
 ; End of
 
-	JSR $9693		; B72D	$20 $93 $96
+; Name	:
+; Marks	:
+	JSR $9693		; B72D	$20 $93 $96	event? key check
 	AND #$0F		; B730	$29 $0F
 	BEQ L3B75A		; B732	$F0 $26
 	CMP #$04		; B734	$C9 $04
@@ -1971,6 +2192,9 @@ L3B75B:
 .byte $B7,$BD,$10,$61,$18,$69,$01,$D0,$06,$BD,$10,$61,$38,$E9,$01,$29
 .byte $07,$9D,$10,$61,$AD,$F0,$78,$C9,$10,$B0,$37,$4A,$4A,$09,$10,$85
 .byte $9E,$4C,$EC,$B7
+; Name	:
+; Marks	: copy data(address??) from $B7CE- to $7800-(general buffer??)
+;	  Init_cursor ??
 	LDX #$18		; B7B4	$A2 $18
 L3B7B6:
 	LDA $B7CE,X		; B7B6	$BD $CE $B7
@@ -1978,20 +2202,21 @@ L3B7B6:
 	DEX			; B7BC	$CA
 	BPL L3B7B6		; B7BD	$10 $F7
 	LDA #$00		; B7BF	$A9 $00
-	STA $78F0		; B7C1	$8D $F0 $78
+	STA cur_pos		; B7C1	$8D $F0 $78
 	LDA #$14		; B7C4	$A9 $14
-	STA $78F1		; B7C6	$8D $F1 $78
+	STA len_cur_dat		; B7C6	$8D $F1 $78
 	LDA #$01		; B7C9	$A9 $01
 	STA $A2			; B7CB	$85 $A2
 	RTS			; B7CD	$60
 ; End of
+; data block---
 .byte $02,$04
 .byte $00,$00,$02,$09,$00,$00,$02,$0E,$00,$00,$02,$13,$00,$00,$02,$19
 .byte $00,$00
 ; Name	:
 ; Marks	:
 	LDX #$15		; B7E2	$A2 $15
-	JSR $B486		; B7E4	$20 $86 $B4
+	JSR $B486		; B7E4	$20 $86 $B4	set window position ??
 	LDA #$4B		; B7E7	$A9 $4B
 	JMP $B87A		; B7E9	$4C $7A $B8
 ; End of
@@ -2080,12 +2305,12 @@ L3B835:
 	ROR A			; B858	$6A
 	AND #$C0		; B859	$29 $C0
 	TAX			; B85B	$AA
-	LDA $6110,X		; B85C	$BD $10 $61
+	LDA ch_strength,X	; B85C	$BD $10 $61
 	STA $61			; B85F	$85 $61
 	LDA $9E			; B861	$A5 $9E
 	AND #$03		; B863	$29 $03
 	TAX			; B865	$AA
-	LDA $88,X		; B866	$B5 $88
+	LDA $88,X		; B866	$B5 $88		check save file 1~
 	BEQ L3B881		; B868	$F0 $17
 	LDA #$01		; B86A	$A9 $01
 	STA $7B01		; B86C	$8D $01 $7B
@@ -2093,17 +2318,18 @@ L3B835:
 	LDA #$00		; B872	$A9 $00
 	STA $7B03		; B874	$8D $03 $7B
 	JMP $B881		; B877	$4C $81 $B8
-	JSR $DAF1		; B87A	$20 $F1 $DA
+new:;from last of save files show
+	JSR $DAF1		; B87A	$20 $F1 $DA	check text ??
 	LDA $08			; B87D	$A5 $08
 	STA $61			; B87F	$85 $61
 L3B881:
 	LDA #$0A		; B881	$A9 $0A
-	STA $93			; B883	$85 $93
+	STA bank_tmp		; B883	$85 $93
 	LDA #$00		; B885	$A9 $00
 	STA $3E			; B887	$85 $3E
 	LDA #$7B		; B889	$A9 $7B
 	STA $3F			; B88B	$85 $3F
-	JMP $E7AC		; B88D	$4C $AC $E7
+	JMP $E7AC		; B88D	$4C $AC $E7	text copy ??
 ; End of
 
 ; Name	:
