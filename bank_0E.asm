@@ -2036,7 +2036,7 @@ L3B61F:
 
 ; Name	:
 ; Makrs	:
-;	  Almost begin - after title story end -> savefile select ??
+;	  Almost begin - after title story(prologue) end -> savefile select ??
 	LDA #$00		; B642	$A9 $00
 	STA PpuMask_2001	; B644	$8D $01 $20	PPU disable
 	STA ApuStatus_4015	; B647	$8D $15 $40	APU disable
@@ -2104,10 +2104,10 @@ L3B6AB:
 	ROR A			; B6D3	$6A
 	ROR A			; B6D4	$6A
 	TAX			; B6D5	$AA
-	LDA $6110,X		; B6D6	$BD $10 $61
+	LDA $6110,X		; B6D6	$BD $10 $61	message speed
 	TAX			; B6D9	$AA
 	LDA $0088,Y		; B6DA	$B9 $88 $00
-	BNE L3B710		; B6DD	$D0 $31
+	BNE L3B710		; B6DD	$D0 $31		if save file not valid
 	LDA $80			; B6DF	$A5 $80
 	ASL A			; B6E1	$0A
 	CLC			; B6E2	$18
@@ -2115,26 +2115,26 @@ L3B6AB:
 	ADC #$63		; B6E5	$69 $63
 	STA $81			; B6E7	$85 $81
 	LDA #$00		; B6E9	$A9 $00
-	STA $80			; B6EB	$85 $80
+	STA $80			; B6EB	$85 $80		Load savefile address
 	LDY #$00		; B6ED	$A0 $00
 L3B6EF:
 	LDA ($80),Y		; B6EF	$B1 $80
-	STA $6000,Y		; B6F1	$99 $00 $60
+	STA $6000,Y		; B6F1	$99 $00 $60	($6000-$60FF)
 	INY			; B6F4	$C8
-	BNE L3B6EF		; B6F5	$D0 $F8
+	BNE L3B6EF		; B6F5	$D0 $F8		loop
 	INC $81			; B6F7	$E6 $81
 L3B6F9:
 	LDA ($80),Y		; B6F9	$B1 $80
-	STA $6100,Y		; B6FB	$99 $00 $61
+	STA $6100,Y		; B6FB	$99 $00 $61	($6100-$61FF)
 	INY			; B6FE	$C8
-	BNE L3B6F9		; B6FF	$D0 $F8
+	BNE L3B6F9		; B6FF	$D0 $F8		loop
 	INC $81			; B701	$E6 $81
 L3B703:
 	LDA ($80),Y		; B703	$B1 $80
-	STA $6200,Y		; B705	$99 $00 $62
+	STA $6200,Y		; B705	$99 $00 $62	($6200-$62FF)
 	INY			; B708	$C8
-	BNE L3B703		; B709	$D0 $F8
-	STX $601F		; B70B	$8E $1F $60
+	BNE L3B703		; B709	$D0 $F8		loop
+	STX $601F		; B70B	$8E $1F $60	message speed
 	SEC			; B70E	$38
 	RTS			; B70F	$60
 ; End of

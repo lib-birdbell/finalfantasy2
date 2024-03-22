@@ -85,9 +85,7 @@ BOOT0:
 	JSR Show_title_screen	; C05B  $20 $76 $F4
 	LDA #$0E		; C05E  $A9 $0E
 	JSR Swap_PRG_		; C060  $20 $03 $FE
-	; Show title story
-    JSR $B890                ; C063  $20 $90 $B8
-	; Save file select screen
+	JSR $B890		; C063  $20 $90 $B8	Show title story
 SAVEFILE_SEL:
 	LDA #$0E		; C066  $A9 $0E
 	JSR Swap_PRG_		; C068  $20 $03 $FE
