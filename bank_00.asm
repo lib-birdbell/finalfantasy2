@@ -1,6 +1,8 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.export	Init_wmap		;9C03
+.export	Set_wmap_palettes	;9C06
 .export	Init_var		;9C09
 
 .segment "BANK_00"
@@ -648,8 +650,10 @@ init_event_sw:
 
 ; ========== Map init code ($9C00-$9FFF) START ==========
 .byte $4C,$52,$9D
-	JMP $9CA5		; 9CC3	$4C $A5 $9C
-	JMP $9CC3		; 9C06	$4C $C3 $9C
+Init_wmap:
+	JMP Init_wmap_		; 9C03	$4C $A5 $9C
+Set_wmap_palettes:
+	JMP Set_wmap_palettes_	; 9C06	$4C $C3 $9C
 Init_var:
 	JMP Init_var_		; 9C09	$4C $51 $9C
 .byte $A5,$61,$38,$E9
@@ -698,25 +702,27 @@ L01C71:
 	RTS			; 9CA4	$60
 ; End of Init_var_
 
-; Name	:
-; Marks	:
+; Name	: Init_wmap_
+; Marks	: Set world map tile properties($8000-$83FF) to RAM($0400-$07FF)
+Init_wmap_:
 	LDX #$00		; 9CA5	$A2 $00
 L01CA7:
-	LDA $8000,X		; 9CA7	$BD $00 $80
+	LDA $8000,X		; 9CA7	$BD $00 $80	world map tile properties
 	STA $0400,X		; 9CAA	$9D $00 $04
-	LDA $8100,X		; 9CAD	$BD $00 $81
+	LDA $8100,X		; 9CAD	$BD $00 $81	world map tileset1
 	STA $0500,X		; 9CB0	$9D $00 $05
-	LDA $8200,X		; 9CB3	$BD $00 $82
+	LDA $8200,X		; 9CB3	$BD $00 $82	world map tileset2
 	STA $0600,X		; 9CB6	$9D $00 $06
-	LDA $8300,X		; 9CB9	$BD $00 $83
+	LDA $8300,X		; 9CB9	$BD $00 $83	world map attribute table
 	STA $0700,X		; 9CBC	$9D $00 $07
 	INX			; 9CBF	$E8
-	BNE L01CA7		; 9CC0	$D0 $E5
+	BNE L01CA7		; 9CC0	$D0 $E5		loop
 	RTS			; 9CC2	$60
-; End of
+; End of Init_wmap_
 
-; Name	:
-; Marks	:
+; Name	: Set_wmap_palettes_
+; Marks	: Set world map palettes
+Set_wmap_palettes_:
 	LDX #$1F		; 9CC3	$A2 $1F
 L01CC5:
 	LDA $8380,X		; 9CC5	$BD $80 $83
@@ -746,7 +752,8 @@ L01CDE:
 	LSR A			; 9CF3	$4A
 	BCS L01CF7		; 9CF4	$B0 $01
 	RTS			; 9CF6	$60
-; End of
+; End of Set_wmap_palettes_
+
 ; Marks	: $48(ADDR) = palette address
 L01CF7:
 	LDA $48			; 9CF7	$A5 $48		map id ??

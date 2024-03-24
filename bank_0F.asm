@@ -22,6 +22,8 @@
 .export Swap_PRG_		;FE03
 .export	Init_variables		;FFB0
 
+.import	Init_wmap		;9C03 - bank_00
+.import	Set_wmap_palettes	;9C06 - bank_00
 .import	Init_var		;9C09 - bank_00
 
 .segment "BANK_FIXED"
@@ -96,14 +98,13 @@ SAVEFILE_SEL:
     STA ow_x_pos		; STA $27                  ; C075  $85 $27
     LDA ow_save_pos_y		; LDA $6011                ; C077  $AD $11 $60
     STA ow_y_pos		; STA $28                  ; C07A  $85 $28
-    LDA $6018                ; C07C  $AD $18 $60
-    STA p_map2			; STA $46                  ; C07F  $85 $46
-    STA $42                  ; C081  $85 $42
-    PLP                      ; C083  $28
-    BCS L3C0B8               ; C084  $B0 $32
-	; ch_stats_4 character is Leon
-    LDA #$08                 ; C086  $A9 $08
-    STA $61C0                ; C088  $8D $C0 $61
+	LDA $6018		; C07C  $AD $18 $60	current vehicle ID
+	STA p_map2		; C07F  $85 $46		prvious vehicle id ??
+	STA vehicle_ID		; C081  $85 $42
+	PLP			; C083  $28
+	BCS L3C0B8		; C084  $B0 $32		if select savefile
+	LDA #$08		; C086  $A9 $08		ch_stats_4 character is Leon - NEW GAME
+	STA ch_stats_4		; C088  $8D $C0 $61
     LDX #$00                 ; C08B  $A2 $00
     LDA #$7F                 ; C08D  $A9 $7F
     JSR $FA00                ; C08F  $20 $00 $FA
@@ -125,10 +126,10 @@ SAVEFILE_SEL:
     STA $48                  ; C0B3  $85 $48
     JSR L3CA41               ; C0B5  $20 $41 $CA
 L3C0B8:
-    LDA #$00                 ; C0B8  $A9 $00
-    STA ApuStatus_4015       ; C0BA  $8D $15 $40
-    JSR $C832                ; C0BD  $20 $32 $C8
-    JSR $D7F0                ; C0C0  $20 $F0 $D7
+	LDA #$00		; C0B8  $A9 $00
+	STA ApuStatus_4015	; C0BA  $8D $15 $40
+	JSR $C832		; C0BD  $20 $32 $C8
+	JSR $D7F0		; C0C0  $20 $F0 $D7
 L3C0C3:
     LDX #$FF                 ; C0C3  $A2 $FF
     TXS                      ; C0C5  $9A
@@ -1189,31 +1190,33 @@ C817:
     STA $43                  ; C82F  $85 $43
     RTS                      ; C831  $60
 
+; Name	:
+; Marks	: Variables init
 ;; sub start ;;
-    LDA $FF                  ; C832  $A5 $FF
-    STA PpuControl_2000      ; C834  $8D $00 $20
-    LDA #$00                 ; C837  $A9 $00
-    STA PpuMask_2001         ; C839  $8D $01 $20
-    STA $43                  ; C83C  $85 $43
-    STA $4E                  ; C83E  $85 $4E
-    STA $6007                ; C840  $8D $07 $60
-    STA $2F                  ; C843  $85 $2F
-    STA $44                  ; C845  $85 $44
-    STA $45                  ; C847  $85 $45
-    STA $0D                  ; C849  $85 $0D
-    STA $50                  ; C84B  $85 $50
-    STA $33                  ; C84D  $85 $33
-    STA $24                  ; C84F  $85 $24
-    STA $25                  ; C851  $85 $25
-    STA $23                  ; C853  $85 $23
-    STA $22                  ; C855  $85 $22
-    STA $2D                  ; C857  $85 $2D
-    JSR $E4A5                ; C859  $20 $A5 $E4
-    LDA #$00                 ; C85C  $A9 $00
-    JSR Swap_PRG_               ; C85E  $20 $03 $FE
-    JSR $9C03                ; C861  $20 $03 $9C
-    JSR $9C06                ; C864  $20 $06 $9C
-    JSR $D9A3                ; C867  $20 $A3 $D9
+	LDA $FF			; C831  $A5 $FF
+	STA PpuControl_2000	; C834  $8D $00 $20
+	LDA #$00		; C837  $A9 $00
+	STA PpuMask_2001	; C839  $8D $01 $20
+	STA $43			; C83C  $85 $43
+	STA $4E			; C83E  $85 $4E
+	STA $6007		; C840  $8D $07 $60
+	STA $2F			; C843  $85 $2F
+	STA tile_prop		; C845  $85 $44
+	STA $45			; C847  $85 $45
+	STA $0D			; C849  $85 $0D
+	STA $50			; C84B  $85 $50
+	STA player_dir		; C84D  $85 $33
+	STA a_pressing		; C84F  $85 $24
+	STA b_pressing		; C851  $85 $25
+	STA s_pressing		; C853  $85 $23
+	STA e_pressing		; C855  $85 $22
+	STA scroll_dir_map	; C857  $85 $2D
+	JSR $E4A5		; C859  $20 $A5 $E4	copy tile(world bg/sprites graphics) to Ppu
+	LDA #$00		; C85C  $A9 $00
+	JSR Swap_PRG_		; C85E  $20 $03 $FE
+	JSR Init_wmap		; C861  $20 $03 $9C
+	JSR Set_wmap_palettes	; C864  $20 $06 $9C
+	JSR $D9A3		; C867  $20 $A3 $D9	Set world map settings according to event situation
     JSR $D1D3                ; C86A  $20 $D3 $D1
     LDA $27                  ; C86D  $A5 $27
     AND #$10                 ; C86F  $29 $10
@@ -3754,62 +3757,64 @@ L3D981:
     STA Sq0Sweep_4001        ; D99F  $8D $01 $40
     RTS                      ; D9A2  $60
 
+; Name	:
+; Marks	:
 ;; sub start ;;
-    LDA $6012                ; D9A3  $AD $12 $60
-    AND #$02                 ; D9A6  $29 $02
-    BEQ L3D9B4               ; D9A8  $F0 $0A
-    LDX #$EA                 ; D9AA  $A2 $EA
-    JSR $DA52                ; D9AC  $20 $52 $DA
-    LDX #$EC                 ; D9AF  $A2 $EC
-    JSR $DA52                ; D9B1  $20 $52 $DA
+	LDA $6012		; D9A3  $AD $12 $60	event flag ??
+	AND #$02		; D9A6  $29 $02		bit 1
+	BEQ L3D9B4		; D9A8  $F0 $0A
+	LDX #$EA		; D9AA  $A2 $EA
+	JSR Set_wmap_normal	; D9AC  $20 $52 $DA
+	LDX #$EC		; D9AF  $A2 $EC
+	JSR Set_wmap_normal	; D9B1  $20 $52 $DA
 L3D9B4:
-    LDA $6012                ; D9B4  $AD $12 $60
-    AND #$04                 ; D9B7  $29 $04
-    BEQ L3D9C0               ; D9B9  $F0 $05
-    LDX #$64                 ; D9BB  $A2 $64
-    JSR $DA5C                ; D9BD  $20 $5C $DA
+	LDA $6012		; D9B4  $AD $12 $60
+	AND #$04		; D9B7  $29 $04		bit 2
+	BEQ L3D9C0		; D9B9  $F0 $05
+	LDX #$64		; D9BB  $A2 $64
+	JSR Set_wmap_eventA	; D9BD  $20 $5C $DA
 L3D9C0:
-    LDA $6012                ; D9C0  $AD $12 $60
-    AND #$10                 ; D9C3  $29 $10
+	LDA $6012		; D9C0  $AD $12 $60
+	AND #$10		; D9C3  $29 $10		bit 4
     BEQ L3D9CC               ; D9C5  $F0 $05
-    LDX #$7A                 ; D9C7  $A2 $7A
-    JSR $DA5C                ; D9C9  $20 $5C $DA
+    LDX #$7A                 ; D9C7  $A2 $7A	
+	JSR Set_wmap_eventA	; D9C9  $20 $5C $DA
 L3D9CC:
     LDA $6012                ; D9CC  $AD $12 $60
     AND #$20                 ; D9CF  $29 $20
     BEQ L3D9D8               ; D9D1  $F0 $05
     LDX #$72                 ; D9D3  $A2 $72
-    JSR $DA5C                ; D9D5  $20 $5C $DA
+	JSR Set_wmap_eventA	; D9D5  $20 $5C $DA
 L3D9D8:
     LDA $6012                ; D9D8  $AD $12 $60
     AND #$40                 ; D9DB  $29 $40
     BEQ L3D9E4               ; D9DD  $F0 $05
     LDX #$7C                 ; D9DF  $A2 $7C
-    JSR $DA58                ; D9E1  $20 $58 $DA
+	JSR Set_wmap_eventB	; D9E1  $20 $58 $DA
 L3D9E4:
     LDA $6012                ; D9E4  $AD $12 $60
     AND #$80                 ; D9E7  $29 $80
     BEQ L3D9F0               ; D9E9  $F0 $05
     LDX #$7D                 ; D9EB  $A2 $7D
-    JSR $DA58                ; D9ED  $20 $58 $DA
+	JSR Set_wmap_eventB	; D9ED  $20 $58 $DA
 L3D9F0:
     LDA $6013                ; D9F0  $AD $13 $60
     AND #$01                 ; D9F3  $29 $01
     BEQ L3D9FC               ; D9F5  $F0 $05
     LDX #$7E                 ; D9F7  $A2 $7E
-    JSR $DA58                ; D9F9  $20 $58 $DA
+	JSR Set_wmap_eventB	; D9F9  $20 $58 $DA
 L3D9FC:
     LDA $6013                ; D9FC  $AD $13 $60
     AND #$02                 ; D9FF  $29 $02
     BEQ L3DA08               ; DA01  $F0 $05
     LDX #$7F                 ; DA03  $A2 $7F
-    JSR $DA58                ; DA05  $20 $58 $DA
+	JSR Set_wmap_eventB	; DA05  $20 $58 $DA
 L3DA08:
     LDA $6013                ; DA08  $AD $13 $60
     AND #$10                 ; DA0B  $29 $10
     BEQ L3DA14               ; DA0D  $F0 $05
     LDX #$79                 ; DA0F  $A2 $79
-    JSR $DA5C                ; DA11  $20 $5C $DA
+	JSR Set_wmap_eventA	; DA11  $20 $5C $DA
 L3DA14:
     LDA $6013                ; DA14  $AD $13 $60
     AND #$20                 ; DA17  $29 $20
@@ -3840,39 +3845,67 @@ L3DA20:
     JMP $DA5E                ; DA4E  $4C $5E $DA
 L3DA51:
     RTS                      ; DA51  $60
+; End of
 
+; Name	: Set_wmap_normal
+; X	: INDEX
+; Marks	: Set world map normal properties.
+;	  ttt? ascn
+;	  t: triger type
+;		$C0: exit (to world map)
+;		$80: entrance
+;		$40: exit
+;		$20: battle
+;	  a: passable in airship
+;	  s: passable in ship
+;	  c: passable in canoe/snowcraft
+;	  n: passable on foot
 ;; sub start ;;
-    LDA #$0F                 ; DA52  $A9 $0F
-    STA $0400,X              ; DA54  $9D $00 $04
-    RTS                      ; DA57  $60
+Set_wmap_normal:
+	LDA #$0F		; DA52  $A9 $0F
+	STA $0400,X		; DA54  $9D $00 $04
+	RTS			; DA57  $60
+; End of Set_wmap_normal
 
-    LDY #$69                 ; DA58  $A0 $69
-    BNE DA5E                 ; DA5A  $D0 $02
+; Name	: Set_wmap_eventB
+; X	: Destination
+; Y	: Source
+; Marks	:
+Set_wmap_eventB:
+	LDY #$69                 ; DA58  $A0 $69
+	BNE DA5E                 ; DA5A  $D0 $02
 
+; Name	: Set_wmap_eventA
+; X	: Destination
+; Y	: Source
+; Marks	: Copy world map tile to Destination
+;	  Attributes too
 ;; sub start ;;
-    LDY #$34                 ; DA5C  $A0 $34
+Set_wmap_eventA:
+	LDY #$34		; DA5C  $A0 $34
 DA5E:
-    LDA $0500,Y              ; DA5E  $B9 $00 $05
-    STA $0500,X              ; DA61  $9D $00 $05
-    LDA $0580,Y              ; DA64  $B9 $80 $05
-    STA $0580,X              ; DA67  $9D $80 $05
-    LDA $0600,Y              ; DA6A  $B9 $00 $06
-    STA $0600,X              ; DA6D  $9D $00 $06
-    LDA $0680,Y              ; DA70  $B9 $80 $06
-    STA $0680,X              ; DA73  $9D $80 $06
-    LDA $0700,Y              ; DA76  $B9 $00 $07
-    STA $0700,X              ; DA79  $9D $00 $07
-    TYA                      ; DA7C  $98
-    ASL A                    ; DA7D  $0A
-    TAY                      ; DA7E  $A8
-    TXA                      ; DA7F  $8A
-    ASL A                    ; DA80  $0A
-    TAX                      ; DA81  $AA
-    LDA $0400,Y              ; DA82  $B9 $00 $04
-    STA $0400,X              ; DA85  $9D $00 $04
-    LDA $0401,Y              ; DA88  $B9 $01 $04
-    STA $0401,X              ; DA8B  $9D $01 $04
-    RTS                      ; DA8E  $60
+	LDA $0500,Y		; DA5E  $B9 $00 $05
+	STA $0500,X		; DA61  $9D $00 $05
+	LDA $0580,Y		; DA64  $B9 $80 $05
+	STA $0580,X		; DA67  $9D $80 $05
+	LDA $0600,Y		; DA6A  $B9 $00 $06
+	STA $0600,X		; DA6D  $9D $00 $06
+	LDA $0680,Y		; DA70  $B9 $80 $06
+	STA $0680,X		; DA73  $9D $80 $06
+	LDA $0700,Y		; DA76  $B9 $00 $07	attribute
+	STA $0700,X		; DA79  $9D $00 $07
+	TYA			; DA7C  $98
+	ASL A			; DA7D  $0A
+	TAY			; DA7E  $A8
+	TXA			; DA7F  $8A
+	ASL A			; DA80  $0A
+	TAX			; DA81  $AA
+	LDA $0400,Y		; DA82  $B9 $00 $04	properties
+	STA $0400,X		; DA85  $9D $00 $04
+	LDA $0401,Y		; DA88  $B9 $01 $04
+ 	STA $0401,X		; DA8B  $9D $01 $04
+	RTS			; DA8E  $60
+; End of Set_wmap_event
 
 ;; sub start ;;
     LDA $42                  ; DA8F  $A5 $42
@@ -5239,73 +5272,84 @@ Init_CHR_RAM:
 ;; sub start ;;
     LDA #$02                 ; E497  $A9 $02
     JSR Swap_PRG_               ; E499  $20 $03 $FE
-    JSR $E4B3                ; E49C  $20 $B3 $E4
+    JSR $E4B3                ; E49C  $20 $B3 $E4	copy character potrait
     JSR $E528                ; E49F  $20 $28 $E5
     JMP L3E607               ; E4A2  $4C $07 $E6
 
+; Name	:
+; Marks	: Copy Ppu(world bg/sprite graphics)
 ;; sub start ;;
-    LDA #$02                 ; E4A5  $A9 $02
-    JSR Swap_PRG_               ; E4A7  $20 $03 $FE
-    JSR $E4F7                ; E4AA  $20 $F7 $E4
-    JSR $E4B3                ; E4AD  $20 $B3 $E4
-    JMP L3E4D8               ; E4B0  $4C $D8 $E4
+	LDA #$02		; E4A5  $A9 $02
+	JSR Swap_PRG_		; E4A7  $20 $03 $FE
+	JSR Set_PpuData_4K	; E4AA  $20 $F7 $E4	copy world bg graphics
+	JSR $E4B3		; E4AD  $20 $B3 $E4	copy character potrait
+	JMP L3E4D8		; E4B0  $4C $D8 $E4	copy world sprite graphics
 
+; Name	:
+; Marks	: Copy character potrait
 ;; sub start ;;
-    LDA #$00                 ; E4B3  $A9 $00
-    STA $80                  ; E4B5  $85 $80
-    LDX #$00                 ; E4B7  $A2 $00
+	LDA #$00		; E4B3  $A9 $00
+	STA $80			; E4B5  $85 $80
+	LDX #$00		; E4B7  $A2 $00
 E4B9:
-    LDA $6101,X              ; E4B9  $BD $01 $61
-    AND #$E0                 ; E4BC  $29 $E0
-    BEQ L3E4C7               ; E4BE  $F0 $07
-    TXA                      ; E4C0  $8A
+	LDA ch_status,X		; E4B9  $BD $01 $61
+	AND #$E0		; E4BC  $29 $E0
+	BEQ L3E4C7		; E4BE  $F0 $07
+	TXA			; E4C0  $8A
     CLC                      ; E4C1  $18
     ADC #$40                 ; E4C2  $69 $40
     TAX                      ; E4C4  $AA
     BNE E4B9                 ; E4C5  $D0 $F2
 L3E4C7:
-    LDA $6100,X              ; E4C7  $BD $00 $61
-    AND #$0F                 ; E4CA  $29 $0F
-    CLC                      ; E4CC  $18
-    ADC #$9B                 ; E4CD  $69 $9B
-    STA $81                  ; E4CF  $85 $81
-    LDX #$01                 ; E4D1  $A2 $01
-    LDA #$10                 ; E4D3  $A9 $10
-    JMP Set_PpuAddrData_XPage	; JMP L3E503               ; E4D5  $4C $03 $E5
-L3E4D8:
-    LDA #$90                 ; E4D8  $A9 $90
-    STA $81                  ; E4DA  $85 $81
-    LDX #$0B                 ; E4DC  $A2 $0B
-    LDA #$11                 ; E4DE  $A9 $11
-    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E4E0  $20 $03 $E5
-    LDA #$80                 ; E4E3  $A9 $80
-    STA $80                  ; E4E5  $85 $80
-    LDA #$95                 ; E4E7  $A9 $95
-    STA $81                  ; E4E9  $85 $81
-    LDA #$00                 ; E4EB  $A9 $00
-    JSR Swap_PRG_               ; E4ED  $20 $03 $FE
-    LDA #$1C                 ; E4F0  $A9 $1C
-    LDX #$02                 ; E4F2  $A2 $02
-    JMP Set_PpuAddrData_XPage	; JMP L3E503               ; E4F4  $4C $03 $E5
+	LDA ch_id,X		; E4C7  $BD $00 $61
+	AND #$0F		; E4CA  $29 $0F
+	CLC			; E4CC  $18
+	ADC #$9B		; E4CD  $69 $9B
+	STA $81			; E4CF  $85 $81
+	LDX #$01		; E4D1  $A2 $01
+	LDA #$10		; E4D3  $A9 $10
+	JMP Set_PpuAddrData_XPage	; E4D5  $4C $03 $E5
+; End of
 
+L3E4D8:
+	LDA #$90		; E4D8  $A9 $90
+	STA $81			; E4DA  $85 $81
+	LDX #$0B		; E4DC  $A2 $0B
+	LDA #$11		; E4DE  $A9 $11
+	JSR Set_PpuAddrData_XPage	; E4E0  $20 $03 $E5	chocobo ??
+	LDA #$80		; E4E3  $A9 $80
+	STA $80			; E4E5  $85 $80
+	LDA #$95		; E4E7  $A9 $95
+	STA $81			; E4E9  $85 $81
+	LDA #$00		; E4EB  $A9 $00
+	JSR Swap_PRG_		; E4ED  $20 $03 $FE
+	LDA #$1C		; E4F0  $A9 $1C
+	LDX #$02		; E4F2  $A2 $02
+	JMP Set_PpuAddrData_XPage	; E4F4  $4C $03 $E5	Ship ??
+
+; Name	: Set_PpuData_4K
+; Marks	: $80(ADDR) = $8000
+;	  Copy tile($8000-$9000) to PPU CHR ($0000-$1000)
 ;; sub start ;;
-    LDA #$00                 ; E4F7  $A9 $00
-    STA $80                  ; E4F9  $85 $80
-    LDA #$80                 ; E4FB  $A9 $80
-    STA $81                  ; E4FD  $85 $81
-    LDX #$10                 ; E4FF  $A2 $10
-    LDA #$00                 ; E501  $A9 $00
+Set_PpuData_4K:
+	LDA #$00		; E4F7  $A9 $00
+	STA $80			; E4F9  $85 $80
+	LDA #$80		; E4FB  $A9 $80
+	STA $81			; E4FD  $85 $81
+	LDX #$10		; E4FF  $A2 $10
+	LDA #$00		; E501  $A9 $00
 
 ; Name	: Set_PpuAddrData_XPage
 ; A	: PpuAddr(H)
 ; X	: Count of copied data(1 unit is #$100)
+; SRC	: $80(ADDR) is tile address
 ; Marks	: Set PpuAddr and copy to PPU
 Set_PpuAddrData_XPage:
 L3E503:
-    LDY PpuStatus_2002       ; E503  $AC $02 $20
-    STA PpuAddr_2006         ; E506  $8D $06 $20
-    LDA #$00                 ; E509  $A9 $00
-    STA PpuAddr_2006         ; E50B  $8D $06 $20
+	LDY PpuStatus_2002	; E503  $AC $02 $20
+	STA PpuAddr_2006	; E506  $8D $06 $20
+	LDA #$00		; E509  $A9 $00
+	STA PpuAddr_2006	; E50B  $8D $06 $20
 
 ; Name	: Set_PpuData_XPage
 ; X	: Count of copied data(1 unit is #$100)
@@ -5314,18 +5358,19 @@ L3E503:
 ;	  Data size to be copied is #$FF
 Set_PpuData_XPage:
 L3E50E:
-    LDY #$00                 ; E50E  $A0 $00
+	LDY #$00		; E50E  $A0 $00
 L3E510:
-    LDA ($80),Y              ; E510  $B1 $80
-    STA PpuData_2007         ; E512  $8D $07 $20
-    INY                      ; E515  $C8
-    BNE L3E510               ; E516  $D0 $F8
-    INC $81                  ; E518  $E6 $81
-    DEX                      ; E51A  $CA
-    BNE L3E510               ; E51B  $D0 $F3
-    RTS                      ; E51D  $60
+	LDA ($80),Y		; E510  $B1 $80
+	STA PpuData_2007	; E512  $8D $07 $20
+	INY			; E515  $C8
+	BNE L3E510		; E516  $D0 $F8
+	INC $81			; E518  $E6 $81
+	DEX			; E51A  $CA
+	BNE L3E510		; E51B  $D0 $F3
+	RTS			; E51D  $60
 ; End of Set_PpuData_XPage
 ; End of Set_PpuAddrData_XPage
+; End of
 
 ; Name	: Set_PpuData
 ; X	: Data size to be copied
