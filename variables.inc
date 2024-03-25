@@ -32,6 +32,8 @@ _2C_unknown		= $2C
 scroll_dir_map		= $2D
 _2F_unknown		= $2F		; y position ??
 
+_30_unknown		= $30
+_31_unknown		= $31
 map_update		= $32
 
 ;udlr
@@ -55,14 +57,17 @@ _3F_unknown		= $3F
 oam_x			= $40
 oam_y			= $41
 
-vehicle_ID		= $42
 ; 01h:no vehicle, 02h:canoe/snowcraft, 04h:ship, 08h:airship
+vehicle_ID		= $42
+
 tile_prop		= $44	; ??
 p_map1			= $45
 p_map2			= $46
-player_mv_timer	   = $47
+player_mv_timer		= $47
 
-bank		   = $57
+_4E_unknown		= $4E
+
+bank			= $57
 
 ch_name1buf		= $5A
 ch_name2buf		= $5B
@@ -92,8 +97,9 @@ cur_oam_tbl_H		= $81
 cur_idx_base		= $82
 
 _84_unknown		= $84
-
+_85_unknown		= $85
 _86_unknown		= $86
+_87_unknown		= $86
 
 text_x_offset		= $90
 _91_unknown		= $91
