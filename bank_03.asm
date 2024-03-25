@@ -652,16 +652,73 @@ A045:
 .byte $01,$85,$24,$60,$90,$02,$A2,$02,$86,$20,$60,$B0,$FB,$A2,$04,$D0
 .byte $F7,$AD,$09,$60,$18,$69,$02,$8D,$09,$60,$C9,$F8,$90,$01,$60,$85
 .byte $40,$29,$08,$85,$80,$A9,$70,$85,$82,$A5,$F0,$10,$04,$A9,$01,$D0
-.byte $02,$A9,$FF,$18,$6D,$0A,$60,$8D,$0A,$60,$85,$41,$18,$60,$AE,$07
-.byte $60,$D0,$27,$A5,$F1,$29,$0F,$05,$F0,$F0,$02,$18,$60,$A6,$F1,$BD
+.byte $02,$A9,$FF,$18,$6D,$0A,$60,$8D,$0A,$60,$85,$41,$18,$60
+; Name	:
+; Marks	: airship flyover
+	LDX airship_flyover	; A13E	$AE $07 $60
+	BNE L0E16A		; A141	$D0 $27
+	LDA frame_cnt_H		; A143	$A5 $F1
+	AND #$0F		; A145	$29 $0F
+	ORA frame_cnt_L		; A147	$05 $F0
+	BEQ L0E14D		; A149	$F0 $02
+	CLC			; A14B	$18
+	RTS			; A14C	$60
+; End of
+L0E14D:
+.byte $A6,$F1,$BD
 .byte $00,$F9,$29,$3F,$8D,$06,$60,$A9,$00,$8D,$05,$60,$A5,$F1,$4A,$4A
-.byte $4A,$4A,$18,$69,$01,$8D,$07,$60,$18,$60,$A5,$F0,$29,$0F,$D0,$03
-.byte $EE,$07,$60,$AD,$05,$60,$18,$69,$01,$8D,$05,$60,$C9,$F8,$90,$0C
-.byte $A9,$00,$8D,$0C,$40,$A9,$00,$8D,$07,$60,$18,$60,$AE,$07,$60,$BD
-.byte $00,$F9,$30,$10,$AD,$06,$60,$18,$69,$01,$C9,$40,$90,$14,$EE,$07
-.byte $60,$4C,$B5,$A1,$AD,$06,$60,$38,$E9,$01,$10,$06,$EE,$07,$60,$4C
-.byte $B5,$A1,$8D,$06,$60,$AD,$05,$60,$85,$40,$AD,$06,$60,$18,$69,$20
-.byte $85,$41,$A5,$F0,$29,$08,$85,$80,$A9,$28,$85,$82,$38,$60,$A5,$F0
+.byte $4A,$4A,$18,$69,$01,$8D,$07,$60,$18,$60
+L0E16A:
+	LDA frame_cnt_L		; A16A	$A5 $F0
+	AND #$0F		; A16C	$29 $0F
+	BNE L0E173		; A16E	$D0 $03
+	INC airship_flyover	; A170	$EE $07 $60
+L0E173:
+	LDA airship_x		; A173	$AD $05 $60
+	CLC			; A176	$18
+	ADC #$01		; A177	$69 $01
+	STA airship_x		; A179	$8D $05 $60
+	CMP #$F8		; A17C	$C9 $F8
+	BCC L0E18C		; A17E	$90 $0C
+	LDA #$00		; A180	$A9 $00
+	STA NoiseVolume_400C	; A182	$8D $0C $40
+	LDA #$00		; A185	$A9 $00
+	STA airship_flyover	; A187	$8D $07 $60
+	CLC			; A18A	$18
+	RTS			; A18B	$60
+; End of
+L0E18C:
+	LDX airship_flyover	; A18C	$AE $07 $60
+	LDA $F900,X		; A18F	$BD $00 $F9
+	BMI L0E1A4		; A192	$30 $10
+	LDA airship_y		; A194	$AD $06 $60
+	CLC			; A197	$18
+	ADC #$01		; A198	$69 $01
+	CMP #$40		; A19A	$C9 $40
+	BCC L0E1B2		; A19C	$90 $14
+	INC airship_flyover	; A19E	$EE $07 $60
+	JMP L0E1B5		; A1A1	$4C $B5 $A1
+L0E1A4:
+.byte $AD,$06,$60,$38,$E9,$01,$10,$06,$EE,$07,$60,$4C
+.byte $B5,$A1
+L0E1B2:
+	STA airship_y		; A1B2	$8D $06 $60
+L0E1B5:
+	LDA airship_x		; A1B5	$AD $05 $60
+	STA oam_x		; A1B8	$85 $40
+	LDA airship_y		; A1BA	$AD $06 $60
+	CLC			; A1BD	$18
+	ADC #$20		; A1BE	$69 $20
+	STA oam_y		; A1C0	$85 $41
+	LDA frame_cnt_L		; A1C2	$A5 $F0
+	AND #$08		; A1C4	$29 $08
+	STA $80			; A1C6	$85 $80
+	LDA #$28		; A1C8	$A9 $28
+	STA $82			; A1CA	$85 $82
+	SEC			; A1CC	$38
+	RTS			; A1CD	$60
+; End of
+.byte $A5,$F0
 .byte $29,$01,$D0,$0D,$AD,$06,$60,$C9,$4F,$F0,$12,$38,$E9,$01,$8D,$06
 .byte $60,$A9,$3F,$8D,$0C,$40,$A9,$0E,$8D,$0E,$40,$18,$60,$A2,$0F,$A9
 .byte $F8,$9D,$00,$02,$CA,$10,$FA,$AD,$05,$60,$38,$E9,$01,$C9,$71,$8D
@@ -774,10 +831,38 @@ A045:
 .byte $08,$69,$8E,$85,$80,$A9,$00,$69,$AA,$85,$81,$A9,$AC,$85,$82,$A9
 .byte $68,$85,$41,$A9,$88,$85,$40,$4C,$02,$A9,$A5,$F0,$29,$08,$09,$10
 .byte $85,$80,$A9,$28,$85,$82,$AD,$05,$60,$85,$40,$AD,$06,$60,$85,$41
-.byte $4C,$B8,$A7,$20,$3E,$A1,$90,$2F,$20,$BF,$A8,$A5,$F0,$4A,$90,$27
-.byte $A5,$41,$18,$69,$20,$C9,$70,$90,$02,$A9,$6F,$85,$41,$20,$B0,$A8
-.byte $A5,$6C,$C9,$05,$B0,$11,$A9,$38,$8D,$0C,$40,$A5,$F0,$29,$0F,$8D
-.byte $0E,$40,$A9,$00,$8D,$0F,$40,$60,$AD,$15,$60,$85,$40,$AD,$16,$60
+.byte $4C,$B8,$A7
+; Name	:
+; Marks	: event number 7
+	JSR $A13E		; A7B3	$20 $3E $A1
+	BCC L0E7E7		; A7B6	$90 $2F
+	JSR $A8BF		; A7B8	$20 $BF $A8
+	LDA frame_cnt_L		; A7BB	$A5 $F0
+	LSR A			; A7BD	$4A
+	BCC L0E7E7		; A7BE	$90 $27
+	LDA oam_y		; A7C0	$A5 $41
+	CLC			; A7C2	$18
+	ADC #$20		; A7C3	$69 $20
+	CMP #$70		; A7C5	$C9 $70
+	BCC L0E7CB		; A7C7	$90 $02
+	LDA #$6F		; A7C9	$A9 $6F
+L0E7CB:
+	STA oam_y		; A7CB	$85 $41
+	JSR $A8B0		; A7CD	$20 $B0 $A8
+	LDA $6C			; A7D0	$A5 $6C
+	CMP #$05		; A7D2	$C9 $05
+	BCS L0E7E7		; A7D4	$B0 $11
+	LDA #$38		; A7D6	$A9 $38
+	STA NoiseVolume_400C	; A7D8	$8D $0C $40
+	LDA frame_cnt_L		; A7DB	$A5 $F0
+	AND #$0F		; A7DD	$29 $0F
+	STA NoisePeriod_400E	; A7DF	$8D $0E $40
+	LDA #$00		; A7E2	$A9 $00
+	STA NoiseLength_400F	; A7E4	$8D $0F $40
+L0E7E7:
+	RTS			; A7E7	$60
+; End of
+.byte $AD,$15,$60,$85,$40,$AD,$16,$60
 .byte $85,$41,$A9,$00,$85,$61,$A5,$F0,$29,$04,$D0,$06,$20,$0E,$A8,$4C
 
 ;; [$A800 :: 0x0E800]
@@ -793,8 +878,28 @@ A045:
 .byte $A5,$41,$C9,$F0,$B0,$1C,$A5,$41,$9D,$00,$02,$A5,$40,$9D,$03,$02
 .byte $A0,$01,$B1,$54,$9D,$01,$02,$C8,$B1,$54,$9D,$02,$02,$8A,$18,$69
 .byte $04,$AA,$A5,$54,$18,$69,$04,$85,$54,$90,$A3,$E6,$55,$4C,$4E,$A8
-.byte $A9,$B4,$85,$82,$A9,$AA,$85,$81,$A9,$8E,$85,$80,$4C,$02,$A9,$A5
-.byte $80,$18,$69,$4E,$85,$80,$A9,$AA,$69,$00,$85,$81,$4C,$02,$A9,$A2
+; Name	:
+; Marks	:
+	LDA #$B4		; A8B0	$A9 $B4
+	STA $82			; A8B2	$85 $82
+	LDA #$AA		; A8B4	$A9 $AA
+	STA $81			; A8B6	$85 $81
+	LDA #$8E		; A8B8	$A9 $8E
+	STA $80			; A8BA	$85 $80
+	JMP $A902		; A8BC	$4C $02 $A9
+; End of
+
+; Name	:
+; Marks	:
+	LDA $80			; A8BF	$A5 $80
+	CLC			; A8C1	$18
+	ADC #$4E		; A8C2	$69 $4E
+	STA $80			; A8C4	$85 $80
+	LDA #$AA		; A8C6	$A9 $AA
+	ADC #$00		; A8C8	$69 $00
+	STA $81			; A8CA	$85 $81
+	JMP $A902		; A8CC	$4C $02 $A9
+.byte $A2
 .byte $00,$AD,$15,$60,$C9,$90,$B0,$08,$A2,$20,$C9,$60,$B0,$02,$A2,$10
 .byte $86,$80,$4C,$E9,$A8,$A9,$20,$85,$80,$A9,$6C,$85,$41,$A9,$70,$85
 .byte $40,$A9,$00,$85,$82,$A9,$0E,$18,$65,$80,$85,$80,$A9,$AA,$69,$00

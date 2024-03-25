@@ -134,7 +134,7 @@ L3C0C3:
 	LDX #$FF		; C0C3  $A2 $FF		Stack pointer reset
 	TXS			; C0C5  $9A
 	JSR Get_bat_bg		; C0C6  $20 $5C $C7
-L3C0C9:
+WM_LOOP:
 	JSR Wait_NMI		; C0C9  $20 $00 $FE
 	LDA #$02		; C0CC  $A9 $02
 	STA SpriteDma_4014	; C0CE  $8D $14 $40
@@ -168,20 +168,20 @@ L3C0FB:
 L3C109:
 	JSR Init_Page2		; C109  $20 $6E $C4
 	JSR $E009		; C10C  $20 $09 $E0
-    LDA $6004                ; C10F  $AD $04 $60
-    ORA $6C                  ; C112  $05 $6C
-    BNE L3C126               ; C114  $D0 $10
-    LDA $6013                ; C116  $AD $13 $60
-    ASL A                    ; C119  $0A
-    BCS L3C126               ; C11A  $B0 $0A
-    LDA #$03                 ; C11C  $A9 $03
-    JSR Swap_PRG_               ; C11E  $20 $03 $FE
-    LDX #$02                 ; C121  $A2 $02
-    JSR $A003                ; C123  $20 $03 $A0
+	LDA airship_flag	; C10F  $AD $04 $60
+	ORA $6C			; C112  $05 $6C
+	BNE L3C126		; C114  $D0 $10
+	LDA dreadnaught_flag	; C116  $AD $13 $60
+	ASL A			; C119  $0A
+	BCS L3C126		; C11A  $B0 $0A
+	LDA #$03		; C11C  $A9 $03
+	JSR Swap_PRG_		; C11E  $20 $03 $FE
+	LDX #$02		; C121  $A2 $02
+	JSR $A003		; C123  $20 $03 $A0	event process
 L3C126:
-    LDA $42                  ; C126  $A5 $42
-    AND #$0C                 ; C128  $29 $0C
-    BEQ L3C0C9               ; C12A  $F0 $9D
+	LDA vehicle_ID		; C126  $A5 $42
+	AND #$0C		; C128  $29 $0C		Airship / Ship
+	BEQ WM_LOOP		; C12A  $F0 $9D		LOOP - WORLD MAP
     CMP #$08                 ; C12C  $C9 $08
     BNE C13D                 ; C12E  $D0 $0D
     LDA #$38                 ; C130  $A9 $38
@@ -205,7 +205,7 @@ C143:
     STA NoisePeriod_400E     ; C14E  $8D $0E $40
     LDA #$00                 ; C151  $A9 $00
     STA NoiseLength_400F     ; C153  $8D $0F $40
-    JMP L3C0C9               ; C156  $4C $C9 $C0	loop
+	JMP WM_LOOP		; C156  $4C $C9 $C0	LOOP - WORLD MAP
 ; Loop
 
 ; Name	:
