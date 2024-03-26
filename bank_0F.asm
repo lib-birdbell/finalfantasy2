@@ -4147,27 +4147,28 @@ L3DBA2:
 
 ; Name	: Get_Key
 ; Marks	: store key status in $20(key1p)
-;	  Start KEY = #$10
+;	  bit7: A, bit6: B, bit5: Select, bit4: Start, bit3: Up, bit2: Down, bit1: left, bit0: right
 Get_key:
 ;; sub start ;;
-    LDA #$01                 ; DBA9  $A9 $01
-    STA Ctrl1_4016           ; DBAB  $8D $16 $40
-    LDA #$00                 ; DBAE  $A9 $00
-    STA Ctrl1_4016           ; DBB0  $8D $16 $40
-    LDX #$08                 ; DBB3  $A2 $08
+	LDA #$01		; DBA9  $A9 $01
+	STA Ctrl1_4016		; DBAB  $8D $16 $40
+	LDA #$00		; DBAE  $A9 $00
+	STA Ctrl1_4016		; DBB0  $8D $16 $40
+	LDX #$08		; DBB3  $A2 $08
 L3DBB5:
-    LDA Ctrl1_4016           ; DBB5  $AD $16 $40
-    AND #$03                 ; DBB8  $29 $03
-    CMP #$01                 ; DBBA  $C9 $01
-    ROL key1p			; ROL $20                  ; DBBC  $26 $20
-    DEX                      ; DBBE  $CA
-    BNE L3DBB5               ; DBBF  $D0 $F4
-    RTS                      ; DBC1  $60
+	LDA Ctrl1_4016		; DBB5  $AD $16 $40
+	AND #$03		; DBB8  $29 $03
+	CMP #$01		; DBBA  $C9 $01
+	ROL key1p		; DBBC  $26 $20
+	DEX			; DBBE  $CA
+	BNE L3DBB5		; DBBF  $D0 $F4
+	RTS			; DBC1  $60
+; End of
 
 ; Name	: Key_check
 ; X	:
 ; Marks	: key process ?? and mark to $24(a_pressing), $25(b_pressing)
-;	  $21 = ??
+;	  $21 = ??, $81
 ;; sub start ;;
 Key_check:
 	LDA key1p		; DBC2  $A5 $20
@@ -4613,9 +4614,9 @@ Set_cursor:
 ; End of
 
 L3DEB0:
-    JSR $E238                ; DEB0  $20 $38 $E2
-    BCS L3DEB8               ; DEB3  $B0 $03
-    JMP $DEE0                ; DEB5  $4C $E0 $DE
+	JSR $E238		; DEB0  $20 $38 $E2
+	BCS L3DEB8		; DEB3  $B0 $03
+	JMP $DEE0		; DEB5  $4C $E0 $DE
 L3DEB8:
     RTS                      ; DEB8  $60
 
@@ -4638,22 +4639,29 @@ DED4:
     JMP $DEF6                ; DEDC  $4C $F6 $DE
 DEDF:
     RTS                      ; DEDF  $60
+; End of
 
-    LDA #$E2                 ; DEE0  $A9 $E2
-    STA $55                  ; DEE2  $85 $55
-    LDA #$79                 ; DEE4  $A9 $79
-    STA $54                  ; DEE6  $85 $54
-    JMP $DF1E                ; DEE8  $4C $1E $DF
-    LDA #$E2                 ; DEEB  $A9 $E2
-    STA $55                  ; DEED  $85 $55
-    LDA #$BA                 ; DEEF  $A9 $BA
-    STA $54                  ; DEF1  $85 $54
-    JMP $DF1E                ; DEF3  $4C $1E $DF
-    LDA #$E2                 ; DEF6  $A9 $E2
-    STA $55                  ; DEF8  $85 $55
-    LDA #$FB                 ; DEFA  $A9 $FB
-    STA $54                  ; DEFC  $85 $54
-    JMP $DF1E                ; DEFE  $4C $1E $DF
+	LDA #$E2		; DEE0  $A9 $E2
+	STA $55			; DEE2  $85 $55
+	LDA #$79		; DEE4  $A9 $79
+	STA $54			; DEE6  $85 $54
+	JMP $DF1E		; DEE8  $4C $1E $DF
+; End of
+
+	LDA #$E2		; DEEB  $A9 $E2
+	STA $55			; DEED  $85 $55
+	LDA #$BA		; DEEF  $A9 $BA
+	STA $54			; DEF1  $85 $54
+	JMP $DF1E		; DEF3  $4C $1E $DF
+; End of
+
+	LDA #$E2		; DEF6  $A9 $E2
+	STA $55			; DEF8  $85 $55
+	LDA #$FB		; DEFA  $A9 $FB
+	STA $54			; DEFC  $85 $54
+	JMP $DF1E		; DEFE  $4C $1E $DF
+; End of
+
 DF01:
     STX $26                  ; DF01  $86 $26
     LDA $40                  ; DF03  $A5 $40
@@ -4673,6 +4681,7 @@ DF1B:
     STA $41                  ; DF1B  $85 $41
     RTS                      ; DF1D  $60
 
+; Marks	:
     LDX $26                  ; DF1E  $A6 $26
 DF20:
     LDY #$00                 ; DF20  $A0 $00
@@ -4726,7 +4735,7 @@ DF74:
     STA $54                  ; DF79  $85 $54
     BCC DF20                 ; DF7B  $90 $A3
     INC $55                  ; DF7D  $E6 $55
-    JMP $DF20                ; DF7F  $4C $20 $DF
+	JMP $DF20		; DF7F  $4C $20 $DF	loop
     LDA #$6F                 ; DF82  $A9 $6F
     STA $8A                  ; DF84  $85 $8A
 DF86:
@@ -5085,9 +5094,9 @@ E1DA:
     LDA #$28                 ; E1F6  $A9 $28
     JMP $E0CF                ; E1F8  $4C $CF $E0
 L3E1FB:
-    LDA $6014                ; E1FB  $AD $14 $60
-    BEQ L3E1C7               ; E1FE  $F0 $C7
-    JMP L3DEB0               ; E200  $4C $B0 $DE
+	LDA dreadnaught_flag	; E1FB  $AD $14 $60
+	BEQ L3E1C7		; E1FE  $F0 $C7
+	JMP L3DEB0		; E200  $4C $B0 $DE
 L3E203:
     LDX #$04                 ; E203  $A2 $04
     JMP $E1C8                ; E205  $4C $C8 $E1
@@ -5133,33 +5142,36 @@ Ship_visible:
 ; End of Ship_visible
 
 L3E236:
-    SEC                      ; E236  $38
-    RTS                      ; E237  $60
+	SEC			; E236  $38
+	RTS			; E237  $60
+; End of
 
+; Name	:
+; Marks	:
 ;; sub start ;;
-    LDA $6016                ; E238  $AD $16 $60
-    SEC                      ; E23B  $38
-    SBC $28                  ; E23C  $E5 $28
-    CMP #$10                 ; E23E  $C9 $10
-    BCS L3E236               ; E240  $B0 $F4
-    ASL A                    ; E242  $0A
-    ASL A                    ; E243  $0A
-    ASL A                    ; E244  $0A
-    ASL A                    ; E245  $0A
-    SEC                      ; E246  $38
-    SBC $36                  ; E247  $E5 $36
-    BCC L3E236               ; E249  $90 $EB
-    SBC #$10                 ; E24B  $E9 $10
-    STA $41                  ; E24D  $85 $41
-    LDA $6015                ; E24F  $AD $15 $60
-    SEC                      ; E252  $38
-    SBC $27                  ; E253  $E5 $27
-    CMP #$11                 ; E255  $C9 $11
-    BCS L3E236               ; E257  $B0 $DD
-    LDX #$00                 ; E259  $A2 $00
-    CMP #$10                 ; E25B  $C9 $10
-    BCC E261                 ; E25D  $90 $02
-    LDX #$01                 ; E25F  $A2 $01
+	LDA dreadnaught_y	; E238  $AD $16 $60
+	SEC			; E23B  $38
+	SBC ow_y_pos		; E23C  $E5 $28
+	CMP #$10		; E23E  $C9 $10
+	BCS L3E236		; E240  $B0 $F4
+	ASL A			; E242  $0A
+	ASL A			; E243  $0A
+	ASL A			; E244  $0A
+	ASL A			; E245  $0A
+	SEC			; E246  $38
+	SBC ver_stile_pos	; E247  $E5 $36
+	BCC L3E236		; E249  $90 $EB
+	SBC #$10		; E24B  $E9 $10
+	STA oam_y		; E24D  $85 $41
+	LDA dreadnaught_x	; E24F  $AD $15 $60
+	SEC			; E252  $38
+	SBC ow_x_pos		; E253  $E5 $27
+	CMP #$11		; E255  $C9 $11
+	BCS L3E236		; E257  $B0 $DD
+	LDX #$00		; E259  $A2 $00
+	CMP #$10		; E25B  $C9 $10
+	BCC E261		; E25D  $90 $02
+	LDX #$01		; E25F  $A2 $01
 E261:
     ASL A                    ; E261  $0A
     ASL A                    ; E262  $0A
