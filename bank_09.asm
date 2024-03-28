@@ -1,6 +1,9 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.import Palette_copy		;DC30
+.import Wait_NMI		;FE00
+
 .segment "BANK_09"
 
 ; Tiles
@@ -1137,7 +1140,7 @@
 
 
 ;; Title screen nametable?
-;; minimap name table ($B400-$B7FF) start ??
+;; ========== minimap name table ($B400-$B7FF) start ==========
 
 ;; [$B400 :: 0x27400]
 
@@ -1216,7 +1219,7 @@
 .byte $AA,$AA,$2A,$0A,$0A,$8A,$AA,$AA,$AA,$AA,$00,$00,$00,$00,$AA,$AA
 .byte $AA,$AA,$00,$00,$00,$00,$AA,$AA,$AA,$AA,$00,$00,$00,$00,$AA,$AA
 .byte $AA,$AA,$A2,$A0,$A0,$A8,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-;; minimap name table ($B400-$B7FF) end ??
+;; ========== minimap name table ($B400-$B7FF) END ==========
 
 
 .incbin "chr/fancy_finalfantasy.chr"
@@ -1262,9 +1265,20 @@
 
 ;; [$BA00 :: 0x27A00]
 
+; Name	:
+; Marks	: Show_minimap
 ; minimap code ??
-.byte $A9,$88,$85,$FF,$A9,$09,$85,$57,$A9,$00,$8D,$01,$20,$8D,$15,$40
-.byte $A9,$41,$85,$E0,$20,$C9,$BC,$A5,$27,$85,$29,$A5,$28,$85,$2A,$20
+	LDA #$88		; BA00	$A9 $88
+	STA ppu_con_c		; BA02	$85 $FF
+	LDA #$09		; BA04	$A9 $09
+	STA bank		; BA06	$85 $57
+	LDA #$00		; BA08	$A9 $00
+	STA PpuMask_2001	; BA0A	$8D $01 $20	ppu disable
+	STA ApuStatus_4015	; BA0D	$8D $15 $40	sound disable
+	LDA #$41		; BA10	$A9 $41
+	STA current_song_ID	; BA12	$85 $E0
+	JSR $BCC9		; BA14	$20 $C9 $BC
+.byte $A5,$27,$85,$29,$A5,$28,$85,$2A,$20
 .byte $77,$BD,$A9,$00,$85,$39,$A5,$2A,$38,$E9,$39,$85,$3B,$20,$86,$BA
 .byte $A5,$29,$18,$69,$06,$85,$38,$18,$69,$01,$85,$3A,$20,$A0,$BB,$E6
 .byte $39,$A5,$39,$29,$07,$D0,$E9,$20,$FF,$BA,$A5,$39,$10,$DF,$20,$90
@@ -1279,6 +1293,8 @@
 .byte $03,$A5,$F0,$29,$30,$C9,$30,$D0,$02,$A9,$0F,$8D,$D2,$03,$60,$08
 .byte $0C,$0E,$0E,$10,$10,$10,$10,$10,$10,$10,$10,$0E,$0E,$0C,$08,$40
 .byte $20,$10,$10,$00,$00,$00,$00,$00,$00,$00,$00,$10,$10,$20,$40,$A5
+
+;; [$BB00 :: 0x27B00]
 
 .byte $39,$4A,$4A,$4A,$38,$E9,$01,$A8,$85,$66,$BE,$EF,$BA,$B9,$DF,$BA
 .byte $A8,$20,$00,$FE,$A5,$66,$8D,$06,$20,$8E,$06,$20,$BD,$00,$05,$8D
@@ -1308,22 +1324,115 @@
 .byte $A5,$65,$29,$07,$A8,$F0,$0B,$A6,$66,$5E,$00,$05,$5E,$08,$05,$88
 .byte $D0,$F7,$60,$A5,$26,$18,$69,$04,$85,$26,$AA,$A5,$39,$18,$69,$4C
 .byte $9D,$00,$02,$A9,$84,$9D,$01,$02,$A9,$00,$9D,$02,$02,$A5,$40,$18
-.byte $69,$3D,$9D,$03,$02,$60,$2C,$02,$20,$8D,$06,$20,$A9,$00,$8D,$06
-.byte $20,$A0,$00,$B1,$80,$8D,$07,$20,$C8,$D0,$F8,$E6,$81,$CA,$D0,$F3
-.byte $60,$2C,$02,$20,$A9,$00,$8D,$06,$20,$8D,$06,$20,$A2,$10,$A8,$8D
-.byte $07,$20,$C8,$D0,$FA,$CA,$D0,$F7,$60,$20,$B1,$BC,$A9,$00,$85,$80
-.byte $A9,$BF,$85,$81,$A9,$18,$A2,$01,$20,$96,$BC,$A9,$B4,$85,$81,$A2
-.byte $04,$A9,$20,$20,$96,$BC,$A2,$00,$A9,$00,$85,$82,$BD,$58,$BD,$4A
-.byte $66,$82,$4A,$66,$82,$4A,$66,$82,$4A,$66,$82,$8D,$06,$20,$A5,$82
+.byte $69,$3D,$9D,$03,$02,$60
+; Name	:
+; A	: PPU address
+; X	: INDEX
+; Marks	: Copy $80(ADDR) to CHR RAM(A-ADDR H)
+	BIT PpuStatus_2002	; BC96	$2C $02 $20
+	STA PpuAddr_2006	; BC99	$8D $06 $20
+	LDA #$00		; BC9C	$A9 $00
+	STA PpuAddr_2006	; BC9E	$8D $06 $20
+	LDY #$00		; BCA1	$A0 $00
+L27CA3:
+	LDA ($80),Y		; BCA3	$B1 $80
+	STA PpuData_2007	; BCA5	$8D $07 $20
+	INY			; BCA8	$C8
+	BNE L27CA3		; BCA9	$D0 $F8
+	INC $81			; BCAB	$E6 $81
+	DEX			; BCAD	$CA
+	BNE L27CA3		; BCAE	$D0 $F3
+	RTS			; BCB0	$60
+; End of
 
-;; [$BD00 :: 0x27D00]
+; Name	: Init_CHR
+; Marks	: init ppu CHR as 00h(ZERO)
+Init_CHR:
+	BIT PpuStatus_2002	; BCB1	$2C $02 $20
+	LDA #$00		; BCB3	$A9 $00		PPU CHR RAM $0000
+	STA PpuAddr_2006	; BCB6	$8D $06 $20
+	STA PpuAddr_2006	; BCB9	$8D $06 $20
+	LDX #$10		; BCBC	$A2 $10
+	TAY			; BCBE	$A8
+L27CBF:
+	STA PpuData_2007	; BCBF	$8D $07 $20
+	INY			; BCC2	$C8
+	BNE L27CBF		; BCC3	$D0 $FA
+	DEX			; BCC5	$CA
+	BNE L27CBF		; BCC6	$D0 $F7
+	RTS			; BCC8	$60
+; End of Init_CHR
 
-.byte $8D,$06,$20,$A0,$00,$B1,$80,$8D,$07,$20,$C8,$C0,$10,$90,$F6,$A5
-.byte $80,$18,$69,$10,$85,$80,$A5,$81,$69,$00,$85,$81,$E8,$E0,$1F,$90
-.byte $C7,$A2,$0F,$BD,$50,$BF,$9D,$C0,$03,$CA,$10,$F7,$AD,$C0,$03,$8D
-.byte $D0,$03,$A9,$0F,$8D,$D1,$03,$8D,$D2,$03,$20,$00,$FE,$A9,$02,$8D
-.byte $14,$40,$20,$0F,$C0,$A5,$FF,$8D,$00,$20,$A9,$0A,$8D,$01,$20,$A9
-.byte $00,$8D,$05,$20,$8D,$05,$20,$60,$01,$02,$03,$0C,$0D,$0E,$0F,$10
+; Name	:
+; Marks	:
+	JSR Init_CHR		; BCC9	$20 $B1 $BC
+	LDA #$00		; BCCC	$A9 $00
+	STA $80			; BCCE	$85 $80
+	LDA #$BF		; BCD0	$A9 $BF
+	STA $81			; BCD2	$85 $81
+	LDA #$18		; BCD4	$A9 $18
+	LDX #$01		; BCD6	$A2 $01
+	JSR $BC96		; BCD8	$20 $96 $BC	copy sprite graphics to PPU
+	LDA #$B4		; BCDB	$A9 $B4
+	STA $81			; BCDD	$85 $81
+	LDX #$04		; BCDF	$A2 $04
+	LDA #$20		; BCE1	$A9 $20
+	JSR $BC96		; BCE3	$20 $96 $BC	copy sprite graphics to PPU
+	LDX #$00		; BCE6	$A2 $00
+L27CE8:
+	LDA #$00		; BCE8	$A9 $00
+	STA $82			; BCEA	$85 $82
+	LDA $BD58,X		; BCEC	$BD $58 $BD	compressed address table
+	LSR A			; BCEF	$4A
+	ROR $82			; BCF0	$66 $82
+	LSR A			; BCF2	$4A
+	ROR $82			; BCF3	$66 $82
+	LSR A			; BCF5	$4A
+	ROR $82			; BCF6	$66 $82
+	LSR A			; BCF8	$4A
+	ROR $82			; BCF9	$66 $82
+	STA PpuAddr_2006	; BCFB	$8D $06 $20
+	LDA $82			; BCFE	$A5 $82
+	STA PpuAddr_2006	; BD00	$8D $06 $20
+	LDY #$00		; BD03	$A0 $00
+L27D05:
+	LDA ($80),Y		; BD05	$B1 $80
+	STA PpuData_2007	; BD07	$8D $07 $20
+	INY			; BD0A	$C8
+	CPY #$10		; BD0B	$C0 $10
+	BCC L27D05		; BD0D	$90 $F6		loop
+	LDA $80			; BD0F	$A5 $80
+	CLC			; BD11	$18
+	ADC #$10		; BD12	$69 $10
+	STA $80			; BD14	$85 $80
+	LDA $81			; BD16	$A5 $81
+	ADC #$00		; BF18	$69 $00
+	STA $81			; BF1A	$85 $81
+	INX			; BF1C	$E8
+	CPX #$1F		; BF1D	$E0 $1F
+	BCC L27CE8		; BF1F	$90 $C7		loop
+	LDX #$0F		; BF21	$A2 $0F
+L27D23:
+	LDA $BF50,X		; BF23	$BD $50 $BF	minimap palette data ??
+	STA palette_UBGC,X	; BF26	$9D $C0 $03	palettes buffer
+	DEX			; BF29	$CA
+	BPL L27D23		; BF2A	$10 $F7
+	LDA palette_UBGC	; BF2C	$AD $C0 $03
+	STA palette_UOAM	; BF2F	$8D $D0 $03
+	LDA #$0F		; BF32	$A9 $0F
+	STA palette_OAM00	; BF34	$8D $D1 $03
+	STA palette_OAM01	; BF37	$8D $D2 $03
+	JSR Wait_NMI		; BF3A	$20 $00 $FE
+	LDA #$02		; BF3D	$A9 $02
+	STA SpriteDma_4014	; BF3F	$8D $14 $40
+	;JSR Palette_copy	; BF42	$20 $0F $C0
+	JSR $C00F		; BF42	$20 $0F $C0
+	LDA ppu_con_c		; BF45	$A5 $FF
+	STA PpuControl_2000	; BF47	$8D $00 $20
+.byte $A9,$0A,$8D,$01,$20,$A9
+.byte $00,$8D,$05,$20,$8D,$05,$20,$60
+;; [$BD58-
+.byte $01,$02,$03,$0C,$0D,$0E,$0F,$10
 .byte $11,$1E,$1F,$20,$2F,$30,$3F,$C0,$CF,$D0,$DF,$E0,$E1,$EE,$EF,$F0
 .byte $F1,$F2,$F3,$FC,$FD,$FE,$FF,$A2,$00,$A9,$0C,$85,$26,$A9,$F8,$9D
 .byte $00,$02,$E8,$D0,$FA,$A2,$0F,$BD,$60,$BF,$9D,$00,$02,$CA,$10,$F7

@@ -654,6 +654,7 @@ A045:
 .byte $40,$29,$08,$85,$80,$A9,$70,$85,$82,$A5,$F0,$10,$04,$A9,$01,$D0
 .byte $02,$A9,$FF,$18,$6D,$0A,$60,$8D,$0A,$60,$85,$41,$18,$60
 ; Name	:
+; Ret	: Carry flag(Set: , Reset: )
 ; Marks	: airship flyover
 	LDX airship_flyover	; A13E	$AE $07 $60
 	BNE L0E16A		; A141	$D0 $27
@@ -833,8 +834,8 @@ L0E1B5:
 .byte $85,$80,$A9,$28,$85,$82,$AD,$05,$60,$85,$40,$AD,$06,$60,$85,$41
 .byte $4C,$B8,$A7
 ; Name	:
-; Marks	: event number 7
-	JSR $A13E		; A7B3	$20 $3E $A1
+; Marks	: event number 2
+	JSR $A13E		; A7B3	$20 $3E $A1	check airship ??
 	BCC L0E7E7		; A7B6	$90 $2F
 	JSR $A8BF		; A7B8	$20 $BF $A8
 	LDA frame_cnt_L		; A7BB	$A5 $F0

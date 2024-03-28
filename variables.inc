@@ -161,6 +161,9 @@ _E5_unknown		= $E5
 frame_cnt_L	   = $F0	; Timer, Increases by 1 every frame.
 frame_cnt_H	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every time values hits a multiple of 40, the airship flies over the screen
 
+rng_cnt			= $F5
+rng_tbl_dir		= $F6
+
 skip_intro	   = $FA	; $77 is already saw the logo screen, else is Show logo screen.
 
 ppu_con_p		= $FD
@@ -538,6 +541,8 @@ hp_levelup               = $7D6A ; 2 bytes per character, first 2 are Firion's, 
 ; a value of $06, $00 resulted in Firion gaining HP at battle's end
 
 mp_levelup               = $7D72 ; 2 bytes per character, 8 bytes total
+
+palette_RAM_idx		= $3F00
 
 
 ;; NES Registers ;;
