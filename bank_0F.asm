@@ -163,16 +163,15 @@ L3C0FB:
 	BNE L3C109		; C0FD  $D0 $0A
 	LDA $46			; C0FF  $A5 $46		previous vehicle id ??
 	STA vehicle_ID		; C101  $85 $42
-	JSR $C159		; C103  $20 $59 $C1	check tile properties and key ??
-	JSR $C266		; C106  $20 $66 $C2	check event/key by timer
+	JSR $C159		; C103  $20 $59 $C1	check tile properties and pressed key ??
+	JSR $C266		; C106  $20 $66 $C2	check event/key by timer/vehicle??/cannot move??
 L3C109:
 	JSR Init_Page2		; C109  $20 $6E $C4
 	JSR $E009		; C10C  $20 $09 $E0	check vehicle ??
 	LDA airship_flag	; C10F  $AD $04 $60
 	ORA $6C			; C112  $05 $6C
 	BNE L3C126		; C114  $D0 $10
-	;LDA dreadnaught_flag	; C116  $AD $13 $60
-	LDA $6013		; C116
+	LDA $6013		; C116  $AD $13 $60
 	ASL A			; C119  $0A
 	BCS L3C126		; C11A  $B0 $0A
 	LDA #$03		; C11C  $A9 $03
@@ -388,22 +387,22 @@ L3C290:
 	BEQ L3C2CC		; C298  $F0 $32
 	CPX #$02		; C29A  $E0 $02
 	BEQ L3C2E2		; C29C  $F0 $44
-	JSR $C4B4		; C29E  $20 $B4 $C4	random battle check ??
+	JSR $C4B4		; C29E  $20 $B4 $C4	random battle check??cannot move check?? direction ??
 	BCS L3C2AA		; C2A1  $B0 $07
 	JSR $C70E		; C2A3  $20 $0E $C7	dreadnaught ??, chocobo ??
 	BCS L3C2DB		; C2A6  $B0 $33
 	BCC L3C2C0		; C2A8  $90 $16
 
 L3C2AA:
-    LDA $6008                ; C2AA  $AD $08 $60
-    CMP #$02                 ; C2AD  $C9 $02
-    BEQ L3C2DB               ; C2AF  $F0 $2A
-    JSR $C654                ; C2B1  $20 $54 $C6
-    BCC L3C2C0               ; C2B4  $90 $0A
-    JSR $C68B                ; C2B6  $20 $8B $C6
-    BCC L3C2C0               ; C2B9  $90 $05
-    JSR $C6C7                ; C2BB  $20 $C7 $C6
-    BCS L3C2DB               ; C2BE  $B0 $1B
+	LDA chocobo_stat	; C2AA  $AD $08 $60
+	CMP #$02		; C2AD  $C9 $02
+	BEQ L3C2DB		; C2AF  $F0 $2A
+	JSR Check_snow_river	; C2B1  $20 $54 $C6
+	BCC L3C2C0		; C2B4  $90 $0A
+	JSR $C68B		; C2B6  $20 $8B $C6	check pirate ship ??
+	BCC L3C2C0		; C2B9  $90 $05
+	JSR $C6C7		; C2BB  $20 $C7 $C6	Check ship ??
+	BCS L3C2DB		; C2BE  $B0 $1B
 L3C2C0:
 	LDA key1p		; C2C0  $A5 $20
 	AND #$0F		; C2C2  $29 $0F
@@ -416,15 +415,16 @@ C2C9:
 L3C2CC:
     JSR $C4B4                ; C2CC  $20 $B4 $C4
     BCC L3C2C0               ; C2CF  $90 $EF
-    JSR $C654                ; C2D1  $20 $54 $C6
+    JSR $C654                ; C2D1  $20 $54 $C6	Check_snow_river
     BCC L3C2C0               ; C2D4  $90 $EA
     JSR $C640                ; C2D6  $20 $40 $C6
     BCC L3C2C0               ; C2D9  $90 $E5
 L3C2DB:
-    LDA $43                  ; C2DB  $A5 $43
-    STA $44                  ; C2DD  $85 $44
-    STA $4E                  ; C2DF  $85 $4E
-    RTS                      ; C2E1  $60
+	LDA $43			; C2DB  $A5 $43
+	STA tile_prop		; C2DD  $85 $44
+	STA $4E			; C2DF  $85 $4E
+	RTS			; C2E1  $60
+; End of
 
 L3C2E2:
     JSR $C4B4                ; C2E2  $20 $B4 $C4
@@ -492,11 +492,11 @@ Map_water_flow:
 ;; sub start ;;
 	LDA mov_spd		; C36F  $A5 $34
 	BEQ L3C380		; C371  $F0 $0D		if not move, scroll
-	JSR $C3FE		; C373  $20 $FE $C3	check move direction ??
+	JSR $C3FE		; C373  $20 $FE $C3	move animation ??
 	LDA vehicle_ID		; C376  $A5 $42
 	CMP #$01		; C378  $C9 $01
 	BNE L3C37F		; C37A  $D0 $03
-	JMP L3C8E7		; C37C  $4C $E7 $C8
+	JMP L3C8E7		; C37C  $4C $E7 $C8	check character field sprite ??(dead/toad)
 L3C37F:
 	RTS			; C37F  $60
 ; End of Character_movement ??
@@ -585,7 +585,7 @@ L3C3F9:
     RTS                      ; C3FD  $60
 
 ; Name	:
-; Marks	:
+; Marks	: move animation
 ;; sub start ;;
 	LDA player_dir		; C3FE  $A5 $33
 	LSR A			; C400  $4A
@@ -596,7 +596,7 @@ L3C3F9:
 	BCS L3C40C		; C407  $B0 $03		if down
 	JMP L3C43C		; C409  $4C $3C $C4
 L3C40C:
-	LDA map_update		; C40C  $A5 $32
+	LDA map_update		; C40C  $A5 $32		DOWN
 	BEQ L3C419		; C40E  $F0 $09
 	LDA ver_stile_pos	; C410  $A5 $36
 	CMP #$08		; C412  $C9 $08
@@ -606,7 +606,7 @@ L3C419:
 	JSR L3C380		; C419  $20 $80 $C3	scroll
 	LDA ver_stile_pos	; C41C  $A5 $36
 	CLC			; C41E  $18
-	ADC mov_spd		; C41F  $65 $34
+	ADC mov_spd		; C41F  $65 $34		move animation effect(down) by sub tile position
 	AND #$0F		; C421  $29 $0F
 	BEQ L3C428		; C423  $F0 $03
 	STA ver_stile_pos	; C425  $85 $36
@@ -628,37 +628,39 @@ L3C439:
     RTS                      ; C43B  $60
 
 L3C43C:
-    LDA $32                  ; C43C  $A5 $32
-    BEQ L3C449               ; C43E  $F0 $09
-    LDA $36                  ; C440  $A5 $36
-    CMP #$08                 ; C442  $C9 $08
-    BNE L3C449               ; C444  $D0 $03
+	LDA map_update		; C43C  $A5 $32		UP
+	BEQ L3C449		; C43E  $F0 $09
+	LDA ver_stile_pos	; C440  $A5 $36
+	CMP #$08		; C442  $C9 $08
+	BNE L3C449		; C444  $D0 $03
 	JSR Map_update		; C446  $20 $1B $D2
 L3C449:
-    JSR L3C380               ; C449  $20 $80 $C3
-    LDA $36                  ; C44C  $A5 $36
-    BNE L3C45F               ; C44E  $D0 $0F
-    DEC $28                  ; C450  $C6 $28
-    LDA $2F                  ; C452  $A5 $2F
-    SEC                      ; C454  $38
-    SBC #$01                 ; C455  $E9 $01
-    BCS L3C45B               ; C457  $B0 $02
-    ADC #$0F                 ; C459  $69 $0F
+	JSR L3C380		; C449  $20 $80 $C3	scroll
+	LDA ver_stile_pos	; C44C  $A5 $36
+	BNE L3C45F		; C44E  $D0 $0F
+	DEC ow_y_pos		; C450  $C6 $28
+	LDA $2F			; C452  $A5 $2F
+	SEC			; C454  $38
+	SBC #$01		; C455  $E9 $01		move animation effect(up) by sub tile position
+	BCS L3C45B		; C457  $B0 $02
+	ADC #$0F		; C459  $69 $0F
 L3C45B:
-    STA $2F                  ; C45B  $85 $2F
-    LDA $36                  ; C45D  $A5 $36
+	STA $2F			; C45B  $85 $2F
+	LDA ver_stile_pos	; C45D  $A5 $36
 L3C45F:
-    SEC                      ; C45F  $38
-    SBC $34                  ; C460  $E5 $34
-    AND #$0F                 ; C462  $29 $0F
-    BEQ L3C469               ; C464  $F0 $03
-    STA $36                  ; C466  $85 $36
-    RTS                      ; C468  $60
+	SEC			; C45F  $38
+	SBC mov_spd		; C460  $E5 $34
+	AND #$0F		; C462  $29 $0F
+	BEQ L3C469		; C464  $F0 $03
+	STA ver_stile_pos	; C466  $85 $36
+	RTS			; C468  $60
+; End of move animation ??
 
 L3C469:
-    STA $34                  ; C469  $85 $34
-    STA $36                  ; C46B  $85 $36
-    RTS                      ; C46D  $60
+	STA mov_spd		; C469  $85 $34
+	STA ver_stile_pos	; C46B  $85 $36
+	RTS			; C46D  $60
+; End of move animation ??
 
 ; Name	: Init_Page2
 ; Marks	: Fill #$F0 $0200 - @02FF
@@ -714,18 +716,28 @@ APU_init:
 ; End of APU_init
 
 ; Name	:
-; Ret	: Carry flag(Set: event(battle??) occur, Reset: Not happened ??)
-; Marks	:
+; A	: pressed pad
+; Ret	: Carry flag(Set: event(cannot move??, battle??) occur, Reset: Not happened ??)
+; Marks	: (7, 7) is center, $80(ADDR) = X,Y ??, $82 = X ??, $83 = Y ??
+;	  World map buffer($7000-$7FFF), X,Y size = 256x16 buffer
+;	  $44(ADDR)
+;	  UP ward
+;	  XY(0,0) -> (255,0)
+;	  (0,1) -> (255,1)
+;	  (0,2) -> (255,2)
+;	  . . . 
+;	  (0,15) -> (255,15)
+;	  DOWN ward
 ;; sub start ;;
-    LSR A                    ; C4B4  $4A
-    BCS L3C4CB               ; C4B5  $B0 $14
-    LSR A                    ; C4B7  $4A
-    BCS L3C4D2               ; C4B8  $B0 $18
-    LSR A                    ; C4BA  $4A
-    BCS L3C4C4               ; C4BB  $B0 $07
-    LDX #$07                 ; C4BD  $A2 $07
-    LDY #$06                 ; C4BF  $A0 $06
-    JMP L3C4D6               ; C4C1  $4C $D6 $C4
+	LSR A			; C4B4  $4A
+	BCS L3C4CB		; C4B5  $B0 $14		right
+	LSR A			; C4B7  $4A
+	BCS L3C4D2		; C4B8  $B0 $18		left
+	LSR A			; C4BA  $4A
+	BCS L3C4C4		; C4BB  $B0 $07		down
+	LDX #$07		; C4BD  $A2 $07
+	LDY #$06		; C4BF  $A0 $06
+	JMP L3C4D6		; C4C1  $4C $D6 $C4	up
 L3C4C4:
     LDX #$07                 ; C4C4  $A2 $07
     LDY #$08                 ; C4C6  $A0 $08
@@ -738,8 +750,8 @@ L3C4D2:
     LDX #$06                 ; C4D2  $A2 $06
     LDY #$07                 ; C4D4  $A0 $07
 L3C4D6:
-    TXA                      ; C4D6  $8A
-    CLC                      ; C4D7  $18
+	TXA			; C4D6  $8A
+	CLC			; C4D7  $18
 	ADC ow_x_pos		; C4D8  $65 $27
 	STA $80			; C4DA  $85 $80		X(ADDR)
 	STA $82			; C4DC  $85 $82
@@ -749,7 +761,7 @@ L3C4D6:
 	STA $83			; C4E2  $85 $83
 	AND #$0F		; C4E4  $29 $0F
 	ORA #$70		; C4E6  $09 $70
-	STA $81			; C4E8  $85 $81		X(ADDR)
+	STA $81			; C4E8  $85 $81		Y(ADDR)
 	LDY #$00		; C4EA  $A0 $00
 	LDA ($80),Y		; C4EC  $B1 $80
 	ASL A			; C4EE  $0A
@@ -937,20 +949,24 @@ C650:
     CLC                      ; C652  $18
     RTS                      ; C653  $60
 
+; Name	: Check_snow_river
+; Ret	: Carry flag(Set: nothing ??, Reset: snow or river??)
+; Marks	: Check snow/river
 ;; sub start ;;
-    LDA $44                  ; C654  $A5 $44
-    AND #$02                 ; C656  $29 $02
-    BNE L3C689               ; C658  $D0 $2F
-    CPX #$4C                 ; C65A  $E0 $4C
-    BNE C669                 ; C65C  $D0 $0B
-    LDA $601A                ; C65E  $AD $1A $60
-    AND #$20                 ; C661  $29 $20
-    BEQ L3C689               ; C663  $F0 $24
-    LDA #$58                 ; C665  $A9 $58
-    BNE C672                 ; C667  $D0 $09
+Check_snow_river:
+	LDA tile_prop		; C654  $A5 $44
+	AND #$02		; C656  $29 $02
+	BNE L3C689		; C658  $D0 $2F
+	CPX #$4C		; C65A  $E0 $4C
+	BNE C669		; C65C  $D0 $0B
+	LDA key_items		; C65E  $AD $1A $60
+	AND #$20		; C661  $29 $20		snowcraft
+	BEQ L3C689		; C663  $F0 $24
+	LDA #$58		; C665  $A9 $58
+	BNE C672		; C667  $D0 $09
 C669:
-    LDA $601A                ; C669  $AD $1A $60
-    AND #$04                 ; C66C  $29 $04
+	LDA key_items		; C669  $AD $1A $60
+	AND #$04		; C66C  $29 $04		canoe
     BEQ L3C689               ; C66E  $F0 $19
     LDA #$40                 ; C670  $A9 $40
 C672:
@@ -968,12 +984,16 @@ C672:
     RTS                      ; C688  $60
 
 L3C689:
-    SEC                      ; C689  $38
-    RTS                      ; C68A  $60
+	SEC			; C689  $38
+	RTS			; C68A  $60
+; End of Check_snow_river/check pirate ship??/check ship ??
 
+; Name	:
+; Ret	: Carry flag(Set: nothing ??, Reset: )
+; Marks	: check pirate ship ??
 ;; sub start ;;
-    LDA $6000                ; C68B  $AD $00 $60
-    BEQ L3C689               ; C68E  $F0 $F9
+	LDA pirateship_flag	; C68B  $AD $00 $60
+	BEQ L3C689		; C68E  $F0 $F9
     LDA $6001                ; C690  $AD $01 $60
     CMP $82                  ; C693  $C5 $82
     BNE L3C689               ; C695  $D0 $F2
@@ -1000,11 +1020,15 @@ C6B9:
     STA $47                  ; C6C3  $85 $47
     CLC                      ; C6C5  $18
     RTS                      ; C6C6  $60
+; End of check pirate ship ??
 
+; Name	:
+; Ret	: Carry flag(Set: , Reset: )
+; Marks	: Check ship ??
 ;; sub start ;;
-    LDA $600C                ; C6C7  $AD $0C $60
-    CMP #$02                 ; C6CA  $C9 $02
-    BCC L3C689               ; C6CC  $90 $BB
+	LDA ship_flag		; C6C7  $AD $0C $60
+	CMP #$02		; C6CA  $C9 $02
+	BCC L3C689		; C6CC  $90 $BB
     LDA $600D                ; C6CE  $AD $0D $60
     CMP $82                  ; C6D1  $C5 $82
     BNE L3C689               ; C6D3  $D0 $B4
@@ -1035,6 +1059,7 @@ L3C6F4:
     LDA #$00                 ; C709  $A9 $00
     STA $17                  ; C70B  $85 $17
     RTS                      ; C70D  $60
+; End of Check ship ??
 
 ; Name	:
 ; Ret	: Carry flag(Set: , Reset: )
@@ -2885,8 +2910,10 @@ L3D30B:
     JMP $9C00                ; D372  $4C $00 $9C
 
 ; Name	: Set_wmap_tile
-; Marks	: $2C, $80(ADDR) = world tilemaps,(even=tilemap,odd=tile count)
+; Marks	: $2C = next overworld y position ??
+;	  $80(ADDR) = world tilemaps,(even=tilemap,odd=tile count)
 ;	  $82(ADDR) = tilemap buffer(RAM), $86(ADDR) = pointers to world tilemaps
+;	  $84 = calcurated tile map ??
 ;	  Set world map tile
    ;; sub start ;;
 Set_wmap_tile:
@@ -2896,7 +2923,7 @@ Set_wmap_tile:
 	STA $87			; D37C  $85 $87
 	LDA #$00		; D37E  $A9 $00
 	STA $86			; D380  $85 $86
-	LDA $2C			; D382  $A5 $2C
+	LDA $2C			; D382  $A5 $2C		next overworld y position ??
 	TAX			; D384  $AA
 	ASL A			; D385  $0A
 	BCC L3D38A		; D386  $90 $02
@@ -3019,7 +3046,7 @@ L3D433:
 	LDA ow_y_pos		; D433  $A5 $28
 	SEC			; D435  $38
 	SBC #$01		; D436  $E9 $01
-	STA $2C			; D438  $85 $2C
+	STA $2C			; D438  $85 $2C		next overworld y position ??
 	LDA $2F			; D43A  $A5 $2F
 	SEC			; D43C  $38
 	SBC #$01		; D43D  $E9 $01
@@ -3027,7 +3054,7 @@ L3D433:
 	CLC			; D441  $18
 	ADC #$0F		; D442  $69 $0F
 L3D444:
-	STA $30			; D444  $85 $30
+	STA $30			; D444  $85 $30		$2F - 1 + 0fh ??
 	LDA ow_x_pos		; D446  $A5 $27
 	STA $2B			; D448  $85 $2B
 	AND #$1F		; D44A  $29 $1F
@@ -4522,7 +4549,7 @@ L3DDF6:
 	LDA $8C			; DDF6  $A5 $8C
 	AND #$02		; DDF8  $29 $02
 	BNE L3DE05		; DDFA  $D0 $09
-	JSR L3C380		; DDFC  $20 $80 $C3	scroll ??
+	JSR L3C380		; DDFC  $20 $80 $C3	scroll
 	LDA #$0A		; DDFF  $A9 $0A		show background
 	STA PpuMask_2001	; DE01  $8D $01 $20
 	RTS			; DE04  $60
@@ -4865,7 +4892,7 @@ L3E003:
 ; SRC	: $43 == ??
 ; Marks	:
 ;; sub start ;;
-	JSR $E073		; E017  $20 $73 $E0	Tile move ?? cursor ?? sprite ??
+	JSR $E073		; E017  $20 $73 $E0	Tile move ?? cursor ?? set sprite buffer ??
 	LDA $43			; E01A  $A5 $43		what is this ??
 	AND #$12		; E01C  $29 $12
 	BEQ L3E030		; E01E  $F0 $10		if A == 00h
@@ -4913,19 +4940,19 @@ L3E06D:
 
 ; Name	:
 ; Y	: vehicle ??
-; Marks	:
+; Marks	: $80(ADDR), $82
 ;; sub start ;;
 	LDA #$70		; E073  $A9 $70
-	STA $40			; E075  $85 $40
+	STA oam_x		; E075  $85 $40
 	LDA $E16B,Y		; E077  $B9 $6B $E1
 	CPY #$08		; E07A  $C0 $08		airship ??
-    BNE L3E086               ; E07C  $D0 $08		if Y != 08h
-    STA $41                  ; E07E  $85 $41
+	BNE L3E086		; E07C  $D0 $08		if Y != 08h
+	STA oam_y		; E07E  $85 $41
     LDA $F0                  ; E080  $A5 $F0
     ASL A                    ; E082  $0A
     JMP L3E08E               ; E083  $4C $8E $E0
 L3E086:
-	STA $41			; E086  $85 $41
+	STA oam_y		; E086  $85 $41
 	LDA hor_stile_pos	; E088  $A5 $35		buttons_held xx
 	BNE L3E08E		; E08A  $D0 $02		if A != 00h
 	LDA ver_stile_pos	; E08C  $A5 $36		button_repeat_counter xx
@@ -5052,7 +5079,7 @@ Set_cur_data:
 	LDA $26			; E163  $A5 $26		point to next available sprites ??
 	CLC			; E165  $18
 	ADC #$10		; E166  $69 $10
-	STA $26			; E168  $85 $26	point to next available sprites ??
+	STA $26			; E168  $85 $26		point to next available sprites ??
 	RTS			; E16A  $60
 ; End of Set_cur_data
 
@@ -5270,7 +5297,7 @@ E275:
 ; End of
 
 ;data block---
-;; [$E31F : player direction ??
+;; [$E31F : player direction ?? - 1h(right):00h, 2h(left):10h, 4h(down):30h, 8h(up):20h
 .byte $00
 ;; [$E320 : 3E330]
 .byte $00,$10,$00,$30,$00,$10,$00,$20,$00,$10,$00,$30,$00,$10,$00,$09
