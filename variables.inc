@@ -30,7 +30,7 @@ _2C_unknown		= $2C
 
 ;---- --hn
 scroll_dir_map		= $2D
-_2F_unknown		= $2F		; y position ??
+nt_y_pos		= $2F
 
 _30_unknown		= $30
 _31_unknown		= $31

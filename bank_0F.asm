@@ -139,7 +139,7 @@ WM_LOOP:
 	LDA #$02		; C0CC  $A9 $02
 	STA SpriteDma_4014	; C0CE  $8D $14 $40
 	JSR Map_water_flow	; C0D1  $20 $F3 $C2
-	JSR $C36F		; C0D4  $20 $6F $C3	Character_movement ?? + scroll ??
+	JSR $C36F		; C0D4  $20 $6F $C3	Character_movement ??
 	LDA frame_cnt_L		; C0D7  $A5 $F0		Increase frame counter
 	CLC			; C0D9  $18
 	ADC #$01		; C0DA  $69 $01
@@ -491,8 +491,8 @@ Map_water_flow:
 ; Marks	: Character_movement ?? Scroll(Map) ??
 ;; sub start ;;
 	LDA mov_spd		; C36F  $A5 $34
-	BEQ L3C380		; C371  $F0 $0D		if not move, scroll
-	JSR $C3FE		; C373  $20 $FE $C3	move animation ??
+	BEQ Scroll_map		; C371  $F0 $0D		if not move, scroll
+	JSR Move_pos		; C373  $20 $FE $C3
 	LDA vehicle_ID		; C376  $A5 $42
 	CMP #$01		; C378  $C9 $01
 	BNE L3C37F		; C37A  $D0 $03
@@ -501,9 +501,9 @@ L3C37F:
 	RTS			; C37F  $60
 ; End of Character_movement ??
 
-; Name	:
-; Marks	: Scroll(Map)
-L3C380:
+; Name	: Scroll_map
+; Marks	: PpuScroll world map
+Scroll_map:
 	LDA #$1E		; C380  $A9 $1E
 	STA PpuMask_2001	; C382  $8D $01 $20
 	LDA ppu_con_p		; C385  $A5 $FD
@@ -517,7 +517,7 @@ L3C380:
 	ASL A			; C394  $0A
 	ORA hor_stile_pos	; C395  $05 $35
 	STA PpuScroll_2005	; C397  $8D $05 $20
-	LDA $2F			; C39A  $A5 $2F
+	LDA nt_y_pos		; C39A  $A5 $2F
 	ASL A			; C39C  $0A
 	ASL A			; C39D  $0A
 	ASL A			; C39E  $0A
@@ -525,14 +525,14 @@ L3C380:
 	ORA ver_stile_pos	; C3A0  $05 $36
 	STA PpuScroll_2005	; C3A2  $8D $05 $20
 	RTS			; C3A5  $60
-; End of Character_movement ??
+; End of Scroll_map
 
 L3C3A6:
-    LDA $32                  ; C3A6  $A5 $32
-    BEQ L3C3AD               ; C3A8  $F0 $03
+	LDA map_update		; C3A6  $A5 $32		RIGHT
+	BEQ L3C3AD		; C3A8  $F0 $03
 	JSR Map_update		; C3AA  $20 $1B $D2
 L3C3AD:
-    JSR L3C380               ; C3AD  $20 $80 $C3
+	JSR Scroll_map		; C3AD  $20 $80 $C3
     LDA $35                  ; C3B0  $A5 $35
     CLC                      ; C3B2  $18
     ADC $34                  ; C3B3  $65 $34
@@ -540,6 +540,7 @@ L3C3AD:
     BEQ L3C3BC               ; C3B7  $F0 $03
     STA $35                  ; C3B9  $85 $35
     RTS                      ; C3BB  $60
+; End of Move_pos
 
 L3C3BC:
     STA $34                  ; C3BC  $85 $34
@@ -553,13 +554,14 @@ L3C3BC:
     CMP #$10                 ; C3CB  $C9 $10
     ROL $FD                  ; C3CD  $26 $FD
     RTS                      ; C3CF  $60
+; End of Move_pos
 
-L3C3D0:
-    LDA $32                  ; C3D0  $A5 $32
-    BEQ L3C3D7               ; C3D2  $F0 $03
+MOVE_POS_LEFT:
+	LDA map_update		; C3D0  $A5 $32		LEFT
+	BEQ L3C3D7		; C3D2  $F0 $03
 	JSR Map_update		; C3D4  $20 $1B $D2
 L3C3D7:
-    JSR L3C380               ; C3D7  $20 $80 $C3
+	JSR Scroll_map		; C3D7  $20 $80 $C3
     LDA $35                  ; C3DA  $A5 $35
     BNE L3C3EF               ; C3DC  $D0 $11
     LDA $27                  ; C3DE  $A5 $27
@@ -578,24 +580,30 @@ L3C3EF:
     BEQ L3C3F9               ; C3F4  $F0 $03
     STA $35                  ; C3F6  $85 $35
     RTS                      ; C3F8  $60
+; End of Move_pos
 
 L3C3F9:
     STA $34                  ; C3F9  $85 $34
     STA $35                  ; C3FB  $85 $35
     RTS                      ; C3FD  $60
+; End of Move_pos
 
-; Name	:
-; Marks	: move animation
+; Name	: Move_pos
+; Marks	: move process in over world map
+;	  map updates when moving 8 pixels.(up/down)
+;	  using move speed as moving step
+;	  field
 ;; sub start ;;
+Move_pos:
 	LDA player_dir		; C3FE  $A5 $33
 	LSR A			; C400  $4A
 	BCS L3C3A6		; C401  $B0 $A3		if right
 	LSR A			; C403  $4A
-	BCS L3C3D0		; C404  $B0 $CA		if left
+	BCS MOVE_POS_LEFT	; C404  $B0 $CA		if left
 	LSR A			; C406  $4A
-	BCS L3C40C		; C407  $B0 $03		if down
-	JMP L3C43C		; C409  $4C $3C $C4
-L3C40C:
+	BCS MOVE_POS_DOWN	; C407  $B0 $03		if down
+	JMP MOVE_POS_UP		; C409  $4C $3C $C4
+MOVE_POS_DOWN:
 	LDA map_update		; C40C  $A5 $32		DOWN
 	BEQ L3C419		; C40E  $F0 $09
 	LDA ver_stile_pos	; C410  $A5 $36
@@ -603,31 +611,32 @@ L3C40C:
 	BCC L3C419		; C414  $90 $03
 	JSR Map_update		; C416  $20 $1B $D2
 L3C419:
-	JSR L3C380		; C419  $20 $80 $C3	scroll
+	JSR Scroll_map		; C419  $20 $80 $C3
 	LDA ver_stile_pos	; C41C  $A5 $36
 	CLC			; C41E  $18
 	ADC mov_spd		; C41F  $65 $34		move animation effect(down) by sub tile position
 	AND #$0F		; C421  $29 $0F
-	BEQ L3C428		; C423  $F0 $03
+	BEQ MOVE_POS_D_FIN	; C423  $F0 $03
 	STA ver_stile_pos	; C425  $85 $36
 	RTS			; C427  $60
-; End of
+; End of Move_pos
 
-L3C428:
-    STA $34                  ; C428  $85 $34
-    STA $36                  ; C42A  $85 $36
-    INC $28                  ; C42C  $E6 $28
-    LDA $2F                  ; C42E  $A5 $2F
-    CLC                      ; C430  $18
-    ADC #$01                 ; C431  $69 $01
-    CMP #$0F                 ; C433  $C9 $0F
-    BCC L3C439               ; C435  $90 $02
-    SBC #$0F                 ; C437  $E9 $0F
+MOVE_POS_D_FIN:
+	STA mov_spd		; C428  $85 $34
+	STA ver_stile_pos	; C42A  $85 $36
+	INC ow_y_pos		; C42C  $E6 $28
+	LDA nt_y_pos		; C42E  $A5 $2F
+	CLC			; C430  $18
+	ADC #$01		; C431  $69 $01
+	CMP #$0F		; C433  $C9 $0F
+	BCC L3C439		; C435  $90 $02
+	SBC #$0F		; C437  $E9 $0F
 L3C439:
-    STA $2F                  ; C439  $85 $2F
-    RTS                      ; C43B  $60
+	STA nt_y_pos		; C439  $85 $2F
+	RTS			; C43B  $60
+; End of Move_pos
 
-L3C43C:
+MOVE_POS_UP:
 	LDA map_update		; C43C  $A5 $32		UP
 	BEQ L3C449		; C43E  $F0 $09
 	LDA ver_stile_pos	; C440  $A5 $36
@@ -635,17 +644,17 @@ L3C43C:
 	BNE L3C449		; C444  $D0 $03
 	JSR Map_update		; C446  $20 $1B $D2
 L3C449:
-	JSR L3C380		; C449  $20 $80 $C3	scroll
+	JSR Scroll_map		; C449  $20 $80 $C3
 	LDA ver_stile_pos	; C44C  $A5 $36
 	BNE L3C45F		; C44E  $D0 $0F
 	DEC ow_y_pos		; C450  $C6 $28
-	LDA $2F			; C452  $A5 $2F
+	LDA nt_y_pos		; C452  $A5 $2F
 	SEC			; C454  $38
 	SBC #$01		; C455  $E9 $01		move animation effect(up) by sub tile position
 	BCS L3C45B		; C457  $B0 $02
 	ADC #$0F		; C459  $69 $0F
 L3C45B:
-	STA $2F			; C45B  $85 $2F
+	STA nt_y_pos		; C45B  $85 $2F
 	LDA ver_stile_pos	; C45D  $A5 $36
 L3C45F:
 	SEC			; C45F  $38
@@ -654,13 +663,13 @@ L3C45F:
 	BEQ L3C469		; C464  $F0 $03
 	STA ver_stile_pos	; C466  $85 $36
 	RTS			; C468  $60
-; End of move animation ??
+; End of Move_pos
 
 L3C469:
 	STA mov_spd		; C469  $85 $34
 	STA ver_stile_pos	; C46B  $85 $36
 	RTS			; C46D  $60
-; End of move animation ??
+; End of Move_pos
 
 ; Name	: Init_Page2
 ; Marks	: Fill #$F0 $0200 - @02FF
@@ -1279,7 +1288,7 @@ C817:
 	STA $FF			; C87A  $85 $FF		ppu_con_c
 	JSR Wait_NMI		; C87C  $20 $00 $FE
 	JSR Palette_copy	; C87F  $20 $30 $DC
-	JSR L3C380		; C882  $20 $80 $C3	scroll
+	JSR Scroll_map		; C882  $20 $80 $C3
 	LDA #$00		; C885  $A9 $00
 	STA PpuMask_2001	; C887  $8D $01 $20
 	LDA #BGM_feild		; C88A  $A9 $44
@@ -1676,7 +1685,7 @@ L3CB64:
 	JSR Wait_NMI		; CB67  $20 $00 $FE
 	LDA #$02		; CB6A  $A9 $02
 	STA SpriteDma_4014	; CB6C  $8D $14 $40
-    JSR L3CDF5               ; CB6F  $20 $F5 $CD
+	JSR Scroll_normal	; CB6F  $20 $F5 $CD
 	LDA #$1E		; CB72  $A9 $1E		show sprite/backgnd
 	STA PpuMask_2001	; CB74  $8D $01 $20
     JSR L3C746               ; CB77  $20 $46 $C7
@@ -2063,7 +2072,7 @@ L3CDBF:
 	JSR $D02B		; CDD5  $20 $2B $D0 	Check item?? door??
     LDA PpuStatus_2002       ; CDD8  $AD $02 $20
     LDA $34                  ; CDDB  $A5 $34	mov_spd ??
-    BEQ L3CDF5               ; CDDD  $F0 $16	if A == 00h
+	BEQ Scroll_normal	; CDDD  $F0 $16		if A == 00h
     JSR $CE6F                ; CDDF  $20 $6F $CE
     JSR L3C8E7               ; CDE2  $20 $E7 $C8
     LDA $44                  ; CDE5  $A5 $44
@@ -2076,35 +2085,35 @@ L3CDBF:
 L3CDF4:
     RTS                      ; CDF4  $60
 
-; Name	:
-; Marks	: PpuScroll ??
-L3CDF5:
-	LDA $FD			; CDF5  $A5 $FD	ppu_control(pending)
-	STA $FF			; CDF7  $85 $FF	ppu_control(current)
+; Name	: Scroll_normal
+; Marks	: PpuScroll normal
+Scroll_normal:
+	LDA $FD			; CDF5  $A5 $FD		ppu_control(pending)
+	STA $FF			; CDF7  $85 $FF		ppu_control(current)
 	STA PpuControl_2000	; CDF9  $8D $00 $20
 	LDA in_x_pos		; CDFC  $A5 $29
 	ASL A			; CDFE  $0A
 	ASL A			; CDFF  $0A
 	ASL A			; CE00  $0A
 	ASL A			; CE01  $0A
-	ORA hor_stile_pos	; CE02  $05 $35		buttons_held ??
+	ORA hor_stile_pos	; CE02  $05 $35
 	STA PpuScroll_2005	; CE04  $8D $05 $20
 	LDA $2F			; CE07  $A5 $2F		y position ??
 	ASL A			; CE09  $0A
 	ASL A			; CE0A  $0A
 	ASL A			; CE0B  $0A
 	ASL A			; CE0C  $0A
-	ORA ver_stile_pos	; CE0D  $05 $36		buttons_repeat_count ??
+	ORA ver_stile_pos	; CE0D  $05 $36
 	STA PpuScroll_2005	; CE0F  $8D $05 $20
 	RTS			; CE12  $60
-; End of
+; End of Scroll_normal
 
 L3CE13:
     LDA $32                  ; CE13  $A5 $32
     BEQ L3CE1A               ; CE15  $F0 $03
 	JSR Map_update		; CE17  $20 $1B $D2
 L3CE1A:
-    JSR L3CDF5               ; CE1A  $20 $F5 $CD
+	JSR Scroll_normal	; CE1A  $20 $F5 $CD
     LDA $35                  ; CE1D  $A5 $35
     CLC                      ; CE1F  $18
     ADC $34                  ; CE20  $65 $34
@@ -2132,7 +2141,7 @@ L3CE3F:
     BEQ L3CE46               ; CE41  $F0 $03
 	JSR Map_update		; CE43  $20 $1B $D2
 L3CE46:
-    JSR L3CDF5               ; CE46  $20 $F5 $CD
+	JSR Scroll_normal	; CE46  $20 $F5 $CD
     LDA $35                  ; CE49  $A5 $35
     BNE L3CE60               ; CE4B  $D0 $13
     LDA $29                  ; CE4D  $A5 $29
@@ -2175,7 +2184,7 @@ L3CE7D:
     BNE L3CE8A               ; CE85  $D0 $03
 	JSR Map_update		; CE87  $20 $1B $D2
 L3CE8A:
-    JSR L3CDF5               ; CE8A  $20 $F5 $CD
+	JSR Scroll_normal	; CE8A  $20 $F5 $CD
     LDA $36                  ; CE8D  $A5 $36
     CLC                      ; CE8F  $18
     ADC $34                  ; CE90  $65 $34
@@ -2210,7 +2219,7 @@ L3CEB4:
     BNE L3CEC1               ; CEBC  $D0 $03
 	JSR Map_update		; CEBE  $20 $1B $D2
 L3CEC1:
-    JSR L3CDF5               ; CEC1  $20 $F5 $CD
+	JSR Scroll_normal	; CEC1  $20 $F5 $CD
     LDA $36                  ; CEC4  $A5 $36
     BNE L3CEDE               ; CEC6  $D0 $16
     LDA $2A                  ; CEC8  $A5 $2A
@@ -2505,7 +2514,7 @@ L3D07B:
     STA $FF                  ; D0E1  $85 $FF
     JSR Wait_NMI		; JSR $FE00                ; D0E3  $20 $00 $FE
     JSR Palette_copy		; JSR $DC30                ; D0E6  $20 $30 $DC
-    JSR L3CDF5               ; D0E9  $20 $F5 $CD
+	JSR Scroll_normal	; D0E9  $20 $F5 $CD
     LDA #$00                 ; D0EC  $A9 $00
     STA PpuMask_2001         ; D0EE  $8D $01 $20
     LDA #$04                 ; D0F1  $A9 $04
@@ -2629,7 +2638,7 @@ L3D19D:
 	PHA			; D1A8  $48
 	LDA $67			; D1A9  $A5 $67
 	STA $2F			; D1AB  $85 $2F
-	JSR L3CDF5		; D1AD  $20 $F5 $CD	ppu scroll ??
+	JSR Scroll_normal	; D1AD  $20 $F5 $CD
 	PLA			; D1B0  $68
 	STA $2F			; D1B1  $85 $2F
 	JSR L3C746		; D1B3  $20 $46 $C7	sound process ??
@@ -2703,6 +2712,7 @@ L3D217:
 
 ; Name	: Map_update
 ; Marks	: background processing ??
+;	  map_update done(set to 00h)
 ;; sub start ;;
 Map_update:
 	JSR $D66A		; D21B  $20 $6A $D6	copy from tile to PPU
@@ -3779,7 +3789,9 @@ L3D910:
     BCS L3D932               ; D92D  $B0 $03
     JMP $C385                ; D92F  $4C $85 $C3
 L3D932:
-    JMP L3CDF5               ; D932  $4C $F5 $CD
+	JMP Scroll_normal	; D932  $4C $F5 $CD
+; End of
+
    ;; sub start ;;
     JSR Wait_NMI		; JSR $FE00                ; D935  $20 $00 $FE
     JSR $D922                ; D938  $20 $22 $D9
@@ -4336,10 +4348,10 @@ L3DC73:
     LDA $2D                  ; DC76  $A5 $2D
     LSR A                    ; DC78  $4A
     BCC L3DC81               ; DC79  $90 $06
-    JSR L3CDF5               ; DC7B  $20 $F5 $CD
+	JSR Scroll_normal	; DC7B  $20 $F5 $CD
     JMP $DC84                ; DC7E  $4C $84 $DC
 L3DC81:
-    JSR L3C380               ; DC81  $20 $80 $C3
+	JSR Scroll_map		; DC81  $20 $80 $C3
     LDA $8C                  ; DC84  $A5 $8C
     ASL A                    ; DC86  $0A
     ASL A                    ; DC87  $0A
@@ -4419,7 +4431,7 @@ L3DD06:
 L3DD12:
     JSR Wait_NMI		; JSR $FE00                ; DD12  $20 $00 $FE
     JSR $DCB5                ; DD15  $20 $B5 $DC
-    JSR L3CDF5               ; DD18  $20 $F5 $CD
+	JSR Scroll_normal	; DD18  $20 $F5 $CD
     JSR L3C746               ; DD1B  $20 $46 $C7
     PLA                      ; DD1E  $68
     CLC                      ; DD1F  $18
@@ -4445,7 +4457,7 @@ L3DD35:
     BEQ L3DD35               ; DD42  $F0 $F1
     JSR Wait_NMI		; JSR $FE00                ; DD44  $20 $00 $FE
     JSR Palette_copy		; JSR $DC30                ; DD47  $20 $30 $DC
-    JSR L3CDF5               ; DD4A  $20 $F5 $CD
+	JSR Scroll_normal	; DD4A  $20 $F5 $CD
     LDA $57                  ; DD4D  $A5 $57
     JMP Swap_PRG_               ; DD4F  $4C $03 $FE
     LDA $DD73,X              ; DD52  $BD $73 $DD
@@ -4549,14 +4561,14 @@ L3DDF6:
 	LDA $8C			; DDF6  $A5 $8C
 	AND #$02		; DDF8  $29 $02
 	BNE L3DE05		; DDFA  $D0 $09
-	JSR L3C380		; DDFC  $20 $80 $C3	scroll
+	JSR Scroll_map		; DDFC  $20 $80 $C3
 	LDA #$0A		; DDFF  $A9 $0A		show background
 	STA PpuMask_2001	; DE01  $8D $01 $20
 	RTS			; DE04  $60
 ; End of
 
 L3DE05:
-    JSR L3CDF5               ; DE05  $20 $F5 $CD
+	JSR Scroll_normal	; DE05  $20 $F5 $CD
     LDA #$0A                 ; DE08  $A9 $0A
     STA PpuMask_2001         ; DE0A  $8D $01 $20
     RTS                      ; DE0D  $60
@@ -4850,7 +4862,7 @@ DFA0:
     CLC                      ; DFC5  $18
     ADC #$01                 ; DFC6  $69 $01
     STA $F0                  ; DFC8  $85 $F0
-    JSR L3C380               ; DFCA  $20 $80 $C3
+	JSR Scroll_map		; DFCA  $20 $80 $C3
 	JSR Init_Page2		; DFCD  $20 $6E $C4
     JSR L3C746               ; DFD0  $20 $46 $C7
     LDA #$70                 ; DFD3  $A9 $70
@@ -6280,7 +6292,7 @@ L3E9A9:
 Scroll:
 	LDA text_win_mode	; E9D5  $A5 $37
 	BNE L3E9DC		; E9D7  $D0 $03
-	JMP L3CDF5		; E9D9  $4C $F5 $CD
+	JMP Scroll_normal	; E9D9  $4C $F5 $CD
 ; End of Scroll
 L3E9DC:
 	LDA #$00		; E9DC  $A9 $00
@@ -8132,6 +8144,7 @@ PpuScroll_reset:
     STA PpuScroll_2005       ; F68B  $8D $05 $20
     STA PpuScroll_2005       ; F68E  $8D $05 $20
     RTS                      ; F691  $60
+; End of
 
 ; Title screen tile address ($13 means $B130)
  ;data block---
