@@ -666,9 +666,23 @@ A045:
 	RTS			; A14C	$60
 ; End of
 L0E14D:
-.byte $A6,$F1,$BD
-.byte $00,$F9,$29,$3F,$8D,$06,$60,$A9,$00,$8D,$05,$60,$A5,$F1,$4A,$4A
-.byte $4A,$4A,$18,$69,$01,$8D,$07,$60,$18,$60
+	LDX frame_cnt_H		; A14D	$A6 $F1
+	LDA $F900,X		; A14F	$BD $00 $F9	random number table
+	AND #$3F		; A152	$29 $3F
+	STA airship_y		; A154	$8D $06 $60
+	LDA #$00		; A157	$A9 $00
+	STA airship_x		; A159	$8D $05 $60
+	LDA frame_cnt_H		; A15C	$A5 $F1
+	LSR A			; A15E	$4A
+	LSR A			; A15F	$4A
+	LSR A			; A160	$4A
+	LSR A			; A161	$4A
+	CLC			; A162	$18
+	ADC #$01		; A163	$69 $01
+	STA airship_flyover	; A165	$8D $07 $60
+	CLC			; A168	$18
+	RTS			; A169	$60
+; End of
 L0E16A:
 	LDA frame_cnt_L		; A16A	$A5 $F0
 	AND #$0F		; A16C	$29 $0F

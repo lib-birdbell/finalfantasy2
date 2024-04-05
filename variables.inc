@@ -82,6 +82,7 @@ _64_palette_tmp		= $64
 _66_unknown		= $66
 _67_unknown		= $67
 _69_unknown		= $69
+_6A_unknown		= $6A
 
 event			= $6C
 map_water_cnt		= $6D
@@ -164,7 +165,9 @@ frame_cnt_H	   = $F1	; Timer, Increases by 1 Every time $F0 Overflows, Every tim
 rng_cnt			= $F5
 rng_tbl_dir		= $F6
 
-skip_intro	   = $FA	; $77 is already saw the logo screen, else is Show logo screen.
+rng_cnt_bat		= $F7
+
+skip_intro		= $FA	; $77 is already saw the logo screen, else is Show logo screen.
 
 ppu_con_p		= $FD
 ppu_mask		= $FE

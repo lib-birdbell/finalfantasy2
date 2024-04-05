@@ -107,7 +107,7 @@ SAVEFILE_SEL:
 	STA ch_stats_4		; C088  $8D $C0 $61
 	LDX #$00		; C08B  $A2 $00
 	LDA #$7F		; C08D  $A9 $7F
-	JSR $FA00		; C08F  $20 $00 $FA	battle ??
+	JSR $FA00		; C08F  $20 $00 $FA	battle code
 	LDA #$80		; C092  $A9 $80
 	STA $62F5		; C094  $8D $F5 $62	trigger id ?? (event??)
 	LDX #$00		; C097  $A2 $00
@@ -161,13 +161,13 @@ WM_LOOP:
 L3C0FB:
 	LDA mov_spd		; C0FB  $A5 $34
 	BNE L3C109		; C0FD  $D0 $0A
-	LDA $46			; C0FF  $A5 $46		previous vehicle id ??
+	LDA $46			; C0FF  $A5 $46		previous vehicle id ?? next vehicle id ??
 	STA vehicle_ID		; C101  $85 $42
 	JSR $C159		; C103  $20 $59 $C1	check tile properties and pressed key ??
 	JSR $C266		; C106  $20 $66 $C2	check event/key by timer/vehicle??/cannot move??
 L3C109:
 	JSR Init_Page2		; C109  $20 $6E $C4
-	JSR $E009		; C10C  $20 $09 $E0	check vehicle ??
+	JSR $E009		; C10C  $20 $09 $E0	sprite ?? check vehicle ??
 	LDA airship_flag	; C10F  $AD $04 $60
 	ORA $6C			; C112  $05 $6C
 	BNE L3C126		; C114  $D0 $10
@@ -214,7 +214,7 @@ C143:
 	LDA tile_prop		; C159  $A5 $44		map tile property ??
 	BMI L3C1C7		; C15B  $30 $6A
 	AND #$20		; C15D  $29 $20
-	BNE L3C1B1		; C15F  $D0 $50
+	BNE L3C1B1		; C15F  $D0 $50		if battle/encounter ??
 	LDA s_pressing		; C161  $A5 $23
 	BEQ L3C181		; C163  $F0 $1C		if start key not pressing
 	LDA #$00		; C165  $A9 $00
@@ -254,14 +254,14 @@ L3C1B0:
 ; End of check tile properties and key ??
 
 L3C1B1:
-    JSR $DC6A                ; C1B1  $20 $6A $DC
-    LDA #$00                 ; C1B4  $A9 $00
-    STA PpuMask_2001         ; C1B6  $8D $01 $20
-    STA ApuStatus_4015       ; C1B9  $8D $15 $40
+	JSR $DC6A		; C1B1  $20 $6A $DC	battle encount graphic/sound effect
+	LDA #$00		; C1B4  $A9 $00		hide sprite/background
+	STA PpuMask_2001	; C1B6  $8D $01 $20
+	STA ApuStatus_4015	; C1B9  $8D $15 $40
 	JSR Get_bat_bg		; C1BC  $20 $5C $C7
-    LDA $6A                  ; C1BF  $A5 $6A
-    JSR $FA00                ; C1C1  $20 $00 $FA
-    JMP L3C8BC               ; C1C4  $4C $BC $C8
+	LDA $6A			; C1BF  $A5 $6A
+	JSR $FA00		; C1C1  $20 $00 $FA	battle code
+	JMP L3C8BC		; C1C4  $4C $BC $C8
 L3C1C7:
     LDA #$30                 ; C1C7  $A9 $30
     STA NoiseVolume_400C     ; C1C9  $8D $0C $40
@@ -438,52 +438,52 @@ L3C2E2:
 ; Name	: Map_water_flow
 ; Marks	: map water animation counter
 ;	  $80, $81 is temp variables
-Map_water_flow:
    ;; sub start ;;
+Map_water_flow:
 	LDA map_water_cnt	; C2F3  $A5 $6D
-    CLC                      ; C2F5  $18
-    ADC #$03                 ; C2F6  $69 $03
+	CLC			; C2F5  $18
+	ADC #$03		; C2F6  $69 $03
 	STA map_water_cnt	; C2F8  $85 $6D
-    AND #$0F                 ; C2FA  $29 $0F
-    ASL A                    ; C2FC  $0A
-    TAX                      ; C2FD  $AA
-    LDA PpuStatus_2002       ; C2FE  $AD $02 $20
-    LDA #$03                 ; C301  $A9 $03
-    STA PpuAddr_2006         ; C303  $8D $06 $20
-    LDA $C34F,X              ; C306  $BD $4F $C3
-    STA PpuAddr_2006         ; C309  $8D $06 $20
-    LDA PpuData_2007         ; C30C  $AD $07 $20
-    LDA PpuData_2007         ; C30F  $AD $07 $20
-    STA $80                  ; C312  $85 $80
-    LDA #$03                 ; C314  $A9 $03
-    STA PpuAddr_2006         ; C316  $8D $06 $20
-    LDA $C350,X              ; C319  $BD $50 $C3
-    STA PpuAddr_2006         ; C31C  $8D $06 $20
-    LDA PpuData_2007         ; C31F  $AD $07 $20
-    LDA PpuData_2007         ; C322  $AD $07 $20
-    STA $81                  ; C325  $85 $81
-    LDA $80                  ; C327  $A5 $80
-    ASL A                    ; C329  $0A
-    ROL $81                  ; C32A  $26 $81
-    ROL $80                  ; C32C  $26 $80
-    LDA #$03                 ; C32E  $A9 $03
-    STA PpuAddr_2006         ; C330  $8D $06 $20
-    LDA $C34F,X              ; C333  $BD $4F $C3
-    STA PpuAddr_2006         ; C336  $8D $06 $20
-    LDA $80                  ; C339  $A5 $80
-    STA PpuData_2007         ; C33B  $8D $07 $20
-    LDA #$03                 ; C33E  $A9 $03
-    STA PpuAddr_2006         ; C340  $8D $06 $20
-    LDA $C350,X              ; C343  $BD $50 $C3
-    STA PpuAddr_2006         ; C346  $8D $06 $20
-    LDA $81                  ; C349  $A5 $81
-    STA PpuData_2007         ; C34B  $8D $07 $20
-    RTS                      ; C34E  $60
+	AND #$0F		; C2FA  $29 $0F
+	ASL A			; C2FC  $0A
+	TAX			; C2FD  $AA
+	LDA PpuStatus_2002	; C2FE  $AD $02 $20
+	LDA #$03		; C301  $A9 $03
+	STA PpuAddr_2006	; C303  $8D $06 $20
+	LDA $C34F,X		; C306  $BD $4F $C3
+	STA PpuAddr_2006	; C309  $8D $06 $20
+	LDA PpuData_2007	; C30C  $AD $07 $20
+	LDA PpuData_2007	; C30F  $AD $07 $20
+	STA $80			; C312  $85 $80
+	LDA #$03		; C314  $A9 $03
+	STA PpuAddr_2006	; C316  $8D $06 $20
+	LDA $C350,X		; C319  $BD $50 $C3
+	STA PpuAddr_2006	; C31C  $8D $06 $20
+	LDA PpuData_2007	; C31F  $AD $07 $20
+	LDA PpuData_2007	; C322  $AD $07 $20
+	STA $81			; C325  $85 $81
+	LDA $80			; C327  $A5 $80
+	ASL A			; C329  $0A
+	ROL $81			; C32A  $26 $81
+	ROL $80			; C32C  $26 $80
+	LDA #$03		; C32E  $A9 $03
+	STA PpuAddr_2006	; C330  $8D $06 $20
+	LDA $C34F,X		; C333  $BD $4F $C3
+	STA PpuAddr_2006	; C336  $8D $06 $20
+	LDA $80			; C339  $A5 $80
+	STA PpuData_2007	; C33B  $8D $07 $20
+	LDA #$03		; C33E  $A9 $03
+	STA PpuAddr_2006	; C340  $8D $06 $20
+	LDA $C350,X		; C343  $BD $50 $C3
+	STA PpuAddr_2006	; C346  $8D $06 $20
+	LDA $81			; C349  $A5 $81
+	STA PpuData_2007	; C34B  $8D $07 $20
+	RTS			; C34E  $60
 ; End of Map_water_flow
 
  ;data block---
+; [$C34F-C35F]
   .byte $50
-;; [C350 : 3C360]
   .byte $60,$51,$61,$52,$62,$53,$63,$54,$64,$55,$65,$56,$66,$57,$67,$90
   .byte $A0,$91,$A1,$92,$A2,$93,$A3,$94,$A4,$95,$A5,$96,$A6,$97,$A7
 
@@ -496,7 +496,7 @@ Map_water_flow:
 	LDA vehicle_ID		; C376  $A5 $42
 	CMP #$01		; C378  $C9 $01
 	BNE L3C37F		; C37A  $D0 $03
-	JMP L3C8E7		; C37C  $4C $E7 $C8	check character field sprite ??(dead/toad)
+	JMP L3C8E7		; C37C  $4C $E7 $C8	check character field sprite ??(dead/stone/venom)
 L3C37F:
 	RTS			; C37F  $60
 ; End of Character_movement ??
@@ -726,7 +726,7 @@ APU_init:
 
 ; Name	:
 ; A	: pressed pad
-; Ret	: Carry flag(Set: event(cannot move??, battle??) occur, Reset: Not happened ??)
+; Ret	: Carry flag(Set: event(cannot move??) occur, Reset: Not happened ??, battle)
 ; Marks	: (7, 7) is center, $80(ADDR) = X,Y ??, $82 = X ??, $83 = Y ??
 ;	  World map buffer($7000-$7FFF), X,Y size = 256x16 buffer
 ;	  $44(ADDR)
@@ -737,6 +737,7 @@ APU_init:
 ;	  . . . 
 ;	  (0,15) -> (255,15)
 ;	  DOWN ward
+;	  battle event= $6A: battle group, $44: tile_prop set to 20h
 ;; sub start ;;
 	LSR A			; C4B4  $4A
 	BCS L3C4CB		; C4B5  $B0 $14		right
@@ -815,7 +816,7 @@ L3C52D:
 	LDA $62B6		; C537  $AD $B6 $62	world map random battle rate (11)
 L3C53A:
 	STA $80			; C53A  $85 $80
-	JSR $C5AD		; C53C  $20 $AD $C5	random number ??
+	JSR Get_rndnum		; C53C  $20 $AD $C5
 	CMP $80			; C53F  $C5 $80
 	BCC L3C545		; C541  $90 $02		event occur
 L3C543:
@@ -824,91 +825,93 @@ L3C543:
 ; End of
 
 L3C545:
-    LDA $42                  ; C545  $A5 $42
-    CMP #$04                 ; C547  $C9 $04
-    BNE L3C54F               ; C549  $D0 $04
-    LDA #$01                 ; C54B  $A9 $01
-    BNE C567                 ; C54D  $D0 $18
+	LDA vehicle_ID		; C545  $A5 $42
+	CMP #$04		; C547  $C9 $04
+	BNE L3C54F		; C549  $D0 $04
+	LDA #$01		; C54B  $A9 $01
+	BNE C567		; C54D  $D0 $18
 L3C54F:
-    LDA $27                  ; C54F  $A5 $27
-    CLC                      ; C551  $18
-    ADC #$07                 ; C552  $69 $07
-    ROL A                    ; C554  $2A
-    ROL A                    ; C555  $2A
-    ROL A                    ; C556  $2A
-    ROL A                    ; C557  $2A
-    AND #$07                 ; C558  $29 $07
-    STA $80                  ; C55A  $85 $80
-    LDA $28                  ; C55C  $A5 $28
-    CLC                      ; C55E  $18
-    ADC #$07                 ; C55F  $69 $07
-    LSR A                    ; C561  $4A
-    LSR A                    ; C562  $4A
-    AND #$38                 ; C563  $29 $38
-    ORA $80                  ; C565  $05 $80
+	LDA ow_x_pos		; C54F  $A5 $27
+	CLC			; C551  $18
+	ADC #$07		; C552  $69 $07
+	ROL A			; C554  $2A
+	ROL A			; C555  $2A
+	ROL A			; C556  $2A
+	ROL A			; C557  $2A
+	AND #$07		; C558  $29 $07
+	STA $80			; C55A  $85 $80
+	LDA ow_y_pos		; C55C  $A5 $28
+	CLC			; C55E  $18
+	ADC #$07		; C55F  $69 $07
+	LSR A			; C561  $4A
+	LSR A			; C562  $4A
+	AND #$38		; C563  $29 $38
+	ORA $80			; C565  $05 $80
 C567:
-    STA $80                  ; C567  $85 $80
-    LDA $6012                ; C569  $AD $12 $60
-    AND #$40                 ; C56C  $29 $40
-    ORA $80                  ; C56E  $05 $80
-    TAX                      ; C570  $AA
-    LDA #$0B                 ; C571  $A9 $0B
-    JSR Swap_PRG_               ; C573  $20 $03 $FE
-    LDA $8200,X              ; C576  $BD $00 $82
-    LDY #$00                 ; C579  $A0 $00
-    STY $81                  ; C57B  $84 $81
-    ASL A                    ; C57D  $0A
-    ROL $81                  ; C57E  $26 $81
-    ASL A                    ; C580  $0A
-    ROL $81                  ; C581  $26 $81
-    ASL A                    ; C583  $0A
-    ROL $81                  ; C584  $26 $81
-    CLC                      ; C586  $18
-    ADC #$80                 ; C587  $69 $80
-    STA $80                  ; C589  $85 $80
-    LDA $81                  ; C58B  $A5 $81
-    ADC #$82                 ; C58D  $69 $82
-    STA $81                  ; C58F  $85 $81
-    LDA #$0B                 ; C591  $A9 $0B
-    JSR Swap_PRG_               ; C593  $20 $03 $FE
-    INC $F7                  ; C596  $E6 $F7
-    LDX $F7                  ; C598  $A6 $F7
-    LDA rnumber_table,X              ; C59A  $BD $00 $F9
-    AND #$3F                 ; C59D  $29 $3F
-    TAX                      ; C59F  $AA
-    LDY $C5C8,X              ; C5A0  $BC $C8 $C5
-    LDA ($80),Y              ; C5A3  $B1 $80
-    STA $6A                  ; C5A5  $85 $6A
-    LDA #$20                 ; C5A7  $A9 $20
-    STA $44                  ; C5A9  $85 $44
-    CLC                      ; C5AB  $18
-    RTS                      ; C5AC  $60
+	STA $80			; C567  $85 $80
+	LDA $6012		; C569  $AD $12 $60	mapcheckything ??
+	AND #$40		; C56C  $29 $40
+	ORA $80			; C56E  $05 $80
+	TAX			; C570  $AA
+	LDA #$0B		; C571  $A9 $0B
+	JSR Swap_PRG_		; C573  $20 $03 $FE
+	LDA $8200,X		; C576  $BD $00 $82	world map battle groups
+	LDY #$00		; C579  $A0 $00
+	STY $81			; C57B  $84 $81
+	ASL A			; C57D  $0A
+	ROL $81			; C57E  $26 $81
+	ASL A			; C580  $0A
+	ROL $81			; C581  $26 $81
+	ASL A			; C583  $0A
+	ROL $81			; C584  $26 $81
+	CLC			; C586  $18
+	ADC #$80		; C587  $69 $80
+	STA $80			; C589  $85 $80
+	LDA $81			; C58B  $A5 $81
+	ADC #$82		; C58D  $69 $82
+	STA $81			; C58F  $85 $81
+	LDA #$0B		; C591  $A9 $0B
+	JSR Swap_PRG_		; C593  $20 $03 $FE
+	INC rng_cnt_bat		; C596  $E6 $F7
+	LDX rng_cnt_bat		; C598  $A6 $F7
+	LDA rnum_tbl,X		; C59A  $BD $00 $F9
+	AND #$3F		; C59D  $29 $3F
+	TAX			; C59F  $AA
+	LDY $C5C8,X		; C5A0  $BC $C8 $C5
+	LDA ($80),Y		; C5A3  $B1 $80
+	STA $6A			; C5A5  $85 $6A		battle group ??
+	LDA #$20		; C5A7  $A9 $20
+	STA tile_prop		; C5A9  $85 $44
+	CLC			; C5AB  $18
+	RTS			; C5AC  $60
+; End of battle check ??
 
-; Name	:
+; Name	: Get_rndnum
 ; Ret	: A(random number result ??)
-; Marks	: random number
+; Marks	: Make random number
 ;; sub start ;;
+Get_rndnum:
 	BIT rng_tbl_dir		; C5AD  $24 $F6
 	BMI L3C5B7		; C5AF  $30 $06
 	INC rng_cnt		; C5B1  $E6 $F5
 	BNE L3C5C2		; C5B3  $D0 $0D
 	BEQ L3C5BB		; C5B5  $F0 $04
 L3C5B7:
-    DEC $F5                  ; C5B7  $C6 $F5
-    BNE L3C5C2               ; C5B9  $D0 $07
+	DEC rng_cnt		; C5B7  $C6 $F5
+	BNE L3C5C2		; C5B9  $D0 $07
 L3C5BB:
-    LDA $F6                  ; C5BB  $A5 $F6
-    CLC                      ; C5BD  $18
-    ADC #$A0                 ; C5BE  $69 $A0
-    STA $F6                  ; C5C0  $85 $F6
+	LDA rng_tbl_dir		; C5BB  $A5 $F6
+	CLC			; C5BD  $18
+	ADC #$A0		; C5BE  $69 $A0
+	STA rng_tbl_dir		; C5C0  $85 $F6
 L3C5C2:
 	LDX rng_cnt		; C5C2  $A6 $F5
-	LDA rnumber_table,X	; C5C4  $BD $00 $F9
+	LDA rnum_tbl,X		; C5C4  $BD $00 $F9
 	RTS			; C5C7  $60
-; End of
+; End of Get_rndnum
 
  ;data block---
-
+;; [$C5C8-$C607:40h]
 .byte $00,$00,$00,$00,$00,$00,$00,$00
 ;;; [C5D0 : 3C5E0]
 .byte $00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
@@ -1574,7 +1577,7 @@ L3CA8D:
     BCS L3CAB6               ; CA8F  $B0 $25
     LDA #$00                 ; CA91  $A9 $00
     STA $44                  ; CA93  $85 $44
-    JSR $DC6A                ; CA95  $20 $6A $DC
+    JSR $DC6A                ; CA95  $20 $6A $DC	battle encount graphic/sound effect
     LDA #$00                 ; CA98  $A9 $00
     STA PpuMask_2001         ; CA9A  $8D $01 $20
     STA ApuStatus_4015       ; CA9D  $8D $15 $40
@@ -1584,7 +1587,7 @@ L3CA8D:
     LDA $9400,X              ; CAA7  $BD $00 $94
     TAX                      ; CAAA  $AA
     LDA $6A                  ; CAAB  $A5 $6A
-    JSR $FA00                ; CAAD  $20 $00 $FA
+    JSR $FA00                ; CAAD  $20 $00 $FA	battle code
     JSR L3D07B               ; CAB0  $20 $7B $D0
     JMP L3CA44               ; CAB3  $4C $44 $CA
 L3CAB6:
@@ -2305,7 +2308,7 @@ L3CF57:
     CMP #$50                 ; CF67  $C9 $50
     BCC L3CF85               ; CF69  $90 $1A
 L3CF6B:
-    JSR $C5AD                ; CF6B  $20 $AD $C5
+	JSR Get_rndnum		; CF6B  $20 $AD $C5
     CMP $F8                  ; CF6E  $C5 $F8
     BCS L3CF85               ; CF70  $B0 $13
     LDA #$0B                 ; CF72  $A9 $0B
@@ -2706,7 +2709,7 @@ L3D209:
 L3D214:
 	JSR $D3E2		; D214  $20 $E2 $D3	world map tile set, vehicle check, etc...
 L3D217:
-	JSR $D24A		; D217  $20 $4A $D2	text window attributes ?? copy to RAM buffer ??
+	JSR $D24A		; D217  $20 $4A $D2	text window attributes ?? copy to RAM buffer ?? init ?
 	RTS			; D21A  $60
 ; End of
 
@@ -3040,18 +3043,18 @@ L3D416:
     SBC #$01                 ; D419  $E9 $01
     JMP L3D3F6               ; D41B  $4C $F6 $D3
 L3D41E:
-    LDA $28                  ; D41E  $A5 $28
-    CLC                      ; D420  $18
-    ADC #$0F                 ; D421  $69 $0F
-    STA $2C                  ; D423  $85 $2C
-    LDA $2F                  ; D425  $A5 $2F
-    CLC                      ; D427  $18
-    ADC #$0F                 ; D428  $69 $0F
-    CMP #$0F                 ; D42A  $C9 $0F
-    BCC L3D444               ; D42C  $90 $16
-    SEC                      ; D42E  $38
-    SBC #$0F                 ; D42F  $E9 $0F
-    BCS L3D444               ; D431  $B0 $11
+	LDA ow_y_pos		; D41E  $A5 $28
+	CLC			; D420  $18
+	ADC #$0F		; D421  $69 $0F
+	STA $2C			; D423  $85 $2C
+	LDA nt_y_pos		; D425  $A5 $2F
+	CLC			; D427  $18
+	ADC #$0F		; D428  $69 $0F
+	CMP #$0F		; D42A  $C9 $0F
+	BCC L3D444		; D42C  $90 $16
+	SEC			; D42E  $38
+	SBC #$0F		; D42F  $E9 $0F
+	BCS L3D444		; D431  $B0 $11
 L3D433:
 	LDA ow_y_pos		; D433  $A5 $28
 	SEC			; D435  $38
@@ -3075,6 +3078,7 @@ L3D444:
 	JSR Set_wmap_tile	; D454  $20 $75 $D3
 	JSR $D547		; D457  $20 $47 $D5	Copy tile
 	JMP L3D40D		; D45A  $4C $0D $D4
+
 L3D45D:
 	LDA vehicle_ID		; D45D  $A5 $42
 	CMP #$08		; D45F  $C9 $08
@@ -4338,43 +4342,47 @@ L3DC5E:
 	RTS			; DC69  $60
 ; End of
 
+; Name	:
+; Marks	: $8C ??
+;	  battle effect(graphic/sound)
 ;; sub start ;;
-    LDA #$08                 ; DC6A  $A9 $08
-    STA ApuStatus_4015       ; DC6C  $8D $15 $40
-    LDA #$00                 ; DC6F  $A9 $00
-    STA $8C                  ; DC71  $85 $8C
+	LDA #$08		; DC6A  $A9 $08
+	STA ApuStatus_4015	; DC6C  $8D $15 $40
+	LDA #$00		; DC6F  $A9 $00
+	STA $8C			; DC71  $85 $8C
 L3DC73:
-    JSR Wait_NMI		; JSR $FE00                ; DC73  $20 $00 $FE
-    LDA $2D                  ; DC76  $A5 $2D
-    LSR A                    ; DC78  $4A
-    BCC L3DC81               ; DC79  $90 $06
+	JSR Wait_NMI		; DC73  $20 $00 $FE
+	LDA scroll_dir_map	; DC76  $A5 $2D
+	LSR A			; DC78  $4A
+	BCC L3DC81		; DC79  $90 $06		if world map
 	JSR Scroll_normal	; DC7B  $20 $F5 $CD
     JMP $DC84                ; DC7E  $4C $84 $DC
 L3DC81:
 	JSR Scroll_map		; DC81  $20 $80 $C3
-    LDA $8C                  ; DC84  $A5 $8C
-    ASL A                    ; DC86  $0A
-    ASL A                    ; DC87  $0A
-    ASL A                    ; DC88  $0A
-    AND #$E0                 ; DC89  $29 $E0
-    ORA #$0A                 ; DC8B  $09 $0A
-    STA PpuMask_2001         ; DC8D  $8D $01 $20
-    LDA #$0F                 ; DC90  $A9 $0F
-    STA NoiseVolume_400C     ; DC92  $8D $0C $40
-    LDA $8C                  ; DC95  $A5 $8C
-    LSR A                    ; DC97  $4A
-    ORA #$03                 ; DC98  $09 $03
-    STA NoisePeriod_400E     ; DC9A  $8D $0E $40
-    LDA #$00                 ; DC9D  $A9 $00
-    STA NoiseLength_400F     ; DC9F  $8D $0F $40
-    INC $8C                  ; DCA2  $E6 $8C
-    LDA $8C                  ; DCA4  $A5 $8C
-    CMP #$41                 ; DCA6  $C9 $41
-    BCC L3DC73               ; DCA8  $90 $C9
-    LDA #$00                 ; DCAA  $A9 $00
-    STA PpuMask_2001         ; DCAC  $8D $01 $20
-    STA ApuStatus_4015       ; DCAF  $8D $15 $40
-    JMP L3DC5E               ; DCB2  $4C $5E $DC
+	LDA $8C			; DC84  $A5 $8C
+	ASL A			; DC86  $0A
+	ASL A			; DC87  $0A
+	ASL A			; DC88  $0A
+	AND #$E0		; DC89  $29 $E0
+	ORA #$0A		; DC8B  $09 $0A		show background
+	STA PpuMask_2001	; DC8D  $8D $01 $20
+	LDA #$0F		; DC90  $A9 $0F
+	STA NoiseVolume_400C	; DC92  $8D $0C $40
+	LDA $8C			; DC95  $A5 $8C
+	LSR A			; DC97  $4A
+	ORA #$03		; DC98  $09 $03
+	STA NoisePeriod_400E	; DC9A  $8D $0E $40
+	LDA #$00		; DC9D  $A9 $00
+	STA NoiseLength_400F	; DC9F  $8D $0F $40
+	INC $8C			; DCA2  $E6 $8C
+	LDA $8C			; DCA4  $A5 $8C
+	CMP #$41		; DCA6  $C9 $41
+	BCC L3DC73		; DCA8  $90 $C9		loop - battle encount graphic/sound effect
+	LDA #$00		; DCAA  $A9 $00		hide sprite/background
+	STA PpuMask_2001	; DCAC  $8D $01 $20
+	STA ApuStatus_4015	; DCAF  $8D $15 $40
+	JMP L3DC5E		; DCB2  $4C $5E $DC	sprite reflesh ??
+; End of
 
 ; Name	:
 ; Marks	: attribute table ?? init ??
@@ -4901,19 +4909,20 @@ L3E003:
 	CPY #$02		; E013  $C0 $02		canoe/snowcraft
 	BEQ L3E06D		; E015  $F0 $56
 ; Name	:
+; X	: INDEX = oam[3+X]
 ; SRC	: $43 == ??
-; Marks	:
+; Marks	: ATTR bit5 set
 ;; sub start ;;
-	JSR $E073		; E017  $20 $73 $E0	Tile move ?? cursor ?? set sprite buffer ??
+	JSR $E073		; E017  $20 $73 $E0	cursor ?? set sprite buffer ??
 	LDA $43			; E01A  $A5 $43		what is this ??
 	AND #$12		; E01C  $29 $12
 	BEQ L3E030		; E01E  $F0 $10		if A == 00h
-	LDA $0206		; E020  $AD $06 $02
-    EOR #$20                 ; E023  $49 $20
-    STA $0206                ; E025  $8D $06 $02
-    LDA $020E                ; E028  $AD $0E $02
-    EOR #$20                 ; E02B  $49 $20
-    STA $020E,X              ; E02D  $9D $0E $02
+	LDA $0206		; E020  $AD $06 $02	oam[1] ATTR
+	EOR #$20		; E023  $49 $20
+	STA $0206		; E025  $8D $06 $02	oam[1] ATTR
+	LDA $020E		; E028  $AD $0E $02	oam[3] ATTR
+	EOR #$20		; E02B  $49 $20
+	STA $020E,X		; E02D  $9D $0E $02	oam[3] ATTR
 L3E030:
 	LDA $43			; E030  $A5 $43
 	AND #$04		; E032  $29 $04
@@ -4936,7 +4945,7 @@ L3E04C:
 	JSR $E17B		; E04F  $20 $7B $E1	Check airship ??
 	JSR $E194		; E052  $20 $94 $E1	Check ship ??
 	JSR $E1A8		; E055  $20 $A8 $E1	Check chocobo ?? vehicle ??
-	JMP L3E1FB		; E058  $4C $FB $E1
+	JMP L3E1FB		; E058  $4C $FB $E1	Check dreadnaught ??
 L3E05B:
     JSR $E073                ; E05B  $20 $73 $E0
     JMP $E04F                ; E05E  $4C $4F $E0
@@ -4952,7 +4961,7 @@ L3E06D:
 
 ; Name	:
 ; Y	: vehicle ??
-; Marks	: $80(ADDR), $82
+; Marks	: $80(ADDR), $82: Chocobo riding ??
 ;; sub start ;;
 	LDA #$70		; E073  $A9 $70
 	STA oam_x		; E075  $85 $40
@@ -4965,9 +4974,9 @@ L3E06D:
     JMP L3E08E               ; E083  $4C $8E $E0
 L3E086:
 	STA oam_y		; E086  $85 $41
-	LDA hor_stile_pos	; E088  $A5 $35		buttons_held xx
+	LDA hor_stile_pos	; E088  $A5 $35
 	BNE L3E08E		; E08A  $D0 $02		if A != 00h
-	LDA ver_stile_pos	; E08C  $A5 $36		button_repeat_counter xx
+	LDA ver_stile_pos	; E08C  $A5 $36
 L3E08E:
 	AND #$08		; E08E  $29 $08
 	LDX player_dir		; E090  $A6 $33
@@ -8254,53 +8263,23 @@ F840:
 ;; End of Unused code ??
 
 ; random number table
-;; [F900 : 3F910]
-rnumber_table:
+;; [$F900-$F9FF]
+rnum_tbl:
 .byte $1F,$A6,$DE,$BA,$CC,$12,$7D,$74,$1B,$F3,$B4,$88,$F8,$52,$F4,$07
-
-;; [F910 : 3F920]
 .byte $90,$AB,$B3,$BD,$AA,$55,$28,$BC,$8A,$6D,$0E,$C4,$83,$A9,$3B,$76
-
-;; [F920 : 3F930]
 .byte $20,$7C,$09,$92,$FD,$4A,$A8,$F0,$61,$E3,$F2,$69,$6C,$BB,$38,$C3
-
-;; [F930 : 3F940]
 .byte $AE,$B7,$43,$84,$78,$23,$7B,$9B,$2D,$DB,$3E,$91,$CF,$02,$2A,$B6
-
-;; [F940 : 3F950]
 .byte $86,$EE,$9C,$8E,$B8,$6F,$1A,$57,$05,$E9,$73,$31,$D2,$D9,$1D,$FB
-
-;; [F950 : 3F960]
 .byte $94,$9D,$B1,$0A,$3A,$11,$5A,$47,$95,$2C,$44,$E0,$6A,$8C,$5B,$7A
-
-;; [F960 : 3F970]
 .byte $A7,$5D,$36,$70,$E5,$C7,$49,$DC,$68,$97,$D8,$66,$A3,$0F,$B0,$9F
-
-;; [F970 : 3F980]
 .byte $03,$D6,$77,$16,$13,$30,$25,$3C,$10,$17,$AD,$98,$6B,$2F,$D7,$A1
-
-;; [F980 : 3F990]
 .byte $FF,$A4,$EB,$51,$FE,$27,$8D,$93,$D5,$3D,$F6,$08,$75,$E1,$A5,$46
-
-;; [F990 : 3F9A0]
 .byte $63,$F5,$4D,$DA,$32,$AF,$40,$37,$D3,$C0,$89,$67,$06,$21,$6E,$81
-
-;; [F9A0 : 3F9B0]
 .byte $B5,$A0,$4F,$0C,$2E,$E7,$1C,$58,$85,$E8,$59,$CE,$35,$CB,$1E,$C6
-
-;; [F9B0 : 3F9C0]
 .byte $2B,$9A,$E6,$DD,$F1,$EC,$96,$CA,$AC,$00,$50,$C9,$4C,$FC,$14,$7E
-
-;; [F9C0 : 3F9D0]
 .byte $56,$80,$D0,$79,$BF,$29,$87,$48,$24,$19,$C5,$22,$71,$7F,$72,$0D
-
-;; [F9D0 : 3F9E0]
 .byte $CD,$8F,$BE,$3F,$9E,$34,$ED,$53,$54,$04,$62,$A2,$C2,$41,$5E,$82
-
-;; [F9E0 : 3F9F0]
 .byte $4B,$26,$5C,$42,$65,$99,$4E,$60,$8B,$F7,$0B,$33,$DF,$D1,$64,$C8
-
-;; [F9F0 : 3F9FF]
 .byte $C1,$01,$EF,$F9,$FA,$E4,$5F,$18,$B9,$B2,$39,$D4,$15,$E2,$EA,$45
 
 
