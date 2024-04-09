@@ -5,6 +5,11 @@
 .export	Set_wmap_palettes	;9C06
 .export	Init_var		;9C09
 
+.export bg_tilemap_id		;B200
+.export wmap_ent_x		;B400
+.export wmap_ent_y		;B440
+.export wmap_ent_id		;B480
+
 .segment "BANK_00"
 
 ; Commented out due to  compilation order change.
@@ -649,7 +654,8 @@ init_event_sw:
 ;; [$9C00 :: 0x01C00]
 
 ; ========== Map init code ($9C00-$9FFF) START ==========
-.byte $4C,$52,$9D
+;
+	JMP $9D52		; 9C00	$4C $52 $9D
 Init_wmap:
 	JMP Init_wmap_		; 9C03	$4C $A5 $9C
 Set_wmap_palettes:
@@ -810,53 +816,288 @@ Set_palettes:
 	RTS			; 9D51	$60
 ; End of Set_palettes
 
-.byte $A5,$48,$4A,$4A,$4A,$4A,$09,$A0,$85,$81,$A5,$48,$0A,$0A
-;; [$9D60 :: 0x01D60]
-.byte $0A,$0A,$85,$80,$A0,$0F,$B1,$80,$99,$80,$07,$88,$10,$F8,$20,$3B
-.byte $9E,$A9,$80,$85,$61,$A9,$A0,$85,$62,$A9,$B0,$85,$63,$A9,$C0,$85
-.byte $64,$A9,$D0,$85,$65,$A9,$E0,$85,$66,$A9,$F0,$85,$67,$A9,$00,$85
-.byte $88,$85,$80,$A9,$70,$85,$81,$A4,$88,$BE,$00,$74,$A0,$00,$BD,$00
-.byte $78,$91,$80,$C8,$BD,$80,$78,$91,$80,$A0,$20,$BD,$00,$79,$91,$80
-.byte $C8,$BD,$80,$79,$91,$80,$A5,$80,$18,$69,$02,$85,$80,$29,$1F,$D0
-.byte $0B,$A5,$80,$18,$69,$20,$85,$80,$90,$02,$E6,$81,$E6,$88,$D0,$C7
-.byte $A9,$00,$85,$80,$85,$88,$A8,$A9,$70,$85,$81,$B1,$80,$C9,$39,$90
-.byte $05,$20,$24,$9F,$91,$80,$C8,$D0,$F2,$E6,$81,$A5,$81,$C9,$74,$90
-.byte $EA,$AD,$80,$07,$29,$7F,$C9,$40,$90,$1B,$29,$3F,$85,$80,$0A,$65
+; Name	:
+; Marks	:
+	LDA $48			; 9D52	$A5 $48		world map entrance ID ??
+	LSR A			; 9D54	$4A
+	LSR A			; 9D55	$4A
+	LSR A			; 9D56	$4A
+	LSR A			; 9D57	$4A
+	ORA #$A0		; 9D58	$09 $A0
+	STA $81			; 9D5A	$85 $81
+	LDA $48			; 9D5C	$A5 $48		world map entrance ID ??
+	ASL A			; 9D5E	$0A
+	ASL A			; 9D5F	$0A
+	ASL A			; 9D60	$0A
+	ASL A			; 9D61	$0A
+	STA $80			; 9D62	$85 $80
+	LDY #$0F		; 9D64	$A0 $0F
+L01D66:
+	LDA ($80),Y		; 9D66	$B1 $80		map properties ?? (ex> $A050)
+	STA $0780,Y		; 9D68	$99 $80 $07	map tileset ?? map properties ??
+	DEY			; 9D6B	$88
+	BPL L01D66		; 9D6C	$10 $F8
+	JSR $9E3B		; 9D6E	$20 $3B $9E	Copy tile ??
+	LDA #$80		; 9D71	$A9 $80
+	STA $61			; 9D73	$85 $61
+	LDA #$A0		; 9D75	$A9 $A0
+	STA $62			; 9D77	$85 $62
+	LDA #$B0		; 9D79	$A9 $B0
+	STA $63			; 9D7B	$85 $63
+	LDA #$C0		; 9D7D	$A9 $C0
+	STA $64			; 9D7F	$85 $64
+	LDA #$D0		; 9D81	$A9 $D0
+	STA $65			; 9D83	$85 $65
+	LDA #$E0		; 9D85	$A9 $E0
+	STA $66			; 9D87	$85 $66
+	LDA #$F0		; 9D89	$A9 $F0
+	STA $67			; 9D8B	$85 $67
+	LDA #$00		; 9D8D	$A9 $00
+	STA $88			; 9D8F	$85 $88
+	STA $80			; 9D91	$85 $80
+	LDA #$70		; 9D93	$A9 $70
+	STA $81			; 9D95	$85 $81
+L01D97:
+	LDY $88			; 9D97	$A4 $88
+	LDX $7400,Y		; 9D99	$BE $00 $74
+	LDY #$00		; 9D9C	$A0 $00
+	LDA $7800,X		; 9D9E	$BD $00 $78
+	STA ($80),Y		; 9DA1	$91 $80
+	INY			; 9DA3	$C8
+	LDA $7880,X		; 9DA4	$BD $80 $78
+	STA ($80),Y		; 9DA7	$91 $80
+	LDY #$20		; 9DA9	$A0 $20
+	LDA $7900,X		; 9DAB	$BD $00 $79
+	STA ($80),Y		; 9DAE	$91 $80
+	INY			; 9DB0	$C8
+	LDA $7980,X		; 9DB1	$BD $80 $79
+	STA ($80),Y		; 9DB4	$91 $80
+	LDA $80			; 9DB6	$A5 $80
+	CLC			; 9DB8	$18
+	ADC #$02		; 9DB9	$69 $02
+	STA $80			; 9DBB	$85 $80
+	AND #$1F		; 9DBD	$29 $1F
+	BNE L01DCC		; 9DBF	$D0 $0B
+	LDA $80			; 9DC1	$A5 $80
+	CLC			; 9DC3	$18
+	ADC #$20		; 9DC4	$69 $20
+	STA $80			; 9DC6	$85 $80
+	BCC L01DCC		; 9DC8	$90 $02
+	INC $81			; 9DCA	$E6 $81
+L01DCC:
+	INC $88			; 9DCC	$E6 $88
+	BNE L01D97		; 9DCE	$D0 $C7
+	LDA #$00		; 9DD0	$A9 $00
+	STA $80			; 9DD2	$85 $80
+	STA $88			; 9DD4	$85 $88
+	TAY			; 9DD6	$A8
+	LDA #$70		; 9DD7	$A9 $70
+	STA $81			; 9DD9	$85 $81
+L01DDB:
+	LDA ($80),Y		; 9DDB	$B1 $80		map bg tilemap (32x32) ?? ($7000-$73FF)
+	CMP #$39		; 9DDD	$C9 $39
+	BCC L01DE6		; 9DDF	$90 $05
+	JSR $9F24		; 9DE1	$20 $24 $9F
+	STA ($80),Y		; 9DE4	$91 $80
+L01DE6:
+	INY			; 9DE6	$C8
+	BNE L01DDB		; 9DE7	$D0 $F2		loop - $7000-$73FF ??
+	INC $81			; 9DE9	$E6 $81
+	LDA $81			; 9DEB	$A5 $81
+	CMP #$74		; 9DED	$C9 $74
+	BCC L01DDB		; 9DEF	$90 $EA
+	LDA $0780		; 9DF1	$AD $80 $07	text buffer ??
+	AND #$7F		; 9DF4	$29 $7F
+	CMP #$40		; 9DF6	$C9 $40
+	BCC L01E15		; 9DF8	$90 $1B
+	AND #$3F		; 9DFA	$29 $3F
+	STA $80			; 9DFC	$85 $80
+	ASL A			; 9DFE	$0A
+	ADC $80			; 9DFF	$65 $80
+	STA $80			; 9E01	$85 $80
+	LDA #$BE		; 9E03	$A9 $BE
+	STA $81			; 9E05	$85 $81
+	LDY #$02		; 9E07	$A0 $02
+	LDA #$00		; 9E09	$A9 $00
+	LDX #$24		; 9E0B	$A2 $24
+L01E0D:
+	STA $0780,X		; 9E0D	$9D $80 $07
+	DEX			; 9E10	$CA
+	BPL L01E0D		; 9E11	$10 $FA
+	BMI L01E32		; 9E13	$30 $1D
+L01E15:
+	ASL A			; 9E15	$0A
+	ASL A			; 9E16	$0A
+	STA $80			; 9E17	$85 $80
+	LDX #$00		; 9E19	$A2 $00
+	STX $81			; 9E1B	$86 $81
+	ASL A			; 9E1D	$0A
+	ROL $81			; 9E1E	$26 $81
+	ASL A			; 9E20	$0A
+	ROL $81			; 9E21	$26 $81
+	ASL A			; 9E23	$0A
+	ROL $81			; 9E24	$26 $81
+	ADC $80			; 9E26	$65 $80
+	STA $80			; 9E28	$85 $80
+	LDA $81			; 9E2A	$A5 $81
+	ADC #$B5		; 9E2C	$69 $B5
+	STA $81			; 9E2E	$85 $81
+	LDY #$23		; 9E30	$A0 $23
+L01E32:
+	LDA ($80),Y		; 9E32	$B1 $80
+	STA $0780,Y		; 9E34	$99 $80 $07	text buffer ??
+	DEY			; 9E37	$88
+	BPL L01E32		; 9E38	$10 $F8		loop
+	RTS			; 9E3A	$60
+; End of
 
-;; [$9E00 :: 0x01E00]
+; Name	:
+; Marks	: Copy map tile properties to CPU System RAM ($0400-$04FF)
+;	  Copy $8400-$84FF to $0500-$0680 (exterior 16 x 16) - asymetrical
+;	  Copy $8600-$86FF to $0540-$0680 (common 16 x 16) - asymetrical
+;	  Copy $8700-$87FF to $7800-$7980 (exterior 32 x 32) - asymetrical
+;	  Copy $8900-$89FF to $7840-$7980 (common 32 x 32) - asymetrical
+	LDA $0780		; 9E3B	$AD $80 $07
+	AND #$80		; 9E3E	$29 $80
+	STA $49			; 9E40	$85 $49
+	LDX #$00		; 9E42	$A2 $00
+L01E44:
+	LDA $8B00,X		; 9E44	$BD $00 $8B
+	STA $0400,X		; 9E47	$9D $00 $04	tile properties
+	INX			; 9E4A	$E8
+	BNE L01E44		; 9E4B	$D0 $F7
+	LDX $48			; 9E4D	$A6 $48		world map entrance ID
+	LDA $B300,X		; 9E4F	$BD $00 $B3	tile set ID
+	LSR A			; 9E52	$4A
+	LDX #$3F		; 9E53	$A2 $3F
+	BCS L01E92		; 9E55	$B0 $3B
+L01E57:
+	LDA $8400,X		; 9E57	$BD $00 $84	exterior 16 x 16 tileset
+	STA $0500,X		; 9E5A	$9D $00 $05
+	LDA $8440,X		; 9E5D	$BD $40 $84
+	STA $0580,X		; 9E60	$9D $80 $05
+	LDA $8480,X		; 9E63	$BD $80 $84
+	STA $0600,X		; 9E66	$9D $00 $06
+	LDA $84C0,X		; 9E69	$BD $C0 $84
+	STA $0680,X		; 9E6C	$9D $80 $06
+	LDA $8700,X		; 9E6F	$BD $00 $87	exterior 32 x 32 tileset
+	STA $7800,X		; 9E72	$9D $00 $78
+	LDA $8740,X		; 9E75	$BD $40 $87
+	STA $7880,X		; 9E78	$9D $80 $78
+	LDA $8780,X		; 9E7B	$BD $80 $87
+	STA $7900,X		; 9E7E	$9D $00 $79
+	LDA $87C0,X		; 9E81	$BD $C0 $87
+	STA $7980,X		; 9E84	$9D $80 $79
+	LDA $8A00,X		; 9E87	$BD $00 $8A	map bg attribute tables[0]
+	STA $0700,X		; 9E8A	$9D $00 $07
+	DEX			; 9E8D	$CA
+	BPL L01E57		; 9E8E	$10 $C7
+	BMI L01ECB		; 9E90	$30 $39
+L01E92:
+	LDA $8500,X		; 9E92	$BD $00 $85
+	STA $0500,X		; 9E95	$9D $00 $05
+	LDA $8540,X		; 9E98	$BD $40 $85
+	STA $0580,X		; 9E9B	$9D $80 $05
+	LDA $8580,X		; 9E9E	$BD $80 $85
+	STA $0600,X		; 9EA1	$9D $00 $06
+	LDA $85C0,X		; 9EA4	$BD $C0 $85
+	STA $0680,X		; 9EA7	$9D $80 $06
+	LDA $8800,X		; 9EAA	$BD $00 $88
+	STA $7800,X		; 9EAD	$9D $00 $78
+	LDA $8840,X		; 9EB0	$BD $40 $88
+	STA $7880,X		; 9EB3	$9D $80 $78
+	LDA $8880,X		; 9EB6	$BD $80 $88
+	STA $7900,X		; 9EB9	$9D $00 $79
+	LDA $88C0,X		; 9EBC	$BD $C0 $88
+	STA $7980,X		; 9EBF	$9D $80 $79
+	LDA $8A40,X		; 9EC2	$BD $40 $8A
+	STA $0700,X		; 9EC5	$9D $00 $07
+	DEX			; 9EC8	$CA
+	BPL L01E92		; 9EC9	$10 $C7
+L01ECB:
+	LDX #$3F		; 9ECB	$A2 $3F
+L01ECD:
+	LDA $8600,X		; 9ECD	$BD $00 $86	common 16 x 16 tileset
+	STA $0540,X		; 9ED0	$9D $40 $05
+	LDA $8640,X		; 9ED3	$BD $40 $86
+	STA $05C0,X		; 9ED6	$9D $C0 $05
+	LDA $8680,X		; 9ED9	$BD $80 $86
+	STA $0640,X		; 9EDC	$9D $40 $06
+	LDA $86C0,X		; 9EDF	$BD $C0 $86
+	STA $06C0,X		; 9EE2	$9D $C0 $06
+	LDA $8900,X		; 9EE5	$BD $00 $89	common 32 x 32 tileset
+	STA $7840,X		; 9EE8	$9D $40 $78
+	LDA $8940,X		; 9EEB	$BD $40 $89
+	STA $78C0,X		; 9EEE	$9D $C0 $78
+	LDA $8980,X		; 9EF1	$BD $80 $89
+	STA $7940,X		; 9EF4	$9D $40 $79
+	LDA $89C0,X		; 9EF7	$BD $C0 $89
+	STA $79C0,X		; 9EFA	$9D $C0 $79
+	LDA $8A80,X		; 9EFD	$BD $80 $8A	map bg attribute tables[2]
+	STA $0740,X		; 9F00	$9D $40 $07
+	DEX			; 9F03	$CA
+	BPL L01ECD		; 9F04	$10 $C7
+	LDA $0786		; 9F06	$AD $86 $07	text buffer ??
+	STA $044D		; 9F09	$8D $4D $04	tile properties ??
+	STA $046F		; 9F0C	$8D $6F $04	tile properties ??
+	LDX $48			; 9F0F	$A6 $48		world map entrance ID
+	LDA $B000,X		; 9F11	$BD $00 $B0	map initial x positions and fill tile
+	LSR A			; 9F14	$4A
+	LSR A			; 9F15	$4A
+	LSR A			; 9F16	$4A
+	LSR A			; 9F17	$4A
+	LSR A			; 9F18	$4A
+	TAX			; 9F19	$AA
+	LDA $83C2,X		; 9F1A	$BD $C2 $83	fill tile attributes
+	STA $0738		; 9F1D	$8D $38 $07	map tileset attribute table
+	STA $0716		; 9F20	$8D $16 $07
+	RTS			; 9F23	$60
+; End of
 
-.byte $80,$85,$80,$A9,$BE,$85,$81,$A0,$02,$A9,$00,$A2,$24,$9D,$80,$07
-.byte $CA,$10,$FA,$30,$1D,$0A,$0A,$85,$80,$A2,$00,$86,$81,$0A,$26,$81
-.byte $0A,$26,$81,$0A,$26,$81,$65,$80,$85,$80,$A5,$81,$69,$B5,$85,$81
-.byte $A0,$23,$B1,$80,$99,$80,$07,$88,$10,$F8,$60,$AD,$80,$07,$29,$80
-.byte $85,$49,$A2,$00,$BD,$00,$8B,$9D,$00,$04,$E8,$D0,$F7,$A6,$48,$BD
-.byte $00,$B3,$4A,$A2,$3F,$B0,$3B,$BD,$00,$84,$9D,$00,$05,$BD,$40,$84
-.byte $9D,$80,$05,$BD,$80,$84,$9D,$00,$06,$BD,$C0,$84,$9D,$80,$06,$BD
-.byte $00,$87,$9D,$00,$78,$BD,$40,$87,$9D,$80,$78,$BD,$80,$87,$9D,$00
-.byte $79,$BD,$C0,$87,$9D,$80,$79,$BD,$00,$8A,$9D,$00,$07,$CA,$10,$C7
-.byte $30,$39,$BD,$00,$85,$9D,$00,$05,$BD,$40,$85,$9D,$80,$05,$BD,$80
-.byte $85,$9D,$00,$06,$BD,$C0,$85,$9D,$80,$06,$BD,$00,$88,$9D,$00,$78
-.byte $BD,$40,$88,$9D,$80,$78,$BD,$80,$88,$9D,$00,$79,$BD,$C0,$88,$9D
-.byte $80,$79,$BD,$40,$8A,$9D,$00,$07,$CA,$10,$C7,$A2,$3F,$BD,$00,$86
-.byte $9D,$40,$05,$BD,$40,$86,$9D,$C0,$05,$BD,$80,$86,$9D,$40,$06,$BD
-.byte $C0,$86,$9D,$C0,$06,$BD,$00,$89,$9D,$40,$78,$BD,$40,$89,$9D,$C0
-.byte $78,$BD,$80,$89,$9D,$40,$79,$BD,$C0,$89,$9D,$C0,$79,$BD,$80,$8A
-
-;; [$9F00 :: 0x01F00]
-
-.byte $9D,$40,$07,$CA,$10,$C7,$AD,$86,$07,$8D,$4D,$04,$8D,$6F,$04,$A6
-.byte $48,$BD,$00,$B0,$4A,$4A,$4A,$4A,$4A,$AA,$BD,$C2,$83,$8D,$38,$07
-.byte $8D,$16,$07,$60,$38,$E9,$39,$0A,$AA,$BD,$36,$9F,$85,$84,$BD,$37
-.byte $9F,$85,$85,$6C,$84,$00,$44,$9F,$73,$9F,$7F,$9F,$8B,$9F,$97,$9F
+; Name	:
+; A	:
+; Marks	:
+	SEC			; 9F24	$38
+	SBC #$39		; 9F25	$E9 $39
+	ASL A			; 9F27	$0A
+	TAX			; 9F28	$AA
+	LDA $9F36,X		; 9F29	$BD $36 $9F
+	STA $84			; 9F2C	$85 $84
+	LDA $9F37,X		; 9F2E	$BD $37 $9F
+	STA $85			; 9F31	$85 $85
+	JMP ($0084)		; 9F33	$6C $84 $00
+; 9F36
+.byte $44,$9F,$73,$9F,$7F,$9F,$8B,$9F,$97,$9F
 .byte $A3,$9F,$AF,$9F,$20,$BE,$9F,$48,$29,$07,$AA,$BD,$6B,$9F,$85,$84
 .byte $68,$48,$4A,$4A,$4A,$AA,$BD,$20,$60,$25,$84,$D0,$04,$68,$A9,$7F
 .byte $60,$68,$A6,$61,$E6,$61,$E6,$61,$4C,$B8,$9F,$01,$02,$04,$08,$10
-.byte $20,$40,$80,$20,$BE,$9F,$A6,$62,$E6,$62,$E6,$62,$4C,$B8,$9F,$20
+.byte $20,$40,$80
+	JSR $9FBE		; 9F73	$20 $BE $9F
+; 9F76
+	LDX $62			; 9F76	$A6 $62
+	INC $62			; 9F78	$E6 $62
+	INC $62			; 9F7A	$E6 $62
+	JMP $9FB8		; 9F7C	$4C $B8 $9F
+.byte $20
 .byte $BE,$9F,$A6,$63,$E6,$63,$E6,$63,$4C,$B8,$9F,$20,$BE,$9F,$A6,$64
 .byte $E6,$64,$E6,$64,$4C,$B8,$9F,$20,$BE,$9F,$A6,$65,$E6,$65,$E6,$65
 .byte $4C,$B8,$9F,$20,$BE,$9F,$A6,$66,$E6,$66,$E6,$66,$4C,$B8,$9F,$20
-.byte $BE,$9F,$A6,$67,$E6,$67,$E6,$67,$9D,$01,$04,$8A,$4A,$60,$A6,$88
-.byte $E6,$88,$BD,$87,$07,$60,$50,$A5,$53,$85,$5E,$A5,$54,$85,$5F,$4C
+.byte $BE,$9F,$A6,$67,$E6,$67,$E6,$67
+	STA $0401,X		; 9FB8	$9D $01 $04	tile properties
+	TXA			; 9FBB	$8A
+	LSR A			; 9FBC	$4A
+	RTS			; 9FBD	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDX $88			; 9FBE	$A6 $88
+	INC $88			; 9FC0	$E6 $88
+	LDA $0787,X		; 9FC2	$BD $87 $07
+	RTS			; 9FC5	$60
+; End of
+; 9FC6
+.byte $50,$A5,$53,$85,$5E,$A5,$54,$85,$5F,$4C
 .byte $93,$9F,$C6,$51,$C6,$50,$A5,$5E,$C5,$53,$D0,$15,$A5,$5F,$C5,$54
 .byte $D0,$0F,$20,$3E,$A1,$A5,$61,$F0,$06,$20,$B4,$A2,$4C,$93,$9F,$F0
 .byte $22,$20,$58,$A0,$A5,$61,$F0,$06,$20,$B4,$A2,$4C,$93,$9F,$C6,$9E
@@ -874,6 +1115,7 @@ Set_palettes:
 .byte $02,$10,$23,$10,$0E,$70,$00,$00,$00,$00,$00,$00,$00,$00,$00,$11
 .byte $03,$10,$20,$15,$0E,$70,$00,$00,$00,$00,$00,$00,$00,$00,$00,$11
 .byte $04,$10,$24,$11,$0E,$70,$00,$00,$00,$00,$00,$00,$00,$00,$00,$11
+; $A050 = altea ??
 .byte $05,$10,$44,$51,$0E,$0F,$00,$2C,$27,$2B,$5E,$11,$0F,$10,$00,$10
 .byte $06,$43,$44,$51,$0E,$72,$00,$2C,$13,$12,$27,$2B,$00,$00,$00,$10
 .byte $07,$10,$48,$51,$73,$74,$00,$15,$14,$16,$2B,$27,$00,$00,$00,$10
@@ -1220,7 +1462,7 @@ Set_palettes:
 
 ;; ========== bg tilemap id for each map ($B200-$B2FF) START ==========
 ;; [$B200 :: 0x03200]
-
+bg_tilemap_id:
 .byte $00,$01,$02,$03,$A9,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E
 .byte $0E,$0E,$0E,$0E,$0E,$0E,$0E,$9B,$9C,$0E,$0E,$0E,$0E,$0E,$0E,$0E
 .byte $0E,$0E,$9D,$9E,$0E,$0E,$0F,$0E,$16,$16,$10,$12,$13,$14,$14,$15
@@ -1264,7 +1506,7 @@ Set_palettes:
 
 ;; ========== world map entrance x position ($B400-$B43F) START ==========
 ;; [$B400 :: 0x03400]
-
+wmap_ent_x:
 .byte $09,$02,$1D,$02,$1D,$13,$13,$0F,$02,$0A,$08,$03,$1D,$0D,$0F,$09
 .byte $0F,$1D,$03,$05,$0F,$1B,$1B,$1D,$01,$1D,$1B,$1D,$01,$05,$0F,$0F
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -1273,6 +1515,7 @@ Set_palettes:
 
 ;; ========== world map entrance y position ($B440-$B47F) START ==========
 ;; [$B440 :: 0x03440]
+wmap_ent_y:
 .byte $0E,$13,$19,$17,$1A,$02,$02,$02,$17,$1C,$08,$03,$03,$1D,$1D,$1D
 .byte $1D,$1B,$1B,$03,$1D,$03,$19,$1B,$1A,$03,$19,$04,$18,$03,$1A,$18
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -1281,6 +1524,7 @@ Set_palettes:
 
 ;; ========== world map entrance map ids ($B480-$B4BF) START ==========
 ;; [$B480 :: 0x03480]
+wmap_ent_id:
 .byte $00,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$2F,$32,$40,$41,$58
 .byte $60,$6B,$71,$81,$92,$B3,$B3,$BD,$C0,$CC,$D7,$ED,$A6,$E0,$49,$FF
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00

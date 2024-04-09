@@ -26,7 +26,7 @@ in_x_pos		= $29
 in_y_pos		= $2A
 
 _2B_unknown		= $2B
-_2C_unknown		= $2C
+_2C_unknown		= $2C	; next overworld y position ??
 
 ;---- --hn
 scroll_dir_map		= $2D
@@ -64,6 +64,8 @@ tile_prop		= $44	; ??
 p_map1			= $45
 p_map2			= $46
 player_mv_timer		= $47
+_48_unknown		= $48	; world map entrance ID ??
+_49_unknown		= $49
 
 _4E_unknown		= $4E
 
@@ -81,6 +83,7 @@ _63_unknown		= $63
 _64_palette_tmp		= $64
 _66_unknown		= $66
 _67_unknown		= $67
+_68_unknown		= $68
 _69_unknown		= $69
 _6A_unknown		= $6A
 
@@ -166,6 +169,7 @@ rng_cnt			= $F5
 rng_tbl_dir		= $F6
 
 rng_cnt_bat		= $F7
+_F8_unknown		= $F8
 
 skip_intro		= $FA	; $77 is already saw the logo screen, else is Show logo screen.
 
@@ -436,7 +440,7 @@ SQ2_Note_Value		 = $6F1F
 current_BGM_ID		 = $6F25
 _6F26_unknown		= $6F26
 
-; map bg tilemap($7000-$73FF)
+; general buffer: map bg tilemap($7000-$7FFF)
 
 obj_properties		= $7400
 cur_tile_prop		= $7400

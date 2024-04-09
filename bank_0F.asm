@@ -26,6 +26,11 @@
 .import	Set_wmap_palettes	;9C06 - bank_00
 .import	Init_var		;9C09 - bank_00
 
+.import bg_tilemap_id		;B200 - bank_00
+.import wmap_ent_x		;B400 - bank_00
+.import wmap_ent_y		;B440 - bank_00
+.import wmap_ent_id		;B480 - bank_00
+
 .segment "BANK_FIXED"
 
 
@@ -129,7 +134,7 @@ L3C0B8:
 	LDA #$00		; C0B8  $A9 $00
 	STA ApuStatus_4015	; C0BA  $8D $15 $40
 	JSR $C832		; C0BD  $20 $32 $C8	variables init
-	JSR $D7F0		; C0C0  $20 $F0 $D7	Show world map using slate effect
+	JSR $D7F0		; C0C0  $20 $F0 $D7	Show world map using slate in effect
 L3C0C3:
 	LDX #$FF		; C0C3  $A2 $FF		Stack pointer reset
 	TXS			; C0C5  $9A
@@ -212,7 +217,7 @@ C143:
 ; Marks	: check tile properties and key ?? check minimap ??
    ;; sub start ;;
 	LDA tile_prop		; C159  $A5 $44		map tile property ??
-	BMI L3C1C7		; C15B  $30 $6A
+	BMI L3C1C7		; C15B  $30 $6A		if bit7 is set, enter some place ??
 	AND #$20		; C15D  $29 $20
 	BNE L3C1B1		; C15F  $D0 $50		if battle/encounter ??
 	LDA s_pressing		; C161  $A5 $23
@@ -263,27 +268,27 @@ L3C1B1:
 	JSR $FA00		; C1C1  $20 $00 $FA	battle code
 	JMP L3C8BC		; C1C4  $4C $BC $C8
 L3C1C7:
-    LDA #$30                 ; C1C7  $A9 $30
-    STA NoiseVolume_400C     ; C1C9  $8D $0C $40
-    JSR $D7CB                ; C1CC  $20 $CB $D7
-    LDA #$00                 ; C1CF  $A9 $00
-    JSR Swap_PRG_               ; C1D1  $20 $03 $FE
-    LDA $45                  ; C1D4  $A5 $45
-    TAX                      ; C1D6  $AA
-    LDA $B400,X              ; C1D7  $BD $00 $B4
-    SEC                      ; C1DA  $38
-    SBC #$07                 ; C1DB  $E9 $07
-    AND #$3F                 ; C1DD  $29 $3F
-    STA $29                  ; C1DF  $85 $29
-    LDA $B440,X              ; C1E1  $BD $40 $B4
-    SEC                      ; C1E4  $38
-    SBC #$07                 ; C1E5  $E9 $07
-    AND #$3F                 ; C1E7  $29 $3F
-    STA $2A                  ; C1E9  $85 $2A
-    LDA $B480,X              ; C1EB  $BD $80 $B4
-    STA $48                  ; C1EE  $85 $48
-    JSR L3CA41               ; C1F0  $20 $41 $CA
-    JMP L3C0B8               ; C1F3  $4C $B8 $C0
+	LDA #$30		; C1C7  $A9 $30
+	STA NoiseVolume_400C	; C1C9  $8D $0C $40
+	JSR $D7CB		; C1CC  $20 $CB $D7	slate out effect
+	LDA #$00		; C1CF  $A9 $00
+	JSR Swap_PRG_		; C1D1  $20 $03 $FE
+	LDA $45			; C1D4  $A5 $45		p_map1 ??
+	TAX			; C1D6  $AA
+	LDA wmap_ent_x,X	; C1D7  $BD $00 $B4
+	SEC			; C1DA  $38
+	SBC #$07		; C1DB  $E9 $07
+	AND #$3F		; C1DD  $29 $3F
+	STA in_x_pos		; C1DF  $85 $29
+	LDA wmap_ent_y,X	; C1E1  $BD $40 $B4
+	SEC			; C1E4  $38
+	SBC #$07		; C1E5  $E9 $07
+	AND #$3F		; C1E7  $29 $3F
+	STA in_y_pos		; C1E9  $85 $2A
+	LDA wmap_ent_id,X	; C1EB  $BD $80 $B4
+	STA $48			; C1EE  $85 $48		world map entrance ID ??
+	JSR L3CA41		; C1F0  $20 $41 $CA
+	JMP L3C0B8		; C1F3  $4C $B8 $C0
 C1F6:
     LDA #$80                 ; C1F6  $A9 $80
     STA $6008                ; C1F8  $8D $08 $60
@@ -1531,8 +1536,12 @@ C9E8:
     RTS                      ; CA3F  $60
 
     RTS                      ; CA40  $60
+; End of
+
+; Name	:
+; Marks	: Normal map process
 L3CA41:
-    JSR $D06F                ; CA41  $20 $6F $D0
+	JSR $D06F		; CA41  $20 $6F $D0	eye open effect / sound ??
 ; normal map loop start ??
 L3CA44:
 	JSR Wait_NMI		; CA44  $20 $00 $FE
@@ -1547,15 +1556,15 @@ L3CA44:
 	ADC #$00		; CA58  $69 $00
 	STA frame_cnt_H		; CA5A  $85 $F1
 	JSR L3C746		; CA5C  $20 $46 $C7	sound process ??
-	LDA ver_stile_pos	; CA5F  $A5 $36		button_repeat_counter ??
-	ORA hor_stile_pos	; CA61  $05 $35		buttons_held
+	LDA ver_stile_pos	; CA5F  $A5 $36
+	ORA hor_stile_pos	; CA61  $05 $35
 	CMP #$08		; CA63  $C9 $08
 	BNE L3CA6D		; CA65  $D0 $06		if A != 08h
-    LDA $44                  ; CA67  $A5 $44
+    LDA tile_prop                  ; CA67  $A5 $44
     AND #$06                 ; CA69  $29 $06
     STA $43                  ; CA6B  $85 $43
 L3CA6D:
-	LDA mov_spd		; CA6D  $A5 $34		rlduseba buttons pressed ?? mov_spd ??
+	LDA mov_spd		; CA6D  $A5 $34
 	BNE L3CA7D		; CA6F  $D0 $0C		if A != 00h
 	LDA tile_prop		; CA71  $A5 $44
 	AND #$E0		; CA73  $29 $E0
@@ -1570,7 +1579,7 @@ L3CA7D:
 L3CA84:
 	JSR Init_Page2		; CA84  $20 $6E $C4
 	JSR $E30C		; CA87  $20 $0C $E3	event ??
-	JMP L3CA44		; CA8A  $4C $44 $CA
+	JMP L3CA44		; CA8A  $4C $44 $CA	LOOP - normal map
 ; normal map loop ??
 L3CA8D:
     CMP #$40                 ; CA8D  $C9 $40
@@ -1655,7 +1664,7 @@ L3CB20:
 	LDA #$00		; CB24  $A9 $00
 	STA a_pressing		; CB26  $85 $24
 	JSR Wait_NMI		; CB28  $20 $00 $FE
-	JSR L3C746		; CB2B  $20 $46 $C7	sound ??
+	JSR L3C746		; CB2B  $20 $46 $C7	sound process ??
 	LDA player_dir		; CB2E  $A5 $33
 	JSR $CD21		; CB30  $20 $21 $CD	facing calcuration
 	JSR $CCDE		; CB33  $20 $DE $CC	check npc ??
@@ -1691,7 +1700,7 @@ L3CB64:
 	JSR Scroll_normal	; CB6F  $20 $F5 $CD
 	LDA #$1E		; CB72  $A9 $1E		show sprite/backgnd
 	STA PpuMask_2001	; CB74  $8D $01 $20
-    JSR L3C746               ; CB77  $20 $46 $C7
+    JSR L3C746               ; CB77  $20 $46 $C7	sound process ??
 	LDA #$00		; CB7A  $A9 $00
 	STA a_pressing		; CB7C  $85 $24
 	STA s_pressing		; CB7E  $85 $23
@@ -1986,37 +1995,41 @@ L3CD43:
 	RTS			; CD53  $60
 ; End of
 
+; Name	:
+; Marks	: $84 = X ??, $85 = Y ??
+;	  $80(ADDR)
 ;; sub start ;;
-    LDY #$70                 ; CD54  $A0 $70
-    LDA $84                  ; CD56  $A5 $84
-    ORA $85                  ; CD58  $05 $85
-    AND #$20                 ; CD5A  $29 $20
-    BNE L3CD7A               ; CD5C  $D0 $1C
-    LDA $85                  ; CD5E  $A5 $85
-    AND #$1F                 ; CD60  $29 $1F
-    LSR A                    ; CD62  $4A
-    LSR A                    ; CD63  $4A
-    LSR A                    ; CD64  $4A
-    ORA #$70                 ; CD65  $09 $70
-    STA $81                  ; CD67  $85 $81
-    LDA $85                  ; CD69  $A5 $85
-    ASL A                    ; CD6B  $0A
-    ASL A                    ; CD6C  $0A
-    ASL A                    ; CD6D  $0A
-    ASL A                    ; CD6E  $0A
-    ASL A                    ; CD6F  $0A
-    ORA $84                  ; CD70  $05 $84
-    STA $80                  ; CD72  $85 $80
-    LDY #$00                 ; CD74  $A0 $00
-    LDA ($80),Y              ; CD76  $B1 $80
-    ASL A                    ; CD78  $0A
-    TAY                      ; CD79  $A8
+	LDY #$70		; CD54  $A0 $70
+	LDA $84			; CD56  $A5 $84
+	ORA $85			; CD58  $05 $85
+	AND #$20		; CD5A  $29 $20
+	BNE L3CD7A		; CD5C  $D0 $1C
+	LDA $85			; CD5E  $A5 $85
+	AND #$1F		; CD60  $29 $1F
+	LSR A			; CD62  $4A
+	LSR A			; CD63  $4A
+	LSR A			; CD64  $4A
+	ORA #$70		; CD65  $09 $70
+	STA $81			; CD67  $85 $81
+	LDA $85			; CD69  $A5 $85
+	ASL A			; CD6B  $0A
+	ASL A			; CD6C  $0A
+	ASL A			; CD6D  $0A
+	ASL A			; CD6E  $0A
+	ASL A			; CD6F  $0A
+	ORA $84			; CD70  $05 $84
+	STA $80			; CD72  $85 $80
+	LDY #$00		; CD74  $A0 $00
+	LDA ($80),Y		; CD76  $B1 $80		map tileset attribute table
+	ASL A			; CD78  $0A
+	TAY			; CD79  $A8
 L3CD7A:
-    LDA $0400,Y              ; CD7A  $B9 $00 $04
-    STA $44                  ; CD7D  $85 $44
-    LDA $0401,Y              ; CD7F  $B9 $01 $04
-    STA $45                  ; CD82  $85 $45
-    RTS                      ; CD84  $60
+	LDA $0400,Y		; CD7A  $B9 $00 $04	tile propeties
+	STA tile_prop		; CD7D  $85 $44
+	LDA $0401,Y		; CD7F  $B9 $01 $04
+	STA $45			; CD82  $85 $45
+	RTS			; CD84  $60
+; End of
 
 ;; sub start ;;
     JSR $CD54                ; CD85  $20 $54 $CD
@@ -2091,8 +2104,8 @@ L3CDF4:
 ; Name	: Scroll_normal
 ; Marks	: PpuScroll normal
 Scroll_normal:
-	LDA $FD			; CDF5  $A5 $FD		ppu_control(pending)
-	STA $FF			; CDF7  $85 $FF		ppu_control(current)
+	LDA ppu_con_p		; CDF5  $A5 $FD		ppu_control(pending)
+	STA ppu_con_c		; CDF7  $85 $FF		ppu_control(current)
 	STA PpuControl_2000	; CDF9  $8D $00 $20
 	LDA in_x_pos		; CDFC  $A5 $29
 	ASL A			; CDFE  $0A
@@ -2101,7 +2114,7 @@ Scroll_normal:
 	ASL A			; CE01  $0A
 	ORA hor_stile_pos	; CE02  $05 $35
 	STA PpuScroll_2005	; CE04  $8D $05 $20
-	LDA $2F			; CE07  $A5 $2F		y position ??
+	LDA nt_y_pos		; CE07  $A5 $2F
 	ASL A			; CE09  $0A
 	ASL A			; CE0A  $0A
 	ASL A			; CE0B  $0A
@@ -2455,108 +2468,118 @@ L3D05A:
     STA NoiseLength_400F     ; D06B  $8D $0F $40
     RTS                      ; D06E  $60
 
+; Name	:
+; Marks	:
 ;; sub start ;;
-    JSR $D083                ; D06F  $20 $83 $D0
-    JSR $D09A                ; D072  $20 $9A $D0
-    JSR $D13C                ; D075  $20 $3C $D1
-    JMP L3D8C9               ; D078  $4C $C9 $D8
+	JSR $D083		; D06F  $20 $83 $D0
+	JSR $D09A		; D072  $20 $9A $D0	init ?? battle rate ?? battle bg ??
+	JSR $D13C		; D075  $20 $3C $D1	?? dummy code ??
+	JMP L3D8C9		; D078  $4C $C9 $D8
 L3D07B:
     JSR $D09A                ; D07B  $20 $9A $D0
     LDA #$03                 ; D07E  $A9 $03
     JMP L3DDA4               ; D080  $4C $A4 $DD
-   ;; sub start ;;
-    LDA #$01                 ; D083  $A9 $01
-    STA $2D                  ; D085  $85 $2D
-    LDA #$00                 ; D087  $A9 $00
-    STA PpuMask_2001         ; D089  $8D $01 $20
-    JSR $D341                ; D08C  $20 $41 $D3
-    LDX #$07                 ; D08F  $A2 $07
-    LDA #$03                 ; D091  $A9 $03
-    JSR Swap_PRG_               ; D093  $20 $03 $FE
-    JSR $A003                ; D096  $20 $03 $A0
-    RTS                      ; D099  $60
 
+; Name	:
+; Marks	:
+   ;; sub start ;;
+	LDA #$01		; D083  $A9 $01
+	STA scroll_dir_map	; D085  $85 $2D		Set to normal map
+	LDA #$00		; D087  $A9 $00		sprites/background hide
+	STA PpuMask_2001	; D089  $8D $01 $20
+	JSR $D341		; D08C  $20 $41 $D3	init ??
+	LDX #$07		; D08F  $A2 $07
+	LDA #$03		; D091  $A9 $03
+	JSR Swap_PRG_		; D093  $20 $03 $FE
+	JSR $A003		; D096  $20 $03 $A0	init ??
+	RTS			; D099  $60
+; End of
+
+; Name	:
+; Marks	: Init variables
+;	  $68, $84 = X ??, $69, $85 = Y ??
 ;; sub start ;;
-    LDA #$00                 ; D09A  $A9 $00
-    STA $37                  ; D09C  $85 $37
-    STA PpuMask_2001         ; D09E  $8D $01 $20
-    STA NoiseVolume_400C     ; D0A1  $8D $0C $40
-    STA $22                  ; D0A4  $85 $22
-    STA $23                  ; D0A6  $85 $23
-    STA $24                  ; D0A8  $85 $24
-    STA $25                  ; D0AA  $85 $25
-    JSR $E497                ; D0AC  $20 $97 $E4
-    LDA #$00                 ; D0AF  $A9 $00
-    JSR Swap_PRG_               ; D0B1  $20 $03 $FE
-    JSR $9C06                ; D0B4  $20 $06 $9C
-    LDA $48                  ; D0B7  $A5 $48
-    LSR A                    ; D0B9  $4A
-    LSR A                    ; D0BA  $4A
-    LSR A                    ; D0BB  $4A
-    LSR A                    ; D0BC  $4A
-    ORA #$A0                 ; D0BD  $09 $A0
-    STA $81                  ; D0BF  $85 $81
-    LDA $48                  ; D0C1  $A5 $48
-    ASL A                    ; D0C3  $0A
-    ASL A                    ; D0C4  $0A
-    ASL A                    ; D0C5  $0A
-    ASL A                    ; D0C6  $0A
-    STA $80                  ; D0C7  $85 $80
-    LDY #$0F                 ; D0C9  $A0 $0F
-    LDA ($80),Y              ; D0CB  $B1 $80
-    ORA #$40                 ; D0CD  $09 $40
+	LDA #$00		; D09A  $A9 $00
+	STA text_win_mode	; D09C  $85 $37
+	STA PpuMask_2001	; D09E  $8D $01 $20
+	STA NoiseVolume_400C	; D0A1  $8D $0C $40
+	STA e_pressing		; D0A4  $85 $22
+	STA s_pressing		; D0A6  $85 $23
+	STA a_pressing		; D0A8  $85 $24
+	STA b_pressing		; D0AA  $85 $25
+	JSR $E497		; D0AC  $20 $97 $E4	graphics(sprite) copy ??
+	LDA #$00		; D0AF  $A9 $00
+	JSR Swap_PRG_		; D0B1  $20 $03 $FE
+	JSR Set_wmap_palettes	; D0B4  $20 $06 $9C
+	LDA $48			; D0B7  $A5 $48		world map entrance ID ??
+	LSR A			; D0B9  $4A
+	LSR A			; D0BA  $4A
+	LSR A			; D0BB  $4A
+	LSR A			; D0BC  $4A
+	ORA #$A0		; D0BD  $09 $A0
+	STA $81			; D0BF  $85 $81
+	LDA $48			; D0C1  $A5 $48		world map entrance ID ??
+	ASL A			; D0C3  $0A
+	ASL A			; D0C4  $0A
+	ASL A			; D0C5  $0A
+	ASL A			; D0C6  $0A
+	STA $80			; D0C7  $85 $80
+	LDY #$0F		; D0C9  $A0 $0F
+	LDA ($80),Y		; D0CB  $B1 $80		map properties ?? (ex> $A050)
+	ORA #$40		; D0CD  $09 $40
 	STA current_song_ID	; D0CF  $85 $E0
-    JSR $D1D3                ; D0D1  $20 $D3 $D1
-    LDA $29                  ; D0D4  $A5 $29
-    AND #$10                 ; D0D6  $29 $10
-    CMP #$10                 ; D0D8  $C9 $10
-    ROL A                    ; D0DA  $2A
-    AND #$01                 ; D0DB  $29 $01
-    ORA #$88                 ; D0DD  $09 $88
-    STA $FD                  ; D0DF  $85 $FD
-    STA $FF                  ; D0E1  $85 $FF
-    JSR Wait_NMI		; JSR $FE00                ; D0E3  $20 $00 $FE
-    JSR Palette_copy		; JSR $DC30                ; D0E6  $20 $30 $DC
+	JSR $D1D3		; D0D1  $20 $D3 $D1	map processing ??
+	LDA in_x_pos		; D0D4  $A5 $29
+	AND #$10		; D0D6  $29 $10
+	CMP #$10		; D0D8  $C9 $10
+	ROL A			; D0DA  $2A
+	AND #$01		; D0DB  $29 $01
+	ORA #$88		; D0DD  $09 $88
+	STA ppu_con_p		; D0DF  $85 $FD
+	STA ppu_con_c		; D0E1  $85 $FF
+	JSR Wait_NMI		; D0E3  $20 $00 $FE
+	JSR Palette_copy	; D0E6  $20 $30 $DC
 	JSR Scroll_normal	; D0E9  $20 $F5 $CD
-    LDA #$00                 ; D0EC  $A9 $00
-    STA PpuMask_2001         ; D0EE  $8D $01 $20
-    LDA #$04                 ; D0F1  $A9 $04
-    STA $33                  ; D0F3  $85 $33
-    LDA $29                  ; D0F5  $A5 $29
-    CLC                      ; D0F7  $18
-    ADC #$07                 ; D0F8  $69 $07
-    AND #$3F                 ; D0FA  $29 $3F
-    STA $68                  ; D0FC  $85 $68
-    STA $84                  ; D0FE  $85 $84
-    LDA $2A                  ; D100  $A5 $2A
-    CLC                      ; D102  $18
-    ADC #$07                 ; D103  $69 $07
-    AND #$3F                 ; D105  $29 $3F
-    STA $85                  ; D107  $85 $85
-    STA $69                  ; D109  $85 $69
-    JSR $CD54                ; D10B  $20 $54 $CD
-    LDA $44                  ; D10E  $A5 $44
-    AND #$06                 ; D110  $29 $06
-    STA $43                  ; D112  $85 $43
-    LDA $44                  ; D114  $A5 $44
-    AND #$08                 ; D116  $29 $08
-    BEQ L3D11D               ; D118  $F0 $03
-    JSR L3CC30               ; D11A  $20 $30 $CC
+	LDA #$00		; D0EC  $A9 $00
+	STA PpuMask_2001	; D0EE  $8D $01 $20	sprite/background hide
+	LDA #$04		; D0F1  $A9 $04
+	STA player_dir		; D0F3  $85 $33		Set the player in a downward direction
+	LDA in_x_pos		; D0F5  $A5 $29
+	CLC			; D0F7  $18
+	ADC #$07		; D0F8  $69 $07
+	AND #$3F		; D0FA  $29 $3F
+	STA $68			; D0FC  $85 $68
+	STA $84			; D0FE  $85 $84
+	LDA in_y_pos		; D100  $A5 $2A
+	CLC			; D102  $18
+	ADC #$07		; D103  $69 $07
+	AND #$3F		; D105  $29 $3F
+	STA $85			; D107  $85 $85
+	STA $69			; D109  $85 $69
+	JSR $CD54		; D10B  $20 $54 $CD	tile ??
+	LDA tile_prop		; D10E  $A5 $44
+	AND #$06		; D110  $29 $06
+	STA $43			; D112  $85 $43
+	LDA tile_prop		; D114  $A5 $44
+	AND #$08		; D116  $29 $08
+	BEQ L3D11D		; D118  $F0 $03
+	JSR L3CC30		; D11A  $20 $30 $CC
 L3D11D:
-    LDA #$00                 ; D11D  $A9 $00
-    STA $44                  ; D11F  $85 $44
-    STA $45                  ; D121  $85 $45
-    LDA #$0B                 ; D123  $A9 $0B
-    JSR Swap_PRG_               ; D125  $20 $03 $FE
-    LDX $48                  ; D128  $A6 $48
-    LDA $8000,X              ; D12A  $BD $00 $80
-    STA $F8                  ; D12D  $85 $F8
-    LDA #$00                 ; D12F  $A9 $00
-    JSR Swap_PRG_               ; D131  $20 $03 $FE
-    LDA $9400,X              ; D134  $BD $00 $94
-    AND #$80                 ; D137  $29 $80
-    STA $19                  ; D139  $85 $19
-    RTS                      ; D13B  $60
+	LDA #$00		; D11D  $A9 $00
+	STA tile_prop		; D11F  $85 $44
+	STA $45			; D121  $85 $45
+	LDA #$0B		; D123  $A9 $0B
+	JSR Swap_PRG_		; D125  $20 $03 $FE
+	LDX $48			; D128  $A6 $48		world map entrance ID ??
+	LDA $8000,X		; D12A  $BD $00 $80	map random battle rates ??
+	STA $F8			; D12D  $85 $F8		random battle rate ??
+	LDA #$00		; D12F  $A9 $00
+	JSR Swap_PRG_		; D131  $20 $03 $FE
+	LDA $9400,X		; D134  $BD $00 $94	battle bg for each map ??
+	AND #$80		; D137  $29 $80
+	STA $19			; D139  $85 $19		battle bg ??
+	RTS			; D13B  $60
+; End of
 
 ;; sub start ;;
     RTS                      ; D13C  $60
@@ -2666,7 +2689,7 @@ L3D19D:
 ; Marks	: map processing ??
    ;; sub start ;;
 	LDA #$00		; D1D3  $A9 $00
-	STA $2F			; D1D5  $85 $2F
+	STA nt_y_pos		; D1D5  $85 $2F
 	LDA scroll_dir_map	; D1D7  $A5 $2D
 	LSR A			; D1D9  $4A
 	BCS L3D1E6		; D1DA  $B0 $0A		if normal map
@@ -2688,7 +2711,7 @@ L3D1F3:
 	JSR L3D209		; D1F3  $20 $09 $D2	map process ?? (tile copy to RAM ??)
 	JSR Map_update		; D1F6  $20 $1B $D2
 	JSR $D226		; D1F9  $20 $26 $D2	calc x, y ??
-	LDA $2F			; D1FC  $A5 $2F
+	LDA nt_y_pos		; D1FC  $A5 $2F
 	BNE L3D1F3		; D1FE  $D0 $F3		loop
 	LDA #$00		; D200  $A9 $00
 	STA player_dir		; D202  $85 $33
@@ -2754,9 +2777,10 @@ L3D247:
 ; End of
 
 ; Name	:
+; SRC	: $30, $31 = current repeat count ?? (00h~0Fh) ??
 ; Marks	: Text window attributes and attribute data process ??
-;	  $30, $31 = current repeat count ?? (00h~0Fh) ??
 ;	  $80 = ppu_addr_L, $81=textwin_attr, $82 = ppu_addr_H, $86 = max repeat count
+;	  Init text window attribute ??
 ;; sub start ;;
 	LDA #$10		; D24A  $A9 $10
 	STA $86			; D24C  $85 $86
@@ -2895,37 +2919,45 @@ L3D30B:
 .byte $20,$20,$20,$20,$21,$21,$21,$21,$22,$22,$22,$22,$23,$23,$23
 .byte $23
 
+; Name	:
+; Marks	: map bg tilemap bank is 04, 05(id 4xh, 5xh, 6xh, 7xh, Cxh, Dxh, Exh, Fxh)
+;	  $80(ADDR)
+;	  $82(ADDR) = normal map tile buffer($7400-??)
 ;; sub start ;;
-    LDA #$00                 ; D341  $A9 $00
-    JSR Swap_PRG_               ; D343  $20 $03 $FE
-    LDX $48                  ; D346  $A6 $48
-    LDA $B200,X              ; D348  $BD $00 $B2
-    PHA                      ; D34B  $48
-    ASL A                    ; D34C  $0A
-    ROL A                    ; D34D  $2A
-    AND #$01                 ; D34E  $29 $01
-    ORA #$04                 ; D350  $09 $04
-    JSR Swap_PRG_               ; D352  $20 $03 $FE
-    PLA                      ; D355  $68
-    ASL A                    ; D356  $0A
-    TAX                      ; D357  $AA
-    LDA $8000,X              ; D358  $BD $00 $80
-    STA $80                  ; D35B  $85 $80
-    LDA $8001,X              ; D35D  $BD $01 $80
-    STA $81                  ; D360  $85 $81
-    LDA #$00                 ; D362  $A9 $00
-    STA $82                  ; D364  $85 $82
-    LDA #$74                 ; D366  $A9 $74
-    STA $83                  ; D368  $85 $83
-    JSR L3D39F               ; D36A  $20 $9F $D3
-    LDA #$00                 ; D36D  $A9 $00
-    JSR Swap_PRG_               ; D36F  $20 $03 $FE
-    JMP $9C00                ; D372  $4C $00 $9C
+	LDA #$00		; D341  $A9 $00
+	JSR Swap_PRG_		; D343  $20 $03 $FE
+	LDX $48			; D346  $A6 $48		world map entrance ID ??
+	LDA bg_tilemap_id,X	; D348  $BD $00 $B2
+	PHA			; D34B  $48
+	ASL A			; D34C  $0A
+	ROL A			; D34D  $2A
+	AND #$01		; D34E  $29 $01
+	ORA #$04		; D350  $09 $04
+	JSR Swap_PRG_		; D352  $20 $03 $FE
+	PLA			; D355  $68
+	ASL A			; D356  $0A
+	TAX			; D357  $AA
+	LDA $8000,X		; D358  $BD $00 $80	pointers to map bg tilemaps(Low)
+	STA $80			; D35B  $85 $80
+	LDA $8001,X		; D35D  $BD $01 $80	pointers to map bg tilemaps(High)
+	STA $81			; D360  $85 $81
+	LDA #$00		; D362  $A9 $00
+	STA $82			; D364  $85 $82
+	LDA #$74		; D366  $A9 $74
+	STA $83			; D368  $85 $83
+	JSR L3D39F		; D36A  $20 $9F $D3	copy object properties ??
+	LDA #$00		; D36D  $A9 $00
+	JSR Swap_PRG_		; D36F  $20 $03 $FE
+	JMP $9C00		; D372  $4C $00 $9C
 
 ; Name	: Set_wmap_tile
 ; Marks	: $2C = next overworld y position ??
-;	  $80(ADDR) = world tilemaps,(even=tilemap,odd=tile count)
-;	  $82(ADDR) = tilemap buffer(RAM), $86(ADDR) = pointers to world tilemaps
+;	  $80(ADDR) = compressed world tilemaps
+;	    tilemap(bit7 set), tile count
+;	    tilemap(bit7 clear), next tilemap
+;	    tilemap(FFh), end of tilemap
+;	  $82(ADDR) = world map background tilemap buffer(RAM:$7000-$7FFF) 256 x 16 line
+;	  $86(ADDR) = pointers to world tilemaps
 ;	  $84 = calcurated tile map ??
 ;	  Set world map tile
    ;; sub start ;;
@@ -2954,31 +2986,33 @@ L3D38A:
 	STA $83			; D399  $85 $83
 	LDA #$00		; D39B  $A9 $00
 	STA $82			; D39D  $85 $82
+; Name	:
+; Marks	: Set_nmap_tile
 L3D39F:
 	LDY #$00		; D39F  $A0 $00
-	LDA ($80),Y		; D3A1  $B1 $80		world tilemaps
-	BPL L3D3D0		; D3A3  $10 $2B
+	LDA ($80),Y		; D3A1  $B1 $80		world/normal tilemaps
+	BPL L3D3D0		; D3A3  $10 $2B		bit7 means it has the tilemap counts
 	CMP #$FF		; D3A5  $C9 $FF
-	BEQ L3D3E1		; D3A7  $F0 $38		if tilemap == FFh
+	BEQ L3D3E1		; D3A7  $F0 $38		if tilemap == FFh(end of tilemap)
 	AND #$7F		; D3A9  $29 $7F
 	STA $84			; D3AB  $85 $84		tilemap
 	INC $80			; D3AD  $E6 $80
 	BNE L3D3B3		; D3AF  $D0 $02
 	INC $81			; D3B1  $E6 $81
 L3D3B3:
-	LDA ($80),Y		; D3B3  $B1 $80
+	LDA ($80),Y		; D3B3  $B1 $80		world/normal tilemap count
 	TAX			; D3B5  $AA
 	LDA $84			; D3B6  $A5 $84
 L3D3B8:
-	STA ($82),Y		; D3B8  $91 $82		general buffer: RAM($7800- (world map buffer ??)
+	STA ($82),Y		; D3B8  $91 $82		general buffer: RAM($7000-$7FFF): world map bg buf
 	INY			; D3BA  $C8
 	BEQ L3D3C8		; D3BB  $F0 $0B
 	DEX			; D3BD  $CA
 	BNE L3D3B8		; D3BE  $D0 $F8		loop
 	TYA			; D3C0  $98
 	CLC			; D3C1  $18
-	ADC $82			; D3C2  $65 $82		current tilemap line number ??
-	STA $82			; D3C4  $85 $82
+	ADC $82			; D3C2  $65 $82
+	STA $82			; D3C4  $85 $82		current copied tilemap x position
 	BCC L3D3CA		; D3C6  $90 $02
 L3D3C8:
 	INC $83			; D3C8  $E6 $83
@@ -3031,7 +3065,7 @@ L3D3F6:
     LDA $2D                  ; D404  $A5 $2D
     ORA #$02                 ; D406  $09 $02
     STA $2D                  ; D408  $85 $2D
-    JSR $D547                ; D40A  $20 $47 $D5
+    JSR Copy_map_tileset                ; D40A  $20 $47 $D5
 L3D40D:
 	LDA #$01		; D40D  $A9 $01
 	STA map_update		; D40F  $85 $32
@@ -3060,14 +3094,14 @@ L3D433:
 	SEC			; D435  $38
 	SBC #$01		; D436  $E9 $01
 	STA $2C			; D438  $85 $2C		next overworld y position ??
-	LDA $2F			; D43A  $A5 $2F
+	LDA nt_y_pos		; D43A  $A5 $2F
 	SEC			; D43C  $38
 	SBC #$01		; D43D  $E9 $01
 	BCS L3D444		; D43F  $B0 $03
 	CLC			; D441  $18
 	ADC #$0F		; D442  $69 $0F
 L3D444:
-	STA $30			; D444  $85 $30		$2F - 1 + 0fh ??
+	STA $30			; D444  $85 $30		next overworld nametable y position ??
 	LDA ow_x_pos		; D446  $A5 $27
 	STA $2B			; D448  $85 $2B
 	AND #$1F		; D44A  $29 $1F
@@ -3076,7 +3110,7 @@ L3D444:
 	AND #$FD		; D450  $29 $FD
 	STA scroll_dir_map	; D452  $85 $2D		set scroll direction to vertical
 	JSR Set_wmap_tile	; D454  $20 $75 $D3
-	JSR $D547		; D457  $20 $47 $D5	Copy tile
+	JSR Copy_map_tileset	; D457  $20 $47 $D5
 	JMP L3D40D		; D45A  $4C $0D $D4
 
 L3D45D:
@@ -3240,13 +3274,18 @@ L3D531:
 	JMP L3D4E1		; D544  $4C $E1 $D4
 ; End of
 
-; Name	:
+; Name	: Copy_map_tileset
 ; Y	: INDEX
-; Marks	: $80(ADDR) - $7Bxx ?? = generic buffer
-;	  Copy tileset ??
+;	  map tileset					      map tileset attribute table
+;	  top left     top right    bottom left	 bottom right
+; SRC	: $0500-$057F, $0580-$05FF, $0600-$067F, $0680-$06FF, $0700-$077F
+; DEST	: $0780-$078F, $0790-$079F, $07A0-$07AF, $07B0-$07BF, $07C0-$07CF
+; Marks	: $80(ADDR) - ($7000-$7FFF) = generic buffer(overworld map 256 x 16 tile)
+;	  Copy map tileset ??
    ;; sub start ;;
+Copy_map_tileset:
 	LDX #$00		; D547  $A2 $00
-	LDA $2C			; D549  $A5 $2C		temp address High
+	LDA $2C			; D549  $A5 $2C		next overworld y position ??
 	AND #$0F		; D54B  $29 $0F
 	ORA #$70		; D54D  $09 $70
 	STA $81			; D54F  $85 $81
@@ -3254,7 +3293,7 @@ L3D531:
 	STA $80			; D553  $85 $80
 	LDA scroll_dir_map	; D555  $A5 $2D
 	AND #$02		; D557  $29 $02
-	BNE L3D586		; D559  $D0 $2B		if vertical direction
+	BNE L3D586		; D559  $D0 $2B		if horizontal direction
 L3D55B:
 	LDY #$00		; D55B  $A0 $00
 	LDA ($80),Y		; D55D  $B1 $80
@@ -3274,7 +3313,7 @@ L3D55B:
 	CPX #$10		; D581  $E0 $10
 	BCC L3D55B		; D583  $90 $D6		loop
 	RTS			; D585  $60
-; End of
+; End of Copy_map_tileset
 
 L3D586:
     LDY #$00                 ; D586  $A0 $00
@@ -3300,7 +3339,7 @@ L3D586:
     CPX #$10                 ; D5B5  $E0 $10
     BCC L3D586               ; D5B7  $90 $CD
     RTS                      ; D5B9  $60
-; End of
+; End of Copy_map_tileset
 
 ; Name	:
 ; Marks	: $80(ADDR) = , $82
@@ -3584,29 +3623,36 @@ L3D7C5:
     STA PpuControl_2000      ; D7C7  $8D $00 $20
     RTS                      ; D7CA  $60
 
+; Name	:
+; Marks	: $84 = ??, $85 = ??
+;	  $84 = visible area, $85 = invisible area(dark)
+;	  slate out effect
 ;; sub start ;;
-    JSR $D990                ; D7CB  $20 $90 $D9
-    LDA #$70                 ; D7CE  $A9 $70
-    STA $84                  ; D7D0  $85 $84
-    LDA #$01                 ; D7D2  $A9 $01
-    STA $85                  ; D7D4  $85 $85
+	JSR $D990		; D7CB  $20 $90 $D9	Init sprites / make sound ??
+	LDA #$70		; D7CE  $A9 $70
+	STA $84			; D7D0  $85 $84
+	LDA #$01		; D7D2  $A9 $01
+	STA $85			; D7D4  $85 $85
 L3D7D6:
-    JSR $D81E                ; D7D6  $20 $1E $D8
-    LDA $85                  ; D7D9  $A5 $85
-    CLC                      ; D7DB  $18
-    ADC #$06                 ; D7DC  $69 $06
-    STA $85                  ; D7DE  $85 $85
-    LDA $84                  ; D7E0  $A5 $84
-    SEC                      ; D7E2  $38
-    SBC #$03                 ; D7E3  $E9 $03
-    STA $84                  ; D7E5  $85 $84
-    CMP #$04                 ; D7E7  $C9 $04
-    BCS L3D7D6               ; D7E9  $B0 $EB
-    LDA #$00                 ; D7EB  $A9 $00
-    JMP L3D812               ; D7ED  $4C $12 $D8
+	JSR Slate_effect	; D7D6  $20 $1E $D8
+	LDA $85			; D7D9  $A5 $85
+	CLC			; D7DB  $18
+	ADC #$06		; D7DC  $69 $06
+	STA $85			; D7DE  $85 $85
+	LDA $84			; D7E0  $A5 $84
+	SEC			; D7E2  $38
+	SBC #$03		; D7E3  $E9 $03
+	STA $84			; D7E5  $85 $84
+	CMP #$04		; D7E7  $C9 $04
+	BCS L3D7D6		; D7E9  $B0 $EB		LOOP - 
+	LDA #$00		; D7EB  $A9 $00
+	JMP L3D812		; D7ED  $4C $12 $D8
+; End of
 
 ; Name	:
 ; Marks	: $84, $85
+;	  $84 = visible area, $85 = invisible area(dark)
+;	  slate in effect
    ;; sub start ;;
 	JSR $D990		; D7F0  $20 $90 $D9	Init sprites / make sound ??
 	LDA #$01		; D7F3  $A9 $01
@@ -3614,7 +3660,7 @@ L3D7D6:
 	LDA #$DF		; D7F7  $A9 $DF
 	STA $85			; D7F9  $85 $85
 L3D7FB:
-	JSR $D81E		; D7FB  $20 $1E $D8	scroll ?? ppu processing ?? delay ??
+	JSR Slate_effect	; D7FB  $20 $1E $D8
 	LDA $85			; D7FE  $A5 $85
 	SEC			; D800  $38
 	SBC #$06		; D801  $E9 $06
@@ -3624,7 +3670,7 @@ L3D7FB:
 	ADC #$03		; D808  $69 $03
 	STA $84			; D80A  $85 $84
 	CMP #$70		; D80C  $C9 $70
-	BCC L3D7FB		; D80E  $90 $EB		LOOP - Show world map using slate effect
+	BCC L3D7FB		; D80E  $90 $EB		LOOP - Show world map using slate in effect
 	LDA #$0A		; D810  $A9 $0A
 L3D812:
 	STA PpuMask_2001	; D812  $8D $01 $20
@@ -3634,34 +3680,37 @@ L3D812:
 	RTS			; D81D  $60
 ; End of
 
-; Name	:
-; Marks	:
+; Name	: Slate_effect
+; Marks	: $82 = repeat count ??
+;	  $84 = visible area, $85 = invisible area(dark)
+;	  slate effect with sound
 ;; sub start ;;
+Slate_effect:
 	JSR Wait_NMI		; D81E  $20 $00 $FE
 	LDA #$0A		; D821  $A9 $0A
 	STA PpuMask_2001	; D823  $8D $01 $20	Ppu enable show background
 	JSR Palette_copy	; D826  $20 $30 $DC
-	JSR $D889		; D829  $20 $89 $D8	Scroll calcuration
+	JSR Scroll_slate	; D829  $20 $89 $D8
 	JSR $D8BA		; D82C  $20 $BA $D8	Delay ??
 	LDX $84			; D82F  $A6 $84
 L3D831:
 	JSR $D962		; D831  $20 $62 $D9	Another delay ??
 	DEX			; D834  $CA
-	BNE L3D831		; D835  $D0 $FA
-	LDA #$00		; D837  $A9 $00
-	STA PpuMask_2001	; D839  $8D $01 $20	Ppu disable
+	BNE L3D831		; D835  $D0 $FA		loop
+	LDA #$00		; D837  $A9 $00		sprite/background hide
+	STA PpuMask_2001	; D839  $8D $01 $20
 	LDX $85			; D83C  $A6 $85
 L3D83E:
 	JSR $D962		; D83E  $20 $62 $D9	Another delay ??
 	DEX			; D841  $CA
 	BNE L3D83E		; D842  $D0 $FA		loop
 	LDA PpuStatus_2002	; D844  $AD $02 $20
-	LDX $2F			; D847  $A6 $2F
-	LDA $D87A,X		; D849  $BD $7A $D8
+	LDX nt_y_pos		; D847  $A6 $2F
+	LDA $D87A,X		; D849  $BD $7A $D8	PPU address from nametable y
 	STA PpuAddr_2006	; D84C  $8D $06 $20
 	LDA $D86A,X		; D84F  $BD $6A $D8
 	STA PpuAddr_2006	; D852  $8D $06 $20
-	JSR $D889		; D855  $20 $89 $D8	ppu scroll ??
+	JSR Scroll_slate	; D855  $20 $89 $D8
 	LDA #$0A		; D858  $A9 $0A
 	STA PpuMask_2001	; D85A  $8D $01 $20	Ppu enable show background
 	LDA $85			; D85D  $A5 $85
@@ -3671,21 +3720,21 @@ L3D83E:
 	AND #$01		; D864  $29 $01
 	STA Sq0Length_4003	; D866  $8D $03 $40
 	RTS			; D869  $60
-; End of
+; End of Slate_effect
 
  ;data block---
 ; NameTable address
-;; [$D86A-$D86F]
-.byte $E0,$20,$60,$A0,$E0,$20
-;; [$D870-$D879]
-.byte $60,$A0,$20,$60,$A0,$E0,$20,$60,$A0,$E0
-;; [$D87A-$D888]
-.byte $21,$22,$22,$22,$22,$23
-.byte $23,$23,$20,$20,$20,$20,$21,$21,$21
+;; [$D86A-$D879] 00h-0Fh
+.byte $E0,$20,$60,$A0,$E0,$20,$60,$A0,$20,$60,$A0,$E0,$20,$60,$A0,$E0
+;; [$D87A-$D888] 00h-0Eh
+.byte $21,$22,$22,$22,$22,$23,$23,$23,$20,$20,$20,$20,$21,$21,$21
 
-; Name	:
-; Marks	: $80, $84, ppu scroll
+; Name	: Scroll_slate
+; SRC	: $84 = visible area
+; Marks	: $80 = scroll y offset
+;	  ppu scroll
  ;; sub start ;;
+Scroll_slate:
 	LDA #$70		; D889  $A9 $70
 	SEC			; D88B  $38
 	SBC $84			; D88C  $E5 $84
@@ -3701,7 +3750,7 @@ L3D83E:
 	ASL A			; D8A0  $0A
 	ASL A			; D8A1  $0A
 	STA PpuScroll_2005	; D8A2  $8D $05 $20
-	LDA $2F			; D8A5  $A5 $2F
+	LDA nt_y_pos		; D8A5  $A5 $2F
 	ASL A			; D8A7  $0A
 	ASL A			; D8A8  $0A
 	ASL A			; D8A9  $0A
@@ -3716,7 +3765,7 @@ L3D8B4:
 L3D8B6:
 	STA PpuScroll_2005	; D8B6  $8D $05 $20
 	RTS			; D8B9  $60
-; End of
+; End of Scroll_slate
 
 ; Name	:
 ; Marks	: delay ??
@@ -3737,25 +3786,27 @@ L3D8BE:
 ; End of
 
 L3D8C9:
-    JSR $D977                ; D8C9  $20 $77 $D9
-    LDA #$85                 ; D8CC  $A9 $85
-    STA $84                  ; D8CE  $85 $84
-    LDA #$01                 ; D8D0  $A9 $01
-    STA $85                  ; D8D2  $85 $85
+	JSR $D977		; D8C9  $20 $77 $D9	init sprite / sound process ??
+	LDA #$85		; D8CC  $A9 $85
+	STA $84			; D8CE  $85 $84
+	LDA #$01		; D8D0  $A9 $01
+	STA $85			; D8D2  $85 $85
 L3D8D4:
-    JSR $D935                ; D8D4  $20 $35 $D9
-    LDA $84                  ; D8D7  $A5 $84
-    SEC                      ; D8D9  $38
-    SBC #$03                 ; D8DA  $E9 $03
-    STA $84                  ; D8DC  $85 $84
-    LDA $85                  ; D8DE  $A5 $85
-    CLC                      ; D8E0  $18
-    ADC #$06                 ; D8E1  $69 $06
-    STA $85                  ; D8E3  $85 $85
-    CMP #$C8                 ; D8E5  $C9 $C8
-    BCC L3D8D4               ; D8E7  $90 $EB
-    LDA #$1E                 ; D8E9  $A9 $1E
-    JMP L3D910               ; D8EB  $4C $10 $D9
+	JSR $D935		; D8D4  $20 $35 $D9	eye open effect ??
+	LDA $84			; D8D7  $A5 $84
+	SEC			; D8D9  $38
+	SBC #$03		; D8DA  $E9 $03
+	STA $84			; D8DC  $85 $84
+	LDA $85			; D8DE  $A5 $85
+	CLC			; D8E0  $18
+	ADC #$06		; D8E1  $69 $06
+	STA $85			; D8E3  $85 $85
+	CMP #$C8		; D8E5  $C9 $C8
+	BCC L3D8D4		; D8E7  $90 $EB		loop - eye open effect ??
+	LDA #$1E		; D8E9  $A9 $1E
+	JMP L3D910		; D8EB  $4C $10 $D9
+; End of
+
    ;; sub start ;;
     JSR $D977                ; D8EE  $20 $77 $D9
     LDA #$21                 ; D8F1  $A9 $21
@@ -3776,50 +3827,56 @@ L3D8F9:
     BCS L3D8F9               ; D90C  $B0 $EB
     LDA #$00                 ; D90E  $A9 $00
 L3D910:
-    STA PpuMask_2001         ; D910  $8D $01 $20
-    LDA #$30                 ; D913  $A9 $30
-    STA Sq0Duty_4000         ; D915  $8D $00 $40
-    STA Sq1Duty_4004         ; D918  $8D $04 $40
-    STA TrgLinear_4008       ; D91B  $8D $08 $40
-    STA NoiseVolume_400C     ; D91E  $8D $0C $40
-    RTS                      ; D921  $60
+	STA PpuMask_2001	; D910  $8D $01 $20
+	LDA #$30		; D913  $A9 $30
+	STA Sq0Duty_4000	; D915  $8D $00 $40
+	STA Sq1Duty_4004	; D918  $8D $04 $40
+	STA TrgLinear_4008	; D91B  $8D $08 $40
+	STA NoiseVolume_400C	; D91E  $8D $0C $40
+	RTS			; D921  $60
+; End of
 
+; Name	:
+; Marks	:
 ;; sub start ;;
-    LDA #$02                 ; D922  $A9 $02
-    STA SpriteDma_4014       ; D924  $8D $14 $40
-    JSR Palette_copy		; JSR $DC30                ; D927  $20 $30 $DC
-    LDA $2D                  ; D92A  $A5 $2D
-    LSR A                    ; D92C  $4A
-    BCS L3D932               ; D92D  $B0 $03
-    JMP $C385                ; D92F  $4C $85 $C3
+	LDA #$02		; D922  $A9 $02
+	STA SpriteDma_4014	; D924  $8D $14 $40
+	JSR Palette_copy	; D927  $20 $30 $DC
+	LDA scroll_dir_map	; D92A  $A5 $2D
+	LSR A			; D92C  $4A
+	BCS L3D932		; D92D  $B0 $03		if normal map
+	JMP $C385		; D92F  $4C $85 $C3
 L3D932:
 	JMP Scroll_normal	; D932  $4C $F5 $CD
 ; End of
 
+; Name	:
+; Marks	: eye open effect ??
    ;; sub start ;;
-    JSR Wait_NMI		; JSR $FE00                ; D935  $20 $00 $FE
-    JSR $D922                ; D938  $20 $22 $D9
-    LDX #$0A                 ; D93B  $A2 $0A
+	JSR Wait_NMI		; D935  $20 $00 $FE
+	JSR $D922		; D938  $20 $22 $D9	copy NT, palette, scroll
+	LDX #$0A		; D93B  $A2 $0A
 L3D93D:
-    DEX                      ; D93D  $CA
-    BNE L3D93D               ; D93E  $D0 $FD
-    LDA #$10                 ; D940  $A9 $10
-    STA PpuMask_2001         ; D942  $8D $01 $20
-    LDX $84                  ; D945  $A6 $84
+	DEX			; D93D  $CA
+	BNE L3D93D		; D93E  $D0 $FD		delay ??
+	LDA #$10		; D940  $A9 $10
+	STA PpuMask_2001	; D942  $8D $01 $20	show sprite only
+	LDX $84			; D945  $A6 $84
 L3D947:
-    JSR $D962                ; D947  $20 $62 $D9
-    DEX                      ; D94A  $CA
-    BNE L3D947               ; D94B  $D0 $FA
-    LDA #$1E                 ; D94D  $A9 $1E
-    STA PpuMask_2001         ; D94F  $8D $01 $20
-    LDX $85                  ; D952  $A6 $85
+	JSR $D962		; D947  $20 $62 $D9	Another delay ??
+	DEX			; D94A  $CA
+	BNE L3D947		; D94B  $D0 $FA
+	LDA #$1E		; D94D  $A9 $1E		show sprite/background
+	STA PpuMask_2001	; D94F  $8D $01 $20
+	LDX $85			; D952  $A6 $85
 L3D954:
-    JSR $D962                ; D954  $20 $62 $D9
-    DEX                      ; D957  $CA
-    BNE L3D954               ; D958  $D0 $FA
-    LDA #$10                 ; D95A  $A9 $10
-    STA PpuMask_2001         ; D95C  $8D $01 $20
-    JMP L3C746               ; D95F  $4C $46 $C7
+	JSR $D962		; D954  $20 $62 $D9	Another delay ??
+	DEX			; D957  $CA
+	BNE L3D954		; D958  $D0 $FA
+	LDA #$10		; D95A  $A9 $10		show sprite only
+	STA PpuMask_2001	; D95C  $8D $01 $20
+	JMP L3C746		; D95F  $4C $46 $C7	sound process ??
+; End of
 
 ; Name	:
 ; Marks	: $82
@@ -3843,9 +3900,11 @@ L3D972:
 	RTS			; D976  $60
 ; End of
 
+; Name	:
+; Marks	:
 ;; sub start ;;
 	JSR Init_sprites	; D977  $20 $7D $D9
-    JMP L3C746               ; D97A  $4C $46 $C7
+	JMP L3C746		; D97A  $4C $46 $C7	sound process ??
 
 ; Name	: Init_sprites
 ; Marks	: init PPU sprites
@@ -4440,7 +4499,7 @@ L3DD12:
     JSR Wait_NMI		; JSR $FE00                ; DD12  $20 $00 $FE
     JSR $DCB5                ; DD15  $20 $B5 $DC
 	JSR Scroll_normal	; DD18  $20 $F5 $CD
-    JSR L3C746               ; DD1B  $20 $46 $C7
+    JSR L3C746               ; DD1B  $20 $46 $C7	sound process ??
     PLA                      ; DD1E  $68
     CLC                      ; DD1F  $18
     ADC #$01                 ; DD20  $69 $01
@@ -4458,7 +4517,7 @@ L3DD27:
     STA $82                  ; DD33  $85 $82
 L3DD35:
     JSR Wait_NMI		; JSR $FE00                ; DD35  $20 $00 $FE
-    JSR L3C746               ; DD38  $20 $46 $C7
+    JSR L3C746               ; DD38  $20 $46 $C7	sound process ??
     JSR Get_key			; JSR $DBA9                ; DD3B  $20 $A9 $DB
     LDA key1p			; LDA $20                  ; DD3E  $A5 $20
     CMP $82                  ; DD40  $C5 $82
@@ -4532,7 +4591,7 @@ L3DDBA:
 	JSR Wait_NMI		; DDBA  $20 $00 $FE
 	JSR $DCB5		; DDBD  $20 $B5 $DC	attribute table init ??
 	JSR $DDDD		; DDC0  $20 $DD $DD	scroll ??
-	JSR L3C746		; DDC3  $20 $46 $C7	sound ??
+	JSR L3C746		; DDC3  $20 $46 $C7	sound process ??
 	PLA			; DDC6  $68
 	CLC			; DDC7  $18
 	ADC #$01		; DDC8  $69 $01
@@ -4872,7 +4931,7 @@ DFA0:
     STA $F0                  ; DFC8  $85 $F0
 	JSR Scroll_map		; DFCA  $20 $80 $C3
 	JSR Init_Page2		; DFCD  $20 $6E $C4
-    JSR L3C746               ; DFD0  $20 $46 $C7
+    JSR L3C746               ; DFD0  $20 $46 $C7	sound process ??
     LDA #$70                 ; DFD3  $A9 $70
     STA $40                  ; DFD5  $85 $40
     LDA $8A                  ; DFD7  $A5 $8A
@@ -5450,12 +5509,14 @@ Init_CHR_RAM:
 	JMP Init_char_tile	; E494  $4C $FA $E6
 ; End of Init_CHR_RAM
 
+; Name	:
+; Marks	:
 ;; sub start ;;
-    LDA #$02                 ; E497  $A9 $02
-    JSR Swap_PRG_               ; E499  $20 $03 $FE
-    JSR $E4B3                ; E49C  $20 $B3 $E4	copy character potrait
-    JSR $E528                ; E49F  $20 $28 $E5
-    JMP L3E607               ; E4A2  $4C $07 $E6
+	LDA #$02		; E497  $A9 $02
+	JSR Swap_PRG_		; E499  $20 $03 $FE
+	JSR $E4B3		; E49C  $20 $B3 $E4	copy character potrait
+	JSR $E528		; E49F  $20 $28 $E5	set Ppu_data (sprites??/background??)
+	JMP L3E607		; E4A2  $4C $07 $E6
 
 ; Name	:
 ; Marks	: Copy Ppu(world bg/sprite graphics)
@@ -5556,6 +5617,7 @@ L3E510:
 ; Name	: Set_PpuData
 ; X	: Data size to be copied
 ; Y	: index start point
+; SRC	: $80(ADDR)
 ; Marks	: Set PpuData from $80(ADDR)
 ;	  $80(ADDR) = data address(tile ??)
 Set_PpuData:
@@ -5568,92 +5630,96 @@ L3E51E:
 	RTS			; E527  $60
 ; End of Set_PpuData
 
+; Name	:
+; SRC	: $48 = world map entrance ID ??
+; Marks	: $80, $81
+;	  Set PpuData, sprites ?? background ??
 ;; sub start ;;
-    LDA #$00                 ; E528  $A9 $00
-    JSR Swap_PRG_               ; E52A  $20 $03 $FE
-    LDX $48                  ; E52D  $A6 $48
-    LDA $B300,X              ; E52F  $BD $00 $B3
-    STA $67                  ; E532  $85 $67
-    LDA $B000,X              ; E534  $BD $00 $B0
-    AND #$E0                 ; E537  $29 $E0
-    CLC                      ; E539  $18
-    ADC #$C0                 ; E53A  $69 $C0
-    STA $80                  ; E53C  $85 $80
-    LDA #$9E                 ; E53E  $A9 $9E
-    ADC #$00                 ; E540  $69 $00
-    STA $81                  ; E542  $85 $81
-    LDA #$03                 ; E544  $A9 $03
-    JSR Swap_PRG_               ; E546  $20 $03 $FE
-    BIT PpuStatus_2002       ; E549  $2C $02 $20
-    LDA #$00                 ; E54C  $A9 $00
-    STA PpuAddr_2006         ; E54E  $8D $06 $20
-    STA PpuAddr_2006         ; E551  $8D $06 $20
-    LDY #$00                 ; E554  $A0 $00
-    LDX #$20                 ; E556  $A2 $20
+	LDA #$00		; E528  $A9 $00
+	JSR Swap_PRG_		; E52A  $20 $03 $FE
+	LDX $48			; E52D  $A6 $48		world map entrance ID ??
+	LDA $B300,X		; E52F  $BD $00 $B3	tileset id for each map
+	STA $67			; E532  $85 $67
+	LDA $B000,X		; E534  $BD $00 $B0	map initial x positions and fill tile
+	AND #$E0		; E537  $29 $E0
+	CLC			; E539  $18
+	ADC #$C0		; E53A  $69 $C0
+	STA $80			; E53C  $85 $80
+	LDA #$9E		; E53E  $A9 $9E
+	ADC #$00		; E540  $69 $00
+	STA $81			; E542  $85 $81
+	LDA #$03		; E544  $A9 $03
+	JSR Swap_PRG_		; E546  $20 $03 $FE
+	BIT PpuStatus_2002	; E549  $2C $02 $20
+	LDA #$00		; E54C  $A9 $00
+	STA PpuAddr_2006	; E54E  $8D $06 $20
+	STA PpuAddr_2006	; E551  $8D $06 $20
+	LDY #$00		; E554  $A0 $00
+	LDX #$20		; E556  $A2 $20
 	JSR Set_PpuData		; E558  $20 $1E $E5
-    LDX #$80                 ; E55B  $A2 $80
-    LDA $67                  ; E55D  $A5 $67
-    LSR A                    ; E55F  $4A
-    LDA #$00                 ; E560  $A9 $00
-    BCC L3E568               ; E562  $90 $04
-    LDA #$40                 ; E564  $A9 $40
-    LDX #$82                 ; E566  $A2 $82
+	LDX #$80		; E55B  $A2 $80
+	LDA $67			; E55D  $A5 $67
+	LSR A			; E55F  $4A
+	LDA #$00		; E560  $A9 $00
+	BCC L3E568		; E562  $90 $04
+	LDA #$40		; E564  $A9 $40
+	LDX #$82		; E566  $A2 $82
 L3E568:
-    STA $80                  ; E568  $85 $80
-    STX $81                  ; E56A  $86 $81
-    LDX #$02                 ; E56C  $A2 $02
-    JSR Set_PpuData_XPage	; JSR L3E50E               ; E56E  $20 $0E $E5
-    LDX #$40                 ; E571  $A2 $40
+	STA $80			; E568  $85 $80
+	STX $81			; E56A  $86 $81
+	LDX #$02		; E56C  $A2 $02
+	JSR Set_PpuData_XPage	; E56E  $20 $0E $E5
+	LDX #$40		; E571  $A2 $40
 	JSR Set_PpuData		; E573  $20 $1E $E5
-    LDA #$00                 ; E576  $A9 $00
-    STA $81                  ; E578  $85 $81
-    LDA $67                  ; E57A  $A5 $67
-    LSR A                    ; E57C  $4A
-    AND #$0F                 ; E57D  $29 $0F
-    TAX                      ; E57F  $AA
-    LDA $E5F8,X              ; E580  $BD $F8 $E5
-    ASL A                    ; E583  $0A
-    ROL $81                  ; E584  $26 $81
-    ASL A                    ; E586  $0A
-    ROL $81                  ; E587  $26 $81
-    ASL A                    ; E589  $0A
-    ROL $81                  ; E58A  $26 $81
-    ASL A                    ; E58C  $0A
-    ROL $81                  ; E58D  $26 $81
-    ADC #$80                 ; E58F  $69 $80
-    STA $80                  ; E591  $85 $80
-    LDA $81                  ; E593  $A5 $81
-    ADC #$84                 ; E595  $69 $84
-    STA $81                  ; E597  $85 $81
-    LDY #$00                 ; E599  $A0 $00
-    LDX #$C0                 ; E59B  $A2 $C0
+	LDA #$00		; E576  $A9 $00
+	STA $81			; E578  $85 $81
+	LDA $67			; E57A  $A5 $67
+	LSR A			; E57C  $4A
+	AND #$0F		; E57D  $29 $0F
+	TAX			; E57F  $AA
+	LDA $E5F8,X		; E580  $BD $F8 $E5
+	ASL A			; E583  $0A
+	ROL $81			; E584  $26 $81
+	ASL A			; E586  $0A
+	ROL $81			; E587  $26 $81
+	ASL A			; E589  $0A
+	ROL $81			; E58A  $26 $81
+	ASL A			; E58C  $0A
+	ROL $81			; E58D  $26 $81
+	ADC #$80		; E58F  $69 $80
+	STA $80			; E591  $85 $80
+	LDA $81			; E593  $A5 $81
+	ADC #$84		; E595  $69 $84
+	STA $81			; E597  $85 $81
+	LDY #$00		; E599  $A0 $00
+	LDX #$C0		; E59B  $A2 $C0
 	JSR Set_PpuData		; E59D  $20 $1E $E5
-    LDA #$00                 ; E5A0  $A9 $00
-    STA $81                  ; E5A2  $85 $81
-    LDA $67                  ; E5A4  $A5 $67
-    LSR A                    ; E5A6  $4A
-    LSR A                    ; E5A7  $4A
-    LSR A                    ; E5A8  $4A
-    LSR A                    ; E5A9  $4A
-    LSR A                    ; E5AA  $4A
-    TAX                      ; E5AB  $AA
-    LDA $E602,X              ; E5AC  $BD $02 $E6
-    ASL A                    ; E5AF  $0A
-    ROL $81                  ; E5B0  $26 $81
-    ASL A                    ; E5B2  $0A
-    ROL $81                  ; E5B3  $26 $81
-    ASL A                    ; E5B5  $0A
-    ROL $81                  ; E5B6  $26 $81
-    ASL A                    ; E5B8  $0A
-    ROL $81                  ; E5B9  $26 $81
-    STA $80                  ; E5BB  $85 $80
-    LDA $81                  ; E5BD  $A5 $81
-    CLC                      ; E5BF  $18
-    ADC #$8C                 ; E5C0  $69 $8C
-    STA $81                  ; E5C2  $85 $81
-    LDX #$03                 ; E5C4  $A2 $03
-    JSR Set_PpuData_XPage	; JSR L3E50E               ; E5C6  $20 $0E $E5
-    LDX #$C0                 ; E5C9  $A2 $C0
+	LDA #$00		; E5A0  $A9 $00
+	STA $81			; E5A2  $85 $81
+	LDA $67			; E5A4  $A5 $67
+	LSR A			; E5A6  $4A
+	LSR A			; E5A7  $4A
+	LSR A			; E5A8  $4A
+	LSR A			; E5A9  $4A
+	LSR A			; E5AA  $4A
+	TAX			; E5AB  $AA
+	LDA $E602,X		; E5AC  $BD $02 $E6
+	ASL A			; E5AF  $0A
+	ROL $81			; E5B0  $26 $81
+	ASL A			; E5B2  $0A
+	ROL $81			; E5B3  $26 $81
+	ASL A			; E5B5  $0A
+	ROL $81			; E5B6  $26 $81
+	ASL A			; E5B8  $0A
+	ROL $81			; E5B9  $26 $81
+	STA $80			; E5BB  $85 $80
+	LDA $81			; E5BD  $A5 $81
+	CLC			; E5BF  $18
+	ADC #$8C		; E5C0  $69 $8C
+	STA $81			; E5C2  $85 $81
+	LDX #$03		; E5C4  $A2 $03
+	JSR Set_PpuData_XPage	; E5C6  $20 $0E $E5
+	LDX #$C0		; E5C9  $A2 $C0
 	JSR Set_PpuData		; E5CB  $20 $1E $E5
 
 ; Name	: Init_tile
@@ -5689,103 +5755,104 @@ Init_tile:
 ;; [E600 : 3E610]
 .byte $60,$6C,$00,$3C,$78,$B4,$F0
 
+; Marks	: $61 = repeat count ??, $84(ADDR) = ??
 L3E607:
-    LDA #$00                 ; E607  $A9 $00
-    JSR Swap_PRG_               ; E609  $20 $03 $FE
-    LDA PpuStatus_2002       ; E60C  $AD $02 $20
-    LDA #$11                 ; E60F  $A9 $11
-    STA PpuAddr_2006         ; E611  $8D $06 $20
-    LDA #$00                 ; E614  $A9 $00
-    STA PpuAddr_2006         ; E616  $8D $06 $20
-    LDA $48                  ; E619  $A5 $48
-    LSR A                    ; E61B  $4A
-    LSR A                    ; E61C  $4A
-    LSR A                    ; E61D  $4A
-    LSR A                    ; E61E  $4A
-    ORA #$A0                 ; E61F  $09 $A0
-    STA $81                  ; E621  $85 $81
-    LDA $48                  ; E623  $A5 $48
-    ASL A                    ; E625  $0A
-    ASL A                    ; E626  $0A
-    ASL A                    ; E627  $0A
-    ASL A                    ; E628  $0A
-    STA $80                  ; E629  $85 $80
-    LDY #$00                 ; E62B  $A0 $00
-    LDA ($80),Y              ; E62D  $B1 $80
-    AND #$7F                 ; E62F  $29 $7F
-    CMP #$40                 ; E631  $C9 $40
-    BCC L3E64A               ; E633  $90 $15
-    AND #$3F                 ; E635  $29 $3F
-    STA $84                  ; E637  $85 $84
-    ASL A                    ; E639  $0A
-    CLC                      ; E63A  $18
-    ADC $84                  ; E63B  $65 $84
-    STA $84                  ; E63D  $85 $84
-    LDA #$BE                 ; E63F  $A9 $BE
-    STA $85                  ; E641  $85 $85
-    LDA #$01                 ; E643  $A9 $01
-    STA $61                  ; E645  $85 $61
-    JMP L3E669               ; E647  $4C $69 $E6
+	LDA #$00		; E607  $A9 $00
+	JSR Swap_PRG_		; E609  $20 $03 $FE
+	LDA PpuStatus_2002	; E60C  $AD $02 $20
+	LDA #$11		; E60F  $A9 $11		Ppu_Addr = $1100
+	STA PpuAddr_2006	; E611  $8D $06 $20
+	LDA #$00		; E614  $A9 $00
+	STA PpuAddr_2006	; E616  $8D $06 $20
+	LDA $48			; E619  $A5 $48		world map entrance ID ??
+	LSR A			; E61B  $4A
+	LSR A			; E61C  $4A
+	LSR A			; E61D  $4A
+	LSR A			; E61E  $4A
+	ORA #$A0		; E61F  $09 $A0
+	STA $81			; E621  $85 $81
+	LDA $48			; E623  $A5 $48		world map entrance ID ??
+	ASL A			; E625  $0A
+	ASL A			; E626  $0A
+	ASL A			; E627  $0A
+	ASL A			; E628  $0A
+	STA $80			; E629  $85 $80
+	LDY #$00		; E62B  $A0 $00
+	LDA ($80),Y		; E62D  $B1 $80		map properties ?? (ex> $A050)
+	AND #$7F		; E62F  $29 $7F
+	CMP #$40		; E631  $C9 $40
+	BCC L3E64A		; E633  $90 $15
+	AND #$3F		; E635  $29 $3F
+	STA $84			; E637  $85 $84
+	ASL A			; E639  $0A
+	CLC			; E63A  $18
+	ADC $84			; E63B  $65 $84
+	STA $84			; E63D  $85 $84
+	LDA #$BE		; E63F  $A9 $BE
+	STA $85			; E641  $85 $85
+	LDA #$01		; E643  $A9 $01
+	STA $61			; E645  $85 $61
+	JMP L3E669		; E647  $4C $69 $E6
 L3E64A:
-    ASL A                    ; E64A  $0A
-    ASL A                    ; E64B  $0A
-    STA $84                  ; E64C  $85 $84
-    LDX #$00                 ; E64E  $A2 $00
-    STX $85                  ; E650  $86 $85
-    ASL A                    ; E652  $0A
-    ROL $85                  ; E653  $26 $85
-    ASL A                    ; E655  $0A
-    ROL $85                  ; E656  $26 $85
-    ASL A                    ; E658  $0A
-    ROL $85                  ; E659  $26 $85
-    ADC $84                  ; E65B  $65 $84
-    STA $84                  ; E65D  $85 $84
-    LDA $85                  ; E65F  $A5 $85
-    ADC #$B5                 ; E661  $69 $B5
-    STA $85                  ; E663  $85 $85
-    LDA #$0C                 ; E665  $A9 $0C
-    STA $61                  ; E667  $85 $61
+	ASL A			; E64A  $0A
+	ASL A			; E64B  $0A
+	STA $84			; E64C  $85 $84
+	LDX #$00		; E64E  $A2 $00
+	STX $85			; E650  $86 $85
+	ASL A			; E652  $0A
+	ROL $85			; E653  $26 $85
+	ASL A			; E655  $0A
+	ROL $85			; E656  $26 $85
+	ASL A			; E658  $0A
+	ROL $85			; E659  $26 $85
+	ADC $84			; E65B  $65 $84
+	STA $84			; E65D  $85 $84
+	LDA $85			; E65F  $A5 $85
+	ADC #$B5		; E661  $69 $B5
+	STA $85			; E663  $85 $85
+	LDA #$0C		; E665  $A9 $0C
+	STA $61			; E667  $85 $61
 L3E669:
-    LDA #$00                 ; E669  $A9 $00
-    JSR Swap_PRG_               ; E66B  $20 $03 $FE
-    LDA ($84),Y              ; E66E  $B1 $84
-    TAX                      ; E670  $AA
-    LDA $8D00,X              ; E671  $BD $00 $8D
-    CMP #$20                 ; E674  $C9 $20
-    BCC L3E68C               ; E676  $90 $14
-    SBC #$20                 ; E678  $E9 $20
-    ASL A                    ; E67A  $0A
-    TAX                      ; E67B  $AA
-    LDA $E6C3,X              ; E67C  $BD $C3 $E6
-    STA $80                  ; E67F  $85 $80
-    LDA $E6C4,X              ; E681  $BD $C4 $E6
-    CLC                      ; E684  $18
-    ADC #$BB                 ; E685  $69 $BB
-    STA $81                  ; E687  $85 $81
-    JMP L3E695               ; E689  $4C $95 $E6
+	LDA #$00		; E669  $A9 $00
+	JSR Swap_PRG_		; E66B  $20 $03 $FE
+	LDA ($84),Y		; E66E  $B1 $84		multi npc properties ??
+	TAX			; E670  $AA
+	LDA $8D00,X		; E671  $BD $00 $8D	graphics id for each npc
+	CMP #$20		; E674  $C9 $20
+	BCC L3E68C		; E676  $90 $14
+	SBC #$20		; E678  $E9 $20
+	ASL A			; E67A  $0A
+	TAX			; E67B  $AA
+	LDA $E6C3,X		; E67C  $BD $C3 $E6
+	STA $80			; E67F  $85 $80
+	LDA $E6C4,X		; E681  $BD $C4 $E6
+	CLC			; E684  $18
+	ADC #$BB		; E685  $69 $BB
+	STA $81			; E687  $85 $81
+	JMP L3E695		; E689  $4C $95 $E6
 L3E68C:
-    CLC                      ; E68C  $18
-    ADC #$9B                 ; E68D  $69 $9B
-    STA $81                  ; E68F  $85 $81
-    LDA #$00                 ; E691  $A9 $00
-    STA $80                  ; E693  $85 $80
+	CLC			; E68C  $18
+	ADC #$9B		; E68D  $69 $9B
+	STA $81			; E68F  $85 $81
+	LDA #$00		; E691  $A9 $00
+	STA $80			; E693  $85 $80
 L3E695:
-    LDA #$02                 ; E695  $A9 $02
-    JSR Swap_PRG_               ; E697  $20 $03 $FE
-    TYA                      ; E69A  $98
-    PHA                      ; E69B  $48
-    LDY #$00                 ; E69C  $A0 $00
+	LDA #$02		; E695  $A9 $02
+	JSR Swap_PRG_		; E697  $20 $03 $FE
+	TYA			; E69A  $98
+	PHA			; E69B  $48
+	LDY #$00		; E69C  $A0 $00
 L3E69E:
-    LDA ($80),Y              ; E69E  $B1 $80
-    STA PpuData_2007         ; E6A0  $8D $07 $20
-    INY                      ; E6A3  $C8
-    BNE L3E69E               ; E6A4  $D0 $F8
-    PLA                      ; E6A6  $68
-    CLC                      ; E6A7  $18
-    ADC #$03                 ; E6A8  $69 $03
-    TAY                      ; E6AA  $A8
-    DEC $61                  ; E6AB  $C6 $61
-    BNE L3E669               ; E6AD  $D0 $BA
+	LDA ($80),Y		; E69E  $B1 $80		map sprite graphics
+	STA PpuData_2007	; E6A0  $8D $07 $20
+	INY			; E6A3  $C8
+	BNE L3E69E		; E6A4  $D0 $F8		loop
+	PLA			; E6A6  $68
+	CLC			; E6A7  $18
+	ADC #$03		; E6A8  $69 $03
+	TAY			; E6AA  $A8
+	DEC $61			; E6AB  $C6 $61
+	BNE L3E669		; E6AD  $D0 $BA
 
 ; Name	: Set_spritesA
 ; DEST	: $80(ADDR) sprite tile address
@@ -5795,15 +5862,15 @@ L3E69E:
 ;	  Set tile to PPU ($1D00-$1FFF)
 ;; sub start ;;
 Set_spritesA:
-    LDA #$00                 ; E6AF  $A9 $00
-    STA $80                  ; E6B1  $85 $80
-    LDA #$BD                 ; E6B3  $A9 $BD
-    STA $81                  ; E6B5  $85 $81
-    LDA #$02                 ; E6B7  $A9 $02
-    JSR Swap_PRG_               ; E6B9  $20 $03 $FE
-    LDX #$03                 ; E6BC  $A2 $03
-    LDA #$1D                 ; E6BE  $A9 $1D
-    JMP Set_PpuAddrData_XPage	; JMP L3E503               ; E6C0  $4C $03 $E5
+	LDA #$00		; E6AF  $A9 $00		$BD00-bank_02 = map sprite graphics
+	STA $80			; E6B1  $85 $80
+	LDA #$BD		; E6B3  $A9 $BD
+	STA $81			; E6B5  $85 $81
+	LDA #$02		; E6B7  $A9 $02
+	JSR Swap_PRG_		; E6B9  $20 $03 $FE
+	LDX #$03		; E6BC  $A2 $03
+	LDA #$1D		; E6BE  $A9 $1D
+	JMP Set_PpuAddrData_XPage	; E6C0  $4C $03 $E5
 ; End of  Set_spritesA
 
  ;data block---
@@ -6170,7 +6237,7 @@ L3E8F8:
 	BNE L3E90C		; E8FF  $D0 $0B		key differ 1st, 2nd
 	JSR Wait_NMI		; E901  $20 $00 $FE
 	INC frame_cnt_L		; E904  $E6 $F0
-	JSR L3C746		; E906  $20 $46 $C7	sound ??
+	JSR L3C746		; E906  $20 $46 $C7	sound process ??
 	JMP L3E8F8		; E909  $4C $F8 $E8	loop
 L3E90C:
 	LDA bank_tmp		; E90C  $A5 $93
@@ -6182,7 +6249,7 @@ L3E90C:
 ;; sub start ;;
     JSR Wait_NMI		; JSR $FE00                ; E911  $20 $00 $FE
 	INC frame_cnt_L		; E914  $E6 $F0
-    JSR L3C746               ; E916  $20 $46 $C7
+    JSR L3C746               ; E916  $20 $46 $C7	sound process ??
 	LDA bank_tmp		; E919  $A5 $93
     JMP Swap_PRG_               ; E91B  $4C $03 $FE
 ; End of
@@ -6292,7 +6359,7 @@ L3E9A9:
     JSR $F069                ; E9C9  $20 $69 $F0	Set text to ppu ??
     JSR $D157                ; E9CC  $20 $57 $D1	Check menu mode ??
 	JSR Scroll		; E9CF  $20 $D5 $E9
-    JMP L3C746               ; E9D2  $4C $46 $C7
+    JMP L3C746               ; E9D2  $4C $46 $C7	sound process ??
 ; End of
 
 ; Name	: Scroll
@@ -7312,7 +7379,7 @@ Frame_end:
     JSR $F069                ; F058  $20 $69 $F0
 	JSR Scroll		; F05B  $20 $D5 $E9
 	; Sound process ??
-    JSR L3C746               ; F05E  $20 $46 $C7
+    JSR L3C746               ; F05E  $20 $46 $C7	sound process ??
     LDA bank_tmp		; LDA $93                  ; F061  $A5 $93
     JSR Swap_PRG_               ; F063  $20 $03 $FE
     JMP L3F044               ; F066  $4C $44 $F0
@@ -7717,7 +7784,7 @@ F3BE:
     JSR Wait_NMI		; JSR $FE00                ; F3BF  $20 $00 $FE
     LDA #$02                 ; F3C2  $A9 $02
     STA SpriteDma_4014       ; F3C4  $8D $14 $40
-    JSR L3C746               ; F3C7  $20 $46 $C7
+    JSR L3C746               ; F3C7  $20 $46 $C7	sound process ??
     PLA                      ; F3CA  $68
     SEC                      ; F3CB  $38
     SBC #$01                 ; F3CC  $E9 $01
@@ -7752,7 +7819,7 @@ F3FC:
     DEX                      ; F3FF  $CA
     BNE F3FC                 ; F400  $D0 $FA
     JSR $F453                ; F402  $20 $53 $F4
-    JMP L3C746               ; F405  $4C $46 $C7
+    JMP L3C746               ; F405  $4C $46 $C7	sound process ??
     JSR Init_Page2		; JSR $C46E                ; F408  $20 $6E $C4
     JSR Wait_NMI		; JSR $FE00                ; F40B  $20 $00 $FE
     LDA #$1E                 ; F40E  $A9 $1E
