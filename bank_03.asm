@@ -924,57 +924,58 @@ L0E7E7:
 .byte $85,$81
 ; Name	:
 ; Marks	: $80(ADDR)
+;	  This is the same code as bank_0F Set_cur_data($E102).
 	LDY #$00		; A902	$A0 $00
 	LDX $26			; A904	$A6 $26		pointer to next available sprite ?? 
-	LDA $41			; A906	$A5 $41		y ??
-	STA $0200,X		; A908	$9D $00 $02
-	STA $0208,X		; A90B	$9D $08 $02
+	LDA oam_y		; A906	$A5 $41
+	STA $0200,X		; A908	$9D $00 $02	Y(LT) ??
+	STA $0208,X		; A90B	$9D $08 $02	Y(RT) ??
 	CLC			; A90E	$18
 	ADC #$08		; A90F	$69 $08
-	STA $0204,X		; A911	$9D $04 $02
-	STA $020C,X		; A914	$9D $0C $02
-	LDA $40			; A917	$A5 $40		x ??
-	STA $0203,X		; A919	$9D $03 $02
-	STA $0207,X		; A91C	$9D $07 $02
+	STA $0204,X		; A911	$9D $04 $02	Y(LB) ??
+	STA $020C,X		; A914	$9D $0C $02	Y(RB) ??
+	LDA oam_x		; A917	$A5 $40
+	STA $0203,X		; A919	$9D $03 $02	X(LT) ??
+	STA $0207,X		; A91C	$9D $07 $02	X(LB) ??
 	CLC			; A91F	$18
 	ADC #$08		; A920	$69 $08
-	STA $020B,X		; A922	$9D $0B $02
-	STA $020F,X		; A925	$9D $0F $02
+	STA $020B,X		; A922	$9D $0B $02	X(RT) ??
+	STA $020F,X		; A925	$9D $0F $02	X(RB) ??
 	LDA ($80),Y		; A928	$B1 $80
 	INY			; A92A	$C8
 	CLC			; A92B	$18
 	ADC $82			; A92C	$65 $82
-	STA $0201,X		; A92E	$9D $01 $02
+	STA $0201,X		; A92E	$9D $01 $02	INDEX(LT)
 	LDA ($80),Y		; A931	$B1 $80
 	INY			; A933	$C8
-	STA $0202,X		; A934	$9D $02 $02
+	STA $0202,X		; A934	$9D $02 $02	ATTR(LT)
 	LDA ($80),Y		; A937	$B1 $80
 	INY			; A939	$C8
 	CLC			; A93A	$18
 	ADC $82			; A93B	$65 $82
-	STA $0205,X		; A93D	$9D $05 $02
+	STA $0205,X		; A93D	$9D $05 $02	INDEX(LB)
 	LDA ($80),Y		; A940	$B1 $80
 	INY			; A942	$C8
-	STA $0206,X		; A943	$9D $06 $02
+	STA $0206,X		; A943	$9D $06 $02	ATTR(LB)
 	LDA ($80),Y		; A946	$B1 $80
 	INY			; A948	$C8
 	CLC			; A949	$18
 	ADC $82			; A94A	$65 $82
-	STA $0209,X		; A94C	$9D $09 $02
+	STA $0209,X		; A94C	$9D $09 $02	INDEX(RT)
 	LDA ($80),Y		; A94F	$B1 $80
 	INY			; A951	$C8
-	STA $020A,X		; A952	$9D $0A $02
+	STA $020A,X		; A952	$9D $0A $02	ATTR(RT)
 	LDA ($80),Y		; A955	$B1 $80
 	INY			; A957	$C8
 	CLC			; A958	$18
 	ADC $82			; A959	$65 $82
-	STA $020D,X		; A95B	$9D $0D $02
+	STA $020D,X		; A95B	$9D $0D $02	INDEX(RB)
 	LDA($80),Y		; A95E	$B1 $80
-	STA $020E,X		; A960	$9D $0E $02
-	LDA $26			; A963	$A5 $26		pointer??
+	STA $020E,X		; A960	$9D $0E $02	ATTR(RB)
+	LDA $26			; A963	$A5 $26		point to next available sprites ??
 	CLC			; A965	$18
 	ADC #$10		; A966	$69 $10
-	STA $26			; A968	$85 $26		pointer??
+	STA $26			; A968	$85 $26		point to next available sprites ??
 	RTS			; A96A	$60
 ; End of
 
@@ -1090,8 +1091,8 @@ L0E7E7:
 .byte $03,$00,$02,$01,$03,$00,$02,$01,$03,$02
 ; Name	:
 ; Marks	: check Object properties ??
-	JSR $A902		; AF1A	$20 $02 $A9	sprite ??
-	LDA $26			; AF1D	$A5 $26
+	JSR $A902		; AF1A	$20 $02 $A9	Set_cur_data, Set_sprite ??
+	LDA $26			; AF1D	$A5 $26		point to next available sprite ??
 	SEC			; AF1F	$38
 	SBC #$10		; AF20	$E9 $10
 	TAY			; AF22	$A8
@@ -1099,17 +1100,17 @@ L0E7E7:
 	LDA dest_tile_prop,X	; AF25	$BD $01 $74
 	AND #$04		; AF28	$29 $04
 	BEQ L0EF37		; AF2A	$F0 $0B
-	LDA $0202,Y		; AF2C	$B9 $02 $02
+	LDA $0202,Y		; AF2C	$B9 $02 $02	ATTR
 	EOR #$20		; AF2F	$49 $20
-	STA $0202,Y		; AF31	$99 $02 $02
+	STA $0202,Y		; AF31	$99 $02 $02	ATTR
 	STA $020A,Y		; AF34	$99 $0A $02
 L0EF37:
 	LDA dest_tile_prop,X	; AF37	$BD $01 $74
 	AND #$02		; AF3A	$29 $02
 	BEQ L0EF49		; AF3C	$F0 $0B
-	LDA $0206,Y		; AF3E	$B9 $06 $02
+	LDA $0206,Y		; AF3E	$B9 $06 $02	ATTR
 	EOR #$20		; AF41	$49 $20
-	STA $0206,Y		; AF43	$99 $06 $02
+	STA $0206,Y		; AF43	$99 $06 $02	ATTR
 	STA $020E,Y		; AF46	$99 $0E $02
 L0EF49:
 	RTS			; AF49	$60
@@ -1117,6 +1118,7 @@ L0EF49:
 
 ; Name	:
 ; Marks	: event number 6
+;	  npc ??
 	LDA frame_cnt_L		; AF4A	$A5 $F0
 	LSR A			; AF4C	$4A
 	BCS L0EF65		; AF4D	$B0 $16
@@ -1147,14 +1149,16 @@ L0EF6F:
 	BCS L0EF67		; AF74	$B0 $F1
 	JMP $AF91		; AF76	$4C $91 $AF
 
-; event code 08h
+; Name	:
+; Marks	: event number 8
+;	  check npc ??
 	LDA #$40		; AF79	$A9 $40
 	STA $26			; AF7B	$85 $26		pointer to next available sprite??
 	LDX #$00		; AF7D	$A2 $00
 L0EF7F:
-	LDA $7500,X		; AF7F	$BD $00 $75
+	LDA npc_id,X		; AF7F	$BD $00 $75
 	BEQ L0EF87		; AF82	$F0 $03
-	JSR $B15E		; AF84	$20 $5E $B1	check object properties ??
+	JSR $B15E		; AF84	$20 $5E $B1	check object properties ?? position ??
 L0EF87:
 	TXA			; AF87	$8A
 	CLC			; AF88	$18
@@ -1410,6 +1414,9 @@ L0F13D:
 	STA $750D,X		; B155	$9D $0D $75
 	LDA $7503,X		; B158	$BD $03 $75
 	STA $7505,X		; B15B	$9D $05 $75
+; Name	:
+; Ret	: Carry flag(Set: , Clear: ) ??
+; Marks	: $80 = ??, $81 = ??, $82 = ??
 L0F15E:
 	LDA npc_x_stile_pos,X	; B15E	$BD $06 $75
 	ORA npc_y_stile_pos,X	; B161	$1D $07 $75
@@ -1484,6 +1491,7 @@ L0F1DD:
 	ORA npc_y_stile_pos,X	; B1E0	$1D $07 $75
 	ASL A			; B1E3	$0A
 	AND #$08		; B1E4	$29 $08
+; Marks	: $80(ADDR) = ??, $82 = npc id ??
 L0F1E6:
 	CLC			; B1E6	$18
 	ADC npc_ani_L,X		; B1E7	$7D $0E $75
@@ -1495,7 +1503,8 @@ L0F1E6:
 	CLC			; B1F4	$18
 	ADC #$10		; B1F5	$69 $10
 	STA $82			; B1F7	$85 $82
-	JMP $AF1A		; B1F9	$4C $1A $AF
+	JMP $AF1A		; B1F9	$4C $1A $AF	check object properties ??
+; End of
 L0F1FC:
 .byte $29,$7F,$9D,$0D
 
@@ -1503,6 +1512,7 @@ L0F1FC:
 
 .byte $75,$8A,$18,$69,$10,$85,$82,$A5,$33,$4A,$B0,$18,$4A,$B0,$0F,$4A
 .byte $B0,$06,$A9,$4F,$A2,$B2,$D0,$10,$A9,$5F,$A2,$B2,$D0,$0A,$A9,$2F
+; $B220-data block ??
 .byte $A2,$B2,$D0,$04,$A9,$3F,$A2,$B2,$85,$80,$86,$81,$4C,$1A,$AF,$09
 .byte $42,$0B,$43,$08,$42,$0A,$43,$0D,$42,$0F,$43,$0C,$42,$0E,$43,$08
 .byte $02,$0A,$03,$09,$02,$0B,$03,$0C,$02,$0E,$03,$0D,$02,$0F,$03,$00

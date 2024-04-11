@@ -59,6 +59,7 @@ oam_y			= $41
 
 ; 01h:no vehicle, 02h:canoe/snowcraft, 04h:ship, 08h:airship
 vehicle_ID		= $42
+check_entrance		= $43	; ??
 
 tile_prop		= $44	; ??
 p_map1			= $45
