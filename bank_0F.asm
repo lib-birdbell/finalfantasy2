@@ -1564,7 +1564,7 @@ NM_LOOP:
     STA $43                  ; CA6B  $85 $43
 L3CA6D:
 	LDA mov_spd		; CA6D  $A5 $34
-	BNE L3CA7D		; CA6F  $D0 $0C		if A != 00h(not moving)
+	BNE L3CA7D		; CA6F  $D0 $0C		if A != 00h(moving)
 	LDA tile_prop		; CA71  $A5 $44
 	AND #$E0		; CA73  $29 $E0
 	BEQ L3CA7A		; CA75  $F0 $03		if A == 00h(nothing)
@@ -1577,7 +1577,7 @@ L3CA7D:
 	JSR $E8AA		; CA81  $20 $AA $E8
 L3CA84:
 	JSR Init_Page2		; CA84  $20 $6E $C4
-	JSR $E30C		; CA87  $20 $0C $E3	event ??
+	JSR $E30C		; CA87  $20 $0C $E3	event ?? npc process ??
 	JMP NM_LOOP		; CA8A  $4C $44 $CA	LOOP - NORMAL MAP
 L3CA8D:
     CMP #$40                 ; CA8D  $C9 $40
@@ -1665,18 +1665,18 @@ L3CB20:
 	JSR Wait_NMI		; CB28  $20 $00 $FE
 	JSR L3C746		; CB2B  $20 $46 $C7	sound process ??
 	LDA player_dir		; CB2E  $A5 $33
-	JSR $CD21		; CB30  $20 $21 $CD	facing calcuration
-	JSR $CCDE		; CB33  $20 $DE $CC	check npc ??
+	JSR Player_front_pos	; CB30  $20 $21 $CD
+	JSR $CCDE		; CB33  $20 $DE $CC	check npc for activation ??
 	STX $67			; CB36  $86 $67		npc number ??
 	PHP			; CB38  $08		A == interacted with player/touched by player
 	LDX #$08		; CB39  $A2 $08		event code value = 08h
 	LDA #$03		; CB3B  $A9 $03
 	JSR Swap_PRG_		; CB3D  $20 $03 $FE
-	JSR $A003		; CB40  $20 $03 $A0	event code ??
+	JSR $A003		; CB40  $20 $03 $A0	event code ?? - npc direction facing each other??
 	PLP			; CB43  $28
 	LDX $67			; CB44  $A6 $67		npc number ??
-	BCC L3CB4B		; CB46  $90 $03		if event not occur ??
-	JMP L3CBC7		; CB48  $4C $C7 $CB
+	BCC L3CB4B		; CB46  $90 $03		if no event occurs ??
+	JMP L3CBC7		; CB48  $4C $C7 $CB	text ??
 L3CB4B:
 	JSR Check_tileprop	; CB4B  $20 $85 $CD
 	STA text_ID		; CB4E  $85 $92
@@ -1776,11 +1776,11 @@ L3CBFB:
 ; End of
 
 ;; sub start ;;
-    JSR $CD21                ; CBFC  $20 $21 $CD
+	JSR Player_front_pos	; CBFC  $20 $21 $CD
     JSR $CC5B                ; CBFF  $20 $5B $CC
     BCS L3CC51               ; CC02  $B0 $4D
 	JSR Get_tileprop	; CC04  $20 $54 $CD
-    LDA $44                  ; CC07  $A5 $44
+	LDA tile_prop		; CC07  $A5 $44
     CMP #$40                 ; CC09  $C9 $40
     BCC L3CC0F               ; CC0B  $90 $02
     CLC                      ; CC0D  $18
@@ -1909,9 +1909,10 @@ L3CCD3:
     RTS                      ; CCDD  $60
 
 ; Name	:
-; Ret	: X(npc number), Carry flag(Set: , Clear: )
+; Ret	: X(npc number), Carry flag(Set: npc activated??, Clear: )
 ; Marks	: check npc ($7500,$7510,$7520...$75B0)
 ;	  max npc number is 12(C0h) ??
+;	  enable npc
 ;; sub start ;;
 	LDX #$00		; CCDE  $A2 $00
 L3CCE0:
@@ -1935,7 +1936,7 @@ L3CCE0:
 	AND #$20		; CD08  $29 $20		sa?- ----
 	BNE L3CD14		; CD0A  $D0 $08
 	LDA $750D,X		; CD0C  $BD $0D $75	a--- ---t
-	ORA #$80		; CD0F  $09 $80
+	ORA #$80		; CD0F  $09 $80		set interacted with player (A button)
 	STA $750D,X		; CD11  $9D $0D $75
 L3CD14:
 	SEC			; CD14  $38
@@ -1953,31 +1954,32 @@ L3CD16:
 	RTS			; CD20  $60
 ; End of
 
-; Name	:
+; Name	: Player_front_pos
 ; A	: player facing direction(udlr)
-; Marks	:
+; Marks	: Calcurated position of in front of the player.
 ;	  $84 = x, $85 = y <- calcurated position ??
 ;; sub start ;;
-	LSR A                    ; CD21  $4A
-	BCS L3CD38               ; CD22  $B0 $14	if character facing right
-	LSR A                    ; CD24  $4A
-	BCS L3CD3F               ; CD25  $B0 $18	left
-	LSR A                    ; CD27  $4A
-	BCS L3CD31               ; CD28  $B0 $07	down
-	LDX #$07                 ; CD2A  $A2 $07
-	LDY #$06                 ; CD2C  $A0 $06
-	JMP L3CD43               ; CD2E  $4C $43 $CD
+Player_front_pos:
+	LSR A			; CD21  $4A
+	BCS L3CD38		; CD22  $B0 $14		when character is facing right
+	LSR A			; CD24  $4A
+	BCS L3CD3F		; CD25  $B0 $18		when character is facing left
+	LSR A			; CD27  $4A
+	BCS L3CD31		; CD28  $B0 $07		when character is facing down
+	LDX #$07		; CD2A  $A2 $07		Up
+	LDY #$06		; CD2C  $A0 $06
+	JMP L3CD43		; CD2E  $4C $43 $CD
 L3CD31:
-    LDX #$07                 ; CD31  $A2 $07
-    LDY #$08                 ; CD33  $A0 $08
-    JMP L3CD43               ; CD35  $4C $43 $CD
+	LDX #$07		; CD31  $A2 $07		Down
+	LDY #$08		; CD33  $A0 $08
+	JMP L3CD43		; CD35  $4C $43 $CD
 L3CD38:
-	LDX #$08                 ; CD38  $A2 $08
-	LDY #$07                 ; CD3A  $A0 $07
-	JMP L3CD43               ; CD3C  $4C $43 $CD
+	LDX #$08		; CD38  $A2 $08		Right
+	LDY #$07		; CD3A  $A0 $07
+	JMP L3CD43		; CD3C  $4C $43 $CD
 L3CD3F:
-    LDX #$06                 ; CD3F  $A2 $06
-    LDY #$07                 ; CD41  $A0 $07
+	LDX #$06		; CD3F  $A2 $06		Left
+	LDY #$07		; CD41  $A0 $07
 ; X	:
 ; Y	:
 ; Marks	: $84 = x, $85 = y <- calcurated position ??
@@ -1993,7 +1995,7 @@ L3CD43:
 	AND #$3F		; CD4F  $29 $3F
 	STA $85                  ; CD51  $85 $85	y ??
 	RTS			; CD53  $60
-; End of
+; End of Player_front_pos
 
 ; Name	: Get_tileprop
 ; Marks	: $84 = X ??, $85 = Y ??
@@ -2773,13 +2775,13 @@ L3D237:
 	SBC #$01		; D23A  $E9 $01
 	STA ow_y_pos		; D23C  $85 $28
 L3D23E:
-	LDA $2F			; D23E  $A5 $2F
+	LDA nt_y_pos		; D23E  $A5 $2F
 	SEC			; D240  $38
 	SBC #$01		; D241  $E9 $01
 	BCS L3D247		; D243  $B0 $02
 	ADC #$0F		; D245  $69 $0F
 L3D247:
-	STA $2F			; D247  $85 $2F
+	STA nt_y_pos		; D247  $85 $2F
 	RTS			; D249  $60
 ; End of
 
@@ -4983,7 +4985,7 @@ L3E003:
 	CPY #$02		; E013  $C0 $02		canoe/snowcraft
 	BEQ L3E06D		; E015  $F0 $56
 ; Name	:
-; X	: INDEX = oam[3+X]
+; X	: INDEX = oam[3+X] ??
 ; SRC	: $43 == ??
 ; Marks	: ATTR bit5 set
 ;; sub start ;;
@@ -5108,7 +5110,7 @@ L3E0E1:
     LDA #$70                 ; E0EF  $A9 $70
     BNE E0CF                 ; E0F1  $D0 $DC
 L3E0F3:
-	STA $82			; E0F3  $85 $82		vertical = 00h, horizontal = 01h ??
+	STA $82			; E0F3  $85 $82		vertical = 00h, horizontal = 01h (scroll direction)??
 	LDA #$2F		; E0F5  $A9 $2F
 	CLC			; E0F7  $18
 	ADC $80			; E0F8  $65 $80
@@ -5381,22 +5383,24 @@ E275:
 ; DEST	: $40 = ??
 ; Marks	: event ??
 ;; sub start ;;
-	LDY #$01		; E30C  $A0 $01
+	LDY #$01		; E30C  $A0 $01		sprite index ?? vehicle(no airship, ship, chocobo) ??
 	JSR $E017		; E30E  $20 $17 $E0	copy sprite to buffer($0200-)
 	LDA #$40		; E311  $A9 $40
 	STA $26			; E313  $85 $26		pointer to next available sprite
 	LDX #$06		; E315  $A2 $06		event number
 	LDA #$03		; E317  $A9 $03
 	JSR Swap_PRG_		; E319  $20 $03 $FE	bank_03 swap
-	JMP $A003		; E31C  $4C $03 $A0	event code
+	JMP $A003		; E31C  $4C $03 $A0	event code - npc process ??
 ; End of
 
 ;data block---
 ;; [$E31F : player direction ?? - 1h(right):00h, 2h(left):10h, 4h(down):30h, 8h(up):20h
 .byte $00
-;; [$E320 : 3E330]
+;; [$E320-$E3B6 : 3E320]
 .byte $00,$10,$00,$30,$00,$10,$00,$20,$00,$10,$00,$30,$00,$10,$00,$09
-.byte $40,$0B,$41,$08,$40,$0A,$41,$0D,$40,$0F,$41,$0C,$40,$0E,$41,$08
+.byte $40,$0B,$41,$08,$40,$0A,$41,$0D,$40,$0F,$41,$0C,$40,$0E,$41
+; OAM(2x2 tile??): Index offset, Attribute
+.byte $08
 .byte $00,$0A,$01,$09,$00,$0B,$01,$0C,$00,$0E,$01,$0D,$00,$0F,$01,$04
 .byte $00,$06,$01,$05,$00,$07,$01,$04,$00,$07,$41,$05,$00,$06,$41,$00
 .byte $00,$02,$01,$01,$00,$03,$01,$00,$00,$03,$41,$01,$00,$02,$41,$11

@@ -1119,6 +1119,7 @@ L0EF49:
 ; Name	:
 ; Marks	: event number 6
 ;	  npc ??
+;	  search from begin when frame even, search from end when frame even.
 	LDA frame_cnt_L		; AF4A	$A5 $F0
 	LSR A			; AF4C	$4A
 	BCS L0EF65		; AF4D	$B0 $16
@@ -1152,6 +1153,7 @@ L0EF6F:
 ; Name	:
 ; Marks	: event number 8
 ;	  check npc ??
+;	  why do not you check $67??(checked npc index)
 	LDA #$40		; AF79	$A9 $40
 	STA $26			; AF7B	$85 $26		pointer to next available sprite??
 	LDX #$00		; AF7D	$A2 $00
@@ -1380,42 +1382,44 @@ L0F0F8:
 	RTS			; B10C	$60
 ; End of
 
-	LDA $750D,X		; B10D	$BD $0D $75
+; Name	:
+; Marks	: npc ??
+	LDA $750D,X		; B10D	$BD $0D $75	interact type(bit7: A button, bit0: direction)??
 	BNE L0F119		; B110	$D0 $07
-	LDA $F0			; B112	$A5 $F0
-	AND $7402,X		; B114	$3D $02 $74
+	LDA frame_cnt_L		; B112	$A5 $F0
+	AND $7402,X		; B114	$3D $02 $74	movement rate
 	BNE L0F15E		; B117	$D0 $45
 L0F119:
-	LDA $7508,X		; B119	$BD $08 $75
-	BEQ L0F13D		; B11C	$F0 $1F
+	LDA $7508,X		; B119	$BD $08 $75	x movement speed
+	BEQ L0F13D		; B11C	$F0 $1F		if x movement speed is zero(00h)
 	CLC			; B11E	$18
 	ADC $7506,X		; B11F	$7D $06 $75
 	AND #$0F		; B122	$29 $0F
 	STA $7506,X		; B124	$9D $06 $75
 	BNE L0F15E		; B127	$D0 $35
 	LDA #$00		; B129	$A9 $00
-	STA $7508,X		; B12B	$9D $08 $75
+	STA $7508,X		; B12B	$9D $08 $75	x movement speed
 	STA $750C,X		; B12E	$9D $0C $75
 	STA $750D,X		; B131	$9D $0D $75
 	LDA $7502,X		; B134	$BD $02 $75
 	STA $7504,X		; B137	$9D $04 $75
 	JMP $B15E		; B13A	$4C $5E $B1
 L0F13D:
-	LDA $7509,X		; B13D	$BD $09 $75
-	BEQ L0F15E		; B140	$F0 $1C
+	LDA $7509,X		; B13D	$BD $09 $75	y movement speed
+	BEQ L0F15E		; B140	$F0 $1C		if y movement speed is zero(00h)
 	CLC			; B142	$18
 	ADC $7507,X		; B143	$7D $07 $75
 	AND #$0F		; B146	$29 $0F
 	STA $7507,X		; B148	$9D $07 $75
 	BNE L0F15E		; B14B	$D0 $11
 	LDA #$00		; B14D	$A9 $00
-	STA $7509,X		; B14F	$9D $09 $75
+	STA $7509,X		; B14F	$9D $09 $75	y movement speed
 	STA $750C,X		; B152	$9D $0C $75
 	STA $750D,X		; B155	$9D $0D $75
 	LDA $7503,X		; B158	$BD $03 $75
 	STA $7505,X		; B15B	$9D $05 $75
 ; Name	:
-; Ret	: Carry flag(Set: , Clear: ) ??
+; Ret	: Carry flag(Set: out of screen ??, Clear: ) ??
 ; Marks	: $80 = ??, $81 = ??, $82 = ??
 L0F15E:
 	LDA npc_x_stile_pos,X	; B15E	$BD $06 $75
@@ -1434,7 +1438,7 @@ L0F16E:
 	SBC in_y_pos		; B17B	$E5 $2A
 	AND #$3F		; B17D	$29 $3F
 	CMP #$10		; B17F	$C9 $10
-	BCS L0F1B0		; B181	$B0 $2D
+	BCS L0F1B0		; B181	$B0 $2D		if y out of screen ??
 	ASL A			; B183	$0A
 	ASL A			; B184	$0A
 	ASL A			; B185	$0A
@@ -1466,10 +1470,10 @@ L0F1B0:
 	RTS			; B1B1	$60
 ; End of
 L0F1B2:
-	STA $40			; B1B2	$85 $40
-	STX $8F			; B1B4	$86 $8F
+	STA oam_x		; B1B2	$85 $40
+	STX $8F			; B1B4	$86 $8F		npc index ??
 	LDA $750D,X		; B1B6	$BD $0D $75
-	BMI L0F1FC		; B1B9	$30 $41
+	BMI L0F1FC		; B1B9	$30 $41		if npc activation A button ??
 	LDA $7501,X		; B1BB	$BD $01 $75
 	AND #$E0		; B1BE	$29 $E0
 	BEQ L0F1DD		; B1C0	$F0 $1B
@@ -1480,7 +1484,7 @@ L0F1B2:
 	LDA #$00		; B1CA	$A9 $00
 	BEQ L0F1E6		; B1CC	$F0 $18
 L0F1CE:
-	LDA $F0			; B1CE	$A5 $F0
+	LDA frame_cnt_L		; B1CE	$A5 $F0
 	LSR A			; B1D0	$4A
 	AND #$08		; B1D1	$29 $08
 	JMP $B1E6		; B1D3	$4C $E6 $B1
@@ -1502,18 +1506,45 @@ L0F1E6:
 	TXA			; B1F3	$8A
 	CLC			; B1F4	$18
 	ADC #$10		; B1F5	$69 $10
-	STA $82			; B1F7	$85 $82
-	JMP $AF1A		; B1F9	$4C $1A $AF	check object properties ??
+	STA $82			; B1F7	$85 $82		npc index ??
+	JMP $AF1A		; B1F9	$4C $1A $AF	set sprite ?? check object properties xx
 ; End of
 L0F1FC:
-.byte $29,$7F,$9D,$0D
+	AND #$7F		; B1FC	$29 $7F		clear bit7 flag(activate npc A button..)
+	STA $750D,X		; B1FE	$9D $0D $75
+	TXA			; B201	$8A
+	CLC			; B202	$18
+	ADC #$10		; B203	$69 $10
+	STA $82			; B205	$85 $82
+	LDA player_dir		; B207	$A5 $33
+	LSR A			; B209	$4A
+ 	BCS L0F224		; B20A	$B0 $18		if right direction
+	LSR A			; B20C	$4A
+	BCS L0F21E		; B20D	$B0 $0F		if left direction
+	LSR A			; B20F	$4A
+	BCS L0F218		; B210	$B0 $06		if down direction
+	LDA #$4F		; B212	$A9 $4F
+	LDX #$B2		; B214	$A2 $B2
+	BNE L0F228		; B216	$D0 $10
+L0F218:
+	LDA #$5F		; B218	$A9 $5F
+	LDX #$B2		; B21A	$A2 $B2
+	BNE L0F228		; B21C	$D0 $0A
+L0F21E:
+	LDA #$2F		; B21E	$A9 $2F
+	LDX #$B2		; B220	$A2 $B2
+	BNE L0F228		; B222	$D0 $04
+L0F224:
+	LDA #$3F		; B224	$A9 $3F
+	LDX #$B2		; B226	$A2 $B2
+L0F228:
+	STA $80			; B228	$85 $80		npc faces the player
+	STX $81			; B22A	$86 $81
+	JMP $AF1A		; B22C	$4C $1A $AF	set sprite ??
+; End of
 
-;; [$B200 :: 0x0F200]
-
-.byte $75,$8A,$18,$69,$10,$85,$82,$A5,$33,$4A,$B0,$18,$4A,$B0,$0F,$4A
-.byte $B0,$06,$A9,$4F,$A2,$B2,$D0,$10,$A9,$5F,$A2,$B2,$D0,$0A,$A9,$2F
-; $B220-data block ??
-.byte $A2,$B2,$D0,$04,$A9,$3F,$A2,$B2,$85,$80,$86,$81,$4C,$1A,$AF,$09
+;; [$B22F :: 0x0F22F] data block
+.byte $09
 .byte $42,$0B,$43,$08,$42,$0A,$43,$0D,$42,$0F,$43,$0C,$42,$0E,$43,$08
 .byte $02,$0A,$03,$09,$02,$0B,$03,$0C,$02,$0E,$03,$0D,$02,$0F,$03,$00
 ; sprite data ??
