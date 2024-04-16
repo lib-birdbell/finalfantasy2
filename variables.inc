@@ -61,6 +61,24 @@ oam_y			= $41
 vehicle_ID		= $42
 check_entrance		= $43	; ??
 
+; 
+;$44 ttt?d??? tile properties
+;      t: trigger type
+;            $C0: exit (to world map) ??
+;            $80: entrance
+;            $40: exit (to previous map)
+;            $20: battle
+;        d: damage tile(normal map only??)
+;$44 ttt?ascn tile properties
+;      t: trigger type
+;            $C0: exit (to world map)
+;            $80: entrance
+;            $40: exit (to previous map)
+;            $20: battle
+;      a: passable in airship
+;      s: passable in ship
+;      c: passable in canoe/snowcraft
+;      n: passable on foot
 tile_prop		= $44	; ??
 p_map1			= $45
 p_map2			= $46
@@ -274,6 +292,7 @@ ship_y                   = unsram + $0E
 ;                        = unsram + $0F
 ow_save_pos_x            = unsram + $10
 ow_save_pos_y            = unsram + $11
+; Is bit6 are after tornado ??
 mapcheckything           = unsram + $12 ; constantly read when moving in town (value = $36)
 ;                        = unsram + $13
 dreadnaught_flag         = unsram + $14

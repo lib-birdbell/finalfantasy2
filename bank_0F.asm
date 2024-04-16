@@ -181,8 +181,8 @@ L3C109:
 	BCS L3C126		; C11A  $B0 $0A
 	LDA #$03		; C11C  $A9 $03
 	JSR Swap_PRG_		; C11E  $20 $03 $FE
-	LDX #$02		; C121  $A2 $02
-	JSR $A003		; C123  $20 $03 $A0	event process(check airship ??)
+	LDX #$02		; C121  $A2 $02		event code value = 02h
+	JSR $A003		; C123  $20 $03 $A0	event code - check airship ??
 L3C126:
 	LDA vehicle_ID		; C126  $A5 $42
 	AND #$0C		; C128  $29 $0C		Airship / Ship
@@ -215,6 +215,8 @@ C143:
 
 ; Name	:
 ; Marks	: check tile properties and key ?? check minimap ??
+;	  to NORMAL MAP
+;	  to battle
    ;; sub start ;;
 	LDA tile_prop		; C159  $A5 $44		map tile property ??
 	BMI L3C1C7		; C15B  $30 $6A		if bit7 is set, enter some place ??
@@ -384,6 +386,8 @@ L3C28F:
 	RTS			; C28F  $60
 ; End of
 
+; A	: pressed key
+; Check vehicle or walk
 L3C290:
 	LDX vehicle_ID		; C290  $A6 $42
 	CPX #$08		; C292  $E0 $08
@@ -797,9 +801,9 @@ L3C502:
 	BVC L3C509		; C504  $50 $03
     JMP $C995                ; C506  $4C $95 $C9
 L3C509:
-	BMI L3C543		; C509  $30 $38
-    LDA $6C                  ; C50B  $A5 $6C
-    BNE L3C543               ; C50D  $D0 $34
+	BMI L3C543		; C509  $30 $38		entrance ??
+	LDA event		; C50B  $A5 $6C
+	BNE L3C543		; C50D  $D0 $34
 	LDX vehicle_ID		; C50F  $A6 $42
 	CPX #$08		; C511  $E0 $08
 	BEQ L3C543		; C513  $F0 $2E
@@ -823,7 +827,7 @@ L3C53A:
 	STA $80			; C53A  $85 $80
 	JSR Get_rndnum		; C53C  $20 $AD $C5
 	CMP $80			; C53F  $C5 $80
-	BCC L3C545		; C541  $90 $02		event occur
+	BCC L3C545		; C541  $90 $02		event occur - battle ??
 L3C543:
 	CLC			; C543  $18
 	RTS			; C544  $60
@@ -854,7 +858,7 @@ L3C54F:
 	ORA $80			; C565  $05 $80
 C567:
 	STA $80			; C567  $85 $80
-	LDA $6012		; C569  $AD $12 $60	mapcheckything ??
+	LDA $6012		; C569  $AD $12 $60	mapcheckything ?? -> bit7 is after tornado
 	AND #$40		; C56C  $29 $40
 	ORA $80			; C56E  $05 $80
 	TAX			; C570  $AA
@@ -1568,9 +1572,9 @@ L3CA6D:
 	LDA tile_prop		; CA71  $A5 $44
 	AND #$E0		; CA73  $29 $E0
 	BEQ L3CA7A		; CA75  $F0 $03		if A == 00h(nothing)
-    JMP L3CA8D               ; CA77  $4C $8D $CA
+	JMP L3CA8D		; CA77  $4C $8D $CA	enter/battle
 L3CA7A:
-	JSR L3CB20		; CA7A  $20 $20 $CB	check key ?? -> maybe
+	JSR L3CB20		; CA7A  $20 $20 $CB	key processing / event ??
 L3CA7D:
 	LDA $76			; CA7D  $A5 $76		pending event dialogue
 	BEQ L3CA84		; CA7F  $F0 $03		if A == 00h
@@ -1580,16 +1584,16 @@ L3CA84:
 	JSR $E30C		; CA87  $20 $0C $E3	event ?? npc process ??
 	JMP NM_LOOP		; CA8A  $4C $44 $CA	LOOP - NORMAL MAP
 L3CA8D:
-    CMP #$40                 ; CA8D  $C9 $40
-    BCS L3CAB6               ; CA8F  $B0 $25
-    LDA #$00                 ; CA91  $A9 $00
-    STA $44                  ; CA93  $85 $44
-    JSR $DC6A                ; CA95  $20 $6A $DC	battle encount graphic/sound effect
-    LDA #$00                 ; CA98  $A9 $00
-    STA PpuMask_2001         ; CA9A  $8D $01 $20
-    STA ApuStatus_4015       ; CA9D  $8D $15 $40
-    LDA #$00                 ; CAA0  $A9 $00
-    JSR Swap_PRG_               ; CAA2  $20 $03 $FE
+	CMP #$40		; CA8D  $C9 $40
+	BCS L3CAB6		; CA8F  $B0 $25		enter another space
+	LDA #$00		; CA91  $A9 $00
+	STA tile_prop		; CA93  $85 $44
+	JSR $DC6A		; CA95  $20 $6A $DC	battle encount graphic/sound effect
+	LDA #$00		; CA98  $A9 $00
+	STA PpuMask_2001	; CA9A  $8D $01 $20
+	STA ApuStatus_4015	; CA9D  $8D $15 $40
+	LDA #$00		; CAA0  $A9 $00
+	JSR Swap_PRG_		; CAA2  $20 $03 $FE
 	LDX $48			; CAA5  $A6 $48		world map entrance ID ??
 	LDA $9400,X		; CAA7  $BD $00 $94	battle bg for each map
 	TAX			; CAAA  $AA
@@ -1598,62 +1602,62 @@ L3CA8D:
 	JSR L3D07B		; CAB0  $20 $7B $D0	battle end
 	JMP NM_LOOP		; CAB3  $4C $44 $CA	LOOP - NORMAL MAP
 L3CAB6:
-    BNE L3CABC               ; CAB6  $D0 $04
-    JSR $D8EE                ; CAB8  $20 $EE $D8
-    RTS                      ; CABB  $60
+	BNE L3CABC		; CAB6  $D0 $04
+	JSR $D8EE		; CAB8  $20 $EE $D8
+	RTS			; CABB  $60
 
 L3CABC:
-    CMP #$80                 ; CABC  $C9 $80
-    BNE L3CAFF               ; CABE  $D0 $3F
-    TSX                      ; CAC0  $BA
-    CPX #$20                 ; CAC1  $E0 $20
-    BCC L3CA7A               ; CAC3  $90 $B5
-    LDA $29                  ; CAC5  $A5 $29
-    PHA                      ; CAC7  $48
-    LDA $2A                  ; CAC8  $A5 $2A
-    PHA                      ; CACA  $48
-    LDA $48                  ; CACB  $A5 $48
-    PHA                      ; CACD  $48
-    JSR $D8EE                ; CACE  $20 $EE $D8
-    LDA #$00                 ; CAD1  $A9 $00
-    JSR Swap_PRG_               ; CAD3  $20 $03 $FE
-    LDX $45                  ; CAD6  $A6 $45
-    LDA $B000,X              ; CAD8  $BD $00 $B0
-    AND #$1F                 ; CADB  $29 $1F
-    SEC                      ; CADD  $38
-    SBC #$07                 ; CADE  $E9 $07
-    AND #$3F                 ; CAE0  $29 $3F
-    STA $29                  ; CAE2  $85 $29
-    LDA $B100,X              ; CAE4  $BD $00 $B1
-    SEC                      ; CAE7  $38
-    SBC #$07                 ; CAE8  $E9 $07
-    AND #$3F                 ; CAEA  $29 $3F
-    STA $2A                  ; CAEC  $85 $2A
-    STX $48                  ; CAEE  $86 $48
-    JSR L3CA41               ; CAF0  $20 $41 $CA
-    PLA                      ; CAF3  $68
-    STA $48                  ; CAF4  $85 $48
-    PLA                      ; CAF6  $68
-    STA $2A                  ; CAF7  $85 $2A
-    PLA                      ; CAF9  $68
-    STA $29                  ; CAFA  $85 $29
-    JMP L3CA41               ; CAFC  $4C $41 $CA
+	CMP #$80		; CABC  $C9 $80		to 
+	BNE L3CAFF		; CABE  $D0 $3F
+	TSX			; CAC0  $BA
+	CPX #$20		; CAC1  $E0 $20		check too deep by stack pointer
+	BCC L3CA7A		; CAC3  $90 $B5		to LOOP in NORMAL MAP
+	LDA in_x_pos		; CAC5  $A5 $29
+	PHA			; CAC7  $48
+	LDA in_y_pos		; CAC8  $A5 $2A
+	PHA			; CACA  $48
+	LDA $48			; CACB  $A5 $48		world map entrance ID ??
+	PHA			; CACD  $48
+	JSR $D8EE		; CACE  $20 $EE $D8	eye close effect
+	LDA #$00		; CAD1  $A9 $00
+	JSR Swap_PRG_		; CAD3  $20 $03 $FE
+	LDX $45			; CAD6  $A6 $45
+	LDA $B000,X		; CAD8  $BD $00 $B0	map initial x positions and fill tile
+	AND #$1F		; CADB  $29 $1F
+	SEC			; CADD  $38
+	SBC #$07		; CADE  $E9 $07
+	AND #$3F		; CAE0  $29 $3F
+	STA in_x_pos		; CAE2  $85 $29
+	LDA $B100,X		; CAE4  $BD $00 $B1	map initial y positions and fill tile
+	SEC			; CAE7  $38
+	SBC #$07		; CAE8  $E9 $07
+	AND #$3F		; CAEA  $29 $3F
+	STA in_y_pos		; CAEC  $85 $2A
+	STX $48			; CAEE  $86 $48		world map entrance ID ??
+	JSR L3CA41		; CAF0  $20 $41 $CA
+	PLA			; CAF3  $68
+	STA $48			; CAF4  $85 $48		world map entrance ID ??
+	PLA			; CAF6  $68
+	STA in_y_pos		; CAF7  $85 $2A
+	PLA			; CAF9  $68
+	STA in_x_pos		; CAFA  $85 $29
+	JMP L3CA41		; CAFC  $4C $41 $CA	to normal map process
 L3CAFF:
-    CMP #$C0                 ; CAFF  $C9 $C0
-    BNE L3CB20               ; CB01  $D0 $1D
-    JSR $D8EE                ; CB03  $20 $EE $D8
-    LDA #$00                 ; CB06  $A9 $00
-    JSR Swap_PRG_               ; CB08  $20 $03 $FE
-    LDX $45                  ; CB0B  $A6 $45
-    LDA $B4C0,X              ; CB0D  $BD $C0 $B4
-    SEC                      ; CB10  $38
-    SBC #$07                 ; CB11  $E9 $07
-    STA $27                  ; CB13  $85 $27
-    LDA $B4E0,X              ; CB15  $BD $E0 $B4
-    SEC                      ; CB18  $38
-    SBC #$07                 ; CB19  $E9 $07
-    STA $28                  ; CB1B  $85 $28
-    JMP L3C0B8               ; CB1D  $4C $B8 $C0
+	CMP #$C0		; CAFF  $C9 $C0
+	BNE L3CB20		; CB01  $D0 $1D
+	JSR $D8EE		; CB03  $20 $EE $D8	eye close effect(to world map)
+	LDA #$00		; CB06  $A9 $00
+	JSR Swap_PRG_		; CB08  $20 $03 $FE
+	LDX $45			; CB0B  $A6 $45
+	LDA $B4C0,X		; CB0D  $BD $C0 $B4	map exit x position
+	SEC			; CB10  $38
+	SBC #$07		; CB11  $E9 $07
+	STA ow_x_pos		; CB13  $85 $27
+	LDA $B4E0,X		; CB15  $BD $E0 $B4	map exit y position
+	SEC			; CB18  $38
+	SBC #$07		; CB19  $E9 $07
+	STA ow_y_pos		; CB1B  $85 $28
+	JMP L3C0B8		; CB1D  $4C $B8 $C0
 
 ; Name	:
 ; Marks	: Key processing / event ??
@@ -1672,7 +1676,7 @@ L3CB20:
 	LDX #$08		; CB39  $A2 $08		event code value = 08h
 	LDA #$03		; CB3B  $A9 $03
 	JSR Swap_PRG_		; CB3D  $20 $03 $FE
-	JSR $A003		; CB40  $20 $03 $A0	event code ?? - npc direction facing each other??
+	JSR $A003		; CB40  $20 $03 $A0	event code - npc direction facing each other??
 	PLP			; CB43  $28
 	LDX $67			; CB44  $A6 $67		npc number ??
 	BCC L3CB4B		; CB46  $90 $03		if no event occurs ??
@@ -1691,14 +1695,14 @@ L3CB4B:
 	LDA #$0A		; CB60  $A9 $0A
 	STA bank_tmp		; CB62  $85 $93
 L3CB64:
-	JSR $E8D8		; CB64  $20 $D8 $E8
+	JSR Wait_key		; CB64  $20 $D8 $E8
 	JSR Wait_NMI		; CB67  $20 $00 $FE
 	LDA #$02		; CB6A  $A9 $02
 	STA SpriteDma_4014	; CB6C  $8D $14 $40
 	JSR Scroll_normal	; CB6F  $20 $F5 $CD
 	LDA #$1E		; CB72  $A9 $1E		show sprite/backgnd
 	STA PpuMask_2001	; CB74  $8D $01 $20
-    JSR L3C746               ; CB77  $20 $46 $C7	sound process ??
+	JSR L3C746		; CB77  $20 $46 $C7	sound process ??
 	LDA #$00		; CB7A  $A9 $00
 	STA a_pressing		; CB7C  $85 $24
 	STA s_pressing		; CB7E  $85 $23
@@ -1710,7 +1714,7 @@ L3CB83:
 	LDA s_pressing		; CB83  $A5 $23
 	BEQ L3CB9B		; CB85  $F0 $14		if A == 00h(start not pressed)
     LDA #$00                 ; CB87  $A9 $00
-    STA $23                  ; CB89  $85 $23
+    STA s_pressing                  ; CB89  $85 $23
     LDA #$02                 ; CB8B  $A9 $02
     JSR L3DDA4               ; CB8D  $20 $A4 $DD
     LDA #$0E                 ; CB90  $A9 $0E
@@ -1721,7 +1725,7 @@ L3CB9B:
 	LDA e_pressing		; CB9B  $A5 $22
 	BEQ L3CBB3		; CB9D  $F0 $14		if A == 00h(select not pressed)
     LDA #$00                 ; CB9F  $A9 $00
-    STA $22                  ; CBA1  $85 $22
+    STA e_pressing                  ; CBA1  $85 $22
     LDA #$02                 ; CBA3  $A9 $02
     JSR L3DDA4               ; CBA5  $20 $A4 $DD
     LDA #$0E                 ; CBA8  $A9 $0E
@@ -1749,11 +1753,11 @@ L3CBC7:
 	STA tile_prop		; CBC9  $85 $44
 	LDA #$0E		; CBCB  $A9 $0E
 	JSR Swap_PRG_		; CBCD  $20 $03 $FE
-	JSR $9794		; CBD0  $20 $94 $97	chocobo ??
+	JSR $9794		; CBD0  $20 $94 $97	get text ID, chocobo ??
 	STA text_ID		; CBD3  $85 $92
-    LDA $A0                  ; CBD5  $A5 $A0
-    CMP #$60                 ; CBD7  $C9 $60
-    BCC L3CBDF               ; CBD9  $90 $04
+	LDA $A0			; CBD5  $A5 $A0		npc id temp ??
+	CMP #$60		; CBD7  $C9 $60
+	BCC L3CBDF		; CBD9  $90 $04
     CMP #$C0                 ; CBDB  $C9 $C0
     BCC L3CBEE               ; CBDD  $90 $0F
 L3CBDF:
@@ -1765,7 +1769,7 @@ L3CBDF:
     BEQ L3CBEE               ; CBE9  $F0 $03
     JSR L3C6F4               ; CBEB  $20 $F4 $C6
 L3CBEE:
-    JMP L3CB64               ; CBEE  $4C $64 $CB
+	JMP L3CB64		; CBEE  $4C $64 $CB
 L3CBF1:
     JSR $9145                ; CBF1  $20 $45 $91
 	LDA event		; CBF4  $A5 $6C
@@ -2498,10 +2502,10 @@ L3D07B:
 	LDA #$00		; D087  $A9 $00		sprites/background hide
 	STA PpuMask_2001	; D089  $8D $01 $20
 	JSR $D341		; D08C  $20 $41 $D3	init ??
-	LDX #$07		; D08F  $A2 $07
+	LDX #$07		; D08F  $A2 $07		event code value = 07h
 	LDA #$03		; D091  $A9 $03
 	JSR Swap_PRG_		; D093  $20 $03 $FE
-	JSR $A003		; D096  $20 $03 $A0	init ??
+	JSR $A003		; D096  $20 $03 $A0	event code - init ??
 	RTS			; D099  $60
 ; End of
 
@@ -3820,27 +3824,29 @@ L3D8D4:
 	JMP L3D910		; D8EB  $4C $10 $D9
 ; End of
 
+; Name	:
+; Marks	: $84 = blank screen size, $85 = show screen size
    ;; sub start ;;
-    JSR $D977                ; D8EE  $20 $77 $D9
-    LDA #$21                 ; D8F1  $A9 $21
-    STA $84                  ; D8F3  $85 $84
-    LDA #$C5                 ; D8F5  $A9 $C5
-    STA $85                  ; D8F7  $85 $85
+	JSR $D977		; D8EE  $20 $77 $D9	init sprites ??
+	LDA #$21		; D8F1  $A9 $21
+	STA $84			; D8F3  $85 $84
+	LDA #$C5		; D8F5  $A9 $C5
+	STA $85			; D8F7  $85 $85
 L3D8F9:
-    JSR $D935                ; D8F9  $20 $35 $D9
-    LDA $84                  ; D8FC  $A5 $84
-    CLC                      ; D8FE  $18
-    ADC #$03                 ; D8FF  $69 $03
-    STA $84                  ; D901  $85 $84
-    LDA $85                  ; D903  $A5 $85
-    SEC                      ; D905  $38
-    SBC #$06                 ; D906  $E9 $06
-    STA $85                  ; D908  $85 $85
-    CMP #$06                 ; D90A  $C9 $06
-    BCS L3D8F9               ; D90C  $B0 $EB
-    LDA #$00                 ; D90E  $A9 $00
+	JSR $D935		; D8F9  $20 $35 $D9	eye close effect ??
+	LDA $84			; D8FC  $A5 $84
+	CLC			; D8FE  $18
+	ADC #$03		; D8FF  $69 $03
+	STA $84			; D901  $85 $84
+	LDA $85			; D903  $A5 $85
+	SEC			; D905  $38
+	SBC #$06		; D906  $E9 $06
+	STA $85			; D908  $85 $85
+	CMP #$06		; D90A  $C9 $06
+	BCS L3D8F9		; D90C  $B0 $EB		loop
+	LDA #$00		; D90E  $A9 $00
 L3D910:
-	STA PpuMask_2001	; D910  $8D $01 $20
+	STA PpuMask_2001	; D910  $8D $01 $20	hide sprites/background
 	LDA #$30		; D913  $A9 $30
 	STA Sq0Duty_4000	; D915  $8D $00 $40
 	STA Sq1Duty_4004	; D918  $8D $04 $40
@@ -3864,7 +3870,8 @@ L3D932:
 ; End of
 
 ; Name	:
-; Marks	: eye open effect ??
+; Marks	: eye open/close effect ??
+;	  $84 = blank screen size, $85 = show screen size
    ;; sub start ;;
 	JSR Wait_NMI		; D935  $20 $00 $FE
 	JSR $D922		; D938  $20 $22 $D9	copy NT, palette, scroll
@@ -3872,8 +3879,8 @@ L3D932:
 L3D93D:
 	DEX			; D93D  $CA
 	BNE L3D93D		; D93E  $D0 $FD		delay ??
-	LDA #$10		; D940  $A9 $10
-	STA PpuMask_2001	; D942  $8D $01 $20	show sprite only
+	LDA #$10		; D940  $A9 $10		show sprite only
+	STA PpuMask_2001	; D942  $8D $01 $20
 	LDX $84			; D945  $A6 $84
 L3D947:
 	JSR $D962		; D947  $20 $62 $D9	Another delay ??
@@ -5240,7 +5247,7 @@ L3E1C7:
 
  LDA #$03                 ; E1C8  $A9 $03
     JSR Swap_PRG_               ; E1CA  $20 $03 $FE
-    JMP $A003                ; E1CD  $4C $03 $A0
+    JMP $A003                ; E1CD  $4C $03 $A0	event code
 L3E1D0:
     LDX #$01                 ; E1D0  $A2 $01
     JSR $E1C8                ; E1D2  $20 $C8 $E1
@@ -5387,7 +5394,7 @@ E275:
 	JSR $E017		; E30E  $20 $17 $E0	copy sprite to buffer($0200-)
 	LDA #$40		; E311  $A9 $40
 	STA $26			; E313  $85 $26		pointer to next available sprite
-	LDX #$06		; E315  $A2 $06		event number
+	LDX #$06		; E315  $A2 $06		event number value = 06h
 	LDA #$03		; E317  $A9 $03
 	JSR Swap_PRG_		; E319  $20 $03 $FE	bank_03 swap
 	JMP $A003		; E31C  $4C $03 $A0	event code - npc process ??
@@ -6224,9 +6231,10 @@ L3E88A:
 	JMP L3EA54               ; E8D5  $4C $54 $EA
 ; End of Init_win_type
 
-; Name	:
-; Marks	: a,b key reset, wait key to break ?? draw text ??
+; Name	: Wait_key
+; Marks	: a,b key reset, wait key to break ?? draw next text ??
 ;; sub start ;;
+Wait_key:
 	LDA #$00		; E8D8  $A9 $00
 	STA win_type		; E8DA  $85 $96		dialogue - 28x19 at (2,2)
 	LDA #$00		; E8DC  $A9 $00
@@ -6235,18 +6243,20 @@ L3E88A:
 	JSR L3E91E		; E8E2  $20 $1E $E9	draw win / text
 L3E8E5:
 	JSR L3EA54		; E8E5  $20 $54 $EA
-	JSR Wait_key		; E8E8  $20 $F1 $E8
-	JSR Wait_key		; E8EB  $20 $F1 $E8
+	JSR Key_for_next	; E8E8  $20 $F1 $E8
+	JSR Key_for_next	; E8EB  $20 $F1 $E8
 	JMP L3D164		; E8EE  $4C $64 $D1
-; End of
+; End of Wait_key
 
 tmp_key = $86
 
-; Name	: Wait_key
+; Name	: Key_for_next
 ; Marks	: Check key twice ?? chattering depence ??
 ;	  press any key to continue
+;	  Entry state and check state change
+;	  Key input for next step, when key released.
 ;; sub start ;;
-Wait_key:
+Key_for_next:
 	JSR Get_key		; E8F1  $20 $A9 $DB
 	LDA key1p		; E8F4  $A5 $20
 	STA tmp_key		; E8F6  $85 $86
@@ -6262,7 +6272,7 @@ L3E8F8:
 L3E90C:
 	LDA bank_tmp		; E90C  $A5 $93
 	JMP Swap_PRG_		; E90E  $4C $03 $FE
-; End of Wait_key
+; End of Key_for_next
 
 ; Name	:
 ; Marks	:
@@ -6478,8 +6488,8 @@ L3EA54:
 	JSR L3EA8C               ; EA54  $20 $8C $EA	text process
 	BCC L3EA8B               ; EA57  $90 $32
 L3EA59:
-	JSR Wait_key		; EA59  $20 $F1 $E8
-	JSR Wait_key		; EA5C  $20 $F1 $E8
+	JSR Key_for_next	; EA59  $20 $F1 $E8
+	JSR Key_for_next	; EA5C  $20 $F1 $E8
 	LDA menu_win_H		; EA5F  $A5 $3D
 L3EA61:
     PHA                      ; EA61  $48

@@ -1062,6 +1062,7 @@ L3976E:
 .byte $04,$4C,$5D,$97
 ; Name	:
 ; X	: npc id ??
+; Ret	: A(text_ID)
 ; Marks	: $94(ADDR) ??, $84(ADDR) = pointer to npc scripts
 	LDA #$06		; 9794	$A9 $06
 	STA text_bank		; 9796	$85 $93
@@ -1089,21 +1090,22 @@ L397B1:
 L397C0:
 .byte $BD,$00,$83,$85,$84,$BD,$01,$83
 ; X	: pointers to npc scripts(High byte)
-; Marks	: $86(ADDR)
+; Marks	: $84(ADDR) = pointer to npc script
+;	  $86(ADDR) = code pointer ??
 	STA $85			; 97C8	$85 $85
-	LDY #$17		; 97CA	$A0 $17
+	LDY #$17		; 97CA	$A0 $17		17h bytes
 L397CC:
 	LDA ($84),Y		; 97CC	$B1 $84
 	STA $7B00,Y		; 97CE	$99 $00 $7B	$7B00 = generic buffer
 	DEY			; 97D1	$88
-	BPL L397CC		; 97D2	$10 $F8
+	BPL L397CC		; 97D2	$10 $F8		loop - copy npc scripts
 	LDY #$1F		; 97D4	$A0 $1F
 	LDA #$00		; 97D6	$A9 $00
 L397D8:
 	STA $7B20,Y		; 97D8	$99 $20 $7B
 	DEY			; 97DB	$88
-	BPL L397D8		; 97DC	$10 $FA
-	LDA $A0			; 97DE	$A5 $A0
+	BPL L397D8		; 97DC	$10 $FA		loop - init ($7B20-$7CF0)
+	LDA $A0			; 97DE	$A5 $A0		npc id temp ??
 	ASL A			; 97E0	$0A
 	TAY			; 97E1	$A8
 	BCC L397F1		; 97E2	$90 $0D
@@ -1136,14 +1138,15 @@ L397FE:
 .byte $10,$90,$02,$18,$60,$A8,$B9,$00,$A4,$85,$81,$B9,$00,$A5,$A8,$B9
 .byte $1A,$60,$05,$81,$99,$1A,$60,$A9,$47,$85,$E0,$18,$60,$60
 ; Name	:
+; Ret	: A
 ; Marks	: $80(ADDR) ??
-	STY $81			; 989E	$84 $81
+	STY $81			; 989E	$84 $81		temp buffer
 	LDA $A400,Y		; 98A0	$B9 $00 $A4
 	STA $80			; 98A3	$85 $80
 	LDA $A500,Y		; 98A5	$B9 $00 $A5
 	TAY			; 98A8	$A8
 	LDA $6040,Y		; 98A9	$B9 $40 $60	event/npc switches
-	LDY $81			; 98AC	$A4 $81
+	LDY $81			; 98AC	$A4 $81		temp buffer
 	AND $80			; 98AE	$25 $80
 	RTS			; 98B0	$60
 ; End of
@@ -1158,7 +1161,7 @@ L397FE:
 
 .byte $60,$99,$40,$60,$A4,$80,$60,$20,$EF,$98,$A0,$00,$A5,$80,$D9,$00
 .byte $75,$F0,$0A,$98,$18,$69,$10,$A8,$C9,$F0,$90,$F0,$60,$A9,$00,$99
-;; [$9923 - data ??
+;; [$9923 - data ?? code pointer
 .byte $00,$75,$60,$A3,$9A,$A4,$9A,$55,$9B,$59,$9B,$76,$9B,$8B,$9B,$30
 .byte $9C,$3F,$9C,$82,$9C,$B2,$9C,$DF,$9C,$E8,$9C,$15,$9D,$29,$9D,$60
 .byte $9D,$64,$9D,$CE,$9D,$D8,$9D,$13,$9E,$55,$9E,$9A,$9E,$A8,$9E,$55
@@ -1178,7 +1181,7 @@ L397FE:
 
 .byte $A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08
 .byte $A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08,$A3,$08
-;; [$9A23 - data ??
+;; [$9A23 - data ?? - code pointer
 .byte $A3,$08,$A3,$7A,$A3,$7A,$A3,$7E,$A3,$7E,$A3,$7E,$A3,$7E,$A3,$7E
 .byte $A3,$7E,$A3,$98,$A3,$98,$A3,$98,$A3,$98,$A3,$98,$A3,$98,$A3,$98
 .byte $A3,$98,$A3,$C4,$A3,$C4,$A3,$C8,$A3,$C8,$A3,$C8,$A3,$C8,$A3,$C8
@@ -1366,7 +1369,7 @@ L397FE:
 	LDY #$50		; A308	$A0 $50
 	JSR $989E		; A30A	$20 $9E $98
 	BNE L3A313		; A30D	$D0 $04
-	LDA $7B00		; A30F	$AD $00 $7B
+	LDA $7B00		; A30F	$AD $00 $7B	text ID
 	RTS			; A312	$60
 ; End of
 

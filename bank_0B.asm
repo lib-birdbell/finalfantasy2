@@ -48,6 +48,9 @@
 
 
 ; ========== world map battle groups ($8200-$827F) START ==========
+; $8200-$823F : before tornado
+; $8240-$827F : after tornado
+; world map devide as 32 x 32 area
 ;; [$8200 :: 0x2C200]
 
 .byte $19,$20,$05,$0F,$0F,$0F,$27,$19,$19,$19,$05,$05,$03,$04,$27,$27
