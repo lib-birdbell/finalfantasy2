@@ -456,9 +456,30 @@ battle_row               = ch_skills + $35 ; $00 = back row, $01 = front row, $8
 
 
 song_tempo		= $6F00
-SQ1vol			= $6F04
-SQ2vol			= $6F05
-_6F06_unknown		= $6F06
+Sq0Oct			= $6F01
+Sq1Oct			= $6F02
+TrgOct			= $6F03
+Sq0Vol			= $6F04
+Sq1Vol			= $6F05
+tempo_cnt		= $6F06
+Sq0tick_cnt		= $6F07
+Sq1tick_cnt		= $6F08
+Trgtick_cnt		= $6F09
+loop_cnt_A		= $6F0A
+loop_cnt_B		= $6F0B
+loop_cnt_C		= $6F0C
+tmp_sq04000		= $6F19
+tmp_sq04001		= $6F1A
+tmp_sq04002		= $6F1B
+tmp_sq04003		= $6F1C
+tmp_sq14004		= $6F1D
+tmp_sq14005		= $6F1E
+tmp_sq14006		= $6F1F
+tmp_sq14007		= $6F20
+tmp_trg4008		= $6F21
+tmp_trg4009		= $6F22
+tmp_trg400A		= $6F23
+tmp_trg400B		= $6F24
 SQ2_Note_Value		 = $6F1F
 current_BGM_ID		 = $6F25
 _6F26_unknown		= $6F26
