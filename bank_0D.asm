@@ -472,12 +472,14 @@
 
 ;; [$9800 :: 0x35800] Music code
 ; Name	:
-; Marks	: Sound ??
+; Marks	: Sound ?? loop - ready for sound process
+;	  $E0 = current song ID, bit7, bit6 
+;	  song ID is 00h-3Fh(64)
 	LDA #$00		; 9800	$A9 $00
-	STA $C0			; 9802	$85 $C0
-	STA $C1			; 9804	$85 $C1
-	STA $C2			; 9806	$85 $C2
-	LDA $E5			; 9808	$A5 $E5
+	STA $C0			; 9802	$85 $C0		apu register update flag
+	STA $C1			; 9804	$85 $C1		apu register update flag
+	STA $C2			; 9806	$85 $C2		apu register update flag
+	LDA $E5			; 9808	$A5 $E5		sound effect counter (mute square 2 music channel)
 	BEQ L3581A		; 980A	$F0 $0E
 	DEC $E5			; 980C	$C6 $E5
 	BNE L3581A		; 980E	$D0 $0A
@@ -489,29 +491,28 @@ L3581A:
 	LDA current_song_ID	; 981A	$A5 $E0
 	ASL A			; 981C	$0A
 	BCC L35832		; 981D	$90 $13
-	JSR $98A9		; 981F	$20 $A9 $98	copy some data $6F26 -> $B0
+	JSR $98A9		; 981F	$20 $A9 $98	if bit7 is set, copy some data $6F26 -> $B0 (load ??)
 	LDA #$00		; 9822	$A9 $00
 	STA current_song_ID	; 9824	$85 $E0
-	STA tmp_sq04002		; 9826	$8D $1B $6F
-	STA tmp_sq14006		; 9829	$8D $1F $6F
-	STA tmp_trg400A		; 982C	$8D $23 $6F
+	STA tmp_sq04002		; 9826	$8D $1B $6F	timer low
+	STA tmp_sq14006		; 9829	$8D $1F $6F	timer low
+	STA tmp_trg400A		; 982C	$8D $23 $6F	timer low
 	JMP $9863		; 982F	$4C $63 $98
 L35832:
 	ASL A			; 9832	$0A
 	BCC L35863		; 9833	$90 $2E
-	LDA current_song_ID	; 9835	$A5 $E0
+	LDA current_song_ID	; 9835	$A5 $E0		if bit6 is set, check song ID
 	AND #$3F		; 9837	$29 $3F
 	STA current_song_ID	; 9839	$85 $E0
 	CMP current_BGM_ID	; 983B	$CD $25 $6F
 	BEQ L35847		; 983E	$F0 $07
-	JSR $988E		; 9840	$20 $8E $98	copy some data $B0 -> $6F26 (backup ??)
+	JSR $988E		; 9840	$20 $8E $98	if song ID changed, copy some data $B0 -> $6F26 (store ??)
 L35843:
-	JSR $9867		; 9843	$20 $67 $98	Load BGM ??
+	JSR LoadNewBGM		; 9843	$20 $67 $98	Load new BGM
 	RTS			; 9846	$60
 ; End of
-
 L35847:
-	CMP #$09		; 9847	$C9 $09
+	CMP #$09		; 9847	$C9 $09		keyword get ??
 	BEQ L35843		; 9849	$F0 $F8
 	LDA #$30		; 984B	$A9 $30
 	STA Sq0Duty_4000	; 984D	$8D $00 $40
@@ -527,16 +528,21 @@ L35863:
 	RTS			; 9866	$60
 ; End of
 
-; Name	: Load BGM ??
-; Marks	: $C8(ADDR) = pointers to song data
-;	  $B0-$B5 = Address x 3, copy address to $BX
+; Name	: LoadNewBGM
+; Marks	: Get 6 data
+;	  $C8(ADDR) = pointers to song data
+;	  Set note address to $B0,X
+;	  $B0(ADDR) = Sq0 note address
+;	  $B2(ADDR) = Sq1 note address
+;	  $B4(ADDR) = Tri note address
+LoadNewBGM:
 	LDA current_song_ID	; 9867	$A5 $E0
 	STA current_BGM_ID	; 9869	$8D $25 $6F
 	ASL A			; 986C	$0A
 	TAX			; 986D	$AA
-	LDA $9E0D,X		; 986E	$BD $0D $9E	pointers to song data
+	LDA BGM_LIST0,X		; 986E	$BD $0D $9E	pointers to song data
 	STA $C8			; 9871	$85 $C8
-	LDA $9E0E,X		; 9873	$BD $0E $9E
+	LDA BGM_LIST0+1,X	; 9873	$BD $0E $9E
 	STA $C9			; 9876	$85 $C9
 	LDY #$00		; 9878	$A0 $00
 	LDX #$00		; 987A	$A2 $00
@@ -546,22 +552,22 @@ L3587C:
 	INY			; 9880	$C8
 	INX			; 9881	$E8
 	CPX #$06		; 9882	$E0 $06
-	BCC L3587C		; 9884	$90 $F6
-	JSR $98C4		; 9886	$20 $C4 $98	Init current state and Apu ??
+	BCC L3587C		; 9884	$90 $F6		loop
+	JSR Init_tmp_reg	; 9886	$20 $C4 $98	Init temporary register
 	LDA #$00		; 9889	$A9 $00
 	STA $E6			; 988B	$85 $E6
 	RTS			; 988D	$60
-; End of
+; End of LoadNewBGM
 
 ; Name	:
-; Marks	:
+; Marks	: store state ??
 	LDX #$00		; 988E	$A2 $00
 L35890:
 	LDA SQ1FramePosition,X	; 9890	$B5 $B0
 	STA $6F26,X		; 9892	$9D $26 $6F
 	INX			; 9895	$E8
 	CPX #$12		; 9896	$E0 $12
-	BCC L35890		; 9898	$90 $F6
+	BCC L35890		; 9898	$90 $F6		loop
 	LDY #$00		; 989A	$A0 $00
 L3589C:
 	LDA song_tempo,Y	; 989C	$B9 $00 $6F
@@ -569,19 +575,19 @@ L3589C:
 	INX			; 98A2	$E8
 	INY			; 98A3	$C8
 	CPY #$26		; 98A4	$C0 $26
-	BCC L3589C		; 98A6	$90 $F4
+	BCC L3589C		; 98A6	$90 $F4		loop
 	RTS			; 98A8	$60
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: load state ??
 	LDX #$00		; 98A9	$A2 $00
 L358AB:
 	LDA $6F26,X		; 98AB	$BD $26 $6F
 	STA $B0,X		; 98AE	$95 $B0
 	INX			; 98B0	$E8
 	CPX #$12		; 98B1	$E0 $12
-	BCC L358AB		; 98B3	$90 $F6
+	BCC L358AB		; 98B3	$90 $F6		loop
 	LDY #$00		; 98B5	$A0 $00
 L358B7:
 	LDA $6F26,X		; 98B7	$BD $26 $6F
@@ -589,32 +595,36 @@ L358B7:
 	INX			; 98BD	$E8
 	INY			; 98BE	$C8
 	CPY #$26		; 98BF	$C0 $26
-	BCC L358B7		; 98C1	$90 $F4
+	BCC L358B7		; 98C1	$90 $F4		loop
 	RTS			; 98C3	$60
 ; End of
 
-; Name	:
+; Name	: Init_tmp_reg
 ; Marks	: Init $B6-$BF to FFh
+;	  Init $tempo_cnt,tick counter to 00h
+;	  volume to 0Fh
+;	  song_tempo to 4Bh
+Init_tmp_reg:
 	LDX #$00		; 98C4	$A2 $00
 	LDA #$FF		; 98C6	$A9 $FF
 L358C8:
 	STA $B6,X		; 98C8	$95 $B6
 	INX			; 98CA	$E8
 	CPX #$04		; 98CB	$E0 $04
-	BCC L358C8		; 98CD	$90 $F9
+	BCC L358C8		; 98CD	$90 $F9		loop
 	LDX #$00		; 98CF	$A2 $00
 L358D1:
 	STA $BA,X		; 98D1	$95 $BA
 	INX			; 98D3	$E8
 	CPX #$06		; 98D4	$E0 $06
-	BCC L358D1		; 98D6	$90 $F9
+	BCC L358D1		; 98D6	$90 $F9		loop
 	LDX #$00		; 98D8	$A2 $00
 	LDA #$00		; 98DA	$A9 $00
 L358DC:
 	STA tempo_cnt,X		; 98DC	$9D $06 $6F
 	INX			; 98DF	$E8
 	CPX #$04		; 98E0	$E0 $04
-	BCC L358DC		; 98E2	$90 $F8
+	BCC L358DC		; 98E2	$90 $F8		loop
 	LDA #$0F		; 98E4	$A9 $0F
 	STA Sq0Vol		; 98E6	$8D $04 $6F
 	STA Sq1Vol		; 98E9	$8D $05 $6F
@@ -623,16 +633,17 @@ L358DC:
 	LDX #$00		; 98F1	$A2 $00
 	STX ApuStatus_4015	; 98F3	$8E $15 $40
 L358F6:
-	LDA $9902,X		; 98F6	$BD $02 $99
+	LDA APU_REG_RESET,X	; 98F6	$BD $02 $99
 	STA tmp_sq04000,X	; 98F9	$9D $19 $6F
 	INX			; 98FC	$E8
 	CPX #$0C		; 98FD	$E0 $0C
 	BCC L358F6		; 98FF	$90 $F5
 	RTS			; 9901	$60
-; End of
+; End of Init_tmp_reg
 
 ;; [$9902 :: 0x35902]
-; data block ($9902-$990E)
+; data block ($9902-$990D: 12 bytes): Sq0Duty_4000 to TrgLength_4007 default(reset) register value
+APU_REG_RESET:
 .byte $30,$08,$00,$00,$30,$08,$00,$00,$80,$00,$00,$00
 
 ; Name	:
@@ -831,7 +842,7 @@ L35A07:
 ; End of
 
 ; Name	:
-; Marks	: E0h < A < F0h
+; Marks	: E0h < A < F0h (E1h ~ EFh)
 ;	  $6F04,X = 01h~0Fh
 	AND #$0F		; 9A53	$29 $0F
 	LDX $C5			; 9A55	$A6 $C5
@@ -984,15 +995,17 @@ L35B14:
 	BNE L35B21		; 9B16	$D0 $09
 	INX			; 9B18	$E8
 	CPX #$06		; 9B19	$E0 $06
-	BCC L35B14		; 9B1B	$90 $F7
-	LDA #$80		; 9B1D	$A9 $80
-	STA $E0			; 9B1F	$85 $E0
+	BCC L35B14		; 9B1B	$90 $F7		loop
+	LDA #$80		; 9B1D	$A9 $80		return to 
+	STA current_song_ID	; 9B1F	$85 $E0
 L35B21:
 	RTS			; 9B21	$60
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: $C5 = channel ID
+;	  $C6 X = channel ID * 2
+;	  $C7 Y = channel ID * 4
 	LDA #$00		; 9B22	$A9 $00
 	STA $C5			; 9B24	$85 $C5
 L35B26:
@@ -1180,7 +1193,7 @@ L35C63:
 	RTS			; 9C6C	$60
 ; End of
 
-; data block
+; data block - total size is 8850 bytes
 ; $9C6D
 .byte $AB,$06,$4D
 .byte $06,$F3,$05,$9D,$05,$4C,$05,$01,$05,$B8,$04,$74,$04,$34,$04,$F7
@@ -1222,6 +1235,7 @@ L35C63:
 
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) START ==========
 ;; [$9E0D :: 0x35E0D]
+BGM_LIST0:
 .word BGM9E4B 			; 9E0D	$4B $9E - 00: Silence
 .word BGM9E51 			; 9E0F	$51 $9E - 01: title prelude
 .word BGM9F62 			; 9E11	$62 $9F - 02: suprise

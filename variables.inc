@@ -149,6 +149,7 @@ SQ1FramePosition	= $B0
 
 ; bit7 = load previous song ??
 ; bit6 = song change ?? interrupt ??
+; bit5-bit0 = song ID (0-64)
 current_song_ID		= $E0
 ;	#$01 = title prelude
 ;	#$02 = suprise
