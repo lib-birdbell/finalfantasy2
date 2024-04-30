@@ -4997,7 +4997,7 @@ L3E003:
 ; SRC	: $43 == ??
 ; Marks	: ATTR bit5 set
 ;; sub start ;;
-	JSR $E073		; E017  $20 $73 $E0	cursor ?? set sprite buffer ??
+	JSR $E073		; E017  $20 $73 $E0	moving OAM
 	LDA $43			; E01A  $A5 $43		what is this ?? check entrance ??
 	AND #$12		; E01C  $29 $12
 	BEQ L3E030		; E01E  $F0 $10		if A == 00h
@@ -5031,15 +5031,15 @@ L3E04C:
 	JSR $E1A8		; E055  $20 $A8 $E1	Check chocobo ?? vehicle ??
 	JMP L3E1FB		; E058  $4C $FB $E1	Check dreadnaught ??
 L3E05B:
-    JSR $E073                ; E05B  $20 $73 $E0
+    JSR $E073                ; E05B  $20 $73 $E0	moving OAM
     JMP $E04F                ; E05E  $4C $4F $E0
 L3E061:
-    JSR $E073                ; E061  $20 $73 $E0
+    JSR $E073                ; E061  $20 $73 $E0	moving OAM
     JSR $E1E0                ; E064  $20 $E0 $E1
     JSR $E055                ; E067  $20 $55 $E0
     JMP $E174                ; E06A  $4C $74 $E1
 L3E06D:
-    JSR $E073                ; E06D  $20 $73 $E0
+    JSR $E073                ; E06D  $20 $73 $E0	moving OAM
     JMP L3E04C               ; E070  $4C $4C $E0
 ; loop ??
 
@@ -8403,7 +8403,7 @@ rnum_tbl:
 
 ;; sub start ;;
     PHA                      ; FA03  $48
-	JSR Zpage_copy		; FA04  $20 $1F $FA
+	JSR Zpage_store		; FA04  $20 $1F $FA
     LDA #$0E                 ; FA07  $A9 $0E
     STA $3E                  ; FA09  $85 $3E
     PLA                      ; FA0B  $68
@@ -8419,9 +8419,10 @@ L3FA16:
     BNE L3FA16               ; FA1C  $D0 $F8
     RTS                      ; FA1E  $60
 
-; Name	: Zpage_copy
+; Name	: Zpage_store
+; Ret	: X = 0
 ; Marks	: Copy ($00-$AF) -> ($7C00-$7CAF)
-Zpage_copy:
+Zpage_store:
 ;; sub start ;;
     LDX #$B0                 ; FA1F  $A2 $B0
 L3FA21:
@@ -8430,7 +8431,7 @@ L3FA21:
     DEX                      ; FA26  $CA
     BNE L3FA21               ; FA27  $D0 $F8
     RTS                      ; FA29  $60
-; End of Zpage_copy
+; End of Zpage_store
 
 ; Name	: Set_IRQ_JMP
 ; Marks	: Set IRQ instruction JMP
@@ -8460,49 +8461,70 @@ L3FA3C:
     RTS                      ; FA47  $60
 ; End of
 
+; Name	:
+; Marks	:
 L3FA48:
     JSR $FA6D                ; FA48  $20 $6D $FA
     JSR $BA00                ; FA4B  $20 $00 $BA
     LDA #$0D                 ; FA4E  $A9 $0D
     JSR Swap_PRG             ; FA50  $20 $1A $FE
     JSR $9800                ; FA53  $20 $00 $98
-    JMP L3FA84               ; FA56  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FA56  $4C $84 $FA
+; End of
+
 L3FA59:
     JSR $FA6D                ; FA59  $20 $6D $FA
     TXA                      ; FA5C  $8A
     ORA #$40                 ; FA5D  $09 $40
     JSR $BA03                ; FA5F  $20 $03 $BA
-    JMP L3FA84               ; FA62  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FA62  $4C $84 $FA
+; End of
+
 L3FA65:
     LDA #$00                 ; FA65  $A9 $00
-    BEQ L3FA81               ; FA67  $F0 $18
+	BEQ Swap_PRG_1		; FA67  $F0 $18
+; End of
+
     LDA #$00                 ; FA69  $A9 $00
     BEQ L3FA7F               ; FA6B  $F0 $12
+; Name	:
+; Marks	:
     LDA #$05                 ; FA6D  $A9 $05
-    BNE L3FA81               ; FA6F  $D0 $10
+    BNE Swap_PRG_1		; FA6F  $D0 $10
+; End of
+
+; Name	:
+; Marks	:
     LDA #$05                 ; FA71  $A9 $05
     BNE L3FA7F               ; FA73  $D0 $0A
+; Name	:
+; Marks	:
     LDA #$09                 ; FA75  $A9 $09
-    BNE L3FA81               ; FA77  $D0 $08
+	BNE Swap_PRG_1		; FA77  $D0 $08
+; End of
+
+; Name	:
+; Marks	:
 L3FA79:
-    LDA #$0B                 ; FA79  $A9 $0B
-	; Branch must happen
-    BNE L3FA7F               ; FA7B  $D0 $02
+	LDA #$0B		; FA79  $A9 $0B
+	BNE L3FA7F		; FA7B  $D0 $02		branch must happen
+; End of
+
     LDA #$0C                 ; FA7D  $A9 $0C
 L3FA7F:
-    STA $3E                  ; FA7F  $85 $3E
-L3FA81:
-    JMP Swap_PRG             ; FA81  $4C $1A $FE
-;
+	STA $3E			; FA7F  $85 $3E		bank temp buffer ??
+Swap_PRG_1:
+	JMP Swap_PRG		; FA81  $4C $1A $FE
+; End of
 
 ; Name	: Swap_PRG_RTS
 ; SRC	: $3E - bank
-; Marks	:
-Swap_PRG_RTS:
-L3FA84:
-    LDA $3E                  ; FA84  $A5 $3E
-    BPL L3FA81               ; FA86  $10 $F9
-; Jump to Swap_PRG
+; Marks	: Swap program bank to $3E and Return subroutine
+;	  bank cannot over 7Fh
+Swap_PRG_tmp:
+	LDA $3E			; FA84  $A5 $3E		bank temp buffer ??
+	BPL Swap_PRG_1		; FA86  $10 $F9
+; End of Swap_PRG_tmp. Jump to Swap_PRG and RTS
 
 L3FA88:
     PHA                      ; FA88  $48
@@ -8517,20 +8539,20 @@ L3FA88:
     JMP ($0040)              ; FA97  $6C $40 $00
     LDA $3F                  ; FA9A  $A5 $3F
     BPL L3FA7F               ; FA9C  $10 $E1
-; A	:
-; X	:
+; A	: battle ID ??
+; X	: battle back ground ID ??
 L3FA9E:
-	STA $7B48		; FA9E  $8D $48 $7B	Set some battle status ??
-    TXA                      ; FAA1  $8A
-    AND #$0F                 ; FAA2  $29 $0F
-    STA $7B49                ; FAA4  $8D $49 $7B
-    JSR Zpage_copy		; JSR $FA1F                ; FAA7  $20 $1F $FA
-    STX $E5                  ; FAAA  $86 $E5
-    STX $6F60                ; FAAC  $8E $60 $6F
-    LDA #$40                 ; FAAF  $A9 $40
-    STA current_song_ID		; STA $E0                  ; FAB1  $85 $E0
-    JSR L3FA79               ; FAB3  $20 $79 $FA
-    JSR L3FA48               ; FAB6  $20 $48 $FA
+	STA $7B48		; FA9E  $8D $48 $7B	battle ID
+	TXA			; FAA1  $8A
+	AND #$0F		; FAA2  $29 $0F
+	STA $7B49		; FAA4  $8D $49 $7B	battle background
+	JSR Zpage_store		; FAA7  $20 $1F $FA
+	STX $E5			; FAAA  $86 $E5
+	STX $6F60		; FAAC  $8E $60 $6F
+	LDA #$40		; FAAF  $A9 $40		BGM silence ??
+	STA current_song_ID	; FAB1  $85 $E0
+	JSR L3FA79		; FAB3  $20 $79 $FA	bank swap
+	JSR L3FA48		; FAB6  $20 $48 $FA
     JMP $9639                ; FAB9  $4C $39 $96
 
     LDA #$12                 ; FABC  $A9 $12
@@ -8572,7 +8594,9 @@ L3FAF0:
     JSR L3FA65               ; FAFC  $20 $65 $FA
     PLA                      ; FAFF  $68
     JSR $9880                ; FB00  $20 $80 $98
-    JMP L3FA84               ; FB03  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FB03  $4C $84 $FA
+; End of
+
 L3FB06:
     JSR $FA7D                ; FB06  $20 $7D $FA
     JMP $8F43                ; FB09  $4C $43 $8F
@@ -8630,7 +8654,8 @@ L3FB48:
     TAX                      ; FB5B  $AA
 	; Tile copy to SRAM
     JSR $FBF3                ; FB5C  $20 $F3 $FB
-    JMP L3FA84               ; FB5F  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FB5F  $4C $84 $FA
+; End of
 
 ;; sub start ;;
     LDA $7B4C                ; FB62  $AD $4C $7B
@@ -8644,7 +8669,8 @@ L3FB6C:
     INC $03                  ; FB73  $E6 $03
     DEC $04                  ; FB75  $C6 $04
     BNE L3FB6C               ; FB77  $D0 $F3
-    JMP L3FA84               ; FB79  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FB79  $4C $84 $FA
+; End of
 
 ; Name	:
 ; A	:
@@ -8677,19 +8703,23 @@ L3FB9B:
     BNE L3FB9B               ; FBA4  $D0 $F5
     LDX #$20                 ; FBA6  $A2 $20
     JSR L3FD6F               ; FBA8  $20 $6F $FD
-    JMP L3FA84               ; FBAB  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FBAB  $4C $84 $FA
+; End of
+
 L3FBAE:
     JSR $FA75                ; FBAE  $20 $75 $FA
     JSR Set_IRQ_JMP		; JSR L3FA2A               ; FBB1  $20 $2A $FA
     JSR L3FD6F               ; FBB4  $20 $6F $FD
-    JMP L3FA84               ; FBB7  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FBB7  $4C $84 $FA
+; End of
 
 ; Name	:
 ; Marks	:
 ;; sub start ;;
     JSR $FA75                ; FBBA  $20 $75 $FA
     JSR $FBF3                ; FBBD  $20 $F3 $FB
-    JMP L3FA84               ; FBC0  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FBC0  $4C $84 $FA
+; End of
 
 ;; sub start ;;
     JSR $FA75                ; FBC3  $20 $75 $FA
@@ -8707,7 +8737,8 @@ L3FBAE:
     INC $03                  ; FBDC  $E6 $03
     LDX #$C0                 ; FBDE  $A2 $C0
     JSR L3FD6F               ; FBE0  $20 $6F $FD
-    JMP L3FA84               ; FBE3  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FBE3  $4C $84 $FA
+; End of
 
 ;; sub start ;;
     LDA #$0C                 ; FBE6  $A9 $0C
@@ -8742,7 +8773,9 @@ L3FBF7:
     STA $79A9,Y              ; FC11  $99 $A9 $79
     LDA $9800,X              ; FC14  $BD $00 $98
     STA $79AA,Y              ; FC17  $99 $AA $79
-    JMP L3FA84               ; FC1A  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FC1A  $4C $84 $FA
+; End of
+
     LDA #$00                 ; FC1D  $A9 $00
     JSR Swap_PRG             ; FC1F  $20 $1A $FE
     LDA $9700,X              ; FC22  $BD $00 $97
@@ -8751,7 +8784,8 @@ L3FBF7:
     STA $01                  ; FC2A  $85 $01
     LDA $9800,X              ; FC2C  $BD $00 $98
     STA $02                  ; FC2F  $85 $02
-    JMP L3FA84               ; FC31  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FC31  $4C $84 $FA
+; End of
 
 ;; sub start ;;
     LDA $35                  ; FC34  $A5 $35
@@ -8938,20 +8972,26 @@ L3FD41:
     ADC $08                  ; FD43  $65 $08
 L3FD45:
     RTS                      ; FD45  $60
+; End of
 
 ;; Battle text thing. Waits for Sprite 0 hit?
 
+; Name	:
+; A	:
+; SRC	: $3B, $39, $37
+; Marks	: wait and scroll sprite 0 hit
 L3FD46:
-    BIT PpuStatus_2002       ; FD46  $2C $02 $20
-    BVS L3FD46               ; FD49  $70 $FB
+	BIT PpuStatus_2002	; FD46  $2C $02 $20
+	BVS L3FD46		; FD49  $70 $FB		loop
 L3FD4B:
-    LDA $3B                  ; FD4B  $A5 $3B
-    STA PpuControl_2000      ; FD4D  $8D $00 $20
-    LDA $39                  ; FD50  $A5 $39
-    STA PpuScroll_2005       ; FD52  $8D $05 $20
-    LDA $37                  ; FD55  $A5 $37
-    STA PpuScroll_2005       ; FD57  $8D $05 $20
-    RTS                      ; FD5A  $60
+	LDA $3B			; FD4B  $A5 $3B
+	STA PpuControl_2000	; FD4D  $8D $00 $20
+	LDA $39                  ; FD50  $A5 $39
+	STA PpuScroll_2005       ; FD52  $8D $05 $20
+	LDA $37                  ; FD55  $A5 $37
+	STA PpuScroll_2005       ; FD57  $8D $05 $20
+	RTS                      ; FD5A  $60
+; End of
 
 L3FD5B:
     BIT PpuStatus_2002       ; FD5B  $2C $02 $20
@@ -9018,7 +9058,8 @@ L3FDB4:
     BNE L3FDB4               ; FDBF  $D0 $F3
 L3FDC1:
     STX $7CBF                ; FDC1  $8E $BF $7C
-    JMP L3FA84               ; FDC4  $4C $84 $FA
+	JMP Swap_PRG_tmp	; FDC4  $4C $84 $FA
+; End of
 
 ;; sub start ;;
     LDA #$0C                 ; FDC7  $A9 $0C
