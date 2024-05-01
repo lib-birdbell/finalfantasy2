@@ -1127,7 +1127,8 @@ L3C746:
 	LDA #$0D		; C746  $A9 $0D
 	JSR Swap_PRG_		; C748  $20 $03 $FE
 	JMP $9800		; C74B  $4C $00 $98
-; This is real end.
+; End of
+
 	RTS			; C74E  $60
 ; End of
 
@@ -8466,9 +8467,9 @@ L3FA3C:
 L3FA48:
     JSR $FA6D                ; FA48  $20 $6D $FA
     JSR $BA00                ; FA4B  $20 $00 $BA
-    LDA #$0D                 ; FA4E  $A9 $0D
-    JSR Swap_PRG             ; FA50  $20 $1A $FE
-    JSR $9800                ; FA53  $20 $00 $98
+	LDA #$0D		; FA4E  $A9 $0D
+	JSR Swap_PRG		; FA50  $20 $1A $FE
+	JSR $9800		; FA53  $20 $00 $98	sound process
 	JMP Swap_PRG_tmp	; FA56  $4C $84 $FA
 ; End of
 
@@ -8517,7 +8518,7 @@ Swap_PRG_1:
 	JMP Swap_PRG		; FA81  $4C $1A $FE
 ; End of
 
-; Name	: Swap_PRG_RTS
+; Name	: Swap_PRG_tmp
 ; SRC	: $3E - bank
 ; Marks	: Swap program bank to $3E and Return subroutine
 ;	  bank cannot over 7Fh
@@ -8526,19 +8527,21 @@ Swap_PRG_tmp:
 	BPL Swap_PRG_1		; FA86  $10 $F9
 ; End of Swap_PRG_tmp. Jump to Swap_PRG and RTS
 
+; A	: bank
+; SRC	: $40(ADDR) = excute code address
 L3FA88:
-    PHA                      ; FA88  $48
-    LDA $3E                  ; FA89  $A5 $3E
-    STA $3F                  ; FA8B  $85 $3F
-    PLA                      ; FA8D  $68
-    JSR L3FA7F               ; FA8E  $20 $7F $FA
-    LDA #$FA                 ; FA91  $A9 $FA
-    PHA                      ; FA93  $48
-    LDA #$99                 ; FA94  $A9 $99
-    PHA                      ; FA96  $48
-    JMP ($0040)              ; FA97  $6C $40 $00
-    LDA $3F                  ; FA9A  $A5 $3F
-    BPL L3FA7F               ; FA9C  $10 $E1
+	PHA			; FA88  $48
+	LDA $3E			; FA89  $A5 $3E		bank temp buffer ??
+	STA $3F			; FA8B  $85 $3F		bank temp buffer save ??
+	PLA			; FA8D  $68
+	JSR L3FA7F		; FA8E  $20 $7F $FA	bank swap 0C -> 0B ??
+	LDA #$FA		; FA91  $A9 $FA
+	PHA			; FA93  $48
+	LDA #$99		; FA94  $A9 $99
+	PHA			; FA96  $48
+	JMP ($0040)		; FA97  $6C $40 $00	ex> bank_0B : 9630
+	LDA $3F			; FA9A  $A5 $3F		bank temp buffer load ??
+	BPL L3FA7F		; FA9C  $10 $E1
 ; A	: battle ID ??
 ; X	: battle back ground ID ??
 L3FA9E:
@@ -8583,11 +8586,13 @@ L3FAEC:
     LDA #$36                 ; FAEC  $A9 $36
     BNE L3FAF0               ; FAEE  $D0 $00
 L3FAF0:
+; A	: 
     STA $40                  ; FAF0  $85 $40
     LDA #$96                 ; FAF2  $A9 $96
     STA $41                  ; FAF4  $85 $41
     LDA #$0B                 ; FAF6  $A9 $0B
     JMP L3FA88               ; FAF8  $4C $88 $FA
+; End of and to FA88
 
 ;; sub start ;;
     PHA                      ; FAFB  $48
@@ -8787,30 +8792,34 @@ L3FBF7:
 	JMP Swap_PRG_tmp	; FC31  $4C $84 $FA
 ; End of
 
+; Name	:
+; Marks	: Get key on battle command ??
+;	  $34 =, $35 =, $36 =
 ;; sub start ;;
-    LDA $35                  ; FC34  $A5 $35
-    STA $34                  ; FC36  $85 $34
-    LDA #$01                 ; FC38  $A9 $01
-    STA Ctrl1_4016           ; FC3A  $8D $16 $40
-    LDA #$00                 ; FC3D  $A9 $00
-    STA Ctrl1_4016           ; FC3F  $8D $16 $40
-    LDX #$08                 ; FC42  $A2 $08
+	LDA $35			; FC34  $A5 $35
+	STA $34			; FC36  $85 $34		key
+	LDA #$01		; FC38  $A9 $01
+	STA Ctrl1_4016		; FC3A  $8D $16 $40
+	LDA #$00		; FC3D  $A9 $00
+	STA Ctrl1_4016		; FC3F  $8D $16 $40
+	LDX #$08		; FC42  $A2 $08
 L3FC44:
-    LDA Ctrl1_4016           ; FC44  $AD $16 $40
-    ROR A                    ; FC47  $6A
-    BCS L3FC4B               ; FC48  $B0 $01
-    ROR A                    ; FC4A  $6A
+	LDA Ctrl1_4016		; FC44  $AD $16 $40
+	ROR A			; FC47  $6A
+	BCS L3FC4B		; FC48  $B0 $01
+	ROR A			; FC4A  $6A
 L3FC4B:
-    ROR $35                  ; FC4B  $66 $35
-    DEX                      ; FC4D  $CA
-    BNE L3FC44               ; FC4E  $D0 $F4
-    LDA $34                  ; FC50  $A5 $34
-    ORA $35                  ; FC52  $05 $35
-    BNE L3FC5D               ; FC54  $D0 $07
-    STA $34                  ; FC56  $85 $34
-    LDA #$08                 ; FC58  $A9 $08
-    STA $36                  ; FC5A  $85 $36
-    RTS                      ; FC5C  $60
+	ROR $35			; FC4B  $66 $35
+	DEX			; FC4D  $CA
+	BNE L3FC44		; FC4E  $D0 $F4
+	LDA $34			; FC50  $A5 $34
+	ORA $35			; FC52  $05 $35
+	BNE L3FC5D		; FC54  $D0 $07
+	STA $34			; FC56  $85 $34
+	LDA #$08		; FC58  $A9 $08
+	STA $36			; FC5A  $85 $36
+	RTS			; FC5C  $60
+; End of
 
 L3FC5D:
     LDA $34                  ; FC5D  $A5 $34
@@ -8979,7 +8988,8 @@ L3FD45:
 ; Name	:
 ; A	:
 ; SRC	: $3B, $39, $37
-; Marks	: wait and scroll sprite 0 hit
+; Marks	: wait VBlank end by scroll sprite 0 hit
+;	  Scroll reset
 L3FD46:
 	BIT PpuStatus_2002	; FD46  $2C $02 $20
 	BVS L3FD46		; FD49  $70 $FB		loop
