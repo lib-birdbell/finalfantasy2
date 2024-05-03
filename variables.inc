@@ -145,6 +145,11 @@ _AF_unknown		= $AF
 
 entity_counter     = $9E 
 
+; ========== BATTLE VARIABLES ==========
+
+cur_char_idx		= $9E
+
+; ========== SOUND VARIABLES ==========
 SQ1FramePosition	= $B0
 
 ; bit7 = load previous song ??

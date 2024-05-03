@@ -8463,10 +8463,11 @@ L3FA3C:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: sound
+;	  bank 05 -> bank 0D -> previous bank
 L3FA48:
-    JSR $FA6D                ; FA48  $20 $6D $FA
-    JSR $BA00                ; FA4B  $20 $00 $BA
+	JSR Swap_bank_05	; FA48  $20 $6D $FA
+	JSR $BA00		; FA4B  $20 $00 $BA	sound effect code start - bank 05
 	LDA #$0D		; FA4E  $A9 $0D
 	JSR Swap_PRG		; FA50  $20 $1A $FE
 	JSR $9800		; FA53  $20 $00 $98	sound process
@@ -8474,7 +8475,7 @@ L3FA48:
 ; End of
 
 L3FA59:
-    JSR $FA6D                ; FA59  $20 $6D $FA
+    JSR Swap_bank_05                ; FA59  $20 $6D $FA
     TXA                      ; FA5C  $8A
     ORA #$40                 ; FA5D  $09 $40
     JSR $BA03                ; FA5F  $20 $03 $BA
@@ -8488,11 +8489,12 @@ L3FA65:
 
     LDA #$00                 ; FA69  $A9 $00
     BEQ L3FA7F               ; FA6B  $F0 $12
-; Name	:
-; Marks	:
-    LDA #$05                 ; FA6D  $A9 $05
-    BNE Swap_PRG_1		; FA6F  $D0 $10
-; End of
+; Name	: Swap_bank_05
+; Marks	: Swap bank to 05h
+Swap_bank_05:
+	LDA #$05		; FA6D  $A9 $05
+	BNE Swap_PRG_1		; FA6F  $D0 $10
+; End of Swap_bank_05
 
 ; Name	:
 ; Marks	:
@@ -8558,8 +8560,11 @@ L3FA9E:
 	JSR L3FA48		; FAB6  $20 $48 $FA
     JMP $9639                ; FAB9  $4C $39 $96
 
-    LDA #$12                 ; FABC  $A9 $12
-    BNE L3FAF0               ; FABE  $D0 $30
+; Name	:
+; Marks	: $40(ADDR) = execute code address
+;	  bank 0B $96xx
+	LDA #$12		; FABC  $A9 $12
+	BNE L3FAF0		; FABE  $D0 $30
     LDA #$15                 ; FAC0  $A9 $15
     BNE L3FAF0               ; FAC2  $D0 $2C
     LDA #$18                 ; FAC4  $A9 $18
@@ -8578,8 +8583,9 @@ L3FA9E:
     BNE L3FAF0               ; FADE  $D0 $10
     LDA #$2D                 ; FAE0  $A9 $2D
     BNE L3FAF0               ; FAE2  $D0 $0C
-    LDA #$30                 ; FAE4  $A9 $30
-    BNE L3FAF0               ; FAE6  $D0 $08
+; Name	:
+	LDA #$30		; FAE4  $A9 $30
+	BNE L3FAF0		; FAE6  $D0 $08
     LDA #$33                 ; FAE8  $A9 $33
     BNE L3FAF0               ; FAEA  $D0 $04
 L3FAEC:
@@ -8587,11 +8593,11 @@ L3FAEC:
     BNE L3FAF0               ; FAEE  $D0 $00
 L3FAF0:
 ; A	: 
-    STA $40                  ; FAF0  $85 $40
-    LDA #$96                 ; FAF2  $A9 $96
-    STA $41                  ; FAF4  $85 $41
-    LDA #$0B                 ; FAF6  $A9 $0B
-    JMP L3FA88               ; FAF8  $4C $88 $FA
+	STA $40			; FAF0  $85 $40
+	LDA #$96		; FAF2  $A9 $96
+	STA $41			; FAF4  $85 $41
+	LDA #$0B		; FAF6  $A9 $0B
+	JMP L3FA88		; FAF8  $4C $88 $FA
 ; End of and to FA88
 
 ;; sub start ;;
@@ -8794,7 +8800,8 @@ L3FBF7:
 
 ; Name	:
 ; Marks	: Get key on battle command ??
-;	  $34 =, $35 =, $36 =
+;	  $34 = result ??, $35 =, $36 = key repeat delay ??
+;	  expension port works
 ;; sub start ;;
 	LDA $35			; FC34  $A5 $35
 	STA $34			; FC36  $85 $34		key
@@ -8819,7 +8826,7 @@ L3FC4B:
 	LDA #$08		; FC58  $A9 $08
 	STA $36			; FC5A  $85 $36
 	RTS			; FC5C  $60
-; End of
+; End of Get key on battle
 
 L3FC5D:
     LDA $34                  ; FC5D  $A5 $34
@@ -8831,6 +8838,7 @@ L3FC63:
     AND $35                  ; FC67  $25 $35
     STA $34                  ; FC69  $85 $34
     RTS                      ; FC6B  $60
+; End of Get key on battle
 
 L3FC6C:
     DEC $36                  ; FC6C  $C6 $36
@@ -8840,6 +8848,7 @@ L3FC6C:
     LDA $35                  ; FC74  $A5 $35
     STA $34                  ; FC76  $85 $34
     RTS                      ; FC78  $60
+; End of Get key on battle
 
 ;; sub start ;;
     STA $00                  ; FC79  $85 $00
@@ -8862,32 +8871,35 @@ L3FC90:
     BNE L3FC85               ; FC95  $D0 $EE
     RTS                      ; FC97  $60
 
+; Name	:
+; Marks	: Init ?? calc ??
 ;; sub start ;;
-    LDX #$10                 ; FC98  $A2 $10
-    LDA #$00                 ; FC9A  $A9 $00
-    STA $05                  ; FC9C  $85 $05
-    STA $04                  ; FC9E  $85 $04
-    STA $07                  ; FCA0  $85 $07
-    STA $06                  ; FCA2  $85 $06
+	LDX #$10		; FC98  $A2 $10
+	LDA #$00		; FC9A  $A9 $00
+	STA $05			; FC9C  $85 $05
+	STA $04			; FC9E  $85 $04
+	STA $07			; FCA0  $85 $07
+	STA $06			; FCA2  $85 $06
 L3FCA4:
-    ROR $03                  ; FCA4  $66 $03
-    ROR $02                  ; FCA6  $66 $02
-    BCC L3FCB7               ; FCA8  $90 $0D
-    CLC                      ; FCAA  $18
-    LDA $00                  ; FCAB  $A5 $00
-    ADC $06                  ; FCAD  $65 $06
-    STA $06                  ; FCAF  $85 $06
-    LDA $01                  ; FCB1  $A5 $01
-    ADC $07                  ; FCB3  $65 $07
-    STA $07                  ; FCB5  $85 $07
+	ROR $03			; FCA4  $66 $03
+	ROR $02			; FCA6  $66 $02
+	BCC L3FCB7		; FCA8  $90 $0D
+	CLC			; FCAA  $18
+	LDA $00			; FCAB  $A5 $00
+	ADC $06			; FCAD  $65 $06
+	STA $06			; FCAF  $85 $06
+	LDA $01			; FCB1  $A5 $01
+	ADC $07			; FCB3  $65 $07
+	STA $07			; FCB5  $85 $07
 L3FCB7:
-    ROR $07                  ; FCB7  $66 $07
-    ROR $06                  ; FCB9  $66 $06
-    ROR $05                  ; FCBB  $66 $05
-    ROR $04                  ; FCBD  $66 $04
-    DEX                      ; FCBF  $CA
-    BNE L3FCA4               ; FCC0  $D0 $E2
-    RTS                      ; FCC2  $60
+	ROR $07			; FCB7  $66 $07
+	ROR $06			; FCB9  $66 $06
+	ROR $05			; FCBB  $66 $05
+	ROR $04			; FCBD  $66 $04
+	DEX			; FCBF  $CA
+	BNE L3FCA4		; FCC0  $D0 $E2		loop
+	RTS			; FCC2  $60
+; End of
 
 ;; sub start ;;
 
@@ -9003,15 +9015,19 @@ L3FD4B:
 	RTS                      ; FD5A  $60
 ; End of
 
+; Name	:
+; Marks	: Set Ppu for menu area ??
 L3FD5B:
-    BIT PpuStatus_2002       ; FD5B  $2C $02 $20
-    BVC L3FD5B               ; FD5E  $50 $FB
-    LDA $3A                  ; FD60  $A5 $3A
-    AND #$EF                 ; FD62  $29 $EF
-    STA PpuControl_2000      ; FD64  $8D $00 $20
-    LDA $38                  ; FD67  $A5 $38
-    STA PpuScroll_2005       ; FD69  $8D $05 $20
-    JMP L3FA48               ; FD6C  $4C $48 $FA
+	BIT PpuStatus_2002	; FD5B  $2C $02 $20
+	BVC L3FD5B		; FD5E  $50 $FB		loop - wait sprite 0 hit ??
+	LDA $3A			; FD60  $A5 $3A		ppu ctrl -> $2000 (menu area)
+	AND #$EF		; FD62  $29 $EF		set background pattern table address to $0000
+	STA PpuControl_2000	; FD64  $8D $00 $20
+	LDA $38			; FD67  $A5 $38		ppu h-scroll -> $2005 (menu area)
+	STA PpuScroll_2005	; FD69  $8D $05 $20
+	JMP L3FA48		; FD6C  $4C $48 $FA	sound ??
+;
+
 L3FD6F:
     JSR $FD7E                ; FD6F  $20 $7E $FD
     LDY #$00                 ; FD72  $A0 $00
@@ -9022,6 +9038,7 @@ L3FD74:
     DEX                      ; FD7A  $CA
     BNE L3FD74               ; FD7B  $D0 $F7
     RTS                      ; FD7D  $60
+; End of
 
 ;; sub start ;;
     LDA PpuStatus_2002       ; FD7E  $AD $02 $20
