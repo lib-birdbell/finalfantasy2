@@ -5,7 +5,8 @@
 .import L3FA0F
 .import L3FD46
 .import L3FA2A
-.import L3FD5B
+;.import L3FD5B
+.import	Wait_MENU_snd		;FD5B
 .import DoDivision
 
 .segment "BANK_05"
@@ -2132,7 +2133,7 @@ L15F06:
     JMP L16B4F
 
 L15F09:
-    JSR L3FD5B               ; this does something with the PPU
+    JSR Wait_MENU_snd               ; this does something with the PPU
     LDA battle_result        ;
     CMP #$7E                 ; check what I think might be the battle_result = it was A2
     BNE L15F16               ; Since it only branches if it doesn't equal, then a result of 7E must do this next jump
@@ -2216,7 +2217,7 @@ B9FB2:
     STA $62,X
     DEX
     BPL B9FB2
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     JSR $FB1F
     LDA #$00
     STA $5C
@@ -2234,7 +2235,7 @@ B9FB2:
     STA PpuScroll_2005
     LDA #$00
     STA $00
-    JSR L3FD5B
+    JSR Wait_MENU_snd
 B9FE9:
     JSR $A46A
     LDX $00
@@ -2257,7 +2258,7 @@ B9FFE:
     LDA #$00
     STA $73
     JSR $A193
-    JSR L3FD5B
+    JSR Wait_MENU_snd
 L1601B:
     JSR L3FD46
     JSR $FADC
@@ -2372,7 +2373,7 @@ A0EC:
     STA $62,X
     DEX
     BPL A0EC
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     JMP $FB1F
     JSR L3FD46
     LDA #$76
@@ -2405,7 +2406,7 @@ A12F:
     STA $62,X
     DEX
     BPL A12F
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     JMP $FB1F
     LDA #$82
     STA $63
@@ -2807,7 +2808,7 @@ A408:
     STA $62,X
     DEX
     BPL A408
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     JMP $FB1F
 
 ;; JIGS - looks like sprite coordinates or something
@@ -2852,10 +2853,10 @@ A408:
 
 L1645E:
     JSR L3FD46
-    JMP L3FD5B
+    JMP Wait_MENU_snd
 
 ;; sub start ;;
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     JMP L3FD46
     JSR L1645E
     JMP L3FA2A
@@ -2959,7 +2960,7 @@ L164B7:
     LDA #$00
     STA $6F
     JSR $FB1B
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     JSR $AA41
     LDY $AB
     JSR $A9C4
@@ -3237,7 +3238,7 @@ L1672B:
     LDA #$00
     STA $6F
     JSR $FB1B
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     LDA #$00
     STA $64
     JSR L16A57
@@ -3310,7 +3311,7 @@ L167D0:
     STA $64
     JSR L16B4F
 L167DA:
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     INC $9E
     LDA $9E
     CMP #$04
@@ -3905,7 +3906,7 @@ L16B8F:
     STA $55
     DEC $53
     BNE L16B74
-    JMP L3FD5B
+    JMP Wait_MENU_snd
 
 ;; sub start ;;
     LDA $55
@@ -3930,7 +3931,7 @@ L16B8F:
 
 
 ;; sub start ;;
-    JSR L3FD5B
+    JSR Wait_MENU_snd
     JMP L3FA2A
 
 ;; sub start ;;

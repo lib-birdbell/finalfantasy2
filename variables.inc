@@ -147,6 +147,12 @@ entity_counter     = $9E
 
 ; ========== BATTLE VARIABLES ==========
 
+PpuScroll_2nd		= $37
+PpuScroll_h		= $38
+PpuScroll_1st		= $39
+PpuCtrl_menu		= $3A
+PpuCtrl_NT		= $3B
+NT_addr_menu		= $62
 cur_char_idx		= $9E
 
 ; ========== SOUND VARIABLES ==========

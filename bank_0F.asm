@@ -6,7 +6,7 @@
 .export L3FD46
 .export L3FA2A			;FA2A
 .export Set_IRQ_JMP		;FA2A
-.export L3FD5B
+;.export L3FD5B		Wait_MENU_snd
 .export Init_Page2		;C46E
 ;C74F
 .export Check_savefile		;DAC1
@@ -18,6 +18,8 @@
 .export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
 .export DoDivision		;FCC3
+.export Wait_NMI_end		;FD46
+.export	Wait_MENU_snd		;FD5B
 .export Wait_NMI		;FE00
 .export Swap_PRG_		;FE03
 .export	Init_variables		;FFB0
@@ -8850,26 +8852,31 @@ L3FC6C:
     RTS                      ; FC78  $60
 ; End of Get key on battle
 
+; Name	:
+; A	:
+; X	:
+; Marks	: Some calcuration
 ;; sub start ;;
-    STA $00                  ; FC79  $85 $00
-    STX $01                  ; FC7B  $86 $01
-    LDX #$08                 ; FC7D  $A2 $08
-    LDA #$00                 ; FC7F  $A9 $00
-    STA $03                  ; FC81  $85 $03
-    STA $02                  ; FC83  $85 $02
+	STA $00			; FC79  $85 $00
+	STX $01			; FC7B  $86 $01
+	LDX #$08		; FC7D  $A2 $08
+	LDA #$00		; FC7F  $A9 $00
+	STA $03			; FC81  $85 $03
+	STA $02			; FC83  $85 $02
 L3FC85:
-    ROR $01                  ; FC85  $66 $01
-    BCC L3FC90               ; FC87  $90 $07
-    CLC                      ; FC89  $18
-    LDA $00                  ; FC8A  $A5 $00
-    ADC $03                  ; FC8C  $65 $03
-    STA $03                  ; FC8E  $85 $03
+	ROR $01			; FC85  $66 $01
+	BCC L3FC90		; FC87  $90 $07
+	CLC			; FC89  $18
+	LDA $00			; FC8A  $A5 $00
+	ADC $03			; FC8C  $65 $03
+	STA $03			; FC8E  $85 $03
 L3FC90:
-    ROR $03                  ; FC90  $66 $03
-    ROR $02                  ; FC92  $66 $02
-    DEX                      ; FC94  $CA
-    BNE L3FC85               ; FC95  $D0 $EE
-    RTS                      ; FC97  $60
+	ROR $03			; FC90  $66 $03
+	ROR $02			; FC92  $66 $02
+	DEX			; FC94  $CA
+	BNE L3FC85		; FC95  $D0 $EE		loop
+	RTS			; FC97  $60
+; End of
 
 ; Name	:
 ; Marks	: Init ?? calc ??
@@ -8997,36 +9004,39 @@ L3FD45:
 
 ;; Battle text thing. Waits for Sprite 0 hit?
 
-; Name	:
+; Name	: Wait_NMI_end
 ; A	:
-; SRC	: $3B, $39, $37
+; SRC	: $3B = PpuControl_2000, $39 = PpuScroll_2005 1st, $37 = PpuScroll_2005 2nd
 ; Marks	: wait VBlank end by scroll sprite 0 hit
 ;	  Scroll reset
 L3FD46:
-	BIT PpuStatus_2002	; FD46  $2C $02 $20
+Wait_NMI_end:
+	BIT PpuStatus_2002	; FD46  $2C $02 $20	resets paired write latch w to 0.
 	BVS L3FD46		; FD49  $70 $FB		loop
 L3FD4B:
-	LDA $3B			; FD4B  $A5 $3B
+Ctrl_Scroll:
+	LDA PpuCtrl_NT		; FD4B  $A5 $3B
 	STA PpuControl_2000	; FD4D  $8D $00 $20
-	LDA $39                  ; FD50  $A5 $39
-	STA PpuScroll_2005       ; FD52  $8D $05 $20
-	LDA $37                  ; FD55  $A5 $37
-	STA PpuScroll_2005       ; FD57  $8D $05 $20
-	RTS                      ; FD5A  $60
-; End of
+	LDA PpuScroll_1st	; FD50  $A5 $39
+	STA PpuScroll_2005	; FD52  $8D $05 $20
+	LDA PpuScroll_2nd	; FD55  $A5 $37
+	STA PpuScroll_2005	; FD57  $8D $05 $20
+	RTS			; FD5A  $60
+; End of Wait_NMI_end
 
-; Name	:
+; Name	: Wait_MENU
 ; Marks	: Set Ppu for menu area ??
 L3FD5B:
+Wait_MENU_snd:
 	BIT PpuStatus_2002	; FD5B  $2C $02 $20
-	BVC L3FD5B		; FD5E  $50 $FB		loop - wait sprite 0 hit ??
-	LDA $3A			; FD60  $A5 $3A		ppu ctrl -> $2000 (menu area)
+	BVC L3FD5B		; FD5E  $50 $FB		loop - wait sprite 0 hit
+	LDA PpuCtrl_menu	; FD60  $A5 $3A
 	AND #$EF		; FD62  $29 $EF		set background pattern table address to $0000
 	STA PpuControl_2000	; FD64  $8D $00 $20
-	LDA $38			; FD67  $A5 $38		ppu h-scroll -> $2005 (menu area)
+	LDA PpuScroll_h		; FD67  $A5 $38
 	STA PpuScroll_2005	; FD69  $8D $05 $20
 	JMP L3FA48		; FD6C  $4C $48 $FA	sound ??
-;
+; Wait_MENU_snd
 
 L3FD6F:
     JSR $FD7E                ; FD6F  $20 $7E $FD

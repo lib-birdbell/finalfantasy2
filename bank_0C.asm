@@ -1,6 +1,9 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.import Wait_NMI_end		;FD46
+.import	Wait_MENU_snd		;FD5B
+
 .segment "BANK_0C"
 
 ;; [$8000 :: 0x30010]
@@ -313,15 +316,15 @@
 .byte $1D,$20,$90,$49,$FF,$60,$48,$BD,$20,$90,$85,$00,$68,$24,$00,$60
 .byte $01,$02,$04,$08,$10,$20,$40,$80
 
-	JSR $FD5B		; 9028	$20 $5B $FD	ppu (menu area) scroll / sound
+	JSR Wait_MENU_snd	; 9028	$20 $5B $FD
 	LDA #$00		; 902B	$A9 $00
 	STA cur_char_idx	; 902D	$85 $9E
 L3102F:
-	JSR $FD46		; 902F	$20 $46 $FD	wait VBlank end / Scroll reset
+	JSR Wait_NMI_end	; 902F	$20 $46 $FD
 	LDA cur_char_idx	; 9032	$A5 $9E
 	ORA #$80		; 9034	$09 $80
 	JSR $FAFB		; 9036	$20 $FB $FA
-	JSR $FD5B		; 9039	$20 $5B $FD	ppu (menu area) scroll / sound
+	JSR Wait_MENU_snd	; 9039	$20 $5B $FD
 	INC cur_char_idx	; 903C	$E6 $9E
 	LDA cur_char_idx	; 903E	$A5 $9E
 	CMP #$04		; 9040	$C9 $04
@@ -340,8 +343,8 @@ L3102F:
 	
 .byte $20,$E0,$FA,$20,$D0,$FA,$A9,$00,$85,$9E
 L3106B:
-	JSR $982C		; 906B	$20 $2C $98	ppu init ??
-	LDA $7CCA		; 906E	$AD $CA $7C
+	JSR $982C		; 906B	$20 $2C $98	ppu init ?? - command process loop
+	LDA $7CCA		; 906E	$AD $CA $7C	??
 	BEQ L31076		; 9071	$F0 $03
 	JSR $9B3E		; 9073	$20 $3E $9B
 L31076:
@@ -354,7 +357,7 @@ L3107F:
 	LDA cur_char_idx	; 9082	$A5 $9E
 	CMP #$04		; 9084	$C9 $04
 	BNE L3106B		; 9086	$D0 $E3		loop
-	JSR $FD46		; 9088	$20 $46 $FD	wait VBlank end / Scroll reset
+	JSR Wait_NMI_end	; 9088	$20 $46 $FD
 .byte $A9,$04,$85,$9E,$20
 .byte $BC,$FA,$A9,$00,$85,$9E,$20,$5B,$FD
 L31099:
@@ -380,7 +383,7 @@ L31099:
 
 ; Name	:
 ; Marks	: battle command check ??
-	JSR $FD46		; 9187	$20 $46 $FD	wait VBlank end / Scroll reset
+	JSR Wait_NMI_end	; 9187	$20 $46 $FD
 	LDA cur_char_idx	; 918A	$A5 $9E
 	TAX			; 918C	$AA
 	LDA #$00		; 918D	$A9 $00
@@ -407,8 +410,8 @@ L31099:
 	STA $50			; 91C0	$85 $50
 	STA $51			; 91C2	$85 $51
 	JSR $FAE4		; 91C4	$20 $E4 $FA	some graphic subroutine ??
-	JSR $9BA8		; 91C7	$20 $A8 $9B	battle command ??
-	JSR $FD46		; 91CA	$20 $46 $FD	wait VBlank end / Scroll reset
+	JSR $9BA8		; 91C7	$20 $A8 $9B	battle command ?? - Only A or B
+	JSR Wait_NMI_end	; 91CA	$20 $46 $FD
 .byte $AD,$34,$00
 	;LDA $0034		; 91CD	$AD $34 $00	key rlduseba
 	CMP #$01		; 91D0	$C9 $01
@@ -528,15 +531,15 @@ L3122D:
 .byte $69,$60,$18,$A5,$6A,$69,$20,$85,$6A,$A5,$6B,$69,$00,$85,$6B,$60
 .byte $A9,$F7,$85,$64,$A9,$F8,$85,$65,$A9,$F9,$85,$67,$60,$A9,$FC,$85
 .byte $64,$A9,$FD,$85,$65,$A9,$FE,$85,$67,$60
-	JSR $FD46		; 945A	$20 $46 $FD	wait VBlank end /Scroll reset
+	JSR Wait_NMI_end	; 945A	$20 $46 $FD
 	JSR $96E1		; 945D	$20 $E1 $96	Set some stat address ??
 	LDY #$2A		; 9460	$A0 $2A
 	LDA #$00		; 9462	$A9 $00
 	STA ($80),Y		; 9464	$91 $80
 	LDX cur_char_idx	; 9466	$A6 $9E
 	INC $7CF3,X		; 9468	$FE $F3 $7C
-	JSR $FD5B		; 946B	$20 $5B $FD	ppu (menu area) scroll / sound
-	JSR $FD46		; 946E	$20,$46 $FD	wait VBlank end / Scroll reset
+	JSR Wait_MENU_snd	; 946B	$20 $5B $FD
+	JSR Wait_NMI_end	; 946E	$20,$46 $FD
 	JSR $FAC0		; 9471	$20 $C0 $FA
 	LDY #$2B		; 9474	$A0 $2B
 	LDA ($80),Y		; 9476	$B1 $80
@@ -546,7 +549,7 @@ L3122D:
 	DEC $7CF3,X		; 947E	$DE $F3 $7C
 	DEC cur_char_idx	; 9481	$C6 $9E
 L31483:
-	JMP $FD5B		; 9483	$4C $5B $FD	ppu (menu area) scroll / sound
+	JMP Wait_MENU_snd	; 9483	$4C $5B $FD
 ;
 .byte $20,$E1,$96,$A0,$2A,$A9,$FE,$91,$80,$60
 .byte $A0,$00,$A9,$FF,$99,$00,$76,$C8,$D0,$FA,$60,$98,$F0,$0B,$8D,$B9
@@ -677,7 +680,7 @@ Get_char_addr:
 
 ; Name	:
 ; Marks	: Set PPU OAM
-	JSR $FD5B		; 980C	$20 $5B $FD	ppu (menu area) scroll / sound
+	JSR Wait_MENU_snd	; 980C	$20 $5B $FD
 	JSR $FA2A		; 980F	$20 $2A $FA	wait NMI
 	LDA #$00		; 9812	$A9 $00
 	STA $2003		; 9814	$8D $03 $20
@@ -690,9 +693,10 @@ Get_char_addr:
 .byte $64,$A9,$00,$85,$65,$A9,$01,$85,$63,$4C,$C6,$9A
 
 ; Name	:
-; Marks	: Set $64 = 48h, $65 = 00h, $63 = 00h
+; Marks	: Set $64 = 48h, menu target h-scroll position
+;	  $65 = 00h, $63 = 00h
 	LDA #$48		; 982C	$A9 $48
-	STA $64			; 982E	$85 $64
+	STA $64			; 982E	$85 $64		menu target h-scroll position
 	LDA #$00		; 9830	$A9 $00
 	STA $65			; 9832	$85 $65
 	LDA #$00		; 9834	$A9 $00
@@ -763,31 +767,31 @@ Get_char_addr:
 .byte $AA,$A2,$05,$4C,$8C,$FD,$A2,$00,$86,$6F,$86,$AA,$A2,$0A,$4C,$8C
 .byte $FD,$A0,$08,$91,$80,$60
 
-	JSR $FD46		; 9AC6	$20 $46 $FD	wait VBlank end / Scroll reset
+	JSR Wait_NMI_end	; 9AC6	$20 $46 $FD
 	JSR $9A90		; 9AC9	$20 $90 $9A	Reset OAM_Y[16:23] cursor ??
-	JSR $980C		; 9ACC	$20 $0C $98	set PPU OAM
+	JSR $980C		; 9ACC	$20 $0C $98	set PPU data(OAM)
 	LDA $3A			; 9ACF	$A5 $3A		ppu ctrl -> $2000 (menu area)
 	AND #$01		; 9AD1	$29 $01		base NT address
-	STA $62			; 9AD3	$85 $62		NT address ??
-	JSR $FD46		; 9AD5	$20 $46 $FD	wait VBlank end / Scroll reset
-	LDA $63			; 9AD8	$A5 $63
+	STA NT_addr_menu	; 9AD3	$85 $62		NT address (00h -> $0000, 01h -> $1000)
+	JSR Wait_NMI_end	; 9AD5	$20 $46 $FD
+	LDA $63			; 9AD8	$A5 $63		Show monster name ??
 	BNE L31AFE		; 9ADA	$D0 $22
 	CLC			; 9ADC	$18
-	LDA $38			; 9ADD	$A5 $38		ppu h-scroll -> $2005 (menu area)
+	LDA PpuScroll_h		; 9ADD	$A5 $38		menu area
 	ADC #$20		; 9ADF	$69 $20
-	STA $38			; 9AE1	$85 $38		ppu h-scroll -> $2005 (menu area)
-	LDA $62			; 9AE3	$A5 $62
+	STA PpuScroll_h		; 9AE1	$85 $38		menu area
+	LDA NT_addr_menu	; 9AE3	$A5 $62
 	ADC #$00		; 9AE5	$69 $00
-	STA $62			; 9AE7	$85 $62
+	STA NT_addr_menu	; 9AE7	$85 $62
 	SEC			; 9AE9	$38
-	LDA $64			; 9AEA	$A5 $64
-	SBC $38			; 9AEC	$E5 $38
+	LDA $64			; 9AEA	$A5 $64		menu target h-scroll position
+	SBC PpuScroll_h		; 9AEC	$E5 $38
 	LDA $65			; 9AEE	$A5 $65
-	SBC $62			; 9AF0	$E5 $62
+	SBC NT_addr_menu	; 9AF0	$E5 $62
 	BCC L31B2B		; 9AF2	$90 $37
 	LDA $3A			; 9AF4	$A5 $3A
 	AND #$FE		; 9AF6	$29 $FE
-	ORA $62			; 9AF8	$05 $62
+	ORA NT_addr_menu	; 9AF8	$05 $62
 	STA $3A			; 9AFA	$85 $3A
 	BNE L31B25		; 9AFC	$D0,$27
 L31AFE:
@@ -811,25 +815,26 @@ L31B15:
 	SBC $62			; 9B1C	$E5 $62
 	BCS L31B2B		; 9B1E	$B0 $0B
 ;; [$9B20 :: 0x31B20]
-	JSR $9B35		; 9B20	$20 $35 $9B
+	JSR PpuCtrl_add_NT	; 9B20	$20 $35 $9B
 .byte $D0,$00
 L31B25:
 .byte $20,$5B,$FD,$4C,$D5,$9A
 L31B2B:
-	LDA $64			; 9B2B	$A5 $64
-	STA $38			; 9B2D	$85 $38
-	JSR $9B35		; 9B2F	$20 $35 $9B	set ppu ctrl
-	JMP $FD5B		; 9B32	$4C $5B $FD	ppu (menu area) scroll / sound
+	LDA $64			; 9B2B	$A5 $64		menu target h-scroll position
+	STA PpuScroll_h		; 9B2D	$85 $38
+	JSR PpuCtrl_add_NT	; 9B2F	$20 $35 $9B
+	JMP Wait_MENU_snd	; 9B32	$4C $5B $FD
 ;
 
-; Name	:
+; Name	: PpuCtrl_add_NT
 ; Marks	: apply $62 to ppu ctrl -> $2000 (menu area)
-	LDA $3A			; 9B35	$A5 $3A		ppu ctrl -> $2000 (menu area)
+PpuCtrl_add_NT:
+	LDA PpuCtrl_menu	; 9B35	$A5 $3A		ppu ctrl -> $2000 (menu area)
 	AND #$FE		; 9B37	$29 $FE		base NT set to $2000
-	ORA $62			; 9B39	$05 $62
-	STA $3A			; 9B3B	$85 $3A		ppu ctrl -> $2000 (menu area)
+	ORA NT_addr_menu	; 9B39	$05 $62
+	STA PpuCtrl_menu	; 9B3B	$85 $3A		ppu ctrl -> $2000 (menu area)
 	RTS			; 9B3D	$60
-; End of
+; End of PpuCtrl_add_NT
 
 .byte $20,$46
 .byte $FD,$A9,$88,$85,$68,$A9,$27,$85,$69,$A9,$80,$85,$6A,$A9,$23,$85
@@ -841,11 +846,12 @@ L31B2B:
 .byte $6A,$A5,$6B,$E9,$00,$85,$6B,$60
 
 ; Name	:
-; Marks	: 
+; Marks	: Cursor ??
 ;	  $64(ADDR) = OAM address(cursor ??)
 ;	  $66(ADDR) = ??
 ;	  OAM ??
-	JSR $FD46		; 9BA8	$20 $46 $FD	wait VBlank end / Scroll reset
+;	  battle command ??
+	JSR Wait_NMI_end	; 9BA8	$20 $46 $FD
 	LDA $50			; 9BAB	$A5 $50
 	BNE L31BCF		; 9BAD	$D0 $20
 	STA $53			; 9BAF	$85 $53
@@ -853,30 +859,30 @@ L31B2B:
 	LDY #$00		; 9BB3	$A0 $00
 	LDA ($66),Y		; 9BB5	$B1 $66		ex> $BFC5
 	STA $0247		; 9BB7	$8D $47 $02	OAM_X[11]
-	STA $56			; 9BBA	$85 $56		cursor 1 sprite x position
+	STA $56			; 9BBA	$85 $56		cursor 1 sprite x position(RT)
 	INY			; 9BBC	$C8
 	LDA ($66),Y		; 9BBD	$B1 $66
 	STA $0244		; 9BBF	$8D $44 $02	OAM_Y[11]
-	STA $55			; 9BC2	$85 $55		cursor 1 sprite y position
+	STA $55			; 9BC2	$85 $55		cursor 1 sprite y position(RT)
 	LDA #$40		; 9BC4	$A9 $40
 	STA $64			; 9BC6	$85 $64
 	LDA #$02		; 9BC8	$A9 $02
-	STA $65			; 9BCA	$85 $65
-	JSR $9D02		; 9BCC	$20 $02 $9D	set cursor OAM x,y position
+	STA $65			; 9BCA	$85 $65		$64(ADDR) $0240 is cursor LT
+	JSR Move_OAM_XY		; 9BCC	$20 $02 $9D	set cursor OAM x,y position
 L31BCF:
 	JSR $FAE4		; 9BCF	$20 $E4 $FA	status animation ??
 	LDA $7CBA		; 9BD2	$AD $BA $7C
 	BEQ L31BDA		; 9BD5	$F0 $03
 	JSR $9EF5		; 9BD7	$20 $F5 $9E
 L31BDA:
-	JSR $FD46		; 9BDA	$20 $46 $FD	wait VBlank end / Scroll reset
+	JSR Wait_NMI_end	; 9BDA	$20 $46 $FD
 	JSR $FC34		; 9BDD	$20 $34 $FC	Get key for command ??
 	JSR $FAE4		; 9BE0	$20 $E4 $FA	status animation ??
 	JSR $9CBF		; 9BE3	$20 $BF $9C	check something($51) ??
 .byte $AD,$34,$00
 	;LDA $0034		; 9BE6	$AD $34 $00	key - rlduseba
 	BEQ L31BDA		; 9BE9	$F0 $EF		loop - battle wait command
-	JSR $FD46		; 9BEB	$20 $46 $FD	wait VBlank end / Scroll reset
+	JSR Wait_NMI_end	; 9BEB	$20 $46 $FD
 	LDA $5D			; 9BEE	$A5 $5D
 	BEQ L31C19		; 9BF0	$F0 $27
 .byte $AD,$34,$00
@@ -939,7 +945,7 @@ L31C4F:
 	TAX			; 9C52	$AA
 	LDA $7CE3,X		; 9C53	$BD $E3 $7C
 	BNE L31C5E		; 9C56	$D0 $06
-	JSR $FD5B		; 9C58	$20 $5B $FD	ppu (menu area) scroll / sound
+	JSR Wait_MENU_snd	; 9C58	$20 $5B $FD
 .byte $4C,$DA,$9B
 L31C5E:
 	RTS			; 9C5E	$60
@@ -947,10 +953,10 @@ L31C5E:
 L31C5F:
 	CMP #$02		; 9C5F	$C9 $02
 	BNE L31C66		; 9C61	$D0 $03
-	JMP $FD5B		; 9C63	$4C $5B $FD	key B pressed - ppu (menu area) scroll / sound
+	JMP Wait_MENU_snd	; 9C63	$4C $5B $FD	key B pressed
 ;
 L31C66:
-	JSR $FD5B		; 9C66	$20 $5B $FD	ppu (menu area) scroll / sound
+	JSR Wait_MENU_snd	; 9C66	$20 $5B $FD
 	JMP $9BDA		; 9C69	$4C $DA $9B
 ;
 
@@ -992,7 +998,7 @@ L31C7C:
 	STA $64			; 9CA8	$85 $64
 	LDA #$02		; 9CAA	$A9 $02
 	STA $65			; 9CAC	$85 $65		$0240 OAM[16]
-	JSR $9D02		; 9CAE	$20 $02 $9D
+	JSR Move_OAM_XY		; 9CAE	$20 $02 $9D	set cursor OAM X,Y position
 	JSR $FAE4		; 9CB1	$20 $E4 $FA
 	LDA $7CBA		; 9CB4	$AD $BA $7C
 	BEQ L31CBC		; 9CB7	$F0 $03
@@ -1017,7 +1023,7 @@ L31CBC:
 	STA $65			; 9CDA	$85 $65
 	LDA #$40		; 9CDC	$A9 $40
 	STA $64			; 9CDE	$85 $64
-	JSR $9D02		; 9CE0	$20 $02 $9D	set cursor OAM X,Y position
+	JSR Move_OAM_XY		; 9CE0	$20 $02 $9D	set cursor OAM X,Y position
 .byte $A5,$58,$8D,$57,$02,$A5,$57,$8D,$54,$02,$A9,$02,$85
 .byte $65,$A9,$50,$85,$64,$20,$02,$9D,$4C,$01,$9D
 L31CFB:
@@ -1030,9 +1036,11 @@ L31D01:
 	RTS			; 9D01	$60
 ; End of
 
-; Name	:
+; Name	: Move_OAM_XY
 ; Marks	: $64(ADDR) = OAM address
 ;	  Set OAM position 2 x 2
+;	  Base X,Y tile is Right Top(RT)
+Move_OAM_XY:
 	LDY #$04		; 9D02	$A0 $04
 	LDA ($64),Y		; 9D04	$B1 $64		OAM_Y[+1]
 	STA $62			; 9D06	$85 $62		Y
@@ -1076,7 +1084,7 @@ L31D01:
 	LDA $63			; 9D3F	$A5 $63
 	STA ($64),Y		; 9D41	$91 $64		OAM_X[+4]
 	RTS			; 9D43	$60
-; End of
+; End of Move_OAM_XY
 
 .byte $20,$46,$FD,$20,$90,$94,$A9,$C7,$8D,$01,$76,$A9
 .byte $C9,$8D,$02,$76,$A0,$0C,$B1,$80,$85,$62,$C8,$B1,$80,$85,$63,$20
@@ -1856,9 +1864,9 @@ Get_stat_status2:
 .byte $A9,$14,$A6,$AD,$9D,$BA,$7F,$E6,$AD,$60,$AD,$BA,$7F,$C9,$14,$F0
 .byte $1C,$A0,$0A,$B1,$A1,$C8,$11,$A1,$D0,$13,$A0,$12,$B1,$A1,$D0,$04
 .byte $A9,$15,$D0,$02,$A9,$16,$A6,$AD,$9D,$BA,$7F,$E6,$AD,$60,$90,$58
-.byte $90,$F0,$90,$00,$FF,$C0,$A8,$C0,$B8
-;; $BFC9 - data block
-.byte $C0,$C8,$C0,$D8,$48,$B8,$48
+.byte $90,$F0,$90,$00,$FF
+;; $BFC5 - data block: OAM X, Y position ( cursor ?? )
+.byte $C0,$A8,$C0,$B8,$C0,$C8,$C0,$D8,$48,$B8,$48
 .byte $D8,$A0,$B8,$A0,$C8,$08,$A8,$08,$B8,$08,$C8,$08,$D8,$30,$A8,$30
 .byte $B8,$30,$C8,$30,$D8,$58,$A8,$58,$B8,$58,$C8,$58,$D8,$80,$A8,$80
 .byte $B8,$80,$C8,$80,$D8,$5A,$94,$86,$94,$44,$9D,$78,$9F,$9F,$9F,$9F
