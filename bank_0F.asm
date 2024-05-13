@@ -17,9 +17,15 @@
 .export	Set_cursor		;DEA1
 .export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
+.export	Copy_char_tile		;FBBA
+.export	Set_wpn_pal		;FC03
+.export	Multi			;FC79
 .export DoDivision		;FCC3
+.export	Weapon_type		;FDC7
 .export Wait_NMI_end		;FD46
 .export	Wait_MENU_snd		;FD5B
+.export	Set_buf_to_Ppu		;FD6F
+.export	Set_PpuAddr_00		;FD7E
 .export Wait_NMI		;FE00
 .export Swap_PRG_		;FE03
 .export	Init_variables		;FFB0
@@ -8492,7 +8498,7 @@ L3FA65:
     LDA #$00                 ; FA69  $A9 $00
     BEQ L3FA7F               ; FA6B  $F0 $12
 ; Name	: Swap_bank_05
-; Marks	: Swap bank to 05h
+; Marks	: Swap bank to 05h (map bg tilemaps/monster names/sound effects ... etc)
 Swap_bank_05:
 	LDA #$05		; FA6D  $A9 $05
 	BNE Swap_PRG_1		; FA6F  $D0 $10
@@ -8502,11 +8508,12 @@ Swap_bank_05:
 ; Marks	:
     LDA #$05                 ; FA71  $A9 $05
     BNE L3FA7F               ; FA73  $D0 $0A
-; Name	:
-; Marks	:
-    LDA #$09                 ; FA75  $A9 $09
+; Name	: Swap_bank_09
+; Marks	: Swap bank to 09h (potrait/battle graphics)
+Swap_bank_09:
+	LDA #$09		; FA75  $A9 $09
 	BNE Swap_PRG_1		; FA77  $D0 $08
-; End of
+; End of Swap_bank_09
 
 ; Name	:
 ; Marks	:
@@ -8666,7 +8673,7 @@ L3FB48:
     TAY                      ; FB5A  $A8
     TAX                      ; FB5B  $AA
 	; Tile copy to SRAM
-    JSR $FBF3                ; FB5C  $20 $F3 $FB
+    JSR Copy_to_gfxbuf                ; FB5C  $20 $F3 $FB
 	JMP Swap_PRG_tmp	; FB5F  $4C $84 $FA
 ; End of
 
@@ -8697,7 +8704,7 @@ L3FB6C:
 ; End of
 
 ;; sub start ;;
-    JSR $FA75                ; FB84  $20 $75 $FA
+    JSR Swap_bank_09                ; FB84  $20 $75 $FA
     LDA #$06                 ; FB87  $A9 $06
     STA $01                  ; FB89  $85 $01
     LDA #$E0                 ; FB8B  $A9 $E0
@@ -8720,22 +8727,26 @@ L3FB9B:
 ; End of
 
 L3FBAE:
-    JSR $FA75                ; FBAE  $20 $75 $FA
+    JSR Swap_bank_09                ; FBAE  $20 $75 $FA
     JSR Set_IRQ_JMP		; JSR L3FA2A               ; FBB1  $20 $2A $FA
     JSR L3FD6F               ; FBB4  $20 $6F $FD
 	JMP Swap_PRG_tmp	; FBB7  $4C $84 $FA
 ; End of
 
-; Name	:
-; Marks	:
+; Name	: Copy_char_tile
+; X	: Start index($7600,X)
+; Y	: Size to copy
+; SRC	: $00(ADDR) = tile address
+; Marks	: Copy character tiles to graphics buffer($7600-)
 ;; sub start ;;
-    JSR $FA75                ; FBBA  $20 $75 $FA
-    JSR $FBF3                ; FBBD  $20 $F3 $FB
+Copy_char_tile:
+	JSR Swap_bank_09	; FBBA  $20 $75 $FA
+	JSR Copy_to_gfxbuf	; FBBD  $20 $F3 $FB
 	JMP Swap_PRG_tmp	; FBC0  $4C $84 $FA
-; End of
+; End of Copy_char_tile
 
 ;; sub start ;;
-    JSR $FA75                ; FBC3  $20 $75 $FA
+    JSR Swap_bank_09                ; FBC3  $20 $75 $FA
     LDA #$00                 ; FBC6  $A9 $00
     STA $02                  ; FBC8  $85 $02
     LDA #$9A                 ; FBCA  $A9 $9A
@@ -8757,37 +8768,46 @@ L3FBAE:
     LDA #$0C                 ; FBE6  $A9 $0C
     JSR Swap_PRG             ; FBE8  $20 $1A $FE
     LDX #$00                 ; FBEB  $A2 $00
-    JSR $FBF3                ; FBED  $20 $F3 $FB
+    JSR Copy_to_gfxbuf                ; FBED  $20 $F3 $FB
     JMP L3FA65               ; FBF0  $4C $65 $FA
 
-; Name	:
+; Name	: Copy_to_gfxbuf
+; X	: Start index
 ; Y	: Size of copy data.
+; SRC	: $00(ADDR) = tile address
 ; DEST	: SRAM $7600-
-; Marks	: Char tile copy to SRAM
+; Marks	: Char tile copy to SRAM(graphic buffer)
 ;; sub start ;;
-    STY $02                  ; FBF3  $84 $02
-    LDY #$00                 ; FBF5  $A0 $00
+Copy_to_gfxbuf:
+	STY $02			; FBF3  $84 $02
+	LDY #$00		; FBF5  $A0 $00
 L3FBF7:
-    LDA ($00),Y              ; FBF7  $B1 $00
-    STA $7600,X              ; FBF9  $9D $00 $76
-    INY                      ; FBFC  $C8
-    INX                      ; FBFD  $E8
-    CPY $02                  ; FBFE  $C4 $02
-    BNE L3FBF7               ; FC00  $D0 $F5
-    RTS                      ; FC02  $60
-; End of
+	LDA ($00),Y		; FBF7  $B1 $00
+	STA $7600,X		; FBF9  $9D $00 $76
+	INY			; FBFC  $C8
+	INX			; FBFD  $E8
+	CPY $02			; FBFE  $C4 $02
+	BNE L3FBF7		; FC00  $D0 $F5		loop
+	RTS			; FC02  $60
+; End of Copy_to_gfxbuf
 
+; Name	: Set_wpn_pal
+; X	: battle palettes index
+; Y	: color palettes index(battle)
+; Marks	: bank_00
+;	  Set weapon palettes
 ;; sub start ;;
-    LDA #$00                 ; FC03  $A9 $00
-    JSR Swap_PRG             ; FC05  $20 $1A $FE
-    LDA $9700,X              ; FC08  $BD $00 $97
-    STA $79A8,Y              ; FC0B  $99 $A8 $79
-    LDA $9780,X              ; FC0E  $BD $80 $97
-    STA $79A9,Y              ; FC11  $99 $A9 $79
-    LDA $9800,X              ; FC14  $BD $00 $98
-    STA $79AA,Y              ; FC17  $99 $AA $79
+Set_wpn_pal:
+	LDA #$00		; FC03  $A9 $00
+	JSR Swap_PRG		; FC05  $20 $1A $FE
+	LDA $9700,X		; FC08  $BD $00 $97
+	STA $79A8,Y		; FC0B  $99 $A8 $79	color palettes
+	LDA $9780,X		; FC0E  $BD $80 $97
+	STA $79A9,Y		; FC11  $99 $A9 $79	color palettes
+	LDA $9800,X		; FC14  $BD $00 $98
+	STA $79AA,Y		; FC17  $99 $AA $79	color palettes
 	JMP Swap_PRG_tmp	; FC1A  $4C $84 $FA
-; End of
+; End of Set_wpn_pal
 
     LDA #$00                 ; FC1D  $A9 $00
     JSR Swap_PRG             ; FC1F  $20 $1A $FE
@@ -8852,11 +8872,15 @@ L3FC6C:
     RTS                      ; FC78  $60
 ; End of Get key on battle
 
-; Name	:
-; A	:
-; X	:
+; Name	: Multi
+; A	: multiple value
+; X	: base value
+; C	: clear needed ??
+; Ret	: $02 = Result of Low byte, $03 = Result of High byte, Carry flag
 ; Marks	: Some calcuration
+;	  ex> A: weapon(00h-3Fh), X: 09 -> 
 ;; sub start ;;
+Multi:
 	STA $00			; FC79  $85 $00
 	STX $01			; FC7B  $86 $01
 	LDX #$08		; FC7D  $A2 $08
@@ -8876,7 +8900,7 @@ L3FC90:
 	DEX			; FC94  $CA
 	BNE L3FC85		; FC95  $D0 $EE		loop
 	RTS			; FC97  $60
-; End of
+; End of Multi
 
 ; Name	:
 ; Marks	: Init ?? calc ??
@@ -9036,27 +9060,37 @@ Wait_MENU_snd:
 	LDA PpuScroll_h		; FD67  $A5 $38
 	STA PpuScroll_2005	; FD69  $8D $05 $20
 	JMP L3FA48		; FD6C  $4C $48 $FA	sound ??
-; Wait_MENU_snd
+; End of Wait_MENU_snd
 
+; Name	: Set_buf_to_Ppu
+; X	: Size to copy
+; DEST	: $00(ADDR)
+; SRC	: $02(ADDR)
+; Marks	:
 L3FD6F:
-    JSR $FD7E                ; FD6F  $20 $7E $FD
-    LDY #$00                 ; FD72  $A0 $00
-L3FD74:
-    LDA ($02),Y              ; FD74  $B1 $02
-    STA PpuData_2007         ; FD76  $8D $07 $20
-    INY                      ; FD79  $C8
-    DEX                      ; FD7A  $CA
-    BNE L3FD74               ; FD7B  $D0 $F7
-    RTS                      ; FD7D  $60
-; End of
+Set_buf_to_Ppu:
+	JSR Set_PpuAddr_00	; FD6F  $20 $7E $FD
+	LDY #$00		; FD72  $A0 $00
+Set_buf_to_Ppu_loop:
+	LDA ($02),Y		; FD74  $B1 $02
+	STA PpuData_2007	; FD76  $8D $07 $20
+	INY			; FD79  $C8
+	DEX			; FD7A  $CA
+	BNE Set_buf_to_Ppu_loop	; FD7B  $D0 $F7		loop
+	RTS			; FD7D  $60
+; End of Set_buf_to_Ppu
 
+; Name	: Set_PpuAddr_00
+; Marks	: Set PpuAddr by $00(ADDR)
 ;; sub start ;;
-    LDA PpuStatus_2002       ; FD7E  $AD $02 $20
-    LDA $01                  ; FD81  $A5 $01
-    STA PpuAddr_2006         ; FD83  $8D $06 $20
-    LDA $00                  ; FD86  $A5 $00
-    STA PpuAddr_2006         ; FD88  $8D $06 $20
-    RTS                      ; FD8B  $60
+Set_PpuAddr_00:
+	LDA PpuStatus_2002	; FD7E  $AD $02 $20
+	LDA $01			; FD81  $A5 $01
+	STA PpuAddr_2006	; FD83  $8D $06 $20
+	LDA $00			; FD86  $A5 $00
+	STA PpuAddr_2006	; FD88  $8D $06 $20
+	RTS			; FD8B  $60
+; End of Set_PpuAddr_00
 
 L3FD8C:
     TXA                      ; FD8C  $8A
@@ -9098,32 +9132,44 @@ L3FDC1:
 	JMP Swap_PRG_tmp	; FDC4  $4C $84 $FA
 ; End of
 
+; Name	: Weapon_type
+; Marks	: Set right/left weapon type
+;	  Weapon properties is in bank_0C
 ;; sub start ;;
-    LDA #$0C                 ; FDC7  $A9 $0C
-    JSR Swap_PRG             ; FDC9  $20 $1A $FE
-    LDA $D0                  ; FDCC  $A5 $D0
-    JSR $FDDF                ; FDCE  $20 $DF $FD
-    STA $1E                  ; FDD1  $85 $1E
-    LDA $D1                  ; FDD3  $A5 $D1
-    JSR $FDDF                ; FDD5  $20 $DF $FD
-    STA $1F                  ; FDD8  $85 $1F
-    LDA #$0B                 ; FDDA  $A9 $0B
-    JMP Swap_PRG             ; FDDC  $4C $1A $FE
-; End of
+Weapon_type:
+	LDA #$0C		; FDC7  $A9 $0C
+	JSR Swap_PRG		; FDC9  $20 $1A $FE
+	LDA $D0			; FDCC  $A5 $D0
+	JSR Get_weapon_type	; FDCE  $20 $DF $FD
+	STA $1E			; FDD1  $85 $1E
+	LDA $D1			; FDD3  $A5 $D1
+	JSR Get_weapon_type	; FDD5  $20 $DF $FD
+	STA $1F			; FDD8  $85 $1F
+	LDA #$0B		; FDDA  $A9 $0B
+	JMP Swap_PRG		; FDDC  $4C $1A $FE
+; End of Weapon_type
 
+; Name	: Get_weapon_type
+; A	: Weapon index
+; Ret	: A(Weapon type)
+; Marks	:
+;	  $02 + F6h -> $00
+;	  $03 + 80h -> $01
+;	  $00(ADDR) = bank_0C
 ;; sub start ;;
-    LDX #$09                 ; FDDF  $A2 $09
-    JSR $FC79                ; FDE1  $20 $79 $FC
-    LDA $02                  ; FDE4  $A5 $02
-    ADC #$F6                 ; FDE6  $69 $F6
-    STA $00                  ; FDE8  $85 $00
-    LDA $03                  ; FDEA  $A5 $03
-    ADC #$80                 ; FDEC  $69 $80
-    STA $01                  ; FDEE  $85 $01
-    LDY #$00                 ; FDF0  $A0 $00
-    LDA ($00),Y              ; FDF2  $B1 $00
-    RTS                      ; FDF4  $60
-; End of
+Get_weapon_type:
+	LDX #$09		; FDDF  $A2 $09
+	JSR Multi		; FDE1  $20 $79 $FC	get weapon properties address
+	LDA $02			; FDE4  $A5 $02
+	ADC #$F6		; FDE6  $69 $F6
+	STA $00			; FDE8  $85 $00
+	LDA $03			; FDEA  $A5 $03
+	ADC #$80		; FDEC  $69 $80
+	STA $01			; FDEE  $85 $01
+	LDY #$00		; FDF0  $A0 $00
+	LDA ($00),Y		; FDF2  $B1 $00		ex> 82EEh - weapon properties(type)
+	RTS			; FDF4  $60
+; End of Get_weapon_type
 
  ;data block---
 ;; [FDF5 : 3FE05]

@@ -147,6 +147,8 @@ entity_counter     = $9E
 
 ; ========== BATTLE VARIABLES ==========
 
+char_idx_atk		= $26
+target_idx		= $27
 PpuScroll_2nd		= $37
 PpuScroll_h		= $38
 PpuScroll_1st		= $39
@@ -337,6 +339,7 @@ ch_stats_2		 = unsram + $0140
 ch_stats_3		 = unsram + $0180
 ch_stats_4		 = unsram + $01C0
 ch_stats                 = unsram + $0100 ; $40 bytes per character, so use 00,40,80,C0 to index ch_stats
+; h___ cccc : h = right-handed(00h), left-handed(80h), c = ch_id
 ch_id                    = ch_stats + $00 ; portrait and sprite; high bit set = don't display anything
 ;	00 = Firion
 ;	01 = Maria

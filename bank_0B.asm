@@ -2,8 +2,14 @@
 .include "variables.inc"
 
 .import Set_IRQ_JMP		;FA2A
+.import	Copy_char_tile		;FBBA
+.import	Set_wpn_pal		;FC03
+.import	Multi			;FC79
+.import	Weapon_type		;FDC7
 .import Wait_NMI_end		;FD46
 .import	Wait_MENU_snd		;FD5B
+.import	Set_buf_to_Ppu		;FD6F
+.import	Set_PpuAddr_00		;FD7E
 
 .segment "BANK_0B"
 
@@ -303,12 +309,16 @@
 ; ========== monster min/max counts (122 * 4 bytes) ($8BA0-$8D87) END ==========
 
 
-; ========== monster min/max counts (122 * 4 bytes) ($8D88-$8D87) START ==========
+; ========== weapon palettes offset (53 bytes) ($8D88-$8DBD) START ==========
+; by weapon( from Knife(3Ah(00h)) to Yoichi Bow(6Fh(35h))
+; bank_00 -> $9700,X $9780,X $9800,X
 ;; [$8D88 :: 0x2CD88]
 .byte $60,$65,$67,$63,$6E,$6D,$6B,$6F
 .byte $60,$67,$70,$6A,$69,$61,$63,$73,$60,$64,$67,$70,$6F,$61,$6A,$71
 .byte $63,$6D,$64,$67,$71,$68,$66,$62,$6F,$61,$6A,$63,$6B,$6C,$60,$60
 .byte $64,$67,$6F,$69,$62,$63,$6F,$60,$67,$74,$61,$6A,$69,$72
+; ========== weapon palettes offset (53 bytes) ($8D88-$8DBD) END ==========
+
 
 ; ========== monster widths ($8DBE-$8DCD) START ==========
 ;; [$8DBE :: 0x2CDBE]
@@ -425,10 +435,13 @@
 .byte $00,$08,$00,$08,$00,$08,$F8,$00,$08,$F8,$00,$08
 .byte $FC,$04,$FC,$04,$FC,$04,$00,$00,$08,$08,$10,$10,$08,$08,$08,$10
 .byte $10,$10,$F8,$F8,$00,$00,$08,$08
-;; [$9288 :: 0x2D288] (8 * 6 bytes)
-.byte $00,$01,$02,$03,$04,$05,$00,$01
-.byte $02,$03,$06,$07,$00,$01,$08,$09,$0A,$0B,$00,$0F,$02,$11,$06,$07
-.byte $0E,$0F,$10,$11,$12,$13,$00,$01
+;; [$9288 :: 0x2D288] (8 * 6 bytes) (6 * 6 bytes ??)
+.byte $00,$01,$02,$03,$04,$05
+.byte $00,$01,$02,$03,$06,$07
+.byte $00,$01,$08,$09,$0A,$0B
+.byte $00,$0F,$02,$11,$06,$07
+.byte $0E,$0F,$10,$11,$12,$13
+.byte $00,$01
 
 
 ; ========== status info (4 * 15 bytes) ($92A8-$92F3) START ==========
@@ -474,8 +487,16 @@
 .byte $02,$02,$02,$02,$42,$42,$42,$42,$02,$42,$82,$C2,$08,$F8,$F0,$00
 .byte $10,$F8,$FC,$04,$FC,$0A,$08,$02,$31,$04,$00,$33,$04,$02,$35,$04
 .byte $00,$37,$04,$04,$39,$04,$00,$3B,$04,$05,$3D,$04,$00,$3F,$04,$00
-.byte $08,$00,$00,$08,$52,$53,$00,$51,$50,$53,$52,$01,$53,$50,$00,$00
-.byte $01,$01,$01,$01,$01,$03,$01,$03,$02,$06,$05,$01,$02,$02,$06,$05
+.byte $08,$00,$00,$08,$52,$53,$00,$51,$50,$53,$52,$01,$53,$50
+; $93DE - weapon type ?? (action type ??)
+.byte $00			; 93DE	fist
+.byte $00
+.byte $01,$01,$01,$01,$01
+.byte $03			; 93E5	bow
+; $93E6 - 
+.byte $01,$03,$02,$06,$05
+; $93EB	-
+.byte $01,$02,$02,$06,$05
 .byte $01,$04,$02,$02,$05,$01,$06,$02,$02,$05,$00,$00,$08,$08,$10,$10
 
 ;; [$9400 :: 0x2D400]
@@ -523,7 +544,7 @@
 ; Subroutine list
 	JMP $9D63		; 9600	$4C $63 $9D
 	JMP $9D68		; 9603	$4C $68 $9D
-	JMP $9D7C		; 9606	$4C $7C $9D
+	JMP Apply_palettes	; 9606	$4C $7C $9D
 	JMP $9D58		; 9609	$4C $58 $9D
 	JMP $9D5B		; 960C	$4C $5B $9D
 	JMP $9DA2		; 960F	$4C $A2 $9D	tile copy ppu
@@ -550,7 +571,7 @@
 	LDA $7B4C		; 9648	$AD $4C $7B
 	AND #$03		; 964B	$29 $03
 	LDX #$0E		; 964D	$A2 $0E
-	JSR $FC79		; 964F	$20 $79 $FC
+	JSR Multi		; 964F	$20 $79 $FC
 	LDA $02			; 9652	$A5 $02
 	ADC #$80		; 9654	$69 $80
 	STA $03			; 9656	$85 $03
@@ -583,7 +604,7 @@ L2D686:
 	JSR $A04E		; 9695	$20 $4E $A0
 	LDX $7B49		; 9698	$AE $49 $7B
 	LDY #$09		; 969B	$A0 $09
-	JSR $FC03		; 969D	$20 $03 $FC
+	JSR Set_wpn_pal		; 969D	$20 $03 $FC
 	JSR $9E54		; 96A0	$20 $54 $9E
 	; PPU set Some data : ??
 	JSR $9FAE		; 96A3	$20 $AE $9F
@@ -594,7 +615,7 @@ L2D686:
 	STA $79B5		; 96B1	$8D $B5 $79
 	LDA #$30		; 96B4	$A9 $30
 	STA $79B7		; 96B6	$8D $B7 $79
-	JSR $9E33		; 96B9	$20 $33 $9E
+	JSR Apply_OAM_pal	; 96B9	$20 $33 $9E
 	LDA #$08		; 96BC	$A9 $08
 	STA $36			; 96BE	$85 $36
 	JMP $FB06		; 96C0	$4C $06 $FB
@@ -604,7 +625,7 @@ L2D686:
 ; Marks	:
 	JSR $973E		; 96C3	$20 $3E $97
 	JSR $FA2A		; 96C6	$20 $2A $FA	Wait NMI
-	JSR $9D7C		; 96C9	$20 $7C $9D
+	JSR Apply_palettes	; 96C9	$20 $7C $9D
 	LDA #$90		; 96CC	$A9 $90
 	STA PpuControl_2000	; 96CE	$8D $00 $20
 	STA $3A			; 96D1	$85 $3A
@@ -832,7 +853,7 @@ L2D87A:
 	STA $7B4A		; 987A	$8D $4A $7B
 	PLA			; 987D	$68
 	LDX #$08		; 987E	$A2 $08
-	JSR $FC79		; 9880	$20 $79 $FC
+	JSR Multi		; 9880	$20 $79 $FC
 	LDA $02			; 9883	$A5 $02
 	ADC #$20		; 9885	$69 $20
 	STA $0A			; 9887	$85 $0A
@@ -846,7 +867,7 @@ L2D87A:
 	TAY			; 9897	$A8
 	LDA ($0A),Y		; 9898	$B1 $0A
 	LDX #$04		; 989A	$A2 $04
-	JSR $FC79		; 989C	$20 $79 $FC
+	JSR Multi		; 989C	$20 $79 $FC
 	LDA $02			; 989F	$A5 $02
 	ADC #$A0		; 98A1	$69 $A0
 	STA $0C			; 98A3	$85 $0C
@@ -856,7 +877,7 @@ L2D87A:
 	LDY #$05		; 98AB	$A0 $05
 	LDA ($0A),Y		; 98AD	$B1 $0A
 	LDX #$04		; 98AF	$A2 $04
-	JSR $FC79		; 98B1	$20 $79 $FC
+	JSR Multi		; 98B1	$20 $79 $FC
 	LDA $02			; 98B4	$A5 $02
 	ADC #$A0		; 98B6	$69 $A0
 	STA $0E			; 98B8	$85 $0E
@@ -1212,7 +1233,7 @@ L2DB62:
 	STA $7BCA,Y		; 9B64	$99 $CA $7B
 	TYA			; 9B67	$98
 	LDX #$1B		; 9B68	$A2 $1B
-	JSR $FC79		; 9B6A	$20 $79 $FC
+	JSR Multi		; 9B6A	$20 $79 $FC
 	LDA $02			; 9B6D	$A5 $02
 	ADC #$2C		; 9B6F	$69 $2C
 	STA $7BCE,Y		; 9B71	$99 $CE $7B
@@ -1260,7 +1281,7 @@ L2DBAF:
 ; Marks	:
 	STX $06			; 9BB4	$86 $06
 	LDA #$30		; 9BB6	$A9 $30
-	JSR $FC79		; 9BB8	$20 $79 $FC
+	JSR Multi		; 9BB8	$20 $79 $FC
 	LDA $02			; 9BBB	$A5 $02
 	ADC #$7A		; 9BBD	$69 $7A
 	STA $00			; 9BBF	$85 $00
@@ -1381,7 +1402,7 @@ L2DC8D:
 	TAY			; 9C91	$A8
 	LDA $6235,Y		; 9C92	$B9 $35 $62	back row/frond row ?
 	AND #$01		; 9C95	$29 $01
-	STA $7BBE,X		; 9C97	$9D $BE $7B
+	STA $7BBE,X		; 9C97	$9D $BE $7B	character row (0=front,1=back)
 	DEX			; 9C9A	$CA
 	BPL L2DC8D		; 9C9B	$10 $F0		loop
 	LDA #$02		; 9C9D	$A9 $02
@@ -1502,7 +1523,7 @@ L2DD4A:
 
 ; Name	:
 ; Marks	:
-	JSR $FD7E		; 9D58	$20 $7E $FD
+	JSR Set_PpuAddr_00	; 9D58	$20 $7E $FD
 ; Name	:
 ; Marks	:
 L2DD5B:
@@ -1516,7 +1537,7 @@ L2DD5B:
 ; Name	:
 ; Marks	:
 	PHA			; 9D63	$48
-	JSR $FD7E		; 9D64	$20 $7E $FD
+	JSR Set_PpuAddr_00	; 9D64	$20 $7E $FD
 	PLA			; 9D67	$68
 ; Name	:
 ; Marks	:
@@ -1531,30 +1552,33 @@ L2DD68:
 .byte $A9
 .byte $0F,$A2,$1C,$9D,$A8,$79,$20,$03,$9E,$10,$F8,$60
 
-; Name	:
+; Name	: Apply_palettes
 ; Marks	:
+Apply_palettes:
 	LDA PpuStatus_2002	; 9D7C	$AD $02 $20
-	JSR $9D97		; 9D7F	$20 $97 $9D
+	JSR Set_PpuAddr_3F00	; 9D7F	$20 $97 $9D
 L2DD82:
-	LDA $79A8,X		; 9D82	$BD $A8 $79
+	LDA $79A8,X		; 9D82	$BD $A8 $79	color palettes
 	STA PpuData_2007	; 9D85	$8D $07 $20
 	INX			; 9D88	$E8
 	CPX #$20		; 9D89	$E0 $20
-	BNE L2DD82		; 9D8B	$D0 $F5
-	JSR $9D97		; 9D8D	$20 $97 $9D
+	BNE L2DD82		; 9D8B	$D0 $F5		loop
+	JSR Set_PpuAddr_3F00	; 9D8D	$20 $97 $9D
 	STX PpuAddr_2006	; 9D90	$8E $06 $20
 	STX PpuAddr_2006	; 9D93	$8E $06 $20
 	RTS			; 9D96	$60
-; End of
+; End of Apply_palettes
 
-; Name	:
-; Marks	:
+; Name	: Set_PpuAddr_3F00
+; Ret	: X = 00h
+; Marks	: palette RAM indexes($3F00-$3F1F)
+Set_PpuAddr_3F00:
 	LDA #$3F		; 9D97	$A9 $3F
 	STA PpuAddr_2006	; 9D99	$8D $06 $20
 	LDX #$00		; 9D9C	$A2 $00
 	STX PpuAddr_2006	; 9D9E	$8E $06 $20
 	RTS			; 9DA1	$60
-; End of
+; End of Set_PpuAddr_3F00
 
 ; Name	: Tile_copy_PPU
 ; SRC	: $02(ADDR) - tile address
@@ -1574,25 +1598,31 @@ L2DDB1:
 	RTS			; 9DB9	$60
 ; End of
 
-; Name	:
+; Name	: Apply_OAM_tile
+; X	: Size to copy
+; SRC	: $02(ADDR)
+; DEST	: $00(ADDR)
 ; Marks	:
-	JSR $9DC6		; 9DBA	$20 $C6 $9D
-	JSR Set_IRQ_JMP		; 9DBD	$20 $2A $FA
-	JSR $9E60		; 9DC0	$20 $60 $9E
-	JMP $FD6F		; 9DC3	$4C $6F $FD
-; End of
+Apply_OAM_tile:
+	JSR Set_02_gfxbuf	; 9DBA	$20 $C6 $9D
+	JSR Set_IRQ_JMP		; 9DBD	$20 $2A $FA	Wait_NMI
+	JSR Copy_OAM_dma_	; 9DC0	$20 $60 $9E
+	JMP Set_buf_to_Ppu	; 9DC3	$4C $6F $FD
+; End of Apply_OAM_tile
 
-; Name	:
-; Marks	:
+; Name	: Set_02_gfxbuf
+; Marks	: Set $02(ADDR) to $7600
+Set_02_gfxbuf:
 	LDA #$00		; 9DC6	$A9 $00
 	STA $02			; 9DC8	$85 $02
 	LDA #$76		; 9DCA	$A9 $76
 	STA $03			; 9DCC	$85 $03
 	RTS			; 9DCE	$60
-; End of
+; End of Set_02_gfxbuf
 
-; Name	:
-; Marks	:
+; Name	: Init_gfx_buf
+; Marks	: Init graphic buffer ??
+Init_gfx_buf:
 	LDY #$00		; 9DCF	$A0 $00
 	LDA #$00		; 9DD1	$A9 $00
 L2DDD3:
@@ -1600,7 +1630,7 @@ L2DDD3:
 	INY			; 9DD6	$C8
 	BNE L2DDD3		; 9DD7	$D0 $FA		loop
 	RTS			; 9DD9	$60
-; End of
+; End of Init_gfx_buf
 
 ; Name	;
 ; Marks	:
@@ -1644,7 +1674,7 @@ L2DDED:
 .byte $01,$02,$A5,$03,$99,$02,$02,$A5,$00,$99,$03,$02,$4C,$FC,$9D
 L2DE1F:
 	PHA			; 9E1F	$48
-	JSR $9E33		; 9E20	$20 $33 $9E
+	JSR Apply_OAM_pal	; 9E20	$20 $33 $9E
 	PLA			; 9E23	$68
 	SEC			; 9E24	$38
 	SBC #$01		; 9E25	$E9 $01
@@ -1661,19 +1691,20 @@ Apply_OAM:
 	JMP Wait_NMI_end	; 9E30	$4C $46 $FD
 ; End of Apply_OAM
 
-; Name	:
+; Name	: Apply_OAM_pal
 ; Marks	:
-	JSR $9E3F		; 9E33	$20 $3F $9E
-	JSR $9E60		; 9E36	$20 $60 $9E
-	JSR $9D7C		; 9E39	$20 $7C $9D
-	JMP $FD46		; 9E3C	$4C $46 $FD
-; End of
+Apply_OAM_pal:
+	JSR Wait_MENU_NMI	; 9E33	$20 $3F $9E
+	JSR Copy_OAM_dma_	; 9E36	$20 $60 $9E
+	JSR Apply_palettes	; 9E39	$20 $7C $9D
+	JMP Wait_NMI_end	; 9E3C	$4C $46 $FD
+; End of Apply_OAM_pal
 
 ; Name	: Wait_MENU_NMI
 ; Marks	:
 Wait_MENU_NMI:
 	JSR Wait_MENU_snd	; 9E3F	$20 $5B $FD
-	JMP $FA2A		; 9E42	$4C $2A $FA	Wait NMI = Set_IRQ_JMP
+	JMP Set_IRQ_JMP		; 9E42	$4C $2A $FA	Wait NMI
 ; End of Wait_MENU_NMI
 
 ;9E45
@@ -1682,7 +1713,7 @@ Wait_MENU_NMI:
 ; Name	: Copy_OAM
 ; Marks	:
 Copy_OAM:
-	JSR $FA2A		; 9E4E	$20 $2A $FA	Wait NMI = Set_IRQ_JMP
+	JSR Set_IRQ_JMP		; 9E4E	$20 $2A $FA	Wait NMI
 	JMP Copy_OAM_dma_	; 9E51	$4C $60 $9E
 ; End of Copy_OAM
 
@@ -1690,7 +1721,7 @@ Copy_OAM:
 ; Marks	:
 	JSR $FA48		; 9E54	$20 $48 $FA
 	JSR Copy_OAM		; 9E57	$20 $4E $9E
-	JSR $9D7C		; 9E5A	$20 $7C $9D
+	JSR Apply_palettes	; 9E5A	$20 $7C $9D
 	JMP $FD4B		; 9E5D	$4C $4B $FD
 ; End of
 
@@ -1702,7 +1733,7 @@ Copy_OAM_dma_:
 	LDA #$02		; 9E65	$A9 $02
 	STA SpriteDma_4014	; 9E67	$8D $14 $40
 	RTS			; 9E6A	$60
-; End of Copy_OAM_dma
+; End of Copy_OAM_dma_
 
 ; $9E6B
 .byte $AD,$B0,$7C,$18,$69
@@ -1726,7 +1757,7 @@ Copy_OAM_dma_:
 	STA $01			; 9EA1	$85 $01
 	LDA #$20		; 9EA3	$A9 $20
 	STA $00			; 9EA5	$85 $00
-	JSR $FD7E		; 9EA7	$20 $7E $FD
+	JSR Set_PpuAddr_00	; 9EA7	$20 $7E $FD
 	LDA #$10		; 9EAA	$A9 $10
 	STA $02			; 9EAC	$85 $02
 	LDA #$04		; 9EAE	$A9 $04
@@ -1788,7 +1819,7 @@ L2DF0F:
 	STA $05			; 9F1A	$85 $05
 	LDA $7B92,Y		; 9F1C	$B9 $92 $7B
 	LDX #$20		; 9F1F	$A2 $20
-	JSR $FC79		; 9F21	$20 $79 $FC
+	JSR Multi		; 9F21	$20 $79 $FC
 	LDA $02			; 9F24	$A5 $02
 	ADC $7B9A,Y		; 9F26	$79 $9A $7B
 	STA $00			; 9F29	$85 $00
@@ -1931,10 +1962,10 @@ L2E04D:
 ; Marks	:
 	LDX $7B56		; A04E	$AE $56 $7B
 	LDY #$01		; A051	$A0 $01
-	JSR $FC03		; A053	$20 $03 $FC
+	JSR Set_wpn_pal		; A053	$20 $03 $FC
 	LDX $7B57		; A056	$AE $57 $7B
 	LDY #$05		; A059	$A0 $05
-	JSR $FC03		; A05B	$20 $03 $FC
+	JSR Set_wpn_pal		; A05B	$20 $03 $FC
 	LDA #$A0		; A05E	$A9 $A0
 	STA $01			; A060	$85 $01
 	JSR $9E54		; A062	$20 $54 $9E
@@ -1974,13 +2005,13 @@ L2E089:
 ; Marks	:
 	LDX #$7D		; A08D	$A2 $7D
 	LDY #$1D		; A08F	$A0 $1D
-	JSR $FC03		; A091	$20 $03 $FC
+	JSR Set_wpn_pal		; A091	$20 $03 $FC
 	INX			; A094	$E8
 	LDY #$11		; A095	$A0 $11
-	JSR $FC03		; A097	$20 $03 $FC
+	JSR Set_wpn_pal		; A097	$20 $03 $FC
 	INX			; A09A	$E8
 	LDY #$15		; A09B	$A0 $15
-	JSR $FC03		; A09D	$20 $03 $FC
+	JSR Set_wpn_pal		; A09D	$20 $03 $FC
 	LDX #$03		; A0A0	$A2 $03
 L2E0A2:
 	STX $10			; A0A2	$86 $10
@@ -1999,7 +2030,7 @@ L2E0AF:
 	DEX			; A0BF	$CA
 	BPL L2E0A2		; A0C0	$10 $E0
 L2E0C2:
-	JSR $9E33		; A0C2	$20 $33 $9E
+	JSR Apply_OAM_pal	; A0C2	$20 $33 $9E
 	LDX #$03		; A0C5	$A2 $03
 L2E0C7:
 	STX $10			; A0C7	$86 $10
@@ -2021,7 +2052,7 @@ L2E0E2:
 	BNE L2E0C2		; A0E8	$D0 $D8
 	DEX			; A0EA	$CA
 	BPL L2E0E2		; A0EB	$10 $F5
-	JSR $9E33		; A0ED	$20 $33 $9E
+	JSR Apply_OAM_pal	; A0ED	$20 $33 $9E
 	LDX #$03		; A0F0	$A2 $03
 L2E0F2:
 	STX $10			; A0F2	$86 $10
@@ -2030,7 +2061,7 @@ L2E0F2:
 	LDX $10			; A0FA	$A6 $10
 	DEX			; A0FC	$CA
 	BPL L2E0F2		; A0FD	$10 $F3
-	JMP $9E33		; A0FF	$4C $33 $9E
+	JMP Apply_OAM_pal	; A0FF	$4C $33 $9E
 ; End of
 
 ; Name	: Get_char_x
@@ -2132,7 +2163,7 @@ L2E1EE:
 	LDA #$C0		; A1F0	$A9 $C0
 	STA $00			; A1F2	$85 $00
 	LDX #$40		; A1F4	$A2 $40
-	JMP $FD6F		; A1F6	$4C $6F $FD
+	JMP Set_buf_to_Ppu	; A1F6	$4C $6F $FD
 ; End of
 
 ; Name	:
@@ -2178,7 +2209,7 @@ L2E22F:
 ; Name	:
 ; Marks	:
 	STX $04			; A265	$86 $04
-	JSR $9DCF		; A267	$20 $CF $9D
+	JSR Init_gfx_buf	; A267	$20 $CF $9D
 	LDY $7BA2,X		; A26A	$BC $A2 $7B
 	BMI L2E2A2		; A26D	$30 $33
 	BNE L2E283		; A26F	$D0 $12
@@ -2199,26 +2230,27 @@ L2E283:
 .byte $69,$80,$85,$00,$A9,$9D,$85,$01
 .byte $A2,$50,$A0,$10,$20,$BA,$FB,$98,$18,$65,$00,$85,$00,$A2,$70
 L2E29F:
-	JSR $FBBA		; A29F	$20 $BA $FB
+	JSR Copy_char_tile	; A29F	$20 $BA $FB
 L2E2A2:
-	JSR $FD5B		; A2A2	$20 $5B $FD
+	JSR Wait_MENU_snd	; A2A2	$20 $5B $FD
 	LDA $04			; A2A5	$A5 $04
 	LDX #$80		; A2A7	$A2 $80
-	JSR $FC79		; A2A9	$20 $79 $FC
+	JSR Multi		; A2A9	$20 $79 $FC
 	LDA $02			; A2AC	$A5 $02
 	STA $00			; A2AE	$85 $00
 	LDA $03			; A2B0	$A5 $03
 	STA $01			; A2B2	$85 $01
-	JSR $9DC6		; A2B4	$20 $C6 $9D
+	JSR Set_02_gfxbuf	; A2B4	$20 $C6 $9D
 	JSR $9DA2		; A2B7	$20 $A2 $9D
 	JMP $FD46		; A2BA	$4C $46 $FD
 ; End of
 
 ; Name	:
+; A	: weapon action type ??
 ; Marks	:
-	STA $08			; A2BD	$85 $08
+	STA $08			; A2BD	$85 $08		weapon action type temp ??
 	LDX $26			; A2BF	$A6 $26
-	LDA $06			; A2C1	$A5 $06
+	LDA $06			; A2C1	$A5 $06		weapon properties temp ??
 	JSR $A321		; A2C3	$20 $21 $A3
 	JSR $A2E9		; A2C6	$20 $E9 $A2
 	LDA #$80		; A2C9	$A9 $80
@@ -2260,7 +2292,7 @@ L2E2F0:
 	JSR $A321		; A30B	$20 $21 $A3
 	PLA			; A30E	$68
 	LDX #$60		; A30F	$A2 $60
-	JSR $FC79		; A311	$20 $79 $FC
+	JSR Multi		; A311	$20 $79 $FC
 	LDA $02			; A314	$A5 $02
 	STA $00			; A316	$85 $00
 	LDA $03			; A318	$A5 $03
@@ -2268,15 +2300,20 @@ L2E2F0:
 	STA $01			; A31C	$85 $01
 	JMP $A3AB		; A31E	$4C $AB $A3
 ; End of
+
+; Name	:
+; A	: weapon properties ??
+; X	:
+; Marks	:
 	STA $00			; A321	$85 $00
-	JSR $9DCF		; A323	$20 $CF $9D
-	LDA $7BA2,X		; A326	$BD $A2 $7B
+	JSR Init_gfx_buf	; A323	$20 $CF $9D
+	LDA $7BA2,X		; A326	$BD $A2 $7B	character graphics type
 	BEQ L2E32E		; A329	$F0 $03
 	BPL L2E370		; A32B	$10 $43
 	RTS			; A32D	$60
 ; End of
 L2E32E:
-	LDA $7BBA,X		; A32E	$BD $BA $7B
+	LDA $7BBA,X		; A32E	$BD $BA $7B	character id
 	ASL A			; A331	$0A
 	ADC #$9E		; A332	$69 $9E
 	STA $04			; A334	$85 $04
@@ -2284,7 +2321,7 @@ L2E32E:
 	BEQ L2E36F		; A338	$F0 $35
 	DEX			; A33A	$CA
 	LDA #$06		; A33B	$A9 $06
-	JSR $FC79		; A33D	$20 $79 $FC
+	JSR Multi		; A33D	$20 $79 $FC	Some calcuration ??
 	LDA $02			; A340	$A5 $02
 	STA $05			; A342	$85 $05
 	LDA #$00		; A344	$A9 $00
@@ -2293,9 +2330,9 @@ L2E348:
 	LDA #$00		; A348	$A9 $00
 	STA $01			; A34A	$85 $01
 	LDX $05			; A34C	$A6 $05
-	LDA $9288,X		; A34E	$BD $88 $92
+	LDA $9288,X		; A34E	$BD $88 $92	??
 	INC $05			; A351	$E6 $05
-	JSR $ADA4		; A353	$20 $A4 $AD
+	JSR $ADA4		; A353	$20 $A4 $AD	Get address ??
 	ROL $01			; A356	$26 $01
 	ADC #$00		; A358	$69 $00
 	STA $00			; A35A	$85 $00
@@ -2304,7 +2341,7 @@ L2E348:
 	STA $01			; A360	$85 $01
 	LDX $03			; A362	$A6 $03
 	LDY #$10		; A364	$A0 $10
-	JSR $FBBA		; A366	$20 $BA $FB
+	JSR Copy_char_tile	; A366	$20 $BA $FB
 	STX $03			; A369	$86 $03
 	CPX #$60		; A36B	$E0 $60
 	BNE L2E348		; A36D	$D0 $D9
@@ -2320,9 +2357,9 @@ L2E370:
 
 ; Name	:
 ; Marks	:
-	JSR $FD5B		; A3AB	$20 $5B $FD
+	JSR Wait_MENU_snd	; A3AB	$20 $5B $FD
 	LDX #$60		; A3AE	$A2 $60
-	JSR $9DBA		; A3B0	$20 $BA $9D
+	JSR Apply_OAM_tile	; A3B0	$20 $BA $9D
 	JMP $FD46		; A3B3	$4C $46 $FD
 ; End of
 
@@ -2435,7 +2472,7 @@ L2E442:
 	LDX #$06		; A455	$A2 $06
 L2E457:
 	LDA $04			; A457	$A5 $04
-	JSR $FC79		; A459	$20 $79 $FC	some calcuration ?? - character sprite low address ??
+	JSR Multi		; A459	$20 $79 $FC	some calcuration ?? - character sprite low address ??
 	LDA $02			; A45C	$A5 $02
 	STA $08			; A45E	$85 $08
 	LDA #$00		; A460	$A9 $00
@@ -2452,7 +2489,7 @@ L2E457:
 	ADC #$03		; A475	$69 $03
 L2E477:
 	LDX #$18		; A477	$A2 $18
-	JSR $FC79		; A479	$20 $79 $FC	some calcuration ?? - character sprite low address ??
+	JSR Multi		; A479	$20 $79 $FC	some calcuration ?? - character sprite low address ??
 	LDA $02			; A47C	$A5 $02
 	ADC #$00		; A47E	$69 $00
 	STA $00			; A480	$85 $00
@@ -3078,7 +3115,7 @@ L2E981:
 	LDY #$04		; A981	$A0 $04
 	LDX #$18		; A983	$A2 $18
 	JSR $9742		; A985	$20 $42 $97
-	JSR $9E33		; A988	$20 $33 $9E
+	JSR Apply_OAM_pal	; A988	$20 $33 $9E
 	LDX $00			; A98B	$A6 $00
 	LDA $7B9A,X		; A98D	$BD $9A $7B
 	STA $04			; A990	$85 $04
@@ -3269,7 +3306,7 @@ L2EABC:
 ; Marks	:
 	LDA $05			; AAC7	$A5 $05
 	LDX #$20		; AAC9	$A2 $20
-	JSR $FC79		; AACB	$20 $79 $FC
+	JSR Multi		; AACB	$20 $79 $FC
 	LDA $04			; AACE	$A5 $04
 	ADC $02			; AAD0	$65 $02
 	STA $12			; AAD2	$85 $12
@@ -3298,7 +3335,7 @@ L2EABC:
 ; Name	:
 ; Marks	:
 	JSR $9E3F		; AB7D	$20 $3F $9E
-	JSR $9E60		; AB80	$20 $60 $9E
+	JSR Copy_OAM_dma_	; AB80	$20 $60 $9E
 	LDA $12			; AB83	$A5 $12
 	STA $00			; AB85	$85 $00
 	LDA $13			; AB87	$A5 $13
@@ -3325,7 +3362,7 @@ L2EBAF:
 	INX			; ABB3	$E8
 L2EBB4:
 	LDA #$40		; ABB4	$A9 $40
-	JSR $FC79		; ABB6	$20 $79 $FC
+	JSR Multi		; ABB6	$20 $79 $FC
 	LDA $02			; ABB9	$A5 $02
 	STA $00			; ABBB	$85 $00
 	LDA #$98		; ABBD	$A9 $98
@@ -3333,13 +3370,13 @@ L2EBB4:
 	STA $01			; ABC1	$85 $01
 	LDX #$00		; ABC3	$A2 $00
 	LDY #$80		; ABC5	$A0 $80
-	JSR $FBBA		; ABC7	$20 $BA $FB
-	JSR $FD5B		; ABCA	$20 $5B $FD
+	JSR Copy_char_tile	; ABC7	$20 $BA $FB
+	JSR Wait_MENU_snd	; ABCA	$20 $5B $FD
 	LDA #$00		; ABCD	$A9 $00
 	STA $00			; ABCF	$85 $00
 	LDA #$05		; ABD1	$A9 $05
 	STA $01			; ABD3	$85 $01
-	JSR $9DC6		; ABD5	$20 $C6 $9D
+	JSR Set_02_gfxbuf	; ABD5	$20 $C6 $9D
 	JSR $9DA2		; ABD8	$20 $A2 $9D
 	JMP $FD46		; ABDB	$4C $46 $FD
 ; End of
@@ -3533,7 +3570,7 @@ L2ED21:
 ; Name	:
 ; Marks	:
 	LDX #$05		; AD64	$A2 $05
-	JSR $FC79		; AD66	$20 $79 $FC
+	JSR Multi		; AD66	$20 $79 $FC
 	LDA $02			; AD69	$A5 $02
 	ADC #$55		; AD6B	$69 $55
 	STA $00			; AD6D	$85 $00
@@ -3567,6 +3604,7 @@ L2ED87:
 .byte $AD,$0A
 
 ; Name	: Calc_char_addr
+; A	: character index (00h, 01h, 02h, 03h)
 ; Ret	: A
 ; Marks	: character id to address
 ;	  00h -> 00h
@@ -3623,7 +3661,7 @@ Calc_char_addr:
 
 	JSR Wait_NMI_end	; AF32	$20 $46 $FD
 	JSR $9DE7		; AF35	$20 $E7 $9D
-	JSR $9DCF		; AF38	$20 $CF $9D
+	JSR Init_gfx_buf	; AF38	$20 $CF $9D
 	LDX #$03		; AF3B	$A2 $03
 	STX $04			; AF3D	$86 $04
 L2EF3F:
@@ -3649,7 +3687,7 @@ L2EF6E:
 	STA $00			; AF79	$85 $00
 	LDA #$03		; AF7B	$A9 $03
 	STA $01			; AF7D	$85 $01
-	JSR $9DC6		; AF7F	$20 $C6 $9D
+	JSR Set_02_gfxbuf	; AF7F	$20 $C6 $9D
 	JSR $9DA2		; AF82	$20 $A2 $9D
 	JSR Wait_NMI_end	; AF85	$20 $46 $FD
 	JSR Wait_MENU_snd	; AF88	$20 $5B $FD
@@ -3657,14 +3695,14 @@ L2EF6E:
 	STA $00			; AF8D	$85 $00
 	LDA #$04		; AF8F	$A9 $04
 	STA $01			; AF91	$85 $01
-	JSR $9DC6		; AF93	$20 $C6 $9D
+	JSR Set_02_gfxbuf	; AF93	$20 $C6 $9D
 	SEC			; AF96	$38
 	ROR $02			; AF97	$66 $02
 	JSR $9DA2		; AF99	$20 $A2 $9D
 	JSR Wait_NMI_end	; AF9C	$20 $46 $FD
 	LDY #$19		; AF9F	$A0 $19
 	LDX #$7C		; AFA1	$A2 $7C
-	JSR $FC03		; AFA3	$20 $03 $FC
+	JSR Set_wpn_pal		; AFA3	$20 $03 $FC
 	LDX #$03		; AFA6	$A2 $03
 L2EFA8:
 	TXA			; AFA8	$8A
@@ -3687,7 +3725,7 @@ L2EFA8:
 	BPL L2EFA8		; AFBF	$10 $E7
 	LDA #$80		; AFC1	$A9 $80
 	STA $43			; AFC3	$85 $43
-	JSR $9E33		; AFC5	$20 $33 $9E
+	JSR Apply_OAM_pal	; AFC5	$20 $33 $9E
 	JMP Wait_MENU_snd	; AFC8	$4C $5B $FD
 ; End of
 
@@ -3799,24 +3837,24 @@ L2F048:
 
 ; $B071 - attack ??
 	JSR Wait_NMI_end	; B071	$20 $46 $FD
-	LDX $26			; B074	$A6 $26
+	LDX char_idx_atk	; B074	$A6 $26
 	CPX #$04		; B076	$E0 $04
 	BCC L2F07D		; B078	$90 $03
 	JMP $B0E8		; B07A	$4C $E8 $B0
 L2F07D:
 	LDA $2B			; B07D	$A5 $2B
 	BNE L2F0E5		; B07F	$D0 $64
-	LDX $26			; B081	$A6 $26
-	JSR $A620		; B083	$20 $20 $A6
-	JSR $B469		; B086	$20 $69 $B4
+	LDX char_idx_atk	; B081	$A6 $26
+	JSR Char_mov_act	; B083	$20 $20 $A6
+	JSR $B469		; B086	$20 $69 $B4	Check weapon ??
 	LDX #$01		; B089	$A2 $01
 L2F08B:
-	STX $22			; B08B	$86 $22
-	LDA $20,X		; B08D	$B5 $20
+	STX $22			; B08B	$86 $22		loop counter ??
+	LDA $20,X		; B08D	$B5 $20		weapon action type ??
 	BEQ L2F0D0		; B08F	$F0 $3F
 	TXA			; B091	$8A
 	BEQ L2F096		; B092	$F0 $02
-	LDA #$0A		; B094	$A9 $0A
+	LDA #$0A		; B094	$A9 $0A		left hand ??
 L2F096:
 	CLC			; B096	$18
 	ADC $20,X		; B097	$75 $20
@@ -3825,15 +3863,15 @@ L2F096:
 	STA $06			; B09D	$85 $06
 	LDA $93EB,Y		; B09F	$B9 $EB $93
 	STA $07			; B0A2	$85 $07
-	LDX $26			; B0A4	$A6 $26
-	LDA $7BA2,X		; B0A6	$BD $A2 $7B
+	LDX $26			; B0A4	$A6 $26		X = character index
+	LDA $7BA2,X		; B0A6	$BD $A2 $7B	character graphics type
 	BEQ L2F0B2		; B0A9	$F0 $07
 	LDX #$02		; B0AB	$A2 $02
 	STX $06			; B0AD	$86 $06
 	INX			; B0AF	$E8
 	STX $07			; B0B0	$86 $07
 L2F0B2:
-	LDX $22			; B0B2	$A6 $22
+	LDX $22			; B0B2	$A6 $22		loop counter ??
 	LDA $20,X		; B0B4	$B5 $20
 	JSR $A2BD		; B0B6	$20 $BD $A2
 	LDX $22			; B0B9	$A6 $22
@@ -3850,7 +3888,7 @@ L2F0C5:
 L2F0D0:
 	LDX $22			; B0D0	$A6 $22
 	DEX			; B0D2	$CA
-	BPL L2F08B		; B0D3	$10 $B6
+	BPL L2F08B		; B0D3	$10 $B6		loop
 	JSR $9DE7		; B0D5	$20 $E7 $9D
 	LDX $26			; B0D8	$A6 $26
 	JSR $A43A		; B0DA	$20 $3A $A4
@@ -3947,11 +3985,29 @@ L2F190:
 L2F193:
 	JMP $B196		; B193	$4C $96 $B1
 	JMP $9E2A		; B196	$4C $2A $9E
-;B199
-.byte $A9,$20,$85,$00,$A9,$93,$85
-.byte $01,$A2,$00,$A0,$60,$20,$BA,$FB,$20,$5B,$FD,$A9,$40,$85,$00,$A9
-.byte $04,$85,$01,$A2,$60,$20,$BA,$9D,$20,$46,$FD,$A2,$00,$86,$18,$20
-.byte $36,$B4,$A6,$18,$B5,$20,$20,$D2,$B1,$E6,$18,$A6,$18,$E0,$02,$D0
+; End of
+
+; Name	:
+; Marks	: $00(ADDR) = $9320 = battle animation graphics
+	LDA #$20		; B199	$A9 $20
+	STA $00			; B19B	$85 $00
+	LDA #$93		; B19D	$A9 $93
+	STA $01			; B19F	$85 $01
+	LDX #$00		; B1A1	$A2 $00
+	LDY #$60		; B1A3	$A0 $60
+	JSR Copy_char_tile	; B1A5	$20 $BA $FB
+	JSR Wait_MENU_snd	; B1A8	$20 $5B $FD
+	LDA #$40		; B1AB	$A9 $40
+	STA $00			; B1AD	$85 $00
+	LDA #$04		; B1AF	$A9 $04
+	STA $01			; B1B1	$85 $01
+	LDX #$60		; B1B3	$A2 $60
+	JSR Apply_OAM_tile	; B1B5	$20 $BA $9D
+	JSR Wait_NMI_end	; B1B8	$20 $46 $FD
+	LDX #$00		; B1BB	$A2 $00
+	STX $18			; B1BD	$86 $18
+	JSR $B436		; B1BF	$20 $36 $B4
+.byte $A6,$18,$B5,$20,$20,$D2,$B1,$E6,$18,$A6,$18,$E0,$02,$D0
 .byte $EE,$60,$A8,$D0,$01,$60,$24,$28,$70,$01,$60,$88,$D0,$03,$4C,$91
 .byte $B2,$88,$D0,$03,$4C,$44,$B3,$20,$01,$9E,$86,$16,$A2,$07,$A9,$F0
 .byte $95,$0A,$CA,$10,$FB,$A9,$01,$85,$1D,$A6,$9C,$E0,$04,$90,$07,$8A
@@ -4002,24 +4058,25 @@ L2F193:
 .byte $95,$0A,$CA,$10,$F2,$60
 
 ; Name	:
+; X	:
 ; Marks	:
 	STX $00			; B436	$86 $00
-	LDY $20,X		; B438	$B4 $20
-	LDX $7CB1		; B43A	$AE $B1 $7C
+	LDY $20,X		; B438	$B4 $20		weapon action type ??
+	LDX $7CB1		; B43A	$AE $B1 $7C	attack animation palette
 	CPY #$04		; B43D	$C0 $04
 	BEQ L2F44E		; B43F	$F0 $0D
 	LDX $00			; B441	$A6 $00
-	LDA $D0,X		; B443	$B5 $D0
+	LDA $D0,X		; B443	$B5 $D0		right hand weapon temp ??
 	SEC			; B445	$38
 	SBC #$0A		; B446	$E9 $0A
-	BMI L2F453		; B448	$30 $09
+	BMI L2F453		; B448	$30 $09		if shield or fist
 	TAY			; B44A	$A8
-	LDX $8D88,Y		; B44B	$BE $88 $8D
+	LDX $8D88,Y		; B44B	$BE $88 $8D	weapon palettes offset
 L2F44E:
 	LDY #$19		; B44E	$A0 $19
-	JSR $FC03		; B450	$20 $03 $FC
+	JSR Set_wpn_pal		; B450	$20 $03 $FC
 L2F453:
-	JMP $9E33		; B453	$4C $33 $9E
+	JMP Apply_OAM_pal	; B453	$4C $33 $9E
 ; End of
 
 ;B456
@@ -4027,21 +4084,21 @@ L2F453:
 .byte $AD,$45,$44,$44,$45,$02,$02,$02,$C2
 
 ; Name	:
-; Marks	:
-	LDA $26			; B469	$A5 $26
-	JSR $ADA2		; B46B	$20 $A2 $AD
+; Marks	: Check left/right hand for weapon
+	LDA char_idx_atk	; B469	$A5 $26
+	JSR Calc_char_addr	; B46B	$20 $A2 $AD
 	TAX			; B46E	$AA
-	LDA $6100,X		; B46F	$BD $00 $61
-	AND #$80		; B472	$29 $80
-	STA $25			; B474	$85 $25
-	LDA $611C,X		; B476	$BD $1C $61
+	LDA ch_stats,X		; B46F	$BD $00 $61
+	AND #$80		; B472	$29 $80		l/r hand
+	STA $25			; B474	$85 $25		l/r hand ??
+	LDA $611C,X		; B476	$BD $1C $61	right hand weapon
 	SEC			; B479	$38
 	SBC #$30		; B47A	$E9 $30
-	STA $D0			; B47C	$85 $D0
-	LDA $611D,X		; B47E	$BD $1D $61
+	STA $D0			; B47C	$85 $D0		right hand weapon temp(1st weapon is Buckler:31h)
+	LDA $611D,X		; B47E	$BD $1D $61	left hand waepon
 	SEC			; B481	$38
 	SBC #$30		; B482	$E9 $30
-	STA $D1			; B484	$85 $D1
+	STA $D1			; B484	$85 $D1		left hand weapon temp
 	LDA #$00		; B486	$A9 $00
 	STA $20			; B488	$85 $20
 	STA $21			; B48A	$85 $21
@@ -4052,19 +4109,19 @@ L2F453:
 	RTS			; B494	$60
 ; End of
 L2F495:
-	JSR $FDC7		; B495	$20 $C7 $FD
-	LDX #$01		; B498	$A2 $01
+	JSR Weapon_type		; B495	$20 $C7 $FD
+	LDX #$01		; B498	$A2 $01		left hand ??
 L2F49A:
 	LDY $1E,X		; B49A	$B4 $1E
-	LDA $93DE,Y		; B49C	$B9 $DE $93
+	LDA $93DE,Y		; B49C	$B9 $DE $93	weapon action type ??
 	STA $20,X		; B49F	$95 $20
 	DEX			; B4A1	$CA
-	BPL L2F49A		; B4A2	$10 $F6
-	LDA $1E			; B4A4	$A5 $1E
-	ORA $1F			; B4A6	$05 $1F
+	BPL L2F49A		; B4A2	$10 $F6		loop
+	LDA $1E			; B4A4	$A5 $1E		right hand weapon type temp ??
+	ORA $1F			; B4A6	$05 $1F		left hand weapon type temp ??
 	CMP #$02		; B4A8	$C9 $02
 	BCS L2F4B4		; B4AA	$B0 $08
-	LDX #$02		; B4AC	$A2 $02
+	LDX #$02		; B4AC	$A2 $02		equipped with a shield or fist
 	LDY #$00		; B4AE	$A0 $00
 	STX $20			; B4B0	$86 $20
 	STY $21			; B4B2	$84 $21
@@ -4206,7 +4263,7 @@ L2F5BA:
 	LDA $16			; B5C7	$A5 $16
 	JSR $AC4B		; B5C9	$20 $4B $AC
 L2F5CC:
-	JSR $9E33		; B5CC	$20 $33 $9E
+	JSR Apply_OAM_pal	; B5CC	$20 $33 $9E
 	LDA $17			; B5CF	$A5 $17
 	JMP $9E1F		; B5D1	$4C $1F $9E
 ; End of
