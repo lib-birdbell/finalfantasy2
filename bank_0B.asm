@@ -1638,10 +1638,14 @@ L2DDD3:
 	LDX #$18		; 9DDD	$A2 $18
 	BNE L2DDEB		; 9DDF	$D0 $0A
 ; End of
+
+; Name	:
+; Marks	: Reset OAM buffer. From $0270-$02AF
 	LDY #$70		; 9DE1	$A0 $70
 	LDX #$30		; 9DE3	$A2 $30
 	BNE L2DDEB		; 9DE5	$D0 $04
 ; End of
+
 ; Name	:
 ; Marks	:
 	LDX #$9C		; 9DE7	$A2 $9C
@@ -1657,8 +1661,13 @@ L2DDED:
 ; End of
 
 ;9DF5 - data block
-.byte $A0,$B8,$D0,$E8,$99,$00,$02
+.byte $A0,$B8,$D0,$E8
 
+; Name	:
+; A	:
+; Y	:
+; Marks	:
+	STA $0200,Y		; 9DF9	$99 $00 $02
 ; Name	:
 ; Marks	:
 	INY			; 9DFC	$C8
@@ -1670,7 +1679,17 @@ L2DDED:
 
 ;; [$9E00 :: 0x2DE00]
 
-.byte $A6,$27,$CA,$CA,$CA,$CA,$60,$A5,$01,$99,$00,$02,$A5,$02,$99
+; Name	:
+; Marks	:
+	LDX $27			; 9E01	$A6 $27
+	DEX			; 9E03	$CA
+	DEX			; 9E04	$CA
+	DEX			; 9E05	$CA
+	DEX			; 9E06	$CA
+	RTS			; 9E07	$60
+; End of
+
+.byte $A5,$01,$99,$00,$02,$A5,$02,$99
 .byte $01,$02,$A5,$03,$99,$02,$02,$A5,$00,$99,$03,$02,$4C,$FC,$9D
 L2DE1F:
 	PHA			; 9E1F	$48
@@ -1740,8 +1759,9 @@ Copy_OAM_dma_:
 .byte $10,$AA
 
 ; Name	:
+; X	:
 ; Marks	:
-	LDA $930B,X		; 9E72	$BD $0B $93
+	LDA $930B,X		; 9E72	$BD $0B $93	battle sound effect ??
 	TAX			; 9E75	$AA
 	JMP $FA59		; 9E76	$4C $59 $FA
 ; End of
@@ -3212,7 +3232,7 @@ L2EA26:
 	BEQ L2EA3B		; AA32	$F0 $07
 	DEY			; AA34	$88
 	LDX $ABA7,Y		; AA35	$BE $A7 $AB
-	JSR $9E72		; AA38	$20 $72 $9E
+	JSR $9E72		; AA38	$20 $72 $9E	sound effect ??
 L2EA3B:
 	LDA #$00		; AA3B	$A9 $00
 	STA $12			; AA3D	$85 $12
@@ -3286,7 +3306,7 @@ L2EAAF:
 	JMP $AA43		; AAAF	$4C $43 $AA
 L2EAB2:
 	JSR $9DE7		; AAB2	$20 $E7 $9D
-	JMP $9E2A		; AAB5	$4C $2A $9E
+	JMP Apply_OAM		; AAB5	$4C $2A $9E
 ; End of
 
 ; Name	:
@@ -3394,7 +3414,7 @@ L2EBB4:
 	JSR $9B8F		; ABF2	$20 $8F $9B
 	LDX $27			; ABF5	$A6 $27
 	JSR $A43A		; ABF7	$20 $3A $A4
-	JMP $9E2A		; ABFA	$4C $2A $9E
+	JMP Apply_OAM		; ABFA	$4C $2A $9E
 ; End of
 
 ; Name	:
@@ -3892,7 +3912,7 @@ L2F0D0:
 	JSR $9DE7		; B0D5	$20 $E7 $9D
 	LDX $26			; B0D8	$A6 $26
 	JSR $A43A		; B0DA	$20 $3A $A4
-	JSR $9E2A		; B0DD	$20 $2A $9E
+	JSR Apply_OAM		; B0DD	$20 $2A $9E
 	LDX $26			; B0E0	$A6 $26
 	JSR $A633		; B0E2	$20 $33 $A6
 L2F0E5:
@@ -3920,7 +3940,7 @@ L2F10C:
 	LDX $24			; B10C	$A6 $24
 	BNE L2F11B		; B10E	$D0 $0B
 	LDX #$0D		; B110	$A2 $0D
-	JSR $9E72		; B112	$20 $72 $9E
+	JSR $9E72		; B112	$20 $72 $9E	sound effect ??
 	JSR $B131		; B115	$20 $31 $B1
 	JMP $B196		; B118	$4C $96 $B1
 L2F11B:
@@ -3954,7 +3974,7 @@ L2F135:
 L2F150:
 	STA $7BCA,X		; B150	$9D $CA $7B
 	JSR $A43A		; B153	$20 $3A $A4
-	JSR $9E2A		; B156	$20 $2A $9E
+	JSR Apply_OAM		; B156	$20 $2A $9E
 	LDX $27			; B159	$A6 $27
 	LDA $7BCA,X		; B15B	$BD $CA $7B
 	CLC			; B15E	$18
@@ -3964,7 +3984,7 @@ L2F150:
 L2F165:
 	STA $7BCA,X		; B165	$9D $CA $7B
 	JSR $A43A		; B168	$20 $3A $A4
-	JSR $9E2A		; B16B	$20 $2A $9E
+	JSR Apply_OAM		; B16B	$20 $2A $9E
 	LDX $27			; B16E	$A6 $27
 	LDA $7BCA,X		; B170	$BD $CA $7B
 	SEC			; B173	$38
@@ -3973,18 +3993,19 @@ L2F165:
 	BNE L2F165		; B179	$D0 $EA
 	STA $7BCA,X		; B17B	$9D $CA $7B
 	JSR $A43A		; B17E	$20 $3A $A4
-	JMP $9E2A		; B181	$4C $2A $9E
+	JMP Apply_OAM		; B181	$4C $2A $9E
 	BIT $28			; B184	$24 $28
 	BVC L2F193		; B186	$50 $0B
 	BPL L2F190		; B188	$10 $06
 	JSR $B199		; B18A	$20 $99 $B1
 ;B18D
-.byte $4C,$93,$B1
+	JMP $B193		; B18D	$4C $93 $B1
 L2F190:
 .byte $20,$F6,$B5
 L2F193:
 	JMP $B196		; B193	$4C $96 $B1
-	JMP $9E2A		; B196	$4C $2A $9E
+;
+	JMP Apply_OAM		; B196	$4C $2A $9E
 ; End of
 
 ; Name	:
@@ -4006,10 +4027,37 @@ L2F193:
 	JSR Wait_NMI_end	; B1B8	$20 $46 $FD
 	LDX #$00		; B1BB	$A2 $00
 	STX $18			; B1BD	$86 $18
-	JSR $B436		; B1BF	$20 $36 $B4
-.byte $A6,$18,$B5,$20,$20,$D2,$B1,$E6,$18,$A6,$18,$E0,$02,$D0
-.byte $EE,$60,$A8,$D0,$01,$60,$24,$28,$70,$01,$60,$88,$D0,$03,$4C,$91
-.byte $B2,$88,$D0,$03,$4C,$44,$B3,$20,$01,$9E,$86,$16,$A2,$07,$A9,$F0
+L2F1BF:
+	JSR $B436		; B1BF	$20 $36 $B4	Check weapon l/r hand ??
+	LDX $18			; B1C2	$A6 $18
+	LDA $20,X		; B1C4	$B5 $20		weapon action type ??
+	JSR $B1D2		; B1C6	$20 $D2 $B1	weapon effect animation ??
+	INC $18			; B1C9	$E6 $18
+	LDX $18			; B1CB	$A6 $18
+	CPX #$02		; B1CD	$E0 $02
+	BNE L2F1BF		; B1CF	$D0 $EE		loop
+	RTS			; B1D1	$60
+; End of
+
+; Name	:
+; Marks	: weapon effect animation ??
+;	  weapon action type 00h is skip animation ??
+	TAY			; B1D2	$A8
+	BNE L2F1D6		; B1D3	$D0 $01
+	RTS			; B1D5	$60
+; End of
+L2F1D6:
+	BIT $28			; B1D6	$24 $28
+	BVS L2F1DB		; B1D8	$70 $01
+	RTS			; B1DA	$60
+L2F1DB:
+	DEY			; B1DB	$88
+	BNE L2F1E1		; B1DC	$D0 $03
+	JMP $B291		; B1DE	$4C $91 $B2		weapon effect animation ??
+; End of
+
+L2F1E1:
+.byte $88,$D0,$03,$4C,$44,$B3,$20,$01,$9E,$86,$16,$A2,$07,$A9,$F0
 .byte $95,$0A,$CA,$10,$FB,$A9,$01,$85,$1D,$A6,$9C,$E0,$04,$90,$07,$8A
 
 ;; [$B200 : 
@@ -4023,24 +4071,115 @@ L2F193:
 .byte $9E,$20,$2A,$9E,$20,$25,$B4,$20,$D7,$B3,$C6,$19,$D0,$F3,$A0,$80
 .byte $A9,$F0,$20,$F9,$9D,$20,$FC,$9D,$C0,$A0,$D0,$F6,$20,$2A,$9E,$A9
 .byte $08,$20,$1F,$9E,$C6,$1D,$F0,$03,$4C,$08,$B2,$20,$E1,$9D,$4C,$2A
-.byte $9E,$A9,$00,$85,$02,$A2,$07,$20,$72,$9E,$20,$E1,$9D,$A0,$71,$A2
-.byte $00,$BD,$61,$B4,$20,$F9,$9D,$E8,$E0,$04,$D0,$F5,$A0,$72,$A2,$00
-.byte $BD,$65,$B4,$45,$02,$20,$F9,$9D,$E8,$E0,$04,$D0,$F3,$A9,$01,$A2
-.byte $F8,$A4,$02,$F0,$04,$A9,$FE,$A2,$08,$85,$03,$86,$05,$20,$01,$9E
-.byte $BD,$8A,$7B,$4A,$18,$65,$03,$7D,$9A,$7B,$0A,$0A,$0A,$85,$04,$A0
-.byte $73,$A2,$00,$A5,$04,$20,$F9,$9D,$18,$A5,$04,$65,$05,$85,$04,$E8
-.byte $E0,$04,$D0,$EF,$20,$01,$9E,$BD,$82,$7B,$4A,$38,$E9,$02,$18,$7D
+.byte $9E
 
-;; [$B300 : 
+; Weapon effect ??
+	LDA #$00		; B291	$A9 $00
+	STA $02			; B293	$85 $02
+	LDX #$07		; B295	$A2 $07
+	JSR $9E72		; B297	$20 $72 $9E	sound effect
+L2F29A:
+	JSR $9DE1		; B29A	$20 $E1 $9D	Reset OAM buffer. From $0270-$02AF
+	LDY #$71		; B29D	$A0 $71
+	LDX #$00		; B29F	$A2 $00
+L2F2A1:
+	LDA $B461,X		; B2A1	$BD $61 $B4	OAM INDEX
+	JSR $9DF9		; B2A4	$20 $F9 $9D	Set INDEX to OAM buffer
+	INX			; B2A7	$E8
+	CPX #$04		; B2A8	$E0 $04
+	BNE L2F2A1		; B2AA	$D0 $F5
+	LDY #$72		; B2AC	$A0 $72
+	LDX #$00		; B2AE	$A2 $00
+L2F2B0:
+	LDA $B465,X		; B2B0	$BD $65 $B4	OAM ATTR
+	EOR $02			; B2B3	$45 $02
+	JSR $9DF9		; B2B5	$20 $F9 $9D	Set ATTR to OAM buffer
+	INX			; B2B8	$E8
+	CPX #$04		; B2B9	$E0 $04
+	BNE L2F2B0		; B2BB	$D0 $F3
+	LDA #$01		; B2BD	$A9 $01
+	LDX #$F8		; B2BF	$A2 $F8
+	LDY $02			; B2C1	$A4 $02
+	BEQ L2F2C9		; B2C3	$F0 $04
+	LDA #$FE		; B2C5	$A9 $FE
+	LDX #$08		; B2C7	$A2 $08
+L2F2C9:
+	STA $03			; B2C9	$85 $03
+	STX $05			; B2CB	$86 $05
+	JSR $9E01		; B2CD	$20 $01 $9E	$27 -4
+	LDA $7B8A,X		; B2D0	$BD $8A $7B	monster widths
+	LSR A			; B2D3	$4A
+	CLC			; B2D4	$18
+	ADC $03			; B2D5	$65 $03
+	ADC $7B9A,X		; B2D7	$7D $9A $7B	monster x positions
+	ASL A			; B2DA	$0A
+	ASL A			; B2DB	$0A
+	ASL A			; B2DC	$0A
+	STA $04			; B2DD	$85 $04		monster x ??
+	LDY #$73		; B2DF	$A0 $73
+	LDX #$00		; B2E1	$A2 $00
+L2F2E3:
+	LDA $04			; B2E3	$A5 $04
+	JSR $9DF9		; B2E5	$20 $F9 $9D	Set X to OAM buffer
+	CLC			; B2E8	$18
+	LDA $04			; B2E9	$A5 $04
+	ADC $05			; B2EB	$65 $05
+	STA $04			; B2ED	$85 $04
+	INX			; B2EF	$E8
+	CPX #$04		; B2F0	$E0 $04
+	BNE L2F2E3		; B2F2	$D0 $EF		loop
+	JSR $9E01		; B2F4	$20 $01 $9E	$27 -4
+	LDA $7B82,X		; B2F7	$BD $82 $7B	monster heights
+	LSR A			; B2FA	$4A
+	SEC			; B2FB	$38
+	SBC #$02		; B2FC	$E9 $02
+	CLC			; B2FE	$18
+	ADC $7B92,X		; B2FF	$7D $92 $7B	monster y positions
+	ASL A			; B302	$0A
+	ASL A			; B303	$0A
+	ASL A			; B304	$0A
+	STA $06			; B305	$85 $06		monster y ??
+	LDY #$70		; B307	$A0 $70
+	STY $07			; B309	$84 $07
+L2F30B:
+	LDA $06			; B30B	$A5 $06
+	JSR $9DF9		; B30D	$20 $F9 $9D	Set Y to OAM buffer
+	CLC			; B310	$18
+	ADC #$08		; B311	$69 $08
+	STA $06			; B313	$85 $06
+	STY $07			; B315	$84 $07
+	JSR Apply_OAM_pal	; B317	$20 $33 $9E
+	LDY $07			; B31A	$A4 $07
+	CPY #$80		; B31C	$C0 $80
+	BNE L2F30B		; B31E	$D0 $EB
+	LDY #$70		; B320	$A0 $70
+	STY $07			; B322	$84 $07
+L2F324:
+	LDA #$F0		; B324	$A9 $F0
+	JSR $9DF9		; B326	$20 $F9 $9D	Set Y(Reset) to OAM buffer and next
+	STY $07			; B329	$84 $07
+	JSR Apply_OAM_pal	; B32B	$20 $33 $9E
+	LDY $07			; B32E	$A4 $07
+	CPY #$80		; B330	$C0 $80
+	BNE L2F324		; B332	$D0 $F0
+	LDA $24			; B334	$A5 $24
+	BEQ L2F343		; B336	$F0 $0B
+	LDA $02			; B338	$A5 $02
+	EOR #$40		; B33A	$49 $40
+	STA $02			; B33C	$85 $02
+	BEQ L2F343		; B33E	$F0 $03
+	JMP L2F29A		; B340	$4C $9A $B2	loop
+; End of
+L2F343:
+	RTS			; B343	$60
+; End of
 
-.byte $92,$7B,$0A,$0A,$0A,$85,$06,$A0,$70,$84,$07,$A5,$06,$20,$F9,$9D
-.byte $18,$69,$08,$85,$06,$84,$07,$20,$33,$9E,$A4,$07,$C0,$80,$D0,$EB
-.byte $A0,$70,$84,$07,$A9,$F0,$20,$F9,$9D,$84,$07,$20,$33,$9E,$A4,$07
-.byte $C0,$80,$D0,$F0,$A5,$24,$F0,$0B,$A5,$02,$49,$40,$85,$02,$F0,$03
-.byte $4C,$9A,$B2,$60,$A9,$16,$8D,$C1,$79,$A9,$26,$8D,$C2,$79,$A9,$30
+;B344
+.byte $A9,$16,$8D,$C1,$79,$A9,$26,$8D,$C2,$79,$A9,$30
 .byte $8D,$C3,$79,$20,$01,$9E,$86,$16,$A5,$9C,$0A,$85,$17,$D0,$01,$60
 .byte $A2,$08,$20,$72,$9E,$20,$E1,$9D,$A6,$16,$BD,$82,$7B,$20,$56,$B4
 .byte $85,$00,$A6,$16,$BD,$92,$7B,$0A,$0A,$0A,$65,$00,$AA,$A5,$17,$29
+;; [$B380 : 
 .byte $01,$F0,$02,$A2,$F0,$8A,$85,$0A,$85,$0B,$18,$69,$08,$85,$0C,$85
 .byte $0D,$A6,$16,$BD,$8A,$7B,$20,$56,$B4,$85,$00,$A6,$16,$BD,$9A,$7B
 .byte $0A,$0A,$0A,$65,$00,$85,$06,$85,$08,$18,$69,$08,$85,$07,$85,$09
@@ -4058,14 +4197,14 @@ L2F193:
 .byte $95,$0A,$CA,$10,$F2,$60
 
 ; Name	:
-; X	:
+; X	: 00h = right hand, 01h = left hand
 ; Marks	:
-	STX $00			; B436	$86 $00
+	STX $00			; B436	$86 $00		l/r hand
 	LDY $20,X		; B438	$B4 $20		weapon action type ??
 	LDX $7CB1		; B43A	$AE $B1 $7C	attack animation palette
 	CPY #$04		; B43D	$C0 $04
 	BEQ L2F44E		; B43F	$F0 $0D
-	LDX $00			; B441	$A6 $00
+	LDX $00			; B441	$A6 $00		l/r hand
 	LDA $D0,X		; B443	$B5 $D0		right hand weapon temp ??
 	SEC			; B445	$38
 	SBC #$0A		; B446	$E9 $0A
@@ -4081,7 +4220,11 @@ L2F453:
 
 ;B456
 .byte $38,$E9,$02,$A2,$00,$20,$11,$FD,$4C,$A5
-.byte $AD,$45,$44,$44,$45,$02,$02,$02,$C2
+.byte $AD
+;B461 - data block = OAM index
+.byte $45,$44,$44,$45
+;B465 - data block = OAM attribute
+.byte $02,$02,$02,$C2
 
 ; Name	:
 ; Marks	: Check left/right hand for weapon
@@ -4193,7 +4336,7 @@ L2F4FD:
 	LDY #$03		; B51D	$A0 $03
 	BNE L2F4FD		; B51F	$D0 $DC
 L2F521:
-	JSR $9E2A		; B521	$20 $2A $9E
+	JSR Apply_OAM		; B521	$20 $2A $9E
 	LDX $26			; B524	$A6 $26
 	LDA $7BCA,X		; B526	$BD $CA $7B
 	SEC			; B529	$38
@@ -4220,7 +4363,7 @@ L2F521:
 	JSR $AC4B		; B553	$20 $4B $AC
 	JSR $B5AE		; B556	$20 $AE $B5
 	LDX #$02		; B559	$A2 $02
-	JSR $9E72		; B55B	$20 $72 $9E
+	JSR $9E72		; B55B	$20 $72 $9E	sound effect ??
 	LDA #$01		; B55E	$A9 $01
 	STA $17			; B560	$85 $17
 L2F562:
@@ -4244,7 +4387,7 @@ L2F562:
 
 ; Name	;
 ; Marks	:
-	JSR $9E72		; B5AB	$20 $72 $9E
+	JSR $9E72		; B5AB	$20 $72 $9E	sound effect ??
 ; Name	:
 ; Marks	:
 	LDX $26			; B5AE	$A6 $26

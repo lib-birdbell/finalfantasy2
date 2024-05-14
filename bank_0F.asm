@@ -8482,11 +8482,12 @@ L3FA48:
 	JMP Swap_PRG_tmp	; FA56  $4C $84 $FA
 ; End of
 
+; X	:
 L3FA59:
-    JSR Swap_bank_05                ; FA59  $20 $6D $FA
-    TXA                      ; FA5C  $8A
-    ORA #$40                 ; FA5D  $09 $40
-    JSR $BA03                ; FA5F  $20 $03 $BA
+	JSR Swap_bank_05	; FA59  $20 $6D $FA
+	TXA			; FA5C  $8A
+	ORA #$40		; FA5D  $09 $40
+	JSR $BA03		; FA5F  $20 $03 $BA
 	JMP Swap_PRG_tmp	; FA62  $4C $84 $FA
 ; End of
 

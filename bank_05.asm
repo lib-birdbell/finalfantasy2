@@ -4631,16 +4631,38 @@ L16B8F:
 	JMP $BA34		; BA00 $4C $34 $BA
 ; End of
 
-.byte $48,$AD,$60,$6F,$F0,$26,$A2,$00,$A0,$04,$BD,$62,$6F
+; Name	:
+; Marks	:
+	PHA			; BA03	$48
+	LDA $6F60		; BA04	$AD $60 $6F
+	BEQ L17A2F		; BA07	$F0 $26
+	LDX #$00		; BA09	$A2 $00
+	LDY #$04		; BA0B	$A0 $04
+L17A0D:
+	LDA $6F62,X		; BA0D	$BD $62 $6F
+	CMP #$FF		; BA10	$C9 $FF
+	BEQ L17A24		; BA12	$F0 $10
+	LDA #$30		; BA14	$A9 $30
+	STA Sq0Duty_4000,Y	; BA16	$99 $00 $40
+	LDA #$00		; BA19	$A9 $00
+	STA Sq0Sweep_4001,Y	; BA1B	$99 $01 $40
+	STA Sq0Timer_4002,Y	; BA1E	$99 $02 $40
+	STA Sq0Length_4003,Y	; BA21	$99 $03 $40
+L17A24:
+	TYA			; BA24	$98
+	CLC			; BA25	$18
+	ADC #$08		; BA26	$69 $08
+	TAY			; BA28	$A8
+	INX			; BA29	$E8
+	INX			; BA2A	$E8
+	CPX #$04		; BA2B	$E0 $04
+	BCC L17A0D		; BA2D	$90 $DE
+L17A2F:
+	PLA			; BA2F	$68
+	STA $6F60		; BA30	$8D $60 $6F
+	RTS			; BA33	$60
+; End of
 
-;; [BA10 : 17A20]
-.byte $C9,$FF,$F0,$10,$A9,$30,$99,$00,$40,$A9,$00,$99,$01,$40,$99,$02
-
-;; [BA20 : 17A30]
-.byte $40,$99,$03,$40,$98,$18,$69,$08,$A8,$E8,$E8,$E0,$04,$90,$DE,$68
-
-;; [BA30 : 17A40]
-.byte $8D,$60,$6F,$60
 	LDA $6F60		; BA34	$AD $60 $6F
 	ASL A			; BA37	$0A
 	BCS L17A40		; BA38	$B0 $06
