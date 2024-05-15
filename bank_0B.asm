@@ -433,7 +433,9 @@
 .byte $F2,$F3,$F4,$00
 ;; [$9264 :: 0x2D264] (6 * 6 bytes)
 .byte $00,$08,$00,$08,$00,$08,$F8,$00,$08,$F8,$00,$08
-.byte $FC,$04,$FC,$04,$FC,$04,$00,$00,$08,$08,$10,$10,$08,$08,$08,$10
+.byte $FC,$04,$FC,$04,$FC,$04
+;9276 - character graphics type
+.byte $00,$00,$08,$08,$10,$10,$08,$08,$08,$10
 .byte $10,$10,$F8,$F8,$00,$00,$08,$08
 ;; [$9288 :: 0x2D288] (8 * 6 bytes) (6 * 6 bytes ??)
 .byte $00,$01,$02,$03,$04,$05
@@ -3428,16 +3430,18 @@ L2EBB4:
 ; End of
 
 ; Name	:
-; Marks	:
+; A	: 3Eh or 38h (Index start)
+; X	: character index
+; Marks	: 2 x 3 tiles
 	STA $00			; AC07	$85 $00
-	LDA $7BB6,X		; AC09	$BD $B6 $7B
+	LDA $7BB6,X		; AC09	$BD $B6 $7B	character palette id
 	STA $01			; AC0C	$85 $01
-	LDA $7BCA,X		; AC0E	$BD $CA $7B
+	LDA $7BCA,X		; AC0E	$BD $CA $7B	character x position
 	STA $02			; AC11	$85 $02
-	LDA $7BCE,X		; AC13	$BD $CE $7B
+	LDA $7BCE,X		; AC13	$BD $CE $7B	character y position
 	STA $03			; AC16	$85 $03
 	LDY #$00		; AC18	$A0 $00
-	LDA $7BA2,X		; AC1A	$BD $A2 $7B
+	LDA $7BA2,X		; AC1A	$BD $A2 $7B	character graphics type
 	BEQ L2EC21		; AC1D	$F0 $02
 	LDY #$0C		; AC1F	$A0 $0C
 L2EC21:
@@ -3445,35 +3449,38 @@ L2EC21:
 L2EC23:
 	CLC			; AC23	$18
 	LDA $9276,Y		; AC24	$B9 $76 $92
-	ADC $03			; AC27	$65 $03
-	STA $0270,X		; AC29	$9D $70 $02
+	ADC $03			; AC27	$65 $03		y
+	STA $0270,X		; AC29	$9D $70 $02	OAM_Y
 	INX			; AC2C	$E8
 	LDA $00			; AC2D	$A5 $00
-	STA $0270,X		; AC2F	$9D $70 $02
+	STA $0270,X		; AC2F	$9D $70 $02	OAM INDEX
 	INC $00			; AC32	$E6 $00
 	INX			; AC34	$E8
 	LDA $01			; AC35	$A5 $01
-	STA $0270,X		; AC37	$9D $70 $02
+	STA $0270,X		; AC37	$9D $70 $02	ATTR
 	INX			; AC3A	$E8
 	CLC			; AC3B	$18
 	LDA $9264,Y		; AC3C	$B9 $64 $92
-	ADC $02			; AC3F	$65 $02
-	STA $0270,X		; AC41	$9D $70 $02
+	ADC $02			; AC3F	$65 $02		X
+	STA $0270,X		; AC41	$9D $70 $02	OAM_X
 	INX			; AC44	$E8
 	INY			; AC45	$C8
 	CPX #$18		; AC46	$E0 $18
-	BNE L2EC23		; AC48	$D0 $D9
+	BNE L2EC23		; AC48	$D0 $D9		loop
 	RTS			; AC4A	$60
 ; End of
 
 ; Name	:
+; A	: attack animation type A/B
+; X	:
+; DEST	: $04 = x, $05 = y
 ; Marks	:
 	STX $02			; AC4B	$86 $02
 	STA $03			; AC4D	$85 $03
 	LDX $26			; AC4F	$A6 $26
-	LDA $7BCA,X		; AC51	$BD $CA $7B
+	LDA $7BCA,X		; AC51	$BD $CA $7B	character x position (current)
 	STA $04			; AC54	$85 $04
-	LDA $7BCE,X		; AC56	$BD $CE $7B
+	LDA $7BCE,X		; AC56	$BD $CE $7B	character y position
 	STA $05			; AC59	$85 $05
 	LDX $02			; AC5B	$A6 $02
 	BNE L2EC60		; AC5D	$D0 $01
@@ -3904,7 +3911,7 @@ L2F0C5:
 	JSR $ABA9		; B0C5	$20 $A9 $AB
 	LDX $22			; B0C8	$A6 $22
 	JSR $B436		; B0CA	$20 $36 $B4
-	JSR $B4B5		; B0CD	$20 $B5 $B4
+	JSR $B4B5		; B0CD	$20 $B5 $B4	attack animation ??
 L2F0D0:
 	LDX $22			; B0D0	$A6 $22
 	DEX			; B0D2	$CA
@@ -3914,9 +3921,10 @@ L2F0D0:
 	JSR $A43A		; B0DA	$20 $3A $A4
 	JSR Apply_OAM		; B0DD	$20 $2A $9E
 	LDX $26			; B0E0	$A6 $26
-	JSR $A633		; B0E2	$20 $33 $A6
+	JSR Char_mov_base	; B0E2	$20 $33 $A6
 L2F0E5:
 	JMP $B0EB		; B0E5	$4C $EB $B0
+;B0E8
 	JMP $B0EB		; B0E8	$4C $EB $B0
 	LDX $27			; B0EB	$A6 $27
 	CPX #$04		; B0ED	$E0 $04
@@ -3980,7 +3988,7 @@ L2F150:
 	CLC			; B15E	$18
 	ADC $10			; B15F	$65 $10
 	CMP $11			; B161	$C5 $11
-	BNE L2F150		; B163	$D0 $EB
+	BNE L2F150		; B163	$D0 $EB		loop
 L2F165:
 	STA $7BCA,X		; B165	$9D $CA $7B
 	JSR $A43A		; B168	$20 $3A $A4
@@ -3990,7 +3998,7 @@ L2F165:
 	SEC			; B173	$38
 	SBC $10			; B174	$E5 $10
 	CMP $7BD2,X		; B176	$DD $D2 $7B
-	BNE L2F165		; B179	$D0 $EA
+	BNE L2F165		; B179	$D0 $EA		loop
 	STA $7BCA,X		; B17B	$9D $CA $7B
 	JSR $A43A		; B17E	$20 $3A $A4
 	JMP Apply_OAM		; B181	$4C $2A $9E
@@ -3998,7 +4006,6 @@ L2F165:
 	BVC L2F193		; B186	$50 $0B
 	BPL L2F190		; B188	$10 $06
 	JSR $B199		; B18A	$20 $99 $B1
-;B18D
 	JMP $B193		; B18D	$4C $93 $B1
 L2F190:
 .byte $20,$F6,$B5
@@ -4007,6 +4014,8 @@ L2F193:
 ;
 	JMP Apply_OAM		; B196	$4C $2A $9E
 ; End of
+
+lr_hand_tmp	= $18
 
 ; Name	:
 ; Marks	: $00(ADDR) = $9320 = battle animation graphics
@@ -4040,6 +4049,7 @@ L2F1BF:
 ; End of
 
 ; Name	:
+; A	:
 ; Marks	: weapon effect animation ??
 ;	  weapon action type 00h is skip animation ??
 	TAY			; B1D2	$A8
@@ -4155,7 +4165,7 @@ L2F30B:
 	LDY #$70		; B320	$A0 $70
 	STY $07			; B322	$84 $07
 L2F324:
-	LDA #$F0		; B324	$A9 $F0
+	LDA #$F0		; B324	$A9 $F0		Remove effect(End of effect)
 	JSR $9DF9		; B326	$20 $F9 $9D	Set Y(Reset) to OAM buffer and next
 	STY $07			; B329	$84 $07
 	JSR Apply_OAM_pal	; B32B	$20 $33 $9E
@@ -4272,6 +4282,9 @@ L2F4B4:
 	RTS			; B4B4	$60
 ; End of
 
+;////////// temporary variables //////////
+atk_ani_AB_tmp	= $16
+
 ; Name	:
 ; Marks	:
 	LDX $26			; B4B5	$A6 $26
@@ -4309,11 +4322,11 @@ L2F4D4:
 	STA $18			; B4EA	$85 $18
 L2F4EC:
 	LDX #$00		; B4EC	$A2 $00
-	JSR $B5AB		; B4EE	$20 $AB $B5
-	LDA $16			; B4F1	$A5 $16
+	JSR $B5AB		; B4EE	$20 $AB $B5	attack with weapon pose ??
+	LDA atk_ani_AB_tmp	; B4F1	$A5 $16		animation A/B ??
 	EOR #$01		; B4F3	$49 $01
-	STA $16			; B4F5	$85 $16
-	DEC $18			; B4F7	$C6 $18
+	STA atk_ani_AB_tmp	; B4F5	$85 $16
+	DEC $18			; B4F7	$C6 $18		attack motion count
 	BNE L2F4EC		; B3F9	$D0 $F1
 	RTS			; B4FB	$60
 ; End of
@@ -4330,19 +4343,19 @@ L2F4FD:
 
 	INY			; B513	$C8
 	STY $19			; B514	$84 $19
-	LDX $26			; B516	$A6 $26
-	LDA $7BA2,X		; B518	$BD $A2 $7B
+	LDX $26			; B516	$A6 $26		character index ??
+	LDA $7BA2,X		; B518	$BD $A2 $7B	character graphics type
 	BEQ L2F521		; B51B	$F0 $04
 	LDY #$03		; B51D	$A0 $03
 	BNE L2F4FD		; B51F	$D0 $DC
 L2F521:
 	JSR Apply_OAM		; B521	$20 $2A $9E
-	LDX $26			; B524	$A6 $26
-	LDA $7BCA,X		; B526	$BD $CA $7B
+	LDX $26			; B524	$A6 $26		character index ??
+	LDA $7BCA,X		; B526	$BD $CA $7B	character x position (current)
 	SEC			; B529	$38
 	SBC #$0C		; B52A	$E9 $0C
 	STA $1C			; B52C	$85 $1C
-	LDA $7BCE,X		; B52E	$BD $CE $7B
+	LDA $7BCE,X		; B52E	$BD $CE $7B	character y position
 	CLC			; B531	$18
 	ADC #$04		; B532	$69 $04
 	STA $1D			; B534	$85 $1D
@@ -4390,20 +4403,20 @@ L2F562:
 	JSR $9E72		; B5AB	$20 $72 $9E	sound effect ??
 ; Name	:
 ; Marks	:
-	LDX $26			; B5AE	$A6 $26
+	LDX $26			; B5AE	$A6 $26		character index
 	LDY #$38		; B5B0	$A0 $38
-	LDA $16			; B5B2	$A5 $16
+	LDA atk_ani_AB_tmp	; B5B2	$A5 $16		animation A/B
 	AND #$01		; B5B4	$29 $01
 	BEQ L2F5BA		; B5B6	$F0 $02
 	LDY #$3E		; B5B8	$A0 $3E
 L2F5BA:
 	TYA			; B5BA	$98
-	JSR $AC07		; B5BB	$20 $07 $AC
-	LDX $26			; B5BE	$A6 $26
-	LDA $7BA2,X		; B5C0	$BD $A2 $7B
+	JSR $AC07		; B5BB	$20 $07 $AC	Set character graphic to OAM buffer(attack pose ??)
+	LDX $26			; B5BE	$A6 $26		character index
+	LDA $7BA2,X		; B5C0	$BD $A2 $7B	character graphics type
 	BNE L2F5CC		; B5C3	$D0 $07
 	LDX $19			; B5C5	$A6 $19
-	LDA $16			; B5C7	$A5 $16
+	LDA atk_ani_AB_tmp	; B5C7	$A5 $16
 	JSR $AC4B		; B5C9	$20 $4B $AC
 L2F5CC:
 	JSR Apply_OAM_pal	; B5CC	$20 $33 $9E

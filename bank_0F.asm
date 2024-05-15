@@ -9049,7 +9049,7 @@ Ctrl_Scroll:
 	RTS			; FD5A  $60
 ; End of Wait_NMI_end
 
-; Name	: Wait_MENU
+; Name	: Wait_MENU_snd
 ; Marks	: Set Ppu for menu area ??
 L3FD5B:
 Wait_MENU_snd:
