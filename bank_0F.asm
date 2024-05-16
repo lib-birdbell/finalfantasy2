@@ -8587,6 +8587,8 @@ L3FA9E:
     BNE L3FAF0               ; FAD2  $D0 $1C
     LDA #$24                 ; FAD4  $A9 $24
     BNE L3FAF0               ; FAD6  $D0 $18
+; Name	:
+; Marks	:
     LDA #$27                 ; FAD8  $A9 $27
     BNE L3FAF0               ; FADA  $D0 $14
     LDA #$2A                 ; FADC  $A9 $2A
@@ -8629,6 +8631,7 @@ L3FB06:
     JSR $8F46                ; FB11  $20 $46 $8F
     JMP L3FA79               ; FB14  $4C $79 $FA
 
+; Marks	: $40(ADDR) = excute code address ??
 ;; sub start ;;
     LDA #$49                 ; FB17  $A9 $49
     BNE L3FB31               ; FB19  $D0 $16
@@ -8905,6 +8908,7 @@ L3FC90:
 
 ; Name	:
 ; Marks	: Init ?? calc ??
+;	  $00 = target ??
 ;; sub start ;;
 	LDX #$10		; FC98  $A2 $10
 	LDA #$00		; FC9A  $A9 $00
@@ -9093,43 +9097,46 @@ Set_PpuAddr_00:
 	RTS			; FD8B  $60
 ; End of Set_PpuAddr_00
 
+; Name	:
+; X	: bank to swap
+; Marks	: $64(ADDR) = battle text ??
+;	  Load battle text ??
 L3FD8C:
-    TXA                      ; FD8C  $8A
-    JSR Swap_PRG             ; FD8D  $20 $1A $FE
-    LDA #$00                 ; FD90  $A9 $00
-    TAY                      ; FD92  $A8
-    STA $65                  ; FD93  $85 $65
-    LDA $64                  ; FD95  $A5 $64
-    ASL A                    ; FD97  $0A
-    ROL $65                  ; FD98  $26 $65
-    CLC                      ; FD9A  $18
-    ADC $62                  ; FD9B  $65 $62
-    STA $64                  ; FD9D  $85 $64
-    LDA $65                  ; FD9F  $A5 $65
-    ADC $63                  ; FDA1  $65 $63
-    STA $65                  ; FDA3  $85 $65
-    LDA ($64),Y              ; FDA5  $B1 $64
-    PHA                      ; FDA7  $48
-    INY                      ; FDA8  $C8
-    LDA ($64),Y              ; FDA9  $B1 $64
-    STA $65                  ; FDAB  $85 $65
-    PLA                      ; FDAD  $68
-    STA $64                  ; FDAE  $85 $64
-    DEY                      ; FDB0  $88
-;    LDX $00AA                ; FDB1  $AE $AA $00
+	TXA			; FD8C  $8A
+	JSR Swap_PRG		; FD8D  $20 $1A $FE
+	LDA #$00		; FD90  $A9 $00
+	TAY			; FD92  $A8
+	STA $65			; FD93  $85 $65
+	LDA $64			; FD95  $A5 $64
+	ASL A			; FD97  $0A
+	ROL $65			; FD98  $26 $65
+	CLC			; FD9A  $18
+	ADC $62			; FD9B  $65 $62
+	STA $64			; FD9D  $85 $64
+	LDA $65			; FD9F  $A5 $65
+	ADC $63			; FDA1  $65 $63
+	STA $65			; FDA3  $85 $65
+	LDA ($64),Y		; FDA5  $B1 $64		pointers to battle text ??
+	PHA			; FDA7  $48
+	INY			; FDA8  $C8
+	LDA ($64),Y		; FDA9  $B1 $64
+	STA $65			; FDAB  $85 $65
+	PLA			; FDAD  $68
+	STA $64			; FDAE  $85 $64
+	DEY			; FDB0  $88
+	;LDX $00AA		; FDB1  $AE $AA $00
 ;; JIGS - Mesen's debugger screwed up here. Replacing it with bytes.
-    .byte $AE,$AA,$00
-
+	.byte $AE,$AA,$00
 L3FDB4:
-    LDA ($64),Y              ; FDB4  $B1 $64
-    STA $7D47,X              ; FDB6  $9D $47 $7D
-    BEQ L3FDC1               ; FDB9  $F0 $06
-    INY                      ; FDBB  $C8
-    INX                      ; FDBC  $E8
-    CPX #$11                 ; FDBD  $E0 $11
-    BNE L3FDB4               ; FDBF  $D0 $F3
+	LDA ($64),Y		; FDB4  $B1 $64
+	STA $7D47,X		; FDB6  $9D $47 $7D	text buffer
+	BEQ L3FDC1		; FDB9  $F0 $06
+	INY			; FDBB  $C8
+	INX			; FDBC  $E8
+	CPX #$11		; FDBD  $E0 $11
+	BNE L3FDB4		; FDBF  $D0 $F3
 L3FDC1:
-    STX $7CBF                ; FDC1  $8E $BF $7C
+	STX $7CBF		; FDC1  $8E $BF $7C	text length ??
 	JMP Swap_PRG_tmp	; FDC4  $4C $84 $FA
 ; End of
 

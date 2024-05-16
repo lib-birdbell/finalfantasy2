@@ -481,11 +481,13 @@
 ; ========== spell targeting (1 bit per sepll) ($9350-$9354) START ==========
 ;; [$9350 :: 0x2D350]
 .byte $FF,$FF,$01,$E0,$F7
+; $9355 - (?? x 5 byte) OAM INDEX ??
 .byte $50,$51,$52,$53,$00,$51,$50,$53,$52,$01,$53
 .byte $50,$50,$50,$00,$50,$51,$51,$50,$00,$51,$50,$50,$51,$02,$52,$53
 .byte $53,$53,$02,$53,$52,$53,$53,$02,$53,$53,$53,$52,$02,$53,$52,$53
 .byte $53,$02,$54,$54,$54,$54,$02,$55,$55,$55,$55,$02,$56,$56,$56,$56
 .byte $02,$57,$57,$57,$57,$02,$54,$00,$55,$00,$00,$56,$57,$00,$00,$00
+; $93A0 - OAM ATTR ??
 .byte $02,$02,$02,$02,$42,$42,$42,$42,$02,$42,$82,$C2,$08,$F8,$F0,$00
 .byte $10,$F8,$FC,$04,$FC,$0A,$08,$02,$31,$04,$00,$33,$04,$02,$35,$04
 .byte $00,$37,$04,$04,$39,$04,$00,$3B,$04,$05,$3D,$04,$00,$3F,$04,$00
@@ -832,7 +834,7 @@ L2D82C:
 	AND #$7F		; 9856	$29 $7F
 	PHA			; 9858	$48
 	TAY			; 9859	$A8
-	LDA $8A20,Y		; 985A	$B9 $20 $8A
+	LDA $8A20,Y		; 985A	$B9 $20 $8A	surprise rate for each battle
 	CMP $0A			; 985D	$C5 $0A
 	BEQ L2D865		; 985F	$F0 $04
 	BCC L2D865		; 9861	$90 $02
@@ -1634,23 +1636,32 @@ L2DDD3:
 	RTS			; 9DD9	$60
 ; End of Init_gfx_buf
 
-; Name	;
-; Marks	:
+; Name	; Rst_char_OAM_buf
+; X	: Character index
+; Marks	: Reset OAM buffer. 2x3 6 tile each
+;	  Character 0 OAM buffer = $02A0(OAM[40])
+; 	  Character 1 OAM buffer = $02B8(OAM[46])
+; 	  Character 2 OAM buffer = $02D0(OAM[52])
+; 	  Character 3 OAM buffer = $02E8(OAM[58])
+;	  Y (A0h, B8h, D0h, E8h) - character OAM buffer offset
+Rst_char_OAM_buf:
 	LDY $9DF5,X		; 9DDA	$BC $F5 $9D
 	LDX #$18		; 9DDD	$A2 $18
 	BNE L2DDEB		; 9DDF	$D0 $0A
-; End of
+; End of Rst_char_OAM_buf
 
-; Name	:
-; Marks	: Reset OAM buffer. From $0270-$02AF
+; Name	: Rst_act_OAM_buf
+; Marks	: Reset Action OAM buffer. From $0270-$029F(OAM[28]-OAM[39])
+;	  Character OAM[28]-[33], Weapon OAM[34]-[39]
+Rst_act_OAM_buf:
 	LDY #$70		; 9DE1	$A0 $70
 	LDX #$30		; 9DE3	$A2 $30
 	BNE L2DDEB		; 9DE5	$D0 $04
-; End of
-
+; Name	:
+; Marks	: Reset ?? OAM buffer. From $0204-$029F(OAM[1]-OAM[27])
+	LDX #$9C		; 9DE7	$A2 $9C
 ; Name	:
 ; Marks	:
-	LDX #$9C		; 9DE7	$A2 $9C
 	LDY #$04		; 9DE9	$A0 $04
 L2DDEB:
 	LDA #$F0		; 9DEB	$A9 $F0
@@ -1660,9 +1671,11 @@ L2DDED:
 	DEX			; 9DF1	$CA
 	BNE L2DDED		; 9DF2	$D0 $F9		loop
 	RTS			; 9DF4	$60
+; End of Rst_act_OAM_buf
 ; End of
+; End of Rst_char_OAM_buf
 
-;9DF5 - data block
+;9DF5 - data block : character OAM buffer
 .byte $A0,$B8,$D0,$E8
 
 ; Name	:
@@ -1693,6 +1706,8 @@ L2DDED:
 
 .byte $A5,$01,$99,$00,$02,$A5,$02,$99
 .byte $01,$02,$A5,$03,$99,$02,$02,$A5,$00,$99,$03,$02,$4C,$FC,$9D
+; A	: delay count
+; Marks	: motion delay
 L2DE1F:
 	PHA			; 9E1F	$48
 	JSR Apply_OAM_pal	; 9E20	$20 $33 $9E
@@ -3472,17 +3487,17 @@ L2EC23:
 
 ; Name	:
 ; A	: attack animation type A/B
-; X	:
+; X	: weapon type ?? animation type ??
 ; DEST	: $04 = x, $05 = y
 ; Marks	:
-	STX $02			; AC4B	$86 $02
+	STX $02			; AC4B	$86 $02		weapon type ?? animation type ??
 	STA $03			; AC4D	$85 $03
-	LDX $26			; AC4F	$A6 $26
+	LDX $26			; AC4F	$A6 $26		character index
 	LDA $7BCA,X		; AC51	$BD $CA $7B	character x position (current)
 	STA $04			; AC54	$85 $04
 	LDA $7BCE,X		; AC56	$BD $CE $7B	character y position
 	STA $05			; AC59	$85 $05
-	LDX $02			; AC5B	$A6 $02
+	LDX $02			; AC5B	$A6 $02		weapon type ?? animation type ??
 	BNE L2EC60		; AC5D	$D0 $01
 	RTS			; AC5F	$60
 ; End of
@@ -3497,6 +3512,9 @@ L2EC60:
 	STA $01			; AC6C	$85 $01
 .byte $6C,$00,$00
 	;JMP ($0000)		; AC6E	$6C $00 $00
+; End of
+
+SR_AC71:
 	LDA $03			; AC71	$A5 $03
 	AND #$01		; AC73	$29 $01
 	EOR #$01		; AC75	$49 $01
@@ -3504,17 +3522,19 @@ L2EC60:
 	JSR $AD64		; AC79	$20 $64 $AD
 	LDA $06			; AC7C	$A5 $06
 	EOR #$01		; AC7E	$49 $01
-	JSR $AD3F		; AC90	$20 $3F $AD
-	JMP $AD19		; AC93	$4C $19 $AD
+	JSR $AD3F		; AC80	$20 $3F $AD
+	JMP $AD19		; AC83	$4C $19 $AD
 ;
-; AC96
+SR_AC86:
 .byte $A5,$03,$29,$01,$49,$01,$85,$06,$20,$64
-.byte $AD,$A6,$06,$E8,$8A,$20,$3F,$AD,$4C,$19,$AD,$A5,$03,$29,$01,$D0
+.byte $AD,$A6,$06,$E8,$8A,$20,$3F,$AD,$4C,$19,$AD
+SR_AC9B:
+.byte $A5,$03,$29,$01,$D0
 .byte $06,$A9,$F0,$8D,$88,$02,$60,$A5,$04,$38,$E9,$05,$85,$06,$A5,$05
 .byte $18,$69,$09,$85,$07,$A5,$03,$29,$02,$F0,$04,$E6,$06,$E6,$06,$A5
 .byte $07,$8D,$88,$02,$A9,$53,$8D,$89,$02,$A6,$26,$BD,$B6,$7B,$8D,$8A
 .byte $02,$A5,$06,$8D,$8B,$02,$60
-
+SR_ACD7:
 	LDA #$03		; ACD7	$A9 $03
 	JSR $AD3F		; ACD9	$20 $3F $AD
 	LDA $03			; ACDC	$A5 $03
@@ -3526,42 +3546,45 @@ L2EC60:
 L2ECE8:
 	JSR $AD64		; ACE8	$20 $64 $AD
 	JMP $AD19		; ACEA	$4C $19 $AD
-;
+; End of
+
+SR_ACEE:
 	LDA #$0E		; ACEE	$A9 $0E
-	JSR $AD64		; ACF0	$20 $64 $AD
+	JSR $AD64		; ACF0	$20 $64 $AD	some OAM calcuration ??
 	LDA $1C			; ACF3	$A5 $1C
-	STA $06			; ACF5	$85 $06
+	STA $06			; ACF5	$85 $06		x ??
 	CLC			; ACF7	$18
 	ADC #$08		; ACF8	$69 $08
 	STA $07			; ACFA	$85 $07
 	LDA $1D			; ACFC	$A5 $1D
-	STA $0A			; ACFE	$85 $0A
+	STA $0A			; ACFE	$85 $0A		y ??
 	STA $0B			; AD00	$85 $0B
 	LDY #$10		; AD02	$A0 $10
 	LDA #$02		; AD04	$A9 $02
 	JMP $AD1D		; AD06	$4C $1D $AD
 ;
-;AD09
+SR_AD09:
 .byte $A5,$03,$18,$69,$03,$20,$64
 ;; [AD10 : 0x2ED10]
 .byte $AD,$A9,$01,$20,$3F,$AD,$4C,$19,$AD
 
+; Marks	: $00 = repeat count(tile size)
 	LDY #$00		; AD19	$A0 $00
 	LDA #$04		; AD1B	$A9 $04
 	STA $00			; AD1D	$85 $00
 	LDX #$00		; AD1F	$A2 $00
 L2ED21:
 	LDA $0A,X		; AD21	$B5 $0A
-	STA $0288,Y		; AD23	$99 $88 $02
+	STA $0288,Y		; AD23	$99 $88 $02	OAM Y
 	INY			; AD26	$C8
 	LDA $0E,X		; AD27	$B5 $0E
-	STA $0288,Y		; AD29	$99 $88 $02
+	STA $0288,Y		; AD29	$99 $88 $02	OAM INDEX
 	INY			; AD2C	$C8
 	LDA $12,X		; AD2D	$B5 $12
-	STA $0288,Y		; AD2F	$99 $88 $02
+	STA $0288,Y		; AD2F	$99 $88 $02	OAM ATTR
 	INY			; AD32	$C8
 	LDA $06,X		; AD33	$B5 $06
-	STA $0288,Y		; AD35	$99 $88 $02
+	STA $0288,Y		; AD35	$99 $88 $02	OAM X
 	INY			; AD38	$C8
 	INX			; AD39	$E8
 	CPX $00			; AD3A	$E4 $00
@@ -3595,7 +3618,8 @@ L2ED21:
 ; End of
 
 ; Name	:
-; Marks	:
+; A	:
+; Marks	: $0E-$11, $12-$15
 	LDX #$05		; AD64	$A2 $05
 	JSR Multi		; AD66	$20 $79 $FC
 	LDA $02			; AD69	$A5 $02
@@ -3617,18 +3641,24 @@ L2ED21:
 L2ED87:
 	LDA ($00),Y		; AD87	$B1 $00
 .byte $99,$0E,$00
-	;STA $000E,Y		; AD89	$99 $0E $00
+	;STA $000E,Y		; AD89	$99 $0E $00	INDEX
 	LDA ($02),Y		; AD8C	$B1 $02
 .byte $99,$12,$00
-	;STA $0012,Y		; AD8E	$99 $12 $00
+	;STA $0012,Y		; AD8E	$99 $12 $00	ATTR
 	DEY			; AD91	$88
 	BPL L2ED87		; AD92	$10 $F3
 	RTS			; AD94	$60
 ; End of
 
-; $AD95	data block
-.byte $71,$AC,$86,$AC,$9B,$AC,$D7,$AC,$EE,$AC,$09
-.byte $AD,$0A
+; $AD95 - data block = jump address[6:0-5]
+.word SR_AC71			; AD95	$71 $AC
+.word SR_AC86			; AD97	$86 $AC
+.word SR_AC9B			; AD99	$9B $AC
+.word SR_ACD7			; AD9B	$D7 $AC
+.word SR_ACEE			; AD9D	$EE $AC
+.word SR_AD09			; AD9F	$09 $AD
+
+.byte $0A
 
 ; Name	: Calc_char_addr
 ; A	: character index (00h, 01h, 02h, 03h)
@@ -3910,17 +3940,17 @@ L2F0B2:
 L2F0C5:
 	JSR $ABA9		; B0C5	$20 $A9 $AB
 	LDX $22			; B0C8	$A6 $22
-	JSR $B436		; B0CA	$20 $36 $B4
+	JSR $B436		; B0CA	$20 $36 $B4	Check weapon l/r hand ??
 	JSR $B4B5		; B0CD	$20 $B5 $B4	attack animation ??
 L2F0D0:
 	LDX $22			; B0D0	$A6 $22
 	DEX			; B0D2	$CA
 	BPL L2F08B		; B0D3	$10 $B6		loop
-	JSR $9DE7		; B0D5	$20 $E7 $9D
-	LDX $26			; B0D8	$A6 $26
-	JSR $A43A		; B0DA	$20 $3A $A4
+	JSR $9DE7		; B0D5	$20 $E7 $9D	Reset ??? OAM[1-27] buffer
+	LDX $26			; B0D8	$A6 $26		character index temp ??
+	JSR $A43A		; B0DA	$20 $3A $A4	check character graphics type
 	JSR Apply_OAM		; B0DD	$20 $2A $9E
-	LDX $26			; B0E0	$A6 $26
+	LDX $26			; B0E0	$A6 $26		character index temp ??
 	JSR Char_mov_base	; B0E2	$20 $33 $A6
 L2F0E5:
 	JMP $B0EB		; B0E5	$4C $EB $B0
@@ -4005,7 +4035,7 @@ L2F165:
 	BIT $28			; B184	$24 $28
 	BVC L2F193		; B186	$50 $0B
 	BPL L2F190		; B188	$10 $06
-	JSR $B199		; B18A	$20 $99 $B1
+	JSR $B199		; B18A	$20 $99 $B1	Weapon animation graphics
 	JMP $B193		; B18D	$4C $93 $B1
 L2F190:
 .byte $20,$F6,$B5
@@ -4019,6 +4049,7 @@ lr_hand_tmp	= $18
 
 ; Name	:
 ; Marks	: $00(ADDR) = $9320 = battle animation graphics
+;	  Weapon animation graphics
 	LDA #$20		; B199	$A9 $20
 	STA $00			; B19B	$85 $00
 	LDA #$93		; B19D	$A9 $93
@@ -4089,7 +4120,7 @@ L2F1E1:
 	LDX #$07		; B295	$A2 $07
 	JSR $9E72		; B297	$20 $72 $9E	sound effect
 L2F29A:
-	JSR $9DE1		; B29A	$20 $E1 $9D	Reset OAM buffer. From $0270-$02AF
+	JSR Rst_act_OAM_buf	; B29A	$20 $E1 $9D
 	LDY #$71		; B29D	$A0 $71
 	LDX #$00		; B29F	$A2 $00
 L2F2A1:
@@ -4287,21 +4318,21 @@ atk_ani_AB_tmp	= $16
 
 ; Name	:
 ; Marks	:
-	LDX $26			; B4B5	$A6 $26
-	JSR $9DDA		; B4B7	$20 $DA $9D
-	JSR $9DE1		; B4BA	$20 $E1 $9D
-	STX $16			; B4BD	$86 $16
+	LDX $26			; B4B5	$A6 $26		character index temp
+	JSR Rst_char_OAM_buf	; B4B7	$20 $DA $9D
+	JSR Rst_act_OAM_buf	; B4BA	$20 $E1 $9D
+	STX atk_ani_AB_tmp	; B4BD	$86 $16
 	LDA #$04		; B4BF	$A9 $04
-	STA $17			; B4C1	$85 $17
+	STA $17			; B4C1	$85 $17		delay count ??
 	LDX $22			; B4C3	$A6 $22
 	TXA			; B4C5	$8A
 	BEQ L2F4CA		; B4C6	$F0 $02
 	LDA #$05		; B4C8	$A9 $05
 L2F4CA:
 	CLC			; B4CA	$18
-	ADC $20,X		; B4CB	$75 $20
+	ADC $20,X		; B4CB	$75 $20		weapon action type temp ??
 	TAX			; B4CD	$AA
-	LDY $B5DE,X		; B4CE	$BC $DE $B5
+	LDY $B5DE,X		; B4CE	$BC $DE $B5	weapon action type ??
 	BNE L2F4D4		; B4D1	$D0 $01
 	RTS			; B4D3	$60
 ; End of
@@ -4316,22 +4347,23 @@ L2F4D4:
 	STA $01			; B4E0	$85 $01
 .byte $6C,$00,$00
 	;JMP ($0000)		; B4E2	$6C $00 $00
+SR_B4E5:
 	INY			; B4E5	$C8
-	STY $19			; B4E6	$84 $19
+	STY $19			; B4E6	$84 $19		attack type 2 temp ??
 	LDA #$04		; B4E8	$A9 $04
-	STA $18			; B4EA	$85 $18
+	STA $18			; B4EA	$85 $18		attack motion A/B repeat count
 L2F4EC:
 	LDX #$00		; B4EC	$A2 $00
 	JSR $B5AB		; B4EE	$20 $AB $B5	attack with weapon pose ??
 	LDA atk_ani_AB_tmp	; B4F1	$A5 $16		animation A/B ??
 	EOR #$01		; B4F3	$49 $01
 	STA atk_ani_AB_tmp	; B4F5	$85 $16
-	DEC $18			; B4F7	$C6 $18		attack motion count
+	DEC $18			; B4F7	$C6 $18		attack motion A/B repeat count
 	BNE L2F4EC		; B3F9	$D0 $F1
 	RTS			; B4FB	$60
 ; End of
 
-;B4FC
+SR_B4FC:
 .byte $C8
 L2F4FD:
 .byte $84,$19,$A5
@@ -4341,6 +4373,7 @@ L2F4FD:
 .byte $9C,$18,$69,$02,$0A,$85,$18,$A2,$01,$20,$AB,$B5,$E6,$16,$C6,$18
 .byte $D0,$F5,$60
 
+SR_B513:
 	INY			; B513	$C8
 	STY $19			; B514	$84 $19
 	LDX $26			; B516	$A6 $26		character index ??
@@ -4354,45 +4387,46 @@ L2F521:
 	LDA $7BCA,X		; B526	$BD $CA $7B	character x position (current)
 	SEC			; B529	$38
 	SBC #$0C		; B52A	$E9 $0C
-	STA $1C			; B52C	$85 $1C
+	STA $1C			; B52C	$85 $1C		weapon x ??
 	LDA $7BCE,X		; B52E	$BD $CE $7B	character y position
 	CLC			; B531	$18
 	ADC #$04		; B532	$69 $04
-	STA $1D			; B534	$85 $1D
+	STA $1D			; B534	$85 $1D		weapon y ??
 	LDA #$01		; B536	$A9 $01
-	STA $16			; B538	$85 $16
+	STA $16			; B538	$85 $16		animation A/B ??
 	LDX #$05		; B53A	$A2 $05
-	JSR $AC4B		; B53C	$20 $4B $AC
-	JSR $B5AE		; B53F	$20 $AE $B5
+	JSR $AC4B		; B53C	$20 $4B $AC	Set OAM buffer
+	JSR $B5AE		; B53F	$20 $AE $B5	character attack pose ready A with weapon ??
 	LDA #$00		; B542	$A9 $00
-	STA $16			; B544	$85 $16
+	STA $16			; B544	$85 $16		animation A/B ??
 	LDA #$08		; B546	$A9 $08
 	STA $17			; B548	$85 $17
-	LDA $1C			; B54A	$A5 $1C
+	LDA $1C			; B54A	$A5 $1C		weapon x ??
 	CLC			; B54C	$18
 	ADC #$08		; B54D	$69 $08
 	STA $1C			; B54F	$85 $1C
 	LDX #$05		; B551	$A2 $05
-	JSR $AC4B		; B553	$20 $4B $AC
-	JSR $B5AE		; B556	$20 $AE $B5
-	LDX #$02		; B559	$A2 $02
+	JSR $AC4B		; B553	$20 $4B $AC	Set OAM buffer
+	JSR $B5AE		; B556	$20 $AE $B5	character attack pose ready B with weapon ??
+	LDX #$02		; B559	$A2 $02		sound effect number = 02h
 	JSR $9E72		; B55B	$20 $72 $9E	sound effect ??
 	LDA #$01		; B55E	$A9 $01
 	STA $17			; B560	$85 $17
 L2F562:
 	LDX #$05		; B562	$A2 $05
-	JSR $AC4B		; B564	$20 $4B $AC
-	JSR $B5AE		; B567	$20 $AE $B5
-	INC $16			; B56A	$E6 $16
-	LDA $1C			; B56C	$A5 $1C
+	JSR $AC4B		; B564	$20 $4B $AC	Set OAM buffer
+	JSR $B5AE		; B567	$20 $AE $B5	character attack pose ready C with weapon ??
+	INC $16			; B56A	$E6 $16		animation A/B ??
+	LDA $1C			; B56C	$A5 $1C		weapon x ??
 	SEC			; B56E	$38
 	SBC #$08		; B56F	$E9 $08
-	STA $1C			; B571	$85 $1C
-	CMP #$A0		; B573	$C9 $A0
+	STA $1C			; B571	$85 $1C		weapon x ??
+	CMP #$A0		; B573	$C9 $A0		bow shot range ??
 	BCS L2F562		; B575	$B0 $EB
 	RTS			; B577	$60
 ; End of
 
+SR_B578:
 .byte $C8,$C8,$84,$19,$A2,$03,$20,$72
 .byte $9E,$A2,$0C,$86,$18,$A5,$18,$29,$01,$F0,$04,$A9,$0F,$D0,$03,$AD
 .byte $C1,$79,$20,$71,$9D,$A6,$18,$BD,$E8,$B5,$85,$16,$20,$AE,$B5,$C6
@@ -4415,17 +4449,24 @@ L2F5BA:
 	LDX $26			; B5BE	$A6 $26		character index
 	LDA $7BA2,X		; B5C0	$BD $A2 $7B	character graphics type
 	BNE L2F5CC		; B5C3	$D0 $07
-	LDX $19			; B5C5	$A6 $19
+	LDX $19			; B5C5	$A6 $19		attack type 2 temp ??
 	LDA atk_ani_AB_tmp	; B5C7	$A5 $16
 	JSR $AC4B		; B5C9	$20 $4B $AC
 L2F5CC:
 	JSR Apply_OAM_pal	; B5CC	$20 $33 $9E
-	LDA $17			; B5CF	$A5 $17
-	JMP $9E1F		; B5D1	$4C $1F $9E
+	LDA $17			; B5CF	$A5 $17		delay count ??
+	JMP $9E1F		; B5D1	$4C $1F $9E	attack pose motion delay
 ; End of
 
-;B5D4 - data block
-.byte $E5,$B4,$E5,$B4,$FC,$B4,$13,$B5,$78,$B5,$00,$01
+;B5D4 - data block - jump address[5:0-4]
+.word SR_B4E5			; B5D4	$E5 $B4
+.word SR_B4E5			; B5D6	$E5 $B4
+.word SR_B4FC			; B5D8	$FC $B4
+.word SR_B513			; B5DA	$13 $B5
+.word SR_B578			; B5DC	$78 $B5
+
+;B5DE - data block - weapon action type ??
+.byte $00,$01
 .byte $03,$04,$05,$00,$02,$03,$04,$05,$09,$08,$07,$06,$05,$04,$03,$02
 .byte $05,$04,$03,$02,$01,$00,$20,$FF,$B5,$20,$E7,$9D,$4C,$33,$9E,$AD
 
