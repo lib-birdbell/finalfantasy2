@@ -1706,9 +1706,11 @@ L2DDED:
 
 .byte $A5,$01,$99,$00,$02,$A5,$02,$99
 .byte $01,$02,$A5,$03,$99,$02,$02,$A5,$00,$99,$03,$02,$4C,$FC,$9D
+; Name	: Gfx_delay
 ; A	: delay count
 ; Marks	: motion delay
 L2DE1F:
+Gfx_delay:
 	PHA			; 9E1F	$48
 	JSR Apply_OAM_pal	; 9E20	$20 $33 $9E
 	PLA			; 9E23	$68
@@ -3941,7 +3943,7 @@ L2F0C5:
 	JSR $ABA9		; B0C5	$20 $A9 $AB
 	LDX $22			; B0C8	$A6 $22
 	JSR $B436		; B0CA	$20 $36 $B4	Check weapon l/r hand ??
-	JSR $B4B5		; B0CD	$20 $B5 $B4	attack animation ??
+	JSR $B4B5		; B0CD	$20 $B5 $B4	attack animation OOOO ??
 L2F0D0:
 	LDX $22			; B0D0	$A6 $22
 	DEX			; B0D2	$CA
@@ -4315,15 +4317,16 @@ L2F4B4:
 
 ;////////// temporary variables //////////
 atk_ani_AB_tmp	= $16
+gfx_delay_cnt	= $17
 
 ; Name	:
-; Marks	:
+; Marks	: Attack animation(with weapon)
 	LDX $26			; B4B5	$A6 $26		character index temp
 	JSR Rst_char_OAM_buf	; B4B7	$20 $DA $9D
 	JSR Rst_act_OAM_buf	; B4BA	$20 $E1 $9D
 	STX atk_ani_AB_tmp	; B4BD	$86 $16
 	LDA #$04		; B4BF	$A9 $04
-	STA $17			; B4C1	$85 $17		delay count ??
+	STA gfx_delay_cnt	; B4C1	$85 $17		motion delay count
 	LDX $22			; B4C3	$A6 $22
 	TXA			; B4C5	$8A
 	BEQ L2F4CA		; B4C6	$F0 $02
@@ -4347,14 +4350,14 @@ L2F4D4:
 	STA $01			; B4E0	$85 $01
 .byte $6C,$00,$00
 	;JMP ($0000)		; B4E2	$6C $00 $00
-SR_B4E5:
+SR_B4E5:	; Axe attack ??
 	INY			; B4E5	$C8
 	STY $19			; B4E6	$84 $19		attack type 2 temp ??
 	LDA #$04		; B4E8	$A9 $04
 	STA $18			; B4EA	$85 $18		attack motion A/B repeat count
 L2F4EC:
 	LDX #$00		; B4EC	$A2 $00
-	JSR $B5AB		; B4EE	$20 $AB $B5	attack with weapon pose ??
+	JSR Atk_pose_snd	; B4EE	$20 $AB $B5	attack with weapon pose(A/B) ??
 	LDA atk_ani_AB_tmp	; B4F1	$A5 $16		animation A/B ??
 	EOR #$01		; B4F3	$49 $01
 	STA atk_ani_AB_tmp	; B4F5	$85 $16
@@ -4396,7 +4399,7 @@ L2F521:
 	STA $16			; B538	$85 $16		animation A/B ??
 	LDX #$05		; B53A	$A2 $05
 	JSR $AC4B		; B53C	$20 $4B $AC	Set OAM buffer
-	JSR $B5AE		; B53F	$20 $AE $B5	character attack pose ready A with weapon ??
+	JSR Atk_pose		; B53F	$20 $AE $B5	character attack pose ready A with weapon ??
 	LDA #$00		; B542	$A9 $00
 	STA $16			; B544	$85 $16		animation A/B ??
 	LDA #$08		; B546	$A9 $08
@@ -4407,7 +4410,7 @@ L2F521:
 	STA $1C			; B54F	$85 $1C
 	LDX #$05		; B551	$A2 $05
 	JSR $AC4B		; B553	$20 $4B $AC	Set OAM buffer
-	JSR $B5AE		; B556	$20 $AE $B5	character attack pose ready B with weapon ??
+	JSR Atk_pose		; B556	$20 $AE $B5	character attack pose ready B with weapon ??
 	LDX #$02		; B559	$A2 $02		sound effect number = 02h
 	JSR $9E72		; B55B	$20 $72 $9E	sound effect ??
 	LDA #$01		; B55E	$A9 $01
@@ -4415,7 +4418,7 @@ L2F521:
 L2F562:
 	LDX #$05		; B562	$A2 $05
 	JSR $AC4B		; B564	$20 $4B $AC	Set OAM buffer
-	JSR $B5AE		; B567	$20 $AE $B5	character attack pose ready C with weapon ??
+	JSR Atk_pose		; B567	$20 $AE $B5	character attack pose ready C with weapon ??
 	INC $16			; B56A	$E6 $16		animation A/B ??
 	LDA $1C			; B56C	$A5 $1C		weapon x ??
 	SEC			; B56E	$38
@@ -4432,11 +4435,14 @@ SR_B578:
 .byte $C1,$79,$20,$71,$9D,$A6,$18,$BD,$E8,$B5,$85,$16,$20,$AE,$B5,$C6
 .byte $18,$10,$E2,$A9,$0F,$20,$71,$9D,$4C,$33,$9E
 
-; Name	;
-; Marks	:
+; Name	; Atk_pose_snd
+; SRC	: $26 = character index, $16 = atk_ani_AB_tmp
+; Marks	: attack pose with weapon and sound effect process
+Atk_pose_snd:
 	JSR $9E72		; B5AB	$20 $72 $9E	sound effect ??
-; Name	:
-; Marks	:
+; Name	: Atk_pose
+; Marks	: attack pose with weapon
+Atk_pose:
 	LDX $26			; B5AE	$A6 $26		character index
 	LDY #$38		; B5B0	$A0 $38
 	LDA atk_ani_AB_tmp	; B5B2	$A5 $16		animation A/B
@@ -4454,9 +4460,10 @@ L2F5BA:
 	JSR $AC4B		; B5C9	$20 $4B $AC
 L2F5CC:
 	JSR Apply_OAM_pal	; B5CC	$20 $33 $9E
-	LDA $17			; B5CF	$A5 $17		delay count ??
-	JMP $9E1F		; B5D1	$4C $1F $9E	attack pose motion delay
-; End of
+	LDA gfx_delay_cnt	; B5CF	$A5 $17		motion delay count
+	JMP Gfx_delay		; B5D1	$4C $1F $9E	attack pose motion delay
+; End of Atk_pose
+; End of Atk_pose_snd
 
 ;B5D4 - data block - jump address[5:0-4]
 .word SR_B4E5			; B5D4	$E5 $B4

@@ -195,6 +195,7 @@ current_song_ID		= $E0
 ;	#$1D = ending
 ;	#$1E = laser?
 ;	#$FF = stop ??
+cur_turn_id		= $E1
 _E5_unknown		= $E5
 _E6_unknown		= $E6
 
@@ -540,7 +541,8 @@ statup_confirmation      = $7B62 ; 8 bytes, all $FF during testing
 
 
 
-
+turn_order_cnt		= $7CBB
+turn_order_que		= $7D5E
 
 ;; Battle Stats ;; 
 
@@ -608,7 +610,13 @@ hp_levelup               = $7D6A ; 2 bytes per character, first 2 are Firion's, 
 
 mp_levelup               = $7D72 ; 2 bytes per character, 8 bytes total
 
+msg_que			= $7FBA
+
+
+
+;; ========== PPU RAM($0000-$3F1F) ==========
 palette_RAM_idx		= $3F00
+
 
 
 ;; NES Registers ;;

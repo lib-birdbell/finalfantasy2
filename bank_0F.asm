@@ -8546,7 +8546,7 @@ L3FA88:
 	LDA $3E			; FA89  $A5 $3E		bank temp buffer ??
 	STA $3F			; FA8B  $85 $3F		bank temp buffer save ??
 	PLA			; FA8D  $68
-	JSR L3FA7F		; FA8E  $20 $7F $FA	bank swap 0C -> 0B ??
+	JSR L3FA7F		; FA8E  $20 $7F $FA	bank swap 0C -> 0B/05 ?? any bank can swap
 	LDA #$FA		; FA91  $A9 $FA
 	PHA			; FA93  $48
 	LDA #$99		; FA94  $A9 $99
@@ -8581,8 +8581,10 @@ L3FA9E:
     BNE L3FAF0               ; FAC6  $D0 $28
     LDA #$1B                 ; FAC8  $A9 $1B
     BNE L3FAF0               ; FACA  $D0 $24
-    LDA #$1E                 ; FACC  $A9 $1E
-    BNE L3FAF0               ; FACE  $D0 $20
+; Name	:
+; Marks	:
+	LDA #$1E		; FACC  $A9 $1E
+	BNE L3FAF0		; FACE  $D0 $20
     LDA #$21                 ; FAD0  $A9 $21
     BNE L3FAF0               ; FAD2  $D0 $1C
     LDA #$24                 ; FAD4  $A9 $24
@@ -8666,6 +8668,7 @@ L3FB48:
     STA $41                  ; FB4C  $85 $41
     LDA #$05                 ; FB4E  $A9 $05
     JMP L3FA88               ; FB50  $4C $88 $FA
+; End of
 
 ; Name	:
 ; SRC	: $7B49

@@ -3739,7 +3739,7 @@ L16AB2:
 	DEC $52			; AABF	$C6 $52
 	DEC $53			; AAC1	$C6 $52
 	DEC $53			; AAC3	$C6 $52
-L16AC5:
+L16AC5:		; show battle message process ??
 	JSR $ABD2		; AAC5	$20 $D2 $AB
 	LDA $44			; AAC8	$A4 $44
 	CMP #$03		; AACA	$C9 $03
