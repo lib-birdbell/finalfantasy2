@@ -4168,7 +4168,21 @@ L32C8A:
 ;ACA2
 .byte $A2,$00,$86,$AE,$86,$E4,$CA,$86,$AF,$A2,$13,$8E,$BA,$7F
 .byte $60,$A2,$00,$86,$AE,$86,$E4,$CA,$86,$AF,$A2,$0F,$8E,$BA,$7F,$60
-.byte $A2,$00,$86,$AE,$86,$E4,$CA,$86,$AF,$A2,$10,$8E,$BA,$7F,$60,$A2
+
+; Name	:
+; Marks	:
+	LDX #$00		; ACC0	$A2 $00
+	STX $AE			; ACC2	$86 $AE
+	STX $E4			; ACC4	$86 $E4
+	DEX			; ACC6	$CA
+	STX $AF			; ACC7	$86 $AF
+	LDX #$10		; ACC9	$A2 $10
+	STX $7FBA		; ACCB	$8E $BA $7F
+	RTS			; ACCE	$60
+; End of
+
+;ACCF
+.byte $A2
 .byte $00,$86,$AE,$A2,$80,$86,$AF,$A2,$14,$8E,$BA,$7F,$60
 
 ; Name	:
@@ -4193,18 +4207,100 @@ L32CF0:
 
 .byte $AB,$9A,$AE,$BF,$7C,$A9,$FF,$9D,$47,$7D,$A0,$25,$B1,$9F,$85,$62
 .byte $A9,$00,$85,$63,$20,$49,$97,$AE,$BF,$7C,$E8,$A5,$67,$9D,$47,$7D
-.byte $E8,$A5,$68,$9D,$47,$7D,$E8,$A9,$00,$9D,$47,$7D,$4C,$2D,$AC,$A9
-.byte $00,$85,$9E,$20,$E1,$96,$A5,$9E,$0A,$AA,$38,$A0,$08,$B1,$7A,$A0
-.byte $0A,$F1,$80,$9D,$6A,$7D,$A0,$09,$B1,$7A,$A0,$0B,$F1,$80,$9D,$6B
-.byte $7D,$B0,$08,$A9,$00,$9D,$6A,$7D,$9D,$6B,$7D,$38,$A0,$0C,$B1,$7A
-.byte $A0,$0C,$F1,$80,$9D,$72,$7D,$A0,$0D,$B1,$7A,$A0,$0D,$F1,$80,$9D
-.byte $73,$7D,$B0,$08,$A9,$00,$9D,$72,$7D,$9D,$73,$7D,$AD,$48,$7B,$C9
-.byte $7F,$F0,$2B,$20,$6C,$AF,$48,$A0,$01,$91,$7A,$68,$29,$C0,$F0,$08
-.byte $A0,$35,$B1,$7E,$09,$01,$91,$7E,$A0,$0A,$84,$44,$A0,$09,$84,$45
-.byte $20,$D9,$AD,$A0,$0C,$84,$44,$A0,$0D,$84,$45,$20,$D9,$AD,$A0,$1C
-.byte $B1,$7A,$C9,$30,$D0,$04,$A9,$00,$91,$7A,$C8,$B1,$7A,$C9,$30,$D0
-.byte $04,$A9,$00,$91,$7A,$A0,$35,$B1,$7E,$49,$01,$91,$7E,$E6,$9E,$A5
-.byte $9E,$C9,$04,$F0,$03,$4C,$33,$AD,$60
+.byte $E8,$A5,$68,$9D,$47,$7D,$E8,$A9,$00,$9D,$47,$7D,$4C,$2D,$AC
+
+; Name	:
+; Marks	:
+	LDA #$00		; AD2F	$A9 $00
+	STA $9E			; AD31	$85 $9E
+	JSR $96E1		; AD33	$20 $E1 $96
+	LDA $9E			; AD36	$A5 $9E
+	ASL A			; AD38	$0A
+	TAX			; AD39	$AA
+	SEC			; AD3A	$38
+	LDY #$08		; AD3B	$A0 $08
+	LDA ($7A),Y		; AD3D	$B1 $7A
+	LDY #$0A		; AD3F	$A0 $0A
+	SBC ($80),Y		; AD41	$F1 $80
+	STA $7D6A,X		; AD43	$9D $6A $7D
+	LDY #$09		; AD46	$A0 $09
+	LDA ($7A),Y		; AD48	$B1 $7A
+	LDY #$0B		; AD4A	$A0 $0B
+	SBC ($80),Y		; AD4C	$F1 $80
+	STA $7D6B,X		; AD4E	$9D $6B $7D
+	BCS L32D5B		; AD51	$B0 $08
+	LDA #$00		; AD53	$A9 $00
+	STA $7D6A,X		; AD55	$9D $6A $7D
+	STA $7D6B,X		; AD58	$9D $6B $7D
+L32D5B:
+	SEC			; AD5B	$38
+	LDY #$0C		; AD5C	$A0 $0C
+	LDA ($7A),Y		; AD5E	$B1 $7A
+	LDY #$0C		; AD60	$A0 $0C
+	SBC ($80),Y		; AD62	$F1 $80
+	STA $7D72,X		; AD64	$9D $72 $7D
+	LDY #$0D		; AD67	$A0 $0D
+	LDA ($7A),Y		; AD69	$B1 $7A
+	LDY #$0D		; AD6B	$A0 $0D
+	SBC ($80),Y		; AD6D	$F1 $80
+	STA $7D73,X		; AD6F	$9D $73 $7D
+	BCS L32D7C		; AD72	$B0 $08
+	LDA #$00		; AD74	$A9 $00
+	STA $7D72,X		; AD76	$9D $72 $7D
+	STA $7D73,X		; AD78	$9D $73 $7D
+L32D7C:
+	LDA $7B48		; AD7B	$AD $48 $7B
+	CMP #$7F		; AD7F	$C9 $7F
+	BEQ L32DAE		; AD81	$F0 $2B
+	JSR $AF6C		; AD83	$20 $6C $AF
+	PHA			; AD86	$48
+	LDY #$01		; AD87	$A0 $01
+	STA ($7A),Y		; AD89	$91 $7A
+	PLA			; AD8B	$68
+	AND #$C0		; AD8C	$29 $C0
+	BEQ L32D98		; AD8E	$F0 $08
+	LDY #$35		; AD90	$A0 $35
+	LDA ($7E),Y		; AD92	$B1 $7E
+	ORA #$01		; AD94	$09 $01
+	STA ($7E),Y		; AD96	$91 $7E
+L32D98:
+	LDY #$0A		; AD98	$A0 $0A
+	STY $44			; AD9A	$84 $44
+	LDY #$09		; AD9C	$A0 $09
+	STY $45			; AD9E	$84 $45
+	JSR $ADD9		; ADA0	$20 $D9 $AD
+	LDY #$0C		; ADA3	$A0 $0C
+	STY $44			; ADA5	$84 $44
+	LDY #$0D		; ADA7	$A0 $0D
+	STY $45			; ADA9	$84 $45
+	JSR $ADD9		; ADAB	$20 $D9 $AD
+L32DAE:
+	LDY #$1C		; ADAE	$A0 $1C
+	LDA ($7A),Y		; ADB0	$B1 $7A
+	CMP #$30		; ADB2	$C9 $30
+	BNE L32DBA		; ADB4	$D0 $04
+	LDA #$00		; ADB6	$A9 $00
+	STA ($7A),Y		; ADB8	$91 $7A
+L32DBA:
+	INY			; ADBA	$C8
+	LDA ($7A),Y		; ADBB	$B1 $7A
+	CMP #$30		; ADBD	$C9 $30
+	BNE L32DC5		; ADBF	$D0 $04
+	LDA #$00		; ADC1	$A9 $00
+	STA ($7A),Y		; ADC3	$91 $7A
+L32DC5:
+	LDY #$35		; ADC5	$A0 $35
+	LDA ($7E),Y		; ADC7	$B1 $7E
+	EOR #$01		; ADC9	$49 $01
+	STA ($7E),Y		; ADCB	$91 $7E
+	INC $9E			; ADCD	$E6 $9E
+	LDA $9E			; ADCF	$A5 $9E
+	CMP #$04		; ADD1	$C9 $04
+	BEQ L32DD8		; ADD3	$F0 $03
+	JMP $AD33		; ADD5	$4C $33 $AD
+L32DD8:
+	RTS			; ADD8	$60
+; End of
 
 ; Name	:
 ; Marks	:
@@ -4219,6 +4315,7 @@ L32CF0:
 	PLA			; ADE6	$68
 	STA ($7A),Y		; ADE7	$91 $7A
 	RTS			; ADE9	$60
+; End of
 
 ; Name	:
 ; Marks	:
