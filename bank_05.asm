@@ -11,31 +11,20 @@
 
 .segment "BANK_05"
 
-;; [8000 : 14010]
+; ========== pointers to map bg tilemaps 2 ($8000-$807F) START ==========
 .byte $80,$80,$28,$81,$FB,$81,$B7,$82,$49,$83,$FD,$83,$8E,$84,$E3,$84
-
-;; [8010 : 14020]
 .byte $A0,$85,$1E,$86,$D8,$86,$A8,$87,$74,$88,$20,$89,$DF,$89,$9E,$8A
-
-;; [8020 : 14030]
 .byte $5F,$8B,$F3,$8B,$B6,$8C,$6C,$8D,$B2,$8D,$57,$8E,$05,$8F,$CD,$8F
-
-;; [8030 : 14040]
 .byte $82,$90,$46,$91,$E7,$91,$5A,$92,$A4,$92,$FC,$92,$50,$93,$B4,$93
-
-;; [8040 : 14050]
 .byte $68,$94,$25,$95,$E4,$95,$81,$96,$58,$97,$31,$98,$C1,$98,$65,$99
-
-;; [8050 : 14060]
 .byte $D8,$99,$E4,$99,$31,$9A,$77,$9A,$AB,$9A,$5F,$9B,$AA,$9B,$D4,$9B
-
-;; [8060 : 14070]
 .byte $EB,$9B,$39,$9C,$B9,$9C,$03,$9D,$06,$9D,$29,$9D,$5B,$9D,$5B,$9D
-
-;; [8070 : 14080]
 .byte $5B,$9D,$5B,$9D,$5B,$9D,$5B,$9D,$5B,$9D,$5B,$9D,$5B,$9D,$5B,$9D
+; ========== pointers to map bg tilemaps 2 ($8000-$807F) END ==========
 
-;; [8080 : 14090]
+
+; ========== map bg tilemaps 2 ($8080-$9D7F) START ==========
+;; [8080 : 14080]
 .byte $19,$41,$19,$87,$03,$99,$09,$07,$19,$0C,$19,$07,$99,$03,$8A,$07
 
 ;; [8090 : 140A0]
@@ -1426,8 +1415,10 @@
 
 ;; [9D70 : 15D80]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; ========== map bg tilemaps 2 ($8080-$9D7F) END ==========
 
-;; [$9D80-$9EFF] UNUSED START
+
+;; ========== [$9D80-$9EFF] UNUSED START ==========
 ;; [9D80 : 15D90]
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
@@ -1499,35 +1490,9 @@
 
 ;; [9EF0 : 15EF0]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-;; [$9D80-$9EFF] UNUSED END
+;; ========== [$9D80-$9EFF] UNUSED END ==========
 
-;;; [A470 : 16480]
-;.byte $21,$16,$2B,$1D,$2B,$02,$3F,$1D,$21,$02,$2B,$17,$20,$46,$FD,$A2
-;
-;;; [A480 : 16490]
-;.byte $00,$86,$9E,$86,$00,$86,$01,$86,$02,$86,$03,$A2,$08,$BD,$62,$7B
-;
-;;; [A490 : 164A0]
-;.byte $C9,$FF,$F0,$13,$29,$7F,$A8,$B9,$00,$B7,$18,$65,$00,$85,$00,$A5
-;
-;;; [A4A0 : 164B0]
-;.byte $01,$69,$00,$85,$01,$E6,$02,$E8,$E0,$10,$D0,$E1,$20,$C3,$FC,$A5
-;
-;;; [A4B0 : 164C0]
-;.byte $04,$85,$22,$A2,$08,$86,$0C,$BD,$62,$7B,$20,$D3,$A9,$E6,$0C,$A6
-;
-;;; [A4C0 : 164D0]
-;.byte $0C,$E0,$10,$D0,$F2,$20,$64,$A4,$18,$AD,$C0,$7C,$85,$62,$6D,$1C
-;
-;;; [A4D0 : 164E0]
-;.byte $60,$8D,$1C,$60,$AD,$C1,$7C,$85,$63,$6D,$1D,$60,$8D,$1D,$60,$A9
-;
-;;; [A4E0 : 164F0]
-;.byte $00,$6D,$1E,$60,$8D,$1E,$60,$20,$27,$FB,$A2,$00,$A5,$64,$9D,$47
-;
-;;; [A4F0 : 16500]
-;.byte $7D,$E8,$A5,$65,$9D,$47,$7D,$E8,$A5,$66,$9D,$47,$7D,$E8,$A5,$67
-;
+
 ;;; [A500 : 16510]
 ;.byte $9D,$47,$7D,$E8,$A5,$68,$9D,$47,$7D,$E8,$86,$AA,$A9,$B2,$85,$63
 ;
@@ -1832,6 +1797,7 @@
 ;;; [ABE0 : 16BF0]
 ;.byte $65,$18,$65,$62,$85,$62,$A5,$65,$65,$63,$85,$63,$A0,$00,$B1,$62
 ;
+
 
 ;; ========== Battle message code ($9F00-$AC43) START ==========
 
@@ -2600,105 +2566,105 @@ L1645E:
 ;; sub start ;;
 
 CheckSomeStatStuff:
-    JSR L3FD46                ; Waits for a sprite 0 hit to do battle message stuff.
+	JSR L3FD46		; A47B	$20 $46 $FD - Waits for a sprite 0 hit to do battle message stuff.
 A47F:
-    LDX #$00                  ; Set X to 0 and clear these variables
-    STX entity_counter
-    STX tmp
-    STX tmp+1
-    STX tmp+2
-    STX tmp+3
-    LDX #$08                  ; check the byte AFTER 8 $FFs
+	LDX #$00		; A47F	$A2 $00 - Set X to 0 and clear these variables
+	STX entity_counter	; A481	$86 $9E
+	STX tmp			; A483	$86 $00
+	STX tmp+1		; A485	$86 $01
+	STX tmp+2		; A487	$86 $02
+	STX tmp+3		; A489	$86 $03
+	LDX #$08		; A48B	$A2 $08 - check the byte AFTER 8 $FFs
     
 @Loop:
     LDA statup_confirmation,X ; not totally sure... its 3, 2, 2, 2, 2, 2, 2, 2 after just wailing on some hornets.
+				; A48D	$BD $62 $7B
     CMP #$FF                  ; if it equals, jump to incementing X...
-    BEQ :+                   
-    AND #$7F                  ; otherwise, cut off the high bit
-    TAY                       ; and transfer to Y
-    LDA $B700,Y               ; get the resulting byte from this LUT in ROM
-    CLC                      
-    ADC tmp                   ; add tmp and save
-    STA tmp                  
-    LDA tmp+1                 
-    ADC #$00                  ; add carry to tmp+1
-    STA tmp+1                
-    INC tmp+2                 ; tmp+2 must be a counter, add 1 here
-
-  : INX                       ; add 1 to X (started at 8)
-    CPX #$10                  ; so only do 8 iterations of this loop
-    BNE @Loop      
+				; A490	$C9 $FF
+    BEQ :+			; A492	$F0 $13
+    AND #$7F			; A494	$29 $7F - otherwise, cut off the high bit
+    TAY				; A496	$A8 - and transfer to Y
+    LDA $B700,Y			; A497	$B9 $00 $B7 - get the resulting byte from this LUT in ROM
+    CLC				; A49A	$18
+    ADC tmp			; A49B	$65 $00 - add tmp and save
+    STA tmp			; A49D	$85 $00
+    LDA tmp+1			; A49F	$A5 $01
+    ADC #$00			; A4A1	$69 $00 - add carry to tmp+1
+    STA tmp+1			; A4A3	$85 $01
+    INC tmp+2			; A4A5	$E6 $02 - tmp+2 must be a counter, add 1 here
+  : INX				; A4A7	$E8 - add 1 to X (started at 8)
+    CPX #$10			; A4A8	$E0 $10 - so only do 8 iterations of this loop
+    BNE @Loop			; A4AA	$D0 $E1
     
 ;; after all that, tmp and tmp+1 is a 16-bit digit, made up of numbers from $B700, added up
 ;; this next routine divides tmp and tmp+1 by tmp+2 and tmp+3.
     
-    JSR DoDivision            ; Scary division routine in Bank F
-    LDA tmp+4                 ; tmp+4 is the low byte result 
-    STA division_result       ; back it up here
-    LDX #$08
-    STX tmp+$C                ; set another counter... X is gonna get clobbered
+    JSR DoDivision		; A4AC	$20 $C3 $FC - Scary division routine in Bank F
+    LDA tmp+4			; A4AF	$A5 $04 - tmp+4 is the low byte result 
+    STA division_result		; A4B1	$85 $22 - back it up here
+    LDX #$08			; A4B3	$A2 $08
+    STX tmp+$C			; A4B5	$86 $0C - set another counter... X is gonna get clobbered
 
 ;; Go through the list again...
     
 L164B7:
-    LDA statup_confirmation,X
-    JSR TheNextThing
-    INC tmp+$C                 ; increase the counter
-    LDX tmp+$C                 ; and load back into X
-    CPX #$10
-    BNE L164B7
-    
-    JSR $A464
-    CLC
-    LDA $7CC0
-    STA $62
-    ADC $601C
-    STA $601C
-    LDA $7CC1
-    STA $63
-    ADC $601D
-    STA $601D
-    LDA #$00
-    ADC $601E
-    STA $601E
-    JSR $FB27
-    LDX #$00
-    LDA $64
-    STA $7D47,X
-    INX
-    LDA $65
-    STA $7D47,X
-    INX
-    LDA $66
-    STA $7D47,X
-    INX
-    LDA $67
-    STA $7D47,X
-    INX
-    LDA $68
-    STA $7D47,X
-    INX
-    STX $AA
-    LDA #$B2
-    STA $63
-    LDA #$95
-    STA $62
-    LDX #$05
-    LDA #$6B
-    STA $64
-    JSR L3FD8C
-    JSR $A084
-    LDA #$10
-    STA $44
-    STA $45
-    LDA #$00
-    STA $6F
-    JSR $FB1B
-    JSR Wait_MENU_snd
-    JSR $AA41
-    LDY $AB
-    JSR $A9C4
-    JSR $AA48
+	LDA statup_confirmation,X	; A4B7	$BD $62 $7B
+	JSR TheNextThing	; A4BA	$20 $D3 $A9
+	INC tmp+$C		; A4BD	$E6 $0C - increase the counter
+	LDX tmp+$C		; A4BF	$A6 $0C - and load back into X
+	CPX #$10		; A4C1	$E0 $10
+	BNE L164B7		; A4C3	$D0 $F2
+	JSR $A464		; A4C5	$20 $64 $A4
+	CLC			; A4C8	$18
+	LDA $7CC0		; A4C9	$AD $C0 $7C
+	STA $62			; A4CC	$85 $62
+	ADC $601C		; A4CE	$6D $1C $60
+	STA $601C		; A4D1	$8D $1C $60
+	LDA $7CC1		; A4D4	$AD $C1 $7C
+	STA $63			; A4D7	$85 $63
+	ADC $601D		; A4D9	$6D $1D $60
+	STA $601D		; A4DC	$8D $1D $60
+	LDA #$00		; A4DF	$A9 $00
+	ADC $601E		; A4E1	$6D $1E $60
+	STA $601E		; A4E4	$8D $1E $60
+	JSR $FB27		; A4E7	$20 $27 $FB
+	LDX #$00		; A4EA	$A2 $00
+	LDA $64			; A4EC	$A5 $64
+	STA $7D47,X		; A4EE	$9D $47 $7D
+	INX			; A4F1	$E8
+	LDA $65			; A4F2	$A5 $65
+	STA $7D47,X		; A4F4	$9D $47 $7D
+	INX			; A4F7	$E8
+	LDA $66			; A4F8	$A5 $66
+	STA $7D47,X		; A4FA	$9D $47 $7D
+	INX			; A4FD	$E8
+	LDA $67			; A4FE	$A5 $67
+	STA $7D47,X
+	INX
+	LDA $68
+	STA $7D47,X
+	INX
+	STX $AA
+	LDA #$B2
+	STA $63
+	LDA #$95
+	STA $62
+	LDX #$05
+	LDA #$6B
+	STA $64
+	JSR L3FD8C
+	JSR $A084
+	LDA #$10
+	STA $44
+	STA $45
+	LDA #$00
+	STA $6F
+	JSR $FB1B
+	JSR Wait_MENU_snd
+	JSR $AA41
+	LDY $AB
+	JSR $A9C4
+	JSR $AA48
 L1653B:
     JSR $A992
     LDX #$00
