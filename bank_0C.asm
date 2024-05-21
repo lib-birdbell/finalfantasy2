@@ -3893,7 +3893,7 @@ L32478:
 	STA $48			; A4A8	$85 $48
 	LDY #$00		; A4AA	$A0 $00
 	LDA ($46),Y		; A4AC	$B1 $46
-	TYA			; A4AE	$A8
+	TAY			; A4AE	$A8
 	DEY			; A4AF	$88
 	STY $00			; A4B0	$84 $00		magic id
 	TYA			; A4B2	$98
@@ -3923,7 +3923,7 @@ L32478:
 	JSR $A709		; A4E3	$20 $09 $A7	get monster status 1
 	AND #$10		; A4E6	$29 $10
 	BNE L324EC		; A4E8	$D0 $02		branch if amnesia
-	BNE L324EF		; A4EA	$F0 $03
+	BEQ L324EF		; A4EA	$F0 $03
 L324EC:
 	JSR $A72B		; A4EC	$20 $2B $A7	fight
 L324EF:
@@ -3955,6 +3955,7 @@ L324EF:
 	STA ($44),Y		; A520	$91 $44
 	JSR $A713		; A522	$20 $13 $A7	get monster status 2
 	BPL L3253A		; A525	$10 $13		branch if not confused
+L32527:
 	LDX #$00		; A527	$A2 $00		target a random monster
 	LDA #$07		; A529	$A9 $07
 	JSR $FD11		; A52B	$20 $11 $FD	random (X..A)
@@ -3963,7 +3964,6 @@ L324EF:
 	BMI L32527		; A532	$30 $F3
 	TXA			; A534	$8A
 	ORA #$80		; A535	$09 $80
-L32527:
 	JMP $A610		; A537	$4C $10 $A6
 L3253A:
 	LDY #$2A		; A53A	$A0 $2A
@@ -4420,7 +4420,7 @@ L3284A:
 L3284F:
 	JSR $BE7E		; A84F	$20 $7E $BE
 	LDX #$00		; A852	$A2 $00
-	STA $A6			; A854	$86 $A6
+	STX $A6			; A854	$86 $A6
 	JMP $A98C		; A856	$4C $8C $A9
 L32859:
 	JSR $AC93		; A859	$20 $93 $AC	do nothing this round - init ?? - dead or stone
@@ -4999,8 +4999,8 @@ L32C8A:
 ; Name	:
 ; Marks	: show "nothing happend" message
 	LDX #$00		; ACA2	$A2 $00
-	STA $AE			; ACA4	$86 $AE
-	STA $E4			; ACA6	$86 $E4
+	STX $AE			; ACA4	$86 $AE
+	STX $E4			; ACA6	$86 $E4
 	DEX			; ACA8	$CA
 	STX $AF			; ACA9	$86 $AF
 	LDX #$13		; ACAB	$A2 $13		$13: "Nothing happended"
@@ -6046,7 +6046,7 @@ L3331E:
 	STY $5E                 ; B357	84 5E     
 	LDA #$FE                ; B359	A9 FE     
 	STA $57                 ; B35B	85 57     
-	BNE L3336D               ; B35D	D0 0E     
+	BNE L3336D              ; B35D	D0 0E     
 L3335F:
 	LDY #$09		; B35F	$A0 $09
 	STY $56			; B361	$84 $56
@@ -6111,9 +6111,11 @@ L333C5:
 	LDA #$00		; B3C6	A9 00     
 	STA $4A                 ; B3C8	85 4A     
 	STA $4B                 ; B3CA	85 4B     
-	STA $00AE               ; B3CC	8D AE 00  
+.byte $8D,$AE,$00
+	;STA $00AE               ; B3CC	8D AE 00  
 	LDA #$80                ; B3CF	A9 80     
-	STA $00AF               ; B3D1	8D AF 00  
+.byte $8D,$AF,$00
+	;STA $00AF               ; B3D1	8D AF 00  
 	LDA $28                 ; B3D4	A5 28     
 	ORA #$40                ; B3D6	09 40     
 	STA $28                 ; B3D8	85 28     
@@ -6636,105 +6638,738 @@ L33747:
 	RTS                     ; B74C	60        
 ; End of
 
-;B74D
-.byte $B1,$A1,$A6
-.byte $48,$E0,$08,$90,$02,$A2,$07,$CA,$30,$24,$86,$48,$20,$0A,$90,$CA
-.byte $10,$FA,$91,$A1,$A2,$00,$86,$5F,$A5,$5C,$20,$92,$BF,$A5,$5D,$20
-.byte $92,$BF,$A5,$48,$C5,$5F,$F0,$09,$E6,$5F,$E6,$5C,$D0,$EA,$20,$73
-.byte $BE,$4C,$7E,$BE,$A2,$07,$A5,$4F,$20,$16,$90,$D0,$05,$CA,$10,$F8
-.byte $30,$35,$A5,$4E,$20,$16,$90,$F0,$05,$CA,$10,$EC,$30,$29,$38,$A5
-.byte $5E,$E9,$08,$85,$5E,$0A,$85,$5F,$0A,$18,$65,$5E,$65,$5F,$69,$26
-.byte $85,$5E,$8A,$85,$5F,$38,$A9,$07,$E5,$5F,$85,$5F,$18,$A5,$5E,$65
-.byte $5F,$20,$92,$BF,$4C,$7E,$BE,$4C,$73,$BE,$20,$E9,$BD,$A0,$27,$B1
-.byte $A1,$85,$00,$A9,$00,$85,$01,$A5,$48,$85,$02,$A5,$49,$85,$03,$20
-.byte $98,$FC,$A0,$02,$18,$B1,$A1,$65,$04,$91,$A1,$90,$07,$A9,$FF,$91
-.byte $A1,$4C,$73,$BE,$A9,$5C,$20,$92,$BF,$A9,$E6,$20,$92,$BF,$4C,$7E
+; Marks	: show barrier/aura messages
+	LDA ($A1),Y		; B74D	B1 A1             ; strong status or monster type bonus
+	LDX $48                 ; B74F	A6 48     
+	CPX #$08                ; B751	E0 08     
+	BCC L33757              ; B753	90 02     
+	LDX #$07                ; B755	A2 07     
+L33757:
+	DEX                     ; B757	CA        
+	BMI L3377E              ; B758	30 24     
+	STX $48                 ; B75A	86 48     
+L3375C:
+	JSR $900A               ; B75C	20 0A 90  set bit
+	DEX                     ; B75F	CA        
+	BPL L3375C              ; B760	10 FA     
+	STA ($A1),Y             ; B762	91 A1     
+	LDX #$00                ; B764	A2 00     
+	STX $5F                 ; B766	86 5F     
+L33768:
+	LDA $5C                 ; B768	A5 5C     
+	JSR $BF92               ; B76A	20 92 BF  add to battle message queue
+	LDA $5D                 ; B76D	A5 5D     
+	JSR $BF92               ; B76F	20 92 BF  add to battle message queue
+	LDA $48                 ; B772	A5 48     
+	CMP $5F                 ; B774	C5 5F     
+	BEQ L33781              ; B776	F0 09     
+	INC $5F                 ; B778	E6 5F     
+	INC $5C                 ; B77A	E6 5C     
+	BNE L33768              ; B77C	D0 EA     
+L3377E:
+	JSR $BE73               ; B77E	20 73 BE  magic ineffective
+L33781:
+	JMP $BE7E               ; B781	4C 7E BE  don't show damage message
+; End of
 
-;; [$B800 :: 0x33800]
+; Marks	: show status removed message
+; $4F: status (bitmask)
+	LDX #$07                ; B784	A2 07     
+	LDA $4F                 ; B786	A5 4F     
+L33788:
+	JSR $9016               ; B788	20 16 90  check bit
+	BNE L33792              ; B78B	D0 05     
+	DEX                     ; B78D	CA        
+	BPL L33788              ; B78E	10 F8     
+	BMI L337C7              ; B790	30 35     
+L33792:
+	LDA $4E                 ; B792	A5 4E     
+	JSR $9016               ; B794	20 16 90  check bit
+	BEQ L3379E              ; B797	F0 05     
+	DEX                     ; B799	CA        
+	BPL L33788              ; B79A	10 EC     
+	BMI L337C7              ; B79C	30 29     
+L3379E:
+	SEC                     ; B79E	38        
+	LDA $5E                 ; B79F	A5 5E     
+	SBC #$08                ; B7A1	E9 08     
+	STA $5E                 ; B7A3	85 5E     
+	ASL                     ; B7A5	0A        
+	STA $5F                 ; B7A6	85 5F     
+	ASL                     ; B7A8	0A        
+	CLC                     ; B7A9	18        
+	ADC $5E                 ; B7AA	65 5E     
+	ADC $5F                 ; B7AC	65 5F     
+	ADC #$26                ; B7AE	69 26     $26	status removed messages
+	STA $5E                 ; B7B0	85 5E     
+	TXA                     ; B7B2	8A        
+	STA $5F                 ; B7B3	85 5F     
+	SEC                     ; B7B5	38        
+	LDA #$07                ; B7B6	A9 07     
+	SBC $5F                 ; B7B8	E5 5F     
+	STA $5F                 ; B7BA	85 5F     
+	CLC                     ; B7BC	18        
+	LDA $5E                 ; B7BD	A5 5E     
+	ADC $5F                 ; B7BF	65 5F     
+	JSR $BF92               ; B7C1	20 92 BF  add to battle message queue
+	JMP $BE7E               ; B7C4	4C 7E BE  don't show damage message
+L337C7:
+	JMP $BE73               ; B7C7	4C 73 BE  magic ineffective
+; End of
 
-.byte $BE,$20,$23,$BE,$A6,$52,$CA,$10,$02,$30,$30,$E0,$08,$90,$02,$A2
-.byte $07,$86,$52,$A0,$05,$B1,$A1,$20,$0E,$90,$CA,$10,$FA,$A2,$00,$86
-.byte $5F,$A9,$52,$85,$5C,$A5,$5C,$20,$92,$BF,$A9,$DA,$20,$92,$BF,$A5
-.byte $52,$C5,$5F,$F0,$09,$E6,$5F,$E6,$5C,$D0,$EA,$20,$73,$BE,$4C,$7E
-.byte $BE,$20,$E9,$BD,$A5,$5E,$C9,$0F,$F0,$06,$A9,$00,$85,$5E,$F0,$04
-.byte $A9,$03,$85,$5E,$18,$A4,$5E,$B1,$A1,$65,$48,$91,$A1,$90,$07,$A9
-.byte $FF,$91,$A1,$4C,$73,$BE,$A5,$5E,$C9,$00,$D0,$04,$A9,$34,$D0,$02
-.byte $A9,$35,$20,$92,$BF,$4C,$7E,$BE,$A0,$15,$B1,$A1,$29,$80,$F0,$03
-.byte $4C,$A7,$B5,$20,$76,$AF,$29,$80,$F0,$09,$20,$E9,$BD,$A5,$48,$05
-.byte $49,$D0,$03,$4C,$73,$BE,$20,$76,$AF,$A0,$2C,$91,$A1,$A0,$08,$29
-.byte $7F,$91,$A1,$A9,$26,$20,$92,$BF,$38,$A9,$10,$E5,$48,$85,$02,$A9
-.byte $00,$E5,$49,$85,$03,$05,$02,$D0,$02,$E6,$02,$A0,$0E,$B1,$A1,$85
-.byte $00,$C8,$B1,$A1,$85,$01,$20,$C3,$FC,$A0,$0A,$A5,$04,$91,$A1,$4C
-.byte $7E,$BE,$20,$23,$BE,$20,$D0,$B5,$B0,$06,$A9,$00,$85,$52,$85,$53
-.byte $18,$A5,$52,$69,$01,$85,$02,$A5,$53,$69,$00,$85,$03,$A0,$0C,$B1
-.byte $A1,$85,$00,$A9,$00,$85,$01,$20,$C3,$FC,$A5,$04,$91,$A1,$A9,$5E
+; magic effect $0A: protect
+	JSR $BDE9               ; B7CA	20 E9 BD  check for hit (magic)
+	LDY #$27                ; B7CD	A0 27     
+	LDA ($A1),Y             ; B7CF	B1 A1     mod. spell power
+	STA $00                 ; B7D1	85 00     
+	LDA #$00                ; B7D3	A9 00     
+	STA $01                 ; B7D5	85 01     
+	LDA $48                 ; B7D7	A5 48     number of hits
+	STA $02                 ; B7D9	85 02     
+	LDA $49                 ; B7DB	A5 49     
+	STA $03                 ; B7DD	85 03     
+	JSR $FC98               ; B7DF	20 98 FC  multiply (16-bit)
+	LDY #$02                ; B7E2	A0 02     
+	CLC                     ; B7E4	18        
+	LDA ($A1),Y             ; B7E5	B1 A1     add to defense
+	ADC $04                 ; B7E7	65 04     
+	STA ($A1),Y             ; B7E9	91 A1     
+	BCC L337F4              ; B7EB	90 07     
+	LDA #$FF                ; B7ED	A9 FF     max 255
+	STA ($A1),Y             ; B7EF	91 A1     
+	JMP $BE73               ; B7F1	4C 73 BE  magic ineffective
+L337F4:
+	LDA #$5C                ; B7F4	A9 5C     $5C	"Defense"
+	JSR $BF92               ; B7F6	20 92 BF  add to battle message queue
+	LDA #$E6                ; B7F9	A9 E6     $66	" up!"
+	JSR $BF92               ; B7FB	20 92 BF  add to battle message queue
+	JMP $BE7E               ; B7FE	4C 7E BE  don't show damage message
+; End of
 
-;; [$B900 :: 0x33900]
+; magic effect $0D: dispel
+	JSR $BE23               ; B801	20 23 BE  get number of magic hits
+	LDX $52                 ; B804	A6 52     
+	DEX                     ; B806	CA        
+	BPL L3380B              ; B807	10 02     
+	BMI L3383B              ; B809	30 30     
+L3380B:
+	CPX #$08                ; B80B	E0 08     
+	BCC L33811              ; B80D	90 02     
+	LDX #$07                ; B80F	A2 07     
+L33811:
+	STX $52                 ; B811	86 52     
+	LDY #$05                ; B813	A0 05     
+	LDA ($A1),Y             ; B815	B1 A1     
+L33817:
+	JSR $900E               ; B817	20 0E 90  clear bit
+	DEX                     ; B81A	CA        
+	BPL L33817              ; B81B	10 FA     
+	LDX #$00                ; B81D	A2 00     
+	STX $5F                 ; B81F	86 5F     
+	LDA #$52                ; B821	A9 52     $52	"Ice"
+	STA $5C                 ; B823	85 5C     
+L33825:
+	LDA $5C                 ; B825	A5 5C     
+	JSR $BF92               ; B827	20 92 BF  add to battle message queue
+	LDA #$DA                ; B82A	A9 DA     $5A	" Res.Down"
+	JSR $BF92               ; B82C	20 92 BF  add to battle message queue
+	LDA $52                 ; B82F	A5 52     
+	CMP $5F                 ; B831	C5 5F     
+	BEQ L3383E              ; B833	F0 09     
+	INC $5F                 ; B835	E6 5F     
+	INC $5C                 ; B837	E6 5C     
+	BNE L33825              ; B839	D0 EA     
+L3383B:
+	JSR $BE73               ; B83B	20 73 BE  magic ineffective
+L3383E:
+	JMP $BE7E               ; B83E	4C 7E BE  don't show damage message
+; End of
 
-.byte $20,$92,$BF,$A9,$B6,$20,$92,$BF,$4C,$7E,$BE,$20,$23,$BE,$20,$D0
-.byte $B5,$90,$50,$F0,$4E,$A0,$0A,$20,$66,$B9,$A0,$0C,$20,$66,$B9,$A9
-.byte $0A,$85,$5C,$A9,$0E,$85,$5D,$A5,$9F,$85,$5E,$A5,$A0,$85,$5F,$20
-.byte $83,$B9,$A5,$A1,$85,$5E,$A5,$A2,$85,$5F,$20,$83,$B9,$A9,$0C,$85
-.byte $5C,$A9,$10,$85,$5D,$A5,$9F,$85,$5E,$A5,$A0,$85,$5F,$20,$83,$B9
-.byte $A5,$A1,$85,$5E,$A5,$A2,$85,$5F,$20,$83,$B9,$A9,$37,$20,$92,$BF
-.byte $4C,$7E,$BE,$4C,$73,$BE,$B1,$9F,$85,$52,$C8,$B1,$9F,$85,$53,$88
-.byte $B1,$A1,$91,$9F,$C8,$B1,$A1,$91,$9F,$A5,$53,$91,$A1,$88,$A5,$52
-.byte $91,$A1,$60,$A4,$5C,$B1,$5E,$85,$00,$C8,$B1,$5E,$85,$01,$A4,$5D
-.byte $B1,$5E,$85,$02,$C8,$B1,$5E,$85,$03,$20,$FC,$8F,$90,$0B,$A4,$5C
-.byte $A5,$02,$91,$5E,$C8,$A5,$03,$91,$5E,$60,$A9,$0A,$85,$5C,$A9,$0E
-.byte $85,$5D,$A9,$5D,$85,$60,$A5,$5E,$C9,$13,$F0,$0A,$E6,$60,$E6,$5C
-.byte $E6,$5C,$E6,$5D,$E6,$5D,$20,$7B,$BD,$A0,$15,$B1,$A1,$29,$80,$D0
-.byte $18,$A4,$5C,$20,$79,$B5,$A4,$5C,$18,$B1,$9F,$65,$4A,$91,$9F,$C8
-.byte $B1,$9F,$65,$4B,$91,$9F,$4C,$1D,$BA,$06,$4A,$26,$4B,$A4,$5C,$84
-.byte $50,$A4,$5D,$84,$51,$20,$1B,$BD,$A4,$5C,$38,$B1,$9F,$E5,$4A,$91
+; magic effect $0E/$0F: blink/shell
+	JSR $BDE9               ; B841	20 E9 BD  check for hit (magic)
+	LDA $5E                 ; B844	A5 5E     
+	CMP #$0F                ; B846	C9 0F     
+	BEQ L33850              ; B848	F0 06     
+	LDA #$00                ; B84A	A9 00     
+	STA $5E                 ; B84C	85 5E     
+	BEQ L33854              ; B84E	F0 04     
+L33850:
+	LDA #$03                ; B850	A9 03     
+	STA $5E                 ; B852	85 5E     
+L33854:
+	CLC                     ; B854	18        
+	LDY $5E                 ; B855	A4 5E     
+	LDA ($A1),Y             ; B857	B1 A1     
+	ADC $48                 ; B859	65 48     
+	STA ($A1),Y             ; B85B	91 A1     
+	BCC L33866              ; B85D	90 07     
+	LDA #$FF                ; B85F	A9 FF     
+	STA ($A1),Y             ; B861	91 A1     
+	JMP $BE73               ; B863	4C 73 BE  magic ineffective
+L33866:
+	LDA $5E                 ; B866	A5 5E     
+	CMP #$00                ; B868	C9 00     
+	BNE L33870              ; B86A	D0 04     
+	LDA #$34                ; B86C	A9 34     
+	BNE L33872              ; B86E	D0 02     
+L33870:
+	LDA #$35                ; B870	A9 35     $35	"M.Res up"
+L33872:
+	JSR $BF92               ; B872	20 92 BF  add to battle message queue
+	JMP $BE7E               ; B875	4C 7E BE  don't show damage message
+; End of
 
-;; [$BA00 :: 0x33A00]
+; magic effect $10: life
+	LDY #$15                ; B878	A0 15     
+	LDA ($A1),Y             ; B87A	B1 A1     
+	AND #$80                ; B87C	29 80     
+	BEQ L33883              ; B87E	F0 03     
+	JMP $B5A7               ; B880	4C A7 B5  
+L33883:
+	JSR $AF76               ; B883	20 76 AF  get target status 1
+	AND #$80                ; B886	29 80     
+	BEQ L33893              ; B888	F0 09     
+	JSR $BDE9               ; B88A	20 E9 BD  check for hit (magic)
+	LDA $48                 ; B88D	A5 48     
+	ORA $49                 ; B88F	05 49     
+	BNE L33896              ; B891	D0 03     
+L33893:
+	JMP $BE73               ; B893	4C 73 BE  magic ineffective
+L33896:
+	JSR $AF76               ; B896	20 76 AF  get target status 1
+	LDY #$2C                ; B899	A0 2C     
+	STA ($A1),Y             ; B89B	91 A1     
+	LDY #$08                ; B89D	A0 08     
+	AND #$7F                ; B89F	29 7F     
+	STA ($A1),Y             ; B8A1	91 A1     
+	LDA #$26                ; B8A3	A9 26     $26	"Rose!"
+	JSR $BF92               ; B8A5	20 92 BF  add to battle message queue
+	SEC                     ; B8A8	38        
+	LDA #$10                ; B8A9	A9 10     
+	SBC $48                 ; B8AB	E5 48     
+	STA $02                 ; B8AD	85 02     
+	LDA #$00                ; B8AF	A9 00     
+	SBC $49                 ; B8B1	E5 49     
+	STA $03                 ; B8B3	85 03     
+	ORA $02                 ; B8B5	05 02     
+	BNE L338BB              ; B8B7	D0 02     
+	INC $02                 ; B8B9	E6 02     
+L338BB:
+	LDY #$0E                ; B8BB	A0 0E     
+	LDA ($A1),Y             ; B8BD	B1 A1     
+	STA $00                 ; B8BF	85 00     
+	INY                     ; B8C1	C8        
+	LDA ($A1),Y             ; B8C2	B1 A1     
+	STA $01                 ; B8C4	85 01     
+	JSR $FCC3               ; B8C6	20 C3 FC  divide
+	LDY #$0A                ; B8C9	A0 0A     
+	LDA $04                 ; B8CB	A5 04     
+	STA ($A1),Y             ; B8CD	91 A1     
+	JMP $BE7E               ; B8CF	4C 7E BE  don't show damage message
+; End of
 
-.byte $9F,$C8,$B1,$9F,$E5,$4B,$91,$9F,$B0,$07,$A9,$00,$91,$9F,$88,$91
-.byte $9F,$A5,$60,$20,$92,$BF,$A9,$E8,$20,$92,$BF,$D0,$0A,$A5,$60,$20
-.byte $92,$BF,$A9,$E9,$20,$92,$BF,$A5,$9F,$85,$5E,$A5,$A0,$85,$5F,$20
-.byte $83,$B9,$A5,$A1,$85,$5E,$A5,$A2,$85,$5F,$20,$83,$B9,$4C,$7E,$BE
-.byte $20,$E9,$BD,$A0,$27,$B1,$9F,$85,$02,$C8,$B1,$9F,$85,$03,$A5,$48
-.byte $85,$00,$A5,$49,$85,$01,$20,$98,$FC,$A0,$1A,$18,$B1,$A1,$65,$04
-.byte $90,$02,$A9,$FF,$91,$A1,$A9,$5B,$20,$92,$BF,$A9,$E6,$20,$92,$BF
-.byte $4C,$7E,$BE,$20,$E9,$BD,$A0,$06,$38,$B1,$A1,$E5,$48,$90,$03,$4C
-.byte $73,$BE,$A5,$48,$91,$A1,$A9,$38,$20,$92,$BF,$4C,$7E,$BE,$20,$E9
-.byte $BD,$A5,$48,$05,$49,$D0,$03,$4C,$73,$BE,$20,$76,$AF,$A0,$29,$31
-.byte $9F,$48,$20,$76,$AF,$A0,$2C,$91,$A1,$85,$4F,$A0,$08,$84,$5E,$68
-.byte $91,$A1,$20,$84,$B7,$4C,$7E,$BE,$20,$E9,$BD,$18,$A5,$48,$65,$46
-.byte $85,$52,$A5,$49,$69,$00,$85,$53,$A0,$28,$B1,$9F,$A0,$15,$31,$A1
-.byte $90,$06,$A9,$00,$85,$52,$85,$53,$20,$06,$BE,$20,$06,$BB,$A0,$27
-.byte $B1,$9F,$85,$44,$A9,$00,$85,$45,$85,$46,$85,$47,$A5,$52,$85,$48
-.byte $20,$88,$BC,$A0,$29,$B1,$9F,$A0,$15,$31,$A1,$F0,$04,$06,$4A,$26
+; magic effect $11: sap
+	JSR $BE23          ; get; B8D2	20 23 BE   number of magic hits
+	JSR $B5D0               ; B8D5	20 D0 B5  
+	BCS L338E0              ; B8D8	B0 06     
+	LDA #$00                ; B8DA	A9 00     
+	STA $52                 ; B8DC	85 52     
+	STA $53                 ; B8DE	85 53     
+L338E0:
+	CLC                     ; B8E0	18        
+	LDA $52                 ; B8E1	A5 52     
+	ADC #$01                ; B8E3	69 01     
+	STA $02                 ; B8E5	85 02     
+	LDA $53                 ; B8E7	A5 53     
+	ADC #$00                ; B8E9	69 00     
+	STA $03                 ; B8EB	85 03     
+	LDY #$0C                ; B8ED	A0 0C     
+	LDA ($A1),Y             ; B8EF	B1 A1     
+	STA $00                 ; B8F1	85 00     
+	LDA #$00                ; B8F3	A9 00     
+	STA $01                 ; B8F5	85 01     
+	JSR $FCC3               ; B8F7	20 C3 FC  divide
+	LDA $04                 ; B8FA	A5 04     
+	STA ($A1),Y             ; B8FC	91 A1     
+	LDA #$5E                ; B8FE	A9 5E     $5E	"MP"
+	JSR $BF92               ; B900	20 92 BF  add to battle message queue
+	LDA #$B6                ; B903	A9 B6     $56	" fell"
+	JSR $BF92               ; B905	20 92 BF  add to battle message queue
+	JMP $BE7E               ; B908	4C 7E BE  don't show damage message
+; End of
 
-;; [$BB00 :: 0x33B00]
+; magic effect $12: swap
+	JSR $BE23               ; B90B	20 23 BE  get number of magic hits
+	JSR $B5D0               ; B90E	20 D0 B5  
+	BCC L33963              ; B911	90 50     
+	BEQ L33963              ; B913	F0 4E     
+	LDY #$0A                ; B915	A0 0A     
+	JSR $B966               ; B917	20 66 B9  
+	LDY #$0C                ; B91A	A0 0C     
+	JSR $B966               ; B91C	20 66 B9  
+	LDA #$0A                ; B91F	A9 0A     
+	STA $5C                 ; B921	85 5C     
+	LDA #$0E                ; B923	A9 0E     
+	STA $5D                 ; B925	85 5D     
+	LDA $9F                 ; B927	A5 9F     
+	STA $5E                 ; B929	85 5E     
+	LDA $A0                 ; B92B	A5 A0     
+	STA $5F                 ; B92D	85 5F     
+	JSR $B983               ; B92F	20 83 B9  validate hp/mp
+	LDA $A1                 ; B932	A5 A1     
+	STA $5E                 ; B934	85 5E     
+	LDA $A2                 ; B936	A5 A2     
+	STA $5F                 ; B938	85 5F     
+	JSR $B983               ; B93A	20 83 B9  validate hp/mp
+	LDA #$0C                ; B93D	A9 0C     
+	STA $5C                 ; B93F	85 5C     
+	LDA #$10                ; B941	A9 10     
+	STA $5D                 ; B943	85 5D     
+	LDA $9F                 ; B945	A5 9F     
+	STA $5E                 ; B947	85 5E     
+	LDA $A0                 ; B949	A5 A0     
+	STA $5F                 ; B94B	85 5F     
+	JSR $B983               ; B94D	20 83 B9  validate hp/mp
+	LDA $A1                 ; B950	A5 A1     
+	STA $5E                 ; B952	85 5E     
+	LDA $A2                 ; B954	A5 A2     
+	STA $5F                 ; B956	85 5F     
+	JSR $B983               ; B958	20 83 B9  validate hp/mp
+	LDA #$37                ; B95B	A9 37     $37	"Swapped HP/MP"
+	JSR $BF92               ; B95D	20 92 BF  add to battle message queue
+	JMP $BE7E               ; B960	4C 7E BE  don't show damage message
+L33963:
+	JMP $BE73               ; B963	4C 73 BE  magic ineffective
+; End of
 
-.byte $4B,$A0,$0A,$4C,$79,$B5,$A5,$48,$85,$54,$A5,$49,$85,$55,$60,$A0
-.byte $15,$B1,$A1,$29,$80,$F0,$03,$4C,$52,$BD,$4C,$73,$BE,$20,$FB,$BC
-.byte $20,$C6,$BD,$4C,$7E,$BE,$A9,$01,$85,$46,$A0,$26,$B1,$9F,$85,$44
-.byte $A9,$00,$85,$45,$20,$71,$AF,$29,$02,$F0,$04,$46,$45,$66,$44,$20
-.byte $2C,$BC,$18,$A5,$48,$65,$46,$85,$52,$A5,$49,$69,$00,$85,$53,$20
-.byte $06,$BE,$20,$06,$BB,$38,$A5,$52,$E5,$54,$85,$48,$A5,$53,$E5,$55
-.byte $85,$49,$B0,$06,$A9,$00,$85,$48,$85,$49,$18,$A5,$48,$69,$01,$85
-.byte $48,$A5,$49,$69,$00,$85,$49,$A0,$27,$B1,$9F,$85,$44,$A9,$00,$85
-.byte $45,$85,$46,$85,$47,$20,$88,$BC,$A0,$0A,$4C,$79,$B5,$A9,$00,$85
-.byte $4A,$85,$4B,$A0,$0A,$B1,$9F,$85,$00,$C8,$B1,$9F,$85,$01,$A0,$0E
-.byte $B1,$9F,$85,$02,$C8,$B1,$9F,$85,$03,$20,$FC,$8F,$B0,$23,$A0,$25
-.byte $B1,$9F,$85,$48,$A0,$27,$B1,$9F,$85,$44,$A9,$00,$85,$45,$85,$47
-.byte $A0,$02,$8C,$DE,$7F,$B1,$A1,$85,$46,$20,$88,$BC,$A0,$0A,$4C,$79
-.byte $B5,$A9,$00,$8D,$E4,$00,$4C,$73,$BE,$20,$C6,$BD,$4C,$7E,$BE,$A0
-.byte $28,$B1,$9F,$48,$A0,$29,$B1,$9F,$18,$69,$12,$A8,$68,$91,$A1,$98
-.byte $18,$69,$4E,$20,$92,$BF,$A9,$E6,$20,$92,$BF,$4C,$7E,$BE,$A0,$01
+;
+	LDA ($9F),Y             ; B966	B1 9F     
+	STA $52                 ; B968	85 52     
+	INY                     ; B96A	C8        
+	LDA ($9F),Y             ; B96B	B1 9F     
+	STA $53                 ; B96D	85 53     
+	DEY                     ; B96F	88        
+	LDA ($A1),Y             ; B970	B1 A1     
+	STA ($9F),Y             ; B972	91 9F     
+	INY                     ; B974	C8        
+	LDA ($A1),Y             ; B975	B1 A1     
+	STA ($9F),Y             ; B977	91 9F     
+	LDA $53                 ; B979	A5 53     
+	STA ($A1),Y             ; B97B	91 A1     
+	DEY                     ; B97D	88        
+	LDA $52                 ; B97E	A5 52     
+	STA ($A1),Y             ; B980	91 A1     
+	RTS                     ; B982	60        
+; End of
 
-;; [$BC00 :: 0x33C00]
+; Marks	: validate hp/mp
+;  $5C: current hp/mp offset
+;  $5D: max hp/mp offset
+; +$5E: pointer to battle stats
+	LDY $5C                 ; B983	A4 5C     
+	LDA ($5E),Y             ; B985	B1 5E     +$00	current hp/mp
+	STA $00                 ; B987	85 00     
+	INY                     ; B989	C8        
+	LDA ($5E),Y             ; B98A	B1 5E     
+	STA $01                 ; B98C	85 01     
+	LDY $5D                 ; B98E	A4 5D     
+	LDA ($5E),Y             ; B990	B1 5E     +$02	max hp/mp
+	STA $02                 ; B992	85 02     
+	INY                     ; B994	C8        
+	LDA ($5E),Y             ; B995	B1 5E     
+	STA $03                 ; B997	85 03     
+	JSR $8FFC               ; B999	20 FC 8F  compare (16-bit)
+	BCC L339A9              ; B99C	90 0B     return if less than max
+	LDY $5C                 ; B99E	A4 5C     
+	LDA $02                 ; B9A0	A5 02     
+	STA ($5E),Y             ; B9A2	91 5E     set hp/mp to max
+	INY                     ; B9A4	C8        
+	LDA $03                 ; B9A5	A5 03     
+	STA ($5E),Y             ; B9A7	91 5E     
+L339A9:
+	RTS                     ; B9A9	60        
+; End of
 
-.byte $B1,$A1,$AA,$CA,$8A,$91,$A1,$4C,$40,$BA,$20,$7B,$BD,$A0,$0A,$4C
-.byte $79,$B5,$A0,$06,$B1,$A1,$38,$A0,$25,$F1,$9F,$90,$08,$A9,$3A,$20
-.byte $92,$BF,$68,$68,$60,$A9,$00,$A0,$06,$91,$A1,$60
+; magic effect $13/$14: drain/osmose
+	LDA #$0A                ; B9AA	A9 0A     current hp
+	STA $5C                 ; B9AC	85 5C     
+	LDA #$0E                ; B9AE	A9 0E     max hp
+	STA $5D                 ; B9B0	85 5D     
+	LDA #$5D                ; B9B2	A9 5D     $5D	"HP"
+	STA $60                 ; B9B4	85 60     
+	LDA $5E                 ; B9B6	A5 5E     
+	CMP #$13                ; B9B8	C9 13     
+	BEQ L339C6              ; B9BA	F0 0A     branch if not osmose
+	INC $60                 ; B9BC	E6 60     switch to mp damage
+	INC $5C                 ; B9BE	E6 5C     
+	INC $5C                 ; B9C0	E6 5C     
+	INC $5D                 ; B9C2	E6 5D     
+	INC $5D                 ; B9C4	E6 5D     
+L339C6:
+	JSR $BD7B               ; B9C6	20 7B BD  calculate magic damage
+	LDY #$15                ; B9C9	A0 15     
+	LDA ($A1),Y             ; B9CB	B1 A1     
+	AND #$80                ; B9CD	29 80     
+	BNE L339E9              ; B9CF	D0 18     branch if target is undead
+	LDY $5C                 ; B9D1	A4 5C     
+	JSR $B579               ; B9D3	20 79 B5  subtract damage from target hp/mp
+	LDY $5C                 ; B9D6	A4 5C     
+	CLC                     ; B9D8	18        
+	LDA ($9F),Y             ; B9D9	B1 9F     add damage to attacker hp/mp
+	ADC $4A                 ; B9DB	65 4A     
+	STA ($9F),Y             ; B9DD	91 9F     
+	INY                     ; B9DF	C8        
+	LDA ($9F),Y             ; B9E0	B1 9F     
+	ADC $4B                 ; B9E2	65 4B     
+	STA ($9F),Y             ; B9E4	91 9F     
+	JMP $BA1D               ; B9E6	4C 1D BA  
+; undead target
+L339E9:
+	ASL $4A                 ; B9E9	06 4A     double damage
+	ROL $4B                 ; B9EB	26 4B     
+	LDY $5C                 ; B9ED	A4 5C     
+	STY $50                 ; B9EF	84 50     
+	LDY $5D                 ; B9F1	A4 5D     
+	STY $51                 ; B9F3	84 51     
+	JSR $BD1B               ; B9F5	20 1B BD  restore target's hp/mp
+	LDY $5C                 ; B9F8	A4 5C     
+	SEC                     ; B9FA	38        
+	LDA ($9F),Y             ; B9FB	B1 9F     subtract damage from attacker hp/mp
+	SBC $4A                 ; B9FD	E5 4A     
+	STA ($9F),Y             ; B9FF	91 9F     
+	INY                     ; BA01	C8        
+	LDA ($9F),Y             ; BA02	B1 9F     
+	SBC $4B                 ; BA04	E5 4B     
+	STA ($9F),Y             ; BA06	91 9F     
+	BCS L33A11              ; BA08	B0 07     
+	LDA #$00                ; BA0A	A9 00     min zero
+	STA ($9F),Y             ; BA0C	91 9F     
+	DEY                     ; BA0E	88        
+	STA ($9F),Y             ; BA0F	91 9F     
+L33A11:
+	LDA $60                 ; BA11	A5 60     
+	JSR $BF92               ; BA13	20 92 BF  add to battle message queue
+	LDA #$E8                ; BA16	A9 E8     $68	" drained"
+	JSR $BF92               ; BA18	20 92 BF  add to battle message queue
+	BNE L33A27              ; BA1B	D0 0A     
+	LDA $60                 ; BA1D	A5 60     
+	JSR $BF92               ; BA1F	20 92 BF  add to battle message queue
+	LDA #$E9                ; BA22	A9 E9     $69	" absorbed!"
+	JSR $BF92               ; BA24	20 92 BF  add to battle message queue
+L33A27:
+	LDA $9F                 ; BA27	A5 9F     
+	STA $5E                 ; BA29	85 5E     
+	LDA $A0                 ; BA2B	A5 A0     
+	STA $5F                 ; BA2D	85 5F     
+	JSR $B983               ; BA2F	20 83 B9  validate hp/mp
+	LDA $A1                 ; BA32	A5 A1     
+	STA $5E                 ; BA34	85 5E     
+	LDA $A2                 ; BA36	A5 A2     
+	STA $5F                 ; BA38	85 5F     
+	JSR $B983               ; BA3A	20 83 B9  validate hp/mp
+	JMP $BE7E               ; BA3D	4C 7E BE  don't show damage message
+; End of
+
+; magic effect $15: berserk
+	JSR $BDE9               ; BA40	20 E9 BD  check for hit (magic)
+	LDY #$27                ; BA43	A0 27     
+	LDA ($9F),Y             ; BA45	B1 9F     mod. spell power
+	STA $02                 ; BA47	85 02     
+	INY                     ; BA49	C8        
+	LDA ($9F),Y             ; BA4A	B1 9F     spell parameter 1
+	STA $03                 ; BA4C	85 03     
+	LDA $48                 ; BA4E	A5 48     number of hits
+	STA $00                 ; BA50	85 00     
+	LDA $49                 ; BA52	A5 49     
+	STA $01                 ; BA54	85 01     
+	JSR $FC98               ; BA56	20 98 FC  multiply (16-bit)
+	LDY #$1A                ; BA59	A0 1A     
+	CLC                     ; BA5B	18        
+	LDA ($A1),Y             ; BA5C	B1 A1     add to main hand attack power
+	ADC $04                 ; BA5E	65 04     
+	BCC L33A64              ; BA60	90 02     
+	LDA #$FF                ; BA62	A9 FF     max 255
+L33A64:
+	STA ($A1),Y             ; BA64	91 A1     
+	LDA #$5B                ; BA66	A9 5B     $5B	"Attack"
+	JSR $BF92               ; BA68	20 92 BF  add to battle message queue
+	LDA #$E6                ; BA6B	A9 E6     $66	" up!"
+	JSR $BF92               ; BA6D	20 92 BF  add to battle message queue
+	JMP $BE7E               ; BA70	4C 7E BE  don't show damage message
+; End of
+
+; magic effect $16: wall
+	JSR $BDE9               ; BA73	20 E9 BD  check for hit (magic)
+	LDY #$06                ; BA76	A0 06     
+	SEC                     ; BA78	38        
+	LDA ($A1),Y             ; BA79	B1 A1     
+	SBC $48                 ; BA7B	E5 48     
+	BCC L33A82              ; BA7D	90 03     
+	JMP $BE73               ; BA7F	4C 73 BE  magic ineffective
+L33A82:
+	LDA $48                 ; BA82	A5 48     
+	STA ($A1),Y             ; BA84	91 A1     
+	LDA #$38                ; BA86	A9 38     $38	"B.Magic Wall"
+	JSR $BF92               ; BA88	20 92 BF  add to battle message queue
+	JMP $BE7E               ; BA8B	4C 7E BE  don't show damage message
+; End of
+
+; magic effect $17: remove status
+	JSR $BDE9               ; BA8E	20 E9 BD  check for hit (magic)
+	LDA $48                 ; BA91	A5 48     
+	ORA $49                 ; BA93	05 49     
+	BNE L33A9A              ; BA95	D0 03     branch if nonzero hits
+	JMP $BE73               ; BA97	4C 73 BE  magic ineffective
+L33A9A:
+	JSR $AF76               ; BA9A	20 76 AF  get target status 1
+	LDY #$29                ; BA9D	A0 29     
+	AND ($9F),Y             ; BA9F	31 9F     spell parameter 2
+	PHA                     ; BAA1	48        
+	JSR $AF76               ; BAA2	20 76 AF  get target status 1
+	LDY #$2C                ; BAA5	A0 2C     
+	STA ($A1),Y             ; BAA7	91 A1     
+	STA $4F                 ; BAA9	85 4F     
+	LDY #$08                ; BAAB	A0 08     
+	STY $5E                 ; BAAD	84 5E     
+	PLA                     ; BAAF	68        
+	STA ($A1),Y             ; BAB0	91 A1     
+	JSR $B784               ; BAB2	20 84 B7  show status removed message
+	JMP $BE7E               ; BAB5	4C 7E BE  don't show damage message
+; End of
+
+; magic effect $18: tsunami, quake, cyclone
+	JSR $BDE9          ; che; BAB8	20 E9 BD  ck for hit (magic)
+	CLC                     ; BABB	18        
+	LDA $48                 ; BABC	A5 48     
+	ADC $46                 ; BABE	65 46     
+	STA $52                 ; BAC0	85 52     
+	LDA $49                 ; BAC2	A5 49     
+	ADC #$00                ; BAC4	69 00     
+	STA $53                 ; BAC6	85 53     
+	LDY #$28                ; BAC8	A0 28     
+	LDA ($9F),Y             ; BACA	B1 9F     parameter 1
+	LDY #$15                ; BACC	A0 15     
+	AND ($A1),Y             ; BACE	31 A1     monster type
+	BCC L33AD8              ; BAD0	90 06     
+	LDA #$00                ; BAD2	A9 00     zero hits
+	STA $52                 ; BAD4	85 52     
+	STA $53                 ; BAD6	85 53     
+L33AD8:
+	JSR $BE06               ; BAD8	20 06 BE  check for evade (magic)
+	JSR $BB06               ; BADB	20 06 BB  
+	LDY #$27                ; BADE	A0 27     
+	LDA ($9F),Y             ; BAE0	B1 9F     mod. spell power
+	STA $44                 ; BAE2	85 44     
+	LDA #$00                ; BAE4	A9 00     
+	STA $45                 ; BAE6	85 45     
+	STA $46                 ; BAE8	85 46     ignore defense
+	STA $47                 ; BAEA	85 47     
+	LDA $52                 ; BAEC	A5 52     
+	STA $48                 ; BAEE	85 48     
+	JSR $BC88               ; BAF0	20 88 BC  calculate damage
+	LDY #$29                ; BAF3	A0 29     
+	LDA ($9F),Y             ; BAF5	B1 9F     parameter 2
+	LDY #$15                ; BAF7	A0 15     
+	AND ($A1),Y             ; BAF9	31 A1     monster type
+	BEQ L33B01              ; BAFB	F0 04     
+	ASL $4A                 ; BAFD	06 4A     double damage
+	ROL $4B                 ; BAFF	26 4B     
+L33B01:
+	LDY #$0A                ; BB01	A0 0A     
+	JMP $B579               ; BB03	4C 79 B5  subtract damage from target hp/mp
+; End of
+
+;
+	LDA $48                 ; BB06	A5 48     
+	STA $54                 ; BB08	85 54     
+	LDA $49                 ; BB0A	A5 49     
+	STA $55                 ; BB0C	85 55     
+	RTS                     ; BB0E	60        
+; End of
+
+; magic effect $19: garlic
+	LDY #$15                ; BB0F	A0 15     
+	LDA ($A1),Y             ; BB11	B1 A1     
+	AND #$80                ; BB13	29 80     
+	BEQ L33B1A              ; BB15	F0 03     branch if not undead
+	JMP $BD52               ; BB17	4C 52 BD  do magic damage (undead)
+L33B1A:
+	JMP $BE73               ; BB1A	4C 73 BE  magic ineffective
+; End of
+
+; magic effect $1A/$1B: elixir
+	JSR $BCFB               ; BB1D	20 FB BC  restore hp
+	JSR $BDC6               ; BB20	20 C6 BD  restore mp
+	JMP $BE7E               ; BB23	4C 7E BE  don't show damage message
+; End of
+
+; magic effect $1C: ultima
+	LDA #$01                ; BB26	A9 01     
+	STA $46                 ; BB28	85 46     
+	LDY #$26                ; BB2A	A0 26     
+	LDA ($9F),Y             ; BB2C	B1 9F     
+	STA $44                 ; BB2E	85 44     
+	LDA #$00                ; BB30	A9 00     
+	STA $45                 ; BB32	85 45     
+	JSR $AF71               ; BB34	20 71 AF  get attacker status 1
+	AND #$02                ; BB37	29 02     
+	BEQ L33B3F              ; BB39	F0 04     
+	LSR $45                 ; BB3B	46 45     
+	ROR $44                 ; BB3D	66 44     
+L33B3F:
+	JSR $BC2C               ; BB3F	20 2C BC  check for hit
+	CLC                     ; BB42	18        
+	LDA $48                 ; BB43	A5 48     
+	ADC $46                 ; BB45	65 46     
+	STA $52                 ; BB47	85 52     
+	LDA $49                 ; BB49	A5 49     
+	ADC #$00                ; BB4B	69 00     
+	STA $53                 ; BB4D	85 53     
+	JSR $BE06               ; BB4F	20 06 BE  check for evade (magic)
+	JSR $BB06               ; BB52	20 06 BB  
+	SEC                     ; BB55	38        
+	LDA $52                 ; BB56	A5 52     
+	SBC $54                 ; BB58	E5 54     
+	STA $48                 ; BB5A	85 48     
+	LDA $53                 ; BB5C	A5 53     
+	SBC $55                 ; BB5E	E5 55     
+	STA $49                 ; BB60	85 49     
+	BCS L33B6A              ; BB62	B0 06     
+	LDA #$00                ; BB64	A9 00     
+	STA $48                 ; BB66	85 48     
+	STA $49                 ; BB68	85 49     
+L33B6A:
+	CLC                     ; BB6A	18        
+	LDA $48                 ; BB6B	A5 48     
+	ADC #$01                ; BB6D	69 01     
+	STA $48                 ; BB6F	85 48     
+	LDA $49                 ; BB71	A5 49     
+	ADC #$00                ; BB73	69 00     
+	STA $49                 ; BB75	85 49     
+	LDY #$27                ; BB77	A0 27     
+	LDA ($9F),Y             ; BB79	B1 9F     
+	STA $44                 ; BB7B	85 44     
+	LDA #$00                ; BB7D	A9 00     
+	STA $45                 ; BB7F	85 45     
+	STA $46                 ; BB81	85 46     
+	STA $47                 ; BB83	85 47     
+	JSR $BC88               ; BB85	20 88 BC  calculate damage
+	LDY #$0A                ; BB88	A0 0A     
+	JMP $B579               ; BB8A	4C 79 B5  subtract damage from target hp/mp
+; End of
+
+; magic effect $1D: self-destruct
+	LDA #$00                ; BB8D	A9 00     
+	STA $4A                 ; BB8F	85 4A     
+	STA $4B                 ; BB91	85 4B     
+	LDY #$0A                ; BB93	A0 0A     
+	LDA ($9F),Y             ; BB95	B1 9F     
+	STA $00                 ; BB97	85 00     
+	INY                     ; BB99	C8        
+	LDA ($9F),Y             ; BB9A	B1 9F     
+	STA $01                 ; BB9C	85 01     
+	LDY #$0E                ; BB9E	A0 0E     
+	LDA ($9F),Y             ; BBA0	B1 9F     
+	STA $02                 ; BBA2	85 02     
+	INY                     ; BBA4	C8        
+	LDA ($9F),Y             ; BBA5	B1 9F     
+	STA $03                 ; BBA7	85 03     
+	JSR $8FFC               ; BBA9	20 FC 8F  compare (16-bit)
+	BCS L33BD1              ; BBAC	B0 23     
+	LDY #$25                ; BBAE	A0 25     
+	LDA ($9F),Y             ; BBB0	B1 9F     
+	STA $48                 ; BBB2	85 48     
+	LDY #$27                ; BBB4	A0 27     
+	LDA ($9F),Y             ; BBB6	B1 9F     
+	STA $44                 ; BBB8	85 44     
+	LDA #$00                ; BBBA	A9 00     
+	STA $45                 ; BBBC	85 45     
+	STA $47                 ; BBBE	85 47     
+	LDY #$02                ; BBC0	A0 02     
+	STY $7FDE               ; BBC2	8C DE 7F  
+	LDA ($A1),Y             ; BBC5	B1 A1     
+	STA $46                 ; BBC7	85 46     
+	JSR $BC88               ; BBC9	20 88 BC  calculate damage
+	LDY #$0A                ; BBCC	A0 0A     
+	JMP $B579               ; BBCE	4C 79 B5  subtract damage from target hp/mp
+L33BD1:
+	LDA #$00                ; BBD1	A9 00     
+.byte $8D,$E4,$00
+	;STA $00E4               ; BBD3	8D E4 00  
+	JMP $BE73               ; BBD6	4C 73 BE  magic ineffective
+; End of
+
+; magic effect $1E: ether
+	JSR $BDC6               ; BBD9	20 C6 BD  restore mp
+	JMP $BE7E               ; BBDC	4C 7E BE  don't show damage message
+; End of
+
+; magic effect $1F: intelligence, spirit
+	LDY #$28                ; BBDF	A0 28     
+	LDA ($9F),Y             ; BBE1	B1 9F     
+	PHA                     ; BBE3	48        
+	LDY #$29                ; BBE4	A0 29     
+	LDA ($9F),Y             ; BBE6	B1 9F     
+	CLC                     ; BBE8	18        
+	ADC #$12                ; BBE9	69 12     
+	TAY                     ; BBEB	A8        
+	PLA                     ; BBEC	68        
+	STA ($A1),Y             ; BBED	91 A1     
+	TYA                     ; BBEF	98        
+	CLC                     ; BBF0	18        
+	ADC #$4E                ; BBF1	69 4E     $4E	"Orange" ???
+	JSR $BF92               ; BBF3	20 92 BF  add to battle message queue
+	LDA #$E6                ; BBF6	A9 E6     $66	" up!"
+	JSR $BF92               ; BBF8	20 92 BF  add to battle message queue
+	JMP $BE7E               ; BBFB	4C 7E BE  don't show damage message
+; End of
+
+; magic effect $20: imbibe
+	LDY #$01                ; BBFE	A0 01     
+	LDA ($A1),Y             ; BC00	B1 A1     decrement target's evade %
+	TAX                     ; BC02	AA        
+	DEX                     ; BC03	CA        
+	TXA                     ; BC04	8A        
+	STA ($A1),Y             ; BC05	91 A1     
+	JMP $BA40               ; BC07	4C 40 BA  
+; End of
+	                        
+; magic effect $21: bow, boulders, meteor
+	JSR $BD7B               ; BC0A	20 7B BD  calculate magic damage
+	LDY #$0A                ; BC0D	A0 0A     
+	JMP $B579               ; BC0F	4C 79 B5  subtract damage from target hp/mp
+; End of
+
+; check magic wall
+	LDY #$06                ; BC12	A0 06     
+	LDA ($A1),Y             ; BC14	B1 A1     wall level
+	SEC                     ; BC16	38        
+	LDY #$25                ; BC17	A0 25     
+	SBC ($9F),Y             ; BC19	F1 9F     subtract spell level
+	BCC L33C25              ; BC1B	90 08     
+	LDA #$3A                ; BC1D	A9 3A     $3A	"Magic blocked"
+	JSR $BF92               ; BC1F	20 92 BF  add to battle message queue
+	PLA                     ; BC22	68        
+	PLA                     ; BC23	68        
+	RTS                     ; BC24	60        
+L33C25:
+	LDA #$00                ; BC25	A9 00     
+	LDY #$06                ; BC27	A0 06     
+	STA ($A1),Y             ; BC29	91 A1     set new wall level
+	RTS                     ; BC2B	60        
+; End of
+
+; [ check for hit ]
+
+; $44: hit %
+; $46: number of hit attempts
+; $48: number of successful hits (out)
+
+; *** bug *** should use target status for evade checks
 
 ; Name	:
 ; Marks	:
-	LDA #$00		; BC2C	$A9 $00
+	LDA #$00		; BC2C	$A9 $00		start with 0 hits
 	STA $48			; BC2E	$85 $48
 	STA $49			; BC30	$85 $49
 	JSR Get_player_status1	; BC32	$20 $71 $AF
@@ -6751,7 +7386,7 @@ L32C42:
 	JSR $FD11		; BC46	$20 $11 $FD
 	SEC			; BC49	$38
 	SBC $44			; BC4A	$E5 $44		hit % ??
-	BCS L32C50		; BC4C	$B0 $02
+	BCS L32C50		; BC4C	$B0 $02		check for hit
 	INC $48			; BC4E	$E6 $48
 L32C50:
 	DEY			; BC50	$88
@@ -6760,14 +7395,50 @@ L32C53:
 	RTS			; BC53	$60
 ; End of
 
-;BC54
-.byte $A9,$28,$48,$48,$A8,$B1,$9F,$A0,$05,$31,$A1,$F0
-.byte $06,$A9,$00,$85,$44,$85,$45,$68,$A8,$B1,$9F,$A0,$17,$31,$A1,$F0
-.byte $06,$A9,$00,$85,$44,$85,$45,$68,$A8,$B1,$9F,$A0,$16,$31,$A1,$F0
-.byte $06,$A9,$00,$85,$46,$85,$47,$60
+; Marks	: UNUSED
+	LDA #$28                ; BC54	A9 28     
+	PHA                     ; BC56	48        
+	PHA                     ; BC57	48        
+	TAY                     ; BC58	A8        
+	LDA ($9F),Y             ; BC59	B1 9F     
+	LDY #$05                ; BC5B	A0 05     
+	AND ($A1),Y             ; BC5D	31 A1     
+	BEQ L33C67              ; BC5F	F0 06     
+	LDA #$00                ; BC61	A9 00     
+	STA $44                 ; BC63	85 44     
+	STA $45                 ; BC65	85 45     
+L33C67:
+	PLA                     ; BC67	68        
+	TAY                     ; BC68	A8        
+	LDA ($9F),Y             ; BC69	B1 9F     
+	LDY #$17                ; BC6B	A0 17     
+	AND ($A1),Y             ; BC6D	31 A1     
+	BEQ L33C77              ; BC6F	F0 06     
+	LDA #$00                ; BC71	A9 00     
+	STA $44                 ; BC73	85 44     
+	STA $45                 ; BC75	85 45     
+L33C77:
+	PLA                     ; BC77	68        
+	TAY                     ; BC78	A8        
+	LDA ($9F),Y             ; BC79	B1 9F     
+	LDY #$16                ; BC7B	A0 16     
+	AND ($A1),Y             ; BC7D	31 A1     
+	BEQ L33C87              ; BC7F	F0 06     
+	LDA #$00                ; BC81	A9 00     
+	STA $46                 ; BC83	85 46     
+	STA $47                 ; BC85	85 47     
+L33C87:
+	RTS                     ; BC87	60        
+; End of
 
 ; Name	:
 ; Marks	:
+; [ calculate damage ]
+
+;  $44: attack
+;  $46: defense
+;  $48: number of hits
+; +$4A: damage
 	LDA #$00		; BC88	$A9 $00
 	STA $49			; BC8A	$85 $49
 	STA $4A			; BC8C	$85 $4A
@@ -6784,89 +7455,300 @@ L33C9B:
 	LSR $47			; BCA1	$46 $47
 	ROR $46			; BCA3	$66 $46
 L33CA5:
-	LDY $48			; BCA5	$A4 $48
+	LDY $48			; BCA5	$A4 $48		start of hit loop
 L33CA7:
 	LDX #$00		; BCA7	$A2 $00
 	LDA $44			; BCA9	$A5 $44
-	JSR $FD11		; BCAB	$20 $11 $FD
+	JSR $FD11		; BCAB	$20 $11 $FD	random (X..A)
 	CLC			; BCAE	$18
-	ADC $44			; BCAF	$65 $44
+	ADC $44			; BCAF	$65 $44		attack * (0..1)
 	STA $4C			; BCB1	$85 $4C
 	LDA #$00		; BCB3	$A9 $00
 	ADC $45			; BCB5	$65 $45
 	STA $4D			; BCB7	$85 $4D
 	SEC			; BCB9	$38
-	LDA $4C			; BCBA	$A5 $4C
+	LDA $4C			; BCBA	$A5 $4C		subtract defense
 	SBC $46			; BCBC	$E5 $46
 	STA $4C			; BCBE	$85 $4C
 	LDA $4D			; BCC0	$A5 $4D
 	SBC $47			; BCC2	$E5 $47
 	STA $4D			; BCC4	$85 $4D
 	BCS L33CCE		; BCC6	$B0 $06
-	LDA #$00		; BCC8	$A9 $00
+	LDA #$00		; BCC8	$A9 $00		min zero
 	STA $4C			; BCCA	$85 $4C
 	STA $4D			; BCCC	$85 $4D
 L33CCE:
 	CLC			; BCCE	$18
 	LDA $4C			; BCCF	$A5 $4C
-	ADC $4A			; BCD1	$65 $4A
+	ADC $4A			; BCD1	$65 $4A		add to damage
 	STA $4A			; BCD3	$85 $4A
 	LDA $4D			; BCD5	$A5 $4D
 	ADC $4B			; BCD7	$65 $4B
 	STA $4B			; BCD9	$85 $4B
 	LDX #$00		; BCDB	$A2 $00
 	LDA #$64		; BCDD	$A9 $64
-	JSR $FD11		; BCDF	$20 $11 $FD
+	JSR $FD11		; BCDF	$20 $11 $FD	random (X..A)
 	CMP #$05		; BCE2	$C9 $05
-	BCS L33CF7		; BCE4	$B0 $11
+	BCS L33CF7		; BCE4	$B0 $11		5 % chance for crit
 	LDA #$01		; BCE6	$A9 $01
 	STA $24			; BCE8	$85 $24
 	CLC			; BCEA	$18
-	LDA $4A			; BCEB	$A5 $4A
+	LDA $4A			; BCEB	$A5 $4A		add attack to damage
 	ADC $44			; BCED	$65 $44
 	STA $4A			; BCEF	$85 $4A
 	LDA $4B			; BCF1	$A5 $4B
 	ADC $45			; BCF3	$65 $45
 	STA $4B			; BCF5	$85 $4B
 L33CF7:
-	DEY			; BCF7	$88
+	DEY			; BCF7	$88		next hit
 	BNE L33CA7		; BCF8	$D0 $AD
 	RTS			; BCFA	$60
 ; End of
 
-;BCFB
-.byte $20,$5A,$BD,$A0,$0A
+; Marks	: restore hp
+	JSR $BD5A		; BCFB	20 5A BD  calculate restored hp/mp
+	LDY #$0A                ; BCFE	A0 0A     
+	STY $50                 ; BD00	84 50     
+	LDY #$0E                ; BD02	A0 0E     
+	STY $51                 ; BD04	84 51     
+	JSR $BD1B               ; BD06	20 1B BD  restore target's hp/mp
+	LDA #$0B                ; BD09	A9 0B     
+	STA $7CB0               ; BD0B	8D B0 7C  
+	LDA #$5D                ; BD0E	A9 5D     $5D	"HP"
+	JSR $BF92               ; BD10	20 92 BF  add to battle message queue
+	LDA #$EA                ; BD13	A9 EA     $6A	" up!"
+	JSR $BF92               ; BD15	20 92 BF  add to battle message queue
+	JMP $BE7E               ; BD18	4C 7E BE  don't show damage message
+; End of
 
-;; [$BD00 :: 0x33D00]
+; Marks	: restore target's hp/mp
+	LDY $50			; BD1B	A4 50     
+	CLC                     ; BD1D	18        
+	LDA ($A1),Y             ; BD1E	B1 A1     
+	ADC $4A                 ; BD20	65 4A     
+	STA ($A1),Y             ; BD22	91 A1     
+	INY                     ; BD24	C8        
+	LDA ($A1),Y             ; BD25	B1 A1     
+	ADC $4B                 ; BD27	65 4B     
+	STA ($A1),Y             ; BD29	91 A1     
+	LDY $50                 ; BD2B	A4 50     
+	LDA ($A1),Y             ; BD2D	B1 A1     
+	STA $00                 ; BD2F	85 00     
+	INY                     ; BD31	C8        
+	LDA ($A1),Y             ; BD32	B1 A1     
+	STA $01                 ; BD34	85 01     
+	LDY $51                 ; BD36	A4 51     
+	LDA ($A1),Y             ; BD38	B1 A1     
+	STA $02                 ; BD3A	85 02     
+	INY                     ; BD3C	C8        
+	LDA ($A1),Y             ; BD3D	B1 A1     
+	STA $03                 ; BD3F	85 03     
+	JSR $8FFC               ; BD41	20 FC 8F  compare (16-bit)
+	BCC L33D51              ; BD44	90 0B     
+	LDY $50                 ; BD46	A4 50     
+	LDA $02                 ; BD48	A5 02     
+	STA ($A1),Y             ; BD4A	91 A1     
+	INY                     ; BD4C	C8        
+	LDA $03                 ; BD4D	A5 03     
+	STA ($A1),Y             ; BD4F	91 A1     
+L33D51:
+	RTS                     ; BD51	60        
+; End of
 
-.byte $84,$50,$A0,$0E,$84,$51,$20,$1B,$BD,$A9,$0B,$8D,$B0,$7C,$A9,$5D
-.byte $20,$92,$BF,$A9,$EA,$20,$92,$BF,$4C,$7E,$BE,$A4,$50,$18,$B1,$A1
-.byte $65,$4A,$91,$A1,$C8,$B1,$A1,$65,$4B,$91,$A1,$A4,$50,$B1,$A1,$85
-.byte $00,$C8,$B1,$A1,$85,$01,$A4,$51,$B1,$A1,$85,$02,$C8,$B1,$A1,$85
-.byte $03,$20,$FC,$8F,$90,$0B,$A4,$50,$A5,$02,$91,$A1,$C8,$A5,$03,$91
-.byte $A1,$60,$20,$7B,$BD,$A0,$0A,$4C,$79,$B5,$20,$E9,$BD,$18,$A5,$46
-.byte $65,$48,$85,$48,$A9,$00,$65,$49,$85,$49,$A0,$27,$B1,$9F,$85,$44
-.byte $A9,$00,$85,$45,$85,$46,$85,$47,$4C,$88,$BC,$20,$23,$BE,$20,$D0
-.byte $B5,$B0,$06,$A9,$00,$85,$52,$85,$53,$A0,$25,$B1,$9F,$18,$65,$52
-.byte $85,$48,$A9,$00,$65,$53,$85,$49,$A0,$27,$B1,$9F,$85,$44,$A9,$00
-.byte $85,$45,$85,$46,$85,$47,$20,$88,$BC,$A0,$28,$B1,$9F,$A0,$16,$31
-.byte $A1,$F0,$04,$06,$4A,$26,$4B,$A0,$28,$B1,$9F,$A0,$05,$31,$A1,$F0
-.byte $04,$46,$4B,$66,$4A,$60,$20,$5A,$BD,$A0,$0C,$84,$50,$A0,$10,$84
-.byte $51,$20,$1B,$BD,$A9,$5E,$20,$92,$BF,$A9,$EA,$20,$92,$BF,$4C,$7E
-.byte $BE,$20,$7B,$BD,$A0,$0C,$4C,$79,$B5,$A0,$25,$B1,$9F,$85,$46,$C8
-.byte $B1,$9F,$85,$44,$A9,$00,$85,$45,$20,$71,$AF,$29,$02,$F0,$04,$46
+; Marks	: do magic damage (undead)
+; used by healing magic and garlic when targeting undead
+	JSR $BD7B		; BD52	20 7B BD  calculate magic damage
+	LDY #$0A                ; BD55	A0 0A     
+	JMP $B579               ; BD57	4C 79 B5  subtract damage from target hp/mp
+; End of
 
-;; [$BE00 :: 0x33E00]
+; Marks	: calculate restored hp/mp
+	JSR $BDE9		; BD5A	20 E9 BD  check for hit (magic)
+	CLC                     ; BD5D	18        
+	LDA $46                 ; BD5E	A5 46     
+	ADC $48                 ; BD60	65 48     
+	STA $48                 ; BD62	85 48     
+	LDA #$00                ; BD64	A9 00     
+	ADC $49                 ; BD66	65 49     
+	STA $49                 ; BD68	85 49     
+	LDY #$27                ; BD6A	A0 27     
+	LDA ($9F),Y             ; BD6C	B1 9F     
+	STA $44                 ; BD6E	85 44     
+	LDA #$00                ; BD70	A9 00     
+	STA $45                 ; BD72	85 45     
+	STA $46                 ; BD74	85 46     
+	STA $47                 ; BD76	85 47     
+	JMP $BC88               ; BD78	4C 88 BC  calculate damage
+; End of
 
-.byte $45,$66,$44,$4C,$2C,$BC,$A0,$03,$B1,$A1,$85,$46,$C8,$B1,$A1,$85
-.byte $44,$A9,$00,$85,$45,$20,$76,$AF,$29,$02,$F0,$04,$46,$45,$66,$44
-.byte $4C,$2C,$BC,$20,$E9,$BD,$A0,$28,$B1,$9F,$A0,$05,$31,$A1,$F0,$06
-.byte $A9,$00,$85,$48,$85,$49,$A0,$28,$B1,$9F,$A0,$16,$31,$A1,$F0,$08
-.byte $A5,$46,$85,$48,$A9,$00,$85,$49,$20,$8D,$B6,$20,$06,$BE,$A0,$28
-.byte $B1,$9F,$A0,$05,$31,$A1,$F0,$08,$A5,$46,$85,$48,$A9,$00,$85,$49
-.byte $A0,$28,$B1,$9F,$A0,$16,$31,$A1,$F0,$06,$A9,$00,$85,$48,$85,$49
-.byte $4C,$06,$BB,$A5,$28,$29,$BF,$85,$28,$A9,$14,$20,$92,$BF,$A9,$00
-.byte $85,$4A,$A9,$80,$85,$4B,$60,$6C,$46,$00,$71,$B5,$71,$B5,$95,$B5
+; Marks	: calculate magic damage
+	JSR $BE23		; BD7B	20 23 BE  get number of magic hits
+	JSR $B5D0               ; BD7E	20 D0 B5  
+	BCS L33D89              ; BD81	B0 06     
+	LDA #$00                ; BD83	A9 00     min 0 hits
+	STA $52                 ; BD85	85 52     
+	STA $53                 ; BD87	85 53     
+L33D89:
+	LDY #$25                ; BD89	A0 25     
+	LDA ($9F),Y             ; BD8B	B1 9F     add spell level
+	CLC                     ; BD8D	18        
+	ADC $52                 ; BD8E	65 52     
+	STA $48                 ; BD90	85 48     
+	LDA #$00                ; BD92	A9 00     
+	ADC $53                 ; BD94	65 53     
+	STA $49                 ; BD96	85 49     
+	LDY #$27                ; BD98	A0 27     
+	LDA ($9F),Y             ; BD9A	B1 9F     mod. spell power
+	STA $44                 ; BD9C	85 44     
+	LDA #$00                ; BD9E	A9 00     
+	STA $45                 ; BDA0	85 45     
+	STA $46                 ; BDA2	85 46     
+	STA $47                 ; BDA4	85 47     
+	JSR $BC88               ; BDA6	20 88 BC  calculate damage
+	LDY #$28                ; BDA9	A0 28     
+	LDA ($9F),Y             ; BDAB	B1 9F     spell parameter 1 (spell elements)
+	LDY #$16                ; BDAD	A0 16     
+	AND ($A1),Y             ; BDAF	31 A1     check against target's weak elements
+	BEQ L33DB7              ; BDB1	F0 04     
+	ASL $4A                 ; BDB3	06 4A     double damage
+	ROL $4B                 ; BDB5	26 4B     
+L33DB7:
+	LDY #$28                ; BDB7	A0 28     
+	LDA ($9F),Y             ; BDB9	B1 9F     
+	LDY #$05                ; BDBB	A0 05     
+	AND ($A1),Y             ; BDBD	31 A1     check against target's strong elements
+	BEQ L33DC5              ; BDBF	F0 04     
+	LSR $4B                 ; BDC1	46 4B     halve damage
+	ROR $4A                 ; BDC3	66 4A     
+L33DC5:
+	RTS                     ; BDC5	60        
+; End of
+
+; Marks	: restore mp
+	JSR $BD5A		; BDC6	20 5A BD  calculate restored hp/mp
+	LDY #$0C                ; BDC9	A0 0C     
+	STY $50                 ; BDCB	84 50     
+	LDY #$10                ; BDCD	A0 10     
+	STY $51                 ; BDCF	84 51     
+	JSR $BD1B               ; BDD1	20 1B BD  restore target's hp/mp
+	LDA #$5E                ; BDD4	A9 5E     $5E	"MP"
+	JSR $BF92               ; BDD6	20 92 BF  add to battle message queue
+	LDA #$EA                ; BDD9	A9 EA     $6A	" up!"
+	JSR $BF92               ; BDDB	20 92 BF  add to battle message queue
+	JMP $BE7E               ; BDDE	4C 7E BE  don't show damage message
+; End of
+
+; unused magic effect (mp magic damage)
+	JSR $BD7B		; BDE1	20 7B BD  calculate magic damage
+	LDY #$0C                ; BDE4	A0 0C     
+	JMP $B579               ; BDE6	4C 79 B5  subtract damage from target hp/mp
+; End of
+
+; Marks	: check for hit (magic)
+; $48: number of successful hits (out)
+	LDY #$25		; BDE9	A0 25     
+	LDA ($9F),Y             ; BDEB	B1 9F     spell level
+	STA $46                 ; BDED	85 46     
+	INY                     ; BDEF	C8        
+	LDA ($9F),Y             ; BDF0	B1 9F     mod. spell %
+	STA $44                 ; BDF2	85 44     
+	LDA #$00                ; BDF4	A9 00     
+	STA $45                 ; BDF6	85 45     
+	JSR $AF71               ; BDF8	20 71 AF  get attacker status 1
+	AND #$02                ; BDFB	29 02     
+	BEQ L33E03              ; BDFD	F0 04     branch if not blind
+	LSR $45                 ; BDFF	46 45     halve spell %
+	ROR $44                 ; BE01	66 44     
+L33E03:
+	JMP $BC2C               ; BE03	4C 2C BC  check for hit
+; End of
+
+; Marks	: check for evade (magic)
+	LDY #$03		; BE06	A0 03     
+	LDA ($A1),Y             ; BE08	B1 A1     m.evade mult.
+	STA $46                 ; BE0A	85 46     
+	INY                     ; BE0C	C8        
+	LDA ($A1),Y             ; BE0D	B1 A1     m.evade %
+	STA $44                 ; BE0F	85 44     
+	LDA #$00                ; BE11	A9 00     
+	STA $45                 ; BE13	85 45     
+	JSR $AF76               ; BE15	20 76 AF  get target status 1
+	AND #$02                ; BE18	29 02     
+	BEQ L33E20              ; BE1A	F0 04     branch if not blind
+	LSR $45                 ; BE1C	46 45     halve m.evade %
+	ROR $44                 ; BE1E	66 44     
+L33E20:
+	JMP $BC2C               ; BE20	4C 2C BC  check for hit
+; End of
+
+; Marks	: get number of magic hits
+	JSR $BDE9		; BE23	20 E9 BD  check for hit (magic)
+	LDY #$28                ; BE26	A0 28     
+	LDA ($9F),Y             ; BE28	B1 9F     spell parameter 1 (spell elements)
+	LDY #$05                ; BE2A	A0 05     
+	AND ($A1),Y             ; BE2C	31 A1     
+	BEQ L33E36              ; BE2E	F0 06     branch if target not strong vs. element
+	LDA #$00                ; BE30	A9 00     zero hits
+	STA $48                 ; BE32	85 48     
+	STA $49                 ; BE34	85 49     
+L33E36:
+	LDY #$28                ; BE36	A0 28     
+	LDA ($9F),Y             ; BE38	B1 9F     
+	LDY #$16                ; BE3A	A0 16     
+	AND ($A1),Y             ; BE3C	31 A1     
+	BEQ L33E48              ; BE3E	F0 08     branch if target not weal vs. element
+	LDA $46                 ; BE40	A5 46     all hits are effective
+	STA $48                 ; BE42	85 48     
+	LDA #$00                ; BE44	A9 00     
+	STA $49                 ; BE46	85 49     
+L33E48:
+	JSR $B68D               ; BE48	20 8D B6  set number of hits
+	JSR $BE06               ; BE4B	20 06 BE  check for evade (magic)
+	LDY #$28                ; BE4E	A0 28     
+	LDA ($9F),Y             ; BE50	B1 9F     
+	LDY #$05                ; BE52	A0 05     
+	AND ($A1),Y             ; BE54	31 A1     
+	BEQ L33E60              ; BE56	F0 08     branch if target not strong vs. element
+	LDA $46                 ; BE58	A5 46     evade all hits
+	STA $48                 ; BE5A	85 48     
+	LDA #$00                ; BE5C	A9 00     
+	STA $49                 ; BE5E	85 49     
+L33E60:
+	LDY #$28                ; BE60	A0 28     
+	LDA ($9F),Y             ; BE62	B1 9F     
+	LDY #$16                ; BE64	A0 16     
+	AND ($A1),Y             ; BE66	31 A1     
+	BEQ L33E70              ; BE68	F0 06     branch if target not weak vs. element
+	LDA #$00                ; BE6A	A9 00     evade zero hits
+	STA $48                 ; BE6C	85 48     
+	STA $49                 ; BE6E	85 49     
+L33E70:
+	JMP $BB06               ; BE70	4C 06 BB  
+; End of
+
+; Marks	: magic ineffective
+	LDA $28			; BE73	A5 28     
+	AND #$BF                ; BE75	29 BF     
+	STA $28                 ; BE77	85 28     
+	LDA #$14                ; BE79	A9 14     $14: "Not effective."
+	JSR $BF92               ; BE7B	20 92 BF  add to battle message queue
+; fallthrough
+
+; Marks	: don't show damage message
+	LDA #$00		; BE7E	A9 00     
+	STA $4A                 ; BE80	85 4A     
+	LDA #$80                ; BE82	A9 80     
+	STA $4B                 ; BE84	85 4B     
+	RTS                     ; BE86	60        
+; End of
+
+; Marks	: do magic effect
+	JMP ($0046)		; BE87	$6C $46 $00
+
+; BE8A - data block = magic effect jump table
+Magic_effect_tbl:
+.word $B571			; BE8A	$71 $B5
+.byte $71,$B5,$95,$B5
 .byte $A7,$B5,$A7,$B5,$13,$B6,$4F,$B6,$96,$B6,$CD,$B6,$CD,$B6,$CA,$B7
 .byte $CD,$B6,$CD,$B6,$01,$B8,$41,$B8,$41,$B8,$78,$B8,$D2,$B8,$0B,$B9
 .byte $AA,$B9,$AA,$B9,$40,$BA,$73,$BA,$8E,$BA,$B8,$BA,$0F,$BB,$1D,$BB
@@ -6921,9 +7803,19 @@ L33F1D:
 	LDA $E3			; BF20	$A5 $E3
 	STA $9E			; BF22	$85 $9E
 	JSR $96E1		; BF24	$20 $E1 $96
-;BF27
-.byte $68,$85,$9E,$A0,$02,$A2,$00,$B1,$7A
-.byte $9D,$47,$7D,$C8,$E8,$E0,$06,$D0,$F5,$86,$AA,$68
+	PLA 			; BF27	68        
+	STA $9E                 ; BF28	85 9E     
+	LDY #$02                ; BF2A	A0 02     
+	LDX #$00                ; BF2C	A2 00     
+L33F2E:
+	LDA ($7A),Y             ; BF2E	B1 7A     copy character name
+	STA $7D47,X             ; BF30	9D 47 7D  
+	INY                     ; BF33	C8        
+	INX                     ; BF34	E8        
+	CPX #$06                ; BF35	E0 06     
+	BNE L33F2E              ; BF37	D0 F5     
+	STX $AA                 ; BF39	86 AA     
+	PLA                     ; BF3B	68        
 L33F3C:
 	BNE L33F55		; BF3C	$D0 $17
 L33F3E:
@@ -6935,9 +7827,9 @@ L33F3E:
 	STA $64			; BF48	$85 $64
 	LDX #$05		; BF4A	$A2 $05
 	JSR $FD8C		; BF4C	$20 $8C $FD
-;BF4F
-.byte $AE
-.byte $BF,$7C,$86,$AA,$68
+	LDX $7CBF		; BF4F	$AE $BF $7C
+	STX $AA			; BF52	$86 $AA
+	PLA			; BF53	$68
 L33F55:
 	STA $64			; BF55	$85 $64
 	LDX #$05		; BF57	$A2 $05
@@ -6981,7 +7873,8 @@ L33F8C:
 	BNE L33F78		; BF8D	$D0 $E9
 	RTS			; BF8F	$60
 L33F90:
-.byte $A9,$14
+	LDA #$14		; BF90	$A9 $14		$14: "Not effective"
+; fallthrough
 
 ; Name	:
 ; Marks	:
@@ -7016,11 +7909,19 @@ L33FBD:
 	RTS			; BFBD	$60
 ; End of
 
+; unused ??
 .byte $90,$58
 .byte $90,$F0,$90,$00,$FF
 ;; $BFC5 - data block: OAM X, Y position ( cursor ?? )
-.byte $C0,$A8,$C0,$B8,$C0,$C8,$C0,$D8,$48,$B8,$48
-.byte $D8,$A0,$B8,$A0,$C8,$08,$A8,$08,$B8,$08,$C8,$08,$D8,$30,$A8,$30
-.byte $B8,$30,$C8,$30,$D8,$58,$A8,$58,$B8,$58,$C8,$58,$D8,$80,$A8,$80
-.byte $B8,$80,$C8,$80,$D8,$5A,$94,$86,$94,$44,$9D,$78,$9F,$9F,$9F,$9F
+.byte $C0,$A8,$C0,$B8,$C0,$C8,$C0,$D8	; battle command select
+;BFCD
+.byte $48,$B8,$48,$D8,$A0,$B8,$A0,$C8	; item select
+;BFD5 magic select
+.byte $08,$A8,$08,$B8,$08,$C8,$08,$D8,$30,$A8,$30,$B8,$30,$C8,$30,$D8
+.byte $58,$A8,$58,$B8,$58,$C8,$58,$D8,$80,$A8,$80,$B8,$80,$C8,$80,$D8
+;BFF5 target select jump table for each battle command
+.word $945A			; BFF5	$5A $94
+.byte $86,$94,$44,$9D,$78,$9F
+;BFFD stale data
+.byte $9F,$9F,$9F
 ; ========== battle main code ($8F43-$BFFF) END ==========
