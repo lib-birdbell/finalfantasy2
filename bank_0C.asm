@@ -1,7 +1,13 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.export	BattleMain_bank0C	;8F43
+.export SortVal_bank0C		;8F46
+
 .import Set_IRQ_JMP		;FA2A
+.import	Do_009880		;FAFB
+.import	Multi16			;FC98
+.import Random			;FD11
 .import Wait_NMI_end		;FD46
 .import	Wait_MENU_snd		;FD5B
 
@@ -630,23 +636,22 @@ Mob_AI:
 
 
 ; ========== battle main code ($8F43-$BFFF) START ==========
+BASE_DELAY	= $20		; wait frame
 ; $8F43- 
-	JMP $9028		; 8F43	$4C $28 $90	battle main
-; End of
+BattleMain_bank0C:
+	JMP Battle_main		; 8F43	$4C $28 $90	battle main
 
-; Name	:
-; Marks	:
-	JMP $8F5E		; 8F46	$4C $5E $8F	sort values
-; End of
-	JMP $9868		; 8F49	$4C $68 $98	init battle stats
-	JMP $95E7		; 8F4C	$4C $E7 $95	copy text to buffer
+SortVal_bank0C:
+	JMP SortVal		; 8F46	$4C $5E $8F	sort values
+	JMP Init_battle_stats	; 8F49	$4C $68 $98	init battle stats
+	JMP Copy_txt_buf	; 8F4C	$4C $E7 $95	copy text to buffer
 ;8F4F
-	JMP $9250		; 8F4F	$4C $50 $92	open window
-	JMP $96E1		; 8F52	$4C $E1 $96	update character/monster pointers
-	JMP $9749		; 8F55	$4C $49 $97	convert hex to decimal
+	JMP Open_win		; 8F4F	$4C $50 $92	open window
+	JMP Update_addr		; 8F52	$4C $E1 $96	update character/monster pointers
+	JMP HtoD		; 8F55	$4C $49 $97	convert hex to decimal
 ;8F58
 	JMP $96B5		; 8F58	$4C $B5 $96
-	JMP $9D02		; 8F5B	$4C $02 $9D	set positions for 16x16 sprite
+	JMP Move_OAM_XY		; 8F5B	$4C $02 $9D	set positions for 16x16 sprite
 ;
 
 ; Marks	: sort values
@@ -654,6 +659,7 @@ Mob_AI:
 ;	  A= index of last value
 ;	  $04(ADDR)= pointer to values
 ;	  $06(ADDR)= pointer to buffer for sorted indices
+SortVal:
 	PHA			; 8F5E	$48
 	SEC			; 8F5F	$38
 	SBC $02			; 8F60	$E5 $02
@@ -664,14 +670,16 @@ Mob_AI:
 	LDX #$00		; 8F68	$A2 $00
 L30F6A:
 	TXA			; 8F6A	$8A
-	STA ($06),Y		; 8F6B	$91 $06		turn order queue ??
+	STA ($06),Y		; 8F6B	$91 $06		turn order queue ?? generic buffer ??
 	INY			; 8F6D	$C8
 	INX			; 8F6E	$E8
 	CPX $00			; 8F6F	$E4 $00
 	BNE L30F6A		; 8F71	$D0 $F7
 	PLA			; 8F73	$68
 ; Name	:
-; Marks	:
+; Marks	: $00 = ??, $01 = ??, $02 = ??, $03 = ??
+;	  $04(ADDR)
+SortVal_:
 	STA $03			; 8F74	$85 $03
 	LDA $00			; 8F76	$A5 $00
 	PHA			; 8F78	$48
@@ -739,13 +747,13 @@ L30FD8:
 	LDA $00			; 8FE0	$A5 $00
 	STA $02			; 8FE2	$85 $02
 	TYA			; 8FE4	$98
-	JSR $8F74		; 8FE5	$20 $74 $8F
+	JSR SortVal_		; 8FE5	$20 $74 $8F	recursive subroutine ??
 L30FE8:
 	CPX $01			; 8FE8	$E4 $01
 	BCS L30FF3		; 8FEA	$B0 $07
 	STX $02			; 8FEC	$86 $02
 	LDA $01			; 8FEE	$A5 $01
-	JSR $8F74		; 8FF0	$20 $74 $8F
+	JSR SortVal_		; 8FF0	$20 $74 $8F	recursive subroutine ??
 L30FF3:
 	PLA			; 8FF3	$68
 	TAX			; 8FF4	$AA
@@ -795,6 +803,7 @@ L30FF8:
 .byte $01,$02,$04,$08,$10,$20,$40,$80
 
 ; Marks	: battle main
+Battle_main:
 	JSR Wait_MENU_snd	; 9028	$20 $5B $FD
 	LDA #$00		; 902B	$A9 $00
 	STA cur_char_idx	; 902D	$85 $9E
@@ -802,56 +811,58 @@ L3102F:
 	JSR Wait_NMI_end	; 902F	$20 $46 $FD
 	LDA cur_char_idx	; 9032	$A5 $9E
 	ORA #$80		; 9034	$09 $80
-	JSR $FAFB		; 9036	$20 $FB $FA
+	JSR Do_009880		; 9036	$20 $FB $FA	update character equipment
 	JSR Wait_MENU_snd	; 9039	$20 $5B $FD
 	INC cur_char_idx	; 903C	$E6 $9E
 	LDA cur_char_idx	; 903E	$A5 $9E
 	CMP #$04		; 9040	$C9 $04
 	BNE L3102F		; 9042	$D0 $EB
-	JSR $909F		; 9044	$20 $9F $90
+	JSR Init_battle_ram	; 9044	$20 $9F $90
 	LDA $3A			; 9047	$A5 $3A
 	ORA #$01		; 9049	$09 $01
 	STA $3A			; 904B	$85 $3A
-	JSR $910D		; 904D	$20 $0D $91
-	JSR $912A		; 9050	$20 $2A $91
-	JSR $981D		; 9053	$20 $1D $98
-	JSR $9147		; 9056	$20 $47 $91
-	LDY #$20		; 9059	$A0 $20
-	JSR $949B		; 905B	$20 $9B $94
-	JSR $A35E		; 905E	$20 $5E $A3
-	JSR $FAE0		; 9061	$20 $E0 $FA
-	JSR $FAD0		; 9064	$20 $D0 $FA
+	JSR Draw_mob_name_win	; 904D	$20 $0D $91
+	JSR Draw_char_stat_win	; 9050	$20 $2A $91
+	JSR Scroll_menu_base_pos	; 9053	$20 $1D $98
+	JSR Draw_cmd_win	; 9056	$20 $47 $91
+	LDY #BASE_DELAY		; 9059	$A0 $20
+	JSR Wait		; 905B	$20 $9B $94	wait 32 frame
+Battle_main_begin:
+	JSR Get_mob_act		; 905E	$20 $5E $A3
+	JSR $FAE0		; 9061	$20 $E0 $FA	bank 0B - animation $962D
+	JSR $FAD0		; 9064	$20 $D0 $FA	bank 0B - animation $9CEE
 	LDA #$00		; 9067	$A9 $00
 	STA $9E			; 9069	$85 $9E
 L3106B:
-	JSR $982C		; 906B	$20 $2C $98	ppu init ?? - command process loop
+	JSR Scroll_menu_cmd	; 906B	$20 $2C $98	show command menu
 	LDA $7CCA		; 906E	$AD $CA $7C	??
 	BEQ L31076		; 9071	$F0 $03
-	JSR $9B3E		; 9073	$20 $3E $9B
+	JSR Remove_tile		; 9073	$20 $3E $9B	remove enemy name board
 L31076:
 	LDY $7B4A		; 9076	$AC $4A $7B	battle type (0=normal,1=surprised,2=first strike)
 	BEQ L3107F		; 9079	$F0 $04
 	CPY #$01		; 907B	$C0 $01
 	BEQ L31099		; 907D	$F0 $1A
 L3107F:
-	JSR $9187		; 907F	$20 $87 $91	battle command check ??
+	JSR Get_cmd_input	; 907F	$20 $87 $91	get battle command input process
 	LDA cur_char_idx	; 9082	$A5 $9E
 	CMP #$04		; 9084	$C9 $04
-	BNE L3106B		; 9086	$D0 $E3		loop
+	BNE L3106B		; 9086	$D0 $E3		loop for all character
 	JSR Wait_NMI_end	; 9088	$20 $46 $FD
 	LDA #$04		; 908B	$A9 $04
 	STA $9E			; 908D	$85 $9E
-	JSR $FABC		; 908F	$20 $BC $FA
+	JSR $FABC		; 908F	$20 $BC $FA	bank 0B - $9612
 	LDA #$00		; 9092	$A9 $00
 	STA $9E			; 9094	$85 $9E
 	JSR Wait_MENU_snd	; 9096	$20 $5B $FD
 L31099:
-	JSR $981D		; 9099	$20 $1D $98
-	JMP $A308		; 909C	$4C $08 $A3
-; End of
+	JSR Scroll_menu_base_pos	; 9099	$20 $1D $98
+	JMP Do_battle_round	; 909C	$4C $08 $A3
+; End of Battle_main
 
-; Name	:
+; Name	: Init_battle_ram
 ; Marks	: init battle ram
+Init_battle_ram:
 	LDA #$00		; 909F	$A9 $00
 	LDX #$00		; 90A1	$A2 $00
 L310A3:
@@ -905,46 +916,51 @@ L310AD:
 	LDA #$00		; 9108	$A9 $00
 	STA $A8			; 910A	$85 $A8
 	RTS			; 910C	$60
-; End of
+; End of Init_battle_ram
 
-; Name	:
+; Name	: Draw_mob_name_win
 ; Marks	: draw monster name window
+Draw_mob_name_win:
 	JSR Wait_NMI_end	; 910D	$20 $46 $FD
 	JSR Init_gfx_buf	; 9110	$20 $90 $94
-	JSR $9683		; 9113	$20 $83 $96
+	JSR Draw_mob_name	; 9113	$20 $83 $96
 	LDX #$03		; 9116	$A2 $03
 L31118:
-	LDA $9126,X		; 9118	$BD $26 $91
+	LDA Mob_name_win_pos,X	; 9118	$BD $26 $91
 	STA $62,X		; 911B	$95 $62
 	DEX			; 911D	$CA
 	BPL L31118		; 911E	$10 $F8
 	JSR Wait_MENU_snd	; 9120	$20 $5B $FD
-	JMP $9250		; 9123	$4C $50 $92
-; End of
+	JMP Open_win		; 9123	$4C $50 $92
+; End of Draw_mob_name_win
 
 ;$9126 - data block = monster name window position data
+Mob_name_win_pos:
 .byte $00,$13,$09,$1E
 
-; Name	:
+; Name	: Draw_char_stat_win
 ; Marks	: draw character stats window
+Draw_char_stat_win:
 	JSR Wait_NMI_end	; 912A	$20 $46 $FD
 	JSR Init_gfx_buf	; 912D	$20 $90 $94
-	JSR $94AA		; 9130	$20 $AA $94
+	JSR Draw_char_stat	; 9130	$20 $AA $94
 	LDX #$03		; 9133	$A2 $03
 L31135:
-	LDA $9143,X		; 9135	$BD $43 $91
+	LDA Char_stat_win_pos,X	; 9135	$BD $43 $91
 	STA $62,X		; 9138	$95 $62
 	DEX			; 913A	$CA
 	BPL L31135		; 913B	$10 $F8
 	JSR Wait_MENU_snd	; 913D	$20 $5B $FD
-	JMP $9250		; 9140	$4C $50 $92
-; End of
+	JMP Open_win		; 9140	$4C $50 $92
+; End of Draw_char_stat_win
 
 ;$9143 - data block = character stats window position data
+Char_stat_win_pos:
 .byte $0A,$13,$1F,$1E
 
-; Name	:
+; Name	: Draw_cmd_win
 ; Marks	: draw battle command window
+Draw_cmd_win:
 	JSR Wait_NMI_end	; 9147	$20 $46 $FD
 	JSR Init_gfx_buf	; 914A	$20 $90 $94
 	LDA #$06		; 914D	$A9 $06
@@ -958,7 +974,7 @@ L31159:
 	STA $66			; 915B	$85 $66
 	LDA $73			; 915D	$A5 $73
 	STA $67			; 915F	$85 $67
-	JSR $972F		; 9161	$20 $2F $97
+	JSR Load_battle_text	; 9161	$20 $2F $97
 	CLC			; 9164	$18
 	LDA $73			; 9165	$A5 $73
 	ADC #$0C		; 9167	$69 $0C
@@ -969,19 +985,21 @@ L31159:
 	BNE L31159		; 9171	$D0 $E6
 	LDX #$03		; 9173	$A2 $03
 L31175:
-	LDA $9183,X		; 9175	$BD $83 $91
+	LDA Cmd_win_pos,X	; 9175	$BD $83 $91
 	STA $62,X		; 9178	$95 $62
 	DEX			; 917A	$CA
 	BPL L31175		; 917B	$10 $F8
 	JSR Wait_MENU_snd	; 917D	$20 $5B $FD
-	JMP $9250		; 9180	$4C $50 $92
-; End of
+	JMP Open_win		; 9180	$4C $50 $92
+; End of Draw_cmd_win
 
 ;$9183 - data block = battle command window position data
+Cmd_win_pos:
 .byte $20,$13,$27,$1E
 
-; Name	:
+; Name	: Get_cmd_input
 ; Marks	: get battle command input(check)
+Get_cmd_input:
 	JSR Wait_NMI_end	; 9187	$20 $46 $FD
 	LDA cur_char_idx	; 918A	$A5 $9E
 	TAX			; 918C	$AA
@@ -992,15 +1010,17 @@ L31175:
 	BNE L311D7		; 9198	$D0 $3D
 	JSR Check_conf_par_slp	; 919A	$20 $11 $92
 	BNE L311D7		; 919D	$D0 $38
-	JSR $FABC		; 919F	$20 $BC $FA
+	JSR $FABC		; 919F	$20 $BC $FA	bank 0B - $9612
 	LDA #$01		; 91A2	$A9 $01
 	STA $7CE3		; 91A4	$8D $E3 $7C	current character's spell list ??
 	STA $7CE7		; 91A7	$8D $E7 $7C
 	STA $7CEB		; 91AA	$8D $EB $7C
 	STA $7CEF		; 91AD	$8D $EF $7C
-	LDA #$BF		; 91B0	$A9 $BF
+	LDA #>Cursor_cmd_pos
+	;LDA #$BF		; 91B0	$A9 $BF		BFC5 Cursor_cmd_pos
 	STA $67			; 91B2	$85 $67
-	LDA #$C5		; 91B4	$A9 $C5
+	LDA #<Cursor_cmd_pos
+	;LDA #$C5		; 91B4	$A9 $C5
 	STA $66			; 91B6	$85 $66		pointer to cursor position data ??
 	LDA #$04		; 91B8	$A9 $04
 	STA $5C			; 91BA	$85 $5C		number of cusor options ?? - battle command
@@ -1008,14 +1028,14 @@ L31175:
 	STA $5D			; 91BE	$85 $5D
 	STA $50			; 91C0	$85 $50
 	STA $51			; 91C2	$85 $51
-	JSR $FAE4		; 91C4	$20 $E4 $FA	some graphic subroutine ??
-	JSR $9BA8		; 91C7	$20 $A8 $9B	battle command ?? - Only A or B
+	JSR $FAE4		; 91C4	$20 $E4 $FA	bank 0B - $9630
+	JSR Get_cmd		; 91C7	$20 $A8 $9B	battle command input
 	JSR Wait_NMI_end	; 91CA	$20 $46 $FD
 .byte $AD,$34,$00
-	;LDA $0034		; 91CD	$AD $34 $00	key rlduseba
+	;LDA $0034		; 91CD	$AD $34 $00	key - rlduseba
 	CMP #$01		; 91D0	$C9 $01
 	BNE L311DB		; 91D2	$D0 $07
-	JSR $9231		; 91D4	$20 $31 $92	key A pressed - 
+	JSR Target_sel		; 91D4	$20 $31 $92	key A pressed - choose the command
 L311D7:
 	INC cur_char_idx	; 91D7	$E6 $9E
 	BNE L31207		; 91D9	$D0 $2C
@@ -1023,7 +1043,7 @@ L311DB:
 	LDA cur_char_idx	; 91DB	$A5 $9E
 	BEQ L31207		; 91DD	$F0 $28
 	DEC cur_char_idx	; 91DF	$C6 $9E
-	JSR $96E1		; 91E1	$20 $E1 $96	Set some stat address ??
+	JSR Update_addr		; 91E1	$20 $E1 $96
 	JSR Check_dead_stone	; 91E4	$20 $08 $92
 	BNE L311EE		; 91E7	$D0 $05
 	JSR Check_conf_par_slp	; 91E9	$20 $11 $92
@@ -1032,10 +1052,10 @@ L311EE:
 	LDA cur_char_idx	; 91EE	$A5 $9E
 	BEQ L31207		; 91F0	$F0 $15
 	DEC cur_char_idx	; 91F2	$C6 $9E
-	JSR $96E1		; 91F4	$20 $E1 $96	Set some stat address ??
-	JSR $9208		; 91F7	$20 $08 $92
+	JSR Update_addr		; 91F4	$20 $E1 $96
+	JSR Check_dead_stone	; 91F7	$20 $08 $92
 	BNE L31201		; 91FA	$D0 $05
-	JSR $9211		; 91FC	$20 $11 $92
+	JSR Check_conf_par_slp	; 91FC	$20 $11 $92
 	BEQ L31207		; 91FF	$F0 $06
 L31201:
 	LDA $9E			; 9201	$A5 $9E
@@ -1043,14 +1063,14 @@ L31201:
 	DEC $9E			; 9205	$C6 $9E
 L31207:
 	RTS			; 9207	$60
-; End of
+; End of Get_cmd_input
 
 ; Name	: Check_dead_stone
 ; Ret	: A (bit7= dead, bit6= stone)
 ; Marks	: Check if dead or stone
 Check_dead_stone:
-	JSR $96E1		; 9208	$20 $E1 $96	Set some stat address ??
-	JSR Get_stat_status1	; 920B	$20 $6C $AF
+	JSR Update_addr		; 9208	$20 $E1 $96
+	JSR Get_status1_80h	; 920B	$20 $6C $AF
 	AND #$C0		; 920E	$29 $C0		check only dead and stone
 	RTS			; 9210	$60
 ; End of Check_dead_stone
@@ -1059,14 +1079,14 @@ Check_dead_stone:
 ; Ret	: A (bit7= confuse, bit6= paralyze, bit3= sleep)
 ; Marks	: get confused character action
 Check_conf_par_slp:
-	JSR $96E1		; 9211	$20 $E1 $96	Set some stat address ??
+	JSR Update_addr		; 9211	$20 $E1 $96
 	JSR Get_stat_status2	; 9214	$20 $80 $AF
 	PHA			; 9217	$48
 	AND #$80		; 9218	$29 $80		check confuse
 	BEQ L3122D		; 921A	$F0 $11
 	LDX #$00		; 921C	$A2 $00
 	LDA #$03		; 921E	$A9 $03
-	JSR $FD11		; 9220	$20 $11 $FD
+	JSR Random		; 9220	$20 $11 $FD
 	LDY #$2B		; 9223	$A0 $2B
 	STA ($80),Y		; 9225	$91 $80
 	LDY #$2A		; 9227	$A0 $2A
@@ -1078,15 +1098,18 @@ L3122D:
 	RTS			; 9230	$60
 ; End of Check_conf_par_slp
 
-; Name	:
+; Name	: Target_sel
 ; Marks	: target select
+Target_sel:
 	LDA $54			; 9231	$A5 $54
 	ASL A			; 9233	$0A
 	CLC			; 9234	$18
-	ADC #$F5		; 9235	$69 $F5
+	ADC #<Target_sel_jmp_tbl
+	;ADC #$F5		; 9235	$69 $F5		BFF5
 	STA $62			; 9237	$85 $62
 	LDA #$00		; 9239	$A9 $00
-	ADC #$BF		; 923B	$69 $BF
+	ADC #>Target_sel_jmp_tbl
+	;ADC #$BF		; 923B	$69 $BF
 	STA $63			; 923D	$85 $63
 	LDY #$00		; 923F	$A0 $00
 	LDA ($62),Y		; 9241	$B1 $62
@@ -1094,10 +1117,13 @@ L3122D:
 	INY			; 9245	$C8
 	LDA ($62),Y		; 9246	$B1 $62
 	STA $65			; 9248	$85 $65
-	JSR $FAE4		; 924A	$20 $E4 $FA
+	JSR $FAE4		; 924A	$20 $E4 $FA	bank 0B - $9630
 	JMP ($0064)		; 924D	$6C $64 $00
-; End of ??
+; End of Target_sel
+
+; Name	: Open_win
 ; Marks	: open window
+Open_win:
 	JSR Wait_NMI_end	; 9250	$20 $46 $FD
 	SEC			; 9253	$38
 	LDA $64			; 9254	$A5 $64
@@ -1139,8 +1165,8 @@ L31284:
 	JSR $92A1		; 9298	$20 $A1 $92
 L3129B:
 	JSR Wait_MENU_snd	; 929B	$20 $5B $FD
-	JMP $930C		; 929E	$4C $0C $93
-; End of
+	JMP Open_win_draw	; 929E	$4C $0C $93
+; End of Open_win
 
 ; Name	:
 ; Marks	: calculate window tilemap ppu address
@@ -1213,6 +1239,7 @@ L31307:
 ; End of
 
 ; Marks	: copy window tilemap to ppu
+Open_win_draw:
 	CLC			; 930C	$18
 	LDA $A8			; 930D	$A5 $A8
 	ADC $A7			; 930F	$65 $A7
@@ -1222,34 +1249,37 @@ L31307:
 	STA $6D			; 9317	$85 $6D
 	LDA #$03		; 9319	$A9 $03
 	STA $44			; 931B	$85 $44
+Open_win_draw_loop:
 	JSR Set_IRQ_JMP		; 931D	$20 $2A $FA	Wait NMI
 	LDA $44			; 9320	$A5 $44
 	CMP #$03		; 9322	$C9 $03		bottom border ??
 	BNE L3132E		; 9324	$D0 $08
 	JSR $9440		; 9326	$20 $40 $94
-	JSR $934A		; 9329	$20 $4A $93
+	JSR Draw_TB_BD		; 9329	$20 $4A $93
 	BNE L31344		; 932C	$D0 $16
 L3132E:
 	CMP #$02		; 932E	$C9 $02		middle border
 	BNE L31337		; 9330	$D0 $05
-	JSR $938C		; 9332	$20 $8C $93
+	JSR Draw_text		; 9332	$20 $8C $93
 	BNE L31344		; 9335	$D0 $0D
 L31337:
 	CMP #$01		; 9337	$C9 $01		bottom border
 	BNE L31341		; 9339	$D0 $06
-	JSR $944D		; 933B	$20 $4D $94
-	JSR $934A		; 933E	$20 $4A $93
+	JSR Get_BB_tile		; 933B	$20 $4D $94
+	JSR Draw_TB_BD		; 933E	$20 $4A $93
 L31341:
-	JMP $9A5D		; 9341	$4C $5D $9A
+	JMP Wait_NMIe_MENUs	; 9341	$4C $5D $9A
 ;
 L31344:
-	JSR $9A5D		; 9344	$20 $5D $9A
-	JMP $931D		; 9347	$4C $1D $93
-; End of
+	JSR Wait_NMIe_MENUs	; 9344	$20 $5D $9A
+	JMP Open_win_draw_loop	; 9347	$4C $1D $93
+; End of Open_win
 
-; Name	:
+; Name	: Draw_TB_BD
+; SRC	: $69=PPU_ADDR_H,$68=PPU_ADDR_L,$37=SCROLL_L(Y) for Set_ppu_addr
 ; Marks	: draw top/bottom border
-	JSR $9402		; 934A	$20 $02 $94
+Draw_TB_BD:
+	JSR Set_ppu_addr	; 934A	$20 $02 $94
 	LDA $64			; 934E	$A5 $64
 	STA PpuData_2007	; 934F	$8D $07 $20
 	LDA $62			; 9352	$A5 $62
@@ -1262,11 +1292,11 @@ L3135B:
 	BEQ L31366		; 935D	$F0 $07
 	LDY $62			; 935F	$A4 $62
 	LDA $65			; 9361	$A5 $65
-	JSR $9B85		; 9363	$20 $85 $9B
+	JSR Set_ppu_data	; 9363	$20 $85 $9B
 L31366:
 	LDA $63			; 9366	$A5 $63
 	BEQ L3137E		; 9368	$F0 $14
-	JSR $9417		; 936A	$20 $17 $94
+	JSR Set_ppu_addr_OV	; 936A	$20 $17 $94
 	LDY $63			; 936D	$A4 $63
 	DEY			; 936F	$88
 	TYA			; 9370	$98
@@ -1274,22 +1304,23 @@ L31366:
 	LDY $63			; 9373	$A4 $63
 	DEY			; 9375	$88
 	LDA $65			; 9376	$A5 $65
-	JSR $9B85		; 9378	$20 $85 $9B
+	JSR Set_ppu_data	; 9378	$20 $85 $9B
 L3137B:
-	JSR $9432		; 937B	$20 $32 $94
+	JSR Inc_tilemap_row_OV	; 937B	$20 $32 $94
 L3137E:
 	LDA $67			; 937E	$A5 $67
 	STA PpuData_2007	; 9380	$8D $07 $20
-	JSR $9424		; 9383	$20 $24 $94
+	JSR Inc_tilemap_row	; 9383	$20 $24 $94
 	PLA			; 9386	$68
 	STA $62			; 9387	$85 $62
 	DEC $44			; 9389	$C6 $44
 	RTS			; 938B	$60
-; End of
+; End of Draw_TB_BD
 
-; Name	:
+; Name	: Draw_text
 ; Marks	: draw text and left/right border
-	JSR $9402		; 938C	$20 $02 $94
+Draw_text:
+	JSR Set_ppu_addr	; 938C	$20 $02 $94
 	LDA #$FA		; 938F	$A9 $FA
 	STA PpuData_2007	; 9391	$8D $07 $20
 	LDA $62			; 9394	$A5 $62
@@ -1313,7 +1344,7 @@ L313AE:
 	STA $62			; 93AF	$85 $62
 	LDA $63			; 93B1	$A5 $63
 	BEQ L313CD		; 93B3	$F0 $18
-	JSR $9417		; 93B5	$20 $17 $94
+	JSR Set_ppu_addr_OV	; 93B5	$20 $17 $94
 	LDX $63			; 93B8	$A6 $63
 	DEX			; 93BA	$CA
 	TXA			; 93BB	$8A
@@ -1327,11 +1358,11 @@ L313C1:
 	DEX			; 93C7	$CA
 	BNE L313C1		; 93C8	$D0 $F7
 L313CA:
-	JSR $9432		; 93CA	$20 $32 $94
+	JSR Inc_tilemap_row_OV	; 93CA	$20 $32 $94
 L313CD:
 	LDA #$FB		; 93CD	$A9 $FB
 	STA PpuData_2007	; 93CF	$8D $07 $20
-	JSR $9424		; 93D2	$20 $24 $94
+	JSR Inc_tilemap_row	; 93D2	$20 $24 $94
 	DEC $4E			; 93D5	$C6 $4E
 	BNE L313DB		; 93D7	$D0 $02
 	DEC $44			; 93D9	$C6 $44
@@ -1359,32 +1390,37 @@ L313F6:
 	ADC #$00		; 93FD	$69 $00
 	STA $6D			; 93FF	$85 $6D
 	RTS			; 9401	$60
-; End of
+; End of Draw_text
 
-; Name	:
+; Name	: Set_ppu_addr
+; SRC	: $69=PPU_ADDR_H,$68=PPU_ADDR_L,$37=SCROLL_L(Y)
 ; Marks	: set ppu address
+Set_ppu_addr:
 	LDA $69			; 9402	$A5 $69
 	STA PpuAddr_2006	; 9404	$8D $06 $20
 	LDA $68			; 9407	$A5 $68
 	STA PpuAddr_2006	; 9409	$8D $06 $20
+Set_ppu_scroll_:
 	LDA #$00		; 940C	$A9 $00
 	STA PpuScroll_2005	; 940E	$8D $05 $20
 	LDA $37			; 9411	$A5 $37
 	STA PpuScroll_2005	; 9413	$8D $05 $20
 	RTS			; 9416	$60
-; End of
+; End of Set_ppu_addr
 
-; Name	:
+; Name	: Set_ppu_addr_OV
 ; Marks	: set ppu address (overflow)
+Set_ppu_addr_OV:
 	LDA $6B			; 9417	$A5 $6B
 	STA PpuAddr_2006	; 9419	$8D $06 $20
 	LDA $6A			; 941C	$A5 $6A
 	STA PpuAddr_2006	; 941E	$8D $06 $20
-	JMP $940C		; 9421	$4C $0C $94
-; End of
+	JMP Set_ppu_scroll_	; 9421	$4C $0C $94
+; End of Set_ppu_addr_OV
 
-; Name	:
+; Name	: Inc_tilemap_row
 ; Marks	: increment tilemap row
+Inc_tilemap_row:
 	CLC			; 9424	$18
 	LDA $68			; 9425	$A5 $68
 	ADC #$20		; 9427	$69 $20
@@ -1393,10 +1429,11 @@ L313F6:
 	ADC #$00		; 942D	$69 $00
 	STA $69			; 942F	$85 $69
 	RTS			; 9431	$60
-; End of
+; End of Inc_tilemap_row
 
-; Name	:
+; Name	: Inc_tilemap_row_OV
 ; Marks	: increment tilemap row (overflow)
+Inc_tilemap_row_OV:
 	CLC			; 9432	$18
 	LDA $6A			; 9433	$A5 $6A
 	ADC #$20		; 9435	$69 $20
@@ -1405,7 +1442,7 @@ L313F6:
 	ADC #$00		; 943B	$69 $00
 	STA $6B			; 943D	$85 $6B
 	RTS			; 943F	$60
-; End of
+; End of Inc_tilemap_row_OV
 
 ; Name	:
 ; Marks	: get top border tiles
@@ -1418,8 +1455,9 @@ L313F6:
 	RTS			; 944C	$60
 ; End of
 
-; Name	:
+; Name	: Get_BB_tile
 ; Marks	: get bottom border tiles
+Get_BB_tile:
 	LDA #$FC		; 944D	$A9 $FC
 	STA $64			; 944F	$85 $64
 	LDA #$FD		; 9451	$A9 $FD
@@ -1427,11 +1465,12 @@ L313F6:
 	LDA #$FE		; 9455	$A9 $FE
 	STA $67			; 9457	$85 $67
 	RTS			; 9459	$60
-; End of
+; End of Get_BB_tile
 
+Cmd_attack_proc:
 ; Marks	: select target 0: fight
 	JSR Wait_NMI_end	; 945A	$20 $46 $FD
-	JSR $96E1		; 945D	$20 $E1 $96	Set some stat address ??
+	JSR Update_addr		; 945D	$20 $E1 $96
 	LDY #$2A		; 9460	$A0 $2A
 	LDA #$00		; 9462	$A9 $00
 	STA ($80),Y		; 9464	$91 $80
@@ -1451,8 +1490,9 @@ L31483:
 	JMP Wait_MENU_snd	; 9483	$4C $5B $FD
 ;
 
+Cmd_flee_proc:
 ; Marks	: target select 1: flee
-	JSR $96E1		; 9486	$20 $E1 $96
+	JSR Update_addr		; 9486	$20 $E1 $96
 	LDY #$2A		; 9489	$A0 $2A
 	LDA #$FE		; 948B	$A9 $FE
 	STA ($80),Y		; 948D	$91 $80
@@ -1471,22 +1511,25 @@ L31494:
 	RTS			; 949A	$60
 ; End of Init_gfx_buf
 
-; Name	:
-; Marks	: wait
+; Name	: Wait
+; Y	: frame to wait
+; Marks	: wait for delay
+Wait:
 	TYA			; 949B	$98
-	BEQ L314A9		; 949C	$F0 $0B
+	BEQ Wait_END		; 949C	$F0 $0B
 	STA $7CB9		; 949E	$8D $B9 $7C
-L314A1:
-	JSR $9A5D		; 94A1	$20 $5D $9A
+Wait_LOOP:
+	JSR Wait_NMIe_MENUs	; 94A1	$20 $5D $9A
 	DEC $7CB9		; 94A4	$CE $B9 $7C
-	BNE L314A1		; 94A7	$D0 $F8
-L314A9:
+	BNE Wait_LOOP		; 94A7	$D0 $F8
+Wait_END:
 	RTS			; 94A9	$60
-; End of
+; End of Wait
 
-; Name	:
+; Name	: Draw_char_stat
 ; Marks	: draw character stats text
-	JSR $9A63		; 94AA	$20 $63 $9A
+Draw_char_stat:
+	JSR Wait_MENUs_NMIe	; 94AA	$20 $63 $9A
 	LDA $9E			; 94AD	$A5 $9E
 	PHA			; 94AF	$48
 	LDA #$C8		; 94B0	$A9 $C8
@@ -1518,7 +1561,7 @@ L314A9:
 	PLA			; 94F0	$68
 	STA $9E			; 94F1	$85 $9E
 	RTS			; 94F3	$60
-; End of
+; End of Draw_char_stat
 
 ; Name	:
 ; X	: buffer offset
@@ -1534,17 +1577,17 @@ L314A9:
 	TXA			; 9503	$8A
 	PHA			; 9504	$48
 	STA $44			; 9505	$85 $44
-	JSR $96E1		; 9507	$20 $E1 $96
+	JSR Update_addr		; 9507	$20 $E1 $96
 	LDA $9E			; 950A	$A5 $9E
 	CMP #$03		; 950C	$C9 $03
 	BNE L3151D		; 950E	$D0 $0D
-	LDY #$35		; 9410	$A0 $35
-	LDA ($7E),Y		; 9412	$B1 $7E
-	BPL L3151D		; 9414	$10 $07
-	PLA			; 9416	$68
-	LDA #$FF		; 9417	$A9 $FF
-	STA $7697		; 9419	$8D $97 $76
-	RTS			; 941C	$60
+	LDY #$35		; 9510	$A0 $35
+	LDA ($7E),Y		; 9512	$B1 $7E
+	BPL L3151D		; 9514	$10 $07
+	PLA			; 9516	$68
+	LDA #$FF		; 9517	$A9 $FF
+	STA $7697		; 9519	$8D $97 $76
+	RTS			; 951C	$60
 ; End of
 L3151D:
 	LDY #$02		; 951D	$A0 $02
@@ -1561,7 +1604,7 @@ L31521:
 	STA $7D47,X		; 9530	$9D $47 $7D
 	LDA #$14		; 9533	$A9 $14
 	STA $45			; 9535	$85 $45
-	JSR $95E7		; 9537	$20 $E7 $95
+	JSR Copy_txt_buf	; 9537	$20 $E7 $95
 	PLA			; 953A	$68
 	CLC			; 953B	$18
 	ADC #$07		; 953C	$69 $07
@@ -1575,7 +1618,7 @@ L31521:
 	INY			; 954A	$C8
 	TXA			; 954B	$8A
 	PHA			; 954C	$48
-	JSR $9749		; 954D	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; 954D	$20 $49 $97	convert hex to decimal
 	PLA			; 9550	$68
 	TAX			; 9551	$AA
 	LDA $65			; 9552	$A5 $65
@@ -1605,8 +1648,8 @@ L31521:
 	TXA			; 9582	$8A
 	PHA			; 9583	$48
 	STA $44			; 9584	$85 $44
-	JSR $9AB6		; 9586	$20 $B6 $9A
-	JSR $95E7		; 9589	$20 $E7 $95	copy text to buffer
+	JSR Load_text_0A	; 9586	$20 $B6 $9A
+	JSR Copy_txt_buf	; 9589	$20 $E7 $95	copy text to buffer
 	PLA			; 958C	$68
 	TAX			; 958D	$AA
 	INX			; 958E	$E8
@@ -1625,7 +1668,7 @@ L31595:
 	INY			; 95A0	$C8
 	TXA			; 95A1	$8A
 	PHA			; 95A2	$48
-	JSR $9749		; 95A3	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; 95A3	$20 $49 $97	convert hex to decimal
 	PLA			; 95A6	$68
 	TAX			; 95A7	$AA
 	LDA $65			; 95A8	$A5 $65
@@ -1651,7 +1694,7 @@ L315C1:
 	INY			; 95CC	$C8
 	TXA			; 95CD	$8A
 	PHA			; 95CE	$48
-	JSR $9749		; 95CF	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; 95CF	$20 $49 $97	convert hex to decimal
 	PLA			; 95D2	$68
 	TAX			; 95D3	$AA
 	LDA $66			; 95D4	$A5 $66
@@ -1666,12 +1709,13 @@ L315C1:
 	RTS			; 95E6	$60
 ; End of
 
-; Name	:
+; Name	: Copy_txt_buf
 ; Marks	: copy text to buffer
 ;	  copy loaded text in $7D47 buffer and add dakuten
 ;	  the dakuten code was removed in the english translation ??
 ;	  $44: destination buffer offset
 ;	  $A8(ADDR): destination buffer address
+Copy_txt_buf:
 	CLC			; 95E7	$18
 	LDA $A8			; 95E8	$A5 $A8
 	ADC $44			; 95EA	$65 $44
@@ -1702,7 +1746,7 @@ L31611:
 	BNE L315F8		; 9615	$D0 $E1
 L31617:
 	RTS			; 9617	$60
-; End of
+; End of Copy_txt_buf
 
 ;9618 - dakuten(removed)
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -1746,8 +1790,9 @@ L31617:
 	RTS			; 9682	$60
 ; End of
 
-; Name	:
+; Name	: Draw_mob_name
 ; Marks	: draw monster names
+Draw_mob_name:
 	LDA #$AC		; 9683	$A9 $AC		05/AC44 (monster names)
 	STA $63			; 9685	$85 $63
 	LDA #$44		; 9687	$A9 $44
@@ -1762,8 +1807,8 @@ L31695:
 	LDA $7B4E,X		; 9697	$BD $4E $7B
 	BMI L316AB		; 969A	$30 $0F
 	STA $64			; 969C	$85 $64
-	JSR $9AAB		; 969E	$20 $AB $9A
-	JSR $95E7		; 96A1	$20 $E7 $95
+	JSR Load_text_05	; 969E	$20 $AB $9A
+	JSR Copy_txt_buf	; 96A1	$20 $E7 $95
 	CLC			; 96A4	$18
 	LDA $44			; 96A5	$A5 $44
 	ADC #$10		; 96A7	$69 $10
@@ -1775,7 +1820,7 @@ L316AB:
 	CPX #$04		; 96B0	$E0 $04
 	BNE L31695		; 96B2	$D0 $E1
 	RTS			; 96B4	$60
-; End of
+; End of Draw_mob_name
 
 ;96B5 - 
 ; Marks	: get window position data pointer - unused, same as 05/ABD8
@@ -1784,17 +1829,18 @@ L316AB:
 .byte $00,$B1,$62,$85,$78,$C8,$B1,$62,$85,$79,$68,$A5,$63,$68,$A5,$62
 .byte $60
 
-; Name	:
+; Name	: Update_addr
+; SRC	: $9E = current character index
+; Ret	: $80(ADDR) = character/monster battle stats address base($7D7A)
 ; Marks	: $7A(ADDR) = character properties 1 address $61xx
 ;	  $7E(ADDR) = character properties 2 address $62xx
-;	  $80(ADDR) = character/monster battle stats address $7D7A ??
-;	  Set address ??
 ;	  update character/monster pointers
+Update_addr:
 	TXA			; 96E1	$8A
 	PHA			; 96E2	$48
 	LDA cur_char_idx	; 96E3	$A5 $9E
 	CMP #$04		; 96E5	$C9 $04
-	BCS L31705		; 96E7	$B0 $1C
+	BCS L31705		; 96E7	$B0 $1C		branch if enemy
 	JSR Get_char_addr	; 96E9	$20 $26 $97
 	CLC			; 96EC	$18
 	ADC #$00		; 96ED	$69 $00
@@ -1810,17 +1856,17 @@ L316AB:
 	ADC #$62		; 9701	$69 $62
 	STA $7F			; 9703	$85 $7F
 L31705:
-	LDA cur_char_idx	; 9705	$A5 $9E
+	LDA cur_char_idx	; 9705	$A5 $9E		enemy
 	STA $00			; 9707	$85 $00
 	LDA #$30		; 9709	$A9 $30
 	STA $02			; 970B	$85 $02
 	LDA #$00		; 970D	$A9 $00
 	STA $01			; 970F	$85 $01
 	STA $03			; 9711	$85 $03
-	JSR $FC98		; 9713	$20 $98 $FC	Init ?? calc ??
+	JSR Multi16		; 9713	$20 $98 $FC	char idx x 30h
 	CLC			; 9716	$18
 	LDA $04			; 9717	$A5 $04
-	ADC #$7A		; 9719	$69 $7A
+	ADC #$7A		; 9719	$69 $7A		7D7A
 	STA $80			; 971B	$85 $80
 	LDA $05			; 971D	$A5 $05
 	ADC #$7D		; 971F	$69.$7D
@@ -1828,7 +1874,7 @@ L31705:
 	PLA			; 9723	$68
 	TAX			; 9724	$AA
 	RTS			; 9725	$60
-; End of
+; End of Update_addr
 
 ; Name	: Get_char_addr
 ; Marks	: current character id to address
@@ -1848,52 +1894,54 @@ Get_char_addr:
 	RTS			; 972E	$60
 ; End of Get_char_addr
 
-; Name	:
+; Name	: Load_battle_text
 ; Marks	: load battle text
 ;	  $66= text id
 ;	  $67= tile offset
+Load_battle_text:
 	LDA #$B2		; 972F	$A9 $B2		05/B295 (battle text)
 	STA $63			; 9731	$85 $63
 	LDA #$95		; 9733	$A9 $95
 	STA $62			; 9735	$85 $62
 	LDA $66			; 9737	$A5 $66
 	STA $64			; 9739	$85 $64
-	JSR $9AAB		; 973B	$20 $AB $9A
+	JSR Load_text_05	; 973B	$20 $AB $9A
 	LDA $68			; 973E	$A5 $68
 	STA $45			; 9741	$85 $45
 	LDA $67			; 9743	$A5 $67
 	STA $44			; 9745	$85 $44
-	JMP $95E7		; 9747	$4C $E7 $95	copy text to buffer
-; End of
+	JMP Copy_txt_buf	; 9747	$4C $E7 $95	copy text to buffer
+; End of Load_battle_text
 
-; Name	:
+; Name	: HtoD
 ; Marks	: convert hex to decimal
-	LDA #$10		; 9749	$A9 $10
+HtoD:
+	LDA #$10		; 9749	$A9 $10		10000
 	STA $70			; 975B	$85 $70
 	LDA #$27		; 974D	$A9 $27
 	STA $71			; 974F	$85 $71
-	JSR $97E9		; 9751	$20 $E9 $97
+	JSR Divide		; 9751	$20 $E9 $97
 	LDA $64			; 9754	$A5 $64		menu target h-scroll position ??
 	PHA			; 9756	$48
-	LDA #$E8		; 9757	$A9 $E8
+	LDA #$E8		; 9757	$A9 $E8		1000
 	STA $70			; 9759	$85 $70
 	LDA #$03		; 975B	$A9 $03
 	STA $71			; 975D	$85 $71
-	JSR $97E9		; 975F	$20 $E9 $97
+	JSR Divide		; 975F	$20 $E9 $97
 	LDA $64			; 9762	$A5 $64		menu target h-scroll position ??
 	STA $65			; 9764	$85 $65
-	LDA #$64		; 9766	$A9 $64
+	LDA #$64		; 9766	$A9 $64		100
 	STA $70			; 9768	$85 $70
 	LDA #$00		; 976A	$A9 $00
 	STA $71			; 976C	$85 $71
-	JSR $97E9		; 976E	$20 $E9 $97
+	JSR Divide		; 976E	$20 $E9 $97
 	LDA $64			; 9771	$A5 $64
 	STA $66			; 9773	$85 $66
-	LDA #$0A		; 9775	$A9 $0A
+	LDA #$0A		; 9775	$A9 $0A		10
 	STA $70			; 9777	$85 $70
 	LDA #$00		; 9779	$A9 $00
 	STA $71			; 977B	$85 $71
-	JSR $97E9		; 977D	$20 $E9 $97
+	JSR Divide		; 977D	$20 $E9 $97
 	LDA $64			; 9780	$A5 $64
 	STA $67			; 9782	$85 $67
 	LDA $62			; 9784	$A5 $62
@@ -1908,7 +1956,7 @@ Get_char_addr:
 L31795:
 	CLC			; 9795	$18
 	LDA $64			; 9796	$A5 $64
-	ADC #$80		; 9798	$69 $80
+	ADC #$80		; 9798	$69 $80		get tile id
 	STA $64			; 979A	$85 $64
 L3179C:
 	LDA $64			; 979C	$A5 $64
@@ -1958,11 +2006,12 @@ L317E1:
 	ADC #$80		; 97E4	$69 $80
 	STA $68			; 97E6	$85 $68
 	RTS			; 97E8	$60
-; End of
+; End of HtoD
 
-; Name	:
+; Name	: Divide
 ; Marks	: Subject some variables, and check be plus(positive)
 ;	  divide
+Divide:
 	LDX #$00		; 97E9	$A2 $00
 L317EB:
 	INX			; 97EB	$E8
@@ -1984,43 +2033,46 @@ L317EB:
 	ADC $71			; 9807	$65 $71
 	STA $63			; 9809	$85 $63
 	RTS			; 989B	$60
-; End of
+; End of Divide
 
-; Name	:
+; Name	: Apply_OAM
 ; Marks	: Set PPU OAM
 ;	  copy oam data to ppu
+Apply_OAM:
 	JSR Wait_MENU_snd	; 980C	$20 $5B $FD
-	JSR $FA2A		; 980F	$20 $2A $FA	wait NMI
+	JSR Set_IRQ_JMP		; 980F	$20 $2A $FA	Wait NMI
 	LDA #$00		; 9812	$A9 $00
 	STA $2003		; 9814	$8D $03 $20
 	LDA #$02		; 9817	$A9 $02
 	STA SpriteDma_4014	; 9819	$8D $14 $40
 	RTS			; 981C	$60
-; End of
+; End of Apply_OAM
 
-; Name	:
+; Name	: Scroll_menu_base_pos
 ; Marks	: scroll menu to default position
+Scroll_menu_base_pos:
 	LDA #$00		; 981D	$A9 $00
 	STA $64			; 981F	$85 $64
 	LDA #$00		; 9821	$A9 $00
 	STA $65			; 9823	$85 $65
 	LDA #$01		; 9825	$A9 $01
 	STA $63			; 9827	$85 $63
-	JMP $9AC6		; 9829	$4C $C6 $9A
-;
+	JMP Move_menu		; 9829	$4C $C6 $9A
+; End of Scroll_menu_base_pos
 
-; Name	:
+; Name	: Scroll_menu_cmd
 ; Marks	: Set $64 = 48h, menu target h-scroll position
 ;	  $65 = 00h, $63 = 00h
 ;	  scroll menu to battle command window
+Scroll_menu_cmd:
 	LDA #$48		; 982C	$A9 $48
 	STA $64			; 982E	$85 $64		menu target h-scroll position
 	LDA #$00		; 9830	$A9 $00
 	STA $65			; 9832	$85 $65
 	LDA #$00		; 9834	$A9 $00
 	STA $63			; 9836	$85 $63
-	JMP $9AC6		; 9838	$4C $C6 $9A
-; End of
+	JMP Move_menu		; 9838	$4C $C6 $9A
+; End of Scroll_menu_cmd
 
 ; Name	:
 ; Marks	:
@@ -2030,7 +2082,7 @@ L317EB:
 	STA $65			; 9841	$85 $65
 	LDA #$00		; 9843	$A9 $00
 	STA $63			; 9845	$85 $63
-	JMP $9AC6		; 9847	$4C $C6 $9A
+	JMP Move_menu		; 9847	$4C $C6 $9A
 ; End of
 
 ; Name	:
@@ -2041,7 +2093,7 @@ L317EB:
 	STA $65			; 9850	$85 $65
 	LDA #$01		; 9852	$A9 $01
 	STA $63			; 9854	$85 $63
-	JMP $9AC6		; 9856	$4C $C6 $9A
+	JMP Move_menu		; 9856	$4C $C6 $9A
 ; End of
 
 ;9859
@@ -2052,11 +2104,12 @@ L317EB:
 	STA $65			; 985F	$85 $65
 	LDA #$00		; 9861	$A9 $00
 	STA $63			; 9863	$85 $63
-	JMP $9AC6		; 9865	$4C $C6 $9A
+	JMP Move_menu		; 9865	$4C $C6 $9A
 
 ; Marks	: need monster stat value
 ;	  init battle stats
 ;	  Mob_HMP_tbl
+Init_battle_stats:
 	LDA #$7D		; 9868	$A9 $7D		character/monster properties(7D7A)
 	STA $45			; 986A	$85 $45
 	LDA #$7A		; 986C	$A9 $7A
@@ -2066,22 +2119,23 @@ L31872:
 	LDY #$00		; 9872	$A0 $00
 	LDA #$00		; 9874	$A9 $00
 L31876:
-	STA ($44),Y		; 9876	$91 $44
+	STA ($44),Y		; 9876	$91 $44		set zero
 	INY			; 9878	$C8
 	CPY #$30		; 9879	$C0 $30
-	BNE L31876		; 987B	$D0 $F9
+	BNE L31876		; 987B	$D0 $F9		loop
 	CLC			; 987D	$18
 	LDA $44			; 987E	$A5 $44
 	ADC #$30		; 9880	$69 $30
 	STA $44			; 9882	$85 $44
 	LDA $45			; 9884	$A5 $45
 	ADC #$00		; 9886	$69 $00
-	STA $45			; 9888	$85 $45
+	STA $45			; 9888	$85 $45		next +48 bytes
 	DEX			; 988A	$CA
-	BNE L31872		; 988B	$D0 $E5
+	BNE L31872		; 988B	$D0 $E5		loop
 	LDA #$00		; 988D	$A9 $00
 	STA $9E			; 988F	$85 $9E
-	JSR $96E1		; 9891	$20 $E1 $96	start of character loop
+Init_battle_stats_begin:
+	JSR Update_addr		; 9891	$20 $E1 $96	start of character loop
 	LDY #$35		; 9894	$A0 $35
 	LDA ($7E),Y		; 9896	$B1 $7E
 	EOR #$01		; 9898	$49 $01
@@ -2102,7 +2156,7 @@ L31876:
 	STA ($80),Y		; 98B6	$91 $80
 	LDY #$01		; 98B8	$A0 $01
 	LDA ($7A),Y		; 98BA	$B1 $7A
-	JSR $9AC1		; 98BC	$20 $C1 $9A	set character status 1
+	JSR Set_char_status1	; 98BC	$20 $C1 $9A	set character status 1
 	LDY #$2C		; 98BF	$A0 $2C
 	STA ($80),Y		; 98C1	$91 $80
 	LDA $9E			; 98C3	$A5 $9E
@@ -2112,7 +2166,7 @@ L31876:
 	LDA ($7E),Y		; 98CB	$B1 $7E
 	BPL L318D8		; 98CD	$10 $09
 	LDA #$80		; 98CF	$A9 $80
-	JSR $9AC1		; 98D1	$20 $C1 $9A	set character status 1
+	JSR Set_char_status1	; 98D1	$20 $C1 $9A	set character status 1
 	LDY #$2C		; 98D4	$A0 $2C
 	STA ($80),Y		; 98D6	$91 $80
 L318D8:
@@ -2152,19 +2206,20 @@ L318D8:
 	STA $A1			; 991A	$85 $A1
 	LDA $81			; 991C	$A5 $81
 	STA $A2			; 991E	$85 $A2
-	JSR $AEE0		; 9920	$20 $E0 $AE
+	JSR Chk_low_hp		; 9920	$20 $E0 $AE
 	INC $9E			; 9923	$E6 $9E		next character
 	LDA $9E			; 9925	$A5 $9E
 	CMP #$04		; 9927	$C9 $04
 	BEQ L3192E		; 9929	$F0 $03
-	JMP $9891		; 992B	$4C $91 $98
+	JMP Init_battle_stats_begin	; 992B	$4C $91 $98
 L3192E:
 	LDA #$7E		; 992E	$A9 $7E
 	STA $77			; 9930	$85 $77
 	LDA #$3A		; 9932	$A9 $3A
-	STA $76			; 9934	$85 $76
+	STA $76			; 9934	$85 $76		monster battle stats (7E3A)
 	LDA #$00		; 9936	$A9 $00
 	STA $9E			; 9938	$85 $9E
+Init_battle_stats_monster:
 	LDA #$00		; 993A	$A9 $00		start of monster loop
 	LDX #$00		; 993C	$A2 $00
 L3193E:
@@ -2177,7 +2232,7 @@ L3193E:
 	BPL L31953		; 994A	$10 $07
 	LDA #$80		; 994C	$A9 $80
 	STA $4C			; 994E	$85 $4C
-	JMP $9A32		; 9950	$4C $32 $9A
+	JMP Init_battle_stats_skip	; 9950	$4C $32 $9A
 L31953:
 	STA $00			; 9953	$85 $00
 	LDA #$0A		; 9955	$A9 $0A
@@ -2185,7 +2240,7 @@ L31953:
 	LDA #$00		; 9959	$A9 $00
 	STA $01			; 995B	$85 $01
 	STA $03			; 995D	$85 $03
-	JSR $FC98		; 995F	$20 $98 $FC
+	JSR Multi16		; 995F	$20 $98 $FC
 	LDA $04			; 9962	$A5 $04
 	ADC #<Mob_prop
 	;ADC #$C3		; 9964	$69 $C3		Mob_prop (monster properties 0C/87C3)
@@ -2292,6 +2347,7 @@ L31953:
 	STA $5B			; 9A2C	$85 $5B
 	LDA #$14		; 9A2E	$A9 $14
 	STA $4B			; 9A30	$85 $4B
+Init_battle_stats_skip:
 	LDY #$00		; 9A32	$A0 $00
 	LDX #$00		; 9A34	$A2 $00
 L31A36:
@@ -2312,39 +2368,46 @@ L31A36:
 	LDA $9E			; 9A4F	$A5 $9E
 	CMP #$08		; 9A51	$C9 $08
 	BEQ L31A58		; 9A53	$F0 $03
-	JMP $993A		; 9A55	$4C $3A $99
+	JMP Init_battle_stats_monster	; 9A55	$4C $3A $99
 L31A58:
 	LDA #$00		; 9A58	$A9 $00
 	STA $9E			; 9A5A	$85 $9E
 	RTS			; 9A5C	$60
-; End of
+; End of Init_battle_stats
 
-; Name	:
-; Marks	:
-	JSR $FD46		; 9A5D	$20 $46 $FD
-	JMP $FD5B		; 9A60	$4C $5B $FD
-; End of
+; Name	: Wait_NMIe_MENUs
+; Marks	: Wait NMI end then wait MENU start with sound process
+Wait_NMIe_MENUs:
+	JSR Wait_NMI_end	; 9A5D	$20 $46 $FD
+	JMP Wait_MENU_snd	; 9A60	$4C $5B $FD
+; End of Wait_NMIe_MENUs
 
-; Name	:
-; Marks	:
-	JSR $FD5B		; 9A63	$20 $5B $FD
-	JMP $FD46		; 9A66	$4C $46 $FD
-; End of
+; Name	: Wait_MENUs_NMIe
+; Marks	: Wait MENU start then wait NMI end with sound process
+Wait_MENUs_NMIe:
+	JSR Wait_MENU_snd	; 9A63	$20 $5B $FD
+	JMP Wait_NMI_end	; 9A66	$4C $46 $FD
+; End of Wait_MENUs_NMIe
 
-; Name	:
+; Name	: Set_NMI_
 ; Marks	: set NMI subroutine
 ;	  init battle nmi jump code
-	LDA #$9A		; 9A69	$A9 $9A
+Set_NMI_:
+	LDA #>NMI_BATTLE
+	;LDA #$9A		; 9A69	$A9 $9A
 	STA $0102		; 9A6B	$8D $02 $01
-	LDA #$79		; 9A6E	$A9 $79
+	LDA #<NMI_BATTLE
+	;LDA #$79		; 9A6E	$A9 $79
 	STA $0101		; 9A70	$8D $01 $01
 	LDA #$4C		; 9A73	$A9 $4C
 	STA $0100		; 9A75	$8D $00 $01
 	RTS			; 9A78	$60
-; End of
+; End of Set_NMI_
 
 ; < NMI routine >
+; Name	: NMI_BATTLE
 ; Marks	: battle nmi
+NMI_BATTLE:
 	PHP			; 9A79	$08
 	PHA			; 9A7A	$48
 	TXA			; 9A7B	$8A
@@ -2354,7 +2417,7 @@ L31A58:
 	JSR Wait_NMI_end	; 9A7F	$20 $46 $FD
 	JSR Wait_MENU_snd	; 9A82	$20 $5B $FD
 	LDA #$00		; 9A85	$A9 $00
-	STA $AC			; 9A87	$85 $AC
+	STA NMI_done_flag	; 9A87	$85 $AC
 	PLA			; 9A89	$68
 	TAY			; 9A8A	$A8
 	PLA			; 9A8B	$68
@@ -2362,11 +2425,11 @@ L31A58:
 	PLA			; 9A8D	$68
 	PLP			; 9A8E	$28
 	RTI			; 9A8F	$40
-; End of
+; End of NMI_BATTLE
 
-; Name	:
-; Marks	: cursor ??
-;	  hide cursor sprites
+; Name	: Hide_cursor_buf
+; Marks	: hide cursor sprites in buffer
+Hide_cursor_buf:
 	LDA #$F0		; 9A90	$A9 $F0		Reset OAM_Y[16:23]
 	STA $0250		; 9A92	$8D $50 $02
 	STA $0254		; 9A95	$8D $54 $02
@@ -2377,44 +2440,50 @@ L31A58:
 	STA $0248		; 9AA4	$8D $48 $02
 	STA $024C		; 9AA7	$8D $4C $02
 	RTS			; 9AAA	$60
-; End of
+; End of Hide_cursor_buf
 
-; Name	:
+; Name	: Load_text_05
 ; Marks	: $62(ADDR)= pointer table address
 ;	  $64= index
+;	  swap bank 05 - for load text
+Load_text_05:
 	LDX #$00		; 9AAB	$A2 $00
 	STX $6F			; 9AAD	$86 $6F
 	STX $AA			; 9AAF	$86 $AA
 	LDX #$05		; 9AB1	$A2 $05
 	JMP $FD8C		; 9AB3	$4C $8C $FD	load text
-; End of
+; End of Load_text_05
 
-; Name	:
+; Name	: Load_text_0A
 ; Marks	: load text (bank 0A)
 ;	  $62(ADDR)= pointer table address
 ;	  $64= index
+Load_text_0A:
 	LDX #$00		; 9AB6	$A2 $00
 	STX $6F			; 9AB8	$86 $6F
 	STX $AA			; 9ABA	$86 $AA
 	LDX #$0A		; 9ABC	$A2 $0A
 	JMP $FD8C		; 9ABE	$4C $8C $FD
-; End of
+; End of Load_text_0A
 
-; Name	:
+; Name	: Set_char_status1
 ; Marks	: set character status 1
+Set_char_status1:
 	LDY #$08		; 9AC1	$A0 $08
 	STA ($80),Y		; 9AC3	$91 $80
 	RTS			; 9AC5	$60
-; End of
+; End of Set_char_status1
 
-; Name	:
-; Marks	: scroll menu
+; Name	: Move_menu
+; Marks	: scroll menu motion(moving animation)
+Move_menu:
 	JSR Wait_NMI_end	; 9AC6	$20 $46 $FD
-	JSR $9A90		; 9AC9	$20 $90 $9A	Reset OAM_Y[16:23] cursor ??
-	JSR $980C		; 9ACC	$20 $0C $98	set PPU data(OAM)
+	JSR Hide_cursor_buf	; 9AC9	$20 $90 $9A	Reset OAM_Y[16:23] = cursor hide
+	JSR Apply_OAM		; 9ACC	$20 $0C $98	set PPU data(OAM)
 	LDA $3A			; 9ACF	$A5 $3A		ppu ctrl -> $2000 (menu area)
 	AND #$01		; 9AD1	$29 $01		base NT address
 	STA NT_addr_menu	; 9AD3	$85 $62		NT address (00h -> $0000, 01h -> $1000)
+Scroll_menu_begin:
 	JSR Wait_NMI_end	; 9AD5	$20 $46 $FD
 	LDA $63			; 9AD8	$A5 $63		Show monster name ??
 	BNE L31AFE		; 9ADA	$D0 $22
@@ -2456,18 +2525,17 @@ L31B15:
 	LDA $65			; 9B1A	$A5 $65
 	SBC $62			; 9B1C	$E5 $62
 	BCS L31B2B		; 9B1E	$B0 $0B
-;; [$9B20 :: 0x31B20]
 	JSR PpuCtrl_add_NT	; 9B20	$20 $35 $9B
 	BNE L31B25		; 9B23	$D0 $00
 L31B25:
-	JSR $FD5B		; 9B25	$20 $5B $FD
-	JMP $9AD5		; 9B28	$4C $D5 $9A
+	JSR Wait_MENU_snd	; 9B25	$20 $5B $FD
+	JMP Scroll_menu_begin	; 9B28	$4C $D5 $9A	loop ??
 L31B2B:
 	LDA $64			; 9B2B	$A5 $64		menu target h-scroll position
 	STA PpuScroll_h		; 9B2D	$85 $38
 	JSR PpuCtrl_add_NT	; 9B2F	$20 $35 $9B
 	JMP Wait_MENU_snd	; 9B32	$4C $5B $FD
-;
+; End of Move_menu
 
 ; Name	: PpuCtrl_add_NT
 ; Marks	: apply $62 to ppu ctrl -> $2000 (menu area)
@@ -2479,9 +2547,12 @@ PpuCtrl_add_NT:
 	RTS			; 9B3D	$60
 ; End of PpuCtrl_add_NT
 
-; Name	:
-; Marks	:
-	JSR $FD46		; 9B3E	$20 $46 $FD
+; Name	: Remove_tile
+; Marks	: +$68=2788h ppu address ??
+;	  +$6A=2380h
+;	  remove tile ???? not exact
+Remove_tile:
+	JSR Wait_NMI_end	; 9B3E	$20 $46 $FD
 	LDA #$88		; 9B41	$A9 $88
 	STA $68			; 9B43	$85 $68
 	LDA #$27		; 9B45	$A9 $27
@@ -2492,41 +2563,44 @@ PpuCtrl_add_NT:
 	STA $6B			; 9B4F	$85 $6B
 	LDA #$0A		; 9B51	$A9 $0A
 	STA $66			; 9B53	$85 $66
-	JSR $FD5B		; 9B55	$20 $5B $FD
-	JSR $FA2A		; 9B58	$20 $2A $FA
-	JSR $9402		; 9B5B	$20 $02 $94
+L31B55:
+	JSR Wait_MENU_snd	; 9B55	$20 $5B $FD
+	JSR Set_IRQ_JMP		; 9B58	$20 $2A $FA	Wait NMI
+	JSR Set_ppu_addr	; 9B5B	$20 $02 $94
 	LDY #$18		; 9B5E	$A0 $18
 	LDA #$FF		; 9B60	$A9 $FF
-	JSR $9B85		; 9B62	$20 $85 $9B
-	JSR $9417		; 9B65	$20 $17 $94
+	JSR Set_ppu_data	; 9B62	$20 $85 $9B
+	JSR Set_ppu_addr_OV	; 9B65	$20 $17 $94
 	LDY #$0A		; 9B68	$A0 $0A
 	LDA #$FF		; 9B6A	$A9 $FF
-	JSR $9B85		; 9B6C	$20 $85 $9B
-	JSR $9B8C		; 9B6F	$20 $8C $9B
-	JSR $9B9A		; 9B72	$20 $9A $9B
+	JSR Set_ppu_data	; 9B6C	$20 $85 $9B
+	JSR Sub_ppu_addr	; 9B6F	$20 $8C $9B
+	JSR Sub_ppu_addr_OV	; 9B72	$20 $9A $9B
 	DEC $66			; 9B75	$C6 $66
 	BEQ L31B7F		; 9B77	$F0 $06
-	JSR $FD46		; 9B79	$20 $46 $FD
-	JMP $9B55		; 9B7C	$4C $55 $9B
+	JSR Wait_NMI_end	; 9B79	$20 $46 $FD
+	JMP L31B55		; 9B7C	$4C $55 $9B	loop
 L31B7F:
 	LDA #$00		; 9B7F	$A9 $00
 	STA $7CCA		; 9B81	$8D $CA $7C
 	RTS			; 9B84	$60
-; End of
+; End of Remove_tile
 
-; Name	:
+; Name	: Set_ppu_data
 ; A	: fill tile
 ; Y	: count
 ; Marks	:
+Set_ppu_data:
 L31B85:
 	STA PpuData_2007	; 9B85	$8D $07 $20
 	DEY			; 9B88	$88
-	BNE L31B85		; 9B89	$D0 $FA
+	BNE L31B85		; 9B89	$D0 $FA		loop
 	RTS			; 9B8B	$60
-; End of
+; End of Set_ppu_data
 
-; Name	:
-; Marks	:
+; Name	: Sub_ppu_addr
+; Marks	: +$68 = ppu address ??, ppu address -32
+Sub_ppu_addr:
 	SEC			; 9B8C	$38
 	LDA $68			; 9B8D	$A5 $68
 	SBC #$20		; 9B8F	$E9 $20
@@ -2535,10 +2609,11 @@ L31B85:
 	SBC #$00		; 9B95	$E9 $00
 	STA $69			; 9B97	$85 $69
 	RTS			; 9B99	$60
-; End of
+; End of Sub_ppu_addr
 
-; Name	:
-; Marks	:
+; Name	: Sub_ppu_addr_OV
+; Marks	: +$6A = ppu address ??
+Sub_ppu_addr_OV:
 	SEC			; 9B9A	$38
 	LDA $6A			; 9B9B	$A5 $6A
 	SBC #$20		; 9B9D	$E9 $20
@@ -2547,15 +2622,16 @@ L31B85:
 	SBC #$00		; 9BA3	$E9 $00
 	STA $6B			; 9BA5	$85 $6B
 	RTS			; 9BA7	$60
-; End of
+; End of Sub_ppu_addr_OV:
 
-; Name	:
+; Name	: Get_cmd
 ; Marks	: Cursor ??
 ;	  $64(ADDR) = OAM address(cursor ??)
 ;	  $66(ADDR) = ??
 ;	  OAM ??
 ;	  battle command ??
 ;	  get battle command input
+Get_cmd:
 	JSR Wait_NMI_end	; 9BA8	$20 $46 $FD
 	LDA $50			; 9BAB	$A5 $50
 	BNE L31BCF		; 9BAD	$D0 $20
@@ -2578,12 +2654,13 @@ L31BCF:
 	JSR $FAE4		; 9BCF	$20 $E4 $FA	status animation ??
 	LDA $7CBA		; 9BD2	$AD $BA $7C
 	BEQ L31BDA		; 9BD5	$F0 $03
-	JSR $9EF5		; 9BD7	$20 $F5 $9E
+	JSR Show_magic		; 9BD7	$20 $F5 $9E
 L31BDA:
+Get_cmd_begin:
 	JSR Wait_NMI_end	; 9BDA	$20 $46 $FD
 	JSR $FC34		; 9BDD	$20 $34 $FC	Get key for command ??
 	JSR $FAE4		; 9BE0	$20 $E4 $FA	status animation ??
-	JSR $9CBF		; 9BE3	$20 $BF $9C	check something($51) ??
+	JSR Draw_cursor		; 9BE3	$20 $BF $9C	check something($51) ?? cursor ??
 .byte $AD,$34,$00
 	;LDA $0034		; 9BE6	$AD $34 $00	key - rlduseba
 	BEQ L31BDA		; 9BE9	$F0 $EF		loop - battle wait command
@@ -2591,7 +2668,7 @@ L31BDA:
 	LDA $5D			; 9BEE	$A5 $5D
 	BEQ L31C19		; 9BF0	$F0 $27
 .byte $AD,$34,$00
-	;LDA $0034		; 9BF2	$AD $34 $00
+	;LDA $0034		; 9BF2	$AD $34 $00	key - rlduseba
 	CMP #$80		; 9BF5	$C9 $80
 	BNE L31C09		; 9BF7	$D0 $10
 	INC $53			; 9BF9	$E6 $53		right button
@@ -2602,8 +2679,7 @@ L31BDA:
 .byte $8D,$53,$00
 	;STA $0053		; 9C03	$8D $53 $00
 L31C06:
-	JMP $9C6C		; 9C06	$4C $6C $9C
-; 
+	JMP Get_cmd_draw_cursor	; 9C06	$4C $6C $9C
 L31C09:
 	CMP #$40		; 9C09	$C9 $40		left button
 	BNE L31C19		; 9C0B	$D0 $0C
@@ -2613,11 +2689,11 @@ L31C09:
 	DEX			; 9C13	$CA
 	STX $53			; 9C14	$86 $53
 L31C16:
-	JMP $9C6C		; 9C16	$4C $6C $9C
+	JMP Get_cmd_draw_cursor	; 9C16	$4C $6C $9C
 L31C19:
 .byte $AD,$34,$00
-	;LDA $0034		; 9C19	$AD $34 $00	check KEY - down button
-	CMP #$20		; 9C1C	$C9 $20
+	;LDA $0034		; 9C19	$AD $34 $00	key - rlduseba
+	CMP #$20		; 9C1C	$C9 $20		check KEY - down button
 	BNE L31C2F		; 9C1E	$D0 $0F
 	INC $54			; 9C20	$E6 $54		CASE: key DOWN pressed
 	LDA $54			; 9C22	$A5 $54		cursor number(0-4)
@@ -2626,7 +2702,7 @@ L31C19:
 	LDA #$00		; 9C28	$A9 $00		reset cursor position ??
 	STA $54			; 9C2A	$85 $54
 L31C2C:
-	JMP $9C6C		; 9C2C	$4C $6C $9C
+	JMP Get_cmd_draw_cursor	; 9C2C	$4C $6C $9C
 ;
 L31C2F:
 	CMP #$10		; 9C2F	$C9 $10		up button
@@ -2637,7 +2713,7 @@ L31C2F:
 	DEX			; 9C39	$CA
 	STX $54			; 9C3A	$86 $54
 L31C3C:
-	JMP $9C6C		; 9C3C	$4C $6C $9C
+	JMP Get_cmd_draw_cursor	; 9C3C	$4C $6C $9C
 ;
 L31C3F:
 	CMP #$01		; 9C3F	$C9 $01		A button
@@ -2657,7 +2733,7 @@ L31C4F:
 	LDA $7CE3,X		; 9C53	$BD $E3 $7C
 	BNE L31C5E		; 9C56	$D0 $06
 	JSR Wait_MENU_snd	; 9C58	$20 $5B $FD
-	JMP $9BDA		; 9C5B	$4C $DA $9B
+	JMP Get_cmd_begin	; 9C5B	$4C $DA $9B
 L31C5E:
 	RTS			; 9C5E	$60
 ;
@@ -2668,10 +2744,11 @@ L31C5F:
 ;
 L31C66:
 	JSR Wait_MENU_snd	; 9C66	$20 $5B $FD
-	JMP $9BDA		; 9C69	$4C $DA $9B
+	JMP Get_cmd_begin	; 9C69	$4C $DA $9B
 ;
 
 ; Marks	: $66(ADDR) ??, $68(ADDR) ??, $53 = ??
+Get_cmd_draw_cursor:
 	LDA $66			; 9C6C	$A5 $66		pointer to cursor position data
 	STA $68			; 9C6E	$85 $68
 	LDA $67			; 9C70	$A5 $67
@@ -2713,13 +2790,14 @@ L31C7C:
 	JSR $FAE4		; 9CB1	$20 $E4 $FA
 	LDA $7CBA		; 9CB4	$AD $BA $7C
 	BEQ L31CBC		; 9CB7	$F0 $03
-	JSR $9EF5		; 9CB9	$20 $F5 $9E
+	JSR Show_magic		; 9CB9	$20 $F5 $9E
 L31CBC:
-	JMP $9BDA		; 9CBC	$4C $DA $9B
-; End of
+	JMP Get_cmd_begin	; 9CBC	$4C $DA $9B
+; End of Get_cmd
 
-; Name	:
-; Marks	:
+; Name	: Draw_cursor
+; Marks	: Draw cursor ??
+Draw_cursor:
 	LDA $51			; 9CBF	$A5 $51
 	BEQ L31D01		; 9CC1	$F0 $3E
 	LDA $7CB2		; 9CC3	$AD $B2 $7C
@@ -2733,7 +2811,7 @@ L31CBC:
 	LDA #$02		; 9CD8	$A9 $02
 	STA $65			; 9CDA	$85 $65
 	LDA #$40		; 9CDC	$A9 $40
-	STA $64			; 9CDE	$85 $64
+	STA $64			; 9CDE	$85 $64		$0240 cursor 1 sprite
 	JSR Move_OAM_XY		; 9CE0	$20 $02 $9D	set cursor OAM X,Y position
 	LDA $58			; 9CE3	$A5 $58
 	STA $0257		; 9CE5	$8D $57 $02
@@ -2742,15 +2820,15 @@ L31CBC:
 	LDA #$02		; 9CED	$A9 $02
 	STA $65			; 9CEF	$85 $65
 	LDA #$50		; 9CF1	$A9 $50
-	STA $64			; 9CF3	$85 $64
-	JSR $9D02		; 9CF5	$20 $02 $9D
-	JMP $9D01		; 9CF8	$4C $01 $9D
+	STA $64			; 9CF3	$85 $64		$0250 cursor 2 sprite
+	JSR Move_OAM_XY		; 9CF5	$20 $02 $9D
+	JMP L31D01		; 9CF8	$4C $01 $9D
 L31CFB:
-	DEC $7CB2		; 9CFB	$CE $B2 $7C
-	JSR $9A90		; 9CFE	$20 $90 $9A
+	DEC $7CB2		; 9CFB	$CE $B2 $7C	status graphics
+	JSR Hide_cursor_buf	; 9CFE	$20 $90 $9A
 L31D01:
 	RTS			; 9D01	$60
-; End of
+; End of Draw_cursor
 
 ; Name	: Move_OAM_XY
 ; Marks	: $64(ADDR) = OAM address(pointer to top-right sprite data)
@@ -2803,9 +2881,10 @@ Move_OAM_XY:
 	RTS			; 9D43	$60
 ; End of Move_OAM_XY
 
+Cmd_magic_proc:
 ; Marks	: target select 2: magic
-	JSR $FD46		; 9D44	$20 $46 $FD
-	JSR $9490		; 9D47	$20 $90 $94
+	JSR Wait_NMI_end	; 9D44	$20 $46 $FD
+	JSR Init_gfx_buf	; 9D47	$20 $90 $94
 	LDA #$C7		; 9D4A	$A9 $C7
 	STA $7601		; 9D4C	$8D $01 $76
 	LDA #$C9		; 9D4F	$A9 $C9
@@ -2816,7 +2895,7 @@ Move_OAM_XY:
 	INY			; 9D5A	$C8
 	LDA ($80),Y		; 9D5B	$B1 $80
 	STA $63			; 9D5D	$85 $63
-	JSR $9749		; 9D5F	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; 9D5F	$20 $49 $97	convert hex to decimal
 	LDX #$07		; 9D62	$A2 $07
 	LDA $66			; 9D64	$A5 $66
 	STA $7600,X		; 9D66	$9D $00 $76
@@ -2832,7 +2911,7 @@ Move_OAM_XY:
 	INY			; 9D7B	$C8
 	LDA ($80),Y		; 9D7C	$B1 $80
 	STA $63			; 9D7E	$85 $63
-	JSR $9749		; 9D80	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; 9D80	$20 $49 $97	convert hex to decimal
 	LDX #$0B		; 9D83	$A2 $0B
 	LDA $66			; 9D85	$A5 $66
 	STA $7600,X		; 9D87	$9D $00 $76
@@ -2849,16 +2928,16 @@ Move_OAM_XY:
 	STA $66			; 9D9F	$85 $66
 	LDA #$1C		; 9DA1	$A9 $1C
 	STA $67			; 9DA3	$85 $67
-	JSR $972F		; 9DA5	$20 $2F $97	load battle text
+	JSR Load_battle_text	; 9DA5	$20 $2F $97	load battle text
 	LDX #$03		; 9DA8	$A2 $03
 L31DAA:
 	LDA $9F70,X		; 9DAA	$BD $70 $9F	mp window position data
 	STA $62,X		; 9DAD	$95 $62
 	DEX			; 9DAF	$CA
 	BPL L31DAA		; 9DB0	$10 $F8
-	JSR $FD5B		; 9DB2	$20 $5B $FD
-	JSR $9250		; 9DB5	$20 $50 $92	open window
-	JSR $FD46		; 9DB8	$20 $46 $FD
+	JSR Wait_MENU_snd	; 9DB2	$20 $5B $FD
+	JSR Open_win		; 9DB5	$20 $50 $92	open window
+	JSR Wait_NMI_end	; 9DB8	$20 $46 $FD
 	LDY #$30		; 9DBB	$A0 $30
 	LDX #$00		; 9DBD	$A2 $00
 	STX $76			; 9DBF	$86 $76
@@ -2871,43 +2950,45 @@ L31DC1:
 	INX			; 9DCB	$E8
 	CPX #$10		; 9DCC	$E0 $10
 	BNE L31DC1		; 9DCE	$D0 $F1
-	JSR $9490		; 9DD0	$20 $90 $94	clear text buffer
-	JSR $9E85		; 9DD3	$20 $85 $9E
+	JSR Init_gfx_buf	; 9DD0	$20 $90 $94	clear text buffer
+	JSR Show_item		; 9DD3	$20 $85 $9E
 	LDX #$03		; 9DD6	$A2 $03
 L31DD8:
 	LDA $9F74,X		; 9DD8	$BD $74 $9F	magic list window position data
 	STA $62,X		; 9DDB	$95 $62
 	DEX			; 9DDD	$CA
 	BPL L31DD8		; 9DDE	$10 $F8
-	JSR $FD5B		; 9DE0	$20 $5B $FD
-	JSR $9250		; 9DE3	$20 $50 $92	open window
+	JSR Wait_MENU_snd	; 9DE0	$20 $5B $FD
+	JSR Open_win		; 9DE3	$20 $50 $92	open window
 	LDA #$40		; 9DE6	$A9 $40
 	STA $64			; 9DE8	$85 $64
 	LDA #$01		; 9DEA	$A9 $01
 	STA $65			; 9DEC	$85 $65
 	LDA #$00		; 9DEE	$A9 $00
 	STA $63			; 9DF0	$85 $63
-	JSR $9AC6		; 9DF2	$20 $C6 $9A	scroll menu
+	JSR Move_menu		; 9DF2	$20 $C6 $9A	scroll menu
 	LDA $76			; 9DF5	$A5 $76
 	BNE L31E02		; 9DF7	$D0 $09
 	DEC $9E			; 9DF9	$C6 $9E
-	LDY #$20		; 9DFB	$A0 $20
-	JSR $949B		; 9DFD	$20 $9B $94	wait 32 frames
+	LDY #BASE_DELAY		; 9DFB	$A0 $20
+	JSR Wait		; 9DFD	$20 $9B $94	wait 32 frames
 	BEQ L31E76		; 9E00	$F0 $74
 L31E02:
-	LDA #$BF		; 9E02	$A9 $BF		0C/BFD5 - x,y positin ??
+	LDA #>Cursor_magic_pos
+	;LDA #$BF		; 9E02	$A9 $BF		0C/BFD5 - x,y positin ??
 	STA $67			; 9E04	$85 $67
-	LDA #$D5		; 9E06	$A9 $D5
-	STA $66			; 9E08	$85 $66
+	LDA #<Cursor_magic_pos
+	;LDA #$D5		; 9E06	$A9 $D5
+	STA $66			; 9E08	$85 $66		Cursor_magic_pos
 	LDA #$04		; 9E0A	$A9 $04
 	STA $5C			; 9E0C	$85 $5C
 	LDA #$04		; 9E0E	$A9 $04
 	STA $5D			; 9E10	$85 $5D
 	LDA #$01		; 9E12	$A9 $01
 	STA $7CBA		; 9E14	$8D $BA $7C
-	JSR $9BA8		; 9E17	$20 $A8 $9B
+	JSR Get_cmd		; 9E17	$20 $A8 $9B	battle command input
 .byte $AD,$34,$00
-	;LDA $0034		; 9E1A	$AD $34 $00
+	;LDA $0034		; 9E1A	$AD $34 $00	key - rlduseba
 	CMP #$01		; 9E1D	$C9 $01
 	BEQ L31E23		; 9E1F	$F0 $02
 	BNE L31E74		; 9E21	$D0 $51
@@ -2922,9 +3003,9 @@ L31E23:
 	BCS L31E33		; 9E2F	$B0 $02
 	BCC L31E02		; 9E31	$90 $CF
 L31E33:
-	JSR $FD46		; 9E33	$20 $46 $FD
+	JSR Wait_NMI_end	; 9E33	$20 $46 $FD
 	JSR $FAC0		; 9E36	$20 $C0 $FA	choose targets
-	JSR $FD5B		; 9E39	$20 $5B $FD
+	JSR Wait_MENU_snd	; 9E39	$20 $5B $FD
 	LDY #$2B		; 9E3C	$A0 $2B
 	LDA ($80),Y		; 9E3E	$B1 $80		targets
 	CMP #$FF		; 9E40	$C9 $FF
@@ -2955,23 +3036,24 @@ L31E46:
 L31E6A:
 	INC $7D43,X		; 9E6A	$FE $43 $7D
 L31E6D:
-	LDY #$20		; 9E6D	$A0 $20
-	JSR $949B		; 9E6F	$20 $9B $94	wait 32 frames
+	LDY #BASE_DELAY		; 9E6D	$A0 $20
+	JSR Wait		; 9E6F	$20 $9B $94	wait 32 frames
 	BEQ L31E76		; 9E72	$F0 $02
 L31E74:
 	DEC $9E			; 9E74	$C6 $9E
 L31E76:
-	JSR $9A90		; 9E76	$20 $90 $9A	hide cursor sprites
+	JSR Hide_cursor_buf	; 9E76	$20 $90 $9A	hide cursor sprites
 	JSR $984A		; 9E79	$20 $4A $98
-	JSR $9B3E		; 9E7C	$20 $3E $9B
+	JSR Remove_tile		; 9E7C	$20 $3E $9B
 	LDA #$00		; 9E7F	$A9 $00
 	STA $7CBA		; 9E81	$8D $BA $7C
 	RTS			; 9E84	$60
 ; End of
 
-; Name	:
+; Name	: Show_item
 ; Marks	:
-	JSR $AF6C		; 9E85	$20 $6C $AF	get status 1
+Show_item:
+	JSR Get_status1_80h	; 9E85	$20 $6C $AF	get status 1
 	AND #$30		; 9E88	$29 $30
 	BNE L31E97		; 9E8A	$D0 $0B
 	INY			; 9E8C	$C8
@@ -2981,7 +3063,7 @@ L31E76:
 	LDA $76			; 9E93	$A5 $76
 	BNE L31E9A		; 9E95	$D0 $03
 L31E97:
-	JMP $9EE2		; 9E97	$4C $E2 $9E
+	JMP Show_item_end	; 9E97	$4C $E2 $9E
 ; End of
 L31E9A:
 	LDA #$82		; 9E9A	$A9 $82		string offset $0100 (item names)
@@ -3011,8 +3093,8 @@ L31EB2:
 	STA $45			; 9EBE	$85 $45
 	LDA $48			; 9EC0	$A5 $48
 	STA $44			; 9EC2	$85 $44
-	JSR $9AB6		; 9EC4	$20 $B6 $9A	load text (bank 0A)
-	JSR $95E7		; 9EC7	$20 $E7 $95 	copy text to buffer
+	JSR Load_text_0A	; 9EC4	$20 $B6 $9A	load text (bank 0A)
+	JSR Copy_txt_buf	; 9EC7	$20 $E7 $95 	copy text to buffer
 	CLC			; 9ECA	$18
 	LDA $48			; 9ECB	$A5 $48
 	ADC #$05		; 9ECD	$69 $05
@@ -3028,6 +3110,7 @@ L31EB2:
 	PLA			; 9EE0	$68
 	RTS			; 9EE1	$60
 ; End of
+Show_item_end:
 	LDA #$00		; 9EE2	$A9 $00
 	STA $76			; 9EE4	$85 $76
 	LDA #$15		; 9EE6	$A9 $15
@@ -3036,24 +3119,26 @@ L31EB2:
 	STA $66			; 9EEC	$85 $66
 	LDA #$58		; 9EEE	$A9 $58
 	STA $67			; 9EF0	$85 $67
-	JMP $972F		; 9EF2	$4C $2F $97	load battle text
-; End of
+	JMP Load_battle_text	; 9EF2	$4C $2F $97	load battle text
+; End of Show_item
 
-; Name	:
-; Marks	: $7E(ADDR) = ??
-;	  $7A(ADDR) = ??
-;	  $80(ADDR) = ??
+; Name	: Show_magic
+; Marks	: $7E(ADDR) = ?? pointer to character properties 2
+;	  $7A(ADDR) = ?? pointer to character properties 1
+;	  $80(ADDR) = ?? pointer to character/monster battle stats
+;	  Show magic list ??
+Show_magic:
 	LDA $62			; 9EF5	$A5 $62
 	PHA			; 9EF7	$48
 	LDA $63			; 9EF8	$A5 $63
 	PHA			; 9EFA	$48
-	LDA $64			; 9EFB	$A5 $64
+	LDA $64			; 9EFB	$A5 $64		menu target h-scroll position ??
 	PHA			; 9EFD	$48
 	LDA $65			; 9EFE	$A5 $65
 	PHA			; 9F00	$48
-	LDA $66			; 9F01	$A5 $66
+	LDA $66			; 9F01	$A5 $66		pointer to cursor position data ??
 	PHA			; 9F03	$48
-	LDA $67			; 9F04	$A5 $67
+	LDA $67			; 9F04	$A5 $67		next $66
 	PHA			; 9F06	$48
 	LDA $68			; 9F07	$A5 $68
 	PHA			; 9F09	$48
@@ -3088,7 +3173,7 @@ L31EB2:
 	STA ($80),Y		; 9F35	$91 $80		ex> $7DA4 battle command ??
 	LDA #$00		; 9F37	$A9 $00
 	STA $63			; 9F39	$85 $63
-	JSR $9749		; 9F3B	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; 9F3B	$20 $49 $97	convert hex to decimal
 	LDA #$23		; 9F3E	$A9 $23
 	STA PpuAddr_2006	; 9F40	$8D $06 $20
 	LDA #$22		; 9F43	$A9 $22
@@ -3115,7 +3200,7 @@ L31EB2:
 	PLA			; 9F6C	$68
 	STA $62			; 9F6D	$85 $62
 	RTS			; 9F6F	$60
-; End of
+; End of Show_magic
 
 ;; [$9F70 :: 0x31F70]
 ;9F70 - data block = mp window position data
@@ -3123,9 +3208,10 @@ L31EB2:
 ;9F74 - data block = magic list window position data
 .byte $28,$13,$3E,$1E
 
+Cmd_item_proc:
 ; Marks	: target select 3: item
-	JSR $FD46		; 9F78	$20 $46 $FD
-	JSR $96E1		; 9F7B	$20 $E1 $96	update character/monster pointers
+	JSR Wait_NMI_end	; 9F78	$20 $46 $FD
+	JSR Update_addr		; 9F7B	$20 $E1 $96	update character/monster pointers
 	LDX #$00		; 9F7E	$A2 $00
 	LDA #$01		; 9F80	$A9 $01
 L31F82:
@@ -3138,17 +3224,20 @@ L31F82:
 	LDA #$00		; 9F90	$A9 $00
 	STA $50			; 9F92	$85 $50
 	STA $61			; 9F94	$85 $61
-	LDA #$BF		; 9F96	$A9 $BF		0C/BFCD
+Cmd_item_proc_begin:
+	LDA #>Cursor_item_pos
+	;LDA #$BF		; 9F96	$A9 $BF		0C/BFCD Cursor_item_pos
 	STA $67			; 9F98	$85 $67
-	LDA #$CD		; 9F9A	$A9 $CD
+	LDA #<Cursor_item_pos
+	;LDA #$CD		; 9F9A	$A9 $CD
 	STA $66			; 9F9C	$85 $66
 	LDA #$02		; 9F9E	$A9 $02
 	STA $5C			; 9FA0	$85 $5C
 	LDA #$02		; 9FA2	$A9 $02
 	STA $5D			; 9FA4	$85 $5D
-	JSR $9BA8		; 9FA6	$20 $A8 $9B
+	JSR Get_cmd		; 9FA6	$20 $A8 $9B	battle command input
 .byte $AD,$34,$00
-	;LDA $0034		; 9FA9	$AD $34 $00
+	;LDA $0034		; 9FA9	$AD $34 $00	key - rlduseba
 	CMP #$01		; 9FAC	$C9 $01
 	BEQ L31FB2		; 9FAE	$F0 $02
 	BNE L32006		; 9FB0	$D0 $54
@@ -3168,7 +3257,7 @@ L31FB2:
 	STA $5E			; 9FCC	$85 $5E
 	LDA $54			; 9FCE	$A5 $54
 	STA $5F			; 9FD0	$85 $5F
-	JMP $9F96		; 9FD2	$4C $96 $9F
+	JMP Cmd_item_proc_begin	; 9FD2	$4C $96 $9F
 L31FD5:
 	DEC $51			; 9FD5	$C6 $51
 	DEC $50			; 9FD7	$C6 $50
@@ -3182,7 +3271,7 @@ L31FD5:
 	LDA $61			; 9FE8	$A5 $61
 	BEQ L31FF2		; 9FEA	$F0 $06
 	JSR $A2B7		; 9FEC	$20 $B7 $A2
-	JMP $9F96		; 9FEF	$4C $96 $9F
+	JMP Cmd_item_proc_begin	; 9FEF	$4C $96 $9F
 L31FF2:
 	BEQ L32016		; 9FF2	$F0 $22
 L31FF4:
@@ -3190,46 +3279,47 @@ L31FF4:
 	LDA $61			; 9FF7	$A5 $61
 	BEQ L32001		; 9FF9	$F0 $06
 	JSR $A2B7		; 9FFB	$20 $B7 $A2
-	JMP $9F96		; 9FFE	$4C $96 $9F
+	JMP Cmd_item_proc_begin	; 9FFE	$4C $96 $9F
 L32001:
 	DEC $9E			; A001	$C6 $9E
-	JMP $A016		; A003	$4C $16 $A0
+	JMP Cmd_item_proc_end	; A003	$4C $16 $A0
 L32006:
 	LDA $51			; A006	$A5 $51
 	BEQ L32014		; A008	$F0 $0A
 	DEC $51			; A00A	$C6 $51
 	DEC $50			; A00C	$C6 $50
-	JSR $A2BC		; A00E	$20 $BC $A2
-	JMP $9F96		; A011	$4C $96 $9F
+	JSR Hide_cursor		; A00E	$20 $BC $A2
+	JMP Cmd_item_proc_begin	; A011	$4C $96 $9F
 L32014:
 	DEC $9E			; A014	$C6 $9E
 L32016:
+Cmd_item_proc_end:
 	LDA #$00		; A016	$A9 $00
 	STA $51			; A018	$85 $51
 	JSR $984A		; A01A	$20 $4A $98
-	JMP $9B3E		; A01D	$4C $3E $9B
-; End of
+	JMP Remove_tile		; A01D	$4C $3E $9B
+; End of Cmd_item_proc
 
 ; Name	:
 ; Marks	: open item window
-	JSR $9490		; A020	$20 $90 $94	clear text buffer
+	JSR Init_gfx_buf	; A020	$20 $90 $94	clear text buffer
 	LDA #$15		; A023	$A9 $15
 	STA $68			; A025	$85 $68
 	LDA #$04		; A027	$A9 $04		$04: "R.Hand"
 	STA $66			; A029	$85 $66
 	LDA #$15		; A02B	$A9 $15
 	STA $67			; A02D	$85 $67
-	JSR $972F		; A02F	$20 $2F $97	load battle text
+	JSR Load_battle_text	; A02F	$20 $2F $97	load battle text
 	LDA #$05		; A032	$A9 $05		$05: "L.Hand"
 	STA $66			; A034	$85 $66
 	LDA #$69		; A036	$A9 $69
 	STA $67			; A038	$85 $67
-	JSR $972F		; A03A	$20 $2F $97	load battle text
+	JSR Load_battle_text	; A03A	$20 $2F $97	load battle text
 	LDA #$06		; A03D	$A9 $06		$06: "Items"
 	STA $66			; A03F	$85 $66
 	LDA #$20		; A041	$A9 $20
 	STA $67			; A043	$85 $67
-	JSR $972F		; A045	$20 $2F $97
+	JSR Load_battle_text	; A045	$20 $2F $97
 	JSR $A235		; A048	$20 $35 $A2
 	LDX #$03		; A04B	$A2 $03
 L3204D:
@@ -3237,13 +3327,13 @@ L3204D:
 	STA $62,X		; A050	$95 $62
 	DEX			; A052	$CA
 	BPL L3204D		; A053	$10 $F8
-	JSR $A2BC		; A055	$20 $BC $A2
-	JMP $9250		; A058	$4C $50 $92	open window
+	JSR Hide_cursor		; A055	$20 $BC $A2
+	JMP Open_win		; A058	$4C $50 $92	open window
 ; End of
 
 ; Name	:
 ; Marks	:
-	JSR $FD46		; A05B	$20 $46 $FD
+	JSR Wait_NMI_end	; A05B	$20 $46 $FD
 	JSR $A2C2		; A05E	$20 $C2 $A2
 	LDA $62			; A061	$A5 $62
 	CMP #$02		; A063	$C9 $02
@@ -3368,15 +3458,15 @@ L3211E:
 	LDA #$00		; A125	$A9 $00
 	STA ($7A),Y		; A127	$91 $7A
 L32129:
-	JSR $FD5B		; A129	$20 $5B $FD
-	JSR $FD46		; A12C	$20 $46 $FD
+	JSR Wait_MENU_snd	; A129	$20 $5B $FD
+	JSR Wait_NMI_end	; A12C	$20 $46 $FD
 	LDA $9E			; A12F	$A5 $9E
 	ORA #$80		; A131	$09 $80
-	JSR $FAFB		; A133	$20 $FB $FA	update character equipment
-	JSR $9A63		; A136	$20 $63 $9A
+	JSR Do_009880		; A133	$20 $FB $FA	update character equipment
+	JSR Wait_MENUs_NMIe	; A136	$20 $63 $9A
 	JSR $A020		; A139	$20 $20 $A0	open item window
-	LDY #$20		; A13C	$A0 $20
-	JMP $949B		; A13E	$4C $9B $94	wait 32 frames
+	LDY #BASE_DELAY		; A13C	$A0 $20
+	JMP Wait		; A13E	$4C $9B $94	wait 32 frames
 ; End of
 
 ; Name	:
@@ -3393,7 +3483,7 @@ L32129:
 ; End of
 L32153:
 	PHA			; A153	$48
-	JSR $FD46		; A154	$20 $46 $FD
+	JSR Wait_NMI_end	; A154	$20 $46 $FD
 	PLA			; A157	$68
 	CMP #$2F		; A158	$C9 $2F
 	BCS L32162		; A15A	$B0 $06		branch if not a usable item
@@ -3415,7 +3505,7 @@ L3216C:
 	LDA #$00		; A175	$A9 $00
 	STA $01			; A177	$85 $01
 	STA $03			; A179	$85 $03
-	JSR $FC98		; A17B	$20 $98 $FC	multiply (16-bit)
+	JSR Multi16		; A17B	$20 $98 $FC	multiply (16-bit)
 	CLC			; A17E	$18
 	LDA $04			; A17F	$A5 $04
 	;ADC #$F6		; A181	$69 $F6		weapon properties (0C/80F6)
@@ -3433,7 +3523,7 @@ L3216C:
 	LDA #$00		; A195	$A9 $00
 	STA $01			; A197	$85 $01
 	STA $03			; A199	$85 $03
-	JSR $FC98		; A19B	$20 $98 $FC
+	JSR Multi16		; A19B	$20 $98 $FC
 	CLC			; A19E	$18
 	LDA $04			; A19F	$A5 $04
 	;ADC #$36		; A1A1	$69 $36		ItemAttack_prop (0C/8336)
@@ -3447,7 +3537,7 @@ L3216C:
 	LDA ($62),Y		; A1AD	$B1 $62		item attack
 	CMP #$FF		; A1AF	$C9 $FF
 	BNE L321B9		; A1B1	$D0 $06
-	JSR $FD5B		; A1B3	$20 $5B $FD
+	JSR Wait_MENU_snd	; A1B3	$20 $5B $FD
 	JMP $A208		; A1B6	$4C $08 $A2
 L321B9:
 	LDY #$2A		; A1B9	$A0 $2A
@@ -3479,7 +3569,7 @@ L321E2:
 L321EA:
 	LDX #$00		; A1EA	$A2 $00
 	LDA #$0B		; A1EC	$A9 $0B
-	JSR $FD11		; A1EE	$20 $11 $FD	random (X..A)
+	JSR Random		; A1EE	$20 $11 $FD	random (X..A)
 	CMP #$04		; A1F1	$C9 $04
 	BCS L321F7		; A1F3	$B0 $02
 	BCC L321FC		; A1F5	$90 $05
@@ -3501,7 +3591,7 @@ L321FC:
 L3220D:
 	LDX #$00		; A20D	$A2 $00
 	LDA #$63		; A20F	$A9 $63
-	JSR $FD11		; A211	$20 $11 $FD	random (X..A)
+	JSR Random		; A211	$20 $11 $FD	random (X..A)
 	STA $4F			; A214	$85 $4F
 	LDY #$04		; A216	$A0 $04
 	LDA ($62),Y		; A218	$B1 $62
@@ -3516,9 +3606,9 @@ L3220D:
 L32228:
 	LDX $9E			; A228	$A6 $9E
 	STA $7FCE,X		; A22A	$9D $CE $7F
-	JSR $A2BC		; A22D	$20 $BC $A2
-	LDY #$20		; A230	$A0 $20
-	JMP $949B		; A232	$4C $9B $94	wait 32 frames
+	JSR Hide_cursor		; A22D	$20 $BC $A2
+	LDY #BASE_DELAY		; A230	$A0 $20
+	JMP Wait		; A232	$4C $9B $94	wait 32 frames
 ; End of
 
 ; Name	:
@@ -3542,8 +3632,8 @@ L32228:
 	STA $45			; A250	$85 $45
 	LDA #$40		; A252	$A9 $40
 	STA $44			; A254	$85 $44
-	JSR $9AB6		; A256	$20 $B6 $9A	load text (bank 0A)
-	JSR $95E7		; A259	$20 $E7 $95	copy text to buffer
+	JSR Load_text_0A	; A256	$20 $B6 $9A	load text (bank 0A)
+	JSR Copy_txt_buf	; A259	$20 $E7 $95	copy text to buffer
 	PLA			; A25C	$68
 	TAY			; A25D	$A8
 	PLA			; A25E	$68
@@ -3559,8 +3649,8 @@ L32228:
 	PHA			; A26C	$48
 	LDA #$94		; A26D	$A9 $94
 	STA $44			; A26F	$85 $44
-	JSR $9AB6		; A271	$20 $B6 $9A	load text (bank 0A)
-	JSR $95E7		; A274	$20 $E7 $95	copy text to buffer
+	JSR Load_text_0A	; A271	$20 $B6 $9A	load text (bank 0A)
+	JSR Copy_txt_buf	; A274	$20 $E7 $95	copy text to buffer
 	PLA			; A277	$68
 	TAY			; A278	$A8
 	PLA			; A279	$68
@@ -3588,8 +3678,8 @@ L3228D:
 	PHA			; A297	$48
 	LDA #$4B		; A298	$A9 $4B
 	STA $44			; A29A	$85 $44
-	JSR $9AB6		; A29C	$20 $B6 $9A	load text (bank 0A)
-	JSR $95E7		; A29F	$20 $E7 $95	copy text to buffer
+	JSR Load_text_0A	; A29C	$20 $B6 $9A	load text (bank 0A)
+	JSR Copy_txt_buf	; A29F	$20 $E7 $95	copy text to buffer
 	PLA			; A2A2	$68
 	TAY			; A2A3	$A8
 	PLA			; A2A4	$68
@@ -3599,21 +3689,22 @@ L3228D:
 	STA $7CC2,X		; A2AA	$9D $C2 $7C
 	LDA #$75		; A2AD	$A9 $75
 	STA $44			; A2AF	$85 $44
-	JSR $9AB6		; A2B1	$20 $B6 $9A	load text (bank 0A)
-	JMP $95E7		; A2B4	$4C $E7 $95	copy text to buffer
+	JSR Load_text_0A	; A2B1	$20 $B6 $9A	load text (bank 0A)
+	JMP Copy_txt_buf	; A2B4	$4C $E7 $95	copy text to buffer
 ; End of
 
 ; Name	:
 ; Marks	:
 	DEC $61			; A2B7	$C6 $61
-	JMP $A2BC		; A2B9	$4C $BC $A2
+	JMP Hide_cursor		; A2B9	$4C $BC $A2
 ; End of
 
-; Name	:
+; Name	: Hide_cursor
 ; Marks	:
-	JSR $9A90		; A2BC	$20 $90 $9A	hide cursor sprites
+Hide_cursor:
+	JSR Hide_cursor_buf	; A2BC	$20 $90 $9A	hide cursor sprites
 	JMP $FAE4		; A2BF	$4C $E4 $FA	update status animation
-; End of
+; End of Hide_cursor
 
 ; Name	:
 ; Marks	:
@@ -3670,10 +3761,11 @@ L322FF:
 
 
 ; Marks	: do battle round
-	JSR $FD46		; A308	$20 $46 $FD
+Do_battle_round:
+	JSR Wait_NMI_end	; A308	$20 $46 $FD
 	LDA $7B4A		; A30B	$AD $4A $7B
 	BEQ L32352		; A30E	$F0 $42
-	JSR $9490		; A310	$20 $90 $94	clear text buffer
+	JSR Init_gfx_buf	; A310	$20 $90 $94	clear text buffer
 	LDX #$09		; A313	$A2 $09		$09: "Preemptive Strike"
 	LDY $7B4A		; A315	$AC $4A $7B
 	DEY			; A318	$88
@@ -3685,77 +3777,86 @@ L3231C:
 	STA $63			; A320	$85 $63
 	LDA #$95		; A322	$A9 $95
 	STA $62			; A324	$85 $62
-	JSR $9AAB		; A326	$20 $AB $9A	load text (bank 05)
+	JSR Load_text_05	; A326	$20 $AB $9A	load text (bank 05)
 	LDA #$10		; A329	$A9 $10
 	STA $44			; A32B	$85 $44
 	STA $45			; A32D	$85 $45
 	LDA #$00		; A32F	$A9 $00
 	STA $6F			; A331	$85 $6F
-	JSR $95E7		; A333	$20 $E7 $95	copy text to buffer
-	JSR $FD5B		; A336	$20 $5B $FD
+	JSR Copy_txt_buf	; A333	$20 $E7 $95	copy text to buffer
+	JSR Wait_MENU_snd	; A336	$20 $5B $FD
 	LDA #$04		; A339	$A9 $04		bottom window
 	STA $64			; A33B	$85 $64
-	JSR $FB42		; A33D	$20 $42 $FB	open message window
-	LDY #$20		; A340	$A0 $20
-	JSR $949B		; A342	$20 $9B $94	wait 32 frames
-	JSR $FD46		; A345	$20 $46 $FD
+	JSR $FB42		; A33D	$20 $42 $FB	open message window ----->
+	LDY #BASE_DELAY		; A340	$A0 $20
+	JSR Wait		; A342	$20 $9B $94	wait 32 frames
+	JSR Wait_NMI_end	; A345	$20 $46 $FD
 	LDA #$04		; A348	$A9 $04		bottom window
 	STA $64			; A34A	$85 $64
-	JSR $FB46		; A34C	$20 $46 $FB	close message window
-	JSR $FD46		; A34F	$20 $46 $FD
+	JSR $FB46		; A34C	$20 $46 $FB	close message window <-----
+	JSR Wait_NMI_end	; A34F	$20 $46 $FD
 L32352:
-	JSR $A68A		; A352	$20 $8A $A6
-	JSR $FD5B		; A355	$20 $5B $FD
-	JSR $A741		; A358	$20 $41 $A7	do actions
-	JMP $905E		; A35B	$4C $5E $90	end of battle loop
-; End of
+	JSR Make_evade		; A352	$20 $8A $A6
+	JSR Wait_MENU_snd	; A355	$20 $5B $FD
+	JSR Do_action		; A358	$20 $41 $A7	do actions
+	JMP Battle_main_begin	; A35B	$4C $5E $90	end of battle loop
+; End of Do_battle_round
 
-; Name	:
+
+
+; Name	: Get_mob_act
 ; Marks	: get monster actions
-	JSR $9A69		; A35E	$20 $69 $9A	Set NMI subroutine
+;	  Check properties (bank 0C)
+;	  $44(ADDR) = monster stats pointer
+;	  $46(ADDR) = temp pointer
+Get_mob_act:
+	JSR Set_NMI_		; A35E	$20 $69 $9A	Set NMI subroutine
  	LDA #$00		; A361	$A9 $00
-	STA $76			; A363	$85 $76
+	STA $76			; A363	$85 $76		monster id offset temp ??
 	LDX #$0F		; A365	$A2 $0F
 L32367:
 	STA $7FCE,X		; A367	$9D $CE $7F
 	DEX			; A36A	$CA
 	BPL L32367		; A36B	$10 $FA
-	LDA #$7E		; A36D	$A9 $7E		monster battle stats
+	LDA #$7E		; A36D	$A9 $7E		monster battle stats (7E3A)
 	STA $45			; A36F	$85 $45
 	LDA #$3A		; A371	$A9 $3A
 	STA $44			; A373	$85 $44
-	JSR $A709		; A375	$20 $09 $A7	get monster status 1
+Get_mob_act_begin:
+	JSR Get_mob_status1	; A375	$20 $09 $A7	get monster status 1
 	AND #$C0		; A378	$29 $C0
 	BEQ L3237F		; A37A	$F0 $03		branch if not dead or stone
-	JSR $A720		; A37C	$20 $20 $A7	do nothing
+	JSR Mob_cmd_nothing	; A37C	$20 $20 $A7	do nothing
+; goto Get_mob_act_next
 L3237F:
-	JSR $A713		; A37F	$20 $13 $A7	get monster status 2
+	JSR Get_mob_status2	; A37F	$20 $13 $A7	get monster status 2
 	AND #$08		; A382	$29 $08
 	BNE L3238C		; A384	$D0 $06		branch if asleep
 	LDA ($44),Y		; A386	$B1 $44
 	AND #$40		; A388	$29 $40
 	BEQ L3238F		; A38A	$F0 $03		branch if not paralyzed
 L3238C:
-	JSR $A720		; A38C	$20 $20 $A7	do nothing
+	JSR Mob_cmd_nothing	; A38C	$20 $20 $A7	do nothing
+; goto Get_mob_act_next
 L3238F:
-	LDA $7B4B		; A38F	$AD $4B $7B
+	LDA $7B4B		; A38F	$AD $4B $7B	flag to prevent monsters from trying to Flee
 	BNE L32401		; A392	$D0 $6D
 	LDA #$7D		; A394	$A9 $7D		7D7A (character battle stats)
 	STA $47			; A396	$85 $47
 	LDA #$7A		; A398	$A9 $7A
 	STA $46			; A39A	$85 $46
 	LDX #$04		; A39C	$A2 $04
-	JSR $A63A		; A39E	$20 $3A A6	get current hp sum
+	JSR Sum_hp		; A39E	$20 $3A A6	get current hp sum
 	LDA $02			; A3A1	$A5 $02
 	STA $00			; A3A3	$85 $00
 	LDA $03			; A3A5	$A5 $03
 	STA $01			; A3A7	$85 $01
-	LDA #$7E		; A3A9	$A9 $7E		7E3A (monster battle stats)
+	LDA #$7E		; A3A9	$A9 $7E		monster battle stats (7E3A)
 	STA $47			; A3AB	$85 $47
 	LDA #$3A		; A3AD	$A9 $3A
 	STA $46			; A3AF	$85 $46
 	LDX #$08		; A3B1	$A2 $08
-	JSR $A63A		; A3B3	$20 $3A $A6	get current hp sum
+	JSR Sum_hp		; A3B3	$20 $3A $A6	get current hp sum
 	SEC			; A3B6	$38
 	LDA $00			; A3B7	$A5 $00		$00(ADDR) = character sum - monster sum
 	SBC $02			; A3B9	$E5 $02
@@ -3780,31 +3881,31 @@ L323CB:
 	ROR $00			; A3DD	$66 $00
 	LDY #$14		; A3DF	$A0 $14
 	CLC			; A3E1	$18
-	LDA ($44),Y		; A3E2	$B1 $44		add to monster fear level
+	LDA ($44),Y		; A3E2	$B1 $44		add to monster fear level (monster battle stats)
 	ADC $00			; A3E4	$65 $00
 	STA $00			; A3E6	$85 $00
 	SEC			; A3E8	$38
 	SBC #$AA		; A3E9	$E9 $AA		subrtact 170
-	STA $48			; A3EB	$85 $48
+	STA $48			; A3EB	$85 $48		calcurated fear point ??
 	BCS L323F3		; A3ED	$B0 $04		min 0
 	LDA #$00		; A3EF	$A9 $00
 	STA $48			; A3F1	$85 $48
 L323F3:
 	LDX #$01		; A3F3	$A2 $01
 	LDA #$64		; A3F5	$A9 $64
-	JSR $FD11		; A3F7	$20 $11 $FD	random (X..A)
-	CMP $48			; A3FA	$C5 $48
-	BCS L32401		; A3FC	$B0 $03		branch if monster doesn't try to run
-	JSR $A736		; A3FE	$20 $36 $A7	run away
+	JSR Random		; A3F7	$20 $11 $FD	random (X..A)
+	CMP $48			; A3FA	$C5 $48		calcurated fear point ??
+	BCS L32401		; A3FC	$B0 $03		branch if monster doesn't try to run(try to fight)
+	JSR Mob_cmd_run		; A3FE	$20 $36 $A7	run away (Monster)
 L32401:
 	LDY #$0C		; A401	$A0 $0C
 	LDA ($44),Y		; A403	$B1 $44		current mp
 	INY			; A405	$C8
 	ORA ($44),Y		; A406	$11 $44
 	BNE L3240D		; A408	$D0 $03		branch if monster has mp left
-	JSR $A72B		; A40A	$20 $2B $A7	fight
+	JSR Mob_cmd_fight	; A40A	$20 $2B $A7	fight
 L3240D:
-	LDX $76			; A40D	$A6 $76
+	LDX $76			; A40D	$A6 $76		monster id offset temp ??
 	LDA $7B62,X		; A40F	$BD $62 $7B	monster id
 	STA $00			; A412	$85 $00
 	LDA #$0A		; A414	$A9 $0A
@@ -3812,7 +3913,7 @@ L3240D:
 	LDA #$00		; A418	$A9 $00
 	STA $01			; A41A	$85 $01
 	STA $03			; A41C	$85 $03
-	JSR $FC98		; A41E	$20 $98 $FC	multiply (16-bit)
+	JSR Multi16		; A41E	$20 $98 $FC	multiply (16-bit), mob id x 0Ah
 	CLC			; A421	$18
 	LDA $04			; A422	$A5 $04
 	ADC #<Mob_prop
@@ -3825,7 +3926,7 @@ L3240D:
 	LDY #$00		; A42E	$A0 $00
 	LDA ($46),Y		; A430	$B1 $46		monster properties byte 0 (special attack)
 	BPL L32437		; A432	$10 $03		branch if monster has a valid special
-	JSR $A72B		; A434	$20 $2B $A7
+	JSR Mob_cmd_fight	; A434	$20 $2B $A7
 L32437:
 	STA $00			; A437	$85 $00
 	LDA #$08		; A439	$A9 $08
@@ -3833,7 +3934,7 @@ L32437:
 	LDA #$00		; A43D	$A9 $00
 	STA $01			; A43F	$85 $01
 	STA $03			; A441	$85 $03
-	JSR $FC98		; A443	$20 $98 $FC
+	JSR Multi16		; A443	$20 $98 $FC
 	CLC			; A446	$18
 	LDA $04			; A447	$A5 $04
 	ADC #<Mob_AI
@@ -3845,11 +3946,11 @@ L32437:
 	STA $47			; A451	$85 $47
 	LDX #$00		; A453	$A2 $00
 	LDA #$63		; A455	$A9 $63
-	JSR $FD11		; A457	$20 $11 $FD	random (X..A)
+	JSR Random		; A457	$20 $11 $FD	random (X..A)
 	STA $00			; A45A	$85 $00
 	LDY #$07		; A45C	$A0 $07
 L3245E:
-	LDA $A718,Y		; A45E	$B9 $18 $A7	probalilities for monster special attacks
+	LDA Mob_sp_pro,Y	; A45E	$B9 $18 $A7	probalilities for monster special attacks
 	CMP $00			; A461	$C5 $00
 	BCS L32468		; A463	$B0 $03
 	DEY			; A465	$88
@@ -3858,11 +3959,11 @@ L32468:
 	LDA ($46),Y		; A468	$B1 $46		attack id
 	STA $00			; A46A	$85 $00
 	BNE L32471		; A46C	$D0 $03		branch if not fight
-	JSR $A72B		; A46E	$20 $2B $A7	fight
+	JSR Mob_cmd_fight	; A46E	$20 $2B $A7	fight
 L32471:
 	CMP #$FE		; A471	$C9 $FE
 	BNE L32478		; A473	$D0 $03		branch if not run away
-	JSR $A736		; A475	$20 $36 $A7	run away
+	JSR Mob_cmd_run		; A475	$20 $36 $A7	run away (monster)
 L32478:
 	DEC $00			; A478	$C6 $00
 	LDA #$05		; A47A	$A9 $05
@@ -3870,7 +3971,7 @@ L32478:
 	LDA #$00		; A47E	$A9 $00
 	STA $01			; A480	$85 $01
 	STA $03			; A482	$85 $03
-	JSR $FC98		; A484	$20 $98 $FC	multiply (16-bit)
+	JSR Multi16		; A484	$20 $98 $FC	multiply (16-bit), $00 x 05h
 	CLC			; A487	$18
 	LDA $04			; A488	$A5 $04
 	ADC #<ItemAttack_prop
@@ -3881,18 +3982,18 @@ L32478:
 	;ADC #$83		; A490	$69 $83
 	STA $47			; A492	$85 $47
 	LDY #$01		; A494	$A0 $01
-	LDA ($46),Y		; A496	$B1 $46
+	LDA ($46),Y		; A496	$B1 $46		read spell level
 	LDY #$25		; A498	$A0 $25
 	STA ($44),Y		; A49A	$91 $44		set spell level
 	LDY #$02		; A49C	$A0 $02
-	LDA ($46),Y		; A49E	$B1 $46
+	LDA ($46),Y		; A49E	$B1 $46		read accuraty
 	LDY #$26		; A4A0	$A0 $26
 	STA ($44),Y		; A4A2	$91 $44		set mod. spell %
 	LDY #$03		; A4A4	$A0 $03
-	LDA ($46),Y		; A4A6	$B1 $46
+	LDA ($46),Y		; A4A6	$B1 $46		read targetting
 	STA $48			; A4A8	$85 $48
 	LDY #$00		; A4AA	$A0 $00
-	LDA ($46),Y		; A4AC	$B1 $46
+	LDA ($46),Y		; A4AC	$B1 $46		read Spell(magic) id
 	TAY			; A4AE	$A8
 	DEY			; A4AF	$88
 	STY $00			; A4B0	$84 $00		magic id
@@ -3904,7 +4005,7 @@ L32478:
 	LDA #$00		; A4BC	$A9 $00
 	STA $01			; A4BE	$85 $01
 	STA $03			; A4C0	$85 $03
-	JSR $FC98		; A4C2	$20 $98 $FC	multiply (16-bit)
+	JSR Multi16		; A4C2	$20 $98 $FC	multiply (16-bit), magic id * 07h
 	CLC			; A4C5	$18
 	LDA $04			; A4C6	$A5 $04
 	ADC #$D9		; A4C8	$69 $D9		magic properties (0C/85D9)
@@ -3917,34 +4018,34 @@ L32478:
 	STA $49			; A4D6	$85 $49
 	CMP #$28		; A4D8	$C9 $28
 	BCS L324EF		; A4DA	$B0 $13
-	JSR $A713		; A4DC	$20 $13 $A7	get monster status 2
+	JSR Get_mob_status2	; A4DC	$20 $13 $A7	get monster status 2
 	AND #$10		; A4DF	$29 $10
 	BNE L324EC		; A4E1	$D0 $09		branch if mute
-	JSR $A709		; A4E3	$20 $09 $A7	get monster status 1
+	JSR Get_mob_status1	; A4E3	$20 $09 $A7	get monster status 1
 	AND #$10		; A4E6	$29 $10
 	BNE L324EC		; A4E8	$D0 $02		branch if amnesia
 	BEQ L324EF		; A4EA	$F0 $03
 L324EC:
-	JSR $A72B		; A4EC	$20 $2B $A7	fight
+	JSR Mob_cmd_fight	; A4EC	$20 $2B $A7	fight
 L324EF:
-	LDY #$02		; A4EF	$A0 $02
-	LDA ($46),Y		; A4F1	$B1 $46
+	LDY #$02		; A4EF	$A0 $02		----- set spell
+	LDA ($46),Y		; A4F1	$B1 $46		read spell power
 	LDY #$27		; A4F3	$A0 $27		set mod. spell power
 	STA ($44),Y		; A4F5	$91 $44
 	LDY #$03		; A4F7	$A0 $03
-	LDA ($46),Y		; A4F9	$B1 $46
+	LDA ($46),Y		; A4F9	$B1 $46		read Element
 	LDY #$28		; A4FB	$A0 $28
 	STA ($44),Y		; A4FD	$91 $44		set spell parameters
 	LDY #$04		; A4FF	$A0 $04
-	LDA ($46),Y		; A501	$B1 $46
+	LDA ($46),Y		; A501	$B1 $46		read Status ailment
 	LDY #$29		; A503	$A0 $29
 	STA ($44),Y		; A505	$91 $44
 	LDY #$05		; A507	$A0 $05
-	LDA ($46),Y		; A509	$B1 $46
+	LDA ($46),Y		; A509	$B1 $46		read palette
 	LDY #$23		; A50B	$A0 $23
 	STA ($44),Y		; A50D	$91 $44		set special effects
 	LDY #$06		; A50F	$A0 $06
-	LDA ($46),Y		; A511	$B1 $46
+	LDA ($46),Y		; A511	$B1 $46		read animation
 	LDY #$24		; A513	$A0 $24
 	STA ($44),Y		; A515	$91 $44		set spell % panalty
 	LDY #$2A		; A517	$A0 $2A
@@ -3952,34 +4053,36 @@ L324EF:
 	STA ($44),Y		; A51B	$91 $44		set battle command
 	INY			; A51D	$C8
 	LDA $48			; A51E	$A5 $48
-	STA ($44),Y		; A520	$91 $44
-	JSR $A713		; A522	$20 $13 $A7	get monster status 2
+	STA ($44),Y		; A520	$91 $44		set target
+Get_mob_act_chk_stats:
+	JSR Get_mob_status2	; A522	$20 $13 $A7	get monster status 2
 	BPL L3253A		; A525	$10 $13		branch if not confused
 L32527:
-	LDX #$00		; A527	$A2 $00		target a random monster
+	LDX #$00		; A527	$A2 $00		target a random monster - confused
 	LDA #$07		; A529	$A9 $07
-	JSR $FD11		; A52B	$20 $11 $FD	random (X..A)
+	JSR Random		; A52B	$20 $11 $FD	random (X..A)
 	TAX			; A52E	$AA
-	LDA $7B62,X		; A52F	$BD $62 $7B
-	BMI L32527		; A532	$30 $F3
+	LDA $7B62,X		; A52F	$BD $62 $7B	monster id in each slot
+	BMI L32527		; A532	$30 $F3		if not exist (bit7 = 1)
 	TXA			; A534	$8A
-	ORA #$80		; A535	$09 $80
-	JMP $A610		; A537	$4C $10 $A6
+	ORA #$80		; A535	$09 $80		$2B.bit7: target is a monster
+	JMP Get_mob_act_set_target	; A537	$4C $10 $A6
 L3253A:
 	LDY #$2A		; A53A	$A0 $2A
 	LDA ($44),Y		; A53C	$B1 $44		battle command
 	BNE L32571		; A53E	$D0 $31		branch if not fight
-	LDX $76			; A540	$A6 $76
-	LDA $7B5A,X		; A542	$BD $5A $7B
+	LDX $76			; A540	$A6 $76		monster id offset temp ??
+	LDA $7B5A,X		; A542	$BD $5A $7B	monster rows
 	BEQ L3254A		; A545	$F0 $03		branch if in front row
-	JSR $A720		; A547	$20 $20 $A7	do nothing
+	JSR Mob_cmd_nothing	; A547	$20 $20 $A7	do nothing - back row cannot be attacked
+; goto Get_mob_act_next
 L3254A:
 	LDX #$00		; A54A	$A2 $00		target a random character
 	LDA #$03		; A54C	$A9 $03
-	JSR $FD11		; A54E	$20 $11 $FD	random (X..A)
+	JSR Random		; A54E	$20 $11 $FD	random (X..A)
 	STA $9E			; A551	$85 $9E
-	JSR $96E1		; A553	$20 $E1 $96	update character/monster pointers
-	JSR $AF6C		; A556	$20 $6C $AF	get status 1
+	JSR Update_addr		; A553	$20 $E1 $96	update character/monster pointers
+	JSR Get_status1_80h	; A556	$20 $6C $AF	get status 1
 	AND #$C0		; A559	$29 $C0
 	BEQ L3255F		; A55B	$F0 $02		branch if not dead or stone
 	BNE L3254A		; A55D	$D0 $EB
@@ -3987,134 +4090,139 @@ L3255F:
 	LDY #$35		; A55F	$A0 $35
 	LDA ($7E),Y		; A561	$B1 $7E		character row
 	LSR A			; A563	$4A
-	BCC L32568		; A564	$90 $02		branch if fornt row
+	BCC L32568		; A564	$90 $02		branch if front row
 	BCS L3254A		; A566	$B0 $E2		can't target back row characters
 L32568:
 	LDA $9E			; A568	$A5 $9E
 	TAX			; A56A	$AA
 	INC $7D37,X		; A56B	$FE $37 $7D	incrment character physical hit counter
-	JMP $A610		; A56E	$4C $10 $A6
-; End of
+	JMP Get_mob_act_set_target	; A56E	$4C $10 $A6
 L32571:
-	LDY #$2B		; A571	$A0 $2B
+	LDY #$2B		; A571	$A0 $2B		target
 	LDA ($44),Y		; A573	$B1 $44
-	CMP #$01		; A575	$C9 $01
+	CMP #$01		; A575	$C9 $01		bit0 ?????
 	BNE L3257E		; A577	$D0 $05
-	LDA #$08		; A579	$A9 $08
-	JMP $A60C		; A57B	$4C $0C $A6
+	LDA #$08		; A579	$A9 $08		index 8h ?????
+	JMP Get_mob_act_A60C	; A57B	$4C $0C $A6
 L3257E:
 	CMP #$02		; A57E	$C9 $02
 	BNE L3259A		; A580	$D0 $18
 L32582:
 	LDX #$00		; A582	$A2 $00
 	LDA #$03		; A584	$A9 $03
-	JSR $FD11		; A586	$20 $11 $FD	random (X..A)
+	JSR Random		; A586	$20 $11 $FD	random (X..A)
 	STA $9E			; A589	$85 $9E
-	JSR $96E1		; A58B	$20 $E1 $96	update character/monster pointers
-	JSR $AF6C		; A58E	$20 $6C $AF
+	JSR Update_addr		; A58B	$20 $E1 $96	update character/monster pointers
+	JSR Get_status1_80h	; A58E	$20 $6C $AF
 	AND #$C0		; A591	$29 $C0
-	BNE L32582		; A593	$D0 $ED
+	BNE L32582		; A593	$D0 $ED		dead and stone
 	LDA $9E			; A595	$A5 $9E
-	JMP $A60C		; A597	$4C $0C $A6
+	JMP Get_mob_act_A60C	; A597	$4C $0C $A6
 L3259A:
 	CMP #$05		; A59A	$C9 $05
 	BNE L325A5		; A59C	$D0 $07
-	LDA $76			; A59E	$A5 $76
+	LDA $76			; A59E	$A5 $76		monster id offset temp ??
 	ORA #$80		; A5A0	$09 $80
-	JMP $A610		; A5A2	$4C $10 $A6
+	JMP Get_mob_act_set_target	; A5A2	$4C $10 $A6
 L325A5:
 	CMP #$06		; A5A5	$C9 $06
 	BNE L325AE		; A5A7	$D0 $05
-	LDA #$88		; A5A9	$A9 $88
-	JMP $A610		; A5AB	$4C $10 $A6
+	LDA #$88		; A5A9	$A9 $88		attack all monster
+	JMP Get_mob_act_set_target	; A5AB	$4C $10 $A6
 L325AE:
 	CMP #$07		; A5AE	$C9 $07
 	BNE L325CD		; A5B0	$D0 $1B
 L325B2:
 	LDX #$00		; A5B2	$A2 $00
 	LDA #$07		; A5B4	$A9 $07
-	JSR $FD11		; A5B6	$20 $11 $FD	random (X..A)
+	JSR Random		; A5B6	$20 $11 $FD	random (X..A)
 	STA $4E			; A5B9	$85 $4E
 	LDA #$3A		; A5BB	$A9 $3A
 	STA $48			; A5BD	$85 $48
-	LDA #$7E		; A5BF	$A9 $7E
+	LDA #$7E		; A5BF	$A9 $7E		7E3A = monster battle stats base
 	STA $49			; A5C1	$85 $49
-	JSR $A668		; A5C3	$20 $68 $A6
+	JSR Get_status1_idx	; A5C3	$20 $68 $A6
 	BMI L325B2		; A5C6	$30 $EA
 	LDA $4E			; A5C8	$A5 $4E
-	JMP $A610		; A5CA	$4C $10 $A6
+	JMP Get_mob_act_set_target	; A5CA	$4C $10 $A6
 L325CD:
 	LDX #$00		; A5CD	$A2 $00
 	LDA #$0B		; A5CF	$A9 $0B
-	JSR $FD11		; A5D1	$20 $11 $FD	random (X..A)
+	JSR Random		; A5D1	$20 $11 $FD	random (X..A)
 	STA $4E			; A5D4	$85 $4E
 	CMP #$04		; A5D6	$C9 $04
 	BCS L325E9		; A5D8	$B0 $0F
-	LDA #$7A		; A5DA	$A9 $7A
+	LDA #$7A		; A5DA	$A9 $7A		character
 	STA $48			; A5DC	$85 $48
-	LDA #$7D		; A5DE	$A9 $7D
+	LDA #$7D		; A5DE	$A9 $7D		7D7A = character battle stats base
 	STA $49			; A5E0	$85 $49
-	JSR $A668		; A5E2	$20 $68 $A6
+	JSR Get_status1_idx	; A5E2	$20 $68 $A6
 	BMI L325CD		; A5E5	$30 $E6
 	BPL L32607		; A5E7	$10 $1E
 L325E9:
-	SEC			; A5E9	$38
+	SEC			; A5E9	$38		monster
 	SBC #$04		; A5EA	$E9 $04
 	STA $4E			; A5EC	$85 $4E
 	LDA #$3A		; A5EE	$A9 $3A
 	STA $48			; A5F0	$85 $48
-	LDA #$7E		; A5F2	$A9 $7E
+	LDA #$7E		; A5F2	$A9 $7E		7E3A = monster battle stats base
 	STA $49			; A5F4	$85 $49
-	JSR $A668		; A5F6	$20 $68 $A6
+	JSR Get_status1_idx	; A5F6	$20 $68 $A6
 	BMI L325CD		; A5F9	$30 $D2
 	LDA $4E			; A5FB	$A5 $4E
 	AND $76			; A5FD	$25 $76
 	BNE L325CD		; A5FF	$D0 $CC
 	LDA $4E			; A601	$A5 $4E
-	ORA #$80		; A603	$09 $80
+	ORA #$80		; A603	$09 $80		set bit7 = target is monster
 	STA $4E			; A605	$85 $4E
 L32607:
 	LDA $4E			; A607	$A5 $4E
-	JMP $A610		; A609	$4C $10 $A6
+	JMP Get_mob_act_set_target	; A609	$4C $10 $A6
+Get_mob_act_A60C:
 	TAX			; A60C	$AA
-	INC $7D3B,X		; A60D	$FE $3B $7D
-	LDY #$2B		; A610	$A0 $2B
-	STA ($44),Y		; A612	$91 $44
-	INC $76			; A614	$E6 $76
-	LDA $76			; A616	$A5 $76
-	CMP #$08		; A618	$C9 $08
-	BEQ L3262C		; A61A	$F0 $10
+	INC $7D3B,X		; A60D	$FE $3B $7D	character magical hit counter
+Get_mob_act_set_target:
+	LDY #$2B		; A610	$A0 $2B		target
+	STA ($44),Y		; A612	$91 $44		set monster stats (target)
+Get_mob_act_next:
+	INC $76			; A614	$E6 $76		monster id offset temp ??
+	LDA $76			; A616	$A5 $76		monster id offset temp ??
+	CMP #$08		; A618	$C9 $08		max monster count = 8
+	BEQ Get_mob_act_end	; A61A	$F0 $10		branch if last monster end
 	CLC			; A61C	$18
 	LDA $44			; A61D	$A5 $44
-	ADC #$30		; A61F	$69 $30
+	ADC #$30		; A61F	$69 $30		add 48 bytes for next monster stats to $44(ADDR)
 	STA $44			; A621	$85 $44
 	LDA $45			; A623	$A5 $45
 	ADC #$00		; A625	$69 $00
 	STA $45			; A627	$85 $45
-	JMP $A375		; A629	$4C $75 $A3
-L3262C:
+	JMP Get_mob_act_begin	; A629	$4C $75 $A3	to begin check next monster
+Get_mob_act_end:
 	LDA #$01		; A62C	$A9 $01
-	STA $AC			; A62E	$85 $AC
+	STA NMI_done_flag	; A62E	$85 $AC
 L32630:
-	LDA $AC			; A630	$A5 $AC
+	LDA NMI_done_flag	; A630	$A5 $AC
 	BNE L32630		; A632	$D0 $FC		LOOP Wait NMI IRQ
-	JSR $FA2A		; A634	$20 $2A $FA
-	JMP $9A5D		; A637	$4C $5D $9A
-; End of
+	JSR Set_IRQ_JMP		; A634	$20 $2A $FA	Wait NMI
+	JMP Wait_NMIe_MENUs	; A637	$4C $5D $9A
+; End of Get_mob_act
 
-; Name	:
+
+
+; Name	: Sum_hp
 ; X	: number of characters/monsters to sum
-; Marks	: get current hp sum
-;	  $02(ADDR) = sum of hp (out)
+; Ret	: $02(ADDR) = sum of hp (out)
+; Marks	: get current hp sum(each characters)
 ;	  $46(ADDR) = pointer to character/monster battle stats
+Sum_hp:
 	LDA #$00		; A63A	$A9 $00
 	STA $02			; A63C	$85 $02
 	STA $03			; A63E	$85 $03
 L32640:
-	JSR $A70E		; A640	$20 $0E $A7	get status 1
+	JSR Get_status1_46h	; A640	$20 $0E $A7	get status 1
 	AND #$C0		; A643	$29 $C0
 	BNE L32657		; A645	$D0 $10		branch if dead or stone
-	LDY #$0A		; A647	$A0 $0A
+	LDY #$0A		; A647	$A0 $0A		current hp index offset
 	CLC			; A649	$18
 	LDA ($46),Y		; A64A	$B1 $46		add current hp
 	ADC $02			; A64C	$65 $02
@@ -4126,7 +4234,7 @@ L32640:
 L32657:
 	CLC			; A657	$18		next character
 	LDA $46			; A658	$A5 $46
-	ADC #$30		; A65A	$69 $30
+	ADC #$30		; A65A	$69 $30		48 bytes
 	STA $46			; A65C	$85 $46
 	LDA $47			; A65E	$A5 $47
 	ADC #$00		; A660	$69 $00
@@ -4134,9 +4242,16 @@ L32657:
 	DEX			; A664	$CA
 	BNE L32640		; A665	$D0 $D9
 	RTS			; A667	$60
-; End of
+; End of Sum_hp
 
-;A668
+; Name	: Get_status1_idx
+; SRC	: $4E = index character or monster or character/monster
+;	  +$48 = character/monster battle stats base
+; Marks	:
+;	  +$00 = $4E
+;	  +$02 = 0030h
+;	  +$46 = ?? result
+Get_status1_idx:
 	LDA $4E			; A668	$A5 $4E
 	STA $00			; A66A	$85 $00
 	LDA #$30		; A66C	$A9 $30
@@ -4144,7 +4259,7 @@ L32657:
 	LDA #$00		; A670	$A9 $00
 	STA $01			; A672	$85 $01
 	STA $03			; A674	$85 $03
-	JSR $FC98		; A676	$20 $98 $FC	multiply (16-bit)
+	JSR Multi16		; A676	$20 $98 $FC	multiply (16-bit), $4E x 30h
 	CLC			; A679	$18
 	LDA $04			; A67A	$A5 $04
 	ADC $48			; A67C	$65 $48
@@ -4152,55 +4267,57 @@ L32657:
 	LDA $05			; A680	$A5 $05
 	ADC $49			; A682	$65 $49
 	STA $47			; A684	$85 $47
-	JSR $A70E		; A686	$20 $0E $A7	get status 1
+	JSR Get_status1_46h	; A686	$20 $0E $A7	get status 1
 	RTS			; A689	$60
+; End of Get_status1_idx
 
-; Name	:
-; Marks	:
+; Name	: Make_evade
+; Marks	: $48(12) = random value array
+Make_evade:
 	LDY #$00		; A68A	$A0 $00
 	STY $54			; A68C	$84 $54
 	STY $9E			; A68E	$84 $9E
 	LDX #$00		; A690	$A2 $00
 L32692:
-	JSR $96E1		; A692	$20 $E1 $96	update character/monster pointers
+	JSR Update_addr		; A692	$20 $E1 $96	update character/monster pointers
 	LDY #$01		; A695	$A0 $01
 	LDA ($80),Y		; A697	$B1 $80
-	STA $82,X		; A699	$95 $82
+	STA $82,X		; A699	$95 $82		evade % ??
 	INX			; A69B	$E8
 	INC $9E			; A69C	$E6 $9E
 	CPX #$04		; A69E	$E0 $04
-	BNE L32692		; A6A0	$D0 $F0
+	BNE L32692		; A6A0	$D0 $F0		loop character
 L326A2:
 	LDX #$01		; A6A2	$A2 $01
 	LDA #$28		; A6A4	$A9 $28
-	JSR $FD11		; A6A6	$20 $11 $FD	random (X..A)
+	JSR Random		; A6A6	$20 $11 $FD	random (X..A)
 	LDX $54			; A6A9	$A6 $54
 	STA $48,X		; A6AB	$95 $48
 	INC $54			; A6AD	$E6 $54
 	CPX #$0C		; A6AF	$E0 $0C
-	BNE L326A2		; A6B1	$D0 $EF
+	BNE L326A2		; A6B1	$D0 $EF		loop for character/monster
 	LDX #$00		; A6B3	$A2 $00
 	STX $54			; A6B5	$86 $54
 L326B7:
 	LDX $54			; A6B7	$A6 $54
 	CLC			; A6B9	$18
 	LDA $48,X		; A6BA	$B5 $48
-	ADC $82,X		; A6BC	$75 $82
+	ADC $82,X		; A6BC	$75 $82		evade % ??
 	STA $48,X		; A6BE	$95 $48
 	INC $54			; A6C0	$E6 $54
 	LDA $54			; A6C2	$A5 $54
 	CMP #$04		; A6C4	$C9 $04
-	BNE L326B7		; A6C6	$D0 $EF
+	BNE L326B7		; A6C6	$D0 $EF		loop
 	LDA #$7E		; A6C8	$A9 $7E
 	STA $55			; A6CA	$85 $55
 	LDA #$3A		; A6CC	$A9 $3A
-	STA $54			; A6CE	$85 $54
+	STA $54			; A6CE	$85 $54		monster battle stats(7E3A)
 	LDX #$04		; A6D0	$A2 $04
 	LDY #$01		; A6D2	$A0 $01
 L326D4:
 	CLC			; A6D4	$18
 	LDA $48,X		; A6D5	$B5 $48
-	ADC ($54),Y		; A6D7	$71 $54
+	ADC ($54),Y		; A6D7	$71 $54		evade % ??
 	STA $48,X		; A6D9	$95 $48
 	INX			; A6DB	$E8
 	CLC			; A6DC	$18
@@ -4209,81 +4326,90 @@ L326D4:
 	STA $54			; A6E1	$85 $54
 	LDA $55			; A6E3	$A5 $55
 	ADC #$00		; A6E5	$69 $00
-	STA $55			; A6E7	$85 $55
+	STA $55			; A6E7	$85 $55		next monster
 	CPX #$0C		; A6E9	$E0 $0C
-	BNE L326D4		; A6EB	$D0 $E7
-	JSR $9A63		; A6ED	$20 $63 $9A
+	BNE L326D4		; A6EB	$D0 $E7		loop for monster
+	JSR Wait_MENUs_NMIe	; A6ED	$20 $63 $9A
 	LDA #$00		; A6F0	$A9 $00
 	STA $05			; A6F2	$85 $05
 	LDA #$47		; A6F4	$A9 $47
-	STA $04			; A6F6	$85 $04
+	STA $04			; A6F6	$85 $04		$0047
 	LDA #$7D		; A6F8	$A9 $7D
 	STA $07			; A6FA	$85 $07
 	LDA #$5D		; A6FC	$A9 $5D
-	STA $06			; A6FE	$85 $06
+	STA $06			; A6FE	$85 $06		$7D5D
 	LDA #$01		; A700	$A9 $01
 	STA $02			; A702	$85 $02
 	LDA #$0C		; A704	$A9 $0C
-	JMP $8F5E		; A706	$4C $5E $8F	sort values
-; End of
+	JMP SortVal		; A706	$4C $5E $8F	sort values
+; End of Make_evade
 
-; Name	:
+; Name	: Get_mob_status1
 ; Marks	: get monster status 1
+Get_mob_status1:
 	LDY #$08		; A709	$A0 $08
 	LDA ($44),Y		; A70B	$B1 $44
 	RTS			; A70D	$60
-; End of
+; End of Get_mob_status1
 
-; Name	:
-; Marks	: get status 1
+; Name	: Get_status1_46h
+; Marks	: get status 1 from $46(ADDR)
+;	  duplicated Get_status1_80h
+Get_status1_46h:
 	LDY #$08		; A70E	$A0 $08
 	LDA ($46),Y		; A710	$B1 $46
 	RTS			; A712	$60
-; End of
+; End of Get_status1_46h
 
-; Name	:
+; Name	: Get_mob_status2
 ; Marks	: get monster status 2
+Get_mob_status2:
 	LDY #$09		; A713	$A0 $09
 	LDA ($44),Y		; A715	$B1 $44
 	RTS			; A717	$60
-; End of
+; End of Get_mob_status2
 
 ;A718 - data block = probalilities for monster special attacks
+Mob_sp_pro:
 .byte $64,$50,$3C,$28,$1E,$14,$0A,$05
 
-; Name	:
+; Name	: Mob_cmd_nothing
 ; Marks	: do nothing (monster)
+Mob_cmd_nothing:
 	LDY #$2A		; A720	$A0 $2A
 	LDA #$FF		; A722	$A9 $FF
 	STA ($44),Y		; A724	$91 $44
 	PLA			; A726	$68
 	PLA			; A727	$68
-	JMP $A614		; A728	$4C $14 $A6
-; End of
+	JMP Get_mob_act_next	; A728	$4C $14 $A6
+; End of Mob_cmd_nothing
 
-; Name	:
-; Marks	: fight (monster)
+; Name	: Mob_cmd_fight
+; Marks	: fight (monster) - set monster command to fight(attack)
+Mob_cmd_fight:
 	LDY #$2A		; A72B	$A0 $2A
 	LDA #$00		; A72D	$A9 $00
 	STA ($44),Y		; A72F	$91 $44
 	PLA			; A731	$68
 	PLA			; A732	$68
-	JMP $A522		; A733	$4C $22 $A5
-; End of
+	JMP Get_mob_act_chk_stats	; A733	$4C $22 $A5
+; End of Mob_cmd_fight
 
-; Name	:
+; Name	: Mob_cmd_run
 ; Marks	: run away (monster)
+Mob_cmd_run:
 	LDY #$2A		; A736	$A0 $2A
 	LDA #$FE		; A738	$A9 $FE
 	STA ($44),Y		; A73A	$91 $44
 	PLA			; A73C	$68
 	PLA			; A73D	$68
-	JMP $A614		; A73E	$4C $14 $A6
-; End of
+	JMP Get_mob_act_next	; A73E	$4C $14 $A6
+; End of Mob_cmd_run
 
-; Name	:
+; Name	: Do_action
 ; Marks	: $7E, $9F(ADDR) = battle stats
 ;	  do action
+Do_action:
 	LDX #$00		; A741	$A2 $00
 	STX turn_order_cnt	; A743	$8E $BB $7C	counter for turn order
 	LDX #$00		; A746	$A2 $00		LOOP START turn order ==========
@@ -4308,20 +4434,20 @@ L3276B:
 	DEX			; A76E	$CA
 	BPL L3276B		; A76F	$10 $FA		loop
 	JSR Wait_MENU_snd	; A771	$20 $5B $FD
-	JSR $9A69		; A774	$20 $69 $9A	Set NMI subroutine
+	JSR Set_NMI_		; A774	$20 $69 $9A	Set NMI subroutine
 	LDX turn_order_cnt	; A777	$AE $BB $7C	counter for turn order
 	LDA turn_order_que,X	; A77A	$BD $5E $7D	read turn order from queue
 	STA $26			; A77D	$85 $26		turn order temp
 	CMP #$04		; A77F	$C9 $04
 	BCS L32786		; A781	$B0 $03
-	JMP $A7FB		; A783	$4C $FB $A7	player turn
+	JMP Do_action_player	; A783	$4C $FB $A7	player turn
 L32786:
 	LDX $7B4A		; A786	$AE $4A $7B	enemy turn - battle type
 	BEQ L32795		; A789	$F0 $0A
 	CPX #$02		; A78B	$E0 $02
 	BNE L32795		; A78D	$D0 $06
-	JSR $AC93		; A78F	$20 $93 $AC	do nothing this round
-	JMP $A98C		; A792	$4C $8C $A9
+	JSR Set_msg_nothing	; A78F	$20 $93 $AC	do nothing this round
+	JMP Do_action_NMI	; A792	$4C $8C $A9
 L32795:
 	SEC			; A795	$38
 	SBC #$04		; A796	$E9 $04
@@ -4339,7 +4465,7 @@ L327A7:
 	LDA #$00		; A7AD	$A9 $00
 	STA $01			; A7AF	$85 $01
 	STA $03			; A7B1	$85 $03
-	JSR $FC98		; A7B3	$20 $98 $FC
+	JSR Multi16		; A7B3	$20 $98 $FC
 	CLC			; A7B6	$18
 	LDA $04			; A7B7	$A5 $04
 	ADC #$3A		; A7B9	$69 $3A		monster battle stats (7E3A)
@@ -4355,8 +4481,8 @@ L327A7:
 	AND #$48		; A7CD	$29 $48
 	BEQ L327D7		; A7CF	$F0 $06		branch if not paralyzed or asleep
 L327D1:
-	JSR $AC93		; A7D1	$20 $93 $AC	do nothing this round
-	JMP $A98C		; A7D4	$4C $8C $A9
+	JSR Set_msg_nothing	; A7D1	$20 $93 $AC	do nothing this round
+	JMP Do_action_NMI	; A7D4	$4C $8C $A9
 L327D7:
 	LDY #$2A		; A7D7	$A0 $2A
 	LDA ($9F),Y		; A7D9	$B1 $9F		battle command
@@ -4366,7 +4492,7 @@ L327E0:
 	CMP #$FF		; A7E0	$C9 $FF
 	BNE L327EA		; A7E2	$D0 $06
 	JSR $ACA2		; A7E4	$20 $A2 $AC	show "nothing happend" message
-	JMP $A98C		; A7E7	$4C $8C $A9
+	JMP Do_action_NMI	; A7E7	$4C $8C $A9
 L327EA:
 	LDY #$08		; A7EA	$A0 $08
 	LDA #$C0		; A7EC	$A9 $C0		set dead and stone
@@ -4374,16 +4500,17 @@ L327EA:
 	LDA #$01		; A7F0	$A9 $01
 	STA $7CB6		; A7F2	$8D $B6 $7C
 	JSR $ACB1		; A7F5	$20 $B1 $AC
-	JMP $A98C		; A7F8	$4C $8C $A9	show "escaped" message
+	JMP Do_action_NMI	; A7F8	$4C $8C $A9	show "escaped" message
+Do_action_player:
 	STA $9E			; A7FB	$85 $9E		player turn routine
 	STA cur_turn_id		; A7FD	$85 $E1
 	LDX $7B4A		; A7FF	$AE $4A $7B	battle type
 	DEX			; A802	$CA
 	BNE L3280B		; A803	$D0 $06
-	JSR $AC93		; A805	$20 $93 $AC	do nothing this round - surprised(battle type = 01h) ??
-	JMP $A98C		; A808	$4C $8C $A9
+	JSR Set_msg_nothing	; A805	$20 $93 $AC	do nothing this round - surprised(battle type = 01h) ??
+	JMP Do_action_NMI	; A808	$4C $8C $A9
 L3280B:
-	JSR $96E1		; A80B	$20 $E1 $96	update character/monster pointers - get char properties ??
+	JSR Update_addr		; A80B	$20 $E1 $96	update character/monster pointers - get char properties
 	LDA $7A			; A80E	$A5 $7A
 	STA $A3			; A810	$85 $A3
 	LDA $7B			; A812	$A5 $7B
@@ -4421,10 +4548,10 @@ L3284F:
 	JSR $BE7E		; A84F	$20 $7E $BE
 	LDX #$00		; A852	$A2 $00
 	STX $A6			; A854	$86 $A6
-	JMP $A98C		; A856	$4C $8C $A9
+	JMP Do_action_NMI	; A856	$4C $8C $A9
 L32859:
-	JSR $AC93		; A859	$20 $93 $AC	do nothing this round - init ?? - dead or stone
-	JMP $A98C		; A85C	$4C $8C $A9
+	JSR Set_msg_nothing	; A859	$20 $93 $AC	do nothing this round - init ?? - dead or stone
+	JMP Do_action_NMI	; A85C	$4C $8C $A9
 L3285F:
 	LDY #$2A		; A85F	$A0 $2A
 	LDA ($9F),Y		; A861	$B1 $9F		battle command
@@ -4435,20 +4562,20 @@ L3285F:
 	BNE L32886		; A86C	$D0 $18
 	LDX #$00		; A86E	$A2 $00
 	LDA #$64		; A870	$A9 $64
-	JSR $FD11		; A872	$20 $11 $FD	random (X..A)
+	JSR Random		; A872	$20 $11 $FD	random (X..A)
 	LDY #$01		; A875	$A0 $01
 	SBC ($9F),Y		; A877	$F1 $9F		check vs. evade %
 	BCS L32886		; A879	$B0 $0B		branch if check failed
 	LDA #$01		; A87B	$A9 $01
 	STA $7CB7		; A87D	$8D $B7 $7C	ran away
 	JSR $ACB1		; A880	$20 $B1 $AC	show "escaped" message
-	JMP $A98C		; A883	$4C $8C $A9
+	JMP Do_action_NMI	; A883	$4C $8C $A9
 L32886:
 	JSR $ACC0		; A886	$20 $C0 $AC	show "can't escape" message
-	JMP $A98C		; A889	$4C $8C $A9
+	JMP Do_action_NMI	; A889	$4C $8C $A9
 L3288C:
-	JSR $AC93		; A88C	$20 $93 $AC	do nothing this round
-	JMP $A98C		; A88F	$4C $8C $A9
+	JSR Set_msg_nothing	; A88C	$20 $93 $AC	do nothing this round
+	JMP Do_action_NMI	; A88F	$4C $8C $A9
 L32892:
 	BNE L328B7		; A892	$D0 $23
 	LDY #$35		; A894	$A0 $35
@@ -4498,7 +4625,7 @@ L328D4:
 	LDA #$00		; A8E1	$A9 $00
 	STA $01			; A8E3	$85 $01
 	STA $03			; A8E5	$85 $03
-	JSR $FC98		; A8E7	$20 $98 $FC	init ?? calc ??
+	JSR Multi16		; A8E7	$20 $98 $FC
 	PLA			; A8EA	$68
 	STA $E3			; A8EB	$85 $E3		target
 .byte $8D,$27,$00
@@ -4538,8 +4665,8 @@ L32922:
 	BEQ L32936		; A927	$F0 $0D
 	LDA $A6			; A929	$A5 $A6
 	BEQ L32933		; A92B	$F0 $06
-	JSR $AC93		; A92D	$20 $93 $AC	do nothing this round
-	JMP $A98C		; A930	$4C $8C $A9
+	JSR Set_msg_nothing	; A92D	$20 $93 $AC	do nothing this round
+	JMP Do_action_NMI	; A930	$4C $8C $A9
 L32933:
 	JSR $ACCF		; A933	$20 $CF $AC	show "not effective" message
 L32936:
@@ -4549,7 +4676,7 @@ L32936:
 	LDA #$80		; A93C	$A9 $80
 	STA $28			; A93E	$85 $28
 	JSR $AF85		; A940	$20 $85 $AF	do fight action - status / damage calc ??
-	JMP $A98C		; A943	$4C $8C $A9
+	JMP Do_action_NMI	; A943	$4C $8C $A9
 L32946:
 	CMP #$FF		; A946	$C9 $FF
 	BEQ L3298C		; A948	$F0 $42		branch if no command
@@ -4588,12 +4715,13 @@ L3297C:
 	LDA #$00		; A985	$A9 $00
 	STA ($A3),Y		; A987	$91 $A3
 L32989:
-	JMP $A98C		; A989	$4C $8C $A9
+	JMP Do_action_NMI	; A989	$4C $8C $A9
+Do_action_NMI:
 L3298C:
 	LDA #$01		; A98C	$A9 $01		attack complete
-	STA $AC			; A98E	$85 $AC
+	STA NMI_done_flag	; A98E	$85 $AC
 L32990:
-	LDA $AC			; A990	$A5 $AC
+	LDA NMI_done_flag	; A990	$A5 $AC
 	BNE L32990		; A992	$D0 $FC		LOOP Wait NMI IRQ
 	JSR Set_IRQ_JMP		; A994	$20 $2A $FA	Wait NMI
 	JSR Wait_NMI_end	; A997	$20 $46 $FD
@@ -4656,7 +4784,7 @@ L32A04:
 	STA $62			; AA04	$85 $62
 	LDA #$00		; AA06	$A9 $00
 	STA $63			; AA08	$85 $63
-	JSR $9749		; AA0A	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; AA0A	$20 $49 $97	convert hex to decimal
 	LDX #$00		; AA0D	$A2 $00
 	LDA $67			; AA0F	$A5 $67
 	STA $7D47,X		; AA11	$9D $47 $7D	text buffer
@@ -4696,7 +4824,7 @@ L32A3E:
 	LDA #$03		; AA55	$A9 $03
 	BNE L32AA1		; AA57	$D0 $48
 L32A59:
-	JSR $9749		; AA59	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; AA59	$20 $49 $97	convert hex to decimal
 	LDX #$00		; AA5C	$A2 $00
 	LDA $65			; AA5E	$A5 $65
 	CMP #$FF		; AA60	$C9 $FF
@@ -4783,7 +4911,7 @@ L32AE1:
 	DEC $7B4D		; AB01	$CE $4D $7B	number of monsters remaining - decrement
 	JMP $AB0D		; AB04	$4C $0D $AB
 L32B07:
-	JSR $AEE0		; AB07	$20 $E0 $AE
+	JSR Chk_low_hp		; AB07	$20 $E0 $AE
 	JSR $FAD4		; AB0A	$20 $D4 $FA	load character graphics
 L32B0D:
 	LDX #$00		; AB0D	$A2 $00
@@ -4791,7 +4919,7 @@ L32B0D:
 	CMP #$FF		; AB12	$C9 $FF
 	BNE L32B1B		; AB14	$D0 $05
 	LDY $AB			; AB16	$A4 $AB
-	JSR $949B		; AB18	$20 $9B $94
+	JSR Wait		; AB18	$20 $9B $94	wait for message speed
 L32B1B:
 	LDX $AD			; AB1B	$A6 $AD
 	BEQ L32B21		; AB1D	$F0 $02
@@ -4805,7 +4933,7 @@ L32B21:
 	JSR $BECE		; AB2A	$20 $CE $BE	load next battle message
 	LDA #$04		; AB2D	$A9 $04		bottom window
 	STA $4F			; AB2F	$85 $4F
-	JSR $AC2D		; AB31	$20 $2D $AC	message text process (eliminate/fell) ??
+	JSR Apply_msg		; AB31	$20 $2D $AC	message text process (eliminate/fell) ??
 	JSR Wait_NMI_end	; AB34	$20 $46 $FD
 	LDA $7CB6		; AB37	$AD $B6 $7C
 	BEQ L32B5A		; AB3A	$F0 $1E
@@ -4824,7 +4952,7 @@ L32B21:
 L32B5A:
 	JSR Wait_MENU_snd	; AB5A	$20 $5B $FD
 	LDY $AB			; AB5D	$A4 $AB
-	JSR $949B		; AB5F	$20 $9B $94
+	JSR Wait		; AB5F	$20 $9B $94	wait for message speed
 	LDA #$04		; AB62	$A9 $04		bottom window
 	STA $54			; AB64	$85 $54
 	JSR $AC44		; AB66	$20 $44 $AC	remove text(end of text message box) ??
@@ -4837,7 +4965,7 @@ L32B6B:
 	CMP #$FF		; AB74	$C9 $FF
 	BNE L32B7D		; AB76	$D0 $05
 	LDY $AB			; AB78	$A4 $AB
-	JSR $949B		; AB7A	$20 $9B $94
+	JSR Wait		; AB7A	$20 $9B $94	wait for message speed
 L32B7D:
 	LDX $4F			; AB7D	$A6 $4F
 L32B7F:
@@ -4865,9 +4993,9 @@ L32BA3:
 	LDA $7CB7		; ABA3	$AD $B7 $7C	monster ran away
 	BEQ L32BB7		; ABA6	$F0 $0F		branch if didn't run away
 	JSR $ADEA		; ABA8	$20 $EA $AD
-	JSR $FD46		; ABAB	$20 $46 $FD
-	JSR $AD2F		; ABAE	$20 $2F $AD
-	JSR $9A63		; ABB1	$20 $63 $9A
+	JSR Wait_NMI_end	; ABAB	$20 $46 $FD
+	JSR Update_sram		; ABAE	$20 $2F $AD
+	JSR Wait_MENUs_NMIe	; ABB1	$20 $63 $9A
 	JMP $FAE8		; ABB4	$4C $E8 $FA	characters run away
 L32BB7:
 	JSR Wait_MENU_snd	; ABB7	$20 $5B $FD
@@ -4881,7 +5009,7 @@ L32BB7:
 	LDA #$04		; ABCC	$A9 $04		bottom window
 	STA $4F			; ABCE	$85 $4F
 	JSR Wait_MENU_snd	; ABD0	$20 $5B $FD
-	JSR $AC2D		; ABD3	$20 $2D $AC
+	JSR Apply_msg		; ABD3	$20 $2D $AC
 	JSR Wait_NMI_end	; ABD6	$20 $46 $FD
 	JSR $ADEA		; ABD9	$20 $EA $AD
 	JSR Wait_NMI_end	; ABDC	$20 $46 $FD
@@ -4889,7 +5017,7 @@ L32BB7:
 	LDA #$04		; ABE2	$A9 $04		bottom window
 	STA $54			; ABE4	$85 $54
 	JSR $AC44		; ABE6	$20 $44 $AC
-	JSR $AD2F		; ABE9	$20 $2F $AD	update character properties in sram
+	JSR Update_sram		; ABE9	$20 $2F $AD	update character properties in sram
 	JMP $FB3C		; ABEC	$4C $3C $FB	battle victory
 L32BEF:
 	LDA $A6			; ABEF	$A5 $A6
@@ -4910,7 +5038,7 @@ L32C03:
 	BEQ L32C10		; AC0B	$F0 $03
 	JMP $A746		; AC0D	$4C $46 $A7	LOOP for next TURN ORDER ==========
 L32C10:
-	JSR $9A63		; AC10	$20 $63 $9A
+	JSR Wait_MENUs_NMIe	; AC10	$20 $63 $9A
 	JSR $FAC4		; AC13	$20 $C4 $FA
 	LDA #$00		; AC16	$A9 $00
 	STA $7B4A		; AC18	$8D $4A $7B
@@ -4918,22 +5046,23 @@ L32C10:
 	JSR $AE28		; AC1E	$20 $28 $AE
 	JSR $ADEA		; AC21	$20 $EA $AD
 	JSR Wait_MENU_snd	; AC24	$20 $5B $FD
-	JSR $912A		; AC27	$20 $2A $91
-	JMP $9A5D		; AC2A	$4C $5D $9A
-; End of
+	JSR Draw_char_stat_win	; AC27	$20 $2A $91
+	JMP Wait_NMIe_MENUs	; AC2A	$4C $5D $9A
+; End of Do_action
 
-; Name	:
+; Name	: Apply_msg
 ; Marks	:
+Apply_msg:
 	JSR Wait_NMI_end	; AC2D	$20 $46 $FD
 	JSR Init_gfx_buf	; AC30	$20 $90 $94
 	LDA #$00		; AC33	$A9 $00
 	STA $6F			; AC35	$85 $6F
-	JSR $95E7		; AC37	$20 $E7 $95	copy text to buffer - text message ??
+	JSR Copy_txt_buf	; AC37	$20 $E7 $95	copy text to buffer
 	JSR Wait_MENU_snd	; AC3A	$20 $5B $FD
 	LDA $4F			; AC3D	$A5 $4F
 	STA $64			; AC3F	$85 $64
-	JMP $FB42		; AC41	$4C $42 $FB	open message window
-; End of
+	JMP $FB42		; AC41	$4C $42 $FB	open message window - bank swap and process
+; End of Apply_msg
 
 ; Name	:
 ; Marks	:
@@ -4954,7 +5083,7 @@ L32C10:
 	PHA			; AC5A	$48
 	LDA $55			; AC5B	$A5 $55
 	STA $9E			; AC5D	$85 $9E
-	JSR $96E1		; AC5F	$20 $E1 $96	update character/monster pointers
+	JSR Update_addr		; AC5F	$20 $E1 $96	update character/monster pointers
 	PLA			; AC62	$68
 	STA $9E			; AC63	$85 $9E
 	LDY #$02		; AC65	$A0 $02
@@ -4976,16 +5105,17 @@ L32C7B:
 	STA $63			; AC81	$85 $63
 	LDA #$44		; AC83	$A9 $44
 	STA $62			; AC85	$85 $62
-	JSR $9AAB		; AC87	$20 $AB $9A	load text (bank 05)
+	JSR Load_text_05	; AC87	$20 $AB $9A	load text (bank 05)
 L32C8A:
 	LDA #$08		; AC8A	$A9 $08
 	STA $44			; AC8C	$85 $44
 	STA $45			; AC8E	$85 $45
-	JMP $AC2D		; AC90	$4C $2D $AC
+	JMP Apply_msg		; AC90	$4C $2D $AC
 ; End of
 
-; Name	:
+; Name	: Set_msg_nothing
 ; Marks	: do nothing this round
+Set_msg_nothing:
 	LDX #$00		; AC93	$A2 $00
 	STX $AE			; AC95	$86 $AE
 	STX $E4			; AC97	$86 $E4
@@ -4994,7 +5124,7 @@ L32C8A:
 	STX msg_que		; AC9C	$8E $BA $7F
 	STX $AF			; AC9F	$86 $AF
 	RTS			; ACA1	$60
-; End of
+; End of Set_msg_nothing
 
 ; Name	:
 ; Marks	: show "nothing happend" message
@@ -5055,7 +5185,7 @@ L32C8A:
 	LDX #$05		; ACEB	$A2 $05
 	JSR $FD8C		; ACED	$20 $8C $FD	bank 05 - load text
 L32CF0:
-	JMP $AC2D		; ACF0	$4C $2D $AC
+	JMP Apply_msg		; ACF0	$4C $2D $AC
 ; End of
 
 ; Name	:
@@ -5066,7 +5196,7 @@ L32CF0:
 	STA $63			; ACF9	$85 $63
 	LDA #$BB		; ACFB	$A9 $BB
 	STA $62			; ACFD	$85 $62
-	JSR $9AAB		; ACFF	$20 $AB $9A	load text (bank 05)
+	JSR Load_text_05	; ACFF	$20 $AB $9A	load text (bank 05)
 	LDX $7CBF		; AD02	$AE $BF $7C
 	LDA #$FF		; AD05	$A9 $FF
 	STA $7D47,X		; AD07	$9D $47 $7D
@@ -5075,7 +5205,7 @@ L32CF0:
 	STA $62			; AD0E	$85 $62
 	LDA #$00		; AD10	$A9 $00
 	STA $63			; AD12	$85 $63
-	JSR $9749		; AD14	$20 $49 $97	convert hex to decimal
+	JSR HtoD		; AD14	$20 $49 $97	convert hex to decimal
 	LDX $7CBF		; AD17	$AE $BF $7C
 	INX			; AD1A	$E8
 	LDA $67			; AD1B	$A5 $67
@@ -5086,14 +5216,16 @@ L32CF0:
 	INX			; AD26	$E8
 	LDA #$00		; AD27	$A9 $00
 	STA $7D47,X		; AD20	$9D $47 $7D
-	JMP $AC2D		; AD23	$4C $2D $AC
+	JMP Apply_msg		; AD23	$4C $2D $AC
 ; End of
 
-; Name	:
+; Name	: Update_sram
 ; Marks	: update character properties in sram
+Update_sram:
 	LDA #$00		; AD2F	$A9 $00
 	STA $9E			; AD31	$85 $9E
-	JSR $96E1		; AD33	$20 $E1 $96	update character/monster pointers
+Update_sram_loop:
+	JSR Update_addr		; AD33	$20 $E1 $96	update character/monster pointers
 	LDA $9E			; AD36	$A5 $9E
 	ASL A			; AD38	$0A
 	TAX			; AD39	$AA
@@ -5132,7 +5264,7 @@ L32D7C:
 	LDA $7B48		; AD7B	$AD $48 $7B
 	CMP #$7F		; AD7F	$C9 $7F
 	BEQ L32DAE		; AD81	$F0 $2B		branch if final battle ???
-	JSR $AF6C		; AD83	$20 $6C $AF	get status 1
+	JSR Get_status1_80h	; AD83	$20 $6C $AF	get status 1
 	PHA			; AD86	$48
 	LDY #$01		; AD87	$A0 $01
 	STA ($7A),Y		; AD89	$91 $7A		update status 1 in sram
@@ -5177,10 +5309,10 @@ L32DC5:
 	LDA $9E			; ADCF	$A5 $9E
 	CMP #$04		; ADD1	$C9 $04
 	BEQ L32DD8		; ADD3	$F0 $03
-	JMP $AD33		; ADD5	$4C $33 $AD
+	JMP Update_sram_loop	; ADD5	$4C $33 $AD
 L32DD8:
 	RTS			; ADD8	$60
-; End of
+; End of Update_sram
 
 ; Name	:
 ; Marks	: update hp/mp in sram
@@ -5202,12 +5334,12 @@ L32DD8:
 	LDX #$00		; ADEA	$A2 $00
 	STX $9E			; ADEC	$86 $9E
 L32DEE:
-	JSR $96E1		; ADEE	$20 $E1 $96	update character/monster pointers
+	JSR Update_addr		; ADEE	$20 $E1 $96	update character/monster pointers
 	LDY #$35		; ADF1	$A0 $35
 	LDA ($7E),Y		; ADF3	$B1 $7E
 	LSR A			; ADF5	$4A
 	BCS L32DFF		; ADF6	$B0 $07
-	JSR $AF6C		; ADF8	$20 $6C $AF	get status 1
+	JSR Get_status1_80h	; ADF8	$20 $6C $AF	get status 1
 	AND #$C0		; ADFB	$29 $C0
 	BEQ L32E25		; ADFD	$F0 $26
 L32DFF:
@@ -5218,8 +5350,8 @@ L32DFF:
 	LDX #$00		; AE07	$A2 $00
 	STX $9E			; AE09	$86 $9E
 L32E0B:
-	JSR $96E1		; AE0B	$20 $E1 $96	update character/monster pointers
-	JSR $AF6C		; AE0E	$20 $6C $AF	get status 1
+	JSR Update_addr		; AE0B	$20 $E1 $96	update character/monster pointers
+	JSR Get_status1_80h	; AE0E	$20 $6C $AF	get status 1
 	AND #$C0		; AE11	$29 $C0
 	BNE L32E1D		; AE13	$D0 $08
 	LDY #$35		; AE15	$A0 $35
@@ -5240,7 +5372,7 @@ L32E25:
 	LDA #$00		; AE28	$A9 $00
 	STA $9E			; AE2A	$85 $9E
 	JSR Wait_NMI_end	; AE2C	$20 $46 $FD
-	JSR $96E1		; AE2F	$20 $E1 $96	get status 2
+	JSR Update_addr		; AE2F	$20 $E1 $96	get status 2
 	JSR $AF80		; AE32	$20 $80 $AF
 	LDY #$2D		; AE35	$A0 $2D
 	STA ($80),Y		; AE37	$91 $80
@@ -5254,7 +5386,7 @@ L32E44:
 	BCC L32E67		; AE46	$90 $1F
 	LDX #$01		; AE48	$A2 $01
 	LDA #$64		; AE4A	$A9 $64
-	JSR $FD11		; AE4C	$20 $11 $FD	random (X..A)
+	JSR Random		; AE4C	$20 $11 $FD	random (X..A)
 ;AE4F
 	STA $46			; AE4F	$85 $46
 	LDA $44			; AE51	$A5 $44
@@ -5278,22 +5410,22 @@ L32E67:
 	BEQ L32E80		; AE74	$F0 $0A
 	LDX #$00		; AE76	$A2 $00
 	LDA #$02		; AE78	$A9 $02
-	JSR $FD11		; AE7A	$20 $11 $FD	random (X..A)
+	JSR Random		; AE7A	$20 $11 $FD	random (X..A)
 	JSR $AEB0		; AE7D	$20 $B0 $AE
 L32E80:
-	JSR $AF6C		; AE80	$20 $6C $AF	get status 1
+	JSR Get_status1_80h	; AE80	$20 $6C $AF	get status 1
 	AND #$04		; AE83	$29 $04
 	BEQ L32E91		; AE85	$F0 $0A
 	LDX #$02		; AE87	$A2 $02
 	LDA #$04		; AE89	$A9 $04
-	JSR $FD11		; AE8B	$20 $11 $FD	random (X..A)
+	JSR Random		; AE8B	$20 $11 $FD	random (X..A)
 	JSR $AEB0		; AE8E	$20 $B0 $AE
 L32E91:
 	LDA $9E			; AE91	$A5 $9E
 	CMP #$04		; AE93	$C9 $04
 	BCS L32E9F		; AE95	$B0 $08
 	STA $27			; AE97	$85 $27
-	JSR $9A63		; AE99	$20 $63 $9A
+	JSR Wait_MENUs_NMIe	; AE99	$20 $63 $9A
 	JSR $FAD4		; AE9C	$20 $D4 $FA	load character graphics
 L32E9F:
 	JSR Wait_MENU_snd	; AE9F	$20 $5B $FD
@@ -5328,7 +5460,7 @@ L32EC9:
 	STA ($80),Y		; AECD	$91 $80
 	INY			; AECF	$C8
 	STA ($80),Y		; AED0	$91 $80
-	JSR $AF6C		; AED2	$20 $6C $AF	get status 1
+	JSR Get_status1_80h	; AED2	$20 $6C $AF	get status 1
 ;AED5
 	LDY #$2C		; AED5	$A0 $2C
 	STA ($80),Y		; AED7	$91 $80
@@ -5339,21 +5471,25 @@ L33EDF:
 	RTS			; AEDF	$60
 ; End of
 
-; Name	:
-; Marks	:
+; Name	: Chk_low_hp
+; Marks	: $46,$47
+;	  $48,$49
+;	  $A1(ADDR)
+;	  Check low hp status
+Chk_low_hp:
 	LDY #$0A		; AEE0	$A0 $0A
-	LDA ($A1),Y		; AEE2	$B1 $A1
+	LDA ($A1),Y		; AEE2	$B1 $A1		current hp L
 	STA $46			; AEE4	$85 $46
 	INY			; AEE6	$C8
-	LDA ($A1),Y		; AEE7	$B1 $A1
+	LDA ($A1),Y		; AEE7	$B1 $A1		current hp H
 	STA $47			; AEE9	$85 $47
 	ORA $46			; AEEB	$05 $46
 	BEQ L32F2F		; AEED	$F0 $40
 	LDY #$0E		; AEEF	$A0 $0E
-	LDA ($A1),Y		; AEF1	$B1 $A1
+	LDA ($A1),Y		; AEF1	$B1 $A1		max hp L
 	STA $48			; AEF3	$85 $48
 	INY			; AEF5	$C8
-	LDA ($A1),Y		; AEF6	$B1 $A1
+	LDA ($A1),Y		; AEF6	$B1 $A1		max hp H
 	STA $49			; AEF8	$85 $49
 	LSR $49			; AEFA	$46 $49
 	ROR $48			; AEFC	$66 $48
@@ -5365,37 +5501,37 @@ L33EDF:
 	LDA $49			; AF07	$A5 $49
 	SBC $47			; AF09	$E5 $47
 	BCC L32F1C		; AF0B	$90 $0F
-	JSR Get_enemy_status2	; AF0D	$20 $7B $AF
-	LDY #$2D		; AF10	$A0 $2D
+	JSR Get_target_status2	; AF0D	$20 $7B $AF
+	LDY #$2D		; AF10	$A0 $2D		previous status 2
 	STA ($A1),Y		; AF12	$91 $A1
-	LDY #$09		; AF14	$A0 $09
-	ORA #$02		; AF16	$09 $02
+	LDY #$09		; AF14	$A0 $09		status 2
+	ORA #$02		; AF16	$09 $02		bit1 = low hp
 	STA ($A1),Y		; AF18	$91 $A1
 	BNE L32F2F		; AF1A	$D0 $13
 L32F1C:
-	JSR Get_enemy_status2	; AF1C	$20 $7B $AF
+	JSR Get_target_status2	; AF1C	$20 $7B $AF
 	AND #$02		; AF1F	$29 $02
 	BEQ L32F2F		; AF21	$F0 $0C
-	LDA ($A1),Y		; AF23	$B1 $A1
+	LDA ($A1),Y		; AF23	$B1 $A1		make health status
 	LDY #$2D		; AF25	$A0 $2D
 	STA ($A1),Y		; AF27	$91 $A1
-	LDY #$09		; AF29	$A0 $09
+	LDY #$09		; AF29	$A0 $09		status 2
 	AND #$FD		; AF2B	$29 $FD
 	STA ($A1),Y		; AF2D	$91 $A1
 L32F2F:
 	RTS			; AF2F	$60
-; End of
+; End of Chk_low_hp
 
 ; Name	:
 ; Marks	:
-	JSR $9A5D		; AF30	$20 $5D $9A
-	JSR $912A		; AF33	$20 $2A $91
+	JSR Wait_NMIe_MENUs	; AF30	$20 $5D $9A
+	JSR Draw_char_stat_win	; AF33	$20 $2A $91
 	JSR Wait_NMI_end	; AF36	$20 $46 $FD
 	LDX #$00		; AF39	$A2 $00
 L32F3B:
 	STX $9E			; AF3B	$86 $9E
-	JSR $96E1		; AF3D	$20 $E1 $96
-	JSR $AF6C		; AF40	$20 $6C $AF
+	JSR Update_addr		; AF3D	$20 $E1 $96
+	JSR Get_status1_80h	; AF40	$20 $6C $AF
 	AND #$E0		; AF43	$29 $E0
 	BEQ L32F6B		; AF45	$F0 $24		branch if not dead stone or toad
 	LDY #$2A		; AF47	$A0 $2A
@@ -5411,22 +5547,22 @@ L32F3B:
 ;AF5C
 	LDA #$04		; AF5C	$A9 $04
 	STA $4F			; AF5E	$85 $4F
-	JSR $AC2D		; AF60	$20 $2D $AC
-	JSR $AD2F		; AF63	$20 $2F $AD	update character properties in sram
+	JSR Apply_msg		; AF60	$20 $2D $AC
+	JSR Update_sram		; AF63	$20 $2F $AD	update character properties in sram
 	PLA			; AF66	$68
 	PLA			; AF67	$68
 	JMP $FAEC		; AF68	$4C $EC $FA	battle defeat
 L32F6B:
 	RTS			; AF6B	$60
 
-; Name	: Get_stat_status1
+; Name	: Get_status1_80h
 ; SRC	: $80(ADDR) = character/monster battle stats (12 * 48bytes) ($7D7A-$7FB9)
-; Marks	:
-Get_stat_status1:
+; Marks	: duplicated Get_status1_46h
+Get_status1_80h:
 	LDY #$08		; AF6C	$A0 $08
 	LDA ($80),Y		; AF6E	$B1 $80
 	RTS			; AF70	$60
-; End of Get_stat_status1
+; End of Get_status1_80h
 
 ; Name	: Get_player_status1
 ; Marks	: $9F(ADDR) = player information address base xxxxx
@@ -5446,13 +5582,13 @@ Get_enemy_status1:
 	RTS			; AF7A	$60
 ; End of Get_enemy_status1
 
-; Name	: Get_enemy_status2
-; Marks	: $A1(ADDR) = enemy information address base
-Get_enemy_status2:
+; Name	: Get_target_status2
+; Marks	: $A1(ADDR) = target information address base
+Get_target_status2:
 	LDY #$09		; AF7B	$A0 $09
 	LDA ($A1),Y		; AF7D	$B1 $A1
 	RTS			; AF7F	$60
-; End of Get_enemy_status2
+; End of Get_target_status2
 
 ; Name	: Get_stat_status2
 ; Marks	:
@@ -5597,7 +5733,7 @@ L33067:
 	LDA $45			; B067	$A5 $45		monster attacker
 	BMI L3307A		; B069	$30 $0F		branch if monster target
 L3306B:
-	JSR Get_enemy_status2	; B06B	$20 $7B $AF
+	JSR Get_target_status2	; B06B	$20 $7B $AF
 	AND #$08		; B06E	$29 $08		sleep(bit3)
 	BEQ L33074		; B070	$F0 $02
 	BNE L3307A		; B072	$D0 $06		branch if target is asleep
@@ -5841,7 +5977,7 @@ L331F4:
 	STA $02                 ; B21E	85 02     
 	LDA #$00                ; B220	A9 00     
 	STA $03                 ; B222	85 03     
-	JSR $FC98               ; B224	20 98 FC
+	JSR Multi16             ; B224	20 98 FC
 	JMP $B331               ; B227	4C 31 B3  
 ; End of
 
@@ -5913,7 +6049,7 @@ L33291:
 	STA $02                 ; B29B	85 02     
 	LDA $53                 ; B29D	A5 53     
 	STA $03                 ; B29F	85 03     
-	JMP $FC98               ; B2A1	4C 98 FC  multiply (16-bit)
+	JMP Multi16             ; B2A1	4C 98 FC  multiply (16-bit)
 ; End of
 
 ; Name	:
@@ -5922,7 +6058,7 @@ L33291:
 	STX $52                 ; B2A6	86 52     
 	STX $53                 ; B2A8	86 53     
 	LDA #$1E                ; B2AA	A9 1E     
-	JSR $FD11               ; B2AC	20 11 FD  random (X..A)
+	JSR Random              ; B2AC	20 11 FD  random (X..A)
 	CLC                     ; B2AF	18        
 	ADC #$1E                ; B2B0	69 1E     
 	STA $04                 ; B2B2	85 04     
@@ -6163,7 +6299,7 @@ L3340D:
 	LDA #$00                ; B427	A9 00     
 	STA $01                 ; B429	85 01     
 	STA $03                 ; B42B	85 03     
-	JSR $FC98               ; B42D	20 98 FC  multiply (16-bit)
+	JSR Multi16             ; B42D	20 98 FC  multiply (16-bit)
 	LDA $04			; B430	$A5 $04
 	ADC #<Magic_prop
 	;ADC #$D9		; B432	$69 $D9
@@ -6545,7 +6681,7 @@ L3368A:
 	STA $02                 ; B6AA	85 02     
 	LDA #$00                ; B6AC	A9 00     
 	STA $03                 ; B6AE	85 03     
-	JSR $FC98               ; B6B0	20 98 FC  multiply (16-bit)
+	JSR Multi16             ; B6B0	20 98 FC  multiply (16-bit)
 	LDY #$14                ; B6B3	A0 14     
 	CLC                     ; B6B5	18        
 	LDA ($A1),Y             ; B6B6	B1 A1     
@@ -6728,7 +6864,7 @@ L337C7:
 	STA $02                 ; B7D9	85 02     
 	LDA $49                 ; B7DB	A5 49     
 	STA $03                 ; B7DD	85 03     
-	JSR $FC98               ; B7DF	20 98 FC  multiply (16-bit)
+	JSR Multi16             ; B7DF	20 98 FC  multiply (16-bit)
 	LDY #$02                ; B7E2	A0 02     
 	CLC                     ; B7E4	18        
 	LDA ($A1),Y             ; B7E5	B1 A1     add to defense
@@ -7082,7 +7218,7 @@ L33A27:
 	STA $00                 ; BA50	85 00     
 	LDA $49                 ; BA52	A5 49     
 	STA $01                 ; BA54	85 01     
-	JSR $FC98               ; BA56	20 98 FC  multiply (16-bit)
+	JSR Multi16             ; BA56	20 98 FC  multiply (16-bit)
 	LDY #$1A                ; BA59	A0 1A     
 	CLC                     ; BA5B	18        
 	LDA ($A1),Y             ; BA5C	B1 A1     add to main hand attack power
@@ -7383,7 +7519,7 @@ L33C25:
 L32C42:
 	LDX #$00		; BC42	$A2 $00
 	LDA #$64		; BC44	$A9 $64
-	JSR $FD11		; BC46	$20 $11 $FD
+	JSR Random		; BC46	$20 $11 $FD
 	SEC			; BC49	$38
 	SBC $44			; BC4A	$E5 $44		hit % ??
 	BCS L32C50		; BC4C	$B0 $02		check for hit
@@ -7459,7 +7595,7 @@ L33CA5:
 L33CA7:
 	LDX #$00		; BCA7	$A2 $00
 	LDA $44			; BCA9	$A5 $44
-	JSR $FD11		; BCAB	$20 $11 $FD	random (X..A)
+	JSR Random		; BCAB	$20 $11 $FD	random (X..A)
 	CLC			; BCAE	$18
 	ADC $44			; BCAF	$65 $44		attack * (0..1)
 	STA $4C			; BCB1	$85 $4C
@@ -7487,7 +7623,7 @@ L33CCE:
 	STA $4B			; BCD9	$85 $4B
 	LDX #$00		; BCDB	$A2 $00
 	LDA #$64		; BCDD	$A9 $64
-	JSR $FD11		; BCDF	$20 $11 $FD	random (X..A)
+	JSR Random		; BCDF	$20 $11 $FD	random (X..A)
 	CMP #$05		; BCE2	$C9 $05
 	BCS L33CF7		; BCE4	$B0 $11		5 % chance for crit
 	LDA #$01		; BCE6	$A9 $01
@@ -7802,7 +7938,7 @@ L33F1D:
 	PHA			; BF1F	$48
 	LDA $E3			; BF20	$A5 $E3
 	STA $9E			; BF22	$85 $9E
-	JSR $96E1		; BF24	$20 $E1 $96
+	JSR Update_addr		; BF24	$20 $E1 $96
 	PLA 			; BF27	68        
 	STA $9E                 ; BF28	85 9E     
 	LDY #$02                ; BF2A	A0 02     
@@ -7913,15 +8049,21 @@ L33FBD:
 .byte $90,$58
 .byte $90,$F0,$90,$00,$FF
 ;; $BFC5 - data block: OAM X, Y position ( cursor ?? )
+Cursor_cmd_pos:
 .byte $C0,$A8,$C0,$B8,$C0,$C8,$C0,$D8	; battle command select
 ;BFCD
+Cursor_item_pos:
 .byte $48,$B8,$48,$D8,$A0,$B8,$A0,$C8	; item select
 ;BFD5 magic select
+Cursor_magic_pos:
 .byte $08,$A8,$08,$B8,$08,$C8,$08,$D8,$30,$A8,$30,$B8,$30,$C8,$30,$D8
 .byte $58,$A8,$58,$B8,$58,$C8,$58,$D8,$80,$A8,$80,$B8,$80,$C8,$80,$D8
 ;BFF5 target select jump table for each battle command
-.word $945A			; BFF5	$5A $94
-.byte $86,$94,$44,$9D,$78,$9F
+Target_sel_jmp_tbl:
+.word Cmd_attack_proc		; BFF5	$5A $94
+.word Cmd_flee_proc		; BFF7	$86 $94
+.word Cmd_magic_proc		; BFF9	$44 $9D
+.word Cmd_item_proc		; BFFB	$78 $9F
 ;BFFD stale data
 .byte $9F,$9F,$9F
 ; ========== battle main code ($8F43-$BFFF) END ==========

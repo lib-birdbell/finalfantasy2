@@ -3,7 +3,7 @@
 
 BANK_OVERWORLD       = $03
 
-BANK_LEVELUP         = $05
+BANK_LEVELUP         = $05	; battle message code
 
 BANK_ENEMY_CHR       = $07
 
@@ -14,9 +14,9 @@ BANK_PORTRAITS       = $09
 
 BANK_OVERWORLD_DATA  = $0A
 
-BANK_BATTLELOAD      = $0B
+BANK_BATTLELOAD      = $0B	; battle graphics code
 
-BANK_BATTLE          = $0C
+BANK_BATTLE          = $0C	; battle main code
 
 BANK_MUSIC           = $0D
 

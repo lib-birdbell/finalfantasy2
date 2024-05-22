@@ -959,7 +959,7 @@ L2D92E:
 	LDA #$01		; 9941	$A9 $01
 	STA $02			; 9943	$85 $02
 	LDA #$04		; 9945	$A9 $04
-	JSR $FB0C		; 9947	$20 $0C $FB
+	JSR $FB0C		; 9947	$20 $0C $FB	sort value
 	LDY #$00		; 994A	$A0 $00
 L2D94C:
 	LDX $7600,Y		; 994C	$BE $00 $76

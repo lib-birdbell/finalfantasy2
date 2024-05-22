@@ -51,7 +51,7 @@ text_x			= $3A
 text_y			= $3B
 menu_win_W		= $3C
 menu_win_H		= $3D
-_3E_unknown		= $3E	; bank temp buffer ??
+bank_ret_tmp		= $3E	; bank to return temp buffer ??
 _3F_unknown		= $3F
 
 oam_x			= $40
@@ -156,6 +156,8 @@ PpuCtrl_menu		= $3A
 PpuCtrl_NT		= $3B
 NT_addr_menu		= $62
 cur_char_idx		= $9E
+
+NMI_done_flag		= $AC
 
 ; ========== SOUND VARIABLES ==========
 SQ1FramePosition	= $B0
@@ -524,9 +526,13 @@ cur_pos			= $78F0		; ??
 len_cur_dat		= $78F1		; ??
 
 
+rng_tbl			= $7A48	; $7A48-$7B47
+
+
 
 battle_result            = $7B48 ; not sure yet
 _7B49_unknown		= $7B49
+;$7B4B = flag to prevent monsters from trying to Flee
 
 statup_confirmation      = $7B62 ; 8 bytes, all $FF during testing 
 ; but the next $10 bytes are 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
