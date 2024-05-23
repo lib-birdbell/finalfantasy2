@@ -601,6 +601,7 @@ Mob_AI:
 .byte $55,$57,$5C,$81,$71,$5B,$6E,$67	; 8E33
 .byte $10,$00,$10,$00,$00,$00,$00,$00	; 8E3B
 .byte $0F,$00,$0F,$00,$00,$00,$00,$00	; 8E43
+Mob_AI_Sp_atk:				; 26
 .byte $00,$00,$46,$3C,$32,$28,$1E,$14	; 8E4B
 .byte $21,$21,$21,$21,$21,$21,$21,$21	; 8E53
 .byte $52,$52,$52,$52,$52,$52,$52,$52	; 8E5B
@@ -650,7 +651,7 @@ SortVal_bank0C:
 	JMP Update_addr		; 8F52	$4C $E1 $96	update character/monster pointers
 	JMP HtoD		; 8F55	$4C $49 $97	convert hex to decimal
 ;8F58
-	JMP $96B5		; 8F58	$4C $B5 $96
+	JMP Get_win_pos_datap	; 8F58	$4C $B5 $96	-- same as unused 05/ABD8
 	JMP Move_OAM_XY		; 8F5B	$4C $02 $9D	set positions for 16x16 sprite
 ;
 
@@ -765,7 +766,14 @@ L30FF8:
 	RTS			; 8FFB	$60
 ; End of
 
+; Name	: Comp16
+; Ret	: A = 00h(zero) is same, another is different
+;	  C flag = clear if A < B
+; Marks	: +$00 : compare source A
+;	  +$02 : compare source B
+;	  $04 : result
 ; compare (16-bit): compare $00(ADDR) with $02(ADDR)
+Comp16:
 	SEC			; 8FFC	$38
 	LDA $00			; 8FFD	$A5 $00
 	SBC $02			; 8FFF	$E5 $02
@@ -774,32 +782,45 @@ L30FF8:
 	SBC $03			; 9005	$E5 $03
 	ORA $04			; 9007	$05 $04
 	RTS			; 9009	$60
-; End of
+; End of Comp16
 
-; set bit:
-	ORA $9020,X		; 900A	$1D $20 $90
+; Name	: Set_bit
+; A	: input value
+; X	: bit
+; Ret	: A = masked byte
+; Marks	: set bit
+Set_bit:
+	ORA Bit_mask_tbl,X	; 900A	$1D $20 $90
 	RTS			; 900D	$60
-; End of
+; End of Set_bit
 
-; Name	:
+; Name	: Clear_bit
+; A	: input value
+; X	: bit
+; Ret	: Masked byte
 ; Marks	: clear bit
+Clear_bit:
 	EOR #$FF		; 900E	$49 $FF
-	ORA $9020,X		; 9010	$1D $20 $90
+	ORA Bit_mask_tbl,X	; 9010	$1D $20 $90
 	EOR #$FF		; 9013	$49 $FF
-	RTS			; 9015	$60,
-; End of
+	RTS			; 9015	$60
+; End of Clear_bit
 
-; Name	:
+; Name	: Check_bit
+; A	:
+; Ret	: flags
 ; Marks	: check bit
+Check_bit:
 	PHA			; 9016	$48
-	LDA $9020,X		; 9017	$BD $20 $90
+	LDA Bit_mask_tbl,X	; 9017	$BD $20 $90
 	STA $00			; 901A	$85 $00
 	PLA			; 901C	$68
 	BIT $00			; 901D	$24 $00
 	RTS			; 901F	$60
-; End of
+; End of Check_bit
 
 ;9020 - data block = bit masks
+Bit_mask_tbl:
 .byte $01,$02,$04,$08,$10,$20,$40,$80
 
 ; Marks	: battle main
@@ -1149,7 +1170,7 @@ Open_win:
 	STA $6A			; 9279	$85 $6A
 	LDA #$40		; 927B	$A9 $40
 	STA $67			; 927D	$85 $67
-	JSR $92A1		; 927F	$20 $A1 $92
+	JSR Calc_wintile_ppuaddr	; 927F	$20 $A1 $92
 	BNE L3129B		; 9282	$D0 $17
 L31284:
 	LDA #$20		; 9284	$A9 $20		left tilemap
@@ -1162,14 +1183,15 @@ L31284:
 	STA $6A			; 9292	$85 $6A
 	LDA #$20		; 9294	$A9 $20
 	STA $67			; 9296	$85 $67
-	JSR $92A1		; 9298	$20 $A1 $92
+	JSR Calc_wintile_ppuaddr	; 9298	$20 $A1 $92
 L3129B:
 	JSR Wait_MENU_snd	; 929B	$20 $5B $FD
 	JMP Open_win_draw	; 929E	$4C $0C $93
 ; End of Open_win
 
-; Name	:
+; Name	: Calc_wintile_ppuaddr
 ; Marks	: calculate window tilemap ppu address
+Calc_wintile_ppuaddr:
 	LDA $62			; 92A1	$A5 $62
 	STA $66			; 92A3	$85 $66
 	LDA $63			; 92A5	$A5 $63
@@ -1236,7 +1258,7 @@ L31307:
 	DEC $62			; 9307	$C6 $62
 	DEC $62			; 9309	$C6 $62
 	RTS			; 930B	$60
-; End of
+; End of Calc_wintile_ppuaddr
 
 ; Marks	: copy window tilemap to ppu
 Open_win_draw:
@@ -1254,7 +1276,7 @@ Open_win_draw_loop:
 	LDA $44			; 9320	$A5 $44
 	CMP #$03		; 9322	$C9 $03		bottom border ??
 	BNE L3132E		; 9324	$D0 $08
-	JSR $9440		; 9326	$20 $40 $94
+	JSR Get_TB_tile		; 9326	$20 $40 $94
 	JSR Draw_TB_BD		; 9329	$20 $4A $93
 	BNE L31344		; 932C	$D0 $16
 L3132E:
@@ -1444,8 +1466,9 @@ Inc_tilemap_row_OV:
 	RTS			; 943F	$60
 ; End of Inc_tilemap_row_OV
 
-; Name	:
+; Name	: Get_TB_tile
 ; Marks	: get top border tiles
+Get_TB_tile:
 	LDA #$F7		; 9440	$A9 $F7
 	STA $64			; 9442	$85 $64
 	LDA #$F8		; 9444	$A9 $F8
@@ -1453,7 +1476,7 @@ Inc_tilemap_row_OV:
 	LDA #$F9		; 9448	$A9 $F9
 	STA $67			; 944A	$85 $67
 	RTS			; 944C	$60
-; End of
+; End of Get_TB_tile
 
 ; Name	: Get_BB_tile
 ; Marks	: get bottom border tiles
@@ -1475,7 +1498,7 @@ Cmd_attack_proc:
 	LDA #$00		; 9462	$A9 $00
 	STA ($80),Y		; 9464	$91 $80
 	LDX cur_char_idx	; 9466	$A6 $9E
-	INC $7CF3,X		; 9468	$FE $F3 $7C
+	INC $7CF3,X		; 9468	$FE $F3 $7C	-- physical attack counter
 	JSR Wait_MENU_snd	; 946B	$20 $5B $FD
 	JSR Wait_NMI_end	; 946E	$20,$46 $FD
 	JSR $FAC0		; 9471	$20 $C0 $FA
@@ -1484,7 +1507,7 @@ Cmd_attack_proc:
 	CMP #$FF		; 9478	$C9 $FF
 	BNE L31483		; 947A	$D0 $07
 	LDX cur_char_idx	; 947C	$A6 $9E
-	DEC $7CF3,X		; 947E	$DE $F3 $7C
+	DEC $7CF3,X		; 947E	$DE $F3 $7C	-- physical attack counter
 	DEC cur_char_idx	; 9481	$C6 $9E
 L31483:
 	JMP Wait_MENU_snd	; 9483	$4C $5B $FD
@@ -1551,21 +1574,22 @@ Draw_char_stat:
 	LDA #$7D		; 94D8	$A9 $7D
 	STA $4F			; 94DA	$85 $4F
 	LDX #$14		; 94DC	$A2 $14
-	JSR $94F4		; 94DE	$20 $F4 $94
+	JSR Draw_stats		; 94DE	$20 $F4 $94
 	LDX #$3C		; 94E1	$A2 $3C
-	JSR $94F4		; 94E3	$20 $F4 $94
+	JSR Draw_stats		; 94E3	$20 $F4 $94
 	LDX #$64		; 94E6	$A2 $64
-	JSR $94F4		; 94E8	$20 $F4 $94
+	JSR Draw_stats		; 94E8	$20 $F4 $94
 	LDX #$8C		; 94EB	$A2 $8C
-	JSR $94F4		; 94ED	$20 $F4 $94
+	JSR Draw_stats		; 94ED	$20 $F4 $94
 	PLA			; 94F0	$68
 	STA $9E			; 94F1	$85 $9E
 	RTS			; 94F3	$60
 ; End of Draw_char_stat
 
-; Name	:
+; Name	: Draw_stats
 ; X	: buffer offset
 ; Marks	: draw stats for character
+Draw_stats:
 	CLC			; 94F4	$18
 	LDA $4E			; 94F5	$A5 $4E
 	ADC #$30		; 94F7	$69 $30
@@ -1707,7 +1731,7 @@ L315C1:
 	STA $7600,X		; 95E2	$9D $00 $76
 	INX			; 95E5	$E8
 	RTS			; 95E6	$60
-; End of
+; End of Draw_stats
 
 ; Name	: Copy_txt_buf
 ; Marks	: copy text to buffer
@@ -1823,7 +1847,9 @@ L316AB:
 ; End of Draw_mob_name
 
 ;96B5 - 
-; Marks	: get window position data pointer - unused, same as 05/ABD8
+; Marks	: -- get window position data pointer
+;	  -- unused, same as 05/ABD8
+Get_win_pos_datap:
 .byte $A5,$62,$48,$A5,$63,$48,$A9,$00,$85,$65,$A5
 .byte $64,$0A,$26,$65,$18,$65,$62,$85,$62,$A5,$65,$65,$63,$85,$63,$A0
 .byte $00,$B1,$62,$85,$78,$C8,$B1,$62,$85,$79,$68,$A5,$63,$68,$A5,$62
@@ -2074,8 +2100,9 @@ Scroll_menu_cmd:
 	JMP Move_menu		; 9838	$4C $C6 $9A
 ; End of Scroll_menu_cmd
 
-; Name	:
+; Name	: Scroll_item_cmd
 ; Marks	:
+Scroll_item_cmd:
 	LDA #$00		; 983B	$A9 $00
 	STA $64			; 983D	$85 $64
 	LDA #$01		; 983F	$A9 $01
@@ -2083,10 +2110,11 @@ Scroll_menu_cmd:
 	LDA #$00		; 9843	$A9 $00
 	STA $63			; 9845	$85 $63
 	JMP Move_menu		; 9847	$4C $C6 $9A
-; End of
+; End of Scroll_item_cmd
 
-; Name	:
+; Name	: Scroll_menu_ret_cmd
 ; Marks	:
+Scroll_menu_ret_cmd:
 	LDA #$48		; 984A	$A9 $48
 	STA $64			; 984C	$85 $64
 	LDA #$00		; 984E	$A9 $00
@@ -2094,9 +2122,8 @@ Scroll_menu_cmd:
 	LDA #$01		; 9852	$A9 $01
 	STA $63			; 9854	$85 $63
 	JMP Move_menu		; 9856	$4C $C6 $9A
-; End of
+; End of Scroll_menu_ret_cmd
 
-;9859
 ; Marks	:
 	LDA #$40		; 9859	$A9 $40
 	STA $64			; 985B	$85 $64
@@ -2243,7 +2270,7 @@ L31953:
 	JSR Multi16		; 995F	$20 $98 $FC
 	LDA $04			; 9962	$A5 $04
 	ADC #<Mob_prop
-	;ADC #$C3		; 9964	$69 $C3		Mob_prop (monster properties 0C/87C3)
+	;ADC #$C3		; 9964	$69 $C3		Mob_prop (monster properties 0C/87C3) BANK
 	STA $7A			; 9966	$85 $7A
 	LDA $05			; 9968	$A5 $05
 	ADC #>Mob_prop
@@ -2254,7 +2281,7 @@ L31953:
 	ASL A			; 9972	$0A
 	CLC			; 9973	$18
 	ADC #<Mob_HMP_tbl
-	;ADC #$C3		; 9974	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3)
+	;ADC #$C3		; 9974	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3) BANK
 	STA $78			; 9976	$85 $78
 	LDA #$00		; 9978	$A9 $00
 	ADC #>Mob_HMP_tbl
@@ -2273,7 +2300,7 @@ L31953:
 	ASL A			; 9991	$0A
 	CLC			; 9992	$18
 	ADC #<Mob_HMP_tbl
-	;ADC #$C3		; 9993	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3)
+	;ADC #$C3		; 9993	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3) BANK
 	STA $78			; 9995	$85 $78
 	LDA #$00		; 9997	$A9 $00
 	ADC #>Mob_HMP_tbl
@@ -2293,7 +2320,7 @@ L31953:
 	LDA ($7A),Y		; 99B2	$B1 $7A
 	JSR $FD07		; 99B4	$20 $07 $FD
 	TAY			; 99B7	$A8
-	LDA Mob_stat1_tbl,Y	; 99B8	$B9 $03 $8D	monster stat1 value ??
+	LDA Mob_stat1_tbl,Y	; 99B8	$B9 $03 $8D	monster stat1 value ??	BANK
 	STA $5C			; 99BB	$85 $5C
 	LDA Mob_stat2_tbl,X	; 99BD	$BD $13 $8D	monster stat2 value ??
 	STA $5D			; 99C0	$85 $5D
@@ -2301,7 +2328,7 @@ L31953:
 	LDA ($7A),Y		; 99C4	$B1 $7A
 	JSR $FD07		; 99C6	$20 $07 $FD
 	TAY			; 99C9	$A8
-	LDA Mob_stat3_tbl,Y	; 99CA	$B9 $23 $8D	monster stat3 value ??
+	LDA Mob_stat3_tbl,Y	; 99CA	$B9 $23 $8D	monster stat3 value ??	BANK
 	STA $5E			; 99CD	$85 $5E
 	LDA Mob_stat4_tbl,X	; 99CF	$BD $33 $8D	monster stat4 value ??
 	STA $61			; 99D2	$85 $61
@@ -2309,7 +2336,7 @@ L31953:
 	LDA ($7A),Y		; 99D6	$B1 $7A
 	JSR $FD07		; 99D8	$20 $07 $FD
 	TAY			; 99DB	$A8
-	LDA Mob_stat1_tbl,Y	; 99DC	$B9 $03 $8D	monster stat1 value ??
+	LDA Mob_stat1_tbl,Y	; 99DC	$B9 $03 $8D	monster stat1 value ??	BANK
 	STA $44			; 99DF	$85 $44
 	LDA Mob_stat2_tbl,X	; 99E1	$BD $13 $8D	monster stat2 value ??
 	STA $45			; 99E4	$85 $45
@@ -2317,7 +2344,7 @@ L31953:
 	LDA ($7A),Y		; 99E8	$B1 $7A
 	JSR $FD07		; 99EA	$20 $07 $FD
 	TAY			; 99ED	$A8
-	LDA Mob_stat3_tbl,Y	; 99EE	$B9 $23 $8D	monster stat3 value ??
+	LDA Mob_stat3_tbl,Y	; 99EE	$B9 $23 $8D	monster stat3 value ??	BANK
 	STA $46			; 99F1	$85 $46
 	LDA Mob_stat1_tbl,X	; 99F3	$BD $03 $8D	monster stat1 value ??
 	STA $47			; 99F6	$85 $47
@@ -2325,7 +2352,7 @@ L31953:
 	LDA ($7A),Y		; 99FA	$B1 $7A
 	JSR $FD07		; 99FC	$20 $07 $FD
 	TAY			; 99FF	$A8
-	LDA Mob_stat2_tbl,Y	; 9A00	$B9 $13 $8D	monster stat2 value ??
+	LDA Mob_stat2_tbl,Y	; 9A00	$B9 $13 $8D	monster stat2 value ??	BANK
 	STA $48			; 9A03	$85 $48
 	LDA Mob_stat5_tbl,X	; 9A05	$BD $43 $8D	monster stat5 value ??
 	STA $59			; 9A08	$85 $59
@@ -2333,7 +2360,7 @@ L31953:
 	LDA ($7A),Y		; 9A0C	$B1 $7A
 	JSR $FD07		; 9A0E	$20 $07 $FD
 	TAY			; 9A11	$A8
-	LDA Mob_stat6_tbl,Y	; 9A12	$B9 $53 $8D	monster stat6 value ??
+	LDA Mob_stat6_tbl,Y	; 9A12	$B9 $53 $8D	monster stat6 value ??	BANK
 	STA $49			; 9A15	$85 $49
 	LDA Mob_stat7_tbl,X	; 9A17	$BD $63 $8D	monster stat7 value ??
 	STA $5A			; 9A1A	$85 $5A
@@ -2341,7 +2368,7 @@ L31953:
 	LDA ($7A),Y		; 9A1E	$B1 $7A
 	JSR $FD07		; 9A20	$20 $07 $FD
 	TAY			; 9A23	$A8
-	LDA Mob_stat3_tbl,Y	; 9A24	$B9 $23 $8D	monster stat3 value ??
+	LDA Mob_stat3_tbl,Y	; 9A24	$B9 $23 $8D	monster stat3 value ??	BANK
 	STA $58			; 9A27	$85 $58
 	LDA Mob_stat7_tbl,X	; 9A29	$BD $63 $8D	monster stat7 value ??
 	STA $5B			; 9A2C	$85 $5B
@@ -3025,16 +3052,16 @@ L31E46:
 	ADC $53			; 9E53	$65 $53
 	ADC $00			; 9E55	$65 $00
 	TAX			; 9E57	$AA
-	INC $7CF7,X		; 9E58	$FE $F7 $7C
+	INC $7CF7,X		; 9E58	$FE $F7 $7C	-- spell slot #1 battle use counter
 	LDX $9E			; 9E5B	$A6 $9E
 	LDY #$2A		; 9E5D	$A0 $2A
 	LDA ($80),Y		; 9E5F	$B1 $80
 	CMP #$15		; 9E61	$C9 $15
 	BCS L31E6A		; 9E63	$B0 $05
-	INC $7D3F,X		; 9E65	$FE $3F $7D
+	INC $7D3F,X		; 9E65	$FE $3F $7D	-- black magic use counter
 	BNE L31E6D		; 9E68	$D0 $03
 L31E6A:
-	INC $7D43,X		; 9E6A	$FE $43 $7D
+	INC $7D43,X		; 9E6A	$FE $43 $7D	-- white magic use counter
 L31E6D:
 	LDY #BASE_DELAY		; 9E6D	$A0 $20
 	JSR Wait		; 9E6F	$20 $9B $94	wait 32 frames
@@ -3043,7 +3070,7 @@ L31E74:
 	DEC $9E			; 9E74	$C6 $9E
 L31E76:
 	JSR Hide_cursor_buf	; 9E76	$20 $90 $9A	hide cursor sprites
-	JSR $984A		; 9E79	$20 $4A $98
+	JSR Scroll_menu_ret_cmd	; 9E79	$20 $4A $98
 	JSR Remove_tile		; 9E7C	$20 $3E $9B
 	LDA #$00		; 9E7F	$A9 $00
 	STA $7CBA		; 9E81	$8D $BA $7C
@@ -3219,8 +3246,8 @@ L31F82:
 	INX			; 9F85	$E8
 	CPX #$04		; 9F86	$E0 $04
 	BNE L31F82		; 9F88	$D0 $F8
-	JSR $A020		; 9F8A	$20 $20 $A0	open item window
-	JSR $983B		; 9F8D	$20 $3B $98
+	JSR Open_item_win	; 9F8A	$20 $20 $A0	open item window
+	JSR Scroll_item_cmd	; 9F8D	$20 $3B $98
 	LDA #$00		; 9F90	$A9 $00
 	STA $50			; 9F92	$85 $50
 	STA $61			; 9F94	$85 $61
@@ -3267,18 +3294,18 @@ L31FD5:
 	LDA $5F			; 9FDF	$A5 $5F
 	CMP $54			; 9FE1	$C5 $54
 	BNE L31FF4		; 9FE3	$D0 $0F
-	JSR $A141		; 9FE5	$20 $41 $A1	use item
+	JSR Use_item		; 9FE5	$20 $41 $A1	use item
 	LDA $61			; 9FE8	$A5 $61
 	BEQ L31FF2		; 9FEA	$F0 $06
-	JSR $A2B7		; 9FEC	$20 $B7 $A2
+	JSR Cursor_mv		; 9FEC	$20 $B7 $A2
 	JMP Cmd_item_proc_begin	; 9FEF	$4C $96 $9F
 L31FF2:
 	BEQ L32016		; 9FF2	$F0 $22
 L31FF4:
-	JSR $A05B		; 9FF4	$20 $5B $A0
+	JSR Swap_item		; 9FF4	$20 $5B $A0
 	LDA $61			; 9FF7	$A5 $61
 	BEQ L32001		; 9FF9	$F0 $06
-	JSR $A2B7		; 9FFB	$20 $B7 $A2
+	JSR Cursor_mv		; 9FFB	$20 $B7 $A2
 	JMP Cmd_item_proc_begin	; 9FFE	$4C $96 $9F
 L32001:
 	DEC $9E			; A001	$C6 $9E
@@ -3296,12 +3323,13 @@ L32016:
 Cmd_item_proc_end:
 	LDA #$00		; A016	$A9 $00
 	STA $51			; A018	$85 $51
-	JSR $984A		; A01A	$20 $4A $98
+	JSR Scroll_menu_ret_cmd	; A01A	$20 $4A $98
 	JMP Remove_tile		; A01D	$4C $3E $9B
 ; End of Cmd_item_proc
 
-; Name	:
+; Name	: Open_item_win
 ; Marks	: open item window
+Open_item_win:
 	JSR Init_gfx_buf	; A020	$20 $90 $94	clear text buffer
 	LDA #$15		; A023	$A9 $15
 	STA $68			; A025	$85 $68
@@ -3320,21 +3348,22 @@ Cmd_item_proc_end:
 	LDA #$20		; A041	$A9 $20
 	STA $67			; A043	$85 $67
 	JSR Load_battle_text	; A045	$20 $2F $97
-	JSR $A235		; A048	$20 $35 $A2
+	JSR Set_item_text	; A048	$20 $35 $A2
 	LDX #$03		; A04B	$A2 $03
 L3204D:
-	LDA $A304,X		; A04D	$BD $04 $A3
+	LDA Item_win_pos,X	; A04D	$BD $04 $A3
 	STA $62,X		; A050	$95 $62
 	DEX			; A052	$CA
 	BPL L3204D		; A053	$10 $F8
 	JSR Hide_cursor		; A055	$20 $BC $A2
 	JMP Open_win		; A058	$4C $50 $92	open window
-; End of
+; End of Open_item_win
 
-; Name	:
-; Marks	:
+; Name	: Swap_item
+; Marks	: not certain
+Swap_item:
 	JSR Wait_NMI_end	; A05B	$20 $46 $FD
-	JSR $A2C2		; A05E	$20 $C2 $A2
+	JSR Calc_item_cursor	; A05E	$20 $C2 $A2
 	LDA $62			; A061	$A5 $62
 	CMP #$02		; A063	$C9 $02
 	BCC L32072		; A065	$90 $0B
@@ -3366,10 +3395,10 @@ L32083:
 	ADC #$1C		; A08D	$69 $1C
 	STA $63			; A08F	$85 $63
 	LDY $62			; A091	$A4 $62
-	LDA ($7A),Y		; A093	$B1 $7A
+	LDA ($7A),Y		; A093	$B1 $7A		characters item/weapon
 	STA $64			; A095	$85 $64
 	LDY $63			; A097	$A4 $63
-	LDA ($7A),Y		; A099	$B1 $7A
+	LDA ($7A),Y		; A099	$B1 $7A		ex> 611E - item1
 	STA $65			; A09B	$85 $65
 	LDA $64			; A09D	$A5 $64
 	CMP $65			; A09F	$C5 $65
@@ -3464,14 +3493,15 @@ L32129:
 	ORA #$80		; A131	$09 $80
 	JSR Do_009880		; A133	$20 $FB $FA	update character equipment
 	JSR Wait_MENUs_NMIe	; A136	$20 $63 $9A
-	JSR $A020		; A139	$20 $20 $A0	open item window
+	JSR Open_item_win	; A139	$20 $20 $A0	open item window
 	LDY #BASE_DELAY		; A13C	$A0 $20
 	JMP Wait		; A13E	$4C $9B $94	wait 32 frames
-; End of
+; End of Swap_item
 
-; Name	:
+; Name	: Use_item
 ; Marks	: use item
-	JSR $A2C2		; A141	$20 $C2 $A2
+Use_item:
+	JSR Calc_item_cursor	; A141	$20 $C2 $A2
 	LDA $63			; A144	$A5 $63
 	STA $4E			; A146	$85 $4E
 	TAX			; A148	$AA
@@ -3489,13 +3519,13 @@ L32153:
 	BCS L32162		; A15A	$B0 $06		branch if not a usable item
 	SEC			; A15C	$38
 	SBC #$0E		; A15D	$E9 $0E
-	JMP $A18F		; A15F	$4C $8F $A1
+	JMP Use_item_chk	; A15F	$4C $8F $A1
 L32162:
 	CMP #$98		; A162	$C9 $98
 	BCC L3216C		; A164	$90 $06		branch if a weapon or armor
 	SEC			; A166	$38
 	SBC #$77		; A167	$E9 $77
-	JMP $A18F		; A169	$4C $8F $A1
+	JMP Use_item_chk	; A169	$4C $8F $A1
 L3216C:
 	SEC			; A16C	$38
 	SBC #$30		; A16D	$E9 $30
@@ -3508,7 +3538,7 @@ L3216C:
 	JSR Multi16		; A17B	$20 $98 $FC	multiply (16-bit)
 	CLC			; A17E	$18
 	LDA $04			; A17F	$A5 $04
-	;ADC #$F6		; A181	$69 $F6		weapon properties (0C/80F6)
+	;ADC #$F6		; A181	$69 $F6		weapon properties (0C/80F6) BANK
 	ADC #<Weapon_prop
 	STA $62			; A183	$85 $62
 	LDA $05			; A185	$A5 $05
@@ -3517,6 +3547,7 @@ L3216C:
 	STA $63			; A189	$85 $63
 	LDY #$08		; A18B	$A0 $08
 	LDA ($62),Y		; A18D	$B1 $62		get weapon spellcast
+Use_item_chk:
 	STA $00			; A18F	$85 $00
 	LDA #$05		; A191	$A9 $05		item properties are 5 bytes each
 	STA $02			; A193	$85 $02
@@ -3526,7 +3557,7 @@ L3216C:
 	JSR Multi16		; A19B	$20 $98 $FC
 	CLC			; A19E	$18
 	LDA $04			; A19F	$A5 $04
-	;ADC #$36		; A1A1	$69 $36		ItemAttack_prop (0C/8336)
+	;ADC #$36		; A1A1	$69 $36		ItemAttack_prop (0C/8336) BANK
 	ADC #<ItemAttack_prop
 	STA $62			; A1A3	$85 $62
 	LDA $05			; A1A5	$A5 $05
@@ -3538,7 +3569,7 @@ L3216C:
 	CMP #$FF		; A1AF	$C9 $FF
 	BNE L321B9		; A1B1	$D0 $06
 	JSR Wait_MENU_snd	; A1B3	$20 $5B $FD
-	JMP $A208		; A1B6	$4C $08 $A2
+	JMP Use_item_no_sp	; A1B6	$4C $08 $A2
 L321B9:
 	LDY #$2A		; A1B9	$A0 $2A
 	STA ($80),Y		; A1BB	$91 $80		set battle command
@@ -3560,7 +3591,7 @@ L321D9:
 	CMP #$05		; A1D9	$C9 $05
 	BNE L321E2		; A1DB	$D0 $05
 	LDA $9E			; A1DD	$A5 $9E
-	JMP $A1FC		; A1DF	$4C $FC $A1
+	JMP Use_item_chk_tar	; A1DF	$4C $FC $A1
 L321E2:
 	CMP #$06		; A1E2	$C9 $06
 	BNE L321EA		; A1E4	$D0 $04
@@ -3577,6 +3608,7 @@ L321F7:
 	SEC			; A1F7	$38
 	SBC #$04		; A1F8	$E9 $04
 	ORA #$80		; A1FA	$09 $80
+Use_item_chk_tar:
 L321FC:
 	LDY #$2B		; A1FC	$A0 $2B
 	STA ($80),Y		; A1FE	$91 $80
@@ -3584,6 +3616,7 @@ L321FC:
 	LDA ($80),Y		; A202	$B1 $80
 	CMP #$FF		; A204	$C9 $FF
 	BNE L3220D		; A206	$D0 $05
+Use_item_no_sp:
 	LDA #$01		; A208	$A9 $01
 	STA $61			; A20A	$85 $61
 	RTS			; A20C	$60
@@ -3609,10 +3642,11 @@ L32228:
 	JSR Hide_cursor		; A22D	$20 $BC $A2
 	LDY #BASE_DELAY		; A230	$A0 $20
 	JMP Wait		; A232	$4C $9B $94	wait 32 frames
-; End of
+; End of Use_item
 
-; Name	:
+; Name	: Set_item_text
 ; Marks	:
+Set_item_text:
 	LDA #$82		; A235	$A9 $82		string offset $0100 (item names)
 	STA $63			; A237	$85 $63
 	LDA #$00		; A239	$A9 $00
@@ -3691,13 +3725,14 @@ L3228D:
 	STA $44			; A2AF	$85 $44
 	JSR Load_text_0A	; A2B1	$20 $B6 $9A	load text (bank 0A)
 	JMP Copy_txt_buf	; A2B4	$4C $E7 $95	copy text to buffer
-; End of
+; End of Open_item_win
 
-; Name	:
+; Name	: Cursor_mv
 ; Marks	:
+Cursor_mv:
 	DEC $61			; A2B7	$C6 $61
 	JMP Hide_cursor		; A2B9	$4C $BC $A2
-; End of
+; End of Cursor_mv
 
 ; Name	: Hide_cursor
 ; Marks	:
@@ -3706,8 +3741,10 @@ Hide_cursor:
 	JMP $FAE4		; A2BF	$4C $E4 $FA	update status animation
 ; End of Hide_cursor
 
-; Name	:
-; Marks	:
+; Name	: Calc_item_cursor
+; Marks	: Calculate something
+;	  not certain
+Calc_item_cursor:
 	LDA $5E			; A2C2	$A5 $5E
 	BNE L322D6		; A2C4	$D0 $10
 	LDA $5F			; A2C6	$A5 $5F
@@ -3753,9 +3790,10 @@ L322FF:
 	LDA #$03		; A2FF	$A9 $03
 	STA $63			; A301	$85 $63
 	RTS			; A303	$60
-; End of
+; End of Calc_item_cursor
 
-;$A304 - data block = item window positio data
+;$A304 - data block = item window position data
+Item_win_pos:
 .byte $28,$13,$3E,$1E
 
 
@@ -3917,7 +3955,7 @@ L3240D:
 	CLC			; A421	$18
 	LDA $04			; A422	$A5 $04
 	ADC #<Mob_prop
-	;ADC #$C3		; A424	$69 $C3		Mob_prop (monster properties 0C/87C3)
+	;ADC #$C3		; A424	$69 $C3		Mob_prop (monster properties 0C/87C3) BANK
 	STA $46			; A426	$85 $46
 	LDA $05			; A428	$A5 $05
 	ADC #>Mob_prop
@@ -3938,7 +3976,7 @@ L32437:
 	CLC			; A446	$18
 	LDA $04			; A447	$A5 $04
 	ADC #<Mob_AI
-	;ADC #$73		; A449	$69 $73		Mob_AI (monster special attacks 0C/8D73)
+	;ADC #$73		; A449	$69 $73		Mob_AI (monster special attacks 0C/8D73) BANK
 	STA $46			; A44B	$85 $46
 	LDA $05			; A44D	$A5 $05
 	ADC #>Mob_AI
@@ -3975,7 +4013,7 @@ L32478:
 	CLC			; A487	$18
 	LDA $04			; A488	$A5 $04
 	ADC #<ItemAttack_prop
-	;ADC #$36		; A48A	$69 $36		item/attack properties (0C/8336)
+	;ADC #$36		; A48A	$69 $36		item/attack properties (0C/8336) BANK
 	STA $46			; A48C	$85 $46
 	LDA $05			; A48E	$A5 $05
 	ADC #>ItemAttack_prop
@@ -4008,7 +4046,7 @@ L32478:
 	JSR Multi16		; A4C2	$20 $98 $FC	multiply (16-bit), magic id * 07h
 	CLC			; A4C5	$18
 	LDA $04			; A4C6	$A5 $04
-	ADC #$D9		; A4C8	$69 $D9		magic properties (0C/85D9)
+	ADC #$D9		; A4C8	$69 $D9		magic properties (0C/85D9) BANK
 	STA $46			; A4CA	$85 $46
 	LDA $05			; A4CC	$A5 $05
 	ADC #$85		; A4CE	$69 $85
@@ -4095,7 +4133,7 @@ L3255F:
 L32568:
 	LDA $9E			; A568	$A5 $9E
 	TAX			; A56A	$AA
-	INC $7D37,X		; A56B	$FE $37 $7D	incrment character physical hit counter
+	INC $7D37,X		; A56B	$FE $37 $7D	-- incrment character physical hit counter
 	JMP Get_mob_act_set_target	; A56E	$4C $10 $A6
 L32571:
 	LDY #$2B		; A571	$A0 $2B		target
@@ -4180,7 +4218,7 @@ L32607:
 	JMP Get_mob_act_set_target	; A609	$4C $10 $A6
 Get_mob_act_A60C:
 	TAX			; A60C	$AA
-	INC $7D3B,X		; A60D	$FE $3B $7D	character magical hit counter
+	INC $7D3B,X		; A60D	$FE $3B $7D	-- character magical hit counter
 Get_mob_act_set_target:
 	LDY #$2B		; A610	$A0 $2B		target
 	STA ($44),Y		; A612	$91 $44		set monster stats (target)
@@ -4412,10 +4450,12 @@ Mob_cmd_run:
 Do_action:
 	LDX #$00		; A741	$A2 $00
 	STX turn_order_cnt	; A743	$8E $BB $7C	counter for turn order
+Do_act_start:
 	LDX #$00		; A746	$A2 $00		LOOP START turn order ==========
 	STX $A6			; A748	$86 $A6
 	STX $2B			; A74A	$86 $2B
 	STX $7CB7		; A74C	$8E $B7 $7C	monster ran away
+Do_act_begin:
 	LDX #$00		; A74F	$A2 $00
 	STX $7FDE		; A751	$8E $DE $7F
 	STX $AD			; A754	$86 $AD
@@ -4473,7 +4513,7 @@ L327A7:
 	LDA $05			; A7BD	$A5 $05
 	ADC #$7E		; A7BF	$69 $7E
 	STA $A0			; A7C1	$85 $A0
-	JSR Get_player_status1	; A7C3	$20 $71 $AF
+	JSR Get_attacker_status1	; A7C3	$20 $71 $AF
 	AND #$80		; A7C6	$29 $80
 	BNE L327D1		; A7C8	$D0 $07		branch if dead
 	INY			; A7CA	$C8
@@ -4487,11 +4527,11 @@ L327D7:
 	LDY #$2A		; A7D7	$A0 $2A
 	LDA ($9F),Y		; A7D9	$B1 $9F		battle command
 	BMI L327E0		; A7DB	$30 $03
-	JMP $A8B7		; A7DD	$4C $B7 $A8
+	JMP Do_act_atk		; A7DD	$4C $B7 $A8
 L327E0:
 	CMP #$FF		; A7E0	$C9 $FF
 	BNE L327EA		; A7E2	$D0 $06
-	JSR $ACA2		; A7E4	$20 $A2 $AC	show "nothing happend" message
+	JSR Set_not_hpn_msg	; A7E4	$20 $A2 $AC	show "nothing happend" message
 	JMP Do_action_NMI	; A7E7	$4C $8C $A9
 L327EA:
 	LDY #$08		; A7EA	$A0 $08
@@ -4499,7 +4539,7 @@ L327EA:
 	STA ($9F),Y		; A7EE	$91 $9F
 	LDA #$01		; A7F0	$A9 $01
 	STA $7CB6		; A7F2	$8D $B6 $7C
-	JSR $ACB1		; A7F5	$20 $B1 $AC
+	JSR Set_esc_msg		; A7F5	$20 $B1 $AC
 	JMP Do_action_NMI	; A7F8	$4C $8C $A9	show "escaped" message
 Do_action_player:
 	STA $9E			; A7FB	$85 $9E		player turn routine
@@ -4519,7 +4559,7 @@ L3280B:
 	STA $9F			; A818	$85 $9F
 	LDA $81			; A81A	$A5 $81
 	STA $A0			; A81C	$85 $A0
-	JSR Get_player_status1	; A81E	$20 $71 $AF
+	JSR Get_attacker_status1	; A81E	$20 $71 $AF
 	AND #$C0		; A821	$29 $C0		dead(bit7) / stone(bit6)
 	STA $4E			; A823	$85 $4E
 	BNE L32830		; A825	$D0 $09		branch if dead or stone
@@ -4536,16 +4576,16 @@ L32830:
 	BNE L32859		; A838	$D0 $1F
 	LDA $4F			; A83A	$A5 $4F		case asleep or paralyzed
 	LDX #$06		; A83C	$A2 $06
-	JSR $9016		; A83E	$20 $16 $90
+	JSR Check_bit		; A83E	$20 $16 $90
 	BEQ L3284A		; A841	$F0 $07
 	LDA #$12		; A843	$A9 $12		$12: "Paralyzed"
-	JSR $BF92		; A845	$20 $92 $BF	add to battle message queue
+	JSR Add_msg_que		; A845	$20 $92 $BF	add to battle message queue
 	BNE L3284F		; A848	$D0 $05
 L3284A:
 	LDA #$11		; A84A	$A9 $11		$11: "Asleep"
-	JSR $BF92		; A84C	$20 $92 $BF	add to battle message queue
+	JSR Add_msg_que		; A84C	$20 $92 $BF	add to battle message queue
 L3284F:
-	JSR $BE7E		; A84F	$20 $7E $BE
+	JSR No_dmg_msg		; A84F	$20 $7E $BE
 	LDX #$00		; A852	$A2 $00
 	STX $A6			; A854	$86 $A6
 	JMP Do_action_NMI	; A856	$4C $8C $A9
@@ -4568,10 +4608,10 @@ L3285F:
 	BCS L32886		; A879	$B0 $0B		branch if check failed
 	LDA #$01		; A87B	$A9 $01
 	STA $7CB7		; A87D	$8D $B7 $7C	ran away
-	JSR $ACB1		; A880	$20 $B1 $AC	show "escaped" message
+	JSR Set_esc_msg		; A880	$20 $B1 $AC	show "escaped" message
 	JMP Do_action_NMI	; A883	$4C $8C $A9
 L32886:
-	JSR $ACC0		; A886	$20 $C0 $AC	show "can't escape" message
+	JSR Set_no_esc_msg	; A886	$20 $C0 $AC	show "can't escape" message
 	JMP Do_action_NMI	; A889	$4C $8C $A9
 L3288C:
 	JSR Set_msg_nothing	; A88C	$20 $93 $AC	do nothing this round
@@ -4590,12 +4630,13 @@ L32892:
 	LDA ($80),Y		; A8A4	$B1 $80
 	CMP #$07		; A8A6	$C9 $07
 	BEQ L328B7		; A8A8	$F0 $0D
-	JSR $ACCF		; A8AA	$20 $CF $AC	show "not effective" message
+	JSR Set_no_eft_msg	; A8AA	$20 $CF $AC	show "not effective" message
 	LDA #$00		; A8AD	$A9 $00
 	STA $E4			; A8AF	$85 $E4
 	LDA #$FF		; A8B1	$A9 $FF
 	LDY #$2A		; A8B3	$A0 $2A
 	STA ($9F),Y		; A8B5	$91 $9F
+Do_act_atk:
 L328B7:
 	LDA $A6			; A8B7	$A5 $A6		do attack
 	BNE L328D4		; A8B9	$D0 $19
@@ -4660,7 +4701,7 @@ L3290D:
 	ADC $05			; A91E	$65 $05
 	STA $A2			; A920	$85 $A2
 L32922:
-	JSR Get_enemy_status1	; A922	$20 $76 $AF
+	JSR Get_target_status1	; A922	$20 $76 $AF
 	AND #$C0		; A925	$29 $C0		dead / stone
 	BEQ L32936		; A927	$F0 $0D
 	LDA $A6			; A929	$A5 $A6
@@ -4668,21 +4709,21 @@ L32922:
 	JSR Set_msg_nothing	; A92D	$20 $93 $AC	do nothing this round
 	JMP Do_action_NMI	; A930	$4C $8C $A9
 L32933:
-	JSR $ACCF		; A933	$20 $CF $AC	show "not effective" message
+	JSR Set_no_eft_msg	; A933	$20 $CF $AC	show "not effective" message
 L32936:
 	LDY #$2A		; A936	$A0 $2A
 	LDA ($9F),Y		; A938	$B1 $9F		battle command
 	BNE L32946		; A93A	$D0 $0A		branch if not fight
 	LDA #$80		; A93C	$A9 $80
 	STA $28			; A93E	$85 $28
-	JSR $AF85		; A940	$20 $85 $AF	do fight action - status / damage calc ??
+	JSR Do_fight_act	; A940	$20 $85 $AF	do fight action - status / damage calc ??
 	JMP Do_action_NMI	; A943	$4C $8C $A9
 L32946:
 	CMP #$FF		; A946	$C9 $FF
 	BEQ L3298C		; A948	$F0 $42		branch if no command
 	LDA #$00		; A94A	$A9 $00
 	STA $28 		; A94C	$85 $28
-	JSR $B3C6		; A94E	$20 $C6 $B3	do magic/item action
+	JSR Do_magic_action	; A94E	$20 $C6 $B3	do magic/item action
 	LDA $2B			; A951	$A5 $2B
 	BNE L32989		; A953	$D0 $34
 	LDX $9E			; A955	$A6 $9E
@@ -4731,12 +4772,12 @@ L32990:
 	LDA cur_turn_id		; A9A1	$A5 $E1
 	CMP #$FF		; A9A3	$C9 $FF
 	BNE L329AA		; A9A5	$D0 $03
-	JMP $AB93		; A9A7	$4C $93 $AB
+	JMP Do_act_chk_order	; A9A7	$4C $93 $AB
 L329AA:
 	STA $55			; A9AA	$85 $55
 	LDA #$08		; A9AC	$A9 $08
 	STA $45			; A9AE	$85 $45
-	JSR $AC4E		; A9B0	$20 $4E $AC	text process (src name??) ??
+	JSR Show_atkr_tar_name	; A9B0	$20 $4E $AC	text process (src name??) ??
 	INC $4F			; A9B3	$E6 $4F
 	LDA $E3			; A9B5	$A5 $E3
 	CMP #$08		; A9B7	$C9 $08
@@ -4747,7 +4788,7 @@ L329BF:
 	STA $55			; A9BF	$85 $55
 	LDA #$08		; A9C1	$A9 $08
 	STA $45			; A9C3	$85 $45
-	JSR $AC4E		; A9C5	$20 $4E $AC	text process (target name??) ??
+	JSR Show_atkr_tar_name	; A9C5	$20 $4E $AC	text process (target name??) ??
 	LDA #$01		; A9C8	$A9 $01		middle left window
 L329CA:
 	STA $7CCF		; A9CA	$8D $CF $7C
@@ -4777,7 +4818,7 @@ L329EE:
 	LDA #$07		; A9F7	$A9 $07
 	STA $45			; A9F9	$85 $45
 	STA $44			; A9FB	$85 $44
-	JSR $ACF3		; A9FD	$20 $F3 $AC	show spell name
+	JSR Show_mag_name	; A9FD	$20 $F3 $AC	show spell name
 	LDX #$02		; AA00	$A2 $02		top right window
 	BNE L32A2D		; AA02	$D0 $29
 L32A04:
@@ -4798,7 +4839,7 @@ L32A04:
 	STA $AA			; AA22	$85 $AA
 	LDA #$0B		; AA24	$A9 $0B		$0B: "xHit"
 	STA $55			; AA26	$85 $55
-	JSR $ACDD		; AA28	$20 $DD $AC	message text process (hit count/miss/dmg)
+	JSR Show_hit_dmg_msg	; AA28	$20 $DD $AC	message text process (hit count/miss/dmg)
 	LDX #$02		; AA2B	$A2 $02		top right window
 L32A2D:
 	STX $7CD0		; AA2D	$8E $D0 $7C
@@ -4820,7 +4861,7 @@ L32A3E:
 	STA $AA			; AA4C	$85 $AA
 	LDA #$0E		; AA4E	$A9 $0E		$0E: "Miss"
 	STA $55			; AA50	$85 $55
-	JSR $ACDD		; AA52	$20 $DD $AC	show hit/miss/dmg
+	JSR Show_hit_dmg_msg	; AA52	$20 $DD $AC	show hit/miss/dmg
 	LDA #$03		; AA55	$A9 $03
 	BNE L32AA1		; AA57	$D0 $48
 L32A59:
@@ -4850,7 +4891,7 @@ L32A68:
 	LDA #$00		; AA86	$A9 $00
 	STA $7D47,X		; AA88	$9D $47 $7D	text buffer
 	STA $55			; AA8B	$85 $55
-	JSR $ACDD		; AA8D	$20 $DD $AC	show hit/miss/dmg
+	JSR Show_hit_dmg_msg		; AA8D	$20 $DD $AC	show hit/miss/dmg
 	LDA #$03		; AA90	$A9 $03
 	BNE L32AA1		; AA92	$D0 $0D
 L32A94:
@@ -4858,12 +4899,12 @@ L32A94:
 	STA $AA			; AA96	$85 $AA
 	LDA #$0C		; AA98	$A9 $0C		$0C: " DMG"
 	STA $55			; AA9A	$85 $55
-	JSR $ACDD		; AA9C	$20 $DD $AC	message text process (hit/miss/dmg)
+	JSR Show_hit_dmg_msg	; AA9C	$20 $DD $AC	message text process (hit/miss/dmg)
 	LDA #$03		; AA9F	$A9 $03		middle right window
 L32AA1:
 	STA $7CD1		; AAA1	$8D $D1 $7C
 	JSR Wait_NMI_end	; AAA4	$20 $46 $FD
-	JSR Get_player_status1	; AAA7	$20 $71 $AF	get attacker status 1
+	JSR Get_attacker_status1	; AAA7	$20 $71 $AF	get attacker status 1
 	AND #$C0		; AAAA	$29 $C0
 	BEQ L32AC1		; AAAC	$F0 $13
 	LDA $7FDE		; AAAE	$AD $DE $7F
@@ -4885,7 +4926,7 @@ L32AC1:
 	LDY #$12		; AACD	$A0 $12
 	LDA ($A1),Y		; AACF	$B1 $A1		target's intellect
 	BNE L32B07		; AAD1	$D0 $34
-	JSR Get_enemy_status1	; AAD3	$20 $76 $AF
+	JSR Get_target_status1	; AAD3	$20 $76 $AF
 	AND #$E0		; AAD6	$29 $E0
 	BNE L32AE1		; AAD8	$D0 $07		branch if dead, stone, or toad
 	INY			; AADA	$C8
@@ -4909,10 +4950,11 @@ L32AE1:
 	STY $A5			; AAFC	$84 $A5
 	JSR $FAC8		; AAFE	$20 $C8 $FA	monster eliminate animation
 	DEC $7B4D		; AB01	$CE $4D $7B	number of monsters remaining - decrement
-	JMP $AB0D		; AB04	$4C $0D $AB
+	JMP Do_act_chk_msg	; AB04	$4C $0D $AB
 L32B07:
 	JSR Chk_low_hp		; AB07	$20 $E0 $AE
 	JSR $FAD4		; AB0A	$20 $D4 $FA	load character graphics
+Do_act_chk_msg:
 L32B0D:
 	LDX #$00		; AB0D	$A2 $00
 	LDA msg_que,X		; AB0F	$BD $BA $7F
@@ -4930,7 +4972,7 @@ L32B21:
 	LDA msg_que,X		; AB23	$BD $BA $7F
 	CMP #$FF		; AB26	$C9 $FF
 	BEQ L32B6B		; AB28	$F0 $41		branch if no battle message
-	JSR $BECE		; AB2A	$20 $CE $BE	load next battle message
+	JSR Load_next_msg	; AB2A	$20 $CE $BE	load next battle message
 	LDA #$04		; AB2D	$A9 $04		bottom window
 	STA $4F			; AB2F	$85 $4F
 	JSR Apply_msg		; AB31	$20 $2D $AC	message text process (eliminate/fell) ??
@@ -4955,7 +4997,7 @@ L32B5A:
 	JSR Wait		; AB5F	$20 $9B $94	wait for message speed
 	LDA #$04		; AB62	$A9 $04		bottom window
 	STA $54			; AB64	$85 $54
-	JSR $AC44		; AB66	$20 $44 $AC	remove text(end of text message box) ??
+	JSR Rm_msg_win		; AB66	$20 $44 $AC	remove text(end of text message box) ??
 	DEC $4F			; AB69	$C6 $4F
 L32B6B:
 	LDA $AD			; AB6B	$A5 $AD
@@ -4974,77 +5016,79 @@ L32B7F:
 	BMI L32B8D		; AB84	$30 $07
 	TXA			; AB86	$8A
 	PHA			; AB87	$48
-	JSR $AC44		; AB88	$20 $44 $AC	remove text ??
+	JSR Rm_msg_win		; AB88	$20 $44 $AC	remove text ??
 	PLA			; AB8B	$68
 	TAX			; AB8C	$AA
 L32B8D:
 	DEX			; AB8D	$CA
 	BPL L32B7F		; AB8E	$10 $EF		loop - remove text
 	JSR Wait_NMI_end	; AB90	$20 $46 $FD
+Do_act_chk_order:
 	LDA turn_order_cnt	; AB93	$AD $BB $7C	counter for turn order
 	CMP #$0B		; AB96	$C9 $0B
 	BEQ L32BA3		; AB98	$F0 $09
 	LDA cur_turn_id		; AB9A	$A5 $E1
 	CMP #$FF		; AB9C	$C9 $FF
 	BNE L32BA3		; AB9E	$D0 $03
-	JMP $ABEF		; ABA0	$4C $EF $AB
+	JMP Do_act_chk_tar	; ABA0	$4C $EF $AB
 ; End of
 L32BA3:
 	LDA $7CB7		; ABA3	$AD $B7 $7C	monster ran away
 	BEQ L32BB7		; ABA6	$F0 $0F		branch if didn't run away
-	JSR $ADEA		; ABA8	$20 $EA $AD
+	JSR Chk_status		; ABA8	$20 $EA $AD
 	JSR Wait_NMI_end	; ABAB	$20 $46 $FD
 	JSR Update_sram		; ABAE	$20 $2F $AD
 	JSR Wait_MENUs_NMIe	; ABB1	$20 $63 $9A
 	JMP $FAE8		; ABB4	$4C $E8 $FA	characters run away
 L32BB7:
 	JSR Wait_MENU_snd	; ABB7	$20 $5B $FD
-	JSR $AF30		; ABBA	$20 $30 $AF	????  not analyzed
+	JSR Chk_battle_end	; ABBA	$20 $30 $AF	????  not analyzed
 	LDA $7B4D		; ABBD	$AD $4D $7B	number of monsters remaining ??
 	BNE L32BEF		; ABC0	$D0 $2D		branch if any monsters remain
 	LDX #$00		; ABC2	$A2 $00
 	LDA #$18		; ABC4	$A9 $18		$18: "You won!"
 	STA msg_que,X		; ABC6	$9D $BA $7F
-	JSR $BECE		; ABC9	$20 $CE $BE	load next battle message
+	JSR Load_next_msg	; ABC9	$20 $CE $BE	load next battle message
 	LDA #$04		; ABCC	$A9 $04		bottom window
 	STA $4F			; ABCE	$85 $4F
 	JSR Wait_MENU_snd	; ABD0	$20 $5B $FD
 	JSR Apply_msg		; ABD3	$20 $2D $AC
 	JSR Wait_NMI_end	; ABD6	$20 $46 $FD
-	JSR $ADEA		; ABD9	$20 $EA $AD
+	JSR Chk_status		; ABD9	$20 $EA $AD
 	JSR Wait_NMI_end	; ABDC	$20 $46 $FD
 	JSR $FAD8		; ABDF	$20 $D8 $FA	characters run off-screen
 	LDA #$04		; ABE2	$A9 $04		bottom window
 	STA $54			; ABE4	$85 $54
-	JSR $AC44		; ABE6	$20 $44 $AC
+	JSR Rm_msg_win		; ABE6	$20 $44 $AC
 	JSR Update_sram		; ABE9	$20 $2F $AD	update character properties in sram
 	JMP $FB3C		; ABEC	$4C $3C $FB	battle victory
+Do_act_chk_tar:
 L32BEF:
 	LDA $A6			; ABEF	$A5 $A6
 	BEQ L32C03		; ABF1	$F0 $10
 	DEC $A6			; ABF3	$C6 $A6
 	BEQ L32C03		; ABF5	$F0 $0C
-	LDY #$2B		; ABF7	$A0 $2B
-	LDA ($9F),Y		; ABF9	$B1 $9F		target
+	LDY #$2B		; ABF7	$A0 $2B		target
+	LDA ($9F),Y		; ABF9	$B1 $9F
 	TAX			; ABFB	$AA
 	INX			; ABFC	$E8
 	TXA			; ABFD	$8A
 	STA ($9F),Y		; ABFE	$91 $9F
-	JMP $A74F		; AC00	$4C $4F $A7
+	JMP Do_act_begin	; AC00	$4C $4F $A7
 L32C03:
 	INC turn_order_cnt	; AC03	$EE $BB $7C	counter for turn order
 	LDA turn_order_cnt	; AC06	$AD $BB $7C	counter for turn order
 	CMP #$0C		; AC09	$C9 $0C
 	BEQ L32C10		; AC0B	$F0 $03
-	JMP $A746		; AC0D	$4C $46 $A7	LOOP for next TURN ORDER ==========
+	JMP Do_act_start	; AC0D	$4C $46 $A7	LOOP for next TURN ORDER ==========
 L32C10:
 	JSR Wait_MENUs_NMIe	; AC10	$20 $63 $9A
 	JSR $FAC4		; AC13	$20 $C4 $FA
 	LDA #$00		; AC16	$A9 $00
 	STA $7B4A		; AC18	$8D $4A $7B
 	JSR Wait_MENU_snd	; AC1B	$20 $5B $FD
-	JSR $AE28		; AC1E	$20 $28 $AE
-	JSR $ADEA		; AC21	$20 $EA $AD
+	JSR Chk_sp_atk		; AC1E	$20 $28 $AE
+	JSR Chk_status		; AC21	$20 $EA $AD
 	JSR Wait_MENU_snd	; AC24	$20 $5B $FD
 	JSR Draw_char_stat_win	; AC27	$20 $2A $91
 	JMP Wait_NMIe_MENUs	; AC2A	$4C $5D $9A
@@ -5064,16 +5108,18 @@ Apply_msg:
 	JMP $FB42		; AC41	$4C $42 $FB	open message window - bank swap and process
 ; End of Apply_msg
 
-; Name	:
+; Name	: Rm_msg_win
 ; Marks	:
+Rm_msg_win:
 	JSR Wait_NMI_end	; AC44	$20 $46 $FD
 	LDA $54			; AC47	$A5 $54
 	STA $64			; AC49	$85 $64
 	JMP $FB46		; AC4B	$4C $46 $FB	close message window
-;End of
+;End of Rm_msg_win
 
-; Name	:
+; Name	: Show_atkr_tar_name
 ; Marks	: display attacker/target name
+Show_atkr_tar_name:
 	LDA $55			; AC4E	$A5 $55
 	CMP #$80		; AC50	$C9 $80
 	BCS L32C7B		; AC52	$B0 $27		branch if a monster
@@ -5111,7 +5157,7 @@ L32C8A:
 	STA $44			; AC8C	$85 $44
 	STA $45			; AC8E	$85 $45
 	JMP Apply_msg		; AC90	$4C $2D $AC
-; End of
+; End of Show_atkr_tar_name
 
 ; Name	: Set_msg_nothing
 ; Marks	: do nothing this round
@@ -5126,8 +5172,9 @@ Set_msg_nothing:
 	RTS			; ACA1	$60
 ; End of Set_msg_nothing
 
-; Name	:
+; Name	: Set_not_hpn_msg
 ; Marks	: show "nothing happend" message
+Set_not_hpn_msg:
 	LDX #$00		; ACA2	$A2 $00
 	STX $AE			; ACA4	$86 $AE
 	STX $E4			; ACA6	$86 $E4
@@ -5136,10 +5183,11 @@ Set_msg_nothing:
 	LDX #$13		; ACAB	$A2 $13		$13: "Nothing happended"
 	STX $7FBA		; ACAD	$8E $BA $7F
 	RTS			; ACB0	$60
-; End of
+; End of Set_not_hpn_msg
 
-; Name	:
+; Name	: Set_esc_msg
 ; Marks	: show "escaped" message
+Set_esc_msg:
 	LDX #$00		; ACB1	$A2 $00
 	STX $AE			; ACB3	$86 $AE
 	STX $E4			; ACB5	$86 $E4
@@ -5148,10 +5196,11 @@ Set_msg_nothing:
 	LDX #$0F		; ACBA	$A2 $0F		$0F: "Escaped"
 	STX $7FBA		; ACBC	$8E $BA $7F
 	RTS			; ACBF	$60
-; End of
+; End of Set_esc_msg
 
-; Name	:
+; Name	: Set_no_esc_msg
 ; Marks	: show "can't escape" message
+Set_no_esc_msg:
 	LDX #$00		; ACC0	$A2 $00
 	STX $AE			; ACC2	$86 $AE
 	STX $E4			; ACC4	$86 $E4
@@ -5160,10 +5209,11 @@ Set_msg_nothing:
 	LDX #$10		; ACC9	$A2 $10		$10: "Can't escape!"
 	STX $7FBA		; ACCB	$8E $BA $7F
 	RTS			; ACCE	$60
-; End of
+; End of Set_no_esc_msg
 
-; Name	:
+; Name	: Set_no_eft_msg
 ; Marks	: show "not effective" message
+Set_no_eft_msg:
 	LDX #$00		; ACCF	$A2 $00
 	STX $AE			; ACD1	$86 $AE
 	LDX #$80		; ACD3	$A2 $80
@@ -5171,10 +5221,11 @@ Set_msg_nothing:
 	LDX #$14		; ACD7	$A2 $14		$14: "Not effective."
 	STX $7FBA		; ACD9	$8E $BA $7F
 	RTS			; ACDC	$60
-; End of
+; End of Set_no_eft_msg
 
-; Name	:
+; Name	: Show_hit_dmg_msg
 ; Marks	: show hit/miss/dmg
+Show_hit_dmg_msg:
 	LDA $55			; ACDD	$A5 $55		cursor 1 sprite y positin ??
 	BEQ L32CF0		; ACDF	$F0 $0F
 	STA $64			; ACE1	$85 $64		menu target h-scroll position ??
@@ -5186,10 +5237,11 @@ Set_msg_nothing:
 	JSR $FD8C		; ACED	$20 $8C $FD	bank 05 - load text
 L32CF0:
 	JMP Apply_msg		; ACF0	$4C $2D $AC
-; End of
+; End of Show_hit_dmg_msg
 
-; Name	:
+; Name	: Show_mag_name
 ; Marks	: show spell name
+Show_mag_name:
 	LDA $55			; ACF3	$A5 $55
 	STA $64			; ACF5	$85 $64
 	LDA #$B0		; ACF7	$A9 $B0		attack names (05/B0BB)
@@ -5217,7 +5269,7 @@ L32CF0:
 	LDA #$00		; AD27	$A9 $00
 	STA $7D47,X		; AD20	$9D $47 $7D
 	JMP Apply_msg		; AD23	$4C $2D $AC
-; End of
+; End of Show_mag_name
 
 ; Name	: Update_sram
 ; Marks	: update character properties in sram
@@ -5234,7 +5286,7 @@ Update_sram_loop:
 	LDA ($7A),Y		; AD3D	$B1 $7A		calculate net hp loss
 	LDY #$0A		; AD3F	$A0 $0A
 	SBC ($80),Y		; AD41	$F1 $80
-	STA $7D6A,X		; AD43	$9D $6A $7D
+	STA $7D6A,X		; AD43	$9D $6A $7D	-- Battle stats HP loss low byte
 	LDY #$09		; AD46	$A0 $09
 	LDA ($7A),Y		; AD48	$B1 $7A
 	LDY #$0B		; AD4A	$A0 $0B
@@ -5242,7 +5294,7 @@ Update_sram_loop:
 	STA $7D6B,X		; AD4E	$9D $6B $7D
 	BCS L32D5B		; AD51	$B0 $08
 	LDA #$00		; AD53	$A9 $00		minimum 0
-	STA $7D6A,X		; AD55	$9D $6A $7D
+	STA $7D6A,X		; AD55	$9D $6A $7D	-- Battle stats HP los low byte
 	STA $7D6B,X		; AD58	$9D $6B $7D
 L32D5B:
 	SEC			; AD5B	$38
@@ -5250,7 +5302,7 @@ L32D5B:
 	LDA ($7A),Y		; AD5E	$B1 $7A		calculate net mp loss
 	LDY #$0C		; AD60	$A0 $0C
 	SBC ($80),Y		; AD62	$F1 $80
-	STA $7D72,X		; AD64	$9D $72 $7D
+	STA $7D72,X		; AD64	$9D $72 $7D	-- Battle stats MP loss low byte
 	LDY #$0D		; AD67	$A0 $0D
 	LDA ($7A),Y		; AD69	$B1 $7A
 	LDY #$0D		; AD6B	$A0 $0D
@@ -5258,7 +5310,7 @@ L32D5B:
 	STA $7D73,X		; AD6F	$9D $73 $7D
 	BCS L32D7C		; AD72	$B0 $08
 	LDA #$00		; AD74	$A9 $00		minimum 0
-	STA $7D72,X		; AD76	$9D $72 $7D
+	STA $7D72,X		; AD76	$9D $72 $7D	-- Battle stats MP loss low byte
 	STA $7D73,X		; AD78	$9D $73 $7D
 L32D7C:
 	LDA $7B48		; AD7B	$AD $48 $7B
@@ -5280,12 +5332,12 @@ L32D98:
 	STY $44			; AD9A	$84 $44
 	LDY #$09		; AD9C	$A0 $09
 	STY $45			; AD9E	$84 $45
-	JSR $ADD9		; ADA0	$20 $D9 $AD	update hp/mp in sram
+	JSR Update_HMP_ram	; ADA0	$20 $D9 $AD	update hp/mp in sram
 	LDY #$0C		; ADA3	$A0 $0C		current mp
 	STY $44			; ADA5	$84 $44
 	LDY #$0D		; ADA7	$A0 $0D
 	STY $45			; ADA9	$84 $45
-	JSR $ADD9		; ADAB	$20 $D9 $AD	update hp/mp in sram
+	JSR Update_HMP_ram	; ADAB	$20 $D9 $AD	update hp/mp in sram
 L32DAE:
 	LDY #$1C		; ADAE	$A0 $1C
 	LDA ($7A),Y		; ADB0	$B1 $7A		right hand item
@@ -5314,8 +5366,9 @@ L32DD8:
 	RTS			; ADD8	$60
 ; End of Update_sram
 
-; Name	:
+; Name	: Update_HMP_ram
 ; Marks	: update hp/mp in sram
+Update_HMP_ram:
 	LDY $44			; ADD9	$A4 $44
 	LDA ($80),Y		; ADDB	$B1 $80
 	PHA			; ADDD	$48
@@ -5327,20 +5380,21 @@ L32DD8:
 	PLA			; ADE6	$68
 	STA ($7A),Y		; ADE7	$91 $7A
 	RTS			; ADE9	$60
-; End of
+; End of Update_HMP_ram
 
-; Name	:
-; Marks	:
+; Name	: Chk_status
+; Marks	: ??
+Chk_status:
 	LDX #$00		; ADEA	$A2 $00
 	STX $9E			; ADEC	$86 $9E
 L32DEE:
 	JSR Update_addr		; ADEE	$20 $E1 $96	update character/monster pointers
 	LDY #$35		; ADF1	$A0 $35
-	LDA ($7E),Y		; ADF3	$B1 $7E
+	LDA ($7E),Y		; ADF3	$B1 $7E		status 2 ??
 	LSR A			; ADF5	$4A
 	BCS L32DFF		; ADF6	$B0 $07
 	JSR Get_status1_80h	; ADF8	$20 $6C $AF	get status 1
-	AND #$C0		; ADFB	$29 $C0
+	AND #$C0		; ADFB	$29 $C0		dead and stone
 	BEQ L32E25		; ADFD	$F0 $26
 L32DFF:
 	INC $9E			; ADFF	$E6 $9E
@@ -5365,20 +5419,22 @@ L32E1D:
 	BNE L32E0B		; AE23	$D0 $E6
 L32E25:
 	JMP Wait_MENU_snd	; AE25	$4C $5B $FD
-; End of
+; End of Chk_status
 
-; Name	:
-; Marks	:
+; Name	: Chk_sp_atk
+; Marks	: not certain
+Chk_sp_atk:
 	LDA #$00		; AE28	$A9 $00
 	STA $9E			; AE2A	$85 $9E
+Mob_sp_atk:
 	JSR Wait_NMI_end	; AE2C	$20 $46 $FD
 	JSR Update_addr		; AE2F	$20 $E1 $96	get status 2
-	JSR $AF80		; AE32	$20 $80 $AF
+	JSR Get_stat_status2	; AE32	$20 $80 $AF
 	LDY #$2D		; AE35	$A0 $2D
 	STA ($80),Y		; AE37	$91 $80
 	LDA #$00		; AE39	$A9 $00
 	STA $44			; AE3B	$85 $44
-	JSR $AF80		; AE3D	$20 $80 $AF	get status 2
+	JSR Get_stat_status2	; AE3D	$20 $80 $AF	get status 2
 	STA $45			; AE40	$85 $45
 	STA $47			; AE42	$85 $47
 L32E44:
@@ -5387,16 +5443,15 @@ L32E44:
 	LDX #$01		; AE48	$A2 $01
 	LDA #$64		; AE4A	$A9 $64
 	JSR Random		; AE4C	$20 $11 $FD	random (X..A)
-;AE4F
 	STA $46			; AE4F	$85 $46
 	LDA $44			; AE51	$A5 $44
 	TAX			; AE53	$AA
-	LDA $8E4B,X		; AE54	$BD $4B $8E
+	LDA Mob_AI_Sp_atk,X	; AE54	$BD $4B $8E	8D73 -> 8E4B Mob_AI special attack - undead ?? BANK
 	SEC			; AE57	$38
 	SBC $46			; AE58	$E5 $46
 	BCC L32E67		; AE5A	$90 $0B
 	LDA $45			; AE5C	$A5 $45
-	JSR $900E		; AE5E	$20 $0E $90	clear bit
+	JSR Clear_bit		; AE5E	$20 $0E $90	clear bit
 	LDY #$09		; AE61	$A0 $09
 	STA ($80),Y		; AE63	$91 $80
 	STA $45			; AE65	$85 $45
@@ -5405,21 +5460,21 @@ L32E67:
 	LDA $44			; AE69	$A5 $44
 	CMP #$08		; AE6B	$C9 $08
 	BNE L32E44		; AE6D	$D0 $D5
-	JSR $AF80		; AE6F	$20 $80 $AF	get status 2
-	AND #$04		; AE72	$29 $04
+	JSR Get_stat_status2	; AE6F	$20 $80 $AF	get status 2
+	AND #$04		; AE72	$29 $04		poison
 	BEQ L32E80		; AE74	$F0 $0A
 	LDX #$00		; AE76	$A2 $00
 	LDA #$02		; AE78	$A9 $02
 	JSR Random		; AE7A	$20 $11 $FD	random (X..A)
-	JSR $AEB0		; AE7D	$20 $B0 $AE
+	JSR Poison_dmg		; AE7D	$20 $B0 $AE
 L32E80:
 	JSR Get_status1_80h	; AE80	$20 $6C $AF	get status 1
-	AND #$04		; AE83	$29 $04
+	AND #$04		; AE83	$29 $04		venom
 	BEQ L32E91		; AE85	$F0 $0A
 	LDX #$02		; AE87	$A2 $02
 	LDA #$04		; AE89	$A9 $04
 	JSR Random		; AE8B	$20 $11 $FD	random (X..A)
-	JSR $AEB0		; AE8E	$20 $B0 $AE
+	JSR Poison_dmg		; AE8E	$20 $B0 $AE
 L32E91:
 	LDA $9E			; AE91	$A5 $9E
 	CMP #$04		; AE93	$C9 $04
@@ -5433,16 +5488,18 @@ L32E9F:
 	LDA $9E			; AEA4	$A5 $9E
 	CMP #$0C		; AEA6	$C9 $0C
 	BEQ L32EAD		; AEA8	$F0 $03
-	JMP $AE2C		; AEAA	$4C $2C $AE
+	JMP Mob_sp_atk		; AEAA	$4C $2C $AE
 L32EAD:
-	JMP $AF30		; AEAD	$4C $30 $AF
-; End of
+	JMP Chk_battle_end	; AEAD	$4C $30 $AF
+; End of Chk_sp_atk
 
-; Name	:
-; Marks	:
+; Name	: Poison_dmg
+; A	: Damage value
+; Marks	: Poison venom demage
+Poison_dmg:
 	STA $44			; AEB0	$85 $44
 	SEC			; AEB2	$38
-	LDY #$0A		; AEB3	$A0 $0A
+	LDY #$0A		; AEB3	$A0 $0A		current HP L ??
 	LDA ($80),Y		; AEB5	$B1 $80
 	SBC $44			; AEB7	$E5 $44
 	STA ($80),Y		; AEB9	$91 $80
@@ -5450,26 +5507,25 @@ L32EAD:
 	LDA ($80),Y		; AEBC	$B1 $80
 	SBC #$00		; AEBE	$E9 $00
 	STA ($80),Y		; AEC0	$91 $80
-	BCC L32EC9		; AEC2	$90 $05
+	BCC L32EC9		; AEC2	$90 $05		branch if result is negative
 	DEY			; AEC4	$88
 	ORA ($80),Y		; AEC5	$11 $80
 	BNE L33EDF		; AEC7	$D0 $16
 L32EC9:
-	LDY #$0A		; AEC9	$A0 $0A
-	LDA #$00		; AECB	$A9 $00
+	LDY #$0A		; AEC9	$A0 $0A		current HP L ??
+	LDA #$00		; AECB	$A9 $00		set to 0
 	STA ($80),Y		; AECD	$91 $80
 	INY			; AECF	$C8
 	STA ($80),Y		; AED0	$91 $80
 	JSR Get_status1_80h	; AED2	$20 $6C $AF	get status 1
-;AED5
-	LDY #$2C		; AED5	$A0 $2C
+	LDY #$2C		; AED5	$A0 $2C		previous status 1
 	STA ($80),Y		; AED7	$91 $80
-	LDY #$08		; AED9	$A0 $08
-	ORA #$80		; AEDB	$09 $80
+	LDY #$08		; AED9	$A0 $08		status 1
+	ORA #$80		; AEDB	$09 $80		dead
 	STA ($80),Y		; AEDD	$91 $80
 L33EDF:
 	RTS			; AEDF	$60
-; End of
+; End of Poison_dmg
 
 ; Name	: Chk_low_hp
 ; Marks	: $46,$47
@@ -5522,8 +5578,9 @@ L32F2F:
 	RTS			; AF2F	$60
 ; End of Chk_low_hp
 
-; Name	:
-; Marks	:
+; Name	: Chk_battle_end
+; Marks	: ?? not certained
+Chk_battle_end:
 	JSR Wait_NMIe_MENUs	; AF30	$20 $5D $9A
 	JSR Draw_char_stat_win	; AF33	$20 $2A $91
 	JSR Wait_NMI_end	; AF36	$20 $46 $FD
@@ -5543,8 +5600,7 @@ L32F3B:
 	LDX #$00		; AF52	$A2 $00
 	LDA #$17		; AF54	$A9 $17		$17: " lost."
 	STA msg_que,X		; AF56	$9D $BA $7F
-	JSR $BECE		; AF59	$20 $CE $BE	load next battle message
-;AF5C
+	JSR Load_next_msg	; AF59	$20 $CE $BE	load next battle message
 	LDA #$04		; AF5C	$A9 $04
 	STA $4F			; AF5E	$85 $4F
 	JSR Apply_msg		; AF60	$20 $2D $AC
@@ -5554,6 +5610,7 @@ L32F3B:
 	JMP $FAEC		; AF68	$4C $EC $FA	battle defeat
 L32F6B:
 	RTS			; AF6B	$60
+; End of Chk_battle_end
 
 ; Name	: Get_status1_80h
 ; SRC	: $80(ADDR) = character/monster battle stats (12 * 48bytes) ($7D7A-$7FB9)
@@ -5564,23 +5621,23 @@ Get_status1_80h:
 	RTS			; AF70	$60
 ; End of Get_status1_80h
 
-; Name	: Get_player_status1
+; Name	: Get_attacker_status1
 ; Marks	: $9F(ADDR) = player information address base xxxxx
 ;	  get attacker status 1
-Get_player_status1:
+Get_attacker_status1:
 	LDY #$08		; AF71	$A0 $08
 	LDA ($9F),Y		; AF73	$B1 $9F
 	RTS			; AF75	$60
-; End of Get_player_status1
+; End of Get_attacker_status1
 
-; Name	: Get_enemy_status1
+; Name	: Get_target_status1
 ; Marks	: $A1(ADDR) = enemy information address base xxxxx
 ;	  get target status 1
-Get_enemy_status1:
+Get_target_status1:
 	LDY #$08		; AF76	$A0 $08
 	LDA ($A1),Y		; AF78	$B1 $A1
 	RTS			; AF7A	$60
-; End of Get_enemy_status1
+; End of Get_target_status1
 
 ; Name	: Get_target_status2
 ; Marks	: $A1(ADDR) = target information address base
@@ -5598,8 +5655,9 @@ Get_stat_status2:
 	RTS			; AF84	$60
 ; End of Get_stat_status2
 
-; Name	:
+; Name	: Do_fight_act
 ; Marks	: do fight action - init ??
+Do_fight_act:
 	LDX #$00		; AF85	$A2 $00
 	STX $9C			; AF87	$86 $9C		clear damage
 	STX $9D			; AF89	$86 $9D
@@ -5607,10 +5665,10 @@ Get_stat_status2:
 	STX $24			; AF8D	$86 $24		clear crit flag
 	LDX #$80		; AF8F	$A2 $80
 	STX $9B			; AF91	$86 $9B
-	JSR Get_enemy_status1	; AF93	$20 $76 $AF
+	JSR Get_target_status1	; AF93	$20 $76 $AF
 	AND #$C0		; AF96	$29 $C0		dead(bit7)/stone(bit6)
 	BNE L32F9D		; AF98	$D0 $03		branch if dead or stone
-	JSR $AFBD		; AF9A	$20 $BD $AF	do fight effect
+	JSR Do_fight_effect	; AF9A	$20 $BD $AF	do fight effect
 L32F9D:
 	LDA $9A			; AF9D	$A5 $9A
 	STA $AE			; AF9F	$85 $AE
@@ -5627,15 +5685,16 @@ L32FAF:
 	LDA $24			; AFB3	$A5 $24
 	BEQ L32FBC		; AFB5	$F0 $05
 	LDA #$0D		; AFB7	$A9 $0D		$0D: "Critical Hit!"
-	JSR $BF92		; AFB9	$20 $92 $BF	add to battle message queue
+	JSR Add_msg_que		; AFB9	$20 $92 $BF	add to battle message queue
 L32FBC:
 	RTS			; AFBC	$60
-; End of
+; End of Do_fight_act
 
-; Name	:
+; Name	: Do_fight_effect
 ; Marks	: $9F(ADDR) = character battle stats address base
 ;	  $A1(ADDR) = monster battle stats address base
 ;	  do fight effect
+Do_fight_effect:
 	LDY #$18		; AFBD	$A0 $18
 	LDA ($9F),Y		; AFBF	$B1 $9F		main hand hit mult
 	LDY #$07		; AFC1	$A0 $07
@@ -5663,13 +5722,13 @@ L32FE4:
 	STA $44			; AFE8	$85 $44		hit %
 	LDA #$00		; AFEA	$A9 $00
 	STA $45			; AFEC	$85 $45
-	JSR Get_player_status1	; AFEE	$20 $71 $AF
+	JSR Get_attacker_status1	; AFEE	$20 $71 $AF
 	AND #$02		; AFF1	$29 $02		blind(bit1)
 	BEQ L32FF9		; AFF3	$F0 $04		branch if not blind
 	LSR $45			; AFF5	$46 $45
 	ROR $44			; AFF7	$66 $44		hit %
 L32FF9:
-	JSR $BC2C		; AFF9	$20 $2C $BC	check for hit - status calc ?? (toad/mini)
+	JSR Calc_magic_cnt	; AFF9	$20 $2C $BC	check for hit - status calc ?? (toad/mini)
 	LDA $48			; AFFC	$A5 $48
 	STA $52			; AFFE	$85 $52		$52(ADDR) = number of successful hits
 	LDA $49			; B000	$A5 $49
@@ -5683,13 +5742,13 @@ L32FF9:
 	LDA #$00		; B00F	$A9 $00
 	STA $45			; B011	$85 $45
 	STA $47			; B013	$85 $47
-	JSR Get_enemy_status1	; B015	$20 $76 $AF
+	JSR Get_target_status1	; B015	$20 $76 $AF
 	AND #$02		; B018	$29 $02		blind(bit1)
 	BEQ L33020		; B01A	$F0 $04		branch if not blind
 	LSR $45			; B01C	$46 $45
 	ROR $44			; B01E	$66 $44
 L33020:
-	JSR $BC2C		; B020	$20 $2C $BC	check for hit - status calc ??
+	JSR Calc_magic_cnt	; B020	$20 $2C $BC	check for hit
 	LDA $48			; B023	$A5 $48
 	STA $54			; B025	$85 $54
 	LDA $49			; B027	$A5 $49
@@ -5779,7 +5838,7 @@ L330AF:
 	STA $47			; B0B7	$85 $47
 	LDA $9C			; B0B9	$A5 $9C
 	STA $48			; B0BB	$85 $48
-	JSR $BC88		; B0BD	$20 $88 $BC	calculate damage
+	JSR Calc_dmg		; B0BD	$20 $88 $BC	calculate damage
 	LDA $4A			; B0C0	$A5 $4A
 	STA $9A			; B0C2	$85 $9A
 	LDA $4B			; B0C4	$A5 $4B
@@ -5812,8 +5871,8 @@ L330EE:
 	STA ($A1),Y		; B0F1	$91 $A1		set target hp to zero - current hp L
 	INY			; B0F3	$C8
 	STA ($A1),Y		; B0F4	$91 $A1		current hp H
-	JSR $BF9A		; B0F6	$20 $9A $BF	add dead target message to queue - message / check hp
-	JSR Get_enemy_status1	; B0F9	$20 $76 $AF
+	JSR Add_msg_dead_target	; B0F6	$20 $9A $BF	add dead target message to queue - message / check hp
+	JSR Get_target_status1	; B0F9	$20 $76 $AF
 	LDY #$2C		; B0FC	$A0 $2C
 	STA ($A1),Y		; B0FE	$91 $A1		set previous status 1(enemy)
 	LDY #$08		; B100	$A0 $08
@@ -5829,15 +5888,15 @@ L3310C:
 	STA $60			; B112	$85 $60
 	AND #$01		; B114	$29 $01
 	BEQ L3311B		; B116	$F0 $03
-	JMP $B351		; B118	$4C $51 $B3
+	JMP Do_fight_efx_end2	; B118	$4C $51 $B3
 L3311B:
 	LDA $60			; B11B	$A5 $60
 	AND #$02		; B11D	$29 $02
 	BEQ L3312D		; B11F	$F0 $0C
-	JMP $B35F		; B121	$4C $5F $B3
+	JMP Do_fight_efx_end	; B121	$4C $5F $B3
 L33124:
 	RTS			; B124	$60
-; End of
+; End of Do_fight_effect
 
 ;B125 - data block = weapon special effect jump table
 .word $B161			; B125	$61 $B1
@@ -5884,20 +5943,20 @@ L33142:
 	LDA ($A1),Y		; B163	$B1 $A1
 	AND #$80		; B165	$29 $80
 	BNE L3319C		; B167	$D0 $33
-	LDY #$0E		; B169	$A0 $0E
+	LDY #$0E		; B169	$A0 $0E		Max HP
 	LDA ($A1),Y		; B16B	$B1 $A1
 	STA $52			; B16D	$85 $52
 	INY			; B16F	$C8
 	LDA ($A1),Y		; B170	$B1 $A1
 	STA $53			; B172	$85 $53
-	JSR $B279		; B174	$20 $79 $B2
-	JSR $B331		; B177	$20 $31 $B3
-	JSR $B33F		; B17A	$20 $3F $B3
-	JSR $B31F		; B17D	$20 $1F $B3
-	JSR $B2C8		; B180	$20 $C8 $B2
-	JSR $B33F		; B183	$20 $3F $B3
-	JSR $B328		; B186	$20 $28 $B3
-	JSR $B305		; B189	$20 $05 $B3
+	JSR Calc_drain_val	; B174	$20 $79 $B2
+	JSR Add_dmg		; B177	$20 $31 $B3
+	JSR Set_HP_ofs		; B17A	$20 $3F $B3
+	JSR Copy_atkr_addr	; B17D	$20 $1F $B3
+	JSR Add_HMP		; B180	$20 $C8 $B2
+	JSR Set_HP_ofs		; B183	$20 $3F $B3
+	JSR Copy_target_addr	; B186	$20 $28 $B3
+	JSR Sub_HMP		; B189	$20 $05 $B3
 	LDY #$0A		; B18C	$A0 $0A
 	LDA ($A1),Y		; B18E	$B1 $A1
 	INY			; B190	$C8
@@ -5909,19 +5968,19 @@ L33142:
 L3319B:
 	RTS			; B19B	$60
 L3319C:
-	LDY #$0E		; B19C	$A0 $0E
+	LDY #$0E		; B19C	$A0 $0E		Max HP
 	LDA ($9F),Y		; B19E	$B1 $9F
 	STA $52			; B1A0	$85 $52
 	INY			; B1A2	$C8
 	LDA ($9F),Y		; B1A3	$B1 $9F
 	STA $53			; B1A5	$85 $53
-	JSR $B279		; B1A7	$20 $79 $B2
-	JSR $B33F		; B1AA	$20 $3F $B3
-	JSR $B328		; B1AD	$20 $28 $B3
-	JSR $B2C8		; B1B0	$20 $C8 $B2
-	JSR $B33F		; B1B3	$20 $3F $B3
-	JSR $B31F		; B1B6	$20 $1F $B3
-	JSR $B305		; B1B9	$20 $05 $B3
+	JSR Calc_drain_val	; B1A7	$20 $79 $B2
+	JSR Set_HP_ofs		; B1AA	$20 $3F $B3
+	JSR Copy_target_addr	; B1AD	$20 $28 $B3
+	JSR Add_HMP		; B1B0	$20 $C8 $B2
+	JSR Set_HP_ofs		; B1B3	$20 $3F $B3
+	JSR Copy_atkr_addr	; B1B6	$20 $1F $B3
+	JSR Sub_HMP		; B1B9	$20 $05 $B3
 	LDY #$0A		; B1BC	$A0 $0A
 	LDA ($9F),Y		; B1BE	$B1 $9F
 	INY			; B1C0	$C8
@@ -5939,33 +5998,33 @@ L331CB:
 	LDA ($A1),Y             ; B1CE	B1 A1     
 	AND #$80                ; B1D0	29 80     
 	BNE L331F4              ; B1D2	D0 20     
-	LDY #$10                ; B1D4	A0 10     
+	LDY #$10		; B1D4	A0 10		Max MP
 	LDA ($A1),Y             ; B1D6	B1 A1     
 	STA $52                 ; B1D8	85 52     
 	INY                     ; B1DA	C8        
 	LDA ($A1),Y             ; B1DB	B1 A1     
 	STA $53                 ; B1DD	85 53     
-	JSR $B279               ; B1DF	20 79 B2  
-	JSR $B348               ; B1E2	20 48 B3  
-	JSR $B328               ; B1E5	20 28 B3  
-	JSR $B305               ; B1E8	20 05 B3  
-	JSR $B348               ; B1EB	20 48 B3  
-	JSR $B31F               ; B1EE	20 1F B3  
-	JMP $B2C8               ; B1F1	4C C8 B2  
+	JSR Calc_drain_val      ; B1DF	20 79 B2  
+	JSR Set_MP_ofs          ; B1E2	20 48 B3  
+	JSR Copy_target_addr    ; B1E5	20 28 B3  
+	JSR Sub_HMP             ; B1E8	20 05 B3  
+	JSR Set_MP_ofs          ; B1EB	20 48 B3  
+	JSR Copy_atkr_addr      ; B1EE	20 1F B3  
+	JMP Add_HMP             ; B1F1	4C C8 B2  
 L331F4:
-	LDY #$10                ; B1F4	A0 10     
+	LDY #$10		; B1F4	A0 10		Max MP
 	LDA ($9F),Y             ; B1F6	B1 9F     
 	STA $52                 ; B1F8	85 52     
 	INY                     ; B1FA	C8        
 	LDA ($9F),Y             ; B1FB	B1 9F     
 	STA $53                 ; B1FD	85 53     
-	JSR $B279               ; B1FF	20 79 B2  
-	JSR $B348               ; B202	20 48 B3  
-	JSR $B328               ; B205	20 28 B3  
-	JSR $B2C8               ; B208	20 C8 B2  
-	JSR $B348               ; B20B	20 48 B3  
-	JSR $B31F               ; B20E	20 1F B3  
-	JMP $B305               ; B211	4C 05 B3  
+	JSR Calc_drain_val      ; B1FF	20 79 B2  
+	JSR Set_MP_ofs          ; B202	20 48 B3  
+	JSR Copy_target_addr    ; B205	20 28 B3  
+	JSR Add_HMP             ; B208	20 C8 B2  
+	JSR Set_MP_ofs          ; B20B	20 48 B3  
+	JSR Copy_atkr_addr      ; B20E	20 1F B3  
+	JMP Sub_HMP             ; B211	4C 05 B3  
 ; End of
 
 ; 2: ripper
@@ -5978,7 +6037,7 @@ L331F4:
 	LDA #$00                ; B220	A9 00     
 	STA $03                 ; B222	85 03     
 	JSR Multi16             ; B224	20 98 FC
-	JMP $B331               ; B227	4C 31 B3  
+	JMP Add_dmg             ; B227	4C 31 B3  
 ; End of
 
 ; 3: heal
@@ -5988,14 +6047,14 @@ L331F4:
 	BEQ L3323B              ; B230	F0 09     branch if not undead
 	LDY $9C                 ; B232	A4 9C     
 L33234:
-	JSR $B2A4               ; B234	20 A4 B2  calculate healing damage
+	JSR Calc_heal_dmg       ; B234	20 A4 B2  calculate healing damage
 	DEY                     ; B237	88        
 	BNE L33234              ; B238	D0 FA     
 	RTS                     ; B23A	60        
 L3323B:
 	LDY $9C                 ; B23B	A4 9C     
 L3323D:
-	JSR $B2A4               ; B23D	20 A4 B2  calculate healing damage
+	JSR Calc_heal_dmg       ; B23D	20 A4 B2  calculate healing damage
 	DEY                     ; B240	88        
 	BNE L3323D              ; B241	D0 FA     
 	CLC                     ; B243	18        
@@ -6007,16 +6066,16 @@ L3323D:
 	LDA ($A1),Y             ; B24D	B1 A1     
 	ADC $9B                 ; B24F	65 9B     
 	STA ($A1),Y             ; B251	91 A1     
-	JSR $B33F               ; B253	20 3F B3  
-	JSR $B328               ; B256	20 28 B3  
-	JSR $B2D8               ; B259	20 D8 B2  
+	JSR Set_HP_ofs          ; B253	20 3F B3  
+	JSR Copy_target_addr    ; B256	20 28 B3  
+	JSR Heal_HMP            ; B259	20 D8 B2  
 	LDA #$00                ; B25C	A9 00     
 	STA $9A                 ; B25E	85 9A     
 	STA $9B                 ; B260	85 9B     
 	LDA $28                 ; B262	A5 28     
 	AND #$DF                ; B264	29 DF     
 	STA $28                 ; B266	85 28     
-	JSR $AF76               ; B268	20 76 AF   get target status 1
+	JSR Get_target_status1  ; B268	20 76 AF   get target status 1
 	AND #$7F                ; B26B	29 7F     
 	STA ($A1),Y             ; B26D	91 A1     
 	LDY #$2C                ; B26F	A0 2C     
@@ -6026,34 +6085,38 @@ L3323D:
 	RTS                     ; B278	60        
 ; End of
 
-; Name	:
+; Name	: Calc_drain_val
 ; Marks	: calculate drain damage
-	LSR $53			; B279	46 53     divide by 16
-	ROR $52                 ; B27B	66 52     
-	LSR $53                 ; B27D	46 53     
-	ROR $52                 ; B27F	66 52     
-	LSR $53                 ; B281	46 53     
-	ROR $52                 ; B283	66 52     
-	LSR $53                 ; B285	46 53     
-	ROR $52                 ; B287	66 52     
-	LDA $52                 ; B289	A5 52     
-	ORA $53                 ; B28B	05 53     
-	BNE L33291              ; B28D	D0 02     
-	INC $52                 ; B28F	E6 52     min 1
+;	  +$52 = Max HP or MP
+;	  +$04 = calcurated drain point
+Calc_drain_val:
+	LSR $53			; B279	46 53		divide by 16
+	ROR $52			; B27B	66 52     
+	LSR $53			; B27D	46 53     
+	ROR $52			; B27F	66 52     
+	LSR $53			; B281	46 53     
+	ROR $52			; B283	66 52     
+	LSR $53			; B285	46 53     
+	ROR $52			; B287	66 52     
+	LDA $52			; B289	A5 52     
+	ORA $53			; B28B	05 53     
+	BNE L33291		; B28D	D0 02		branch if devide value is not 0
+	INC $52			; B28F	E6 52		min 1
 L33291:
-	LDA $9C                 ; B291	A5 9C     damage multiplier
-	STA $00                 ; B293	85 00     
-	LDA #$00                ; B295	A9 00     
-	STA $01                 ; B297	85 01     
-	LDA $52                 ; B299	A5 52     
-	STA $02                 ; B29B	85 02     
-	LDA $53                 ; B29D	A5 53     
-	STA $03                 ; B29F	85 03     
-	JMP Multi16             ; B2A1	4C 98 FC  multiply (16-bit)
-; End of
+	LDA $9C			; B291	A5 9C		damage multiplier
+	STA $00			; B293	85 00     
+	LDA #$00		; B295	A9 00     
+	STA $01			; B297	85 01		+$00: damage multiplier from $9C
+	LDA $52			; B299	A5 52     
+	STA $02			; B29B	85 02     
+	LDA $53			; B29D	A5 53     
+	STA $03			; B29F	85 03		+$02: Max HP / 16
+	JMP Multi16		; B2A1	4C 98 FC  multiply (16-bit)
+; End of Calc_drain_val
 
-; Name	:
+; Name	: Calc_heal_dmg
 ; Marks	: calculate healing damage 
+Calc_heal_dmg:
 	LDX #$00		; B2A4	A2 00     
 	STX $52                 ; B2A6	86 52     
 	STX $53                 ; B2A8	86 53     
@@ -6073,109 +6136,136 @@ L33291:
 	ADC $05                 ; B2C3	65 05     
 	STA $9B                 ; B2C5	85 9B     
 	RTS                     ; B2C7	60        
-; End of
+; End of Calc_heal_dmg
 
-;
-	LDY $56			; B2C8	A4 56     
-	CLC                     ; B2CA	18        
-	LDA ($58),Y             ; B2CB	B1 58     
-	ADC $04                 ; B2CD	65 04     
-	STA ($58),Y             ; B2CF	91 58     
-	INY                     ; B2D1	C8        
-	LDA ($58),Y             ; B2D2	B1 58     
-	ADC $05                 ; B2D4	65 05     
-	STA ($58),Y             ; B2D6	91 58     
-	LDY $56                 ; B2D8	A4 56     
-	LDA ($58),Y             ; B2DA	B1 58     
-	STA $00                 ; B2DC	85 00     
-	INY                     ; B2DE	C8        
-	LDA ($58),Y             ; B2DF	B1 58     
-	STA $01                 ; B2E1	85 01     
-	LDY $57                 ; B2E3	A4 57     
-	LDA ($58),Y             ; B2E5	B1 58     
-	STA $02                 ; B2E7	85 02     
-	INY                     ; B2E9	C8        
-	LDA ($58),Y             ; B2EA	B1 58     
-	STA $03                 ; B2EC	85 03     
-	LDA $04                 ; B2EE	A5 04     
-	PHA                     ; B2F0	48        
-	JSR $8FFC               ; B2F1	20 FC 8F  compare (16-bit)
-	BCC L33301              ; B2F4	90 0B     
-	LDY $56                 ; B2F6	A4 56     
-	LDA $02                 ; B2F8	A5 02     
-	STA ($58),Y             ; B2FA	91 58     
-	INY                     ; B2FC	C8        
-	LDA $03                 ; B2FD	A5 03     
-	STA ($58),Y             ; B2FF	91 58     
+; Name	: Add_HMP
+; Marks	: $58(ADDR) = attacker/target address
+;	  +$04 = healing point
+;	  +$02 = Max HP or MP value
+;	  +$00 = calcurated current HP or MP temp
+;	  $56 = status offset A
+;	  $57 = status offset B
+Add_HMP:
+	LDY $56			; B2C8	A4 56		status offset A(Current HP or MP)
+	CLC			; B2CA	18
+	LDA ($58),Y		; B2CB	B1 58
+	ADC $04			; B2CD	65 04		healing point L
+	STA ($58),Y		; B2CF	91 58
+	INY			; B2D1	C8
+	LDA ($58),Y		; B2D2	B1 58
+	ADC $05			; B2D4	65 05		healing point H
+	STA ($58),Y		; B2D6	91 58
+; Name	: Heal_HMP
+; Marks	:
+Heal_HMP:
+	LDY $56			; B2D8	A4 56
+	LDA ($58),Y		; B2DA	B1 58
+	STA $00			; B2DC	85 00		calcurated current HP or MP L
+	INY			; B2DE	C8
+	LDA ($58),Y		; B2DF	B1 58
+	STA $01			; B2E1	85 01		calcurated current HP or MP H
+	LDY $57			; B2E3	A4 57		status offset B(Max HP or MP)
+	LDA ($58),Y		; B2E5	B1 58
+	STA $02			; B2E7	85 02
+	INY			; B2E9	C8
+	LDA ($58),Y		; B2EA	B1 58
+	STA $03			; B2EC	85 03
+	LDA $04			; B2EE	A5 04
+	PHA			; B2F0	48
+	JSR Comp16		; B2F1	20 FC		8F compare (16-bit)
+	BCC L33301		; B2F4	90 0B		check overflow
+	LDY $56			; B2F6	A4 56		overflow Max HP or MP value - Set to Max value
+	LDA $02			; B2F8	A5 02
+	STA ($58),Y		; B2FA	91 58
+	INY			; B2FC	C8
+	LDA $03			; B2FD	A5 03
+	STA ($58),Y		; B2FF	91 58
 L33301:
-	PLA                     ; B301	68        
-	STA $04                 ; B302	85 04     
-	RTS                     ; B304	60        
-; End of
+	PLA			; B301	68
+	STA $04			; B302	85 04
+	RTS			; B304	60
+; End of Add_HMP
+; End of Heal_HMP
 
-;
+; Name	: Sub_HMP
+; Marks	:
+Sub_HMP:
 	LDY $56			; B305	A4 56     
-	SEC                     ; B307	38        
-	LDA ($58),Y             ; B308	B1 58     
-	SBC $04                 ; B30A	E5 04     
-	STA ($58),Y             ; B30C	91 58     
-	INY                     ; B30E	C8        
-	LDA ($58),Y             ; B30F	B1 58     
-	SBC $05                 ; B311	E5 05     
-	STA ($58),Y             ; B313	91 58     
-	BCS L3331E              ; B315	B0 07     
-	LDA #$00                ; B317	A9 00     
-	STA ($58),Y             ; B319	91 58     
-	DEY                     ; B31B	88        
-	STA ($58),Y             ; B31C	91 58     
+	SEC			; B307	38        
+	LDA ($58),Y		; B308	B1 58     
+	SBC $04			; B30A	E5 04     
+	STA ($58),Y		; B30C	91 58     
+	INY			; B30E	C8        
+	LDA ($58),Y		; B30F	B1 58     
+	SBC $05			; B311	E5 05     
+	STA ($58),Y		; B313	91 58     
+	BCS L3331E		; B315	B0 07     
+	LDA #$00		; B317	A9 00     
+	STA ($58),Y		; B319	91 58     
+	DEY			; B31B	88        
+	STA ($58),Y		; B31C	91 58     
 L3331E:
-	RTS                     ; B31E	60        
-; End of
+	RTS			; B31E	60        
+; End of Sub_HMP
 
-;
-	LDA $9F			; B31F	A5 9F     
+; Name	: Copy_atkr_addr
+; Marks	: $58(ADDR)=
+;	  Copy attacker address to $58
+Copy_atkr_addr:
+	LDA $9F			; B31F	A5 9F		+$9F = pointer to attacker battle stats
 	STA $58                 ; B321	85 58     
 	LDA $A0                 ; B323	A5 A0     
 	STA $59                 ; B325	85 59     
 	RTS                     ; B327	60        
-; End of
+; End of Copy_atkr_addr
 
-;
-	LDA $A1                 ; B328	A5 A1     
+; Name	: Copy_target_addr
+; Marks	: $58(ADDR)=
+;	  Copy target address to $58
+Copy_target_addr:
+	LDA $A1                 ; B328	A5 A1		+$A1 = pointer to target battle stats
 	STA $58                 ; B32A	85 58     
 	LDA $A2                 ; B32C	A5 A2     
 	STA $59                 ; B32E	85 59     
 	RTS                     ; B330	60        
-; End of
+; End of Copy_target_addr
 
-;
+; Name	: Add_dmg
+; Marks	: +$04 = Multiplied value(damage)
+Add_dmg:
 	CLC                     ; B331	18        
-	LDA $9A                 ; B332	A5 9A     
+	LDA $9A                 ; B332	A5 9A		+$9A = damage
 	ADC $04                 ; B334	65 04     
 	STA $9A                 ; B336	85 9A     
 	LDA $9B                 ; B338	A5 9B     
 	ADC $05                 ; B33A	65 05     
 	STA $9B                 ; B33C	85 9B     
 	RTS                     ; B33E	60        
-; End of
+; End of Add_dmg
 
-;
-	LDY #$0A                ; B33F	A0 0A     
-	STY $56                 ; B341	84 56     
-	LDY #$0E                ; B343	A0 0E     
-	STY $57                 ; B345	84 57     
-	RTS                     ; B347	60        
-; End of
+; Name	: Set_HP_ofs
+; Marks	: $56 = 0Ah = Current HP offset
+;	  $57 = 0Eh = Max HP offset
+Set_HP_ofs:
+	LDY #$0A		; B33F	A0 0A     
+	STY $56			; B341	84 56		temp buffer for status offset A
+	LDY #$0E		; B343	A0 0E     
+	STY $57			; B345	84 57		temp buffer for status offset B
+	RTS			; B347	60        
+; End of Set_HP_ofs
 	                        
-;
-	LDY #$0C                ; B348	A0 0C     
-	STY $56                 ; B34A	84 56     
-	LDY #$10                ; B34C	A0 10     
-	STY $57                 ; B34E	84 57     
-	RTS                     ; B350	60        
-; End of
+; Name	: Set_MP_ifs
+; Marks	: $56 = 0Ch = Current MP offset
+;	  $57 = 10h = Max MP offset
+Set_MP_ofs:
+	LDY #$0C		; B348	A0 0C
+	STY $56			; B34A	84 56		temp buffer for status offset A
+	LDY #$10		; B34C	A0 10
+	STY $57			; B34E	84 57		temp buffer for status offset B
+	RTS			; B350	60
+; End of Set_MP_ofs
 
-;
+Do_fight_efx_end2:
 	LDY #$08		; B351	A0 08     
 	STY $56                 ; B353	84 56     
 	LDY #$2C                ; B355	A0 2C     
@@ -6183,6 +6273,7 @@ L3331E:
 	LDA #$FE                ; B359	A9 FE     
 	STA $57                 ; B35B	85 57     
 	BNE L3336D              ; B35D	D0 0E     
+Do_fight_efx_end:
 L3335F:
 	LDY #$09		; B35F	$A0 $09
 	STY $56			; B361	$84 $56
@@ -6201,13 +6292,13 @@ L3336D:
 	LDA #$00		; B378	$A9 $00
 	STA $45			; B37A	$85 $45
 	STA $47			; B37C	$85 $47
-	JSR $AF76		; B37E	$20 $76 $AF
+	JSR Get_target_status1	; B37E	$20 $76 $AF
 	AND #$02		; B381	$29 $02
 	BEQ L33389		; B383	$F0 $04
 	LSR $45			; B385	$46 $45
 	ROR $44			; B387	$66 $44
 L33389:
-	JSR $BC2C		; B389	$20 $2C $BC	check for hit
+	JSR Calc_magic_cnt	; B389	$20 $2C $BC	check for hit
 	LDY #$1D		; B38C	$A0 $1D
 	LDA ($9F),Y		; B38E	$B1 $9F
 	AND $57			; B390	$25 $57
@@ -6237,13 +6328,14 @@ L33389:
 	STA ($A1),Y		; B3BE	$91 $A1
 L333C0:
 	LDA $52			; B3C0	$A5 $52
-	JSR $BF5C		; B3C2	$20 $5C $BF	show status inflicted message
+	JSR Show_inflicted_msg	; B3C2	$20 $5C $BF	show status inflicted message
 L333C5:
 	RTS			; B3C5	$60
-; End of
+; End of Do_fight_effect
 
-; Name	:
+; Name	: Do_magic_action
 ; Marks	: do magic/item action
+Do_magic_action:
 	LDA #$00		; B3C6	A9 00     
 	STA $4A                 ; B3C8	85 4A     
 	STA $4B                 ; B3CA	85 4B     
@@ -6279,7 +6371,7 @@ L333C5:
 	INY                     ; B405	C8        
 	LDA ($9F),Y             ; B406	B1 9F     
 	STA $29                 ; B408	85 29     
-	JMP $B487               ; B40A	4C 87 B4  
+	JMP Do_magic_act_chk    ; B40A	4C 87 B4  
 L3340D:
 	LDY #$25                ; B40D	A0 25     character attacker
 	LDA ($9F),Y             ; B40F	B1 9F     spell level
@@ -6342,15 +6434,16 @@ L33466:
 	CMP #$14                ; B472	C9 14     
 	BCS L3347E              ; B474	B0 08     
 	LDY #$12                ; B476	A0 12     use intellect
-	JSR $B551               ; B478	20 51 B5  calculate mod. spell stats
-	JMP $B487               ; B47B	4C 87 B4  
+	JSR Calc_spell_mod      ; B478	20 51 B5  calculate mod. spell stats
+	JMP Do_magic_act_chk    ; B47B	4C 87 B4  
 L3347E:
 	CMP #$28                ; B47E	C9 28     
 	BCS L33487              ; B480	B0 05     
 	LDY #$13                ; B482	A0 13     use spirit
-	JSR $B551               ; B484	20 51 B5  calculate mod. spell stats
+	JSR Calc_spell_mod      ; B484	20 51 B5  calculate mod. spell stats
+Do_magic_act_chk:
 L33487:
-	JSR $AF76               ; B487	20 76 AF  get target status 1
+	JSR Get_target_status1  ; B487	20 76 AF  get target status 1
 	AND #$C0                ; B48A	29 C0     
 	BEQ L3349B              ; B48C	F0 0D     branch if not dead
 	LDA $6C                 ; B48E	A5 6C     
@@ -6358,7 +6451,7 @@ L33487:
 	BEQ L3349B              ; B492	F0 07     
 	CMP #$17                ; B494	C9 17     esuna can target dead characters
 	BEQ L3349B              ; B496	F0 03     
-	JMP $BE73               ; B498	4C 73 BE  magic ineffective
+	JMP Magic_ineft         ; B498	4C 73 BE  magic ineffective
 L3349B:
 	LDA $A6                 ; B49B	A5 A6     
 	BEQ L334B1              ; B49D	F0 12     
@@ -6374,7 +6467,7 @@ L3349B:
 	LSR                     ; B4AE	4A        
 	STA ($9F),Y             ; B4AF	91 9F     
 L334B1:
-	JSR $AF76               ; B4B1	20 76 AF  get target status 1
+	JSR Get_target_status1  ; B4B1	20 76 AF  get target status 1
 	AND #$C0                ; B4B4	29 C0     
 	BEQ L334C3              ; B4B6	F0 0B     
 	LDA $6C                 ; B4B8	A5 6C     
@@ -6387,14 +6480,14 @@ L334C3:
 	LDA $6C                 ; B4C3	A5 6C     
 	CMP #$14                ; B4C5	C9 14     
 	BCS L334CC              ; B4C7	B0 03     
-	JSR $BC12               ; B4C9	20 12 BC  check magic wall
+	JSR Chk_mag_wall        ; B4C9	20 12 BC  check magic wall
 L334CC:
 	LDY #$28                ; B4CC	A0 28     
 	LDA ($9F),Y             ; B4CE	B1 9F     
 	LDY #$17                ; B4D0	A0 17     
 	AND ($A1),Y             ; B4D2	31 A1     
 	BEQ L334D9              ; B4D4	F0 03     
-	JMP $BCFB               ; B4D6	4C FB BC  restore hp
+	JMP Restore_HP           ; B4D6	4C FB BC  restore hp
 L334D9:
 	LDA $5E                 ; B4D9	A5 5E     
 	ASL                     ; B4DB	0A        
@@ -6410,7 +6503,7 @@ L334D9:
 	INY                     ; B4ED	C8        
 	LDA ($44),Y             ; B4EE	B1 44     
 	STA $47                 ; B4F0	85 47     
-	JSR $BE87               ; B4F2	20 87 BE  do magic effect
+	JSR Do_mag_effect       ; B4F2	20 87 BE  do magic effect
 	LDY #$0A                ; B4F5	A0 0A     
 	LDA ($9F),Y             ; B4F7	B1 9F     
 	INY                     ; B4F9	C8        
@@ -6434,7 +6527,7 @@ L33504:
 	STA $03                 ; B519	85 03     
 	LDA #$9F                ; B51B	A9 9F     
 	STA $02                 ; B51D	85 02     
-	JSR $8FFC               ; B51F	20 FC 8F  compare (16-bit)
+	JSR Comp16              ; B51F	20 FC 8F  compare (16-bit)
 	BCC L3352C              ; B522	90 08     
 	LDA #$86                ; B524	A9 86     
 	STA $4B                 ; B526	85 4B     
@@ -6452,21 +6545,22 @@ L3352C:
 	INY                     ; B53C	C8        
 	ORA ($A1),Y             ; B53D	11 A1     
 	BNE L3354E              ; B53F	D0 0D     branch if not zero
-	JSR $AF76               ; B541	20 76 AF  get target status 1
+	JSR Get_target_status1  ; B541	20 76 AF  get target status 1
 	LDY #$2C                ; B544	A0 2C     
 	STA ($A1),Y             ; B546	91 A1     make target dead
 	LDY #$08                ; B548	A0 08     
 	ORA #$80                ; B54A	09 80     
 	STA ($A1),Y             ; B54C	91 A1     
 L3354E:
-	JMP $BF9A               ; B54E	4C 9A BF  add dead target message to queue
-; End of
+	JMP Add_msg_dead_target ; B54E	4C 9A BF  add dead target message to queue
+; End of Do_magic_action
 
-; Name	:
+; Name	: Calc_spell_mod
 ; Y	: spell stat offset
 ; Marks	: calculate mod. spell stats
 ;	  $12 = intellect
 ;	  $13 = spirit
+Calc_spell_mod:
 	LDA ($9F),Y		; B551	B1 9F     intellect or spirit
 	STA $48                 ; B553	85 48     
 	LDY #$24                ; B555	A0 24     
@@ -6487,19 +6581,22 @@ L3355E:
 	LDY #$27                ; B56C	A0 27     
 	STA ($9F),Y             ; B56E	91 9F     set mod. spell power
 	RTS                     ; B570	60        
-; End of
+; End of Calc_spell_mod
 
-; Name	:
+; Name	: Mag_effect
 ; Marks	: magic effect 
 ;	  $00/$01: magic damage
-	JSR $BD7B		; B571	20 7B BD  calculate magic damage
+Mag_effect:
+	JSR Calc_magic_dmg	; B571	20 7B BD  calculate magic damage
 	LDY #$0A                ; B574	A0 0A     
-	JMP $B579		; B576	4C 79 B5  subtract damage from target hp/mp
-; End of
+	JMP Sub_dmg_HMP		; B576	4C 79 B5  subtract damage from target hp/mp
+; End of Mag_effect
 
-
-; Y: offset of current hp/mp ($0A = hp, $0C = mp)
+; Name	: Sub_dmg_HMP
+; Y	: offset of current hp/mp ($0A = hp, $0C = mp)
 ; Marks	: subtract damage from target hp/mp
+;	  +$4A = 
+Sub_dmg_HMP:
 	SEC 			; B579	38        
 	LDA ($A1),Y             ; B57A	B1 A1     
 	SBC $4A                 ; B57C	E5 4A     
@@ -6509,37 +6606,46 @@ L3355E:
 	SBC $4B                 ; B583	E5 4B     
 	STA ($A1),Y             ; B585	91 A1     
 	BCS L3358C              ; B587	B0 03     
-	JSR $B58D               ; B589	20 8D B5  set target hp to zero
+	JSR Set_HP_0            ; B589	20 8D B5  set target hp to zero
 L3358C:
 	RTS                     ; B58C	60        
-	                        
+; End of Sub_dmg_HMP
+
+; Name	: Set_HP_0
+; Y	: offset of current hp/mp ($0A = hp, $0C = mp)
 ; Marks	: set target hp to zero
+Set_HP_0:
 	LDA #$00                ; B58D	A9 00     
 	STA ($A1),Y             ; B58F	91 A1     
 	DEY                     ; B591	88        
 	STA ($A1),Y             ; B592	91 A1     
 	RTS                     ; B594	60        
-; End of
+; End of Set_HP_0
 	                        
+; Name	: Mag_heal
 ; Marks	: magic effect $02:magic healing
+Mag_heal:
 	LDY #$15                ; B595	A0 15     
 	LDA ($A1),Y             ; B597	B1 A1     
 	AND #$80                ; B599	29 80     
 	BNE L335A3              ; B59B	D0 06     branch if undead
-	JSR $BCFB               ; B59D	20 FB BC  restore hp
-	JMP $B5A6               ; B5A0	4C A6 B5  
+	JSR Restore_HP          ; B59D	20 FB BC  restore hp
+	JMP Magic_heal_done     ; B5A0	4C A6 B5  
 L335A3:
-	JSR $BD52               ; B5A3	20 52 BD  do magic damage (undead)
+	JSR Do_undead_dmg       ; B5A3	20 52 BD  do magic damage (undead)
+Magic_heal_done:
 	RTS                     ; B5A6	60        
-; End of
+; End of Mag_heal
 
+; Name	: Inflict_status
 ; Marks	: magic effect $03/$04	inflict status
+Inflict_status:
 	LDA $5E                 ; B5A7	A5 5E     
 	CMP #$04                ; B5A9	C9 04     
 	BEQ L335C8              ; B5AB	F0 1B     
 	LDA #$08                ; B5AD	A9 08     status 1
 	STA $5E                 ; B5AF	85 5E     
-	JSR $B5E2               ; B5B1	20 E2 B5  inflict status
+	JSR Infl_status         ; B5B1	20 E2 B5  inflict status
 	LDY #$08                ; B5B4	A0 08     
 	LDA ($A1),Y             ; B5B6	B1 A1     
 	AND #$80                ; B5B8	29 80     
@@ -6547,33 +6653,39 @@ L335A3:
 	LDY #$00                ; B5BC	A0 00     
 	STY $A5                 ; B5BE	84 A5     
 	LDY #$0B                ; B5C0	A0 0B     
-	JSR $B58D               ; B5C2	20 8D B5  set target hp to zero
+	JSR Set_HP_0            ; B5C2	20 8D B5  set target hp to zero
 L335C5:
-	JMP $B5CF               ; B5C5	4C CF B5  
+	JMP inflict_status_end  ; B5C5	4C CF B5  
 L335C8:
 	LDA #$09                ; B5C8	A9 09     status 2
 	STA $5E                 ; B5CA	85 5E     
-	JSR $B5E2               ; B5CC	20 E2 B5  inflict status
+	JSR Infl_status         ; B5CC	20 E2 B5  inflict status
+inflict_status_end:
 	RTS                     ; B5CF	60        
-; End of
+; End of life ??
 
-; Marks	:
-	SEC                     ; B5D0	38        
-	LDA $52                 ; B5D1	A5 52     
-	SBC $54                 ; B5D3	E5 54     
-	STA $52                 ; B5D5	85 52     
-	LDA $53                 ; B5D7	A5 53     
-	SBC $55                 ; B5D9	E5 55     
-	STA $53                 ; B5DB	85 53     
-	LDA $52                 ; B5DD	A5 52     
-	ORA $53                 ; B5DF	05 53     
-	RTS                     ; B5E1	60        
-; End of
+; Name	: Comp_5254
+; Ret	: C flag
+; Marks	: +$52 = ??
+;	  +$54 = ??
+Comp_5254:
+	SEC			; B5D0	38
+	LDA $52			; B5D1	A5 52
+	SBC $54			; B5D3	E5 54
+	STA $52			; B5D5	85 52
+	LDA $53			; B5D7	A5 53
+	SBC $55			; B5D9	E5 55
+	STA $53			; B5DB	85 53
+	LDA $52			; B5DD	A5 52
+	ORA $53			; B5DF	05 53
+	RTS    			; B5E1	60
+; End of Comp_5254
 	                        
-; Name	:
+; Name	: Infl_status
 ; Marks	: inflict status
-	JSR $BE23               ; B5E2	20 23 BE  get number of magic hits
-	JSR $B5D0               ; B5E5	20 D0 B5  
+Infl_status:
+	JSR Get_magic_hits      ; B5E2	20 23 BE  get number of magic hits
+	JSR Comp_5254           ; B5E5	20 D0 B5  
 	BCC L33610              ; B5E8	90 26     branch if less than 1 hit
 	BEQ L33610              ; B5EA	F0 24     
 	LDY $5E                 ; B5EC	A4 5E     
@@ -6592,15 +6704,17 @@ L335C8:
 	STA $56                 ; B604	85 56     
 	LDY #$29                ; B606	A0 29     
 	LDA ($9F),Y             ; B608	B1 9F     
-	JSR $BF5C               ; B60A	20 5C BF  show status inflicted message
-	JMP $BE7E               ; B60D	4C 7E BE  don't show damage message
+	JSR Show_inflicted_msg  ; B60A	20 5C BF  show status inflicted message
+	JMP No_dmg_msg          ; B60D	4C 7E BE  don't show damage message
 L33610:
-	JMP $BE73               ; B610	4C 73 BE  magic ineffective
-; End of
+	JMP Magic_ineft         ; B610	4C 73 BE  magic ineffective
+; End of Infl_status
 
+; Name	: Mag_slow
 ; magic effect $05: slow
-	JSR $BE23		; B613	20 23 BE            ; get number of magic hits
-	JSR $B5D0               ; B616	20 D0 B5  
+Mag_slow:
+	JSR Get_magic_hits	; B613	20 23 BE            ; get number of magic hits
+	JSR Comp_5254           ; B616	20 D0 B5  
 	BCC L33649              ; B619	90 2E     
 	SEC                     ; B61B	38        
 	LDA #$14                ; B61C	A9 14     
@@ -6614,24 +6728,27 @@ L33610:
 	STA $00                 ; B62C	85 00     
 	LDA #$00                ; B62E	A9 00     
 	STA $01                 ; B630	85 01     
-	JSR $8FFC               ; B632	20 FC 8F  compare (16-bit)
+	JSR Comp16              ; B632	20 FC 8F  compare (16-bit)
 	BCC L33649              ; B635	90 12     
 	LDY #$07                ; B637	A0 07     
 	LDA $02                 ; B639	A5 02     
 	STA ($A1),Y             ; B63B	91 A1     
 	LDA #$3D                ; B63D	A9 3D     $3D	"Can hit"
-	JSR $BF92               ; B63F	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B63F	20 92 BF  add to battle message queue
 	LDA #$BE                ; B642	A9 BE     $3E	" less"
-	JSR $BF92               ; B644	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B644	20 92 BF  add to battle message queue
 	BNE L3364C              ; B647	D0 03     
 L33649:
-	JSR $BE73               ; B649	20 73 BE  magic ineffective
+	JSR Magic_ineft         ; B649	20 73 BE  magic ineffective
 L3364C:
-	JMP $BE7E               ; B64C	4C 7E BE  don't show damage message
-	                        
+	JMP No_dmg_msg          ; B64C	4C 7E BE  don't show damage message
+; End of Mag_slow
+
+; Name	: Mag_haste
 ; magic effect $06: haste
-	JSR $BDE9               ; B64F	20 E9 BD  check for hit (magic)
-	JSR $B68D               ; B652	20 8D B6  set number of hits
+Mag_haste:
+	JSR Chk_magic_hit       ; B64F	20 E9 BD  check for hit (magic)
+	JSR Set_hits_temp       ; B652	20 8D B6  set number of hits
 	AND #$80                ; B655	29 80     
 	BNE L33687              ; B657	D0 2E     branch if negative number of hits
 	CLC                     ; B659	18        
@@ -6646,31 +6763,39 @@ L3364C:
 	STA $00                 ; B66A	85 00     
 	LDA #$00                ; B66C	A9 00     
 	STA $01                 ; B66E	85 01     
-	JSR $8FFC               ; B670	20 FC 8F  compare (16-bit)
+	JSR Comp16              ; B670	20 FC 8F  compare (16-bit)
 	BCS L33687              ; B673	B0 12     branch if current modifier is greater
 	LDY #$07                ; B675	A0 07     
 	LDA $02                 ; B677	A5 02     
 	STA ($A1),Y             ; B679	91 A1     set haste/slow modifier
 	LDA #$3D                ; B67B	A9 3D     $3D	"Can hit"
-	JSR $BF92               ; B67D	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B67D	20 92 BF  add to battle message queue
 	LDA #$BF                ; B680	A9 BF     $3F	" more"
-	JSR $BF92               ; B682	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B682	20 92 BF  add to battle message queue
 	BNE L3368A              ; B685	D0 03     
 L33687:
-	JSR $BE73               ; B687	20 73 BE  magic ineffective
+	JSR Magic_ineft         ; B687	20 73 BE  magic ineffective
 L3368A:
-	JMP $BE7E               ; B68A	4C 7E BE  don't show damage message
+	JMP No_dmg_msg          ; B68A	4C 7E BE  don't show damage message
+; End of Mag_haste
 
-; set number of hits
-	LDA $48                 ; B68D	A5 48     
-	STA $52                 ; B68F	85 52     
-	LDA $49                 ; B691	A5 49     
-	STA $53                 ; B693	85 53     
-	RTS                     ; B695	60        
-	                        
+; Name	: Set_hits_temp
+; Marks	: set number of hits
+;	  $48 -> $52
+;	  $49 -> $53
+Set_hits_temp:
+	LDA $48			; B68D	A5 48     
+	STA $52			; B68F	85 52     
+	LDA $49			; B691	A5 49     
+	STA $53			; B693	85 53     
+	RTS			; B695	60        
+; Set_hits_temp
+
+; Name	: Mag_fear
 ; magic effect $07:fear
-	JSR $BE23               ; B696	20 23 BE  get number of magic hits
-	JSR $B5D0               ; B699	20 D0 B5  
+Mag_fear:
+	JSR Get_magic_hits      ; B696	20 23 BE  get number of magic hits
+	JSR Comp_5254           ; B699	20 D0 B5  
 	BCC L336C2              ; B69C	90 24     
 	LDA $52                 ; B69E	A5 52     
 	STA $00                 ; B6A0	85 00     
@@ -6691,18 +6816,21 @@ L3368A:
 	LDA #$FF                ; B6BE	A9 FF     
 	STA ($A1),Y             ; B6C0	91 A1     
 L336C2:
-	JMP $BE73               ; B6C2	4C 73 BE  magic ineffective
+	JMP Magic_ineft         ; B6C2	4C 73 BE  magic ineffective
 L336C5:
 	LDA #$33                ; B6C5	A9 33     Terrified enemy"
-	JSR $BF92               ; B6C7	20 92 BF  add to battle message queue
-	JMP $BE7E               ; B6CA	4C 7E BE  don't show damage message
+	JSR Add_msg_que         ; B6C7	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; B6CA	4C 7E BE  don't show damage message
+; End of Mag_fear
 
+; Name	: Mag_buff
 ; magic effect $08/$09/$0B/$0C: esuna, basuna, barrier, aura
-	JSR $BDE9          ; che; B6CD	20 E9 BD  ck for hit (magic)
+Mag_buff:
+	JSR Chk_magic_hit       ; B6CD	20 E9 BD  check for hit (magic)
 	LDA $5E                 ; B6D0	A5 5E     
 	CMP #$0A                ; B6D2	C9 0A     
 	BCC L336D9              ; B6D4	90 03     
-	JMP $B72C               ; B6D6	4C 2C B7  
+	JMP Mag_buff_barrier_aura               ; B6D6	4C 2C B7  
 ; esuna, basuna
 L336D9:
 	PHA                     ; B6D9	48        
@@ -6723,7 +6851,7 @@ L336D9:
 	STA ($A1),Y             ; B6F2	91 A1     previous status 1
 	LDY #$08                ; B6F4	A0 08     
 	LDX $48                 ; B6F6	A6 48     
-	JMP $B70D               ; B6F8	4C 0D B7  
+	JMP Mag_buff_do         ; B6F8	4C 0D B7  
 ; basuna
 L336FB:
 	LDY #$09                ; B6FB	A0 09     
@@ -6736,13 +6864,14 @@ L336FB:
 	LDX $48                 ; B709	A6 48     
 	INX                     ; B70B	E8        
 	INX                     ; B70C	E8        
+Mag_buff_do:
 	CPX #$08                ; B70D	E0 08     
 	BCC L33713              ; B70F	90 02     
 	LDX #$07                ; B711	A2 07     
 L33713:
 	LDA ($A1),Y             ; B713	B1 A1     
 L33715:
-	JSR $900E               ; B715	20 0E 90  clear bit
+	JSR Clear_bit           ; B715	20 0E 90  clear bit
 	DEX                     ; B718	CA        
 	BPL L33715              ; B719	10 FA     
 	STA ($A1),Y             ; B71B	91 A1     
@@ -6752,8 +6881,9 @@ L33715:
 	LDY $5F                 ; B723	A4 5F     
 	LDA ($A1),Y             ; B725	B1 A1     
 	STA $4F                 ; B727	85 4F     
-	JMP $B784               ; B729	4C 84 B7  show status removed message
+	JMP Set_stat_rm_msg     ; B729	4C 84 B7  show status removed message
 ; barrier, aura
+Mag_buff_barrier_aura:
 	PHA                     ; B72C	48        
 	LDA #$49                ; B72D	A9 49     $49	"White"
 	STA $5C                 ; B72F	85 5C     
@@ -6767,14 +6897,15 @@ L33715:
 	LDA #$C8                ; B73E	A9 C8     $48	" resist!"
 	STA $5D                 ; B740	85 5D     
 	LDY #$05                ; B742	A0 05     
-	JMP $B74D               ; B744	4C 4D B7  show barrier/aura messages
+	JMP Mag_buff_msg        ; B744	4C 4D B7  show barrier/aura messages
 L33747:
 	LDY #$1C                ; B747	A0 1C     
-	JSR $B74D               ; B749	20 4D B7  show barrier/aura messages
+	JSR Mag_buff_msg        ; B749	20 4D B7  show barrier/aura messages
 	RTS                     ; B74C	60        
-; End of
-
+; End of Mag_buff
+; Name	: Mag_buff_msg
 ; Marks	: show barrier/aura messages
+Mag_buff_msg:
 	LDA ($A1),Y		; B74D	B1 A1             ; strong status or monster type bonus
 	LDX $48                 ; B74F	A6 48     
 	CPX #$08                ; B751	E0 08     
@@ -6785,7 +6916,7 @@ L33757:
 	BMI L3377E              ; B758	30 24     
 	STX $48                 ; B75A	86 48     
 L3375C:
-	JSR $900A               ; B75C	20 0A 90  set bit
+	JSR Set_bit             ; B75C	20 0A 90  set bit
 	DEX                     ; B75F	CA        
 	BPL L3375C              ; B760	10 FA     
 	STA ($A1),Y             ; B762	91 A1     
@@ -6793,9 +6924,9 @@ L3375C:
 	STX $5F                 ; B766	86 5F     
 L33768:
 	LDA $5C                 ; B768	A5 5C     
-	JSR $BF92               ; B76A	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B76A	20 92 BF  add to battle message queue
 	LDA $5D                 ; B76D	A5 5D     
-	JSR $BF92               ; B76F	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B76F	20 92 BF  add to battle message queue
 	LDA $48                 ; B772	A5 48     
 	CMP $5F                 ; B774	C5 5F     
 	BEQ L33781              ; B776	F0 09     
@@ -6803,24 +6934,27 @@ L33768:
 	INC $5C                 ; B77A	E6 5C     
 	BNE L33768              ; B77C	D0 EA     
 L3377E:
-	JSR $BE73               ; B77E	20 73 BE  magic ineffective
+	JSR Magic_ineft         ; B77E	20 73 BE  magic ineffective
 L33781:
-	JMP $BE7E               ; B781	4C 7E BE  don't show damage message
-; End of
+	JMP No_dmg_msg          ; B781	4C 7E BE  don't show damage message
+; End of Mag_buff_msg
+; End of Mag_buff
 
+; Name	: Set_stat_rm_msg
 ; Marks	: show status removed message
 ; $4F: status (bitmask)
+Set_stat_rm_msg:
 	LDX #$07                ; B784	A2 07     
 	LDA $4F                 ; B786	A5 4F     
 L33788:
-	JSR $9016               ; B788	20 16 90  check bit
+	JSR Check_bit           ; B788	20 16 90  check bit
 	BNE L33792              ; B78B	D0 05     
 	DEX                     ; B78D	CA        
 	BPL L33788              ; B78E	10 F8     
 	BMI L337C7              ; B790	30 35     
 L33792:
 	LDA $4E                 ; B792	A5 4E     
-	JSR $9016               ; B794	20 16 90  check bit
+	JSR Check_bit           ; B794	20 16 90  check bit
 	BEQ L3379E              ; B797	F0 05     
 	DEX                     ; B799	CA        
 	BPL L33788              ; B79A	10 EC     
@@ -6847,14 +6981,16 @@ L3379E:
 	CLC                     ; B7BC	18        
 	LDA $5E                 ; B7BD	A5 5E     
 	ADC $5F                 ; B7BF	65 5F     
-	JSR $BF92               ; B7C1	20 92 BF  add to battle message queue
-	JMP $BE7E               ; B7C4	4C 7E BE  don't show damage message
+	JSR Add_msg_que         ; B7C1	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; B7C4	4C 7E BE  don't show damage message
 L337C7:
-	JMP $BE73               ; B7C7	4C 73 BE  magic ineffective
-; End of
+	JMP Magic_ineft         ; B7C7	4C 73 BE  magic ineffective
+; End of Set_stat_rm_msg
 
+; Name	: Mag_protect
 ; magic effect $0A: protect
-	JSR $BDE9               ; B7CA	20 E9 BD  check for hit (magic)
+Mag_protect:
+	JSR Chk_magic_hit       ; B7CA	20 E9 BD  check for hit (magic)
 	LDY #$27                ; B7CD	A0 27     
 	LDA ($A1),Y             ; B7CF	B1 A1     mod. spell power
 	STA $00                 ; B7D1	85 00     
@@ -6873,17 +7009,19 @@ L337C7:
 	BCC L337F4              ; B7EB	90 07     
 	LDA #$FF                ; B7ED	A9 FF     max 255
 	STA ($A1),Y             ; B7EF	91 A1     
-	JMP $BE73               ; B7F1	4C 73 BE  magic ineffective
+	JMP Magic_ineft         ; B7F1	4C 73 BE  magic ineffective
 L337F4:
 	LDA #$5C                ; B7F4	A9 5C     $5C	"Defense"
-	JSR $BF92               ; B7F6	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B7F6	20 92 BF  add to battle message queue
 	LDA #$E6                ; B7F9	A9 E6     $66	" up!"
-	JSR $BF92               ; B7FB	20 92 BF  add to battle message queue
-	JMP $BE7E               ; B7FE	4C 7E BE  don't show damage message
-; End of
+	JSR Add_msg_que         ; B7FB	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; B7FE	4C 7E BE  don't show damage message
+; End of Mag_protect
 
+; Name	: Mag_dispel
 ; magic effect $0D: dispel
-	JSR $BE23               ; B801	20 23 BE  get number of magic hits
+Mag_dispel:
+	JSR Get_magic_hits      ; B801	20 23 BE  get number of magic hits
 	LDX $52                 ; B804	A6 52     
 	DEX                     ; B806	CA        
 	BPL L3380B              ; B807	10 02     
@@ -6897,7 +7035,7 @@ L33811:
 	LDY #$05                ; B813	A0 05     
 	LDA ($A1),Y             ; B815	B1 A1     
 L33817:
-	JSR $900E               ; B817	20 0E 90  clear bit
+	JSR Clear_bit           ; B817	20 0E 90  clear bit
 	DEX                     ; B81A	CA        
 	BPL L33817              ; B81B	10 FA     
 	LDX #$00                ; B81D	A2 00     
@@ -6906,9 +7044,9 @@ L33817:
 	STA $5C                 ; B823	85 5C     
 L33825:
 	LDA $5C                 ; B825	A5 5C     
-	JSR $BF92               ; B827	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B827	20 92 BF  add to battle message queue
 	LDA #$DA                ; B82A	A9 DA     $5A	" Res.Down"
-	JSR $BF92               ; B82C	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B82C	20 92 BF  add to battle message queue
 	LDA $52                 ; B82F	A5 52     
 	CMP $5F                 ; B831	C5 5F     
 	BEQ L3383E              ; B833	F0 09     
@@ -6916,13 +7054,15 @@ L33825:
 	INC $5C                 ; B837	E6 5C     
 	BNE L33825              ; B839	D0 EA     
 L3383B:
-	JSR $BE73               ; B83B	20 73 BE  magic ineffective
+	JSR Magic_ineft         ; B83B	20 73 BE  magic ineffective
 L3383E:
-	JMP $BE7E               ; B83E	4C 7E BE  don't show damage message
-; End of
+	JMP No_dmg_msg          ; B83E	4C 7E BE  don't show damage message
+; End of Mag_dispel
 
+; Name	: Mag_def
 ; magic effect $0E/$0F: blink/shell
-	JSR $BDE9               ; B841	20 E9 BD  check for hit (magic)
+Mag_def:
+	JSR Chk_magic_hit       ; B841	20 E9 BD  check for hit (magic)
 	LDA $5E                 ; B844	A5 5E     
 	CMP #$0F                ; B846	C9 0F     
 	BEQ L33850              ; B848	F0 06     
@@ -6941,7 +7081,7 @@ L33854:
 	BCC L33866              ; B85D	90 07     
 	LDA #$FF                ; B85F	A9 FF     
 	STA ($A1),Y             ; B861	91 A1     
-	JMP $BE73               ; B863	4C 73 BE  magic ineffective
+	JMP Magic_ineft         ; B863	4C 73 BE  magic ineffective
 L33866:
 	LDA $5E                 ; B866	A5 5E     
 	CMP #$00                ; B868	C9 00     
@@ -6951,35 +7091,37 @@ L33866:
 L33870:
 	LDA #$35                ; B870	A9 35     $35	"M.Res up"
 L33872:
-	JSR $BF92               ; B872	20 92 BF  add to battle message queue
-	JMP $BE7E               ; B875	4C 7E BE  don't show damage message
-; End of
+	JSR Add_msg_que         ; B872	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; B875	4C 7E BE  don't show damage message
+; End of Mag_def
 
+; Name	: Mag_life
 ; magic effect $10: life
+Mag_life:
 	LDY #$15                ; B878	A0 15     
 	LDA ($A1),Y             ; B87A	B1 A1     
 	AND #$80                ; B87C	29 80     
 	BEQ L33883              ; B87E	F0 03     
-	JMP $B5A7               ; B880	4C A7 B5  
+	JMP Inflict_status      ; B880	4C A7 B5  
 L33883:
-	JSR $AF76               ; B883	20 76 AF  get target status 1
+	JSR Get_target_status1  ; B883	20 76 AF  get target status 1
 	AND #$80                ; B886	29 80     
 	BEQ L33893              ; B888	F0 09     
-	JSR $BDE9               ; B88A	20 E9 BD  check for hit (magic)
+	JSR Chk_magic_hit       ; B88A	20 E9 BD  check for hit (magic)
 	LDA $48                 ; B88D	A5 48     
 	ORA $49                 ; B88F	05 49     
 	BNE L33896              ; B891	D0 03     
 L33893:
-	JMP $BE73               ; B893	4C 73 BE  magic ineffective
+	JMP Magic_ineft          ; B893	4C 73 BE  magic ineffective
 L33896:
-	JSR $AF76               ; B896	20 76 AF  get target status 1
+	JSR Get_target_status1  ; B896	20 76 AF  get target status 1
 	LDY #$2C                ; B899	A0 2C     
 	STA ($A1),Y             ; B89B	91 A1     
 	LDY #$08                ; B89D	A0 08     
 	AND #$7F                ; B89F	29 7F     
 	STA ($A1),Y             ; B8A1	91 A1     
 	LDA #$26                ; B8A3	A9 26     $26	"Rose!"
-	JSR $BF92               ; B8A5	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B8A5	20 92 BF  add to battle message queue
 	SEC                     ; B8A8	38        
 	LDA #$10                ; B8A9	A9 10     
 	SBC $48                 ; B8AB	E5 48     
@@ -7001,12 +7143,14 @@ L338BB:
 	LDY #$0A                ; B8C9	A0 0A     
 	LDA $04                 ; B8CB	A5 04     
 	STA ($A1),Y             ; B8CD	91 A1     
-	JMP $BE7E               ; B8CF	4C 7E BE  don't show damage message
-; End of
+	JMP No_dmg_msg          ; B8CF	4C 7E BE  don't show damage message
+; End of Mag_life
 
+; Name	:
 ; magic effect $11: sap
-	JSR $BE23          ; get; B8D2	20 23 BE   number of magic hits
-	JSR $B5D0               ; B8D5	20 D0 B5  
+Mag_sap:
+	JSR Get_magic_hits      ; B8D2	20 23 BE  get number of magic hits
+	JSR Comp_5254           ; B8D5	20 D0 B5  
 	BCS L338E0              ; B8D8	B0 06     
 	LDA #$00                ; B8DA	A9 00     
 	STA $52                 ; B8DC	85 52     
@@ -7028,21 +7172,23 @@ L338E0:
 	LDA $04                 ; B8FA	A5 04     
 	STA ($A1),Y             ; B8FC	91 A1     
 	LDA #$5E                ; B8FE	A9 5E     $5E	"MP"
-	JSR $BF92               ; B900	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; B900	20 92 BF  add to battle message queue
 	LDA #$B6                ; B903	A9 B6     $56	" fell"
-	JSR $BF92               ; B905	20 92 BF  add to battle message queue
-	JMP $BE7E               ; B908	4C 7E BE  don't show damage message
-; End of
+	JSR Add_msg_que         ; B905	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; B908	4C 7E BE  don't show damage message
+; End of Mag_sap
 
+; Name	: Mag_swap
 ; magic effect $12: swap
-	JSR $BE23               ; B90B	20 23 BE  get number of magic hits
-	JSR $B5D0               ; B90E	20 D0 B5  
+Mag_swap:
+	JSR Get_magic_hits      ; B90B	20 23 BE  get number of magic hits
+	JSR Comp_5254           ; B90E	20 D0 B5  
 	BCC L33963              ; B911	90 50     
 	BEQ L33963              ; B913	F0 4E     
 	LDY #$0A                ; B915	A0 0A     
-	JSR $B966               ; B917	20 66 B9  
+	JSR Swap_stat           ; B917	20 66 B9  
 	LDY #$0C                ; B91A	A0 0C     
-	JSR $B966               ; B91C	20 66 B9  
+	JSR Swap_stat           ; B91C	20 66 B9  
 	LDA #$0A                ; B91F	A9 0A     
 	STA $5C                 ; B921	85 5C     
 	LDA #$0E                ; B923	A9 0E     
@@ -7051,12 +7197,12 @@ L338E0:
 	STA $5E                 ; B929	85 5E     
 	LDA $A0                 ; B92B	A5 A0     
 	STA $5F                 ; B92D	85 5F     
-	JSR $B983               ; B92F	20 83 B9  validate hp/mp
+	JSR Valid_HMP           ; B92F	20 83 B9  validate hp/mp
 	LDA $A1                 ; B932	A5 A1     
 	STA $5E                 ; B934	85 5E     
 	LDA $A2                 ; B936	A5 A2     
 	STA $5F                 ; B938	85 5F     
-	JSR $B983               ; B93A	20 83 B9  validate hp/mp
+	JSR Valid_HMP           ; B93A	20 83 B9  validate hp/mp
 	LDA #$0C                ; B93D	A9 0C     
 	STA $5C                 ; B93F	85 5C     
 	LDA #$10                ; B941	A9 10     
@@ -7065,20 +7211,23 @@ L338E0:
 	STA $5E                 ; B947	85 5E     
 	LDA $A0                 ; B949	A5 A0     
 	STA $5F                 ; B94B	85 5F     
-	JSR $B983               ; B94D	20 83 B9  validate hp/mp
+	JSR Valid_HMP           ; B94D	20 83 B9  validate hp/mp
 	LDA $A1                 ; B950	A5 A1     
 	STA $5E                 ; B952	85 5E     
 	LDA $A2                 ; B954	A5 A2     
 	STA $5F                 ; B956	85 5F     
-	JSR $B983               ; B958	20 83 B9  validate hp/mp
+	JSR Valid_HMP           ; B958	20 83 B9  validate hp/mp
 	LDA #$37                ; B95B	A9 37     $37	"Swapped HP/MP"
-	JSR $BF92               ; B95D	20 92 BF  add to battle message queue
-	JMP $BE7E               ; B960	4C 7E BE  don't show damage message
+	JSR Add_msg_que         ; B95D	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; B960	4C 7E BE  don't show damage message
 L33963:
-	JMP $BE73               ; B963	4C 73 BE  magic ineffective
-; End of
+	JMP Magic_ineft         ; B963	4C 73 BE  magic ineffective
+; End of Mag_swap
 
-;
+; Name	: Swap_stat
+; Y	: stats offset
+; Marks	:
+Swap_stat:
 	LDA ($9F),Y             ; B966	B1 9F     
 	STA $52                 ; B968	85 52     
 	INY                     ; B96A	C8        
@@ -7096,12 +7245,14 @@ L33963:
 	LDA $52                 ; B97E	A5 52     
 	STA ($A1),Y             ; B980	91 A1     
 	RTS                     ; B982	60        
-; End of
+; End of Swap_stat
 
+; Name	: Valid_HMP
 ; Marks	: validate hp/mp
 ;  $5C: current hp/mp offset
 ;  $5D: max hp/mp offset
 ; +$5E: pointer to battle stats
+Valid_HMP:
 	LDY $5C                 ; B983	A4 5C     
 	LDA ($5E),Y             ; B985	B1 5E     +$00	current hp/mp
 	STA $00                 ; B987	85 00     
@@ -7114,7 +7265,7 @@ L33963:
 	INY                     ; B994	C8        
 	LDA ($5E),Y             ; B995	B1 5E     
 	STA $03                 ; B997	85 03     
-	JSR $8FFC               ; B999	20 FC 8F  compare (16-bit)
+	JSR Comp16              ; B999	20 FC 8F  compare (16-bit)
 	BCC L339A9              ; B99C	90 0B     return if less than max
 	LDY $5C                 ; B99E	A4 5C     
 	LDA $02                 ; B9A0	A5 02     
@@ -7124,9 +7275,11 @@ L33963:
 	STA ($5E),Y             ; B9A7	91 5E     
 L339A9:
 	RTS                     ; B9A9	60        
-; End of
+; End of Valid_HMP
 
+; Name	: Mag_absorb
 ; magic effect $13/$14: drain/osmose
+Mag_absorb:
 	LDA #$0A                ; B9AA	A9 0A     current hp
 	STA $5C                 ; B9AC	85 5C     
 	LDA #$0E                ; B9AE	A9 0E     max hp
@@ -7142,13 +7295,13 @@ L339A9:
 	INC $5D                 ; B9C2	E6 5D     
 	INC $5D                 ; B9C4	E6 5D     
 L339C6:
-	JSR $BD7B               ; B9C6	20 7B BD  calculate magic damage
+	JSR Calc_magic_dmg      ; B9C6	20 7B BD  calculate magic damage
 	LDY #$15                ; B9C9	A0 15     
 	LDA ($A1),Y             ; B9CB	B1 A1     
 	AND #$80                ; B9CD	29 80     
 	BNE L339E9              ; B9CF	D0 18     branch if target is undead
 	LDY $5C                 ; B9D1	A4 5C     
-	JSR $B579               ; B9D3	20 79 B5  subtract damage from target hp/mp
+	JSR Sub_dmg_HMP         ; B9D3	20 79 B5  subtract damage from target hp/mp
 	LDY $5C                 ; B9D6	A4 5C     
 	CLC                     ; B9D8	18        
 	LDA ($9F),Y             ; B9D9	B1 9F     add damage to attacker hp/mp
@@ -7158,7 +7311,7 @@ L339C6:
 	LDA ($9F),Y             ; B9E0	B1 9F     
 	ADC $4B                 ; B9E2	65 4B     
 	STA ($9F),Y             ; B9E4	91 9F     
-	JMP $BA1D               ; B9E6	4C 1D BA  
+	JMP Mag_absord_done     ; B9E6	4C 1D BA  
 ; undead target
 L339E9:
 	ASL $4A                 ; B9E9	06 4A     double damage
@@ -7167,7 +7320,7 @@ L339E9:
 	STY $50                 ; B9EF	84 50     
 	LDY $5D                 ; B9F1	A4 5D     
 	STY $51                 ; B9F3	84 51     
-	JSR $BD1B               ; B9F5	20 1B BD  restore target's hp/mp
+	JSR Add_target_HMP      ; B9F5	20 1B BD  restore target's hp/mp
 	LDY $5C                 ; B9F8	A4 5C     
 	SEC                     ; B9FA	38        
 	LDA ($9F),Y             ; B9FB	B1 9F     subtract damage from attacker hp/mp
@@ -7184,30 +7337,33 @@ L339E9:
 	STA ($9F),Y             ; BA0F	91 9F     
 L33A11:
 	LDA $60                 ; BA11	A5 60     
-	JSR $BF92               ; BA13	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BA13	20 92 BF  add to battle message queue
 	LDA #$E8                ; BA16	A9 E8     $68	" drained"
-	JSR $BF92               ; BA18	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BA18	20 92 BF  add to battle message queue
 	BNE L33A27              ; BA1B	D0 0A     
+Mag_absord_done:
 	LDA $60                 ; BA1D	A5 60     
-	JSR $BF92               ; BA1F	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BA1F	20 92 BF  add to battle message queue
 	LDA #$E9                ; BA22	A9 E9     $69	" absorbed!"
-	JSR $BF92               ; BA24	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BA24	20 92 BF  add to battle message queue
 L33A27:
 	LDA $9F                 ; BA27	A5 9F     
 	STA $5E                 ; BA29	85 5E     
 	LDA $A0                 ; BA2B	A5 A0     
 	STA $5F                 ; BA2D	85 5F     
-	JSR $B983               ; BA2F	20 83 B9  validate hp/mp
+	JSR Valid_HMP           ; BA2F	20 83 B9  validate hp/mp
 	LDA $A1                 ; BA32	A5 A1     
 	STA $5E                 ; BA34	85 5E     
 	LDA $A2                 ; BA36	A5 A2     
 	STA $5F                 ; BA38	85 5F     
-	JSR $B983               ; BA3A	20 83 B9  validate hp/mp
-	JMP $BE7E               ; BA3D	4C 7E BE  don't show damage message
-; End of
+	JSR Valid_HMP           ; BA3A	20 83 B9  validate hp/mp
+	JMP No_dmg_msg          ; BA3D	4C 7E BE  don't show damage message
+; End of Mag_absorb
 
+; Name	: Mag_berserk
 ; magic effect $15: berserk
-	JSR $BDE9               ; BA40	20 E9 BD  check for hit (magic)
+Mag_berserk:
+	JSR Chk_magic_hit       ; BA40	20 E9 BD  check for hit (magic)
 	LDY #$27                ; BA43	A0 27     
 	LDA ($9F),Y             ; BA45	B1 9F     mod. spell power
 	STA $02                 ; BA47	85 02     
@@ -7228,40 +7384,44 @@ L33A27:
 L33A64:
 	STA ($A1),Y             ; BA64	91 A1     
 	LDA #$5B                ; BA66	A9 5B     $5B	"Attack"
-	JSR $BF92               ; BA68	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BA68	20 92 BF  add to battle message queue
 	LDA #$E6                ; BA6B	A9 E6     $66	" up!"
-	JSR $BF92               ; BA6D	20 92 BF  add to battle message queue
-	JMP $BE7E               ; BA70	4C 7E BE  don't show damage message
-; End of
+	JSR Add_msg_que         ; BA6D	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; BA70	4C 7E BE  don't show damage message
+; End of Mag_berserk
 
+; Name	: Mag_wall
 ; magic effect $16: wall
-	JSR $BDE9               ; BA73	20 E9 BD  check for hit (magic)
+Mag_wall:
+	JSR Chk_magic_hit       ; BA73	20 E9 BD  check for hit (magic)
 	LDY #$06                ; BA76	A0 06     
 	SEC                     ; BA78	38        
 	LDA ($A1),Y             ; BA79	B1 A1     
 	SBC $48                 ; BA7B	E5 48     
 	BCC L33A82              ; BA7D	90 03     
-	JMP $BE73               ; BA7F	4C 73 BE  magic ineffective
+	JMP Magic_ineft         ; BA7F	4C 73 BE  magic ineffective
 L33A82:
 	LDA $48                 ; BA82	A5 48     
 	STA ($A1),Y             ; BA84	91 A1     
 	LDA #$38                ; BA86	A9 38     $38	"B.Magic Wall"
-	JSR $BF92               ; BA88	20 92 BF  add to battle message queue
-	JMP $BE7E               ; BA8B	4C 7E BE  don't show damage message
-; End of
+	JSR Add_msg_que         ; BA88	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; BA8B	4C 7E BE  don't show damage message
+; End of Mag_wall
 
+; Name	: Mag_rm_stat
 ; magic effect $17: remove status
-	JSR $BDE9               ; BA8E	20 E9 BD  check for hit (magic)
+Mag_rm_stat:
+	JSR Chk_magic_hit       ; BA8E	20 E9 BD  check for hit (magic)
 	LDA $48                 ; BA91	A5 48     
 	ORA $49                 ; BA93	05 49     
 	BNE L33A9A              ; BA95	D0 03     branch if nonzero hits
-	JMP $BE73               ; BA97	4C 73 BE  magic ineffective
+	JMP Magic_ineft         ; BA97	4C 73 BE  magic ineffective
 L33A9A:
-	JSR $AF76               ; BA9A	20 76 AF  get target status 1
+	JSR Get_target_status1  ; BA9A	20 76 AF  get target status 1
 	LDY #$29                ; BA9D	A0 29     
 	AND ($9F),Y             ; BA9F	31 9F     spell parameter 2
 	PHA                     ; BAA1	48        
-	JSR $AF76               ; BAA2	20 76 AF  get target status 1
+	JSR Get_target_status1  ; BAA2	20 76 AF  get target status 1
 	LDY #$2C                ; BAA5	A0 2C     
 	STA ($A1),Y             ; BAA7	91 A1     
 	STA $4F                 ; BAA9	85 4F     
@@ -7269,12 +7429,14 @@ L33A9A:
 	STY $5E                 ; BAAD	84 5E     
 	PLA                     ; BAAF	68        
 	STA ($A1),Y             ; BAB0	91 A1     
-	JSR $B784               ; BAB2	20 84 B7  show status removed message
-	JMP $BE7E               ; BAB5	4C 7E BE  don't show damage message
-; End of
+	JSR Set_stat_rm_msg     ; BAB2	20 84 B7  show status removed message
+	JMP No_dmg_msg          ; BAB5	4C 7E BE  don't show damage message
+; End of Mag_rm_stat
 
+; Name	: Mag_sp_attack
 ; magic effect $18: tsunami, quake, cyclone
-	JSR $BDE9          ; che; BAB8	20 E9 BD  ck for hit (magic)
+Mag_sp_attack:
+	JSR Chk_magic_hit       ; BAB8	20 E9 BD  check for hit (magic)
 	CLC                     ; BABB	18        
 	LDA $48                 ; BABC	A5 48     
 	ADC $46                 ; BABE	65 46     
@@ -7291,8 +7453,8 @@ L33A9A:
 	STA $52                 ; BAD4	85 52     
 	STA $53                 ; BAD6	85 53     
 L33AD8:
-	JSR $BE06               ; BAD8	20 06 BE  check for evade (magic)
-	JSR $BB06               ; BADB	20 06 BB  
+	JSR Chk_magic_evade     ; BAD8	20 06 BE  check for evade (magic)
+	JSR Copy_hits_temp      ; BADB	20 06 BB  
 	LDY #$27                ; BADE	A0 27     
 	LDA ($9F),Y             ; BAE0	B1 9F     mod. spell power
 	STA $44                 ; BAE2	85 44     
@@ -7302,7 +7464,7 @@ L33AD8:
 	STA $47                 ; BAEA	85 47     
 	LDA $52                 ; BAEC	A5 52     
 	STA $48                 ; BAEE	85 48     
-	JSR $BC88               ; BAF0	20 88 BC  calculate damage
+	JSR Calc_dmg            ; BAF0	20 88 BC  calculate damage
 	LDY #$29                ; BAF3	A0 29     
 	LDA ($9F),Y             ; BAF5	B1 9F     parameter 2
 	LDY #$15                ; BAF7	A0 15     
@@ -7312,89 +7474,104 @@ L33AD8:
 	ROL $4B                 ; BAFF	26 4B     
 L33B01:
 	LDY #$0A                ; BB01	A0 0A     
-	JMP $B579               ; BB03	4C 79 B5  subtract damage from target hp/mp
-; End of
+	JMP Sub_dmg_HMP         ; BB03	4C 79 B5  subtract damage from target hp/mp
+; End of Mag_sp_attack
 
-;
+; Name	: Copy_hits_temp
+; Marks	:
+Copy_hits_temp:
 	LDA $48                 ; BB06	A5 48     
 	STA $54                 ; BB08	85 54     
 	LDA $49                 ; BB0A	A5 49     
 	STA $55                 ; BB0C	85 55     
 	RTS                     ; BB0E	60        
-; End of
+; End of Copy_hits_temp
 
+; Name	: Mag_garlic
 ; magic effect $19: garlic
+Mag_garlic:
 	LDY #$15                ; BB0F	A0 15     
 	LDA ($A1),Y             ; BB11	B1 A1     
 	AND #$80                ; BB13	29 80     
 	BEQ L33B1A              ; BB15	F0 03     branch if not undead
-	JMP $BD52               ; BB17	4C 52 BD  do magic damage (undead)
+	JMP Do_undead_dmg       ; BB17	4C 52 BD  do magic damage (undead)
 L33B1A:
-	JMP $BE73               ; BB1A	4C 73 BE  magic ineffective
-; End of
+	JMP Magic_ineft         ; BB1A	4C 73 BE  magic ineffective
+; End of Mag_garlic
 
+; Name	: Mag_elixir
 ; magic effect $1A/$1B: elixir
-	JSR $BCFB               ; BB1D	20 FB BC  restore hp
-	JSR $BDC6               ; BB20	20 C6 BD  restore mp
-	JMP $BE7E               ; BB23	4C 7E BE  don't show damage message
-; End of
+Mag_elixir:
+	JSR Restore_HP               ; BB1D	20 FB BC  restore hp
+	JSR Restore_MP               ; BB20	20 C6 BD  restore mp
+	JMP No_dmg_msg          ; BB23	4C 7E BE  don't show damage message
+; End of Mag_elixir
 
-; magic effect $1C: ultima
-	LDA #$01                ; BB26	A9 01     
-	STA $46                 ; BB28	85 46     
-	LDY #$26                ; BB2A	A0 26     
-	LDA ($9F),Y             ; BB2C	B1 9F     
-	STA $44                 ; BB2E	85 44     
-	LDA #$00                ; BB30	A9 00     
-	STA $45                 ; BB32	85 45     
-	JSR $AF71               ; BB34	20 71 AF  get attacker status 1
-	AND #$02                ; BB37	29 02     
-	BEQ L33B3F              ; BB39	F0 04     
-	LSR $45                 ; BB3B	46 45     
-	ROR $44                 ; BB3D	66 44     
+; Name	: Mag_ultima
+; Marks	: magic effect $1C: ultima
+;	  $44 = mod. spell % temp
+;	  $46 = defense ??
+;	  $48 = number of successful magic hit
+;	  $52 = 
+;	  $53 = 
+Mag_ultima:
+	LDA #$01		; BB26	A9 01
+	STA $46			; BB28	85 46
+	LDY #$26		; BB2A	A0 26		mod. spell %
+	LDA ($9F),Y		; BB2C	B1 9F		attacker
+	STA $44			; BB2E	85 44
+	LDA #$00		; BB30	A9 00
+	STA $45			; BB32	85 45
+	JSR Get_attacker_status1	; BB34	20 71 AF	get attacker status 1
+	AND #$02		; BB37	29 02		blind
+	BEQ L33B3F		; BB39	F0 04		branch if not blind
+	LSR $45			; BB3B	46 45
+	ROR $44			; BB3D	66 44
 L33B3F:
-	JSR $BC2C               ; BB3F	20 2C BC  check for hit
-	CLC                     ; BB42	18        
-	LDA $48                 ; BB43	A5 48     
-	ADC $46                 ; BB45	65 46     
-	STA $52                 ; BB47	85 52     
-	LDA $49                 ; BB49	A5 49     
-	ADC #$00                ; BB4B	69 00     
-	STA $53                 ; BB4D	85 53     
-	JSR $BE06               ; BB4F	20 06 BE  check for evade (magic)
-	JSR $BB06               ; BB52	20 06 BB  
-	SEC                     ; BB55	38        
-	LDA $52                 ; BB56	A5 52     
-	SBC $54                 ; BB58	E5 54     
-	STA $48                 ; BB5A	85 48     
-	LDA $53                 ; BB5C	A5 53     
-	SBC $55                 ; BB5E	E5 55     
-	STA $49                 ; BB60	85 49     
-	BCS L33B6A              ; BB62	B0 06     
-	LDA #$00                ; BB64	A9 00     
-	STA $48                 ; BB66	85 48     
-	STA $49                 ; BB68	85 49     
+	JSR Calc_magic_cnt	; BB3F	20 2C BC	check for hit
+	CLC			; BB42	18
+	LDA $48			; BB43	A5 48
+	ADC $46			; BB45	65 46
+	STA $52			; BB47	85 52
+	LDA $49			; BB49	A5 49
+	ADC #$00		; BB4B	69 00
+	STA $53			; BB4D	85 53
+	JSR Chk_magic_evade	; BB4F	20 06 BE	check for evade (magic)
+	JSR Copy_hits_temp	; BB52	20 06 BB	+$48 -> +$54
+	SEC			; BB55	38
+	LDA $52			; BB56	A5 52
+	SBC $54			; BB58	E5 54
+	STA $48			; BB5A	85 48
+	LDA $53			; BB5C	A5 53
+	SBC $55			; BB5E	E5 55
+	STA $49			; BB60	85 49
+	BCS L33B6A		; BB62	B0 06		branch if result is positive
+	LDA #$00		; BB64	A9 00
+	STA $48			; BB66	85 48
+	STA $49			; BB68	85 49
 L33B6A:
-	CLC                     ; BB6A	18        
-	LDA $48                 ; BB6B	A5 48     
-	ADC #$01                ; BB6D	69 01     
-	STA $48                 ; BB6F	85 48     
-	LDA $49                 ; BB71	A5 49     
-	ADC #$00                ; BB73	69 00     
-	STA $49                 ; BB75	85 49     
-	LDY #$27                ; BB77	A0 27     
-	LDA ($9F),Y             ; BB79	B1 9F     
-	STA $44                 ; BB7B	85 44     
-	LDA #$00                ; BB7D	A9 00     
-	STA $45                 ; BB7F	85 45     
-	STA $46                 ; BB81	85 46     
-	STA $47                 ; BB83	85 47     
-	JSR $BC88               ; BB85	20 88 BC  calculate damage
-	LDY #$0A                ; BB88	A0 0A     
-	JMP $B579               ; BB8A	4C 79 B5  subtract damage from target hp/mp
-; End of
+	CLC			; BB6A	18
+	LDA $48			; BB6B	A5 48
+	ADC #$01		; BB6D	69 01
+	STA $48			; BB6F	85 48
+	LDA $49			; BB71	A5 49
+	ADC #$00		; BB73	69 00
+	STA $49			; BB75	85 49
+	LDY #$27		; BB77	A0 27		mod. spell power
+	LDA ($9F),Y		; BB79	B1 9F		attacker
+	STA $44			; BB7B	85 44		attack
+	LDA #$00		; BB7D	A9 00
+	STA $45			; BB7F	85 45
+	STA $46			; BB81	85 46
+	STA $47			; BB83	85 47
+	JSR Calc_dmg		; BB85	20 88 BC	calculate damage
+	LDY #$0A		; BB88	A0 0A		set HP subtract on Sub_dmg_HMP
+	JMP Sub_dmg_HMP		; BB8A	4C 79 B5	subtract damage from target hp/mp
+; End of Mag_ultima
 
+; Name	: Mag_selfdest
 ; magic effect $1D: self-destruct
+Mag_selfdest:
 	LDA #$00                ; BB8D	A9 00     
 	STA $4A                 ; BB8F	85 4A     
 	STA $4B                 ; BB91	85 4B     
@@ -7410,7 +7587,7 @@ L33B6A:
 	INY                     ; BBA4	C8        
 	LDA ($9F),Y             ; BBA5	B1 9F     
 	STA $03                 ; BBA7	85 03     
-	JSR $8FFC               ; BBA9	20 FC 8F  compare (16-bit)
+	JSR Comp16              ; BBA9	20 FC 8F  compare (16-bit)
 	BCS L33BD1              ; BBAC	B0 23     
 	LDY #$25                ; BBAE	A0 25     
 	LDA ($9F),Y             ; BBB0	B1 9F     
@@ -7425,22 +7602,26 @@ L33B6A:
 	STY $7FDE               ; BBC2	8C DE 7F  
 	LDA ($A1),Y             ; BBC5	B1 A1     
 	STA $46                 ; BBC7	85 46     
-	JSR $BC88               ; BBC9	20 88 BC  calculate damage
+	JSR Calc_dmg            ; BBC9	20 88 BC  calculate damage
 	LDY #$0A                ; BBCC	A0 0A     
-	JMP $B579               ; BBCE	4C 79 B5  subtract damage from target hp/mp
+	JMP Sub_dmg_HMP         ; BBCE	4C 79 B5  subtract damage from target hp/mp
 L33BD1:
 	LDA #$00                ; BBD1	A9 00     
 .byte $8D,$E4,$00
 	;STA $00E4               ; BBD3	8D E4 00  
-	JMP $BE73               ; BBD6	4C 73 BE  magic ineffective
-; End of
+	JMP Magic_ineft         ; BBD6	4C 73 BE  magic ineffective
+; End of Mag_selfdest
 
+; Name	: Mag_ether
 ; magic effect $1E: ether
-	JSR $BDC6               ; BBD9	20 C6 BD  restore mp
-	JMP $BE7E               ; BBDC	4C 7E BE  don't show damage message
-; End of
+Mag_ether:
+	JSR Restore_MP		; BBD9	20 C6 BD  restore mp
+	JMP No_dmg_msg		; BBDC	4C 7E BE  don't show damage message
+; End of Mag_ether
 
+; Name	: Mag_int_soul
 ; magic effect $1F: intelligence, spirit
+Mag_int_soul:
 	LDY #$28                ; BBDF	A0 28     
 	LDA ($9F),Y             ; BBE1	B1 9F     
 	PHA                     ; BBE3	48        
@@ -7454,29 +7635,35 @@ L33BD1:
 	TYA                     ; BBEF	98        
 	CLC                     ; BBF0	18        
 	ADC #$4E                ; BBF1	69 4E     $4E	"Orange" ???
-	JSR $BF92               ; BBF3	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BBF3	20 92 BF  add to battle message queue
 	LDA #$E6                ; BBF6	A9 E6     $66	" up!"
-	JSR $BF92               ; BBF8	20 92 BF  add to battle message queue
-	JMP $BE7E               ; BBFB	4C 7E BE  don't show damage message
-; End of
+	JSR Add_msg_que         ; BBF8	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; BBFB	4C 7E BE  don't show damage message
+; End of Mag_int_soul
 
+; Name	: Mag_imbibe
 ; magic effect $20: imbibe
+Mag_imbibe:
 	LDY #$01                ; BBFE	A0 01     
 	LDA ($A1),Y             ; BC00	B1 A1     decrement target's evade %
 	TAX                     ; BC02	AA        
 	DEX                     ; BC03	CA        
 	TXA                     ; BC04	8A        
 	STA ($A1),Y             ; BC05	91 A1     
-	JMP $BA40               ; BC07	4C 40 BA  
-; End of
+	JMP Mag_berserk         ; BC07	4C 40 BA  
+; End of Mag_imbibe
 	                        
+; Name	: Mag_meteor
 ; magic effect $21: bow, boulders, meteor
-	JSR $BD7B               ; BC0A	20 7B BD  calculate magic damage
+Mag_meteor:
+	JSR Calc_magic_dmg      ; BC0A	20 7B BD  calculate magic damage
 	LDY #$0A                ; BC0D	A0 0A     
-	JMP $B579               ; BC0F	4C 79 B5  subtract damage from target hp/mp
-; End of
+	JMP Sub_dmg_HMP         ; BC0F	4C 79 B5  subtract damage from target hp/mp
+; End of Mag_meteor
 
+; Name	:Chk_mag_wall
 ; check magic wall
+Chk_mag_wall:
 	LDY #$06                ; BC12	A0 06     
 	LDA ($A1),Y             ; BC14	B1 A1     wall level
 	SEC                     ; BC16	38        
@@ -7484,7 +7671,7 @@ L33BD1:
 	SBC ($9F),Y             ; BC19	F1 9F     subtract spell level
 	BCC L33C25              ; BC1B	90 08     
 	LDA #$3A                ; BC1D	A9 3A     $3A	"Magic blocked"
-	JSR $BF92               ; BC1F	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BC1F	20 92 BF  add to battle message queue
 	PLA                     ; BC22	68        
 	PLA                     ; BC23	68        
 	RTS                     ; BC24	60        
@@ -7493,7 +7680,7 @@ L33C25:
 	LDY #$06                ; BC27	A0 06     
 	STA ($A1),Y             ; BC29	91 A1     set new wall level
 	RTS                     ; BC2B	60        
-; End of
+; End of Chk_mag_wall
 
 ; [ check for hit ]
 
@@ -7503,35 +7690,37 @@ L33C25:
 
 ; *** bug *** should use target status for evade checks
 
-; Name	:
-; Marks	:
+; Name	: Calc_magic_cnt
+; Marks	: $48 = number of successful magic hit
+;	  $44 = spell %
+Calc_magic_cnt:
 	LDA #$00		; BC2C	$A9 $00		start with 0 hits
 	STA $48			; BC2E	$85 $48
 	STA $49			; BC30	$85 $49
-	JSR Get_player_status1	; BC32	$20 $71 $AF
+	JSR Get_attacker_status1	; BC32	$20 $71 $AF
 	AND #$20		; BC34	$29 $20		toad(bit5)
 	BNE L32C53		; BC36	$D0 $1A
 	INY			; BC38	$C8
 	LDA ($9F),Y		; BC39	$B1 $9F		get status 2
 	AND #$20		; BC3C	$29 $20		mini(bit5)
 	BNE L32C53		; BC3E	$D0 $13
-	LDY $46			; BC40	$A4 $46
+	LDY $46			; BC40	$A4 $46		spell level(try count)
 L32C42:
 	LDX #$00		; BC42	$A2 $00
 	LDA #$64		; BC44	$A9 $64
 	JSR Random		; BC46	$20 $11 $FD
 	SEC			; BC49	$38
 	SBC $44			; BC4A	$E5 $44		hit % ??
-	BCS L32C50		; BC4C	$B0 $02		check for hit
+	BCS L32C50		; BC4C	$B0 $02		check for hit = success
 	INC $48			; BC4E	$E6 $48
 L32C50:
 	DEY			; BC50	$88
 	BNE L32C42		; BC51	$D0 $EF
 L32C53:
 	RTS			; BC53	$60
-; End of
+; End of Calc_magic_cnt
 
-; Marks	: UNUSED
+; Marks	: -- UNUSED
 	LDA #$28                ; BC54	A9 28     
 	PHA                     ; BC56	48        
 	PHA                     ; BC57	48        
@@ -7567,19 +7756,19 @@ L33C87:
 	RTS                     ; BC87	60        
 ; End of
 
-; Name	:
+; Name	: Calc_dmg
 ; Marks	:
 ; [ calculate damage ]
-
 ;  $44: attack
 ;  $46: defense
 ;  $48: number of hits
 ; +$4A: damage
+Calc_dmg:
 	LDA #$00		; BC88	$A9 $00
 	STA $49			; BC8A	$85 $49
 	STA $4A			; BC8C	$85 $4A
 	STA $4B			; BC8E	$85 $4B
-	JSR Get_player_status1	; BC90	$20 $71 $AF
+	JSR Get_attacker_status1	; BC90	$20 $71 $AF
 	AND #$08		; BC93	$29 $08		curse
 	BEQ L33C9B		; BC95	$F0 $04
 	LSR $45			; BC97	$46 $45
@@ -7639,25 +7828,33 @@ L33CF7:
 	DEY			; BCF7	$88		next hit
 	BNE L33CA7		; BCF8	$D0 $AD
 	RTS			; BCFA	$60
-; End of
+; End of Calc_dmg
 
+; Name	: Restore_HP
 ; Marks	: restore hp
-	JSR $BD5A		; BCFB	20 5A BD  calculate restored hp/mp
-	LDY #$0A                ; BCFE	A0 0A     
-	STY $50                 ; BD00	84 50     
-	LDY #$0E                ; BD02	A0 0E     
-	STY $51                 ; BD04	84 51     
-	JSR $BD1B               ; BD06	20 1B BD  restore target's hp/mp
-	LDA #$0B                ; BD09	A9 0B     
-	STA $7CB0               ; BD0B	8D B0 7C  
-	LDA #$5D                ; BD0E	A9 5D     $5D	"HP"
-	JSR $BF92               ; BD10	20 92 BF  add to battle message queue
-	LDA #$EA                ; BD13	A9 EA     $6A	" up!"
-	JSR $BF92               ; BD15	20 92 BF  add to battle message queue
-	JMP $BE7E               ; BD18	4C 7E BE  don't show damage message
-; End of
+;	  $50 = status 1 Current HP offset temp
+;	  $51 = status 1 Max HP offset temp
+Restore_HP:
+	JSR Calc_restore_HMP	; BCFB	20 5A BD	calculate restored hp/mp
+	LDY #$0A		; BCFE	A0 0A
+	STY $50			; BD00	84 50
+	LDY #$0E		; BD02	A0 0E
+	STY $51			; BD04	84 51
+	JSR Add_target_HMP	; BD06	20 1B BD	restore target's hp/mp
+	LDA #$0B		; BD09	A9 0B
+	STA $7CB0		; BD0B	8D B0 7C  	attack animation id
+	LDA #$5D		; BD0E	A9 5D		$5D	"HP"
+	JSR Add_msg_que		; BD10	20 92 BF	add to battle message queue
+	LDA #$EA		; BD13	A9 EA		$6A	" up!"
+	JSR Add_msg_que		; BD15	20 92 BF	add to battle message queue
+	JMP No_dmg_msg		; BD18	4C 7E BE	don't show damage message
+; End of Restore_HP
 
+; Name	: Add_target_HMP
 ; Marks	: restore target's hp/mp
+;	  $50 = status 1 Current HP/MP offset temp
+;	  $51 = status 1 Max HP/MP offset temp
+Add_target_HMP:
 	LDY $50			; BD1B	A4 50     
 	CLC                     ; BD1D	18        
 	LDA ($A1),Y             ; BD1E	B1 A1     
@@ -7679,7 +7876,7 @@ L33CF7:
 	INY                     ; BD3C	C8        
 	LDA ($A1),Y             ; BD3D	B1 A1     
 	STA $03                 ; BD3F	85 03     
-	JSR $8FFC               ; BD41	20 FC 8F  compare (16-bit)
+	JSR Comp16              ; BD41	20 FC 8F  compare (16-bit)
 	BCC L33D51              ; BD44	90 0B     
 	LDY $50                 ; BD46	A4 50     
 	LDA $02                 ; BD48	A5 02     
@@ -7689,37 +7886,48 @@ L33CF7:
 	STA ($A1),Y             ; BD4F	91 A1     
 L33D51:
 	RTS                     ; BD51	60        
-; End of
+; End of Add_target_HMP
 
+; Name	: Do_undead_dmg
 ; Marks	: do magic damage (undead)
 ; used by healing magic and garlic when targeting undead
-	JSR $BD7B		; BD52	20 7B BD  calculate magic damage
+Do_undead_dmg:
+	JSR Calc_magic_dmg	; BD52	20 7B BD  calculate magic damage
 	LDY #$0A                ; BD55	A0 0A     
-	JMP $B579               ; BD57	4C 79 B5  subtract damage from target hp/mp
-; End of
+	JMP Sub_dmg_HMP         ; BD57	4C 79 B5  subtract damage from target hp/mp
+; End of Do_undead_dmg
 
+; Name	: Calc_restore_HMP
 ; Marks	: calculate restored hp/mp
-	JSR $BDE9		; BD5A	20 E9 BD  check for hit (magic)
-	CLC                     ; BD5D	18        
-	LDA $46                 ; BD5E	A5 46     
-	ADC $48                 ; BD60	65 48     
-	STA $48                 ; BD62	85 48     
-	LDA #$00                ; BD64	A9 00     
-	ADC $49                 ; BD66	65 49     
-	STA $49                 ; BD68	85 49     
-	LDY #$27                ; BD6A	A0 27     
-	LDA ($9F),Y             ; BD6C	B1 9F     
-	STA $44                 ; BD6E	85 44     
-	LDA #$00                ; BD70	A9 00     
-	STA $45                 ; BD72	85 45     
-	STA $46                 ; BD74	85 46     
-	STA $47                 ; BD76	85 47     
-	JMP $BC88               ; BD78	4C 88 BC  calculate damage
-; End of
+;	  $44 = spell power
+;	  $46 = spell level temp
+;	  $48 = number of successful hits
+;	  $49 = ??
+;	  +$4A = result ??
+Calc_restore_HMP:
+	JSR Chk_magic_hit	; BD5A	20 E9 BD	check for hit (magic)
+	CLC			; BD5D	18
+	LDA $46			; BD5E	A5 46		spell level temp
+	ADC $48			; BD60	65 48		number of successful hits
+	STA $48			; BD62	85 48
+	LDA #$00		; BD64	A9 00
+	ADC $49			; BD66	65 49
+	STA $49			; BD68	85 49
+	LDY #$27		; BD6A	A0 27		mod. spell power
+	LDA ($9F),Y		; BD6C	B1 9F
+	STA $44			; BD6E	85 44
+	LDA #$00		; BD70	A9 00
+	STA $45			; BD72	85 45
+	STA $46			; BD74	85 46
+	STA $47			; BD76	85 47
+	JMP Calc_dmg		; BD78	4C 88 BC	calculate damage
+; End of Calc_restore_HMP
 
+; Name	: Calc_magic_dmg
 ; Marks	: calculate magic damage
-	JSR $BE23		; BD7B	20 23 BE  get number of magic hits
-	JSR $B5D0               ; BD7E	20 D0 B5  
+Calc_magic_dmg:
+	JSR Get_magic_hits	; BD7B	20 23 BE  get number of magic hits
+	JSR Comp_5254           ; BD7E	20 D0 B5  
 	BCS L33D89              ; BD81	B0 06     
 	LDA #$00                ; BD83	A9 00     min 0 hits
 	STA $52                 ; BD85	85 52     
@@ -7740,7 +7948,7 @@ L33D89:
 	STA $45                 ; BDA0	85 45     
 	STA $46                 ; BDA2	85 46     
 	STA $47                 ; BDA4	85 47     
-	JSR $BC88               ; BDA6	20 88 BC  calculate damage
+	JSR Calc_dmg            ; BDA6	20 88 BC  calculate damage
 	LDY #$28                ; BDA9	A0 28     
 	LDA ($9F),Y             ; BDAB	B1 9F     spell parameter 1 (spell elements)
 	LDY #$16                ; BDAD	A0 16     
@@ -7758,49 +7966,62 @@ L33DB7:
 	ROR $4A                 ; BDC3	66 4A     
 L33DC5:
 	RTS                     ; BDC5	60        
-; End of
+; End of Calc_magic_dmg
 
+; Name	: Restore_MP
 ; Marks	: restore mp
-	JSR $BD5A		; BDC6	20 5A BD  calculate restored hp/mp
+;	  $50 = status 1 Current MP offset temp
+;	  $51 = status 1 Max MP offset temp
+Restore_MP:
+	JSR Calc_restore_HMP	; BDC6	20 5A BD  calculate restored hp/mp
 	LDY #$0C                ; BDC9	A0 0C     
 	STY $50                 ; BDCB	84 50     
 	LDY #$10                ; BDCD	A0 10     
 	STY $51                 ; BDCF	84 51     
-	JSR $BD1B               ; BDD1	20 1B BD  restore target's hp/mp
+	JSR Add_target_HMP      ; BDD1	20 1B BD  restore target's hp/mp
 	LDA #$5E                ; BDD4	A9 5E     $5E	"MP"
-	JSR $BF92               ; BDD6	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BDD6	20 92 BF  add to battle message queue
 	LDA #$EA                ; BDD9	A9 EA     $6A	" up!"
-	JSR $BF92               ; BDDB	20 92 BF  add to battle message queue
-	JMP $BE7E               ; BDDE	4C 7E BE  don't show damage message
-; End of
+	JSR Add_msg_que         ; BDDB	20 92 BF  add to battle message queue
+	JMP No_dmg_msg          ; BDDE	4C 7E BE  don't show damage message
+; End of Restore_MP
 
 ; unused magic effect (mp magic damage)
-	JSR $BD7B		; BDE1	20 7B BD  calculate magic damage
+	JSR Calc_magic_dmg	; BDE1	20 7B BD  calculate magic damage
 	LDY #$0C                ; BDE4	A0 0C     
-	JMP $B579               ; BDE6	4C 79 B5  subtract damage from target hp/mp
+	JMP Sub_dmg_HMP         ; BDE6	4C 79 B5  subtract damage from target hp/mp
 ; End of
 
+; Name	: Chk_magic_hit
 ; Marks	: check for hit (magic)
-; $48: number of successful hits (out)
-	LDY #$25		; BDE9	A0 25     
-	LDA ($9F),Y             ; BDEB	B1 9F     spell level
-	STA $46                 ; BDED	85 46     
-	INY                     ; BDEF	C8        
-	LDA ($9F),Y             ; BDF0	B1 9F     mod. spell %
-	STA $44                 ; BDF2	85 44     
-	LDA #$00                ; BDF4	A9 00     
-	STA $45                 ; BDF6	85 45     
-	JSR $AF71               ; BDF8	20 71 AF  get attacker status 1
-	AND #$02                ; BDFB	29 02     
-	BEQ L33E03              ; BDFD	F0 04     branch if not blind
-	LSR $45                 ; BDFF	46 45     halve spell %
-	ROR $44                 ; BE01	66 44     
+;	  $44 = spell %
+;	  $46 = spell level temp
+;	  $48: number of successful hits (out)
+Chk_magic_hit:
+	LDY #$25		; BDE9	A0 25		spell level
+	LDA ($9F),Y		; BDEB	B1 9F
+	STA $46			; BDED	85 46
+	INY			; BDEF	C8
+	LDA ($9F),Y		; BDF0	B1 9F		modified. spell %
+	STA $44			; BDF2	85 44
+	LDA #$00		; BDF4	A9 00
+	STA $45			; BDF6	85 45
+	JSR Get_attacker_status1	; BDF8	20 71 AF	get attacker status 1
+	AND #$02		; BDFB	29 02		blind
+	BEQ L33E03		; BDFD	F0 04		branch if not blind
+	LSR $45			; BDFF	46 45		halve spell %
+	ROR $44			; BE01	66 44
 L33E03:
-	JMP $BC2C               ; BE03	4C 2C BC  check for hit
-; End of
+	JMP Calc_magic_cnt	; BE03	4C 2C BC	check for hit
+; End of Chk_magic_hit
 
+; Name	: Chk_magic_evade
 ; Marks	: check for evade (magic)
-	LDY #$03		; BE06	A0 03     
+;	  $44 = magic evade %
+;	  $45 = ??
+;	  $46 = magic evade multi
+Chk_magic_evade:
+	LDY #$03		; BE06	A0 03		m.evade mult
 	LDA ($A1),Y             ; BE08	B1 A1     m.evade mult.
 	STA $46                 ; BE0A	85 46     
 	INY                     ; BE0C	C8        
@@ -7808,90 +8029,134 @@ L33E03:
 	STA $44                 ; BE0F	85 44     
 	LDA #$00                ; BE11	A9 00     
 	STA $45                 ; BE13	85 45     
-	JSR $AF76               ; BE15	20 76 AF  get target status 1
-	AND #$02                ; BE18	29 02     
+	JSR Get_target_status1  ; BE15	20 76 AF  get target status 1
+	AND #$02                ; BE18	29 02		blind
 	BEQ L33E20              ; BE1A	F0 04     branch if not blind
 	LSR $45                 ; BE1C	46 45     halve m.evade %
 	ROR $44                 ; BE1E	66 44     
 L33E20:
-	JMP $BC2C               ; BE20	4C 2C BC  check for hit
-; End of
+	JMP Calc_magic_cnt      ; BE20	4C 2C BC  check for hit
+; End of Chk_magic_evade
 
+; Name	: Get_magic_hits
 ; Marks	: get number of magic hits
-	JSR $BDE9		; BE23	20 E9 BD  check for hit (magic)
-	LDY #$28                ; BE26	A0 28     
-	LDA ($9F),Y             ; BE28	B1 9F     spell parameter 1 (spell elements)
-	LDY #$05                ; BE2A	A0 05     
-	AND ($A1),Y             ; BE2C	31 A1     
-	BEQ L33E36              ; BE2E	F0 06     branch if target not strong vs. element
-	LDA #$00                ; BE30	A9 00     zero hits
-	STA $48                 ; BE32	85 48     
-	STA $49                 ; BE34	85 49     
+;	  $46
+;	  $48,$49 = return ??
+;	  $9F(ADDR) = attacker status pointer
+;	  $A1(ADDR) = target status pointer
+Get_magic_hits:
+	JSR Chk_magic_hit	; BE23	20 E9 BD	check for hit (magic)
+	LDY #$28		; BE26	A0 28		spell parameter 1 (spell elements)
+	LDA ($9F),Y		; BE28	B1 9F		attacker
+	LDY #$05		; BE2A	A0 05		strong elements
+	AND ($A1),Y		; BE2C	31 A1		target
+	BEQ L33E36		; BE2E	F0 06		branch if target not strong vs. element
+	LDA #$00		; BE30	A9 00		zero hits
+	STA $48			; BE32	85 48
+	STA $49			; BE34	85 49
 L33E36:
-	LDY #$28                ; BE36	A0 28     
-	LDA ($9F),Y             ; BE38	B1 9F     
-	LDY #$16                ; BE3A	A0 16     
-	AND ($A1),Y             ; BE3C	31 A1     
-	BEQ L33E48              ; BE3E	F0 08     branch if target not weal vs. element
-	LDA $46                 ; BE40	A5 46     all hits are effective
-	STA $48                 ; BE42	85 48     
-	LDA #$00                ; BE44	A9 00     
-	STA $49                 ; BE46	85 49     
+	LDY #$28		; BE36	A0 28		spell parameter 1 (spell elements)
+	LDA ($9F),Y		; BE38	B1 9F		attacker
+	LDY #$16		; BE3A	A0 16		weak elements
+	AND ($A1),Y		; BE3C	31 A1		target
+	BEQ L33E48		; BE3E	F0 08		branch if target not weak vs. element
+	LDA $46			; BE40	A5 46		all hits are effective
+	STA $48			; BE42	85 48
+	LDA #$00		; BE44	A9 00
+	STA $49			; BE46	85 49
 L33E48:
-	JSR $B68D               ; BE48	20 8D B6  set number of hits
-	JSR $BE06               ; BE4B	20 06 BE  check for evade (magic)
-	LDY #$28                ; BE4E	A0 28     
-	LDA ($9F),Y             ; BE50	B1 9F     
-	LDY #$05                ; BE52	A0 05     
-	AND ($A1),Y             ; BE54	31 A1     
-	BEQ L33E60              ; BE56	F0 08     branch if target not strong vs. element
-	LDA $46                 ; BE58	A5 46     evade all hits
-	STA $48                 ; BE5A	85 48     
-	LDA #$00                ; BE5C	A9 00     
-	STA $49                 ; BE5E	85 49     
+	JSR Set_hits_temp	; BE48	20 8D B6	set number of hits
+	JSR Chk_magic_evade	; BE4B	20 06 BE	check for evade (magic)
+	LDY #$28		; BE4E	A0 28		spell parameter 1 (spell elements)
+	LDA ($9F),Y		; BE50	B1 9F		attacker
+	LDY #$05		; BE52	A0 05		strong elements
+	AND ($A1),Y		; BE54	31 A1		target
+	BEQ L33E60		; BE56	F0 08		branch if target not strong vs. element
+	LDA $46			; BE58	A5 46		evade all hits
+	STA $48			; BE5A	85 48
+	LDA #$00		; BE5C	A9 00
+	STA $49			; BE5E	85 49
 L33E60:
-	LDY #$28                ; BE60	A0 28     
-	LDA ($9F),Y             ; BE62	B1 9F     
-	LDY #$16                ; BE64	A0 16     
-	AND ($A1),Y             ; BE66	31 A1     
-	BEQ L33E70              ; BE68	F0 06     branch if target not weak vs. element
-	LDA #$00                ; BE6A	A9 00     evade zero hits
-	STA $48                 ; BE6C	85 48     
-	STA $49                 ; BE6E	85 49     
+	LDY #$28		; BE60	A0 28		spell parameter 1 (spell elements)
+	LDA ($9F),Y		; BE62	B1 9F		attacker
+	LDY #$16		; BE64	A0 16		weak elements
+	AND ($A1),Y		; BE66	31 A1		target
+	BEQ L33E70		; BE68	F0 06		branch if target not weak vs. element
+	LDA #$00		; BE6A	A9 00		evade zero hits
+	STA $48			; BE6C	85 48
+	STA $49			; BE6E	85 49
 L33E70:
-	JMP $BB06               ; BE70	4C 06 BB  
-; End of
+	JMP Copy_hits_temp	; BE70	4C 06 BB
+; End of Get_magic_hits
 
+; Name	: Magic_ineft
 ; Marks	: magic ineffective
+Magic_ineft:
 	LDA $28			; BE73	A5 28     
 	AND #$BF                ; BE75	29 BF     
 	STA $28                 ; BE77	85 28     
 	LDA #$14                ; BE79	A9 14     $14: "Not effective."
-	JSR $BF92               ; BE7B	20 92 BF  add to battle message queue
+	JSR Add_msg_que         ; BE7B	20 92 BF  add to battle message queue
 ; fallthrough
 
+; Name	: No_dmg_msg
 ; Marks	: don't show damage message
+;	  $4A,$4B
+No_dmg_msg:
 	LDA #$00		; BE7E	A9 00     
 	STA $4A                 ; BE80	85 4A     
 	LDA #$80                ; BE82	A9 80     
 	STA $4B                 ; BE84	85 4B     
 	RTS                     ; BE86	60        
-; End of
+; End of No_dmg_msg
+; End of Magic_ineft
 
+; Name	: Do_mag_effect
 ; Marks	: do magic effect
+Do_mag_effect:
 	JMP ($0046)		; BE87	$6C $46 $00
+; End of Do_mag_effect
 
 ; BE8A - data block = magic effect jump table
 Magic_effect_tbl:
-.word $B571			; BE8A	$71 $B5
-.byte $71,$B5,$95,$B5
-.byte $A7,$B5,$A7,$B5,$13,$B6,$4F,$B6,$96,$B6,$CD,$B6,$CD,$B6,$CA,$B7
-.byte $CD,$B6,$CD,$B6,$01,$B8,$41,$B8,$41,$B8,$78,$B8,$D2,$B8,$0B,$B9
-.byte $AA,$B9,$AA,$B9,$40,$BA,$73,$BA,$8E,$BA,$B8,$BA,$0F,$BB,$1D,$BB
-.byte $1D,$BB,$26,$BB,$8D,$BB,$D9,$BB,$DF,$BB,$FE,$BB,$0A,$BC
+.word Mag_effect		; BE8A	$71 $B5
+.word Mag_effect		; BE8C	$71 $B5
+.word Mag_heal			; BE8E	$95 $B5
+.word Inflict_status		; BE90	$A7 $B5
+.word Inflict_status		; BE92	$A7 $B5
+.word Mag_slow			; BE94	$13 $B6
+.word Mag_haste			; BE96	$4F $B6
+.word Mag_fear			; BE98	$96 $B6
+.word Mag_buff			; BE9A	$CD $B6
+.word Mag_buff			; BE9C	$CD $B6
+.word Mag_protect		; BE9E	$CA $B7
+.word Mag_buff			; BEA0	$CD $B6
+.word Mag_buff			; BEA2	$CD $B6
+.word Mag_dispel		; BEA4	$01 $B8
+.word Mag_def			; BEA6	$41 $B8
+.word Mag_def			; BEA8	$41 $B8
+.word Mag_life			; BEAA	$78 $B8
+.word Mag_sap			; BEAC	$D2 $B8
+.word Mag_swap			; BEAE	$0B $B9
+.word Mag_absorb		; BEB0	$AA $B9
+.word Mag_absorb		; BEB2	$AA $B9
+.word Mag_berserk		; BEB4	$40 $BA
+.word Mag_wall			; BEB6	$73 $BA
+.word Mag_rm_stat		; BEB8	$8E $BA
+.word Mag_sp_attack		; BEBA	$B8 $BA
+.word Mag_garlic		; BEBC	$0F $BB
+.word Mag_elixir		; BEBE	$1D $BB
+.word Mag_elixir		; BEC0	$1D $BB
+.word Mag_ultima		; BEC2	$26 $BB
+.word Mag_selfdest		; BEC4	$8D $BB
+.word Mag_ether			; BEC6	$D9 $BB
+.word Mag_int_soul		; BEC8	$DF $BB
+.word Mag_imbibe		; BECA	$FE $BB
+.word Mag_meteor		; BECC	$0A $BC
 
-; Name	:
+; Name	: Load_next_msg
 ; Marks	:
+Load_next_msg:
 	LDA #$00		; BECE	$A9 $00
 	STA $AA			; BED0	$85 $AA
 	LDA #$10		; BED2	$A9 $10
@@ -7970,10 +8235,11 @@ L33F55:
 	STA $64			; BF55	$85 $64
 	LDX #$05		; BF57	$A2 $05
 	JMP $FD8C		; BF59	$4C $8C $FD
-; End of
+; End of Load_next_msg
 
-; Name	:
+; Name	: Show_inflicted_msg
 ; Marks	:
+Show_inflicted_msg:
 	PHA			; BF5C	$48
 	SEC			; BF5D	$38
 	LDA $56			; BF5E	$A5 $56
@@ -8000,10 +8266,11 @@ L33F78:
 	CMP #$33		; BF80	$C9 $33
 	BNE L33F88		; BF82	$D0 $04
 	PLA			; BF84	$68
-	JMP $BF8C		; BF85	$4C $8C $BF
+	JMP Show_inflicted_msg_end	; BF85	$4C $8C $BF
 L33F88:
-	JSR $BF92		; BF88	$20 $92 $BF
+	JSR Add_msg_que		; BF88	$20 $92 $BF
 	PLA			; BF8B	$68
+Show_inflicted_msg_end:
 L33F8C:
 	DEY			; BF8C	$88
 	BNE L33F78		; BF8D	$D0 $E9
@@ -8012,16 +8279,19 @@ L33F90:
 	LDA #$14		; BF90	$A9 $14		$14: "Not effective"
 ; fallthrough
 
-; Name	:
+; Name	: Add_msg_que
 ; Marks	:
+Add_msg_que:
 	LDX $AD			; BF92	$A6 $AD
 	STA msg_que,X		; BF94	$9D $BA $7F
 	INC $AD			; BF97	$E6 $AD
 	RTS			; BF99	$60
-; End of
+; End of Add_msg_que
+; End of Show_inflicted_msg
 
-; Name	:
-; Marks	:
+; Name	: Add_msg_dead_target
+; Marks	: Add_dead_target_msg_to_queue
+Add_msg_dead_target:
 	LDA msg_que		; BF9A	$AD $BA $7F
 	CMP #$14		; BF9D	$C9 $14
 	BEQ L33FBD		; BF9F	$F0 $1C
@@ -8043,9 +8313,9 @@ L33FB6:
 	INC $AD			; BFBB	$E6 $AD
 L33FBD:
 	RTS			; BFBD	$60
-; End of
+; End of Add_msg_dead_target
 
-; unused ??
+; BFBE - unused ??
 .byte $90,$58
 .byte $90,$F0,$90,$00,$FF
 ;; $BFC5 - data block: OAM X, Y position ( cursor ?? )

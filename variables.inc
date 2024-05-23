@@ -548,6 +548,9 @@ statup_confirmation      = $7B62 ; 8 bytes, all $FF during testing
 
 
 turn_order_cnt		= $7CBB
+
+; $7CF3-$7D79(134bytes)
+
 turn_order_que		= $7D5E
 
 ;; Battle Stats ;; 
