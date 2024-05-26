@@ -8643,7 +8643,7 @@ Do_009880:
 	PHA			; FAFB  $48
 	JSR Swap_bank_00	; FAFC  $20 $65 $FA
 	PLA			; FAFF  $68
-	JSR $9880		; FB00  $20 $80 $98	bank 00 -
+	JSR $9880		; FB00  $20 $80 $98	bank 00 - BANK 0C needed
 	JMP Swap_ret_bank	; FB03  $4C $84 $FA
 ; End of
 
@@ -8681,7 +8681,7 @@ L3FB31:
     STA $40                  ; FB31  $85 $40
     LDA #$8F                 ; FB33  $A9 $8F
     STA $41                  ; FB35  $85 $41
-    LDA #$0C                 ; FB37  $A9 $0C
+    LDA #BANK_BATTLE         ; FB37  $A9 $0C
     JMP L3FA88               ; FB39  $4C $88 $FA
 L3FB3C:
     JSR $FA71                ; FB3C  $20 $71 $FA
@@ -8801,7 +8801,7 @@ Copy_char_tile:
 ; End of
 
 ;; sub start ;;
-    LDA #$0C                 ; FBE6  $A9 $0C
+    LDA #BANK_BATTLE         ; FBE6  $A9 $0C
     JSR Swap_PRG             ; FBE8  $20 $1A $FE
     LDX #$00                 ; FBEB  $A2 $00
     JSR Copy_to_gfxbuf                ; FBED  $20 $F3 $FB
@@ -9189,7 +9189,7 @@ L3FDC1:
 ;	  Weapon properties is in bank_0C
 ;; sub start ;;
 Weapon_type:
-	LDA #$0C		; FDC7  $A9 $0C
+	LDA #BANK_BATTLE	; FDC7  $A9 $0C		Need properties BANK
 	JSR Swap_PRG		; FDC9  $20 $1A $FE
 	LDA $D0			; FDCC  $A5 $D0
 	JSR Get_weapon_type	; FDCE  $20 $DF $FD
@@ -9200,6 +9200,8 @@ Weapon_type:
 	LDA #$0B		; FDDA  $A9 $0B
 	JMP Swap_PRG		; FDDC  $4C $1A $FE
 ; End of Weapon_type
+
+.import	Weapon_prop
 
 ; Name	: Get_weapon_type
 ; A	: Weapon index
@@ -9213,10 +9215,12 @@ Get_weapon_type:
 	LDX #$09		; FDDF  $A2 $09
 	JSR Multi		; FDE1  $20 $79 $FC	get weapon properties address
 	LDA $02			; FDE4  $A5 $02
-	ADC #$F6		; FDE6  $69 $F6
+	ADC #<Weapon_prop
+	;ADC #$F6		; FDE6  $69 $F6
 	STA $00			; FDE8  $85 $00
 	LDA $03			; FDEA  $A5 $03
-	ADC #$80		; FDEC  $69 $80
+	ADC #>Weapon_prop
+	;ADC #$80		; FDEC  $69 $80
 	STA $01			; FDEE  $85 $01
 	LDY #$00		; FDF0  $A0 $00
 	LDA ($00),Y		; FDF2  $B1 $00		ex> 82EEh - weapon properties(type)

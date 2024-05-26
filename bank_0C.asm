@@ -15,6 +15,21 @@
 
 ;; [$8000 :: 0x30010]
 
+.export	Weapon_prop
+.export	ItemAttack_prop
+.export	Magic_prop
+.export	Mob_prop
+.export	Mob_HMP_tbl
+.export	Mob_stat1_tbl
+.export	Mob_stat2_tbl
+.export	Mob_stat3_tbl
+.export	Mob_stat4_tbl
+.export	Mob_stat5_tbl
+.export	Mob_stat6_tbl
+.export	Mob_stat7_tbl
+.export	Mob_AI
+.export	Mob_AI_Sp_atk
+
 ; ========== armor properties (41 * 6 bytes) ($8000-$80F5) START ==========
 ; 00: Defense, 01: Evade penalty, 02: Int/Soul penalty
 ; 03: Elemental defense, 04: Stat boost, 05: Magic defense
