@@ -15,6 +15,7 @@
 
 ;; [$8000 :: 0x30010]
 
+.export	Armor_prop
 .export	Weapon_prop
 .export	ItemAttack_prop
 .export	Magic_prop
@@ -1924,6 +1925,7 @@ L31705:
 ;	  02h -> 80h
 ;	  03h -> C0h
 ;	  get character properties offset
+;	  same as 00/9B7B
 Get_char_addr:
 	LDA cur_char_idx	; 9726	$A5 $9E
 	ASL A			; 9728	$0A

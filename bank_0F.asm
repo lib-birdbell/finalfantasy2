@@ -19,6 +19,7 @@
 .export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
 .export	Copy_char_tile		;FBBA
+.export	Get_data_BANK_0C	;FBE6
 .export	Set_wpn_pal		;FC03
 .export	Multi			;FC79
 .export	Multi16			;FC98
@@ -33,10 +34,12 @@
 .export Swap_PRG_		;FE03
 .export	Init_variables		;FFB0
 
+.import	Update_char_equip 	;9880 - bank_00
+.import	Init_map		;9C00 - bank_00
 .import	Init_wmap		;9C03 - bank_00
 .import	Set_wmap_palettes	;9C06 - bank_00
 .import	Init_var		;9C09 - bank_00
-
+.import	Load_guest_char_prop	;9C0C - bank_00
 .import bg_tilemap_id		;B200 - bank_00
 .import wmap_ent_x		;B400 - bank_00
 .import wmap_ent_y		;B440 - bank_00
@@ -54,19 +57,26 @@
 ; Marks	: Some init code
 	JMP BOOT0		; C000  $4C $25 $C0
 L3C003:
-    JMP L3DCE3               ; C003  $4C $E3 $DC
-    JMP $F34D                ; C006  $4C $4D $F3
+    JMP L3DCE3               ; C003  $4C $E3 $DC	filter map bg palette
+    JMP $F34D                ; C006  $4C $4D $F3	end credits
 L3C009:
-    JMP L3C74F               ; C009  $4C $4F $C7
-	JMP Key_process		; C00C  $4C $A2 $DB
+    JMP L3C74F               ; C009  $4C $4F $C7	update sound
+	JMP Key_process		; C00C  $4C $A2 $DB	update joypad input
     JMP Palette_copy		; JMP $DC30                ; C00F  $4C $30 $DC
-    JMP $C018                ; C012  $4C $18 $C0
-    JMP $F2C8                ; C015  $4C $C8 $F2
-    LDA #$00                 ; C018  $A9 $00
-    JSR Swap_PRG_               ; C01A  $20 $03 $FE
-    JSR $9C0C                ; C01D  $20 $0C $9C
-    LDA #$0E                 ; C020  $A9 $0E
-    JMP Swap_PRG_               ; C022  $4C $03 $FE
+    JMP $C018                ; C012  $4C $18 $C0	load guest character properties
+    JMP $F2C8                ; C015  $4C $C8 $F2	validata character rows
+
+; Name	: Load_guest_char
+; Marks	: load guest character properties
+;	  use BANK 03, BANK 0E
+Load_guest_char:
+	LDA #$00		; C018  $A9 $00
+	JSR Swap_PRG_		; C01A  $20 $03 $FE
+	JSR Load_guest_char_prop	; C01D  $20 $0C $9C
+	LDA #$0E		; C020  $A9 $0E
+	JMP Swap_PRG_		; C022  $4C $03 $FE
+; End of Load_guest_char
+
 BOOT0:
 	LDA #$00		; C025  $A9 $00
 	STA PpuMask_2001	; C027  $8D $01 $20	PPU disable
@@ -8643,7 +8653,7 @@ Do_009880:
 	PHA			; FAFB  $48
 	JSR Swap_bank_00	; FAFC  $20 $65 $FA
 	PLA			; FAFF  $68
-	JSR $9880		; FB00  $20 $80 $98	bank 00 - BANK 0C needed
+	JSR Update_char_equip	; FB00  $20 $80 $98	bank 00 - BANK 0C needed
 	JMP Swap_ret_bank	; FB03  $4C $84 $FA
 ; End of
 
@@ -8800,12 +8810,19 @@ Copy_char_tile:
 	JMP Swap_ret_bank	; FBE3  $4C $84 $FA
 ; End of
 
+; Name	: Get_data_BANK_0C
+; X	: Start index
+; Y	: Size of copy data.
+; Marks	: Get data from BANK 0C
+;	  and return to BANK 00
 ;; sub start ;;
-    LDA #BANK_BATTLE         ; FBE6  $A9 $0C
-    JSR Swap_PRG             ; FBE8  $20 $1A $FE
-    LDX #$00                 ; FBEB  $A2 $00
-    JSR Copy_to_gfxbuf                ; FBED  $20 $F3 $FB
-    JMP Swap_bank_00               ; FBF0  $4C $65 $FA
+Get_data_BANK_0C:
+	LDA #BANK_BATTLE	; FBE6  $A9 $0C
+	JSR Swap_PRG		; FBE8  $20 $1A $FE
+	LDX #$00		; FBEB  $A2 $00
+	JSR Copy_to_gfxbuf	; FBED  $20 $F3 $FB
+	JMP Swap_bank_00	; FBF0  $4C $65 $FA
+; End of Get_data_BANK_0C
 
 ; Name	: Copy_to_gfxbuf
 ; X	: Start index
@@ -9456,6 +9473,7 @@ Init_variables:
 .byte $20
 .byte "F2eBETAv93-Demi"
 .byte $14,$58,$00,$00,$48,$04,$01,$0E,$C3,$E2
+
 
 .segment "VECTORS"
     .byte $00, $01 ;.WORD OnNMI

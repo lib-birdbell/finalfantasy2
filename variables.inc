@@ -257,6 +257,7 @@ textwin_attr		= $07F0
 ;; ========== WORK RAM ==========
 
 _6000_base_stat		= $6000
+ship_status		= $6000
 msg_spd			= $601F
 ; 00h: hidden, 01h: caaught, 02h: riding??, 80h: running away
 ;chocobo_stat		= $6008

@@ -1,10 +1,11 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.export	Update_char_equip 	;9880
+.export	Init_map		;9C00
 .export	Init_wmap		;9C03
 .export	Set_wmap_palettes	;9C06
 .export	Init_var		;9C09
-
 .export bg_tilemap_id		;B200
 .export wmap_ent_x		;B400
 .export wmap_ent_y		;B440
@@ -17,7 +18,7 @@
 
 ; ========== World map tile properties ($8000-$80FF) START ==========
 ;; [$8000 :: 0x00000]
-
+Wmap_tile_prop:
 .byte $0D,$00,$0D,$00,$0E,$00,$0E,$00,$0F,$00,$0F,$00,$0D,$00,$0F,$00
 .byte $0F,$00,$0F,$00,$0E,$00,$1E,$00,$0E,$00,$0E,$00,$0B,$00,$0E,$00
 .byte $0D,$00,$0D,$00,$0E,$00,$0E,$00,$0F,$00,$0F,$00,$0E,$00,$0F,$00
@@ -34,13 +35,12 @@
 .byte $0F,$14,$0E,$00,$0E,$00,$8E,$05,$8E,$06,$8E,$15,$0E,$00,$8E,$1A
 .byte $8E,$0F,$8E,$0F,$8E,$1D,$8E,$10,$8E,$10,$8E,$0E,$8E,$0E,$0F,$00
 .byte $0F,$00,$8E,$18,$8E,$09,$8E,$11,$8E,$01,$8E,$03,$8E,$04,$8E,$02
-
 ; ========== World map tile properties ($8000-$80FF) END ==========
 
 
 ; ========== World map tileset ($8100-$82FF) START ==========
 ;; [$8100 :: 0x00100]
-
+Wmap_tileset1:
 .byte $49,$48,$4E,$50,$1B,$65,$48,$01,$03,$05,$01,$1D,$1F,$30,$44,$32
 .byte $48,$48,$54,$4D,$5E,$5A,$4D,$0A,$07,$07,$24,$21,$21,$40,$35,$35
 .byte $78,$76,$6F,$6B,$74,$6B,$5A,$12,$07,$1B,$2A,$21,$21,$38,$35,$35
@@ -57,9 +57,8 @@
 .byte $BA,$C2,$01,$CC,$CE,$01,$01,$9A,$36,$01,$FF,$01,$00,$10,$10,$22
 .byte $92,$10,$10,$FF,$AA,$EC,$EE,$9E,$B6,$7B,$FF,$9E,$A2,$8E,$FF,$10
 .byte $E1,$E3,$4A,$E1,$E3,$E5,$E7,$E5,$D9,$EF,$AE,$EA,$A2,$9E,$A2,$92
-
 ;; [$8200 :: 0x00200]
-
+Wmap_tileset2:
 .byte $48,$48,$52,$4D,$6A,$5A,$48,$06,$0B,$0B,$20,$25,$25,$34,$39,$39
 .byte $4B,$48,$56,$58,$0B,$5F,$4D,$0E,$0B,$0B,$28,$25,$25,$42,$39,$39
 .byte $79,$75,$6D,$6D,$75,$6D,$5A,$01,$17,$19,$01,$2D,$2F,$3C,$46,$3E
@@ -81,7 +80,7 @@
 
 ; ========== World map attribute table ($8300-$837F) START ==========
 ;; [$8300 :: 0x00300]
-
+Wmap_attr_tbl:
 .byte $AA,$AA,$55,$55,$00,$00,$AA,$00,$00,$00,$FF,$FF,$FF,$AA,$AA,$AA
 .byte $AA,$AA,$55,$55,$00,$00,$55,$00,$00,$00,$FF,$FF,$FF,$AA,$AA,$AA
 .byte $FF,$FF,$AA,$AA,$FF,$AA,$00,$00,$00,$00,$FF,$FF,$FF,$AA,$AA,$AA
@@ -95,6 +94,7 @@
 
 ; ========== World map palettes (8 * 4 bytes) ($8380-$839F) START ==========
 ;; [$8380 :: 0x0039F]
+Wmap_pal:
 .byte $0F,$1A,$10,$30,$0F,$1A,$27,$37,$0F,$1A,$31,$21,$0F,$1A,$19,$29
 .byte $0F,$0F,$12,$36,$0F,$0F,$1C,$36,$0F,$0F,$27,$30,$0F,$16,$26,$30
 ; ========== World map palettes (8 * 4 bytes) ($8380-$839F) END ==========
@@ -102,6 +102,7 @@
 
 ; ========== Map character palettes (9 * 2 bytes) ($83A0-$83B1) START ==========
 ;; [$83A0 :: 0x003B1]
+Map_char_pal:
 .byte $16,$16,$27,$16,$27,$12,$30,$30,$27,$12,$27,$16,$27,$13,$30,$30
 .byte $16,$12
 ; ========== Map character palettes (9 * 2 bytes) ($83A0-$83B1) END ==========
@@ -114,7 +115,8 @@
 
 
 ; ========== Fill tile attributes ($83C2-$83C9) START ==========
-;; [$83C2
+;; $83C2
+Fill_tile_attr:
 .byte $55,$00,$00,$AA,$00,$00,$00,$55
 ; ========== Fill tile attributes ($83C2-$83C9) END ==========
 
@@ -128,7 +130,7 @@
 
 ; ========== exterior 16x16 tileset (4 * 64 bytes) ($8400-$84FF) START ==========
 ;; [$8400 :: 0x00400]
-
+Exterior16:
 .byte $1B,$19,$17,$1E,$1F,$22,$44,$28,$46,$42,$48,$60,$02,$20,$30,$30
 .byte $2C,$FF,$4C,$40,$68,$64,$00,$5A,$1D,$1D,$12,$14,$FF,$2A,$4A,$24
 .byte $6A,$4E,$6C,$FF,$FF,$FF,$FF,$FF,$24,$FF,$FF,$FF,$FF,$FF,$FF,$2E
@@ -150,7 +152,7 @@
 
 ; ========== interior 16x16 tileset (4 * 64 bytes) ($8500-$85FF) START ==========
 ;; [$8500 :: 0x00500]
-
+Interior16:
 .byte $26,$2A,$32,$36,$3A,$3E,$42,$46,$4A,$4E,$52,$44,$56,$5A,$5E,$62
 .byte $1C,$1C,$63,$64,$3E,$1F,$00,$6A,$2E,$12,$44,$66,$5E,$62,$63,$63
 .byte $66,$02,$02,$4E,$6A,$00,$52,$2E,$2E,$52,$12,$2E,$12,$63,$00,$18
@@ -172,7 +174,7 @@
 
 ; ========== common 16x16 tileset (4 * 64 bytes) ($8600-$86FF) START ==========
 ;; [$8600 :: 0x00600]
-
+Common16:
 .byte $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20
 .byte $06,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06,$06
 .byte $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13
@@ -194,7 +196,7 @@
 
 ; ========== exterior 32x32 tileset (4 * 64 bytes) ($8700-$87FF) START ==========
 ;; [$8700 :: 0x00700]
-
+Exterior32:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$13,$03,$03,$03,$03
 .byte $03,$03,$03,$03,$03,$03,$03,$0C,$0C,$0C,$0C,$0C,$17,$1A,$17,$17
 .byte $0D,$0E,$0D,$0D,$0D,$1A,$0D,$0D,$17,$17,$17,$1F,$17,$0D,$0D,$0D
@@ -216,7 +218,7 @@
 
 ; ========== interior 32x32 tileset (4 * 64 bytes) ($8800-$88FF) START ==========
 ;; [$8800 :: 0x00800]
-
+Interior32:
 .byte $38,$38,$18,$18,$01,$01,$01,$38,$00,$00,$01,$00,$01,$01,$00,$18
 .byte $01,$01,$00,$00,$18,$18,$00,$00,$18,$00,$10,$32,$32,$32,$00,$00
 .byte $01,$01,$01,$01,$08,$01,$06,$1A,$18,$18,$18,$18,$0F,$1B,$38,$01
@@ -238,7 +240,7 @@
 
 ; ========== common 32x32 tileset (4 * 64 bytes) ($8900-$89FF) START ==========
 ;; [$8900 :: 0x00900]
-
+Common32:
 .byte $18,$00,$20,$00,$01,$38,$04,$15,$00,$18,$01,$25,$01,$38,$33,$33
 .byte $18,$15,$18,$18,$01,$15,$19,$00,$03,$01,$18,$08,$01,$18,$18,$1B
 .byte $00,$00,$00,$18,$00,$00,$18,$15,$01,$01,$04,$18,$1E,$11,$24,$3E
@@ -278,10 +280,11 @@ map_BG_attr:
 
 ; ========== initial event switches ($8AC0-$8AFF) START ==========
 ;; [$8AC0 :: 0x00AC0]
-init_event_sw:
+Init_event_npc_sw:
 .byte $C4,$5D,$8B,$E6,$A3,$FB,$7F,$FF,$FF,$FF,$38,$FE,$7F,$E0,$FF,$F3
 .byte $0D,$FF,$03,$00,$00,$DC,$FF,$FF,$E7,$FB,$F1,$7F,$03,$24,$30,$00
 ; $8AE0
+Init_event_vehi_key_sw:
 .byte $00,$76,$61,$00,$00,$94,$3A,$00,$00,$C8,$7A,$00,$00,$6F,$65,$00
 .byte $5B,$74,$36,$30,$01,$AA,$36,$00,$01,$00,$00,$00,$90,$01,$00,$03
 ; ========== initial event switches ($8AC0-$8AFF) END ==========
@@ -289,7 +292,7 @@ init_event_sw:
 
 ; ========== map tile properties (1 * 256 bytes) ($8B00-$8BFF) START ==========
 ;; [$8B00 :: 0x00B00]
-
+Map_tile_prop:
 .byte $01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00
 .byte $01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00,$01,$00
 .byte $01,$00,$0E,$00,$01,$00,$01,$00,$01,$00,$01,$00,$40,$00,$00,$00
@@ -356,6 +359,7 @@ init_event_sw:
 ; ========== map palettes ($8E00-$8F7F) START ==========
 ;; [$8E00 :: 0x00E10]
 ; Map palettes (Universal Background Color)
+Map_pal_UBG:
 .byte $16,$22,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
 .byte $00,$00,$08,$00,$00,$00,$00,$01,$01,$02,$02,$02,$02,$02,$02,$03
 .byte $05,$06,$06,$07,$08,$08,$08,$09,$09,$09,$09,$1A,$0C,$05,$0B,$0C
@@ -365,6 +369,7 @@ init_event_sw:
 .byte $31,$3C,$3C,$3C,$0A,$18,$1C,$08,$0A,$1B,$02,$0F,$0F,$0F,$0F,$0F
 .byte $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
 ; Map palettes (Background Color:00)
+Map_pal_BG00:
 .byte $27,$32,$27,$27,$17,$26,$16,$30,$16,$19,$10,$13,$27,$15,$27,$12
 .byte $10,$10,$16,$16,$16,$10,$27,$11,$12,$12,$12,$13,$21,$21,$22,$13
 .byte $27,$16,$27,$27,$16,$18,$27,$17,$18,$18,$19,$2A,$1C,$15,$1B,$16
@@ -373,10 +378,9 @@ init_event_sw:
 .byte $2C,$31,$2B,$22,$2C,$32,$33,$27,$3C,$31,$10,$21,$21,$10,$31,$3C
 .byte $3C,$21,$31,$3C,$1A,$28,$28,$18,$1B,$2B,$11,$0F,$0F,$0F,$0F,$0F
 .byte $30,$12,$2A,$21,$12,$17,$25,$26,$15,$25,$22,$32,$28,$18,$1A,$1C
-
 ;; [$8F00 :: 0x00F00]
-
 ; Map palettes (Background Color:01)
+Map_pal_BG01:
 .byte $30,$30,$30,$30,$36,$36,$36,$36,$27,$27,$28,$36,$30,$30,$36,$36
 .byte $30,$37,$28,$27,$28,$35,$37,$21,$21,$22,$32,$32,$31,$33,$31,$23
 .byte $37,$26,$37,$37,$28,$28,$37,$28,$19,$29,$29,$3A,$30,$25,$2B,$28
@@ -390,29 +394,33 @@ init_event_sw:
 
 ; ========== character properties (3 * 128) ($8F80-$90FF) START ==========
 ;; [$8F80 :: 0x00F80]
+Firion_properties:
 .byte $00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$1E,$00,$1E,$00,$05,$00,$05,$00
 .byte $0A,$0A,$0A,$0A,$0A,$05,$01,$46,$0B,$00,$7B,$00,$53,$31,$00,$00
 .byte $0A,$0A,$0A,$0A,$0A,$05,$01,$05,$02,$02,$01,$0E,$01,$25,$00,$7C
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+Firion_prop_skil:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$01,$47,$51,$5B,$76,$E8,$EF,$94,$3A,$C8,$7A
-
 ;; [$9000 :: 0x01000]
-
+Maria_properties:
 .byte $01,$00,$FF,$FF,$FF,$FF,$FF,$FF,$14,$00,$14,$00,$05,$00,$05,$00
 .byte $05,$0F,$05,$0F,$0A,$05,$01,$37,$03,$00,$7A,$00,$68,$00,$00,$00
 .byte $05,$0F,$05,$0F,$0A,$05,$00,$00,$00,$01,$01,$0E,$01,$23,$00,$34
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+Maria_prop_skil:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+Guy_properties:
 .byte $02,$00,$FF,$FF,$FF,$FF,$FF,$FF,$28,$00,$28,$00,$05,$00,$05,$00
 .byte $0F,$05,$0F,$0A,$0A,$05,$01,$46,$12,$00,$7B,$00,$61,$00,$00,$00
 .byte $0F,$05,$0F,$0A,$0A,$05,$00,$00,$00,$02,$01,$04,$01,$28,$00,$36
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+Guy_prop_skil:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -422,7 +430,7 @@ init_event_sw:
 
 ; ========== guest character properties (6 * 128 bytes) ($9100-$93FF) START ==========
 ;; [$9100 :: 0x01100]
-
+Minwu_properties:
 .byte $03,$00,$96,$AC,$B1,$BA,$B8,$FF,$AF,$00,$AF,$00,$67,$00,$67,$00
 .byte $0A,$14,$14,$10,$30,$28,$01,$50,$0A,$00,$85,$00,$41,$00,$2B,$19
 .byte $0A,$14,$14,$10,$30,$28,$00,$00,$00,$05,$01,$14,$02,$41,$00,$06
@@ -431,6 +439,7 @@ init_event_sw:
 .byte $06,$3A,$06,$31,$05,$07,$02,$4D,$06,$34,$04,$43,$04,$45,$05,$4B
 .byte $04,$43,$02,$61,$03,$40,$03,$23,$05,$4E,$02,$1D,$02,$14,$00,$00
 .byte $00,$62,$01,$14,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+Josef_properties:
 .byte $04,$00,$93,$B2,$B6,$A8,$A9,$FF,$EB,$00,$EB,$00,$05,$00,$05,$00
 .byte $18,$18,$18,$0A,$0A,$0A,$04,$63,$14,$70,$7B,$8E,$00,$00,$1E,$10
 .byte $18,$18,$18,$0A,$0A,$0A,$00,$00,$00,$04,$02,$14,$02,$2F,$00,$0A
@@ -439,9 +448,8 @@ init_event_sw:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $01,$00,$01,$00,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
 ;; [$9200 :: 0x01210]
-
+Gordon_properties:
 .byte $05,$00,$90,$B2,$B5,$A7,$B2,$B1,$40,$00,$40,$00,$05,$00,$05,$00
 .byte $16,$16,$16,$16,$16,$16,$01,$4D,$11,$00,$7C,$8F,$4B,$32,$10,$10
 .byte $16,$16,$16,$16,$16,$16,$01,$05,$04,$08,$01,$0A,$01,$34,$00,$AC
@@ -450,6 +458,7 @@ init_event_sw:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+Leila_properties:
 .byte $86,$00,$95,$A8,$AC,$AF,$A4,$FF,$60,$00,$96,$00,$14,$00,$14,$00
 .byte $12,$1A,$12,$10,$0A,$0A,$02,$44,$12,$78,$86,$00,$3B,$54,$69,$00
 .byte $12,$24,$10,$0A,$12,$0A,$02,$4A,$0A,$15,$02,$2E,$02,$3A,$08,$38
@@ -458,9 +467,8 @@ init_event_sw:
 .byte $01,$22,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $01,$4A,$01,$51,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
 ;; [$9300 :: 0x01300]
-
+Ricard_properties:
 .byte $07,$00,$9B,$AC,$A6,$A4,$B5,$A7,$25,$02,$25,$02,$05,$00,$05,$00
 .byte $28,$1A,$20,$10,$1A,$05,$08,$63,$3D,$73,$7F,$92,$58,$34,$00,$00
 .byte $32,$1A,$20,$10,$1A,$05,$05,$1E,$0B,$2B,$02,$19,$02,$3F,$20,$EA
@@ -469,6 +477,7 @@ init_event_sw:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $01,$61,$01,$36,$00,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+Leon_properties:
 .byte $88,$00,$FF,$FF,$FF,$FF,$FF,$FF,$26,$02,$4A,$04,$05,$00,$05,$00
 .byte $35,$2D,$2E,$24,$10,$20,$09,$62,$61,$75,$82,$94,$5B,$66,$00,$00
 .byte $35,$2D,$2E,$24,$10,$20,$08,$4C,$4C,$55,$03,$00,$03,$54,$08,$FF
@@ -584,127 +593,653 @@ init_event_sw:
 ; ========== battle palettes (3 * 128 bytes) ($9700-$987F) END ==========
 
 
-;; [$9880 :: 0x01880]
 ; ========== Character stats code ($9880-$9BFF) START ==========
-.byte $10,$05,$29,$7F,$4C,$A2,$98,$20,$A2,$98,$A0,$1C,$B1,$7A,$C9,$30
-.byte $D0,$04,$A9,$00,$91,$7A,$C8,$B1,$7A,$C9,$30,$D0,$04,$A9,$00,$91
-.byte $7A,$60,$85,$9E,$20,$48,$9B,$A9,$00,$A0,$26,$91,$7A,$C8,$C0,$29
-.byte $D0,$F9,$A0,$1E,$91,$80,$C8,$C0,$24,$D0,$F9,$20,$C0,$BE,$20,$E8
-.byte $BE,$A0,$20,$B1,$7A,$85,$6E,$C8,$B1,$7A,$85,$6F,$C8,$B1,$7A,$85
-.byte $70,$A0,$25,$B1,$7A,$85,$71,$A9,$F6,$85,$64,$A9,$80,$85,$65,$A9
-.byte $30,$85,$5E,$A9,$09,$85,$5F,$A9,$FE,$85,$4C,$A0,$1C,$B1,$7A,$20
-.byte $2C,$BF,$A5,$6D,$85,$6C,$C8,$B1,$7A,$20,$2C,$BF,$A0,$00,$B1,$7A
+; battle/menu code
 
-;; [$9900 :: 0x01900]
+.import	Multi16			;FC98
 
-.byte $10,$03,$20,$8B,$9B,$A5,$6C,$D0,$03,$20,$8B,$9B,$A2,$00,$A0,$00
-.byte $20,$BA,$BF,$A0,$2E,$A5,$4A,$91,$80,$A2,$02,$A0,$01,$20,$BA,$BF
-.byte $A0,$2F,$A5,$4B,$91,$80,$A2,$00,$20,$D2,$BF,$A0,$16,$91,$7A,$A0
-.byte $18,$91,$80,$A5,$6D,$F0,$0D,$A2,$01,$20,$D2,$BF,$A0,$26,$91,$7A
-.byte $A0,$1E,$91,$80,$A5,$6E,$18,$65,$4C,$20,$84,$9B,$A0,$17,$91,$7A
-.byte $A0,$19,$91,$80,$A5,$6D,$F0,$11,$A5,$6E,$4A,$18,$65,$4D,$20,$84
-.byte $9B,$A0,$27,$91,$7A,$A0,$1F,$91,$80,$A5,$6D,$05,$6C,$F0,$35,$A5
-.byte $6D,$F0,$21,$A5,$6E,$4A,$4A,$18,$65,$4E,$A0,$18,$91,$7A,$A0,$1A
-.byte $91,$80,$A5,$6E,$4A,$4A,$4A,$18,$65,$4F,$A0,$28,$91,$7A,$A0,$20
-.byte $91,$80,$D0,$27,$A5,$6E,$4A,$18,$65,$4E,$A0,$18,$91,$7A,$A0,$1A
-.byte $91,$80,$D0,$17,$A0,$00,$B1,$7E,$0A,$0A,$0A,$85,$48,$A5,$6E,$4A
-.byte $18,$65,$48,$A0,$18,$91,$7A,$A0,$1A,$91,$80,$A2,$00,$A0,$1B,$20
-.byte $DD,$BF,$A5,$6D,$F0,$07,$A2,$01,$A0,$21,$20,$DD,$BF,$A5,$6C,$48
-.byte $A5,$6D,$48,$20,$C0,$BE,$68,$85,$6D,$68,$85,$6C,$A0,$00,$18,$B1
-.byte $44,$71,$46,$71,$48,$A0,$29,$91,$7A,$A0,$02,$91,$80,$A0,$30,$B1
-.byte $7E,$AA,$E8,$8A,$A0,$2A,$91,$7A,$A0,$00,$91,$80,$A5,$50,$85,$00
+; Name	: Update_char_equip
+; A	: character index(0,1,2,3)
+; Marks	: update character equipment
+;	  need BANK 0C
+;	  $7A(ADDR) = ??
+Update_char_equip:
+	BPL L01887		; 9880	10 05		branch if called by menu ???
+	AND #$7F		; 9882	29 7F
+	JMP Update_equip	; 9884	4C A2 98	update character equipment
+L01887:
+	JSR Update_equip	; 9887	20 A2 98
+	LDY #$1C		; 988A	A0 1C
+	LDA ($7A),Y		; 988C	B1 7A
+	CMP #$30		; 988E	C9 30
+	BNE L01896		; 9890	D0 04
+	LDA #$00		; 9892	A9 00
+	STA ($7A),Y		; 9894	91 7A
+L01896:
+	INY			; 9896	C8
+	LDA ($7A),Y		; 9897	B1 7A
+	CMP #$30		; 9899	C9 30
+	BNE L018A1		; 989B	D0 04
+	LDA #$00		; 989D	A9 00
+	STA ($7A),Y		; 989F	91 7A
+L018A1:
+	RTS			; 98A1	60
+; End of Update_char_equip
 
-;; [$9A00 :: 0x01A00]
+; Name	: Update_equip
+; A	: Character index(0,1,2,3)
+; Marks	: update character equipment
+;	  $5E = empty equipment slot id ($30 or $70)
+;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
+;	  $7E(ADDR) = character properties 2($6200,$6240,$6280,$62C0)
+;	  $80(ADDR) = battle stats($7D7A,$7DAA,$7DDA,$7E0A)
+Update_equip:
+	STA cur_char_idx	; 98A2	85 9E
+	JSR Update_char_pointers	; 98A4	20 48 9B	update character pointers
+	LDA #$00		; 98A7	A9 00
+	LDY #$26		; 98A9	A0 26		off hand attack mult
+L018AB:
+	STA ($7A),Y		; 98AB	91 7A		clear off-hand properties
+	INY			; 98AD	C8
+	CPY #$29		; 98AE	C0 29
+	BNE L018AB		; 98B0	D0 F9		loop
+	LDY #$1E		; 98B2	A0 1E		off hand hit mult
+L018B4:
+	STA ($80),Y		; 98B4	91 80
+	INY			; 98B6	C8
+	CPY #$24		; 98B7	C0 24
+	BNE L018B4		; 98B9	D0 F9		loop
+	JSR Load_armor_prop	; 98BB	20 C0 BE	load armor properties
+	JSR $BEE8		; 98BE	20 E8 BE	update mod. stats
+	LDY #$20		; 98C1	A0 20
+	LDA ($7A),Y		; 98C3	B1 7A		save mod. strength
+	STA $6E			; 98C5	85 6E
+	INY			; 98C7	C8
+	LDA ($7A),Y		; 98C8	B1 7A		save mod. agility
+	STA $6F			; 98CA	85 6F
+	INY			; 98CC	C8
+	LDA ($7A),Y		; 98CD	B1 7A		save mod. stamina
+	STA $70			; 98CF	85 70
+	LDY #$25		; 98D1	A0 25
+	LDA ($7A),Y		; 98D3	B1 7A		save mod. magic power
+	STA $71			; 98D5	85 71
+	LDA #$F6		; 98D7	A9 F6		BANK 0C/80F6 (weapon properties)
+	STA $64			; 98D9	85 64
+	LDA #$80		; 98DB	A9 80
+	STA $65			; 98DD	85 65
+	LDA #$30		; 98DF	A9 30		empty weapon slot	$30
+	STA $5E			; 98E1	85 5E
+	LDA #$09		; 98E3	A9 09		9 bytes each
+	STA $5F			; 98E5	85 5F
+	LDA #$FE		; 98E7	A9 FE
+	STA $4C			; 98E9	85 4C
+	LDY #$1C		; 98EB	A0 1C
+	LDA ($7A),Y		; 98ED	B1 7A		right hand
+	JSR Get_equip_prop	; 98EF	20 2C BF	load equipment properties
+	LDA $6D			; 98F2	A5 6D
+	STA $6C			; 98F4	85 6C
+	INY			; 98F6	C8
+	LDA ($7A),Y		; 98F7	B1 7A		left hand
+	JSR Get_equip_prop	; 98F9	20 2C BF	load equipment properties
+	LDY #$00		; 98FC	A0 00
+	LDA ($7A),Y		; 98FE	B1 7A
+	BPL L01905		; 9900	10 03		branch if right-handed
+	JSR Swap_hands		; 9902	20 8B 9B	swap hands
+L01905:
+	LDA $6C			; 9905	A5 6C
+	BNE L0190C		; 9907	D0 03
+	JSR Swap_hands		; 9909	20 8B 9B	swap hands
+L0190C:
+	LDX #$00		; 990C	A2 00
+	LDY #$00		; 990E	A0 00
+	JSR Get_weapon_prop_	; 9910	20 BA BF
+	LDY #$2E		; 9913	A0 2E
+	LDA $4A			; 9915	A5 4A
+	STA ($80),Y		; 9917	91 80		main hand weapon type
+	LDX #$02		; 9919	A2 02
+	LDY #$01		; 991B	A0 01
+	JSR Get_weapon_prop_	; 991D	20 BA BF
+	LDY #$2F		; 9920	A0 2F
+	LDA $4B			; 9922	A5 4B
+	STA ($80),Y		; 9924	91 80		off hand weapon type
+	LDX #$00		; 9926	A2 00
+	JSR Get_wpn_lv		; 9928	20 D2 BF
+	LDY #$16		; 992B	A0 16
+	STA ($7A),Y		; 992D	91 7A
+	LDY #$18		; 992F	A0 18
+	STA ($80),Y		; 9931	91 80
+	LDA $6D			; 9933	A5 6D
+	BEQ L01944		; 9935	F0 0D
+	LDX #$01		; 9937	A2 01
+	JSR Get_wpn_lv		; 9939	20 D2 BF
+	LDY #$26		; 993C	A0 26
+	STA ($7A),Y		; 993E	91 7A
+	LDY #$1E		; 9940	A0 1E
+	STA ($80),Y		; 9942	91 80		off hand hit mult.
+L01944:
+	LDA $6E			; 9944	A5 6E		mod. strength
+	CLC			; 9946	18
+	ADC $4C			; 9947	65 4C
+	JSR Max99		; 9949	20 84 9B	max 99
+	LDY #$17		; 994C	A0 17
+	STA ($7A),Y		; 994E	91 7A
+	LDY #$19		; 9950	A0 19
+	STA ($80),Y		; 9952	91 80
+	LDA $6D			; 9954	A5 6D
+	BEQ L01969		; 9956	F0 11
+	LDA $6E			; 9958	A5 6E
+	LSR			; 995A	4A
+	CLC			; 995B	18
+	ADC $4D			; 995C	65 4D
+	JSR Max99		; 995E	20 84 9B	max 99
+	LDY #$27		; 9961	A0 27
+	STA ($7A),Y		; 9963	91 7A
+	LDY #$1F		; 9965	A0 1F
+	STA ($80),Y		; 9967	91 80
+L01969:
+	LDA $6D			; 9969	A5 6D
+	ORA $6C			; 996B	05 6C
+	BEQ L019A4		; 996D	F0 35
+	LDA $6D			; 996F	A5 6D
+	BEQ L01994		; 9971	F0 21
+	LDA $6E			; 9973	A5 6E
+	LSR			; 9975	4A
+	LSR			; 9976	4A
+	CLC			; 9977	18
+	ADC $4E			; 9978	65 4E
+	LDY #$18		; 997A	A0 18
+	STA ($7A),Y		; 997C	91 7A
+	LDY #$1A		; 997E	A0 1A
+	STA ($80),Y		; 9980	91 80
+	LDA $6E			; 9982	A5 6E
+	LSR			; 9984	4A
+	LSR			; 9985	4A
+	LSR			; 9986	4A
+	CLC			; 9987	18
+	ADC $4F			; 9988	65 4F
+	LDY #$28		; 998A	A0 28
+	STA ($7A),Y		; 998C	91 7A
+	LDY #$20		; 998E	A0 20
+	STA ($80),Y		; 9990	91 80
+	BNE L019BB		; 9992	D0 27
+L01994:
+	LDA $6E			; 9994	A5 6E
+	LSR			; 9996	4A
+	CLC			; 9997	18
+	ADC $4E			; 9998	65 4E
+	LDY #$18		; 999A	A0 18
+	STA ($7A),Y		; 999C	91 7A
+	LDY #$1A		; 999E	A0 1A
+	STA ($80),Y		; 99A0	91 80
+	BNE L019BB		; 99A2	D0 17
+L019A4:
+	LDY #$00		; 99A4	A0 00
+	LDA ($7E),Y		; 99A6	B1 7E
+	ASL			; 99A8	0A
+	ASL			; 99A9	0A
+	ASL			; 99AA	0A
+	STA $48			; 99AB	85 48
+	LDA $6E			; 99AD	A5 6E
+	LSR			; 99AF	4A
+	CLC			; 99B0	18
+	ADC $48			; 99B1	65 48
+	LDY #$18		; 99B3	A0 18
+	STA ($7A),Y		; 99B5	91 7A
+	LDY #$1A		; 99B7	A0 1A
+	STA ($80),Y		; 99B9	91 80
+L019BB:
+	LDX #$00		; 99BB	A2 00
+	LDY #$1B		; 99BD	A0 1B		main hand element
+	JSR Set_wpn_element	; 99BF	20 DD BF
+	LDA $6D			; 99C2	A5 6D
+	BEQ L019CD		; 99C4	F0 07
+	LDX #$01		; 99C6	A2 01
+	LDY #$21		; 99C8	A0 21
+	JSR Set_wpn_element	; 99CA	20 DD BF	off hand element
+L019CD:
+	LDA $6C			; 99CD	A5 6C
+	PHA			; 99CF	48
+	LDA $6D			; 99D0	A5 6D
+	PHA			; 99D2	48
+	JSR Load_armor_prop	; 99D3	20 C0 BE	load armor properties
+	PLA			; 99D6	68
+	STA $6D			; 99D7	85 6D
+	PLA			; 99D9	68
+	STA $6C			; 99DA	85 6C
+	LDY #$00		; 99DC	A0 00
+	CLC			; 99DE	18
+	LDA ($44),Y		; 99DF	B1 44
+	ADC ($46),Y		; 99E1	71 46
+	ADC ($48),Y		; 99E3	71 48
+	LDY #$29		; 99E5	A0 29
+	STA ($7A),Y		; 99E7	91 7A
+	LDY #$02		; 99E9	A0 02
+	STA ($80),Y		; 99EB	91 80
+	LDY #$30		; 99ED	A0 30
+	LDA ($7E),Y		; 99EF	B1 7E
+	TAX			; 99F1	AA
+	INX			; 99F2	E8
+	TXA			; 99F3	8A
+	LDY #$2A		; 99F4	A0 2A
+	STA ($7A),Y		; 99F6	91 7A
+	LDY #$00		; 99F8	A0 00
+	STA ($80),Y		; 99FA	91 80
+	LDA $50			; 99FC	A5 50
+	STA $00			; 99FE	85 00
+	LDA $5C			; 9A00	A5 5C
+	STA $02			; 9A02	85 02
+	INC $02			; 9A04	E6 02
+	LDA #$00		; 9A06	A9 00
+	STA $01			; 9A08	85 01
+	STA $03			; 9A0A	85 03
+	JSR Multi16		; 9A0C	20 98 FC	multiply (16-bit)
+	LDA $04			; 9A0F	A5 04
+	STA $56			; 9A11	85 56
+	LDA $05			; 9A13	A5 05
+	STA $57			; 9A15	85 57
+	LDA $6D			; 9A17	A5 6D
+	BEQ L01A3B		; 9A19	F0 20
+	LDA $51			; 9A1B	A5 51
+	STA $00			; 9A1D	85 00
+	LDA $5D			; 9A1F	A5 5D
+	STA $02			; 9A21	85 02
+	INC $02			; 9A23	E6 02
+	LDA #$00		; 9A25	A9 00
+	STA $01			; 9A27	85 01
+	STA $03			; 9A29	85 03
+	JSR Multi16		; 9A2B	20 98 FC	multiply (16-bit)
+	CLC			; 9A2E	18
+	LDA $56			; 9A2F	A5 56
+	ADC $04			; 9A31	65 04
+	STA $56			; 9A33	85 56
+	LDA $57			; 9A35	A5 57
+	ADC $05			; 9A37	65 05
+	STA $57			; 9A39	85 57
+L01A3B:
+	CLC			; 9A3B	18
+	LDA $56			; 9A3C	A5 56
+	ADC $6F			; 9A3E	65 6F
+	STA $56			; 9A40	85 56
+	LDA $57			; 9A42	A5 57
+	ADC #$00		; 9A44	69 00
+	STA $57			; 9A46	85 57
+	LDY #$01		; 9A48	A0 01
+	CLC			; 9A4A	18
+	LDA ($44),Y		; 9A4B	B1 44
+	ADC ($46),Y		; 9A4D	71 46
+	ADC ($48),Y		; 9A4F	71 48
+	STA $58			; 9A51	85 58
+	LDA #$00		; 9A53	A9 00
+	ADC #$00		; 9A55	69 00
+	STA $59			; 9A57	85 59
+	SEC			; 9A59	38
+	LDA $56			; 9A5A	A5 56
+	SBC $58			; 9A5C	E5 58
+	STA $56			; 9A5E	85 56
+	LDA $57			; 9A60	A5 57
+	SBC $59			; 9A62	E5 59
+	STA $57			; 9A64	85 57
+	BCS L01A6C		; 9A66	B0 04
+	LDA #$00		; 9A68	A9 00
+	STA $56			; 9A6A	85 56
+L01A6C:
+	LDY #$2B		; 9A6C	A0 2B
+	LDA $56			; 9A6E	A5 56
+	JSR Max99		; 9A70	20 84 9B	max 99
+	STA ($7A),Y		; 9A73	91 7A
+	LDY #$01		; 9A75	A0 01
+	STA ($80),Y		; 9A77	91 80
+	LDY #$32		; 9A79	A0 32
+	LDA ($7E),Y		; 9A7B	B1 7E
+	TAX			; 9A7D	AA
+	INX			; 9A7E	E8
+	TXA			; 9A7F	8A
+	LDY #$2C		; 9A80	A0 2C
+	STA ($7A),Y		; 9A82	91 7A
+	LDY #$03		; 9A84	A0 03
+	STA ($80),Y		; 9A86	91 80
+	LDA #$00		; 9A88	A9 00
+	STA $4D			; 9A8A	85 4D
+	CLC			; 9A8C	18
+	LDA $70			; 9A8D	A5 70
+	ADC $71			; 9A8F	65 71
+	STA $4C			; 9A91	85 4C
+	LSR $4D			; 9A93	46 4D
+	LSR $4C			; 9A95	46 4C
+	CLC			; 9A97	18
+	LDY #$05		; 9A98	A0 05
+	LDA ($44),Y		; 9A9A	B1 44
+	ADC ($46),Y		; 9A9C	71 46
+	ADC ($48),Y		; 9A9E	71 48
+	STA $4E			; 9AA0	85 4E
+	LDA #$00		; 9AA2	A9 00
+	ADC #$00		; 9AA4	69 00
+	STA $4F			; 9AA6	85 4F
+	CLC			; 9AA8	18
+	LDA $4C			; 9AA9	A5 4C
+	ADC $4E			; 9AAB	65 4E
+	STA $4C			; 9AAD	85 4C
+	LDA $4D			; 9AAF	A5 4D
+	ADC $4F			; 9AB1	65 4F
+	STA $4D			; 9AB3	85 4D
+	LDA $4D			; 9AB5	A5 4D
+	BEQ L01ABD		; 9AB7	F0 04
+	LDA #$63		; 9AB9	A9 63
+	STA $4C			; 9ABB	85 4C
+L01ABD:
+	LDY #$2D		; 9ABD	A0 2D
+	LDA $4C			; 9ABF	A5 4C
+	JSR Max99		; 9AC1	20 84 9B	max 99
+	STA ($7A),Y		; 9AC4	91 7A
+	LDY #$04		; 9AC6	A0 04
+	STA ($80),Y		; 9AC8	91 80
+	LDY #$03		; 9ACA	A0 03
+	LDA ($44),Y		; 9ACC	B1 44
+	ORA ($46),Y		; 9ACE	11 46
+	ORA ($48),Y		; 9AD0	11 48
+	STA $4C			; 9AD2	85 4C
+	LDA $6C			; 9AD4	A5 6C
+	BEQ L01AE2		; 9AD6	F0 0A
+	CMP #$0A		; 9AD8	C9 0A
+	BCS L01AE2		; 9ADA	B0 06
+	LDA $4C			; 9ADC	A5 4C
+	ORA $54			; 9ADE	05 54
+	STA $4C			; 9AE0	85 4C
+L01AE2:
+	LDA $6D			; 9AE2	A5 6D
+	BEQ L01AF0		; 9AE4	F0 0A
+	CMP #$0A		; 9AE6	C9 0A
+	BCS L01AF0		; 9AE8	B0 06
+	LDA $4C			; 9AEA	A5 4C
+	ORA $55			; 9AEC	05 55
+	STA $4C			; 9AEE	85 4C
+L01AF0:
+	LDY #$2E		; 9AF0	A0 2E
+	LDA $4C			; 9AF2	A5 4C
+	STA ($7A),Y		; 9AF4	91 7A
+	LDY #$05		; 9AF6	A0 05
+	STA ($80),Y		; 9AF8	91 80
+	LDY #$02		; 9AFA	A0 02
+	CLC			; 9AFC	18
+	LDA ($44),Y		; 9AFD	B1 44
+	ADC ($46),Y		; 9AFF	71 46
+	ADC ($48),Y		; 9B01	71 48
+	STA $4C			; 9B03	85 4C
+	LDA #$00		; 9B05	A9 00
+	ADC #$00		; 9B07	69 00
+	STA $4D			; 9B09	85 4D
+	CLC			; 9B0B	18
+	LDA $52			; 9B0C	A5 52
+	ADC $53			; 9B0E	65 53
+	STA $4E			; 9B10	85 4E
+	LDA #$00		; 9B12	A9 00
+	ADC #$00		; 9B14	69 00
+	STA $4F			; 9B16	85 4F
+	CLC			; 9B18	18
+	LDA $4C			; 9B19	A5 4C
+	ADC $4E			; 9B1B	65 4E
+	STA $4C			; 9B1D	85 4C
+	LDA $4D			; 9B1F	A5 4D
+	ADC $4F			; 9B21	65 4F
+	STA $4D			; 9B23	85 4D
+	LDA $4D			; 9B25	A5 4D
+	BEQ L01B2D		; 9B27	F0 04
+	LDA #$FF		; 9B29	A9 FF
+	STA $4C			; 9B2B	85 4C
+L01B2D:
+	LDY #$2F		; 9B2D	A0 2F		spell % penalty ??
+	LDA $4C			; 9B2F	A5 4C
+	STA ($7A),Y		; 9B31	91 7A
+	LDY #$24		; 9B33	A0 24		spell % penalty
+	STA ($80),Y		; 9B35	91 80
+	LDY #$23		; 9B37	A0 23		mod. intellect
+	LDA ($7A),Y		; 9B39	B1 7A
+	LDY #$12		; 9B3B	A0 12		intellect
+	STA ($80),Y		; 9B3D	91 80
+	LDY #$24		; 9B3F	A0 24		mod. spirit
+	LDA ($7A),Y		; 9B41	B1 7A
+	LDY #$13		; 9B43	A0 13		spirit
+	STA ($80),Y		; 9B45	91 80
+	RTS			; 9B47	60
+; End of Update_equip
 
-.byte $A5,$5C,$85,$02,$E6,$02,$A9,$00,$85,$01,$85,$03,$20,$98,$FC,$A5
-.byte $04,$85,$56,$A5,$05,$85,$57,$A5,$6D,$F0,$20,$A5,$51,$85,$00,$A5
-.byte $5D,$85,$02,$E6,$02,$A9,$00,$85,$01,$85,$03,$20,$98,$FC,$18,$A5
-.byte $56,$65,$04,$85,$56,$A5,$57,$65,$05,$85,$57,$18,$A5,$56,$65,$6F
-.byte $85,$56,$A5,$57,$69,$00,$85,$57,$A0,$01,$18,$B1,$44,$71,$46,$71
-.byte $48,$85,$58,$A9,$00,$69,$00,$85,$59,$38,$A5,$56,$E5,$58,$85,$56
-.byte $A5,$57,$E5,$59,$85,$57,$B0,$04,$A9,$00,$85,$56,$A0,$2B,$A5,$56
-.byte $20,$84,$9B,$91,$7A,$A0,$01,$91,$80,$A0,$32,$B1,$7E,$AA,$E8,$8A
-.byte $A0,$2C,$91,$7A,$A0,$03,$91,$80,$A9,$00,$85,$4D,$18,$A5,$70,$65
-.byte $71,$85,$4C,$46,$4D,$46,$4C,$18,$A0,$05,$B1,$44,$71,$46,$71,$48
-.byte $85,$4E,$A9,$00,$69,$00,$85,$4F,$18,$A5,$4C,$65,$4E,$85,$4C,$A5
-.byte $4D,$65,$4F,$85,$4D,$A5,$4D,$F0,$04,$A9,$63,$85,$4C,$A0,$2D,$A5
-.byte $4C,$20,$84,$9B,$91,$7A,$A0,$04,$91,$80,$A0,$03,$B1,$44,$11,$46
-.byte $11,$48,$85,$4C,$A5,$6C,$F0,$0A,$C9,$0A,$B0,$06,$A5,$4C,$05,$54
-.byte $85,$4C,$A5,$6D,$F0,$0A,$C9,$0A,$B0,$06,$A5,$4C,$05,$55,$85,$4C
-.byte $A0,$2E,$A5,$4C,$91,$7A,$A0,$05,$91,$80,$A0,$02,$18,$B1,$44,$71
+; Name	: Update_char_pointers
+; Marks	: update character pointers
+;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
+;	  $7E(ADDR) = character properties 2($6200,$6240,$6280,$62C0)
+;	  $80(ADDR) = battle stats($7D7A,$7DAA,$7DDA,$7E0A)
+;	  This code will be modified
+Update_char_pointers:
+	JSR Get_char_addr	; 9B48	20 7B 9B	get character offset
+	CLC			; 9B4B	18
+	ADC #$00		; 9B4C	69 00
+	STA $7A			; 9B4E	85 7A
+	LDA #$00		; 9B50	A9 00
+	ADC #$61		; 9B52	69 61		$6100 (character properties 1)
+	STA $7B			; 9B54	85 7B
+	JSR Get_char_addr	; 9B56	20 7B 9B	get character offset
+	CLC			; 9B59	18
+	ADC #$00		; 9B5A	69 00
+	STA $7E			; 9B5C	85 7E
+	LDA #$00		; 9B5E	A9 00
+	ADC #$62		; 9B60	69 62		$6200 (character properties 2)
+	STA $7F			; 9B62	85 7F
+	LDA cur_char_idx	; 9B64	A5 9E
+	ASL			; 9B66	0A
+	ASL			; 9B67	0A
+	ASL			; 9B68	0A
+	ASL			; 9B69	0A
+	STA $80			; 9B6A	85 80
+	ASL			; 9B6C	0A
+	CLC			; 9B6D	18
+	ADC $80			; 9B6E	65 80
+	ADC #$7A		; 9B70	69 7A		$7D7A (battle stats, 48 bytes each)
+	STA $80			; 9B72	85 80
+	LDA #$00		; 9B74	A9 00
+	ADC #$7D		; 9B76	69 7D
+	STA $81			; 9B78	85 81
+	RTS			; 9B7A	60        
+; End of Update_char_pointers
 
-;; [$9B00 :: 0x01B00]
+; Name	: Get_char_addr
+; Marks	: get character offset
+;	  character index to address offset
+;	  same as 0C/9726
+Get_char_addr:
+	LDA cur_char_idx	; 9B7B	A5 9E
+	ASL			; 9B7D	0A
+	ASL			; 9B7E	0A
+	ASL			; 9B7F	0A
+	ASL			; 9B80	0A
+	ASL			; 9B81	0A
+	ASL			; 9B82	0A
+	RTS			; 9B83	60
+; End of Get_char_addr
 
-.byte $46,$71,$48,$85,$4C,$A9,$00,$69,$00,$85,$4D,$18,$A5,$52,$65,$53
-.byte $85,$4E,$A9,$00,$69,$00,$85,$4F,$18,$A5,$4C,$65,$4E,$85,$4C,$A5
-.byte $4D,$65,$4F,$85,$4D,$A5,$4D,$F0,$04,$A9,$FF,$85,$4C,$A0,$2F,$A5
-.byte $4C,$91,$7A,$A0,$24,$91,$80,$A0,$23,$B1,$7A,$A0,$12,$91,$80,$A0
-.byte $24,$B1,$7A,$A0,$13,$91,$80,$60,$20,$7B,$9B,$18,$69,$00,$85,$7A
-.byte $A9,$00,$69,$61,$85,$7B,$20,$7B,$9B,$18,$69,$00,$85,$7E,$A9,$00
-.byte $69,$62,$85,$7F,$A5,$9E,$0A,$0A,$0A,$0A,$85,$80,$0A,$18,$65,$80
-.byte $69,$7A,$85,$80,$A9,$00,$69,$7D,$85,$81,$60,$A5,$9E,$0A,$0A,$0A
-.byte $0A,$0A,$0A,$60,$C9,$64,$90,$02,$A9,$63,$60,$A5,$44,$48,$A5,$45
-.byte $48,$A5,$46,$85,$44,$A5,$47,$85,$45,$68,$85,$47,$68,$85,$46,$A5
-.byte $6C,$48,$A5,$6D,$85,$6C,$68,$85,$6D,$60,$D0,$20,$85,$53,$85,$54
-.byte $A0,$00,$B1,$66,$8D,$47,$02,$85,$56,$C8,$B1,$66,$8D,$44,$02,$85
-.byte $55,$A9,$40,$85,$64,$A9,$02,$85,$65,$20,$FF,$9C,$20,$E4,$FA,$AD
-.byte $BA,$7C,$F0,$03,$20,$F2,$9E,$20,$46,$FD,$20,$34,$FC,$20,$E4,$FA
-.byte $20,$BC,$9C,$AD,$34,$00,$F0,$EF,$20,$46,$FD,$A5,$5D,$F0,$27,$AD
-.byte $34,$00,$C9,$80,$D0,$10,$E6,$53,$A5,$53,$C5,$5D,$D0,$05,$A9,$00
+; Name	: Max99
+; Ret	: A (0-99)
+; Marks	: max 99
+;	  same as 05/AA3A
+;	  MIN(A, 99)
+;	  return 99, if A is greather than 99
+Max99:
+	CMP #$64		; 9B84	C9 64
+	BCC L01B8A		; 9B86	90 02
+	LDA #$63		; 9B88	A9 63
+L01B8A:
+	RTS			; 9B8A	60
+; End of Max99
+
+; Name	: Swap_hands
+; Marks	: swap hands
+Swap_hands:
+	LDA $44			; 9B8B	A5 44
+	PHA			; 9B8D	48
+	LDA $45			; 9B8E	A5 45
+	PHA			; 9B90	48
+	LDA $46			; 9B91	A5 46
+	STA $44			; 9B93	85 44
+	LDA $47			; 9B95	A5 47
+	STA $45			; 9B97	85 45
+	PLA			; 9B99	68
+	STA $47			; 9B9A	85 47
+	PLA			; 9B9C	68
+	STA $46			; 9B9D	85 46
+	LDA $6C			; 9B9F	A5 6C
+	PHA			; 9BA1	48
+	LDA $6D			; 9BA2	A5 6D
+	STA $6C			; 9BA4	85 6C
+	PLA			; 9BA6	68
+	STA $6D			; 9BA7	85 6D
+	RTS			; 9BA9	60
+; End of Swap_hands
+
+; Marks	: stale code (now at 0C/9BAD)
+	BNE L01BCC		; 9BAA	D0 20
+	STA $53			; 9BAC	85 53
+	STA $54			; 9BAE	85 54
+	LDY #$00		; 9BB0	A0 00
+	LDA ($66),Y		; 9BB2	B1 66
+	STA $0247		; 9BB4	8D 47 02
+	STA $56			; 9BB7	85 56
+	INY			; 9BB9	C8
+	LDA ($66),Y		; 9BBA	B1 66
+	STA $0244		; 9BBC	8D 44 02
+	STA $55			; 9BBF	85 55
+	LDA #$40		; 9BC1	A9 40
+	STA $64			; 9BC3	85 64
+	LDA #$02		; 9BC5	A9 02
+	STA $65			; 9BC7	85 65
+	JSR $9CFF		; 9BC9	20 FF 9C
+L01BCC:
+	JSR $FAE4		; 9BCC	20 E4 FA
+	LDA $7CBA		; 9BCF	AD BA 7C
+	BEQ L01BD7		; 9BD2	F0 03
+	JSR $9EF2		; 9BD4	20 F2 9E
+L01BD7:
+	JSR $FD46		; 9BD7	20 46 FD
+	JSR $FC34		; 9BDA	20 34 FC
+	JSR $FAE4		; 9BDD	20 E4 FA
+	JSR $9CBC		; 9BE0	20 BC 9C
+.byte $AD,$34,$00
+	;LDA $0034		; 9BE3	AD 34 00
+	BEQ L01BD7		; 9BE6	F0 EF
+	JSR $FD46		; 9BE8	20 46 FD
+	LDA $5D			; 9BEB	A5 5D
+.byte $F0,$27
+	;BEQ L01C16		; 9BED	F0 27
+.byte $AD,$34,$00
+	;LDA $0034		; 9BEF	AD 34 00
+	CMP #$80		; 9BF2	C9 80
+.byte $D0,$10
+	;BNE Set_wmap_palettes	; 9BF4	D0 10
+	INC $53			; 9BF6	E6 53
+	LDA $53			; 9BF8	A5 53
+	CMP $5D			; 9BFA	C5 5D
+.byte $D0,$05
+	;BNE Init_wmap		; 9BFC	D0 05
+	LDA #$00		; 9BFE	A9 00
+; end of stale code
 ; ========== Character stats code ($9880-$9BFF) END ==========
 
 
 ;; [$9C00 :: 0x01C00]
 
 ; ========== Map init code ($9C00-$9FFF) START ==========
-;
-	JMP $9D52		; 9C00	$4C $52 $9D
+.export	Load_guest_char_prop	;9C0C
+
+Init_map:
+	JMP Init_map_		; 9C00	$4C $52 $9D
 Init_wmap:
 	JMP Init_wmap_		; 9C03	$4C $A5 $9C
 Set_wmap_palettes:
 	JMP Set_wmap_palettes_	; 9C06	$4C $C3 $9C
 Init_var:
-	JMP Init_var_		; 9C09	$4C $51 $9C
-.byte $A5,$61,$38,$E9
-.byte $04,$0A,$AA,$BD,$45,$9C,$85,$80,$BD,$46,$9C,$85,$81,$A0,$3F,$B1
-.byte $80,$99,$C0,$61,$88,$10,$F8,$A0,$40,$B1,$80,$99,$80,$62,$C8,$C0
-.byte $76,$90,$F6,$A5,$61,$C9,$09,$D0,$0B,$A2,$05,$BD,$76,$62,$9D,$C2
-.byte $61,$CA,$10,$F7,$60,$00,$91,$80,$91,$00,$92,$80,$92,$00,$93,$80
-.byte $93
+	JMP Init_var_		; 9C09	$4C $51 $9C	called on BANK 0F
+
+; Name	: Load_guest_char_prop
+; Marks	: load guest character properties
+;	  called on BANK 0F
+Load_guest_char_prop:
+	LDA $61			; 9C0C	A5 61
+	SEC			; 9C0E	38
+	SBC #$04		; 9C0F	E9 04
+	ASL			; 9C11	0A
+	TAX			; 9C12	AA
+	LDA Guest_prop_p,X	; 9C13	BD 45 9C
+	STA $80			; 9C16	85 80
+	LDA Guest_prop_p+1,X	; 9C18	BD 46 9C
+	STA $81			; 9C1B	85 81
+	LDY #$3F		; 9C1D	A0 3F
+L01C1F:
+	LDA ($80),Y		; 9C1F	B1 80
+	STA $61C0,Y		; 9C21	99 C0 61
+	DEY			; 9C24	88
+	BPL L01C1F		; 9C25	10 F8
+	LDY #$40		; 9C27	A0 40
+L01C29:
+	LDA ($80),Y		; 9C29	B1 80
+	STA $6280,Y		; 9C2B	99 80 62
+	INY			; 9C2E	C8
+	CPY #$76		; 9C2F	C0 76
+	BCC L01C29		; 9C31	90 F6
+	LDA $61			; 9C33	A5 61
+	CMP #$09		; 9C35	C9 09
+	BNE L01C44		; 9C37	D0 0B
+	LDX #$05		; 9C39	A2 05
+L01C3B:
+	LDA $6276,X		; 9C3B	BD 76 62
+	STA $61C2,X		; 9C3E	9D C2 61
+	DEX			; 9C41	CA
+	BPL L01C3B		; 9C42	10 F7
+L01C44:
+	RTS			; 9C44	60
+; End of Load_guest_char_prop
+
+; $9C45 - data block = pointers to guest character properties
+Guest_prop_p:
+.word Minwu_properties		; $00 $91
+.word Josef_properties		; $80 $91
+.word Gordon_properties		; $00 $92
+.word Leila_properties		; $80 $92
+.word Ricard_properties		; $00 $93
+.word Leon_properties		; $80 $93
+
 ; Name	: Init_var_
 ; Marks	: Init variables(event/items/characters/palettes)
 ;	  $6000-$609F, $6100-$62FF
+;	  init sram
 Init_var_:
 	LDX #$1F		; 9C51	$A2 $1F
 L01C53:
-	LDA $8AE0,X		; 9C53	$BD $E0 $8A
-	STA $6000,X		; 9C56	$9D $00 $60
-	LDA $8AC0,X		; 9C59	$BD $C0 $8A
+	LDA Init_event_vehi_key_sw,X	; 9C53	$BD $E0 $8A
+	STA ship_status,X	; 9C56	$9D $00 $60
+	LDA Init_event_npc_sw,X	; 9C59	$BD $C0 $8A
 	STA event_npc_sw,X	; 9C5C	$9D $40 $60
 	LDA #$00		; 9C5F	$A9 $00
-	STA acq_keyword,X	; 9C61	$9D $80 $60
-	STA inventory,X		; 9C64	$9D $60 $60
+	STA acq_keyword,X	; 9C61	$9D $80 $60	clear keywords
+	STA inventory,X		; 9C64	$9D $60 $60	clear inventory
 	LDA #$FF		; 9C67	$A9 $FF
-	STA treasure_sw,X	; 9C69	$9D $20 $60
+	STA treasure_sw,X	; 9C69	$9D $20 $60	reset treasure switches
 	DEX			; 9C6C	$CA
 	BPL L01C53		; 9C6D	$10 $E4		loop
 	LDX #$3F		; 9C6F	$A2 $3F
 L01C71:
-	LDA $8F80,X		; 9C71	$BD $80 $8F
+	LDA Firion_properties,X	; 9C71	$BD $80 $8F
 	STA ch_stats_1,X	; 9C74	$9D $00 $61
-	LDA $9000,X		; 9C77	$BD $00 $90
+	LDA Maria_properties,X	; 9C77	$BD $00 $90
 	STA ch_stats_2,X	; 9C7A	$9D $40 $61
-	LDA $9080,X		; 9C7D	$BD $80 $90
+	LDA Guy_properties,X	; 9C7D	$BD $80 $90
 	STA ch_stats_3,X	; 9C80	$9D $80 $61
-	LDA $8F80,X		; 9C83	$BD $80 $8F
+	LDA Firion_properties,X	; 9C83	$BD $80 $8F
 	STA ch_stats_4,X	; 9C86	$9D $C0 $61
-	LDA $8FC0,X		; 9C89	$BD $C0 $8F
+	LDA Firion_prop_skil,X	; 9C89	$BD $C0 $8F
 	STA ch_skills_1,X	; 9C8C	$9D $00 $62
-	LDA $9040,X		; 9C8F	$BD $40 $90
+	LDA Maria_prop_skil,X	; 9C8F	$BD $40 $90
 	STA ch_skills_2,X	; 9C92	$9D $40 $62
-	LDA $90C0,X		; 9C95	$BD $C0 $90
+	LDA Guy_prop_skil,X	; 9C95	$BD $C0 $90
 	STA ch_skills_3,X	; 9C98	$9D $80 $62
-	LDA $8FC0,X		; 9C9B	$BD $C0 $8F
+	LDA Firion_prop_skil,X	; 9C9B	$BD $C0 $8F
 	STA ch_skills_4,X	; 9C9E	$9D $C0 $62
 	DEX			; 9CA1	$CA
 	BPL L01C71		; 9CA2	$10 $CD		loop
@@ -713,16 +1248,17 @@ L01C71:
 
 ; Name	: Init_wmap_
 ; Marks	: Set world map tile properties($8000-$83FF) to RAM($0400-$07FF)
+;	  init world map
 Init_wmap_:
 	LDX #$00		; 9CA5	$A2 $00
 L01CA7:
-	LDA $8000,X		; 9CA7	$BD $00 $80	world map tile properties
+	LDA Wmap_tile_prop,X	; 9CA7	$BD $00 $80	world map tile properties - BANK 00/8000
 	STA $0400,X		; 9CAA	$9D $00 $04
-	LDA $8100,X		; 9CAD	$BD $00 $81	world map tileset1
+	LDA Wmap_tileset1,X	; 9CAD	$BD $00 $81	world map tileset1 - BANK 00/8100
 	STA $0500,X		; 9CB0	$9D $00 $05
-	LDA $8200,X		; 9CB3	$BD $00 $82	world map tileset2
+	LDA Wmap_tileset2,X	; 9CB3	$BD $00 $82	world map tileset2 - BANK 00/8200
 	STA $0600,X		; 9CB6	$9D $00 $06
-	LDA $8300,X		; 9CB9	$BD $00 $83	world map attribute table
+	LDA Wmap_attr_tbl,X	; 9CB9	$BD $00 $83	world map attribute table - BANK 00/8300
 	STA $0700,X		; 9CBC	$9D $00 $07
 	INX			; 9CBF	$E8
 	BNE L01CA7		; 9CC0	$D0 $E5		loop
@@ -731,10 +1267,11 @@ L01CA7:
 
 ; Name	: Set_wmap_palettes_
 ; Marks	: Set world map palettes
+;	  load map palette
 Set_wmap_palettes_:
 	LDX #$1F		; 9CC3	$A2 $1F
 L01CC5:
-	LDA $8380,X		; 9CC5	$BD $80 $83
+	LDA Wmap_pal,X		; 9CC5	$BD $80 $83	BANK 00/8380
 	STA palette_UBGC,X	; 9CC8	$9D $C0 $03
 	DEX			; 9CCB	$CA
 	BPL L01CC5		; 9CCC	$10 $F7
@@ -753,16 +1290,15 @@ L01CDE:
 	AND #$0F		; 9CE1	$29 $0F
 	ASL A			; 9CE3	$0A
 	TAX			; 9CE4	$AA
-	LDA $83A0,X		; 9CE5	$BD $A0 $83
+	LDA Map_char_pal,X	; 9CE5	$BD $A0 $83
 	STA palette_OAM01	; 9CE8	$8D $D2 $03
-	LDA $83A1,X		; 9CEB	$BD $A1 $83
+	LDA Map_char_pal+1,X	; 9CEB	$BD $A1 $83
 	STA palette_OAM11	; 9CEE	$8D $D6 $03
 	LDA scroll_dir_map	; 9CF1	$A5 $2D
 	LSR A			; 9CF3	$4A
 	BCS L01CF7		; 9CF4	$B0 $01
 	RTS			; 9CF6	$60
 ; End of Set_wmap_palettes_
-
 ; Marks	: $48(ADDR) = palette address
 L01CF7:
 	LDA $48			; 9CF7	$A5 $48		map id ??
@@ -806,27 +1342,28 @@ L01CF7:
 ; X	: palette background offset
 ; Y	: palette address offset
 ; Marks	: $80(ADDR)
-; 	  Load palette ??
+; 	  Load palette color
 Set_palettes:
 	LDA ($80),Y		; 9D3C	$B1 $80
 	TAY			; 9D3E	$A8
-	LDA $8E00,Y		; 9D3F	$B9 $00 $8E
+	LDA Map_pal_UBG,Y	; 9D3F	$B9 $00 $8E	BANK 00/8E00
 	STA palette_UBGC,X	; 9D42	$9D $C0 $03
-	LDA $8E80,Y		; 9D45	$B9 $80 $8E
+	LDA Map_pal_BG00,Y	; 9D45	$B9 $80 $8E	BANK 00/8E80
 	STA palette_BG00,X	; 9D48	$9D $C1 $03
-	LDA $8F00,Y		; 9D4B	$B9 $00 $8F
+	LDA Map_pal_BG01,Y	; 9D4B	$B9 $00 $8F	BANK 00/8F00
 	STA palette_BG01,X	; 9D4E	$9D $C2 $03
 	RTS			; 9D51	$60
 ; End of Set_palettes
 
-; Name	:
-; Marks	:
+; Name	: Init_map_
+; Marks	: init map
+Init_map_:
 	LDA $48			; 9D52	$A5 $48		world map entrance ID ??
 	LSR A			; 9D54	$4A
 	LSR A			; 9D55	$4A
 	LSR A			; 9D56	$4A
 	LSR A			; 9D57	$4A
-	ORA #$A0		; 9D58	$09 $A0
+	ORA #$A0		; 9D58	$09 $A0		BANK 00/A000 (map properties)
 	STA $81			; 9D5A	$85 $81
 	LDA $48			; 9D5C	$A5 $48		world map entrance ID ??
 	ASL A			; 9D5E	$0A
@@ -836,11 +1373,11 @@ Set_palettes:
 	STA $80			; 9D62	$85 $80
 	LDY #$0F		; 9D64	$A0 $0F
 L01D66:
-	LDA ($80),Y		; 9D66	$B1 $80		map properties ?? (ex> $A050)
+	LDA ($80),Y		; 9D66	$B1 $80		copy map properties to buffer (ex> $A050)
 	STA $0780,Y		; 9D68	$99 $80 $07	map tileset ?? map properties ??
 	DEY			; 9D6B	$88
 	BPL L01D66		; 9D6C	$10 $F8
-	JSR $9E3B		; 9D6E	$20 $3B $9E	Copy tile ??
+	JSR Load_map_prop	; 9D6E	$20 $3B $9E	load map properties
 	LDA #$80		; 9D71	$A9 $80
 	STA $61			; 9D73	$85 $61
 	LDA #$A0		; 9D75	$A9 $A0
@@ -859,38 +1396,38 @@ L01D66:
 	STA $88			; 9D8F	$85 $88
 	STA $80			; 9D91	$85 $80
 	LDA #$70		; 9D93	$A9 $70
-	STA $81			; 9D95	$85 $81
+	STA $81			; 9D95	$85 $81		$7000
 L01D97:
 	LDY $88			; 9D97	$A4 $88
-	LDX $7400,Y		; 9D99	$BE $00 $74
+	LDX $7400,Y		; 9D99	$BE $00 $74	decompressed bg tilemap
 	LDY #$00		; 9D9C	$A0 $00
-	LDA $7800,X		; 9D9E	$BD $00 $78
+	LDA $7800,X		; 9D9E	$BD $00 $78	top left tile
 	STA ($80),Y		; 9DA1	$91 $80
 	INY			; 9DA3	$C8
-	LDA $7880,X		; 9DA4	$BD $80 $78
+	LDA $7880,X		; 9DA4	$BD $80 $78	top right tile
 	STA ($80),Y		; 9DA7	$91 $80
 	LDY #$20		; 9DA9	$A0 $20
-	LDA $7900,X		; 9DAB	$BD $00 $79
+	LDA $7900,X		; 9DAB	$BD $00 $79	bottom left tile
 	STA ($80),Y		; 9DAE	$91 $80
 	INY			; 9DB0	$C8
-	LDA $7980,X		; 9DB1	$BD $80 $79
+	LDA $7980,X		; 9DB1	$BD $80 $79	bottom right tile
 	STA ($80),Y		; 9DB4	$91 $80
 	LDA $80			; 9DB6	$A5 $80
 	CLC			; 9DB8	$18
-	ADC #$02		; 9DB9	$69 $02
+	ADC #$02		; 9DB9	$69 $02		next 32x32 tile
 	STA $80			; 9DBB	$85 $80
 	AND #$1F		; 9DBD	$29 $1F
 	BNE L01DCC		; 9DBF	$D0 $0B
 	LDA $80			; 9DC1	$A5 $80
 	CLC			; 9DC3	$18
-	ADC #$20		; 9DC4	$69 $20
+	ADC #$20		; 9DC4	$69 $20		next row
 	STA $80			; 9DC6	$85 $80
 	BCC L01DCC		; 9DC8	$90 $02
 	INC $81			; 9DCA	$E6 $81
 L01DCC:
 	INC $88			; 9DCC	$E6 $88
 	BNE L01D97		; 9DCE	$D0 $C7
-	LDA #$00		; 9DD0	$A9 $00
+	LDA #$00		; 9DD0	$A9 $00		$7000
 	STA $80			; 9DD2	$85 $80
 	STA $88			; 9DD4	$85 $88
 	TAY			; 9DD6	$A8
@@ -899,17 +1436,17 @@ L01DCC:
 L01DDB:
 	LDA ($80),Y		; 9DDB	$B1 $80		map bg tilemap (32x32) ?? ($7000-$73FF)
 	CMP #$39		; 9DDD	$C9 $39
-	BCC L01DE6		; 9DDF	$90 $05
-	JSR $9F24		; 9DE1	$20 $24 $9F
+	BCC L01DE6		; 9DDF	$90 $05		branch if not a trigger
+	JSR Trig_init		; 9DE1	$20 $24 $9F	init trigger
 	STA ($80),Y		; 9DE4	$91 $80
 L01DE6:
-	INY			; 9DE6	$C8
+	INY			; 9DE6	$C8		next tile
 	BNE L01DDB		; 9DE7	$D0 $F2		loop - $7000-$73FF ??
 	INC $81			; 9DE9	$E6 $81
 	LDA $81			; 9DEB	$A5 $81
-	CMP #$74		; 9DED	$C9 $74
+	CMP #$74		; 9DED	$C9 $74		loop through $73FF
 	BCC L01DDB		; 9DEF	$90 $EA
-	LDA $0780		; 9DF1	$AD $80 $07	text buffer ??
+	LDA $0780		; 9DF1	$AD $80 $07	npc properties id
 	AND #$7F		; 9DF4	$29 $7F
 	CMP #$40		; 9DF6	$C9 $40
 	BCC L01E15		; 9DF8	$90 $1B
@@ -918,11 +1455,11 @@ L01DE6:
 	ASL A			; 9DFE	$0A
 	ADC $80			; 9DFF	$65 $80
 	STA $80			; 9E01	$85 $80
-	LDA #$BE		; 9E03	$A9 $BE
+	LDA #$BE		; 9E03	$A9 $BE		BANK 00/BE00 (single npc properties)
 	STA $81			; 9E05	$85 $81
-	LDY #$02		; 9E07	$A0 $02
+	LDY #$02		; 9E07	$A0 $02		only load 3 bytes (1 npc)
 	LDA #$00		; 9E09	$A9 $00
-	LDX #$24		; 9E0B	$A2 $24
+	LDX #$24		; 9E0B	$A2 $24		clear npc data
 L01E0D:
 	STA $0780,X		; 9E0D	$9D $80 $07
 	DEX			; 9E10	$CA
@@ -943,163 +1480,238 @@ L01E15:
 	ADC $80			; 9E26	$65 $80
 	STA $80			; 9E28	$85 $80
 	LDA $81			; 9E2A	$A5 $81
-	ADC #$B5		; 9E2C	$69 $B5
+	ADC #$B5		; 9E2C	$69 $B5		BANK 00/B500 (multi npc properties)
 	STA $81			; 9E2E	$85 $81
-	LDY #$23		; 9E30	$A0 $23
+	LDY #$23		; 9E30	$A0 $23		load 12 npcs
 L01E32:
 	LDA ($80),Y		; 9E32	$B1 $80
 	STA $0780,Y		; 9E34	$99 $80 $07	text buffer ??
 	DEY			; 9E37	$88
 	BPL L01E32		; 9E38	$10 $F8		loop
 	RTS			; 9E3A	$60
-; End of
+; End of Init_map_
 
-; Name	:
+; Name	: Load_map_prop
 ; Marks	: Copy map tile properties to CPU System RAM ($0400-$04FF)
 ;	  Copy $8400-$84FF to $0500-$0680 (exterior 16 x 16) - asymetrical
 ;	  Copy $8600-$86FF to $0540-$0680 (common 16 x 16) - asymetrical
 ;	  Copy $8700-$87FF to $7800-$7980 (exterior 32 x 32) - asymetrical
 ;	  Copy $8900-$89FF to $7840-$7980 (common 32 x 32) - asymetrical
+;	  load map properties
+Load_map_prop:
 	LDA $0780		; 9E3B	$AD $80 $07
 	AND #$80		; 9E3E	$29 $80
 	STA $49			; 9E40	$85 $49
 	LDX #$00		; 9E42	$A2 $00
 L01E44:
-	LDA $8B00,X		; 9E44	$BD $00 $8B
+	LDA Map_tile_prop,X	; 9E44	$BD $00 $8B	BANK 00/8B00
 	STA $0400,X		; 9E47	$9D $00 $04	tile properties
 	INX			; 9E4A	$E8
-	BNE L01E44		; 9E4B	$D0 $F7
+	BNE L01E44		; 9E4B	$D0 $F7		loop
 	LDX $48			; 9E4D	$A6 $48		world map entrance ID
-	LDA $B300,X		; 9E4F	$BD $00 $B3	tile set ID
+	LDA Tile_id,X		; 9E4F	$BD $00 $B3	tile set ID
 	LSR A			; 9E52	$4A
 	LDX #$3F		; 9E53	$A2 $3F
-	BCS L01E92		; 9E55	$B0 $3B
+	BCS L01E92		; 9E55	$B0 $3B		branch if interior
+; exterior
 L01E57:
-	LDA $8400,X		; 9E57	$BD $00 $84	exterior 16 x 16 tileset
+	LDA Exterior16,X	; 9E57	$BD $00 $84	BANK 00/8400 exterior 16 x 16 tileset
 	STA $0500,X		; 9E5A	$9D $00 $05
-	LDA $8440,X		; 9E5D	$BD $40 $84
+	LDA Exterior16+$40,X	; 9E5D	$BD $40 $84
 	STA $0580,X		; 9E60	$9D $80 $05
-	LDA $8480,X		; 9E63	$BD $80 $84
+	LDA Exterior16+$80,X	; 9E63	$BD $80 $84
 	STA $0600,X		; 9E66	$9D $00 $06
-	LDA $84C0,X		; 9E69	$BD $C0 $84
+	LDA Exterior16+$C0,X	; 9E69	$BD $C0 $84
 	STA $0680,X		; 9E6C	$9D $80 $06
-	LDA $8700,X		; 9E6F	$BD $00 $87	exterior 32 x 32 tileset
+	LDA Exterior32,X	; 9E6F	$BD $00 $87	BANK 00/8700 exterior 32 x 32 tileset
 	STA $7800,X		; 9E72	$9D $00 $78
-	LDA $8740,X		; 9E75	$BD $40 $87
+	LDA Exterior32+$40,X	; 9E75	$BD $40 $87
 	STA $7880,X		; 9E78	$9D $80 $78
-	LDA $8780,X		; 9E7B	$BD $80 $87
+	LDA Exterior32+$80,X	; 9E7B	$BD $80 $87
 	STA $7900,X		; 9E7E	$9D $00 $79
-	LDA $87C0,X		; 9E81	$BD $C0 $87
+	LDA Exterior32+$C0,X	; 9E81	$BD $C0 $87
 	STA $7980,X		; 9E84	$9D $80 $79
-	LDA $8A00,X		; 9E87	$BD $00 $8A	map bg attribute tables[0]
+	LDA map_BG_attr,X	; 9E87	$BD $00 $8A	BANK 00/8A00 map bg attribute tables[0]
 	STA $0700,X		; 9E8A	$9D $00 $07
 	DEX			; 9E8D	$CA
-	BPL L01E57		; 9E8E	$10 $C7
+	BPL L01E57		; 9E8E	$10 $C7		loop
 	BMI L01ECB		; 9E90	$30 $39
+; interior
 L01E92:
-	LDA $8500,X		; 9E92	$BD $00 $85
+	LDA Interior16,X	; 9E92	$BD $00 $85	BANK 00/8500 interior 16 x 16 tileset
 	STA $0500,X		; 9E95	$9D $00 $05
-	LDA $8540,X		; 9E98	$BD $40 $85
+	LDA Interior16+$40,X	; 9E98	$BD $40 $85
 	STA $0580,X		; 9E9B	$9D $80 $05
-	LDA $8580,X		; 9E9E	$BD $80 $85
+	LDA Interior16+$80,X	; 9E9E	$BD $80 $85
 	STA $0600,X		; 9EA1	$9D $00 $06
-	LDA $85C0,X		; 9EA4	$BD $C0 $85
+	LDA Interior16+$C0,X	; 9EA4	$BD $C0 $85
 	STA $0680,X		; 9EA7	$9D $80 $06
-	LDA $8800,X		; 9EAA	$BD $00 $88
+	LDA Interior32,X	; 9EAA	$BD $00 $88	BANK 00/8800 interior 32 x 32 tileset
 	STA $7800,X		; 9EAD	$9D $00 $78
-	LDA $8840,X		; 9EB0	$BD $40 $88
+	LDA Interior32+$40,X	; 9EB0	$BD $40 $88
 	STA $7880,X		; 9EB3	$9D $80 $78
-	LDA $8880,X		; 9EB6	$BD $80 $88
+	LDA Interior32+$80,X	; 9EB6	$BD $80 $88
 	STA $7900,X		; 9EB9	$9D $00 $79
-	LDA $88C0,X		; 9EBC	$BD $C0 $88
+	LDA Interior32+$C0,X	; 9EBC	$BD $C0 $88
 	STA $7980,X		; 9EBF	$9D $80 $79
-	LDA $8A40,X		; 9EC2	$BD $40 $8A
+	LDA map_BG_attr+$40,X	; 9EC2	$BD $40 $8A	BANK 00/8A40 map bg attribute tables[1]
 	STA $0700,X		; 9EC5	$9D $00 $07
 	DEX			; 9EC8	$CA
-	BPL L01E92		; 9EC9	$10 $C7
+	BPL L01E92		; 9EC9	$10 $C7		loop
+; common tiles
 L01ECB:
 	LDX #$3F		; 9ECB	$A2 $3F
 L01ECD:
-	LDA $8600,X		; 9ECD	$BD $00 $86	common 16 x 16 tileset
+	LDA Common16,X		; 9ECD	$BD $00 $86	BANK 00/8600 common 16 x 16 tileset
 	STA $0540,X		; 9ED0	$9D $40 $05
-	LDA $8640,X		; 9ED3	$BD $40 $86
+	LDA Common16+$40,X	; 9ED3	$BD $40 $86
 	STA $05C0,X		; 9ED6	$9D $C0 $05
-	LDA $8680,X		; 9ED9	$BD $80 $86
+	LDA Common16+$80,X	; 9ED9	$BD $80 $86
 	STA $0640,X		; 9EDC	$9D $40 $06
-	LDA $86C0,X		; 9EDF	$BD $C0 $86
+	LDA Common16+$C0,X	; 9EDF	$BD $C0 $86
 	STA $06C0,X		; 9EE2	$9D $C0 $06
-	LDA $8900,X		; 9EE5	$BD $00 $89	common 32 x 32 tileset
+	LDA Common32,X		; 9EE5	$BD $00 $89	BANK 00/8900 common 32 x 32 tileset
 	STA $7840,X		; 9EE8	$9D $40 $78
-	LDA $8940,X		; 9EEB	$BD $40 $89
+	LDA Common32+$40,X	; 9EEB	$BD $40 $89
 	STA $78C0,X		; 9EEE	$9D $C0 $78
-	LDA $8980,X		; 9EF1	$BD $80 $89
+	LDA Common32+$80,X	; 9EF1	$BD $80 $89
 	STA $7940,X		; 9EF4	$9D $40 $79
-	LDA $89C0,X		; 9EF7	$BD $C0 $89
+	LDA Common32+$C0,X	; 9EF7	$BD $C0 $89
 	STA $79C0,X		; 9EFA	$9D $C0 $79
-	LDA $8A80,X		; 9EFD	$BD $80 $8A	map bg attribute tables[2]
+	LDA map_BG_attr+$80,X	; 9EFD	$BD $80 $8A	BANK 00/8A80 map bg attribute tables[2]
 	STA $0740,X		; 9F00	$9D $40 $07
 	DEX			; 9F03	$CA
 	BPL L01ECD		; 9F04	$10 $C7
 	LDA $0786		; 9F06	$AD $86 $07	text buffer ??
-	STA $044D		; 9F09	$8D $4D $04	tile properties ??
-	STA $046F		; 9F0C	$8D $6F $04	tile properties ??
+	STA $044D		; 9F09	$8D $4D $04	tile $26 trigger id
+	STA $046F		; 9F0C	$8D $6F $04	tile $37 trigger id
 	LDX $48			; 9F0F	$A6 $48		world map entrance ID
-	LDA $B000,X		; 9F11	$BD $00 $B0	map initial x positions and fill tile
+	LDA Map_init_xfill,X	; 9F11	$BD $00 $B0	map initial x positions and fill tile BANK 00/B000
 	LSR A			; 9F14	$4A
 	LSR A			; 9F15	$4A
 	LSR A			; 9F16	$4A
 	LSR A			; 9F17	$4A
 	LSR A			; 9F18	$4A
 	TAX			; 9F19	$AA
-	LDA $83C2,X		; 9F1A	$BD $C2 $83	fill tile attributes
+	LDA Fill_tile_attr,X	; 9F1A	$BD $C2 $83	fill tile attributes
 	STA $0738		; 9F1D	$8D $38 $07	map tileset attribute table
 	STA $0716		; 9F20	$8D $16 $07
 	RTS			; 9F23	$60
-; End of
+; End of Load_map_prop
 
-; Name	:
+; Name	: Trig_init
 ; A	:
-; Marks	:
+; Ret	: A = 
+; Marks	: init trigger
+;	  $84(ADDR) = trigger init jump table address
+Trig_init:
 	SEC			; 9F24	$38
 	SBC #$39		; 9F25	$E9 $39
 	ASL A			; 9F27	$0A
 	TAX			; 9F28	$AA
-	LDA $9F36,X		; 9F29	$BD $36 $9F
+	LDA Trig_init_jmp,X	; 9F29	$BD $36 $9F
 	STA $84			; 9F2C	$85 $84
-	LDA $9F37,X		; 9F2E	$BD $37 $9F
+	LDA Trig_init_jmp+1,X	; 9F2E	$BD $37 $9F
 	STA $85			; 9F31	$85 $85
 	JMP ($0084)		; 9F33	$6C $84 $00
-; 9F36
-.byte $44,$9F,$73,$9F,$7F,$9F,$8B,$9F,$97,$9F
-.byte $A3,$9F,$AF,$9F,$20,$BE,$9F,$48,$29,$07,$AA,$BD,$6B,$9F,$85,$84
-.byte $68,$48,$4A,$4A,$4A,$AA,$BD,$20,$60,$25,$84,$D0,$04,$68,$A9,$7F
-.byte $60,$68,$A6,$61,$E6,$61,$E6,$61,$4C,$B8,$9F,$01,$02,$04,$08,$10
-.byte $20,$40,$80
-	JSR $9FBE		; 9F73	$20 $BE $9F
-; 9F76
+; trigger init jump table
+Trig_init_jmp:
+.word Trig_init_404F		; 9F36	$9F44
+.word Trig_init_5057		; 9F38	$9F73
+.word Trig_init_585F		; 9F3A	$9F7F
+.word Trig_init_606F		; 9F3C	$9F8B
+.word Trig_init_686F		; 9F3E	$9F97
+.word Trig_init_7077		; 9F40	$9FA3
+.word Trig_init_787F		; 9F42	$9FAF
+; Marks	: $39: treasure chest ($40-$4F)
+Trig_init_404F:
+	JSR get_next_trig_id	; 9F44	20 BE 9F	get next trigger id
+	PHA			; 9F47	48
+	AND #$07		; 9F48	29 07
+	TAX			; 9F4A	AA
+	LDA Bit_masks,X		; 9F4B	BD 6B 9F	bit mask
+	STA $84			; 9F4E	85 84
+	PLA			; 9F50	68
+	PHA			; 9F51	48
+	LSR			; 9F52	4A
+	LSR			; 9F53	4A
+	LSR			; 9F54	4A
+	TAX			; 9F55	AA
+	LDA $6020,X		; 9F56	BD 20 60	check treasure switch
+	AND $84			; 9F59	25 84
+	BNE L01F61		; 9F5B	D0 04
+	PLA			; 9F5D	68
+	LDA #$7F		; 9F5E	A9 7f
+	RTS			; 9F60	60
+L01F61:
+	PLA			; 9F61	68
+	LDX $61			; 9F62	A6 61
+	INC $61			; 9F64	E6 61
+	INC $61			; 9F66	E6 61
+	JMP Trig_init_end	; 9F68	4C B8 9F
+
+; 9F6B - data block = bit masks
+Bit_masks:
+.byte $01,$02,$04,$08,$10,$20,$40,$80
+
+; Marks	: $3A: (tile $50-$57)
+Trig_init_5057:
+	JSR get_next_trig_id	; 9F73	$20 $BE $9F	get next trigger id
 	LDX $62			; 9F76	$A6 $62
 	INC $62			; 9F78	$E6 $62
 	INC $62			; 9F7A	$E6 $62
-	JMP $9FB8		; 9F7C	$4C $B8 $9F
-.byte $20
-.byte $BE,$9F,$A6,$63,$E6,$63,$E6,$63,$4C,$B8,$9F,$20,$BE,$9F,$A6,$64
-.byte $E6,$64,$E6,$64,$4C,$B8,$9F,$20,$BE,$9F,$A6,$65,$E6,$65,$E6,$65
-.byte $4C,$B8,$9F,$20,$BE,$9F,$A6,$66,$E6,$66,$E6,$66,$4C,$B8,$9F,$20
-.byte $BE,$9F,$A6,$67,$E6,$67,$E6,$67
-	STA $0401,X		; 9FB8	$9D $01 $04	tile properties
+	JMP Trig_init_end	; 9F7C	$4C $B8 $9F
+; Marks	: $3B: (tile $58-$5F)
+Trig_init_585F:
+	JSR get_next_trig_id	; 9F7F	20 BE 9F	get next trigger id
+	LDX $63			; 9F82	A6 63
+	INC $63			; 9F84	E6 63
+	INC $63			; 9F86	E6 63
+	JMP Trig_init_end	; 9F88	4C B8 9F
+; Marks	: $3C: (tile $60-$6F) 67 ??
+Trig_init_606F:
+	JSR get_next_trig_id	; 9F8B	20 BE 9F	get next trigger id
+	LDX $64			; 9F8E	A6 64
+	INC $64			; 9F90	E6 64
+	INC $64			; 9F92	E6 64
+	JMP Trig_init_end	; 9F94	4C B8 9F
+; Marks	: $3D: (tile $68-$6F)
+Trig_init_686F:
+	JSR get_next_trig_id	; 9F97	20 BE 9F	get next trigger id
+	LDX $65			; 9F9A	A6 65
+	INC $65			; 9F9C	E6 65
+	INC $65			; 9F9E	E6 65
+	JMP Trig_init_end	; 9FA0	4C B8 9F
+; Marks	: $3E: (tile $70-$77)
+Trig_init_7077:
+	JSR get_next_trig_id	; 9FA3	20 BE 9F	get next trigger id
+	LDX $66			; 9FA6	A6 66
+	INC $66			; 9FA8	E6 66
+	INC $66			; 9FAA	E6 66
+	JMP Trig_init_end	; 9FAC	4C B8 9F
+; Marks	: $3F: (tile $78-$7F)
+Trig_init_787F:
+	JSR get_next_trig_id	; 9FAF	20 BE 9F	get next trigger id
+	LDX $67			; 9FB2	A6 67
+	INC $67			; 9FB4	E6 67
+	INC $67			; 9FB6	E6 67
+Trig_init_end:
+	STA $0401,X		; 9FB8	$9D $01 $04	tile properties - set trigger id
 	TXA			; 9FBB	$8A
 	LSR A			; 9FBC	$4A
 	RTS			; 9FBD	$60
-; End of
+; End of Trig_init
 
-; Name	:
-; Marks	:
+; Name	: get_next_trig_id
+; Marks	: get next trigger id
+get_next_trig_id:
 	LDX $88			; 9FBE	$A6 $88
 	INC $88			; 9FC0	$E6 $88
-	LDA $0787,X		; 9FC2	$BD $87 $07
+	LDA $0787,X		; 9FC2	$BD $87 $07	up to 8 triggers/treasures per map
 	RTS			; 9FC5	$60
-; End of
-; 9FC6
+; End of get_next_trig_id
+
+; 9FC6 - stale code
 .byte $50,$A5,$53,$85,$5E,$A5,$54,$85,$5F,$4C
 .byte $93,$9F,$C6,$51,$C6,$50,$A5,$5E,$C5,$53,$D0,$15,$A5,$5F,$C5,$54
 .byte $D0,$0F,$20,$3E,$A1,$A5,$61,$F0,$06,$20,$B4,$A2,$4C,$93,$9F,$F0
@@ -1108,11 +1720,10 @@ L01ECD:
 
 
 ;; ========== MAP PROPERTIES START ($2000-$3000) ==========
-
 ;; [$A000 :: 0x02000]
-
 ; Map properties (256 * 16bytes)
 ; $A00F = $18 -> $58 = revivification = hero awakes = while surviving
+Map_prop:
 .byte $00,$10,$2C,$11,$0E,$70,$00,$01,$00,$00,$00,$00,$00,$00,$00,$18
 .byte $01,$10,$41,$11,$0E,$70,$00,$00,$04,$02,$10,$03,$05,$00,$00,$11
 .byte $02,$10,$23,$10,$0E,$70,$00,$00,$00,$00,$00,$00,$00,$00,$00,$11
@@ -1130,9 +1741,7 @@ L01ECD:
 .byte $0D,$10,$24,$47,$0E,$70,$00,$00,$00,$00,$00,$00,$00,$00,$00,$11
 .byte $0E,$10,$25,$34,$73,$74,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0F
 .byte $23,$10,$41,$10,$0E,$06,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
-
 ;; [$A100 :: 0x02110]
-
 .byte $23,$10,$3F,$11,$0E,$7E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $23,$10,$26,$11,$0E,$0F,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $24,$10,$41,$10,$0E,$06,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
@@ -1149,9 +1758,7 @@ L01ECD:
 .byte $27,$10,$3F,$11,$0E,$7E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $27,$10,$26,$11,$0E,$0F,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $28,$10,$41,$10,$0E,$06,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
-
 ;; [$A200 :: 0x02210]
-
 .byte $28,$10,$3F,$11,$0E,$7E,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $28,$10,$26,$11,$0E,$0F,$00,$00,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $14,$10,$23,$11,$0E,$0B,$00,$23,$00,$00,$00,$00,$00,$00,$00,$10
@@ -1168,9 +1775,7 @@ L01ECD:
 .byte $7F,$25,$14,$55,$0E,$0F,$00,$18,$09,$19,$2F,$00,$00,$00,$00,$0E
 .byte $7F,$25,$14,$55,$0E,$0F,$00,$18,$09,$19,$2F,$00,$00,$00,$00,$0E
 .byte $15,$25,$14,$55,$0E,$0B,$02,$30,$2E,$00,$00,$00,$00,$00,$00,$0E
-
 ;; [$A300 :: 0x02310]
-
 .byte $7F,$25,$14,$67,$0E,$0F,$01,$03,$00,$00,$00,$00,$00,$00,$00,$0E
 .byte $7F,$10,$24,$55,$0E,$0F,$00,$4A,$00,$00,$00,$00,$00,$00,$00,$0C
 .byte $7F,$46,$45,$39,$0E,$0F,$03,$1A,$1B,$33,$1C,$1D,$1E,$00,$00,$0F
@@ -1187,9 +1792,7 @@ L01ECD:
 .byte $7F,$2A,$28,$17,$0E,$0F,$00,$27,$28,$3E,$E8,$29,$2A,$00,$00,$0F
 .byte $59,$2A,$28,$17,$0D,$0D,$03,$0C,$00,$00,$00,$00,$00,$00,$00,$0F
 .byte $7F,$46,$45,$39,$0E,$0F,$00,$00,$00,$00,$00,$00,$00,$00,$00,$14
-
 ;; [$A400 :: 0x02410]
-
 .byte $16,$10,$44,$51,$0E,$0B,$00,$2C,$20,$1F,$27,$2B,$80,$22,$21,$10
 .byte $97,$10,$24,$47,$0E,$70,$04,$D1,$D2,$D3,$43,$50,$4D,$45,$00,$0C
 .byte $97,$10,$24,$47,$0E,$70,$04,$D1,$D2,$D3,$43,$50,$4D,$45,$00,$0C
@@ -1206,9 +1809,7 @@ L01ECD:
 .byte $7F,$10,$24,$55,$0E,$70,$00,$30,$31,$32,$00,$00,$00,$00,$00,$0C
 .byte $7F,$10,$24,$55,$0E,$70,$00,$33,$34,$35,$00,$00,$00,$00,$00,$0C
 .byte $7F,$10,$24,$55,$0E,$70,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0C
-
 ;; [$A500 :: 0x02510]
-
 .byte $7F,$31,$14,$34,$0E,$70,$00,$36,$51,$37,$56,$38,$00,$00,$00,$0C
 .byte $7F,$17,$14,$34,$0E,$70,$00,$56,$39,$52,$56,$3A,$3B,$00,$00,$0C
 .byte $7F,$2E,$14,$34,$0E,$70,$00,$56,$3C,$53,$56,$56,$3D,$3E,$00,$0C
@@ -1226,9 +1827,7 @@ L01ECD:
 ; $A5EF = $11 -> $51 = BGM_rebel_army
 .byte $01,$10,$41,$11,$0E,$70,$00,$00,$04,$02,$10,$03,$05,$00,$00,$11
 .byte $1D,$10,$2B,$34,$0D,$0D,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0C
-
 ;; [$A600 :: 0x02610]
-
 .byte $2F,$10,$24,$47,$00,$00,$00,$6A,$61,$62,$47,$00,$00,$00,$00,$0C
 .byte $58,$10,$24,$55,$0E,$71,$00,$60,$00,$00,$00,$00,$00,$00,$00,$0C
 .byte $FF,$10,$24,$55,$0E,$0F,$00,$D4,$63,$00,$00,$00,$00,$00,$00,$0C
@@ -1245,9 +1844,7 @@ L01ECD:
 .byte $21,$25,$14,$34,$0E,$70,$00,$6E,$70,$70,$EB,$6F,$70,$70,$00,$0E
 .byte $7F,$25,$14,$34,$0E,$70,$00,$6C,$FD,$00,$00,$00,$00,$00,$00,$0E
 .byte $7F,$25,$14,$34,$0E,$70,$00,$4F,$50,$51,$00,$00,$00,$00,$00,$0E
-
 ;; [$A700 :: 0x02710]
-
 .byte $7F,$25,$14,$34,$0E,$70,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0E
 .byte $5C,$25,$14,$55,$0E,$0B,$00,$72,$7C,$7E,$00,$00,$00,$00,$00,$0E
 .byte $7F,$25,$14,$55,$0E,$0B,$00,$73,$00,$00,$00,$00,$00,$00,$00,$0E
@@ -1264,9 +1861,7 @@ L01ECD:
 .byte $7F,$25,$14,$55,$0E,$0B,$00,$5B,$5C,$5D,$00,$00,$00,$00,$00,$0E
 .byte $7F,$25,$14,$55,$0E,$0B,$00,$08,$09,$0A,$00,$00,$00,$00,$00,$0E
 .byte $7F,$25,$14,$55,$0E,$0B,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0E
-
 ;; [$A800 :: 0x02810]
-
 .byte $2B,$10,$26,$11,$0E,$70,$00,$FB,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $FF,$4C,$25,$3A,$79,$06,$08,$D5,$82,$84,$83,$00,$00,$00,$00,$0F
 .byte $5D,$4C,$25,$3A,$79,$06,$00,$62,$87,$63,$88,$E9,$81,$64,$89,$0F
@@ -1283,9 +1878,7 @@ L01ECD:
 .byte $7F,$30,$25,$39,$06,$06,$00,$8E,$68,$8F,$8A,$00,$00,$00,$00,$0F
 .byte $38,$30,$25,$39,$79,$06,$00,$91,$91,$90,$91,$69,$6A,$6B,$EA,$0F
 .byte $38,$30,$25,$39,$79,$06,$00,$91,$91,$90,$91,$69,$6A,$6B,$EA,$0F
-
 ;; [$A900 :: 0x02910]
-
 .byte $38,$30,$25,$39,$79,$06,$00,$91,$91,$90,$91,$69,$6A,$6B,$EA,$0F
 .byte $7F,$4C,$25,$3A,$0E,$0F,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0F
 .byte $7F,$10,$40,$47,$0E,$0F,$09,$6C,$6D,$6E,$93,$6F,$00,$00,$00,$0D
@@ -1302,9 +1895,7 @@ L01ECD:
 .byte $7F,$10,$24,$62,$0E,$0F,$00,$A5,$7D,$7E,$9E,$A5,$A5,$7F,$00,$0D
 .byte $62,$10,$24,$62,$7C,$7D,$00,$9F,$00,$00,$00,$00,$00,$00,$00,$0D
 .byte $7F,$10,$2F,$62,$0E,$0F,$00,$F3,$A5,$A0,$A5,$A5,$A5,$A5,$00,$0D
-
 ;; [$AA00 :: 0x02A10]
-
 .byte $7F,$10,$2F,$62,$0E,$0F,$00,$A1,$00,$00,$00,$00,$00,$00,$00,$0D
 .byte $7F,$2E,$25,$5C,$0E,$0F,$00,$F4,$A5,$A2,$A5,$A5,$80,$81,$00,$0D
 .byte $7F,$2E,$25,$5C,$0E,$0F,$00,$A3,$00,$00,$00,$00,$00,$00,$00,$0D
@@ -1321,9 +1912,7 @@ L01ECD:
 .byte $7F,$3A,$1D,$59,$0E,$0F,$00,$B0,$AF,$F5,$86,$00,$00,$00,$00,$0E
 .byte $7F,$3A,$1D,$59,$0E,$0F,$00,$B0,$AF,$F5,$86,$00,$00,$00,$00,$0E
 .byte $7F,$25,$14,$60,$0E,$0F,$00,$B1,$B2,$F6,$B2,$B2,$B2,$00,$00,$0E
-
 ;; [$AB00 :: 0x02B10]
-
 .byte $7F,$25,$14,$60,$0E,$0F,$00,$B1,$B2,$F6,$B2,$B2,$B2,$00,$00,$0E
 .byte $63,$25,$14,$63,$0E,$0B,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0E
 .byte $7F,$25,$14,$60,$0E,$0B,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0E
@@ -1340,9 +1929,7 @@ L01ECD:
 .byte $7F,$2D,$32,$23,$0E,$0F,$00,$BE,$8F,$90,$00,$00,$00,$00,$00,$0F
 .byte $35,$2D,$32,$23,$0E,$70,$00,$BF,$91,$00,$00,$00,$00,$00,$00,$0F
 .byte $66,$2D,$32,$52,$0F,$0F,$0B,$92,$F2,$00,$00,$00,$00,$00,$00,$0F
-
 ;; [$AC00 :: 0x02C10]
-
 .byte $B6,$25,$10,$3B,$0E,$0B,$00,$CB,$CB,$CB,$C1,$DA,$C2,$C4,$00,$0E
 .byte $7F,$25,$10,$3B,$0E,$0B,$00,$C3,$00,$00,$00,$00,$00,$00,$00,$0E
 .byte $37,$25,$10,$3B,$0E,$79,$00,$E5,$94,$95,$96,$97,$00,$00,$00,$0E
@@ -1359,9 +1946,7 @@ L01ECD:
 .byte $7F,$10,$49,$39,$0E,$78,$00,$CE,$00,$00,$00,$00,$00,$00,$00,$0F
 .byte $7F,$10,$49,$39,$0E,$78,$00,$D6,$D6,$9D,$9E,$D6,$CF,$D6,$00,$0F
 .byte $7F,$10,$49,$39,$0E,$78,$00,$D0,$00,$00,$00,$00,$00,$00,$00,$0F
-
 ;; [$AD00 :: 0x02D10]
-
 .byte $7F,$33,$49,$36,$0E,$78,$00,$9F,$D1,$F0,$D6,$00,$00,$00,$00,$0F
 .byte $7F,$33,$49,$36,$0E,$78,$00,$D2,$00,$00,$00,$00,$00,$00,$00,$0F
 .byte $7F,$33,$49,$36,$0E,$78,$00,$A0,$D6,$29,$D6,$D3,$00,$00,$00,$0F
@@ -1378,9 +1963,7 @@ L01ECD:
 .byte $3E,$30,$51,$18,$0C,$0C,$00,$DE,$00,$00,$00,$00,$00,$00,$00,$10
 .byte $3F,$30,$51,$18,$08,$08,$00,$D7,$B2,$00,$00,$00,$00,$00,$00,$0F
 .byte $7F,$4C,$5E,$34,$0E,$0B,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0F
-
 ;; [$AE00 :: 0x02E10]
-
 .byte $7F,$25,$64,$39,$0E,$0F,$0E,$EC,$EC,$B3,$E1,$B4,$00,$00,$00,$0F
 .byte $7F,$25,$64,$39,$0E,$0F,$00,$E2,$00,$00,$00,$00,$00,$00,$00,$0F
 .byte $7F,$25,$64,$19,$0E,$0F,$00,$EC,$E3,$B5,$B6,$EC,$F9,$EC,$EC,$0F
@@ -1397,9 +1980,7 @@ L01ECD:
 .byte $7F,$68,$24,$5D,$0E,$0F,$00,$EE,$00,$00,$00,$00,$00,$00,$00,$0B
 .byte $7F,$68,$24,$5D,$0E,$0F,$00,$EF,$06,$00,$00,$00,$00,$00,$00,$0B
 .byte $7F,$69,$2F,$5D,$0E,$0F,$00,$BF,$F0,$00,$00,$00,$00,$00,$00,$0B
-
 ;; [$AF00 :: 0x02F00]
-
 .byte $7F,$69,$2F,$5D,$0E,$0F,$00,$F6,$F1,$F2,$F3,$F4,$00,$00,$00,$0B
 .byte $7F,$5F,$1A,$5D,$0E,$0F,$00,$FC,$FA,$FD,$00,$00,$00,$00,$00,$0B
 .byte $7F,$5F,$1A,$5D,$0E,$0F,$00,$FC,$FA,$FD,$00,$00,$00,$00,$00,$0B
@@ -1421,7 +2002,7 @@ L01ECD:
 
 ;; ========== map initial x positions and fill tile ($B000-$B0FF) START ==========
 ;; [$B000 :: 0x03000]
-
+Map_init_xfill:
 .byte $29,$23,$27,$23,$29,$0D,$00,$00,$00,$03,$00,$00,$00,$60,$60,$25
 .byte $39,$25,$25,$39,$25,$39,$25,$23,$29,$25,$39,$25,$25,$39,$25,$25
 .byte $39,$25,$2D,$23,$25,$39,$2B,$39,$27,$27,$3B,$2F,$29,$3D,$2D,$2D
@@ -1487,7 +2068,7 @@ bg_tilemap_id:
 
 ;; ========== tileset id for each map ($B300-$B3FF) START ==========
 ;; [$B300 :: 0x03300]
-
+Tile_id:
 .byte $43,$43,$43,$43,$23,$00,$00,$00,$00,$00,$00,$00,$00,$23,$65,$43
 .byte $43,$43,$43,$43,$43,$43,$43,$43,$43,$43,$43,$43,$43,$43,$43,$43
 .byte $43,$43,$43,$43,$43,$43,$43,$43,$23,$67,$67,$43,$63,$2B,$2B,$6B
@@ -1565,9 +2146,7 @@ wmap_ent_id:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$73,$13,$17,$71,$14,$07,$72,$04
 .byte $06,$70,$09,$0D,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$DC,$C7,$15,$14
-
 ;; [$B600 :: 0x03600]
-
 .byte $C5,$16,$74,$17,$1A,$75,$15,$04,$76,$10,$0D,$77,$11,$15,$78,$08
 .byte $0B,$79,$1A,$10,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $7C,$18,$19,$7D,$0E,$11,$7E,$12,$09,$7F,$0F,$04,$DC,$D4,$1A,$00
@@ -1584,9 +2163,7 @@ wmap_ent_id:
 .byte $00,$00,$00,$00,$04,$C9,$13,$0E,$CD,$13,$90,$07,$15,$90,$0A,$18
 .byte $90,$0F,$19,$90,$12,$16,$91,$08,$16,$91,$0B,$18,$91,$0C,$15,$91
 .byte $0C,$18,$00,$00,$00,$00,$00,$00,$15,$C8,$07,$52,$C7,$07,$52,$C9
-
 ;; [$B700 :: 0x03700]
-
 .byte $07,$52,$C6,$08,$52,$CA,$08,$52,$C5,$09,$52,$CB,$09,$52,$C6,$0A
 .byte $52,$CA,$0A,$00,$00,$00,$00,$00,$00,$00,$00,$00,$BF,$CB,$05,$D6
 .byte $AB,$06,$BF,$C7,$07,$C9,$A7,$08,$BF,$CE,$07,$CD,$AE,$08,$BF,$C3
@@ -1603,9 +2180,7 @@ wmap_ent_id:
 .byte $30,$8F,$12,$5F,$83,$15,$5F,$84,$16,$5F,$84,$1A,$5F,$05,$15,$5F
 .byte $87,$19,$5F,$09,$18,$5F,$0C,$1A,$5F,$8F,$16,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$1B,$C3,$06,$E4,$CC,$06,$00,$00,$00,$00,$00,$00
-
 ;; [$B800 :: 0x03800]
-
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$5F,$D7,$0D,$5F,$0E,$1B,$5F,$C3
 .byte $0A,$5F,$CD,$14,$92,$0F,$14,$93,$11,$10,$94,$0B,$0F,$95,$0D,$0C
@@ -1622,9 +2197,7 @@ wmap_ent_id:
 .byte $C9,$0C,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $57,$CD,$10,$58,$8E,$10,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
 ;; [$B900 :: 0x03900]
-
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$AA,$09,$19,$AA,$0F,$16,$AB,$12,$17,$AB,$13,$17
 .byte $AB,$12,$18,$AB,$13,$18,$AC,$12,$0A,$AC,$13,$0A,$AC,$12,$0B,$AC
@@ -1641,9 +2214,7 @@ wmap_ent_id:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$EA,$C5,$05,$C0
 .byte $A5,$06,$67,$C7,$05,$C3,$A7,$06,$EA,$D9,$05,$C1,$B9,$06,$67,$DC
-
 ;; [$BA00 :: 0x03A00]
-
 .byte $05,$C4,$BC,$06,$BF,$C5,$17,$C2,$A5,$18,$34,$C2,$08,$00,$00,$00
 .byte $EA,$C5,$05,$C5,$A5,$06,$EA,$D9,$05,$C6,$B9,$06,$EA,$D6,$17,$D9
 .byte $B6,$18,$EA,$D9,$17,$D8,$B9,$18,$EA,$DC,$17,$DA,$BC,$18,$00,$00
@@ -1660,9 +2231,7 @@ wmap_ent_id:
 .byte $BF,$C5,$17,$D6,$A5,$18,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$1D,$8F,$05,$FA,$8F,$05,$FB,$EF
 .byte $07,$FB,$ED,$07,$FB,$ED,$0D,$FB,$EF,$0D,$FB,$F1,$0D,$FB,$F1,$07
-
 ;; [$BB00 :: 0x03B00]
-
 .byte $FD,$CE,$0B,$FC,$D0,$0B,$E2,$CF,$0A,$00,$00,$00,$5A,$AE,$1A,$12
 .byte $03,$15,$26,$8B,$17,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -1679,9 +2248,7 @@ wmap_ent_id:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
 ;; [$BC00 :: 0x03C00]
-
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -1698,9 +2265,7 @@ wmap_ent_id:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $3B,$B5,$04,$06,$D7,$04,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-
 ;; [$BD00 :: 0x03D00]
-
 .byte $00,$00,$00,$00,$3C,$07,$0C,$3C,$08,$12,$3C,$09,$16,$3C,$0B,$16
 .byte $3C,$14,$14,$3C,$18,$16,$3C,$18,$09,$3C,$19,$0E,$3C,$0F,$18,$3C
 .byte $10,$18,$3C,$13,$17,$00,$00,$00,$3C,$01,$0B,$3C,$05,$13,$3C,$0B
@@ -1722,7 +2287,6 @@ wmap_ent_id:
 
 ;; ========== single npc properties (64 * 3 bytes) ($BE00-$BEBF) START ==========
 ;; [$BE00 :: 0x03E00]
-
 .byte $00,$00,$00,$59,$A7,$07,$DB,$AD,$1C,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$31,$9A,$1B,$00,$00,$00
@@ -1737,30 +2301,264 @@ wmap_ent_id:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;; ========== single npc properties (64 * 3 bytes) ($BE00-$BEBF) END ==========
 
-;; [$BEC0 :: 0x03EC0]
-; equipment code
-.byte $A9,$00,$85,$64,$A9,$80,$85,$65,$A9,$70,$85,$5E,$A9,$06,$85,$5F
-.byte $A9,$FE,$85,$4C,$A0,$19,$B1,$7A,$20,$2C,$BF,$C8,$B1,$7A,$20,$2C
-.byte $BF,$C8,$B1,$7A,$20,$2C,$BF,$60,$A0,$10,$B1,$7A,$48,$98,$18,$69
-.byte $10,$A8,$68,$91,$7A,$C8,$98,$38,$E9,$10,$A8,$C0,$15,$D0,$EB,$A2
 
-;; [$BF00 :: 0x03F00]
+; ========== equipment code ($BEC0-$BFFF) START ==========
 
-.byte $00,$B5,$44,$85,$5E,$B5,$45,$85,$5F,$20,$13,$BF,$E8,$E8,$E0,$06
-.byte $D0,$EF,$60,$A0,$04,$B1,$5E,$30,$12,$18,$69,$10,$A8,$B1,$7A,$18
-.byte $69,$0A,$48,$98,$18,$69,$10,$A8,$68,$91,$7A,$60,$D0,$0E,$18,$65
-.byte $5E,$C9,$70,$D0,$05,$38,$E9,$01,$D0,$02,$91,$7A,$85,$6D,$A5,$5E
-.byte $C9,$30,$F0,$07,$18,$A5,$6D,$69,$01,$85,$6D,$A5,$6D,$38,$E5,$5E
-.byte $85,$6D,$85,$00,$A5,$5F,$85,$02,$A9,$00,$85,$01,$85,$03,$20,$98
-.byte $FC,$98,$48,$18,$A5,$04,$6D,$64,$00,$85,$00,$A5,$05,$6D,$65,$00
-.byte $85,$01,$A5,$5E,$C9,$70,$D0,$04,$A0,$06,$D0,$02,$A0,$0A,$20,$E6
-.byte $FB,$A6,$4C,$E8,$E8,$8A,$0A,$85,$04,$0A,$0A,$18,$65,$04,$85,$04
-.byte $A9,$00,$85,$05,$18,$A5,$04,$69,$10,$85,$04,$A5,$05,$69,$76,$85
-.byte $05,$A0,$00,$B9,$00,$76,$91,$04,$C8,$C0,$10,$D0,$F6,$A5,$04,$95
-.byte $44,$A5,$05,$95,$45,$86,$4C,$68,$A8,$60,$B5,$44,$85,$48,$B5,$45
-.byte $85,$49,$98,$AA,$A0,$00,$B1,$48,$95,$4A,$E8,$E8,$C8,$C0,$09,$D0
-.byte $F5,$60,$B5,$4A,$0A,$A8,$B1,$7E,$69,$01,$95,$5C,$60,$8A,$18,$69
-.byte $06,$85,$62,$B5,$54,$91,$80,$C8,$E8,$E8,$E4,$62,$D0,$F5,$60,$D8
+.import	Get_data_BANK_0C	;FBE6
+
+.import	Armor_prop		;8000 - BANK_0C
+
+; Name	: Load_armor_prop
+; Marks	: load armor properties
+;	  $5F = size of equipment data
+;	  $64(ADDR) = armor properties address
+;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
+Load_armor_prop:
+	LDA #<Armor_prop	; BEC0	A9 00
+	;LDA #$00		; BEC0	A9 00
+	STA $64			; BEC2	85 64
+	LDA #>Armor_prop
+	;LDA #$80		; BEC4	A9 80
+	STA $65			; BEC6	85 65		BANK 0C/8000 (armor properties)
+	LDA #$70		; BEC8	A9 70		empty armor slot	$70
+	STA $5E			; BECA	85 5E
+	LDA #$06		; BECC	A9 06		6 bytes each
+	STA $5F			; BECE	85 5F
+	LDA #$FE		; BED0	A9 FE
+	STA $4C			; BED2	85 4C
+	LDY #$19		; BED4	A0 19
+	LDA ($7A),Y		; BED6	B1 7A		helmet
+	JSR Get_equip_prop	; BED8	20 2C BF	load equipment properties
+	INY			; BEDB	C8
+	LDA ($7A),Y		; BEDC	B1 7A		armor
+	JSR Get_equip_prop	; BEDE	20 2C BF	loadd equipment properties
+	INY			; BEE1	C8
+	LDA ($7A),Y		; BEE2	B1 7A		gloves
+	JSR Get_equip_prop	; BEE4	20 2C BF	load equipment properties
+	RTS			; BEE7	60
+; End of Load_armor_prop
+
+; Name	:
+; Marks	: update mod. stats
+	LDY #$10		; BEE8	A0 10
+L03EEA:
+	LDA ($7A),Y		; BEEA	B1 7A		base stat
+	PHA			; BEEC	48
+	TYA			; BEED	98
+	CLC			; BEEE	18
+	ADC #$10		; BEEF	69 10
+	TAY			; BEF1	A8
+	PLA			; BEF2	68
+	STA ($7A),Y		; BEF3	91 7A		set mod. stat
+	INY			; BEF5	C8
+	TYA			; BEF6	98
+	SEC			; BEF7	38
+	SBC #$10		; BEF8	E9 10		next stat
+	TAY			; BEFA	A8
+	CPY #$15		; BEFB	C0 15
+	BNE L03EEA		; BEFD	D0 EB
+	LDX #$00		; BEFF	A2 00
+L03F01:
+	LDA $44,X		; BF01	B5 44		pointer to equipment properties buffer
+	STA $5E			; BF03	85 5E
+	LDA $45,X		; BF05	B5 45
+	STA $5F			; BF07	85 5F
+	JSR $BF13		; BF09	20 13 BF	apply armor stat boost
+	INX			; BF0C	E8
+	INX			; BF0D	E8
+	CPX #$06		; BF0E	E0 06
+	BNE L03F01		; BF10	D0 EF
+	RTS			; BF12	60
+; End of
+
+; Name	:
+; Marks	: apply armor stat boost
+	LDY #$04		; BF13	A0 04
+	LDA ($5E),Y		; BF15	B1 5E		star to boost
+	BMI L03F2B		; BF17	30 12		branch if no boost
+	CLC			; BF19	18
+	ADC #$10		; BF1A	69 10
+	TAY			; BF1C	A8
+	LDA ($7A),Y		; BF1D	B1 7A		boost stat by 10 (doesn't stack)
+	CLC			; BF1F	18
+	ADC #$0A		; BF20	69 0A
+	PHA			; BF22	48
+	TYA			; BF23	98
+	CLC			; BF24	18
+	ADC #$10		; BF25	69 10
+	TAY			; BF27	A8
+	PLA			; BF28	68
+	STA ($7A),Y		; BF29	91 7A
+L03F2B:
+	RTS			; BF2B	60
+; End of
+
+; Name	: Get_equip_prop
+; A	: equipment number
+; Y	:
+; Marks	: load equipment properties
+;	  +$44: pointers to data buffer slots at $7610
+;	   $4C: data buffer slot id (increment by 2 each item)
+;	  +$64: equipment properties offset (bank 0C)
+;	   $5E: empty equipment slot id ($30 or $70)
+;	   $5F: size of equipment data
+;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
+Get_equip_prop:
+	BNE L03F3C		; BF2C	D0 0E
+	CLC			; BF2E	18
+	ADC $5E			; BF2F	65 5E
+	CMP #$70		; BF31	C9 70
+	BNE L03F3A		; BF33	D0 05
+	SEC			; BF35	38
+	SBC #$01		; BF36	E9 01
+	BNE L03F3C		; BF38	D0 02
+L03F3A:
+	STA ($7A),Y		; BF3A	91 7A
+L03F3C:
+	STA $6D			; BF3C	85 6D
+	LDA $5E			; BF3E	A5 5E
+	CMP #$30		; BF40	C9 30
+	BEQ L03F4B		; BF42	F0 07
+	CLC			; BF44	18
+	LDA $6D			; BF45	A5 6D
+	ADC #$01		; BF47	69 01
+	STA $6D			; BF49	85 6D
+L03F4B:
+	LDA $6D			; BF4B	A5 6D
+	SEC			; BF4D	38
+	SBC $5E			; BF4E	E5 5E
+	STA $6D			; BF50	85 6D
+	STA $00			; BF52	85 00
+	LDA $5F			; BF54	A5 5F
+	STA $02			; BF56	85 02
+	LDA #$00		; BF58	A9 00
+	STA $01			; BF5A	85 01
+	STA $03			; BF5C	85 03
+	JSR Multi16		; BF5E	20 98 FC	multiply (16-bit) size of equipment data x ??
+	TYA			; BF61	98
+	PHA			; BF62	48
+	CLC			; BF63	18
+	LDA $04			; BF64	A5 04
+	.byte $6D,$64,$00
+	;ADC $0064		; BF66	6D 64 00
+	STA $00			; BF69	85 00
+	LDA $05			; BF6B	A5 05
+	.byte $6D,$65,$00
+	;ADC $0065		; BF6D	6D 65 00
+	STA $01			; BF70	85 01
+	LDA $5E			; BF72	A5 5E
+	CMP #$70		; BF74	C9 70
+	BNE L03F7C		; BF76	D0 04
+	LDY #$06		; BF78	A0 06		size of armor properties data
+	BNE L03F7E		; BF7A	D0 02
+L03F7C:
+	LDY #$0A		; BF7C	A0 0A		size of weapon properties data ?? not 09h but 0Ah ??
+L03F7E:
+	JSR Get_data_BANK_0C	; BF7E	20 E6 FB
+	LDX $4C			; BF81	A6 4C
+	INX			; BF83	E8
+	INX			; BF84	E8
+	TXA			; BF85	8A
+	ASL			; BF86	0A
+	STA $04			; BF87	85 04
+	ASL			; BF89	0A
+	ASL			; BF8A	0A
+	CLC			; BF8B	18
+	ADC $04			; BF8C	65 04
+	STA $04			; BF8E	85 04
+	LDA #$00		; BF90	A9 00		$7610
+	STA $05			; BF92	85 05
+	CLC			; BF94	18
+	LDA $04			; BF95	A5 04
+	ADC #$10		; BF97	69 10
+	STA $04			; BF99	85 04
+	LDA $05			; BF9B	A5 05
+	ADC #$76		; BF9D	69 76
+	STA $05			; BF9F	85 05
+	LDY #$00		; BFA1	A0 00
+L03FA3:
+	LDA $7600,Y		; BFA3	B9 00 76	copy 16 bytes to buffer
+	STA ($04),Y		; BFA6	91 04
+	INY			; BFA8	C8
+	CPY #$10		; BFA9	C0 10
+	BNE L03FA3		; BFAB	D0 F6
+	LDA $04			; BFAD	A5 04
+	STA $44,X		; BFAF	95 44
+	LDA $05			; BFB1	A5 05
+	STA $45,X		; BFB3	95 45
+	STX $4C			; BFB5	86 4C
+	PLA			; BFB7	68
+	TAY			; BFB8	A8
+	RTS			; BFB9	60
+; End of Get_equip_prop
+
+; Name	: Get_weapon_prop_
+; X	:
+; Y	:
+; Marks	: $48(ADDR) = source data
+;	  $44(ADDR) = pointer table ??
+;	  $4A-$5B = destination data(odd, even)
+;	  +$44: pointers to data buffer slots at $7610
+;	  get weapon properties from pointer to $4A-
+Get_weapon_prop_:
+	LDA $44,X		; BFBA	B5 44
+	STA $48			; BFBC	85 48
+	LDA $45,X		; BFBE	B5 45
+	STA $49			; BFC0	85 49
+	TYA			; BFC2	98
+	TAX			; BFC3	AA
+	LDY #$00		; BFC4	A0 00
+L03FC6:
+	LDA ($48),Y		; BFC6	B1 48
+	STA $4A,X		; BFC8	95 4A
+	INX			; BFCA	E8
+	INX			; BFCB	E8
+	INY			; BFCC	C8
+	CPY #$09		; BFCD	C0 09
+	BNE L03FC6		; BFCF	D0 F5		loop
+	RTS			; BFD1	60
+; End of Get_weapon_prop_
+
+; Name	: Get_wpn_lv
+; X	:
+; Marks	: $5C = characters weapon level
+;	  $7E(ADDR) = character properties 2($6200,$6240,$6280,$62C0)
+Get_wpn_lv:
+	LDA $4A,X		; BFD2	B5 4A		weapon type
+	ASL                     ; BFD4	0A
+	TAY                     ; BFD5	A8
+	LDA ($7E),Y             ; BFD6	B1 7E
+	ADC #$01                ; BFD8	69 01
+	STA $5C,X               ; BFDA	95 5C
+	RTS                     ; BFDC	60
+; End of Get_wpn_lv
+
+; Name	: Set_wpn_element
+; X	:
+; Y	: stats offset
+; Marks	: Set weapon elemental properties
+;	  $80(ADDR) = battle stats($7D7A,$7DAA,$7DDA,$7E0A)
+;	  $54 is series of $4A
+;	  hand 1 = $4A,$4C,$4E,$50,$52,$54,$56,$58,$5A
+;	  hand 2 = $4B,$4D,$4F,$51,$53,$55,$57,$59,$5B
+Set_wpn_element:
+	TXA 			; BFDD	8A
+	CLC			; BFDE	18
+	ADC #$06		; BFDF	69 06
+	STA $62			; BFE1	85 62
+L03FE3:
+	LDA $54,X		; BFE3	B5 54
+	STA ($80),Y		; BFE5	91 80
+	INY			; BFE7	C8
+	INX			; BFE8	E8
+	INX			; BFE9	E8
+	CPX $62			; BFEA	E4 62
+	BNE L03FE3		; BFEC	D0 F5
+	RTS			; BFEE	60
+; End of Set_wpn_element
+
+;BFEF - stale data = same as 0C/BFF5
+.byte $D8
 .byte $5A,$94,$86,$94,$41,$9D,$75,$9F,$86,$94,$41,$9D,$75,$9F,$9F,$9F
-
+; ========== equipment code ($BEC0-$BFFF) END ==========
 
