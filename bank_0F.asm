@@ -9162,6 +9162,7 @@ Set_PpuAddr_00:
 ; X	: bank to swap
 ; Marks	: $64(ADDR) = battle text ??
 ;	  Load battle text ??
+;	  used on BANK 0C
 L3FD8C:
 	TXA			; FD8C  $8A
 	JSR Swap_PRG		; FD8D  $20 $1A $FE

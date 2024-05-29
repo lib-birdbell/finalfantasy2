@@ -630,6 +630,7 @@ L018A1:
 ; A	: Character index(0,1,2,3)
 ; Marks	: update character equipment
 ;	  $5E = empty equipment slot id ($30 or $70)
+;	  $64(ADDR) = Weapon properties address BANK 0C
 ;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
 ;	  $7E(ADDR) = character properties 2($6200,$6240,$6280,$62C0)
 ;	  $80(ADDR) = battle stats($7D7A,$7DAA,$7DDA,$7E0A)
@@ -2311,7 +2312,7 @@ wmap_ent_id:
 ; Name	: Load_armor_prop
 ; Marks	: load armor properties
 ;	  $5F = size of equipment data
-;	  $64(ADDR) = armor properties address
+;	  $64(ADDR) = armor properties address BANK 0C
 ;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
 Load_armor_prop:
 	LDA #<Armor_prop	; BEC0	A9 00
@@ -2445,7 +2446,7 @@ L03F4B:
 	LDA $05			; BF6B	A5 05
 	.byte $6D,$65,$00
 	;ADC $0065		; BF6D	6D 65 00
-	STA $01			; BF70	85 01
+	STA 01			; BF70	85 01
 	LDA $5E			; BF72	A5 5E
 	CMP #$70		; BF74	C9 70
 	BNE L03F7C		; BF76	D0 04

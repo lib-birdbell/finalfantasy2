@@ -1958,20 +1958,28 @@ Load_battle_text:
 
 ; Name	: HtoD
 ; Marks	: convert hex to decimal
+;	  +$62 = source value
+;	  digit order = $64,$65,$66,$67,$68
+;	  $68 = Source%10
+;	  $67 = Source/10
+;	  $66 = Source/100
+;	  $65 = Source/1000
+;	  $64 = Source/10000 or Divided value
+;	  Empty is fill as FFh(Not zero)
 HtoD:
 	LDA #$10		; 9749	$A9 $10		10000
 	STA $70			; 975B	$85 $70
 	LDA #$27		; 974D	$A9 $27
 	STA $71			; 974F	$85 $71
 	JSR Divide		; 9751	$20 $E9 $97
-	LDA $64			; 9754	$A5 $64		menu target h-scroll position ??
+	LDA $64			; 9754	$A5 $64
 	PHA			; 9756	$48
 	LDA #$E8		; 9757	$A9 $E8		1000
 	STA $70			; 9759	$85 $70
 	LDA #$03		; 975B	$A9 $03
 	STA $71			; 975D	$85 $71
 	JSR Divide		; 975F	$20 $E9 $97
-	LDA $64			; 9762	$A5 $64		menu target h-scroll position ??
+	LDA $64			; 9762	$A5 $64
 	STA $65			; 9764	$85 $65
 	LDA #$64		; 9766	$A9 $64		100
 	STA $70			; 9768	$85 $70
@@ -1993,7 +2001,7 @@ HtoD:
 	STA $64			; 9789	$85 $64
 	LDA $64			; 978B	$A5 $64
 	BNE L31795		; 978D	$D0 $06
-	LDA #$FF		; 978F	$A9 $FF
+	LDA #$FF		; 978F	$A9 $FF		case 0dddd
 	STA $64			; 9791	$85 $64
 	BNE L3179C		; 9793	$D0 $07
 L31795:
@@ -2054,9 +2062,13 @@ L317E1:
 ; Name	: Divide
 ; Marks	: Subject some variables, and check be plus(positive)
 ;	  divide
+;	  formular = +$62 / +$70
+;	  +$62 = value to be divided by (+$70) -> remain value
+;	  +$70 = divided by this value
+;	  $64 = divided value, share count
 Divide:
 	LDX #$00		; 97E9	$A2 $00
-L317EB:
+Divide_cnt:
 	INX			; 97EB	$E8
 	SEC			; 97EC	$38
 	LDA $62			; 97ED	$A5 $62
@@ -2065,7 +2077,7 @@ L317EB:
 	LDA $63			; 97F3	$A5 $63
 	SBC $71			; 97F5	$E5 $71
 	STA $63			; 97F7	$85 $63
-	BCS L317EB		; 97F9	$B0 $F0
+	BCS Divide_cnt		; 97F9	$B0 $F0		loop
 	DEX			; 97FB	$CA
 	STX $64			; 97FC	$86 $64
 	CLC			; 97FE	$18
@@ -4884,26 +4896,26 @@ L32A3E:
 L32A59:
 	JSR HtoD		; AA59	$20 $49 $97	convert hex to decimal
 	LDX #$00		; AA5C	$A2 $00
-	LDA $65			; AA5E	$A5 $65
+	LDA $65			; AA5E	$A5 $65		dxxx
 	CMP #$FF		; AA60	$C9 $FF
 	BEQ L32A68		; AA62	$F0 $04
 	STA $7D47,X		; AA64	$9D $47 $7D
 	INX			; AA67	$E8
 L32A68:
-	LDA $66			; AA68	$A5 $66
+	LDA $66			; AA68	$A5 $66		xdxx
 	STA $7D47,X		; AA6A	$9D $47 $7D	text buffer
 	INX			; AA6D	$E8
-	LDA $67			; AA6E	$A5 $67
+	LDA $67			; AA6E	$A5 $67		xxdx
 	STA $7D47,X		; AA70	$9D $47 $7D	text buffer
 	INX			; AA73	$E8
-	LDA $68			; AA74	$A5 $68
+	LDA $68			; AA74	$A5 $68		xxxd
 	STA $7D47,X		; AA76	$9D $47 $7D	text buffer
 	LDA #$07		; AA79	$A9 $07
 	STA $45			; AA7B	$85 $45
 	STA $44			; AA7D	$85 $44
 	LDA $65			; AA7F	$A5 $65
 	CMP #$FF		; AA81	$C9 $FF
-	BEQ L32A94		; AA83	$F0 $0F
+	BEQ L32A94		; AA83	$F0 $0F		branch if damage not exceed 999
 	INX			; AA85	$E8
 	LDA #$00		; AA86	$A9 $00
 	STA $7D47,X		; AA88	$9D $47 $7D	text buffer
@@ -5440,6 +5452,7 @@ L32E25:
 
 ; Name	: Chk_sp_atk
 ; Marks	: not certain
+;	  use another BANK
 Chk_sp_atk:
 	LDA #$00		; AE28	$A9 $00
 	STA $9E			; AE2A	$85 $9E
