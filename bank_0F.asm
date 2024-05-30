@@ -55,7 +55,7 @@
 
 ; Name	:
 ; Marks	: Some init code
-	JMP BOOT0		; C000  $4C $25 $C0
+	JMP BOOT0		; C000  $4C $25 $C0	program start
 L3C003:
     JMP L3DCE3               ; C003  $4C $E3 $DC	filter map bg palette
     JMP $F34D                ; C006  $4C $4D $F3	end credits
@@ -77,6 +77,7 @@ Load_guest_char:
 	JMP Swap_PRG_		; C022  $4C $03 $FE
 ; End of Load_guest_char
 
+; program start
 BOOT0:
 	LDA #$00		; C025  $A9 $00
 	STA PpuMask_2001	; C027  $8D $01 $20	PPU disable
@@ -110,17 +111,17 @@ BOOT0:
 	; #$77 is intro skip flag in $FA
 	LDA skip_intro		; C051  $A5 $FA
 	CMP #$77		; C053  $C9 $77
-	BEQ SAVEFILE_SEL	; C055  $F0 $0F
+	BEQ SAVEFILE_SEL	; C055  $F0 $0F		branch if not a hard reset
 	LDA #$77		; C057  $A9 $77
 	STA skip_intro		; C059  $85 $FA
-	JSR Show_title_screen	; C05B  $20 $76 $F4
+	JSR Show_title_screen	; C05B  $20 $76 $F4	splash screen
 	LDA #$0E		; C05E  $A9 $0E
 	JSR Swap_PRG_		; C060  $20 $03 $FE
-	JSR $B890		; C063  $20 $90 $B8	Show title story
+	JSR $B890		; C063  $20 $90 $B8	Show title story - BANK 0E/B890 (prophecy)
 SAVEFILE_SEL:
 	LDA #$0E		; C066  $A9 $0E
 	JSR Swap_PRG_		; C068  $20 $03 $FE
-	JSR $B642		; C06B  $20 $42 $B6	select save file or new game
+	JSR $B642		; C06B  $20 $42 $B6	select save file or new game - BANK 0E/B642 (game load menu)
 	PHP			; C06E  $08
 	JSR RAM_init		; C06F  $20 $86 $C4
 	LDA ow_save_pos_x	; C072  $AD $10 $60
@@ -131,7 +132,7 @@ SAVEFILE_SEL:
 	STA p_map2		; C07F  $85 $46		prvious vehicle id ??
 	STA vehicle_ID		; C081  $85 $42
 	PLP			; C083  $28
-	BCS L3C0B8		; C084  $B0 $32		if select savefile
+	BCS L3C0B8		; C084  $B0 $32		branch if not a new game - select savefile
 	LDA #$08		; C086  $A9 $08		ch_stats_4 character is Leon - NEW GAME
 	STA ch_stats_4		; C088  $8D $C0 $61
 	LDX #$00		; C08B  $A2 $00
@@ -146,19 +147,20 @@ SAVEFILE_SEL:
 	SEC			; C0A1  $38
 	SBC #$07		; C0A2  $E9 $07
 	AND #$3F		; C0A4  $29 $3F
-	STA $29			; C0A6  $85 $29
+	STA $29			; C0A6  $85 $29		x position
 	LDA $B440,X		; C0A8  $BD $40 $B4
 	SEC			; C0AB  $38
 	SBC #$07		; C0AC  $E9 $07
-	STA $2A			; C0AE  $85 $2A
+	STA $2A			; C0AE  $85 $2A		y position
 	LDA $B480,X		; C0B0  $BD $80 $B4
-	STA $48			; C0B3  $85 $48
-	JSR L3CA41		; C0B5  $20 $41 $CA
+	STA $48			; C0B3  $85 $48		map id
+	JSR L3CA41		; C0B5  $20 $41 $CA	map main
+; world map main
 L3C0B8:
 	LDA #$00		; C0B8  $A9 $00
 	STA ApuStatus_4015	; C0BA  $8D $15 $40
-	JSR $C832		; C0BD  $20 $32 $C8	variables init
-	JSR $D7F0		; C0C0  $20 $F0 $D7	Show world map using slate in effect
+	JSR $C832		; C0BD  $20 $32 $C8	variables init - load world map
+	JSR $D7F0		; C0C0  $20 $F0 $D7	Show world map using slate in effect - screen wipe in
 L3C0C3:
 	LDX #$FF		; C0C3  $A2 $FF		Stack pointer reset
 	TXS			; C0C5  $9A
@@ -168,7 +170,7 @@ WM_LOOP:
 	LDA #$02		; C0CC  $A9 $02
 	STA SpriteDma_4014	; C0CE  $8D $14 $40
 	JSR Map_water_flow	; C0D1  $20 $F3 $C2
-	JSR $C36F		; C0D4  $20 $6F $C3	Character_movement ??
+	JSR $C36F		; C0D4  $20 $6F $C3	Character_movement ?? - update scrolling
 	LDA frame_cnt_L		; C0D7  $A5 $F0		Increase frame counter
 	CLC			; C0D9  $18
 	ADC #$01		; C0DA  $69 $01
@@ -192,11 +194,11 @@ L3C0FB:
 	BNE L3C109		; C0FD  $D0 $0A
 	LDA $46			; C0FF  $A5 $46		previous vehicle id ?? next vehicle id ??
 	STA vehicle_ID		; C101  $85 $42
-	JSR $C159		; C103  $20 $59 $C1	check tile properties and pressed key ??
-	JSR $C266		; C106  $20 $66 $C2	check event/key by timer/vehicle??/cannot move??
+	JSR $C159		; C103  $20 $59 $C1	check tile properties and pressed key ?? - check triggers/menu
+	JSR $C266		; C106  $20 $66 $C2	check event/key by timer/vehicle??/cannot move?? - check player input
 L3C109:
 	JSR Init_Page2		; C109  $20 $6E $C4
-	JSR $E009		; C10C  $20 $09 $E0	sprite ?? check vehicle ??
+	JSR $E009		; C10C  $20 $09 $E0	sprite ?? check vehicle ?? - update sprites
 	LDA airship_flag	; C10F  $AD $04 $60
 	ORA $6C			; C112  $05 $6C
 	BNE L3C126		; C114  $D0 $10
@@ -206,11 +208,12 @@ L3C109:
 	LDA #$03		; C11C  $A9 $03
 	JSR Swap_PRG_		; C11E  $20 $03 $FE
 	LDX #$02		; C121  $A2 $02		event code value = 02h
-	JSR $A003		; C123  $20 $03 $A0	event code - check airship ??
+	JSR $A003		; C123  $20 $03 $A0	BANK 03/A003 event code - check airship ??
 L3C126:
 	LDA vehicle_ID		; C126  $A5 $42
 	AND #$0C		; C128  $29 $0C		Airship / Ship
 	BEQ WM_LOOP		; C12A  $F0 $9D		LOOP - WORLD MAP
+; update airship noise
     CMP #$08                 ; C12C  $C9 $08
     BNE C13D                 ; C12E  $D0 $0D
     LDA #$38                 ; C130  $A9 $38
@@ -219,6 +222,7 @@ L3C126:
     ASL A                    ; C137  $0A
     AND #$0F                 ; C138  $29 $0F
     JMP $C14E                ; C13A  $4C $4E $C1
+; update ship noise
 C13D:
     LDA $F0                  ; C13D  $A5 $F0
     BPL C143                 ; C13F  $10 $02
@@ -241,62 +245,65 @@ C143:
 ; Marks	: check tile properties and key ?? check minimap ??
 ;	  to NORMAL MAP
 ;	  to battle
+;	  check triggers/menu (world map)
    ;; sub start ;;
 	LDA tile_prop		; C159  $A5 $44		map tile property ??
-	BMI L3C1C7		; C15B  $30 $6A		if bit7 is set, enter some place ??
+	BMI L3C1C7		; C15B  $30 $6A		branch if an entrance(bit7 is setenter)
 	AND #$20		; C15D  $29 $20
-	BNE L3C1B1		; C15F  $D0 $50		if battle/encounter ??
+	BNE L3C1B1		; C15F  $D0 $50		branch if battle/encounter
 	LDA s_pressing		; C161  $A5 $23
 	BEQ L3C181		; C163  $F0 $1C		if start key not pressing
 	LDA #$00		; C165  $A9 $00
 	STA s_pressing		; C167  $85 $23
 	LDA #$30		; C169  $A9 $30
 	STA NoiseVolume_400C	; C16B  $8D $0C $40
-	JSR L3DDA4		; C16E  $20 $A4 $DD
+	JSR L3DDA4		; C16E  $20 $A4 $DD	fade in/out
 	LDA #$0E		; C171  $A9 $0E
 	JSR Swap_PRG_		; C173  $20 $03 $FE
-	JSR $ACC4		; C176  $20 $C4 $AC
+	JSR $ACC4		; C176  $20 $C4 $AC	BANK 0E/ACC4 (main menu)
 	LDA #$00		; C179  $A9 $00
 	STA ApuStatus_4015	; C17B  $8D $15 $40
-	JMP L3C8BC		; C17E  $4C $BC $C8
+	JMP L3C8BC		; C17E  $4C $BC $C8	reload world map
+; row menu or minimap
 L3C181:
 	LDA e_pressing		; C181  $A5 $22
 	BEQ L3C1B0		; C183  $F0 $2B		if select key not pressing
 	LDA #$30		; C185  $A9 $30
 	STA NoiseVolume_400C	; C187  $8D $0C $40
-	JSR L3DDA4		; C18A  $20 $A4 $DD	some effect ??
+	JSR L3DDA4		; C18A  $20 $A4 $DD	some effect ?? - fade in/out
 	LDA key1p		; C18D  $A5 $20
 	AND #$40		; C18F  $29 $40
 	BEQ C1A5		; C191  $F0 $12		if b key not pressing
 	LDA key_items		; C193  $AD $1A $60
 	AND #$02		; C196  $29 $02		bit1: ring
-	BEQ C1A5		; C198  $F0 $0B
+	BEQ C1A5		; C198  $F0 $0B		branch if no ring
 	LDA #$09		; C19A  $A9 $09
 	JSR Swap_PRG_		; C19C  $20 $03 $FE
-	JSR $BA00		; C19F  $20 $00 $BA	show minimap
-	JMP L3C8BC		; C1A2  $4C $BC $C8
+	JSR $BA00		; C19F  $20 $00 $BA	BANK 09/BA00 show minimap
+	JMP L3C8BC		; C1A2  $4C $BC $C8	relead world map
 C1A5:
     LDA #$0E                 ; C1A5  $A9 $0E
     JSR Swap_PRG_               ; C1A7  $20 $03 $FE
-    JSR $F0E2                ; C1AA  $20 $E2 $F0
-    JMP L3C8BC               ; C1AD  $4C $BC $C8
+    JSR $F0E2                ; C1AA  $20 $E2 $F0	row menu
+    JMP L3C8BC               ; C1AD  $4C $BC $C8	reload world map
 L3C1B0:
     RTS                      ; C1B0  $60
 ; End of check tile properties and key ??
-
+; $20: battle
 L3C1B1:
-	JSR $DC6A		; C1B1  $20 $6A $DC	battle encount graphic/sound effect
+	JSR $DC6A		; C1B1  $20 $6A $DC	battle encount graphic/sound effect - do battle flash and sound effect
 	LDA #$00		; C1B4  $A9 $00		hide sprite/background
 	STA PpuMask_2001	; C1B6  $8D $01 $20
 	STA ApuStatus_4015	; C1B9  $8D $15 $40
 	JSR Get_bat_bg		; C1BC  $20 $5C $C7
 	LDA $6A			; C1BF  $A5 $6A
-	JSR $FA00		; C1C1  $20 $00 $FA	battle code
-	JMP L3C8BC		; C1C4  $4C $BC $C8
+	JSR $FA00		; C1C1  $20 $00 $FA	excute battle code
+	JMP L3C8BC		; C1C4  $4C $BC $C8	reload world map
+; $80: entrance
 L3C1C7:
 	LDA #$30		; C1C7  $A9 $30
 	STA NoiseVolume_400C	; C1C9  $8D $0C $40
-	JSR $D7CB		; C1CC  $20 $CB $D7	slate out effect
+	JSR $D7CB		; C1CC  $20 $CB $D7	slate out effect - screen wipe out
 	LDA #$00		; C1CF  $A9 $00
 	JSR Swap_PRG_		; C1D1  $20 $03 $FE
 	LDA $45			; C1D4  $A5 $45		p_map1 ??
@@ -313,8 +320,13 @@ L3C1C7:
 	STA in_y_pos		; C1E9  $85 $2A
 	LDA wmap_ent_id,X	; C1EB  $BD $80 $B4
 	STA $48			; C1EE  $85 $48		world map entrance ID ??
-	JSR L3CA41		; C1F0  $20 $41 $CA
-	JMP L3C0B8		; C1F3  $4C $B8 $C0
+	JSR L3CA41		; C1F0  $20 $41 $CA	map main
+	JMP L3C0B8		; C1F3  $4C $B8 $C0	world map main
+; End of
+
+; Marks	: check player input (world map)
+;	  starts at 0F/C266
+; get off chocobo
 C1F6:
     LDA #$80                 ; C1F6  $A9 $80
     STA $6008                ; C1F8  $8D $08 $60
@@ -322,40 +334,40 @@ C1F6:
     STA $6009                ; C1FD  $8D $09 $60
     LDA #$6F                 ; C200  $A9 $6F
     STA $600A                ; C202  $8D $0A $60
-    LDA #$44                 ; C205  $A9 $44
+    LDA #$44                 ; C205  $A9 $44		play song $04
     STA $E0                  ; C207  $85 $E0
     RTS                      ; C209  $60
-
+; ferry movement
 C20A:
-    LDA #$08                 ; C20A  $A9 $08
+    LDA #$08                 ; C20A  $A9 $08		set vehicle to airship
     STA $46                  ; C20C  $85 $46
     STA $42                  ; C20E  $85 $42
     JSR $DF82                ; C210  $20 $82 $DF
     LDA $6004                ; C213  $AD $04 $60
     AND #$02                 ; C216  $29 $02
-    BEQ C21E                 ; C218  $F0 $04
-    LDA #$04                 ; C21A  $A9 $04
+    BEQ C21E                 ; C218  $F0 $04		return if ferry is not waiting for pickup
+    LDA #$04                 ; C21A  $A9 $04		do event $04 (update ferry movement)
     STA $6C                  ; C21C  $85 $6C
 C21E:
     RTS                      ; C21E  $60
-
+; on foot, pressed A
 C21F:
     LDA $6008                ; C21F  $AD $08 $60
     CMP #$02                 ; C222  $C9 $02
-    BEQ C1F6                 ; C224  $F0 $D0
+    BEQ C1F6                 ; C224  $F0 $D0		get off chocobo
     LDA $6004                ; C226  $AD $04 $60
     CMP #$02                 ; C229  $C9 $02
-    BCC C241                 ; C22B  $90 $14
+    BCC C241                 ; C22B  $90 $14		branch if not controlling airship
     LDA $27                  ; C22D  $A5 $27
     CLC                      ; C22F  $18
     ADC #$07                 ; C230  $69 $07
-    CMP $6005                ; C232  $CD $05 $60
+    CMP $6005                ; C232  $CD $05 $60	compare with airship position
     BNE C241                 ; C235  $D0 $0A
     LDA $28                  ; C237  $A5 $28
     CLC                      ; C239  $18
     ADC #$07                 ; C23A  $69 $07
     CMP $6006                ; C23C  $CD $06 $60
-    BEQ C20A                 ; C23F  $F0 $C9
+    BEQ C20A                 ; C23F  $F0 $C9		ferry movement
 C241:
     LDA $6008                ; C241  $AD $08 $60
     CMP #$01                 ; C244  $C9 $01
@@ -370,15 +382,14 @@ C241:
     ADC #$07                 ; C255  $69 $07
     CMP $600A                ; C257  $CD $0A $60
     BNE C265                 ; C25A  $D0 $09
-    LDA #$02                 ; C25C  $A9 $02
+    LDA #$02                 ; C25C  $A9 $02		get on chocobo ???
     STA $6008                ; C25E  $8D $08 $60
-    LDA #$43                 ; C261  $A9 $43
+    LDA #$43                 ; C261  $A9 $43		play song $03
     STA $E0                  ; C263  $85 $E0
 C265:
     RTS                      ; C265  $60
-
 ; Name	:
-; Marks	:
+; Marks	: subroutine starts here
 ;; sub start ;;
 	LDA player_mv_timer	; C266  $A5 $47
 	BEQ L3C270		; C268  $F0 $06
@@ -387,14 +398,13 @@ C265:
 	STA player_mv_timer	; C26D  $85 $47
 	RTS			; C26F  $60
 ; End of
-
 ; Name	:
 ; Marks	:
 L3C270:
-	JSR $DB5C		; C270  $20 $5C $DB	event, key processing
+	JSR $DB5C		; C270  $20 $5C $DB	event, key processing - execute event script / update joypad input
 	LDA key1p		; C273  $A5 $20
 	AND #$0F		; C275  $29 $0F
-	BNE L3C290		; C277  $D0 $17
+	BNE L3C290		; C277  $D0 $17		branch if any direction buttons are pressed
 	LDA #$00		; C279  $A9 $00
 	STA $4E			; C27B  $85 $4E
 	LDA a_pressing		; C27D  $A5 $24
@@ -403,66 +413,66 @@ L3C270:
 	STA a_pressing		; C283  $85 $24
 	LDA vehicle_ID		; C285  $A5 $42
 	CMP #$08		; C287  $C9 $08
-	BEQ C2C9		; C289  $F0 $3E
+	BEQ C2C9		; C289  $F0 $3E		branch if in airship
 	CMP #$01		; C28B  $C9 $01
 	BEQ C21F		; C28D  $F0 $90
 L3C28F:
 	RTS			; C28F  $60
 ; End of
-
 ; A	: pressed key
 ; Check vehicle or walk
 L3C290:
 	LDX vehicle_ID		; C290  $A6 $42
 	CPX #$08		; C292  $E0 $08
-	BEQ L3C2C0		; C294  $F0 $2A
+	BEQ L3C2C0		; C294  $F0 $2A		airship can move anywhere
 	CPX #$04		; C296  $E0 $04
 	BEQ L3C2CC		; C298  $F0 $32
 	CPX #$02		; C29A  $E0 $02
 	BEQ L3C2E2		; C29C  $F0 $44
-	JSR $C4B4		; C29E  $20 $B4 $C4	random battle check??cannot move check?? direction ??
-	BCS L3C2AA		; C2A1  $B0 $07
+	JSR $C4B4		; C29E  $20 $B4 $C4	check destination tile - random battle check??cannot move check?? direction ??
+	BCS L3C2AA		; C2A1  $B0 $07		branch if not passable
 	JSR $C70E		; C2A3  $20 $0E $C7	dreadnaught ??, chocobo ??
 	BCS L3C2DB		; C2A6  $B0 $33
 	BCC L3C2C0		; C2A8  $90 $16
-
 L3C2AA:
 	LDA chocobo_stat	; C2AA  $AD $08 $60
 	CMP #$02		; C2AD  $C9 $02
 	BEQ L3C2DB		; C2AF  $F0 $2A
-	JSR Check_snow_river	; C2B1  $20 $54 $C6
+	JSR Check_snow_river	; C2B1  $20 $54 $C6	check if passable in canoe/snowcraft
 	BCC L3C2C0		; C2B4  $90 $0A
 	JSR $C68B		; C2B6  $20 $8B $C6	check pirate ship ??
 	BCC L3C2C0		; C2B9  $90 $05
 	JSR $C6C7		; C2BB  $20 $C7 $C6	Check ship ??
 	BCS L3C2DB		; C2BE  $B0 $1B
+; allow movement
 L3C2C0:
 	LDA key1p		; C2C0  $A5 $20
 	AND #$0F		; C2C2  $29 $0F
-	STA player_dir		; C2C4  $85 $33
-	JMP L3D209		; C2C6  $4C $09 $D2
+	STA player_dir		; C2C4  $85 $33		set movement direction
+	JMP L3D209		; C2C6  $4C $09 $D2	init player movement
 ; End of
-
 C2C9:
-    JMP $C785                ; C2C9  $4C $85 $C7
+    JMP $C785                ; C2C9  $4C $85 $C7	land airship
+; ship
 L3C2CC:
-    JSR $C4B4                ; C2CC  $20 $B4 $C4
+    JSR $C4B4                ; C2CC  $20 $B4 $C4	check destination tile
     BCC L3C2C0               ; C2CF  $90 $EF
-    JSR $C654                ; C2D1  $20 $54 $C6	Check_snow_river
+    JSR $C654                ; C2D1  $20 $54 $C6	Check_snow_river - check if passable in canoe/snowcraft
     BCC L3C2C0               ; C2D4  $90 $EA
-    JSR $C640                ; C2D6  $20 $40 $C6
+    JSR $C640                ; C2D6  $20 $40 $C6	check if passable on foot
     BCC L3C2C0               ; C2D9  $90 $E5
 L3C2DB:
+; don't allow movement
 	LDA $43			; C2DB  $A5 $43
 	STA tile_prop		; C2DD  $85 $44
 	STA $4E			; C2DF  $85 $4E
 	RTS			; C2E1  $60
 ; End of
-
+; canoe/snowcraft
 L3C2E2:
-    JSR $C4B4                ; C2E2  $20 $B4 $C4
-    BCC L3C2C0               ; C2E5  $90 $D9
-    JSR $C640                ; C2E7  $20 $40 $C6
+    JSR $C4B4                ; C2E2  $20 $B4 $C4	check destination tile
+    BCC L3C2C0               ; C2E5  $90 $D9		branch if passable
+    JSR $C640                ; C2E7  $20 $40 $C6	check if passable on foot
     BCC L3C2C0               ; C2EA  $90 $D4
     JSR $C68B                ; C2EC  $20 $8B $C6
     BCC L3C2C0               ; C2EF  $90 $CF
@@ -514,7 +524,7 @@ Map_water_flow:
 	RTS			; C34E  $60
 ; End of Map_water_flow
 
- ;data block---
+; $C34F - data block = low byte of ppu address for water animation (16 * 2 bytes)
 ; [$C34F-C35F]
   .byte $50
   .byte $60,$51,$61,$52,$62,$53,$63,$54,$64,$55,$65,$56,$66,$57,$67,$90
@@ -522,6 +532,7 @@ Map_water_flow:
 
 ; Name	:
 ; Marks	: Character_movement ?? Scroll(Map) ??
+;	  update scrolling (world map)
 ;; sub start ;;
 	LDA mov_spd		; C36F  $A5 $34
 	BEQ Scroll_map		; C371  $F0 $0D		if not move, scroll
@@ -529,13 +540,14 @@ Map_water_flow:
 	LDA vehicle_ID		; C376  $A5 $42
 	CMP #$01		; C378  $C9 $01
 	BNE L3C37F		; C37A  $D0 $03
-	JMP L3C8E7		; C37C  $4C $E7 $C8	check character field sprite ??(dead/stone/venom)
+	JMP L3C8E7		; C37C  $4C $E7 $C8	check character field sprite ??(dead/stone/venom) - do venom step damage
 L3C37F:
 	RTS			; C37F  $60
 ; End of Character_movement ??
 
 ; Name	: Scroll_map
 ; Marks	: PpuScroll world map
+;	  update ppu register (world map)
 Scroll_map:
 	LDA #$1E		; C380  $A9 $1E
 	STA PpuMask_2001	; C382  $8D $01 $20
@@ -560,6 +572,9 @@ Scroll_map:
 	RTS			; C3A5  $60
 ; End of Scroll_map
 
+; Marks	: update player movement (world map)
+;	  subroutine starts at 0F/C3FE
+; right
 L3C3A6:
 	LDA map_update		; C3A6  $A5 $32		RIGHT
 	BEQ L3C3AD		; C3A8  $F0 $03
@@ -574,10 +589,9 @@ L3C3AD:
     STA $35                  ; C3B9  $85 $35
     RTS                      ; C3BB  $60
 ; End of Move_pos
-
 L3C3BC:
-    STA $34                  ; C3BC  $85 $34
-    STA $35                  ; C3BE  $85 $35
+    STA $34                  ; C3BC  $85 $34	stop movement
+    STA $35                  ; C3BE  $85 $35	clear horizontal subtile position
     LDA $27                  ; C3C0  $A5 $27
     CLC                      ; C3C2  $18
     ADC #$01                 ; C3C3  $69 $01
@@ -588,7 +602,6 @@ L3C3BC:
     ROL $FD                  ; C3CD  $26 $FD
     RTS                      ; C3CF  $60
 ; End of Move_pos
-
 MOVE_POS_LEFT:
 	LDA map_update		; C3D0  $A5 $32		LEFT
 	BEQ L3C3D7		; C3D2  $F0 $03
@@ -614,10 +627,9 @@ L3C3EF:
     STA $35                  ; C3F6  $85 $35
     RTS                      ; C3F8  $60
 ; End of Move_pos
-
 L3C3F9:
-    STA $34                  ; C3F9  $85 $34
-    STA $35                  ; C3FB  $85 $35
+    STA $34                  ; C3F9  $85 $34	stop movement
+    STA $35                  ; C3FB  $85 $35	clear horizontal subtile position
     RTS                      ; C3FD  $60
 ; End of Move_pos
 
@@ -655,8 +667,8 @@ L3C419:
 ; End of Move_pos
 
 MOVE_POS_D_FIN:
-	STA mov_spd		; C428  $85 $34
-	STA ver_stile_pos	; C42A  $85 $36
+	STA mov_spd		; C428  $85 $34		stop movenent
+	STA ver_stile_pos	; C42A  $85 $36		clear vertical subtile position
 	INC ow_y_pos		; C42C  $E6 $28
 	LDA nt_y_pos		; C42E  $A5 $2F
 	CLC			; C430  $18
@@ -699,13 +711,14 @@ L3C45F:
 ; End of Move_pos
 
 L3C469:
-	STA mov_spd		; C469  $85 $34
-	STA ver_stile_pos	; C46B  $85 $36
+	STA mov_spd		; C469  $85 $34		stop movement
+	STA ver_stile_pos	; C46B  $85 $36		clear vertical subtile position
 	RTS			; C46D  $60
 ; End of Move_pos
 
 ; Name	: Init_Page2
 ; Marks	: Fill #$F0 $0200 - @02FF
+;	  clear OAM data
 Init_Page2:
 ;; sub start ;;
 	LDX #$3F                 ; C46E  $A2 $3F
@@ -733,13 +746,13 @@ C48A:
     STA $00,X                ; C48A  $95 $00
     DEX                      ; C48C  $CA
     BNE C48A                 ; C48D  $D0 $FB
-    LDA #$1B                 ; C48F  $A9 $1B
+    LDA #$1B                 ; C48F  $A9 $1B	seed np movement rng
     ORA $F4                  ; C491  $05 $F4
     STA $F4                  ; C493  $85 $F4
     LDX #$1F                 ; C495  $A2 $1F
     LDA #$0F                 ; C497  $A9 $0F
 C499:
-    STA $03C0,X              ; C499  $9D $C0 $03
+    STA $03C0,X              ; C499  $9D $C0 $03	set all palettes to black
     DEX                      ; C49C  $CA
     BPL C499                 ; C49D  $10 $FA
     RTS                      ; C49F  $60
@@ -758,8 +771,9 @@ APU_init:
 ; End of APU_init
 
 ; Name	:
-; A	: pressed pad
+; A	: pressed pad (----udlr direction)
 ; Ret	: Carry flag(Set: event(cannot move??) occur, Reset: Not happened ??, battle)
+;	  set carry if not passable
 ; Marks	: (7, 7) is center, $80(ADDR) = X,Y ??, $82 = X ??, $83 = Y ??
 ;	  World map buffer($7000-$7FFF), X,Y size = 256x16 buffer
 ;	  $44(ADDR)
@@ -771,6 +785,7 @@ APU_init:
 ;	  (0,15) -> (255,15)
 ;	  DOWN ward
 ;	  battle event= $6A: battle group, $44: tile_prop set to 20h
+;	  check destination tile (world map)
 ;; sub start ;;
 	LSR A			; C4B4  $4A
 	BCS L3C4CB		; C4B5  $B0 $14		right
@@ -815,7 +830,7 @@ L3C4D6:
 	STA $45			; C4F8  $85 $45
 	LDA tile_prop		; C4FA  $A5 $44
 	AND vehicle_ID		; C4FC  $25 $42
-	BEQ L3C502		; C4FE  $F0 $02
+	BEQ L3C502		; C4FE  $F0 $02		branch if passable in current vehicle
 	SEC			; C500  $38
 	RTS			; C501  $60
 ; End of
@@ -830,7 +845,7 @@ L3C509:
 	BNE L3C543		; C50D  $D0 $34
 	LDX vehicle_ID		; C50F  $A6 $42
 	CPX #$08		; C511  $E0 $08
-	BEQ L3C543		; C513  $F0 $2E
+	BEQ L3C543		; C513  $F0 $2E		branch if on airship
 	LDA $62B9		; C515  $AD $B9 $62	ship random battle rate (2)
 	CPX #$04		; C518  $E0 $04
 	BEQ L3C53A		; C51A  $F0 $1E
@@ -860,7 +875,7 @@ L3C543:
 L3C545:
 	LDA vehicle_ID		; C545  $A5 $42
 	CMP #$04		; C547  $C9 $04
-	BNE L3C54F		; C549  $D0 $04
+	BNE L3C54F		; C549  $D0 $04		branch if on ship
 	LDA #$01		; C54B  $A9 $01
 	BNE C567		; C54D  $D0 $18
 L3C54F:
@@ -888,7 +903,8 @@ C567:
 	TAX			; C570  $AA
 	LDA #$0B		; C571  $A9 $0B
 	JSR Swap_PRG_		; C573  $20 $03 $FE
-	LDA $8200,X		; C576  $BD $00 $82	world map battle groups
+	LDA $8200,X		; C576  $BD $00 $82	BANK 0B/8200 - world map battle groups
+; Marks	: choose from battle group
 	LDY #$00		; C579  $A0 $00
 	STY $81			; C57B  $84 $81
 	ASL A			; C57D  $0A
@@ -898,7 +914,7 @@ C567:
 	ASL A			; C583  $0A
 	ROL $81			; C584  $26 $81
 	CLC			; C586  $18
-	ADC #$80		; C587  $69 $80
+	ADC #$80		; C587  $69 $80		0B/8280 (random battle groups)
 	STA $80			; C589  $85 $80
 	LDA $81			; C58B  $A5 $81
 	ADC #$82		; C58D  $69 $82
@@ -910,10 +926,10 @@ C567:
 	LDA rnum_tbl,X		; C59A  $BD $00 $F9
 	AND #$3F		; C59D  $29 $3F
 	TAX			; C59F  $AA
-	LDY $C5C8,X		; C5A0  $BC $C8 $C5
+	LDY $C5C8,X		; C5A0  $BC $C8 $C5	battle probabilities
 	LDA ($80),Y		; C5A3  $B1 $80
-	STA $6A			; C5A5  $85 $6A		battle group ??
-	LDA #$20		; C5A7  $A9 $20
+	STA $6A			; C5A5  $85 $6A		set battle - battle group ??
+	LDA #$20		; C5A7  $A9 $20		trigger battle
 	STA tile_prop		; C5A9  $85 $44
 	CLC			; C5AB  $18
 	RTS			; C5AC  $60
@@ -922,6 +938,10 @@ C567:
 ; Name	: Get_rndnum
 ; Ret	: A(random number result ??)
 ; Marks	: Make random number
+;	  increment or decrement $F5 based on the sign of $F6. every 256 iterations,
+;	  add 160 to $F6, leading to a repeating pattern +,-,+,-,-,+,-,+ where "+"
+;	  indicates traversing the rng table in the positive direction and "-"
+;	  indicates traversing the rng table in the negative direction
 ;; sub start ;;
 Get_rndnum:
 	BIT rng_tbl_dir		; C5AD  $24 $F6
@@ -943,7 +963,15 @@ L3C5C2:
 	RTS			; C5C7  $60
 ; End of Get_rndnum
 
- ;data block---
+; $C5C8 - data block = battle probabilities
+; 0: 12/256
+; 1: 12/256
+; 2: 12/256
+; 3: 12/256
+; 4: 6/256
+; 5: 6/256
+; 6: 3/256
+; 7: 1/256
 ;; [$C5C8-$C607:40h]
 .byte $00,$00,$00,$00,$00,$00,$00,$00
 ;;; [C5D0 : 3C5E0]
@@ -952,6 +980,7 @@ L3C5C2:
 .byte $03,$03,$03,$03,$03,$03,$03,$03,$04,$04,$04,$04,$04,$04,$05,$05
 .byte $05,$05,$05,$05,$06,$06,$06,$07
 
+; Marks	: disembark ship
 C608:
     LDA $6003                ; C608  $AD $03 $60
     CMP #$10                 ; C60B  $C9 $10
@@ -981,53 +1010,58 @@ C625:
     EOR #$03                 ; C638  $49 $03
     STA $600C                ; C63A  $8D $0C $60
     JMP $C61F                ; C63D  $4C $1F $C6
+; End of
+
+; Marks	: check if passable on foot
     LDA $44                  ; C640  $A5 $44
     AND #$01                 ; C642  $29 $01
-    BNE L3C689               ; C644  $D0 $43
+    BNE L3C689               ; C644  $D0 $43		branch if not passable on foot
     LDA $42                  ; C646  $A5 $42
     LDX #$01                 ; C648  $A2 $01
     STX $46                  ; C64A  $86 $46
     STX $42                  ; C64C  $86 $42
     CMP #$04                 ; C64E  $C9 $04
 C650:
-    BEQ C608                 ; C650  $F0 $B6
+    BEQ C608                 ; C650  $F0 $B6		branch if previous vehicle was ship
     CLC                      ; C652  $18
     RTS                      ; C653  $60
+; End of
 
 ; Name	: Check_snow_river
 ; Ret	: Carry flag(Set: nothing ??, Reset: snow or river??)
 ; Marks	: Check snow/river
+;	  check if passable in canoe/snowcraft
 ;; sub start ;;
 Check_snow_river:
 	LDA tile_prop		; C654  $A5 $44
 	AND #$02		; C656  $29 $02
-	BNE L3C689		; C658  $D0 $2F
+	BNE L3C689		; C658  $D0 $2F		branch if not a river/snow tile
 	CPX #$4C		; C65A  $E0 $4C
-	BNE C669		; C65C  $D0 $0B
+	BNE C669		; C65C  $D0 $0B		branch if not a snow tile (tile $26)
 	LDA key_items		; C65E  $AD $1A $60
 	AND #$20		; C661  $29 $20		snowcraft
-	BEQ L3C689		; C663  $F0 $24
+	BEQ L3C689		; C663  $F0 $24		branch if no snowcraft
 	LDA #$58		; C665  $A9 $58
 	BNE C672		; C667  $D0 $09
 C669:
 	LDA key_items		; C669  $AD $1A $60
 	AND #$04		; C66C  $29 $04		canoe
-    BEQ L3C689               ; C66E  $F0 $19
+    BEQ L3C689               ; C66E  $F0 $19	branch if no canoe
     LDA #$40                 ; C670  $A9 $40
 C672:
     STA $6019                ; C672  $8D $19 $60
     LDA #$04                 ; C675  $A9 $04
     STA $47                  ; C677  $85 $47
-    LDA $42                  ; C679  $A5 $42
+    LDA $42                  ; C679  $A5 $42	previous vehicle
     LDX #$01                 ; C67B  $A2 $01
     STX $42                  ; C67D  $86 $42
     LDX #$02                 ; C67F  $A2 $02
     STX $46                  ; C681  $86 $46
     CMP #$04                 ; C683  $C9 $04
-    BEQ C650                 ; C685  $F0 $C9
+    BEQ C650                 ; C685  $F0 $C9	branch if previous vehicle was ship
     CLC                      ; C687  $18
     RTS                      ; C688  $60
-
+; End of
 L3C689:
 	SEC			; C689  $38
 	RTS			; C68A  $60
@@ -1036,6 +1070,7 @@ L3C689:
 ; Name	:
 ; Ret	: Carry flag(Set: nothing ??, Reset: )
 ; Marks	: check pirate ship ??
+;	  try to board ship ???
 ;; sub start ;;
 	LDA pirateship_flag	; C68B  $AD $00 $60
 	BEQ L3C689		; C68E  $F0 $F9
@@ -1054,8 +1089,8 @@ L3C689:
     BCS C6B9                 ; C6AD  $B0 $0A
     LDA #$02                 ; C6AF  $A9 $02
     STA $6000                ; C6B1  $8D $00 $60
-    LDA #$00                 ; C6B4  $A9 $00
-    JSR L3C6F4               ; C6B6  $20 $F4 $C6
+    LDA #$00                 ; C6B4  $A9 $00		event $00
+    JSR L3C6F4               ; C6B6  $20 $F4 $C6	init event
 C6B9:
     LDA #$01                 ; C6B9  $A9 $01
     STA $42                  ; C6BB  $85 $42
@@ -1070,11 +1105,12 @@ C6B9:
 ; Name	:
 ; Ret	: Carry flag(Set: , Reset: )
 ; Marks	: Check ship ??
+;	  try to board ferry ??
 ;; sub start ;;
 	LDA ship_flag		; C6C7  $AD $0C $60
 	CMP #$02		; C6CA  $C9 $02
-	BCC L3C689		; C6CC  $90 $BB
-    LDA $600D                ; C6CE  $AD $0D $60
+	BCC L3C689		; C6CC  $90 $BB		branch if fare not paid ??
+    LDA $600D                ; C6CE  $AD $0D $60	compare with ferry position
     CMP $82                  ; C6D1  $C5 $82
     BNE L3C689               ; C6D3  $D0 $B4
     LDA $600E                ; C6D5  $AD $0E $60
@@ -1084,34 +1120,38 @@ C6B9:
     STA $6003                ; C6DE  $8D $03 $60
     LDA #$00                 ; C6E1  $A9 $00
     STA $600F                ; C6E3  $8D $0F $60
-    LDA $600C                ; C6E6  $AD $0C $60
+    LDA $600C                ; C6E6  $AD $0C $60	get ferry destination
     AND #$01                 ; C6E9  $29 $01
     CLC                      ; C6EB  $18
-    ADC #$01                 ; C6EC  $69 $01
-    JSR L3C6F4               ; C6EE  $20 $F4 $C6
+    ADC #$01                 ; C6EC  $69 $01		event $01 or $02
+    JSR L3C6F4               ; C6EE  $20 $F4 $C6	init event
     JMP $C6B9                ; C6F1  $4C $B9 $C6
+; End of
+
+; A	: event id
+; Marks	: init event
 L3C6F4:
     ASL A                    ; C6F4  $0A
     TAX                      ; C6F5  $AA
     LDA #$0D                 ; C6F6  $A9 $0D
     JSR Swap_PRG_               ; C6F8  $20 $03 $FE
-    LDA $BFC0,X              ; C6FB  $BD $C0 $BF
+    LDA $BFC0,X              ; C6FB  $BD $C0 $BF	event script pointer
     STA $72                  ; C6FE  $85 $72
     LDA $BFC1,X              ; C700  $BD $C1 $BF
     STA $73                  ; C703  $85 $73
-    LDA #$01                 ; C705  $A9 $01
+    LDA #$01                 ; C705  $A9 $01		event script
     STA $6C                  ; C707  $85 $6C
     LDA #$00                 ; C709  $A9 $00
     STA $17                  ; C70B  $85 $17
     RTS                      ; C70D  $60
-; End of Check ship ??
+; End of Check ship ?? - init event
 
 ; Name	:
 ; Ret	: Carry flag(Set: , Reset: )
 ; Marks	: $82
 ;; sub start ;;
 	LDA dreadnaught_flag	; C70E  $AD $14 $60
-	BEQ L3C733		; C711  $F0 $20
+	BEQ L3C733		; C711  $F0 $20		branch if dreadnought isn't visible
 	LDA $82			; C713  $A5 $82
 	CMP dreadnaught_x	; C715  $CD $15 $60
 	BEQ L3C722		; C718  $F0 $08
@@ -1147,21 +1187,24 @@ L3C744:
 
 ; Name	:
 ; Marks	: Sound process ??
+;	  update sound
 L3C746:
 	LDA #$0D		; C746  $A9 $0D
 	JSR Swap_PRG_		; C748  $20 $03 $FE
-	JMP $9800		; C74B  $4C $00 $98
+	JMP $9800		; C74B  $4C $00 $98	BANK 0D/9800 update music
 ; End of
 
+; C74E - UNUSED
 	RTS			; C74E  $60
 ; End of
 
 ; Name	:
 ; Marks	: sound ??
+;	  update sound
 L3C74F:
     LDA #$0D                 ; C74F  $A9 $0D
     JSR Swap_PRG_               ; C751  $20 $03 $FE
-    JSR $9800                ; C754  $20 $00 $98	Sound ??
+    JSR $9800                ; C754  $20 $00 $98	BANK 0D/9800 - update music
     LDA bank                  ; C757  $A5 $57		$57 = PRG temp ??
     JMP Swap_PRG_            ; C759  $4C $03 $FE
 ; End of sound ??
@@ -1169,6 +1212,7 @@ L3C74F:
 ; Name	: Get_bat_bg
 ; Ret	: X(battle bg for each world map tile)
 ; Marks	: $80(ADDR)
+;	  get world map battle background
    ;; sub start ;;
 Get_bat_bg:
 	LDA ow_x_pos		; C75C  $A5 $27
@@ -1182,7 +1226,7 @@ Get_bat_bg:
 	ORA #$70		; C76A  $09 $70
 	STA $81			; C76C  $85 $81
 	LDY #$00		; C76E  $A0 $00
-	LDA ($80),Y		; C770  $B1 $80
+	LDA ($80),Y		; C770  $B1 $80		tile
 	TAY			; C772  $A8
 	ASL A			; C773  $0A
 	TAX			; C774  $AA
@@ -1191,17 +1235,18 @@ Get_bat_bg:
 	STA $43			; C77A  $85 $43
 	LDA #$00		; C77C  $A9 $00
 	JSR Swap_PRG_		; C77E  $20 $03 $FE
-	LDX $9500,Y		; C781  $BE $00 $95	battle bg for each world map tile
+	LDX $9500,Y		; C781  $BE $00 $95	battle bg for each world map tile - BANK 00 ??
 	RTS			; C784  $60
 ; End of Get_bat_bg
 
-    LDA #$00                 ; C785  $A9 $00
+; Marks	: land airship
+    LDA #$00                 ; C785  $A9 $00		clear A button
     STA $24                  ; C787  $85 $24
     JSR $DF9C                ; C789  $20 $9C $DF
     LDA $6004                ; C78C  $AD $04 $60
     AND #$02                 ; C78F  $29 $02
     BEQ C7AA                 ; C791  $F0 $17
-    LDA #$00                 ; C793  $A9 $00
+    LDA #$00                 ; C793  $A9 $00		no event
     STA $6C                  ; C795  $85 $6C
     JSR $C827                ; C797  $20 $27 $C8
     LDA #$70                 ; C79A  $A9 $70
@@ -1286,9 +1331,11 @@ C817:
     LDA #$00                 ; C82D  $A9 $00
     STA $43                  ; C82F  $85 $43
     RTS                      ; C831  $60
+; End of
 
 ; Name	:
 ; Marks	: Variables init
+;	  load world map
 ;; sub start ;;
 	LDA $FF			; C832  $A5 $FF
 	STA PpuControl_2000	; C834  $8D $00 $20
@@ -1311,8 +1358,8 @@ C817:
 	JSR $E4A5		; C859  $20 $A5 $E4	copy tile(world bg/sprites graphics) to Ppu
 	LDA #$00		; C85C  $A9 $00
 	JSR Swap_PRG_		; C85E  $20 $03 $FE
-	JSR Init_wmap		; C861  $20 $03 $9C
-	JSR Set_wmap_palettes	; C864  $20 $06 $9C
+	JSR Init_wmap		; C861  $20 $03 $9C	BANK 00/9C03 (init world map)
+	JSR Set_wmap_palettes	; C864  $20 $06 $9C	BANK 00/9C06 (load map palette)
 	JSR $D9A3		; C867  $20 $A3 $D9	Set world map settings according to event situation
 	JSR $D1D3		; C86A  $20 $D3 $D1	map processing ??
 	LDA ow_x_pos		; C86D  $A5 $27
@@ -1335,7 +1382,7 @@ C817:
 	LDX chocobo_stat	; C892  $AE $08 $60
 	CPX #$02		; C895  $E0 $02
 	BNE L3C89B		; C897  $D0 $02
-	LDA #BGM_chocobo	; C899  $A9 $43
+	LDA #BGM_chocobo	; C899  $A9 $43		play song $03
 L3C89B:
 	STA current_song_ID	; C89B  $85 $E0
 	LDA chocobo_stat	; C89D  $AD $08 $60
@@ -1353,36 +1400,42 @@ L3C8BB:
 	RTS			; C8BB  $60
 ; End of
 
+; Marks	: reload world map
 L3C8BC:
-    JSR $C832                ; C8BC  $20 $32 $C8
+    JSR $C832                ; C8BC  $20 $32 $C8	load world map
     LDA #$01                 ; C8BF  $A9 $01
-    JSR L3DDA4               ; C8C1  $20 $A4 $DD
-    JMP L3C0C3               ; C8C4  $4C $C3 $C0
+    JSR L3DDA4               ; C8C1  $20 $A4 $DD	fade in/out
+    JMP L3C0C3               ; C8C4  $4C $C3 $C0	world map main
+; End of
+
+; Marks	: do floor damage
     LDA $F0                  ; C8C7  $A5 $F0
-    AND #$01                 ; C8C9  $29 $01
+    AND #$01                 ; C8C9  $29 $01		toggle grayscale every frame
     ORA #$1E                 ; C8CB  $09 $1E
     STA PpuMask_2001         ; C8CD  $8D $01 $20
-    LDA #$0F                 ; C8D0  $A9 $0F
+    LDA #$0F                 ; C8D0  $A9 $0F		play sound effect
     STA NoiseVolume_400C     ; C8D2  $8D $0C $40
     LDA #$0D                 ; C8D5  $A9 $0D
     STA NoisePeriod_400E     ; C8D7  $8D $0E $40
     LDA #$00                 ; C8DA  $A9 $00
     STA NoiseLength_400F     ; C8DC  $8D $0F $40
     LDA $34                  ; C8DF  $A5 $34
-    BNE C8E6                 ; C8E1  $D0 $03
-    JMP $C96E                ; C8E3  $4C $6E $C9
+    BNE C8E6                 ; C8E1  $D0 $03		branch if moving
+    JMP $C96E                ; C8E3  $4C $6E $C9	decrement party hp
 C8E6:
     RTS                      ; C8E6  $60
+; End of
 
 ; Marks	: check status
+;	  do venom step damage
 L3C8E7:
 	LDA ch_status		; C8E7  $AD $01 $61
 	ASL A			; C8EA  $0A
-	BCS L3C8F4		; C8EB  $B0 $07
+	BCS L3C8F4		; C8EB  $B0 $07		skip if dead
 	ASL A			; C8ED  $0A
-	BCS L3C8F4		; C8EE  $B0 $04
+	BCS L3C8F4		; C8EE  $B0 $04		skip if stone
 	AND #$10		; C8F0  $29 $10
-	BNE L3C921		; C8F2  $D0 $2D
+	BNE L3C921		; C8F2  $D0 $2D		branch if has venom status
 L3C8F4:
 	LDA $6141		; C8F4  $AD $41 $61	2nd character
 	ASL A			; C8F7  $0A
@@ -1414,7 +1467,7 @@ L3C920:
 ; End of Character_movement ??
 
 L3C921:
-    LDA #$3A                 ; C921  $A9 $3A
+    LDA #$3A                 ; C921  $A9 $3A		play sound effect
     STA Sq1Duty_4004         ; C923  $8D $04 $40
     LDA #$81                 ; C926  $A9 $81
     STA Sq1Sweep_4005        ; C928  $8D $05 $40
@@ -1424,7 +1477,7 @@ L3C921:
     LDA #$06                 ; C933  $A9 $06
     STA $E5                  ; C935  $85 $E5
     LDA $34                  ; C937  $A5 $34
-    BEQ C93C                 ; C939  $F0 $01
+    BEQ C93C                 ; C939  $F0 $01		branch if not moving
     RTS                      ; C93B  $60
 
 C93C:
@@ -1433,30 +1486,32 @@ C93E:
     LDA $6101,X              ; C93E  $BD $01 $61
     ASL A                    ; C941  $0A
     ASL A                    ; C942  $0A
-    BCS C966                 ; C943  $B0 $21
+    BCS C966                 ; C943  $B0 $21		skip if toad
     AND #$10                 ; C945  $29 $10
     BEQ C966                 ; C947  $F0 $1D
     LDA $6109,X              ; C949  $BD $09 $61
     BNE C955                 ; C94C  $D0 $07
     LDA $6108,X              ; C94E  $BD $08 $61
-    CMP #$02                 ; C951  $C9 $02
+    CMP #$02                 ; C951  $C9 $02		skip if less than 2 hp
     BCC C966                 ; C953  $90 $11
 C955:
     LDA $6108,X              ; C955  $BD $08 $61
     SEC                      ; C958  $38
-    SBC #$01                 ; C959  $E9 $01
+    SBC #$01                 ; C959  $E9 $01		subtract 1 hp
     STA $6108,X              ; C95B  $9D $08 $61
     LDA $6109,X              ; C95E  $BD $09 $61
     SBC #$00                 ; C961  $E9 $00
     STA $6109,X              ; C963  $9D $09 $61
 C966:
-    TXA                      ; C966  $8A
+    TXA                      ; C966  $8A		next character
     CLC                      ; C967  $18
     ADC #$40                 ; C968  $69 $40
     TAX                      ; C96A  $AA
     BNE C93E                 ; C96B  $D0 $D1
     RTS                      ; C96D  $60
+; End of
 
+; Marks	: decrement party hp
     LDX #$00                 ; C96E  $A2 $00
 C970:
     LDA $6109,X              ; C970  $BD $09 $61
@@ -1467,7 +1522,7 @@ C970:
 C97C:
     LDA $6108,X              ; C97C  $BD $08 $61
     SEC                      ; C97F  $38
-    SBC #$01                 ; C980  $E9 $01
+    SBC #$01                 ; C980  $E9 $01		subtract 1 hp
     STA $6108,X              ; C982  $9D $08 $61
     LDA $6109,X              ; C985  $BD $09 $61
     SBC #$00                 ; C988  $E9 $00
@@ -1479,40 +1534,45 @@ C98D:
     TAX                      ; C991  $AA
     BNE C970                 ; C992  $D0 $DC
     RTS                      ; C994  $60
+; End of
 
+
+; Marks	:
     LDA $6C                  ; C995  $A5 $6C
-    BNE C9CE                 ; C997  $D0 $35
+    BNE C9CE                 ; C997  $D0 $35	return if an event is running
     LDA $45                  ; C999  $A5 $45
     BNE C9BF                 ; C99B  $D0 $22
+; Marks	: 0:
     LDA $601B                ; C99D  $AD $1B $60
     AND #$20                 ; C9A0  $29 $20
-    BEQ C9CE                 ; C9A2  $F0 $2A
+    BEQ C9CE                 ; C9A2  $F0 $2A	return if no crystal rod
     LDA $6043                ; C9A4  $AD $43 $60
     AND #$02                 ; C9A7  $29 $02
     BEQ C9CE                 ; C9A9  $F0 $23
-    JSR $F308                ; C9AB  $20 $08 $F3
+    JSR $F308                ; C9AB  $20 $08 $F3	check if any main characters are alive
     BCC C9B8                 ; C9AE  $90 $08
-    LDA $6101                ; C9B0  $AD $01 $61
+    LDA $6101                ; C9B0  $AD $01 $61	clear dead, stone, and toad status
     AND #$1F                 ; C9B3  $29 $1F
     STA $6101                ; C9B5  $8D $01 $61
 C9B8:
     LDA #$16                 ; C9B8  $A9 $16
-    JSR L3C6F4               ; C9BA  $20 $F4 $C6
+    JSR L3C6F4               ; C9BA  $20 $F4 $C6	init event
     CLC                      ; C9BD  $18
     RTS                      ; C9BE  $60
-
+;
+; Marks	: 1:
 C9BF:
     CMP #$01                 ; C9BF  $C9 $01
     BNE C9D0                 ; C9C1  $D0 $0D
     LDA $601B                ; C9C3  $AD $1B $60
     AND #$20                 ; C9C6  $29 $20
-    BEQ C9CE                 ; C9C8  $F0 $04
+    BEQ C9CE                 ; C9C8  $F0 $04		branch if no crystal rod
     LDA #$03                 ; C9CA  $A9 $03
     STA $6C                  ; C9CC  $85 $6C
 C9CE:
     CLC                      ; C9CE  $18
     RTS                      ; C9CF  $60
-
+; Marks	: 3:
 C9D0:
     CMP #$03                 ; C9D0  $C9 $03
     BNE C9E8                 ; C9D2  $D0 $14
@@ -1521,18 +1581,18 @@ C9D0:
     BNE C9CE                 ; C9D9  $D0 $F3
     LDA $601B                ; C9DB  $AD $1B $60
     AND #$40                 ; C9DE  $29 $40
-    BEQ C9CE                 ; C9E0  $F0 $EC
+    BEQ C9CE                 ; C9E0  $F0 $EC	return if no wyvern
     LDA #$02                 ; C9E2  $A9 $02
     STA $6C                  ; C9E4  $85 $6C
     CLC                      ; C9E6  $18
     RTS                      ; C9E7  $60
-
+; Marks	: 4:
 C9E8:
     CMP #$04                 ; C9E8  $C9 $04
     BNE C9CE                 ; C9EA  $D0 $E2
     LDA $601B                ; C9EC  $AD $1B $60
     AND #$01                 ; C9EF  $29 $01
-    BEQ C9CE                 ; C9F1  $F0 $DB
+    BEQ C9CE                 ; C9F1  $F0 $DB	return if no sunfire
     LDA $6013                ; C9F3  $AD $13 $60
     AND #$10                 ; C9F6  $29 $10
     BEQ C9CE                 ; C9F8  $F0 $D4
@@ -1563,19 +1623,24 @@ C9E8:
     STA $6C                  ; CA3C  $85 $6C
     CLC                      ; CA3E  $18
     RTS                      ; CA3F  $60
+; End of
 
+; $CA40 - UNUSED
     RTS                      ; CA40  $60
 ; End of
 
+;-------------------------------------------------------------------
+
 ; Name	:
 ; Marks	: Normal map process
+;	  map main
 L3CA41:
-	JSR $D06F		; CA41  $20 $6F $D0	eye open effect / sound ??
+	JSR $D06F		; CA41  $20 $6F $D0	eye open effect / sound ?? - load map
 NM_LOOP:
 	JSR Wait_NMI		; CA44  $20 $00 $FE
 	LDA #$02		; CA47  $A9 $02
 	STA SpriteDma_4014	; CA49  $8D $14 $40
-	JSR $CDD0		; CA4C  $20 $D0 $CD	scroll ??
+	JSR $CDD0		; CA4C  $20 $D0 $CD	update scrolling
 	LDA frame_cnt_L		; CA4F  $A5 $F0
 	CLC			; CA51  $18
 	ADC #$01		; CA52  $69 $01
@@ -1596,21 +1661,23 @@ L3CA6D:
 	BNE L3CA7D		; CA6F  $D0 $0C		if A != 00h(moving)
 	LDA tile_prop		; CA71  $A5 $44
 	AND #$E0		; CA73  $29 $E0
-	BEQ L3CA7A		; CA75  $F0 $03		if A == 00h(nothing)
+	BEQ L3CA7A		; CA75  $F0 $03		if A == 00h(nothing) - branch if no trigger
 	JMP L3CA8D		; CA77  $4C $8D $CA	enter/battle
 L3CA7A:
-	JSR L3CB20		; CA7A  $20 $20 $CB	key processing / event ??
+	JSR L3CB20		; CA7A  $20 $20 $CB	key processing / event ?? - check player input
 L3CA7D:
 	LDA $76			; CA7D  $A5 $76		pending event dialogue
-	BEQ L3CA84		; CA7F  $F0 $03		if A == 00h
-	JSR $E8AA		; CA81  $20 $AA $E8
+	BEQ L3CA84		; CA7F  $F0 $03		if A == 00h - branch if no event dialogue
+	JSR $E8AA		; CA81  $20 $AA $E8	display event dialogue
 L3CA84:
 	JSR Init_Page2		; CA84  $20 $6E $C4
-	JSR $E30C		; CA87  $20 $0C $E3	event ?? npc process ??
+	JSR $E30C		; CA87  $20 $0C $E3	update sprites - event ?? npc process ??
 	JMP NM_LOOP		; CA8A  $4C $44 $CA	LOOP - NORMAL MAP
+; Marks	: execute trigger event
 L3CA8D:
 	CMP #$40		; CA8D  $C9 $40
 	BCS L3CAB6		; CA8F  $B0 $25		enter another space
+; $20: battle
 	LDA #$00		; CA91  $A9 $00
 	STA tile_prop		; CA93  $85 $44
 	JSR $DC6A		; CA95  $20 $6A $DC	battle encount graphic/sound effect
@@ -1620,17 +1687,18 @@ L3CA8D:
 	LDA #$00		; CAA0  $A9 $00
 	JSR Swap_PRG_		; CAA2  $20 $03 $FE
 	LDX $48			; CAA5  $A6 $48		world map entrance ID ??
-	LDA $9400,X		; CAA7  $BD $00 $94	battle bg for each map
+	LDA $9400,X		; CAA7  $BD $00 $94	BANK 00 - battle bg for each map
 	TAX			; CAAA  $AA
 	LDA $6A			; CAAB  $A5 $6A		battle group ??
 	JSR $FA00		; CAAD  $20 $00 $FA	battle code
-	JSR L3D07B		; CAB0  $20 $7B $D0	battle end
+	JSR L3D07B		; CAB0  $20 $7B $D0	reload map - battle end
 	JMP NM_LOOP		; CAB3  $4C $44 $CA	LOOP - NORMAL MAP
+; $40: exit (to previous map)
 L3CAB6:
 	BNE L3CABC		; CAB6  $D0 $04
-	JSR $D8EE		; CAB8  $20 $EE $D8
+	JSR $D8EE		; CAB8  $20 $EE $D8	screen wipe out
 	RTS			; CABB  $60
-
+; $80: entrance
 L3CABC:
 	CMP #$80		; CABC  $C9 $80		to 
 	BNE L3CAFF		; CABE  $D0 $3F
@@ -1643,34 +1711,35 @@ L3CABC:
 	PHA			; CACA  $48
 	LDA $48			; CACB  $A5 $48		world map entrance ID ??
 	PHA			; CACD  $48
-	JSR $D8EE		; CACE  $20 $EE $D8	eye close effect
+	JSR $D8EE		; CACE  $20 $EE $D8	eye close effect - screen wipe out
 	LDA #$00		; CAD1  $A9 $00
 	JSR Swap_PRG_		; CAD3  $20 $03 $FE
 	LDX $45			; CAD6  $A6 $45
-	LDA $B000,X		; CAD8  $BD $00 $B0	map initial x positions and fill tile
+	LDA $B000,X		; CAD8  $BD $00 $B0	BANK 00/B000 - map initial x positions and fill tile
 	AND #$1F		; CADB  $29 $1F
 	SEC			; CADD  $38
 	SBC #$07		; CADE  $E9 $07
 	AND #$3F		; CAE0  $29 $3F
 	STA in_x_pos		; CAE2  $85 $29
-	LDA $B100,X		; CAE4  $BD $00 $B1	map initial y positions and fill tile
+	LDA $B100,X		; CAE4  $BD $00 $B1	BANK 00/B100 - map initial y positions and fill tile
 	SEC			; CAE7  $38
 	SBC #$07		; CAE8  $E9 $07
 	AND #$3F		; CAEA  $29 $3F
 	STA in_y_pos		; CAEC  $85 $2A
 	STX $48			; CAEE  $86 $48		world map entrance ID ??
-	JSR L3CA41		; CAF0  $20 $41 $CA
+	JSR L3CA41		; CAF0  $20 $41 $CA	map main
 	PLA			; CAF3  $68
 	STA $48			; CAF4  $85 $48		world map entrance ID ??
 	PLA			; CAF6  $68
 	STA in_y_pos		; CAF7  $85 $2A
 	PLA			; CAF9  $68
 	STA in_x_pos		; CAFA  $85 $29
-	JMP L3CA41		; CAFC  $4C $41 $CA	to normal map process
+	JMP L3CA41		; CAFC  $4C $41 $CA	map main - to normal map process
+; $C0: exit (to world map)
 L3CAFF:
 	CMP #$C0		; CAFF  $C9 $C0
-	BNE L3CB20		; CB01  $D0 $1D
-	JSR $D8EE		; CB03  $20 $EE $D8	eye close effect(to world map)
+	BNE L3CB20		; CB01  $D0 $1D		other values branch to subroutine ???
+	JSR $D8EE		; CB03  $20 $EE $D8	screen wipe out - eye close effect(to world map)
 	LDA #$00		; CB06  $A9 $00
 	JSR Swap_PRG_		; CB08  $20 $03 $FE
 	LDX $45			; CB0B  $A6 $45
@@ -1682,10 +1751,12 @@ L3CAFF:
 	SEC			; CB18  $38
 	SBC #$07		; CB19  $E9 $07
 	STA ow_y_pos		; CB1B  $85 $28
-	JMP L3C0B8		; CB1D  $4C $B8 $C0
+	JMP L3C0B8		; CB1D  $4C $B8 $C0	world map main
+; End of
 
 ; Name	:
 ; Marks	: Key processing / event ??
+;	  check player input
 L3CB20:
 	LDA a_pressing		; CB20  $A5 $24
 	BEQ L3CB83		; CB22  $F0 $5F		if A == 00h(a not pressed)
@@ -1695,19 +1766,19 @@ L3CB20:
 	JSR L3C746		; CB2B  $20 $46 $C7	sound process ??
 	LDA player_dir		; CB2E  $A5 $33
 	JSR Player_front_pos	; CB30  $20 $21 $CD
-	JSR $CCDE		; CB33  $20 $DE $CC	check npc for activation ??
+	JSR $CCDE		; CB33  $20 $DE $CC	check npcs for activation ??
 	STX $67			; CB36  $86 $67		npc number ??
 	PHP			; CB38  $08		A == interacted with player/touched by player
 	LDX #$08		; CB39  $A2 $08		event code value = 08h
 	LDA #$03		; CB3B  $A9 $03
 	JSR Swap_PRG_		; CB3D  $20 $03 $FE
-	JSR $A003		; CB40  $20 $03 $A0	event code - npc direction facing each other??
+	JSR $A003		; CB40  $20 $03 $A0	BANK 03/A003 - event code - npc direction facing each other??
 	PLP			; CB43  $28
 	LDX $67			; CB44  $A6 $67		npc number ??
-	BCC L3CB4B		; CB46  $90 $03		if no event occurs ??
-	JMP L3CBC7		; CB48  $4C $C7 $CB	text ??
+	BCC L3CB4B		; CB46  $90 $03		branch if no npc
+	JMP L3CBC7		; CB48  $4C $C7 $CB	execute npc event
 L3CB4B:
-	JSR Check_tileprop	; CB4B  $20 $85 $CD
+	JSR Check_tileprop	; CB4B  $20 $85 $CD	check treasures and locked doors
 	STA text_ID		; CB4E  $85 $92
 	LDA tile_prop		; CB50  $A5 $44
 	AND #$20		; CB52  $29 $20
@@ -1715,10 +1786,11 @@ L3CB4B:
 	STA tile_prop		; CB56  $85 $44
 	LDA #$00		; CB58  $A9 $00
 	STA text_offset		; CB5A  $85 $94
-	LDA #$84		; CB5C  $A9 $84
+	LDA #$84		; CB5C  $A9 $84		text offset $0200
 	STA $95			; CB5E  $85 $95
-	LDA #$0A		; CB60  $A9 $0A
+	LDA #$0A		; CB60  $A9 $0A		BANK 0A
 	STA bank_tmp		; CB62  $85 $93
+; npc dialogue jumps here
 L3CB64:
 	JSR Wait_key		; CB64  $20 $D8 $E8
 	JSR Wait_NMI		; CB67  $20 $00 $FE
@@ -1741,24 +1813,24 @@ L3CB83:
     LDA #$00                 ; CB87  $A9 $00
     STA s_pressing                  ; CB89  $85 $23
     LDA #$02                 ; CB8B  $A9 $02
-    JSR L3DDA4               ; CB8D  $20 $A4 $DD
+    JSR L3DDA4               ; CB8D  $20 $A4 $DD	fade in/out
     LDA #$0E                 ; CB90  $A9 $0E
     JSR Swap_PRG_               ; CB92  $20 $03 $FE
-    JSR $ACC4                ; CB95  $20 $C4 $AC
-    JMP L3D07B               ; CB98  $4C $7B $D0
+    JSR $ACC4                ; CB95  $20 $C4 $AC	BANK 0E/ACC4 (main menu)
+    JMP L3D07B               ; CB98  $4C $7B $D0	reload map
 L3CB9B:
 	LDA e_pressing		; CB9B  $A5 $22
 	BEQ L3CBB3		; CB9D  $F0 $14		if A == 00h(select not pressed)
     LDA #$00                 ; CB9F  $A9 $00
     STA e_pressing                  ; CBA1  $85 $22
     LDA #$02                 ; CBA3  $A9 $02
-    JSR L3DDA4               ; CBA5  $20 $A4 $DD
+    JSR L3DDA4               ; CBA5  $20 $A4 $DD	fade in/out
     LDA #$0E                 ; CBA8  $A9 $0E
     JSR Swap_PRG_               ; CBAA  $20 $03 $FE
-    JSR $F0E2                ; CBAD  $20 $E2 $F0
-    JMP L3D07B               ; CBB0  $4C $7B $D0
+    JSR $F0E2                ; CBAD  $20 $E2 $F0	row menu
+    JMP L3D07B               ; CBB0  $4C $7B $D0	reload map
 L3CBB3:
-	JSR $DB5C		; CBB3  $20 $5C $DB	event, key processing
+	JSR $DB5C		; CBB3  $20 $5C $DB	event, key processing - update joypad input
 	LDA key1p		; CBB6  $A5 $20
 	AND #$0F		; CBB8  $29 $0F		check key udlr
 	BNE L3CBBD		; CBBA  $D0 $01		if A != 00h(+pad pressed)
@@ -1767,43 +1839,49 @@ L3CBBC:
 ; End of Key processing / event ??
 
 L3CBBD:
-    STA $33                  ; CBBD  $85 $33
-    JSR $CBFC                ; CBBF  $20 $FC $CB
-    BCS L3CBBC               ; CBC2  $B0 $F8
-    JMP L3D209               ; CBC4  $4C $09 $D2
+    STA $33                  ; CBBD  $85 $33	set player facing direction
+    JSR $CBFC                ; CBBF  $20 $FC $CB	check tile passability
+    BCS L3CBBC               ; CBC2  $B0 $F8	return if impassable
+    JMP L3D209               ; CBC4  $4C $09 $D2	init player movement
+; End of Key processing /event ??
 
 ; X	: npc id ??
+; Marks	: execute npc event
 L3CBC7:
 	LDA $43			; CBC7  $A5 $43
 	STA tile_prop		; CBC9  $85 $44
 	LDA #$0E		; CBCB  $A9 $0E
 	JSR Swap_PRG_		; CBCD  $20 $03 $FE
-	JSR $9794		; CBD0  $20 $94 $97	get text ID, chocobo ??
-	STA text_ID		; CBD3  $85 $92
+	JSR $9794		; CBD0  $20 $94 $97	BANK 0E/9794 (check npc script) - get text ID, chocobo ??
+	STA text_ID		; CBD3  $85 $92		set dialogue id
 	LDA $A0			; CBD5  $A5 $A0		npc id temp ??
 	CMP #$60		; CBD7  $C9 $60
 	BCC L3CBDF		; CBD9  $90 $04
     CMP #$C0                 ; CBDB  $C9 $C0
-    BCC L3CBEE               ; CBDD  $90 $0F
+    BCC L3CBEE               ; CBDD  $90 $0F	npc $60-$BF are text only
 L3CBDF:
     LDA $44                  ; CBDF  $A5 $44		tile property ??
     AND #$E0                 ; CBE1  $29 $E0
 	ORA event		; CBE3  $05 $6C
 	BEQ L3CBF1		; CBE5  $F0 $0A		if A == 00h
 	LDA event		; CBE7  $A5 $6C
-    BEQ L3CBEE               ; CBE9  $F0 $03
-    JSR L3C6F4               ; CBEB  $20 $F4 $C6
+    BEQ L3CBEE               ; CBE9  $F0 $03	branch if no event
+    JSR L3C6F4               ; CBEB  $20 $F4 $C6	init event
 L3CBEE:
-	JMP L3CB64		; CBEE  $4C $64 $CB
+	JMP L3CB64		; CBEE  $4C $64 $CB	display map dialogue
 L3CBF1:
-    JSR $9145                ; CBF1  $20 $45 $91
+    JSR $9145                ; CBF1  $20 $45 $91	BANK 0E/9145 (npc dialogue)
 	LDA event		; CBF4  $A5 $6C
-	BEQ L3CBFB		; CBF6  $F0 $03		if A == 00h
-	JMP L3C6F4		; CBF8  $4C $F4 $C6
+	BEQ L3CBFB		; CBF6  $F0 $03		if A == 00h, return if no event
+	JMP L3C6F4		; CBF8  $4C $F4 $C6	init event
 L3CBFB:
 	RTS			; CBFB  $60
 ; End of
 
+; Name	:
+; Ret	: Carry flag
+; Marks	: check tile passability
+;	  return carry clear if passable
 ;; sub start ;;
 	JSR Player_front_pos	; CBFC  $20 $21 $CD
     JSR $CC5B                ; CBFF  $20 $5B $CC
@@ -1831,11 +1909,11 @@ L3CC21:
     BEQ L3CC51               ; CC25  $F0 $2A
     CMP #$08                 ; CC27  $C9 $08
     BEQ L3CC30               ; CC29  $F0 $05
-    JMP L3CF57               ; CC2B  $4C $57 $CF
+    JMP L3CF57               ; CC2B  $4C $57 $CF	check random battle
 L3CC2E:
     CLC                      ; CC2E  $18
     RTS                      ; CC2F  $60
-
+; trigger tile
 L3CC30:
     LDA $6C                  ; CC30  $A5 $6C
     BNE L3CC2E               ; CC32  $D0 $FA
@@ -1846,7 +1924,7 @@ L3CC30:
 L3CC3D:
     ASL A                    ; CC3D  $0A
     TAX                      ; CC3E  $AA
-    LDA $CEED,X              ; CC3F  $BD $ED $CE
+    LDA $CEED,X              ; CC3F  $BD $ED $CE	trigger type jump table
     STA $80                  ; CC42  $85 $80
     LDA $CEEE,X              ; CC44  $BD $EE $CE
     STA $81                  ; CC47  $85 $81
@@ -1860,7 +1938,14 @@ L3CC51:
     STA $44                  ; CC57  $85 $44
     SEC                      ; CC59  $38
     RTS                      ; CC5A  $60
+; End of
 
+; Name	:
+; Ret	: Carry flag
+; Marks	: check if player is touching an npc
+;	  $84 = x position
+;	  $85 = y position
+;	  set carry if player is touching an npc
 ;; sub start ;;
     LDX #$00                 ; CC5B  $A2 $00
 L3CC5D:
@@ -1936,12 +2021,15 @@ L3CCD3:
     BCC L3CC85               ; CCDA  $90 $A9
     CLC                      ; CCDC  $18
     RTS                      ; CCDD  $60
+; End of
 
 ; Name	:
 ; Ret	: X(npc number), Carry flag(Set: npc activated??, Clear: )
 ; Marks	: check npc ($7500,$7510,$7520...$75B0)
 ;	  max npc number is 12(C0h) ??
 ;	  enable npc
+;	  check npcs
+;	  return carry set if there is an npc
 ;; sub start ;;
 	LDX #$00		; CCDE  $A2 $00
 L3CCE0:
@@ -1987,6 +2075,7 @@ L3CD16:
 ; A	: player facing direction(udlr)
 ; Marks	: Calcurated position of in front of the player.
 ;	  $84 = x, $85 = y <- calcurated position ??
+;	  get tile in facing direction
 ;; sub start ;;
 Player_front_pos:
 	LSR A			; CD21  $4A
@@ -2065,8 +2154,8 @@ L3CD7A:
 ; End of Get_tileprop
 
 ; Name	: Check_tileprop
-; Ret	: A(??)
-; Marks	:
+; Ret	: A = text id
+; Marks	: Check treasures and locked doors
 ;; sub start ;;
 Check_tileprop:
 	JSR Get_tileprop	; CD85  $20 $54 $CD
@@ -2077,34 +2166,35 @@ Check_tileprop:
 	BEQ L3CDA2		; CD90  $F0 $10
 	CMP #$30		; CD92  $C9 $30
 	BNE L3CD9D		; CD94  $D0 $07
+; $30
 	LDA #$00		; CD96  $A9 $00
 	STA tile_prop		; CD98  $85 $44
-	LDA #$04		; CD9A  $A9 $04
+	LDA #$04		; CD9A  $A9 $04		$0204: "You need a key."
 	RTS			; CD9C  $60
 ; End of Check_tileprop
-
+; $00, $20
 L3CD9D:
 	LDA #$00		; CD9D  $A9 $00
 	STA tile_prop		; CD9F  $85 $44
 	RTS			; CDA1  $60
 ; End of Check_tileprop
-
+; $10
 L3CDA2:
     LDA $80                  ; CDA2  $A5 $80
     PHA                      ; CDA4  $48
     LDA $81                  ; CDA5  $A5 $81
     PHA                      ; CDA7  $48
-    JSR $CFA5                ; CDA8  $20 $A5 $CF
-    JSR $EF48                ; CDAB  $20 $48 $EF
+    JSR $CFA5                ; CDA8  $20 $A5 $CF	open treasure chest
+    JSR $EF48                ; CDAB  $20 $48 $EF	give treasure
     CMP #$03                 ; CDAE  $C9 $03
-    BNE L3CDBF               ; CDB0  $D0 $0D
+    BNE L3CDBF               ; CDB0  $D0 $0D		branch if inventory is not full
     LDA #$00                 ; CDB2  $A9 $00
-    STA $0D                  ; CDB4  $85 $0D
+    STA $0D                  ; CDB4  $85 $0D		don't draw open treasure chest
     STA $44                  ; CDB6  $85 $44
     STA $45                  ; CDB8  $85 $45
     PLA                      ; CDBA  $68
     PLA                      ; CDBB  $68
-    LDA #$03                 ; CDBC  $A9 $03
+    LDA #$03                 ; CDBC  $A9 $03		$0203: "You're carrying too much!"
     RTS                      ; CDBE  $60
 
 L3CDBF:
@@ -2118,30 +2208,33 @@ L3CDBF:
     STA ($80),Y              ; CDCB  $91 $80
     LDA $82                  ; CDCD  $A5 $82
     RTS                      ; CDCF  $60
+; End of
 
 ; Name	:
-; Marks	:
+; Marks	: update scrolling (normal mal)
 ;; sub start ;;
 	LDA #$1E		; CDD0  $A9 $1E 	Display enable
 	STA PpuMask_2001	; CDD2  $8D $01 $20
-	JSR $D02B		; CDD5  $20 $2B $D0 	Check item?? door??
-	LDA PpuStatus_2002	; CDD8  $AD $02 $20
+	JSR $D02B		; CDD5  $20 $2B $D0 	draw open door/treasure chest - Check item?? door??
+	LDA PpuStatus_2002	; CDD8  $AD $02 $20	latch ppu
 	LDA mov_spd		; CDDB  $A5 $34
-	BEQ Scroll_normal	; CDDD  $F0 $16		if A == 00h
-    JSR $CE6F                ; CDDF  $20 $6F $CE
-    JSR L3C8E7               ; CDE2  $20 $E7 $C8
+	BEQ Scroll_normal	; CDDD  $F0 $16		if A == 00h, branch if player is not moving
+    JSR $CE6F                ; CDDF  $20 $6F $CE	update player movement
+    JSR L3C8E7               ; CDE2  $20 $E7 $C8	do venom step damage
     LDA $44                  ; CDE5  $A5 $44
     AND #$08                 ; CDE7  $29 $08
     CMP #$08                 ; CDE9  $C9 $08
-    BNE L3CDF4               ; CDEB  $D0 $07
+    BNE L3CDF4               ; CDEB  $D0 $07	branch if not a damage tile
     LDA $45                  ; CDED  $A5 $45
     BNE L3CDF4               ; CDEF  $D0 $03
-    JSR $C8C7                ; CDF1  $20 $C7 $C8
+    JSR $C8C7                ; CDF1  $20 $C7 $C8	do floor damage
 L3CDF4:
     RTS                      ; CDF4  $60
+; End of
 
 ; Name	: Scroll_normal
 ; Marks	: PpuScroll normal
+;	  update ppu register (normal map)
 Scroll_normal:
 	LDA ppu_con_p		; CDF5  $A5 $FD		ppu_control(pending)
 	STA ppu_con_c		; CDF7  $85 $FF		ppu_control(current)
@@ -2163,6 +2256,8 @@ Scroll_normal:
 	RTS			; CE12  $60
 ; End of Scroll_normal
 
+; Marks	: update player movement (normal map)
+;	  subroutine starts at 0F/CE6F
 L3CE13:
     LDA $32                  ; CE13  $A5 $32
     BEQ L3CE1A               ; CE15  $F0 $03
@@ -2178,7 +2273,7 @@ L3CE1A:
     RTS                      ; CE28  $60
 
 L3CE29:
-    STA $34                  ; CE29  $85 $34
+    STA $34                  ; CE29  $85 $34	clear movement speed
     STA $35                  ; CE2B  $85 $35
     LDA $29                  ; CE2D  $A5 $29
     CLC                      ; CE2F  $18
@@ -2218,10 +2313,10 @@ L3CE60:
     RTS                      ; CE69  $60
 
 L3CE6A:
-    STA $34                  ; CE6A  $85 $34
+    STA $34                  ; CE6A  $85 $34	clear movement speed
     STA $35                  ; CE6C  $85 $35
     RTS                      ; CE6E  $60
-
+; subroutine starts here
 ;; sub start ;;
     LDA $33                  ; CE6F  $A5 $33
     LSR A                    ; CE71  $4A
@@ -2249,7 +2344,7 @@ L3CE8A:
     RTS                      ; CE98  $60
 
 L3CE99:
-    STA $34                  ; CE99  $85 $34
+    STA $34                  ; CE99  $85 $34	clear movement speed
     STA $36                  ; CE9B  $85 $36
     LDA $2A                  ; CE9D  $A5 $2A
     CLC                      ; CE9F  $18
@@ -2299,58 +2394,69 @@ L3CEDE:
     RTS                      ; CEE7  $60
 
 L3CEE8:
-    STA $34                  ; CEE8  $85 $34
+    STA $34                  ; CEE8  $85 $34	clear movement speed
     STA $36                  ; CEEA  $85 $36
     RTS                      ; CEEC  $60
+; End of
 
+; $CEED - data block = trigger type jump table
+;0F/CEED: CF0D CF0D CF0D CF0F CF18 CF36 CF47 CF50
+;0F/CEFD: CF50 CF50 CF50 CF50 CF50 CF50 CF50 CF50
 .byte $0D,$CF,$0D
 ;; [CEF0 : 3CF00]
 .byte $CF,$0D,$CF,$0F,$CF,$18,$CF,$36,$CF,$47,$CF,$50,$CF,$50,$CF,$50
 ;; [CF00 : 3CF10]
 .byte $CF,$50,$CF,$50,$CF,$50,$CF,$50,$CF,$50,$CF,$50,$CF
 
+; Marks	: 0, 1, 2: no trigger (passable)
 L3CF0D:
     CLC                      ; CF0D  $18
     RTS                      ; CF0E  $60
-
+; 3:
 L3CF0F:
     LDY #$01                 ; CF0F  $A0 $01
-    JSR $989E                ; CF11  $20 $9E $98
+    JSR $989E                ; CF11  $20 $9E $98	check event switch
     BNE L3CF0D               ; CF14  $D0 $F7
     BEQ L3CF50               ; CF16  $F0 $38
+; 4:
     LDA $601A                ; CF18  $AD $1A $60
     AND #$40                 ; CF1B  $29 $40
     BEQ L3CF0D               ; CF1D  $F0 $EE
     LDY #$37                 ; CF1F  $A0 $37
-    JSR $989E                ; CF21  $20 $9E $98
+    JSR $989E                ; CF21  $20 $9E $98	check event switch
     BNE L3CF0D               ; CF24  $D0 $E7
-    JSR $F308                ; CF26  $20 $08 $F3
+    JSR $F308                ; CF26  $20 $08 $F3	check if any main characters are alive
     BCC L3CF50               ; CF29  $90 $25
     LDA $6101                ; CF2B  $AD $01 $61
     AND #$1F                 ; CF2E  $29 $1F
     STA $6101                ; CF30  $8D $01 $61
     JMP L3CF50               ; CF33  $4C $50 $CF
+; 5:
 L3CF36:
     LDY #$03                 ; CF36  $A0 $03
-    JSR $989E                ; CF38  $20 $9E $98
+    JSR $989E                ; CF38  $20 $9E $98	check event switch
     BEQ L3CF0D               ; CF3B  $F0 $D0
     LDY #$20                 ; CF3D  $A0 $20
-    JSR $989E                ; CF3F  $20 $9E $98
+    JSR $989E                ; CF3F  $20 $9E $98	check event switch
     BEQ L3CF0D               ; CF42  $F0 $C9
     JMP $CF26                ; CF44  $4C $26 $CF
+; 6:
     LDY #$28                 ; CF47  $A0 $28
-    JSR $989E                ; CF49  $20 $9E $98
+    JSR $989E                ; CF49  $20 $9E $98	check event switch
     BEQ L3CF0D               ; CF4C  $F0 $BF
     BNE L3CF50               ; CF4E  $D0 $00
+; 7-F: event
 L3CF50:
     LDA $45                  ; CF50  $A5 $45
-    JSR L3C6F4               ; CF52  $20 $F4 $C6
+    JSR L3C6F4               ; CF52  $20 $F4 $C6	init event
     CLC                      ; CF55  $18
     RTS                      ; CF56  $60
+; End of
 
+; Marks	: check random battle
 L3CF57:
     LDA $6C                  ; CF57  $A5 $6C
-    BNE L3CF85               ; CF59  $D0 $2A
+    BNE L3CF85               ; CF59  $D0 $2A	return if an event is running
     LDA $6012                ; CF5B  $AD $12 $60
     LSR A                    ; CF5E  $4A
     BCC L3CF6B               ; CF5F  $90 $0A
@@ -2366,15 +2472,17 @@ L3CF6B:
     LDA #$0B                 ; CF72  $A9 $0B
     JSR Swap_PRG_               ; CF74  $20 $03 $FE
     LDX $48                  ; CF77  $A6 $48
-    LDA $8100,X              ; CF79  $BD $00 $81
-    JSR $C579                ; CF7C  $20 $79 $C5
+    LDA $8100,X              ; CF79  $BD $00 $81	BANK 0B/8100
+    JSR $C579                ; CF7C  $20 $79 $C5	choose from battle group
     LDA $43                  ; CF7F  $A5 $43
     ORA #$20                 ; CF81  $09 $20
     STA $44                  ; CF83  $85 $44
 L3CF85:
     CLC                      ; CF85  $18
     RTS                      ; CF86  $60
+; End of
 
+; Marks	: open door
 L3CF87:
     LDA #$01                 ; CF87  $A9 $01
     STA $0D                  ; CF89  $85 $0D
@@ -2388,17 +2496,20 @@ L3CF96:
     STA $0F                  ; CF96  $85 $0F
     LDA $84                  ; CF98  $A5 $84
     STA $0E                  ; CF9A  $85 $0E
-    JSR $D05F                ; CF9C  $20 $5F $D0
+    JSR $D05F                ; CF9C  $20 $5F $D0	open door sound effect
     LDA #$80                 ; CF9F  $A9 $80
     STA $44                  ; CFA1  $85 $44
     CLC                      ; CFA3  $18
     RTS                      ; CFA4  $60
+; End of
 
+; Name	:
+; Marks	: open treasure chest
 ;; sub start ;;
-    LDA #$09                 ; CFA5  $A9 $09
+    LDA #$09                 ; CFA5  $A9 $09	open treasure chest tile
     STA $0D                  ; CFA7  $85 $0D
     LDX #$07                 ; CFA9  $A2 $07
-    LDA $33                  ; CFAB  $A5 $33
+    LDA $33                  ; CFAB  $A5 $33	offset in facing direction
     AND #$0C                 ; CFAD  $29 $0C
     BEQ L3CFB9               ; CFAF  $F0 $08
     LDX #$08                 ; CFB1  $A2 $08
@@ -2413,11 +2524,14 @@ L3CFB9:
     BCC L3CFC3               ; CFBF  $90 $02
     SBC #$0F                 ; CFC1  $E9 $0F
 L3CFC3:
-    STA $0F                  ; CFC3  $85 $0F
+    STA $0F                  ; CFC3  $85 $0F	open treasure chest position
     LDA $84                  ; CFC5  $A5 $84
     STA $0E                  ; CFC7  $85 $0E
     RTS                      ; CFC9  $60
+; End of
 
+; Name	:
+; Marks	: update bg for open door/tresure chest
 ;; sub start ;;
     LDX $0F                  ; CFCA  $A6 $0F
     LDA $0E                  ; CFCC  $A5 $0E
@@ -2457,28 +2571,32 @@ L3CFEB:
     LDA $D021,X              ; D017  $BD $21 $D0
     STA PpuData_2007         ; D01A  $8D $07 $20
     RTS                      ; D01D  $60
+; End of
 
- ;data block---
+; $D01E - data block---
 .byte $0A,$0B,$0C,$0D,$0E,$0F,$10,$11,$24,$25,$22,$23
 
+; Marks	: draw open door/treasure chest 
+;	  subroutine starts at 0F/D02B
 L3D02A:
     RTS                      ; D02A  $60
 ; End of
 
 ; Name	:
 ; Marks	: Check box? door?
+;	  starts here
 ;; sub start ;;
 	LDA open_tile_ID	; D02B  $A5 $0D
 	BEQ L3D02A		; D02D  $F0 $FB		if A == 00h
     LDA $34                  ; D02F  $A5 $34
-    BEQ L3D03D               ; D031  $F0 $0A
+    BEQ L3D03D               ; D031  $F0 $0A	branch if not moving
     LDA $33                  ; D033  $A5 $33
     AND #$03                 ; D035  $29 $03
     BEQ L3D03D               ; D037  $F0 $04
     LDA $32                  ; D039  $A5 $32
     BNE L3D02A               ; D03B  $D0 $ED
 L3D03D:
-    JSR $CFCA                ; D03D  $20 $CA $CF
+    JSR $CFCA                ; D03D  $20 $CA $CF	update bg for open door/treasure chest
     LDA $0D                  ; D040  $A5 $0D
     CMP #$01                 ; D042  $C9 $01
     BNE L3D05A               ; D044  $D0 $14
@@ -2492,12 +2610,15 @@ L3D051:
     STA $0F                  ; D051  $85 $0F
     LDA #$05                 ; D053  $A9 $05
     STA $0D                  ; D055  $85 $0D
-    JSR $CFCA                ; D057  $20 $CA $CF
+    JSR $CFCA                ; D057  $20 $CA $CF	update bg for open door/treasure chest
 L3D05A:
     LDA #$00                 ; D05A  $A9 $00
     STA $0D                  ; D05C  $85 $0D
     RTS                      ; D05E  $60
+; End of
 
+; Name	:
+; Marks	: open door sound effect
 ;; sub start ;;
     LDA #$0C                 ; D05F  $A9 $0C
     STA NoiseVolume_400C     ; D061  $8D $0C $40
@@ -2506,37 +2627,44 @@ L3D05A:
     LDA #$30                 ; D069  $A9 $30
     STA NoiseLength_400F     ; D06B  $8D $0F $40
     RTS                      ; D06E  $60
+; End of
 
 ; Name	:
-; Marks	:
+; Marks	: load map
 ;; sub start ;;
-	JSR $D083		; D06F  $20 $83 $D0
-	JSR $D09A		; D072  $20 $9A $D0	init ?? battle rate ?? battle bg ??
-	JSR $D13C		; D075  $20 $3C $D1	?? dummy code ??
-	JMP L3D8C9		; D078  $4C $C9 $D8
+	JSR $D083		; D06F  $20 $83 $D0	load map
+	JSR $D09A		; D072  $20 $9A $D0	init map - battle rate ?? battle bg ??
+	JSR $D13C		; D075  $20 $3C $D1	no effect - ?? dummy code ??
+	JMP L3D8C9		; D078  $4C $C9 $D8	screen wipe in
+; End of
+
+; Marks	: reload map
+;	  after battle or menu
 L3D07B:
-    JSR $D09A                ; D07B  $20 $9A $D0
+    JSR $D09A                ; D07B  $20 $9A $D0	init map
     LDA #$03                 ; D07E  $A9 $03
-    JMP L3DDA4               ; D080  $4C $A4 $DD
+    JMP L3DDA4               ; D080  $4C $A4 $DD	fade in/out
+; end of
 
 ; Name	:
-; Marks	:
+; Marks	: load map
    ;; sub start ;;
 	LDA #$01		; D083  $A9 $01
 	STA scroll_dir_map	; D085  $85 $2D		Set to normal map
 	LDA #$00		; D087  $A9 $00		sprites/background hide
 	STA PpuMask_2001	; D089  $8D $01 $20
-	JSR $D341		; D08C  $20 $41 $D3	init ??
-	LDX #$07		; D08F  $A2 $07		event code value = 07h
+	JSR $D341		; D08C  $20 $41 $D3	load map data - init ??
+	LDX #$07		; D08F  $A2 $07		load npcs - event code value = 07h
 	LDA #$03		; D091  $A9 $03
 	JSR Swap_PRG_		; D093  $20 $03 $FE
-	JSR $A003		; D096  $20 $03 $A0	event code - init ??
+	JSR $A003		; D096  $20 $03 $A0	BANK 03/A003 (object command) - event code - init ??
 	RTS			; D099  $60
 ; End of
 
 ; Name	:
 ; Marks	: Init variables
 ;	  $68, $84 = X ??, $69, $85 = Y ??
+;	  init map
 ;; sub start ;;
 	LDA #$00		; D09A  $A9 $00
 	STA text_win_mode	; D09C  $85 $37
@@ -2549,13 +2677,13 @@ L3D07B:
 	JSR $E497		; D0AC  $20 $97 $E4	graphics(sprite) copy ??
 	LDA #$00		; D0AF  $A9 $00
 	JSR Swap_PRG_		; D0B1  $20 $03 $FE
-	JSR Set_wmap_palettes	; D0B4  $20 $06 $9C
+	JSR Set_wmap_palettes	; D0B4  $20 $06 $9C	BANK 00/9C06 (load map palette)
 	LDA $48			; D0B7  $A5 $48		world map entrance ID ??
 	LSR A			; D0B9  $4A
 	LSR A			; D0BA  $4A
 	LSR A			; D0BB  $4A
 	LSR A			; D0BC  $4A
-	ORA #$A0		; D0BD  $09 $A0
+	ORA #$A0		; D0BD  $09 $A0		BANK 00/A000 (map properties)
 	STA $81			; D0BF  $85 $81
 	LDA $48			; D0C1  $A5 $48		world map entrance ID ??
 	ASL A			; D0C3  $0A
@@ -2564,10 +2692,10 @@ L3D07B:
 	ASL A			; D0C6  $0A
 	STA $80			; D0C7  $85 $80
 	LDY #$0F		; D0C9  $A0 $0F
-	LDA ($80),Y		; D0CB  $B1 $80		map properties ?? (ex> $A050)
+	LDA ($80),Y		; D0CB  $B1 $80		get byte 15 only - map properties ?? (ex> $A050)
 	ORA #$40		; D0CD  $09 $40
-	STA current_song_ID	; D0CF  $85 $E0
-	JSR $D1D3		; D0D1  $20 $D3 $D1	map processing ??
+	STA current_song_ID	; D0CF  $85 $E0		play song
+	JSR $D1D3		; D0D1  $20 $D3 $D1	draw sub-map - map processing ??
 	LDA in_x_pos		; D0D4  $A5 $29
 	AND #$10		; D0D6  $29 $10
 	CMP #$10		; D0D8  $C9 $10
@@ -2581,7 +2709,7 @@ L3D07B:
 	JSR Scroll_normal	; D0E9  $20 $F5 $CD
 	LDA #$00		; D0EC  $A9 $00
 	STA PpuMask_2001	; D0EE  $8D $01 $20	sprite/background hide
-	LDA #$04		; D0F1  $A9 $04
+	LDA #$04		; D0F1  $A9 $04		facing down
 	STA player_dir		; D0F3  $85 $33		Set the player in a downward direction
 	LDA in_x_pos		; D0F5  $A5 $29
 	CLC			; D0F7  $18
@@ -2609,25 +2737,30 @@ L3D11D:
 	STA $45			; D121  $85 $45
 	LDA #$0B		; D123  $A9 $0B
 	JSR Swap_PRG_		; D125  $20 $03 $FE
-	LDX $48			; D128  $A6 $48		world map entrance ID ??
-	LDA $8000,X		; D12A  $BD $00 $80	map random battle rates ??
-	STA $F8			; D12D  $85 $F8		random battle rate ??
+	LDX $48			; D128  $A6 $48		world map entrance ID - map id
+	LDA $8000,X		; D12A  $BD $00 $80	BANK 0B/8000 *map random battle rates)
+	STA $F8			; D12D  $85 $F8		set random battle rate
 	LDA #$00		; D12F  $A9 $00
 	JSR Swap_PRG_		; D131  $20 $03 $FE
-	LDA $9400,X		; D134  $BD $00 $94	battle bg for each map ??
+	LDA $9400,X		; D134  $BD $00 $94	BANK 00/9400 - battle bg for each map ??
 	AND #$80		; D137  $29 $80
 	STA $19			; D139  $85 $19		battle bg ??
 	RTS			; D13B  $60
 ; End of
 
+; Name	:
+; Marks	: no effect, but used on load map($D06F)
 ;; sub start ;;
-    RTS                      ; D13C  $60
+	RTS			; D13C  $60
+; End of
+
+;--------------------------------------------------------
 
 ; Name	:
 ; Marks	: if mode is map, return.
 ;; sub start ;;
     LDA text_win_mode                  ; D13D  $A5 $37
-    BNE L3D163               ; D13F  $D0 $22
+    BNE L3D163               ; D13F  $D0 $22	return if in menu
     LDA $38                  ; D141  $A5 $38
     LSR A                    ; D143  $4A
     STA $31                  ; D144  $85 $31
@@ -2640,12 +2773,13 @@ L3D11D:
     LDA #$01                 ; D150  $A9 $01
     STA $2D                  ; D152  $85 $2D
     JMP L3D24E               ; D154  $4C $4E $D2
+; End of
 
 ; Name	:
 ; Marks	: if menu mode(01h), return
    ;; sub start ;;
 	LDA text_win_mode	; D157  $A5 $37
-    BNE L3D163               ; D159  $D0 $08
+    BNE L3D163               ; D159  $D0 $08	return if in menu
     LDA $3C                  ; D15B  $A5 $3C
     LSR A                    ; D15D  $4A
     TAX                      ; D15E  $AA
@@ -2656,17 +2790,18 @@ L3D163:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: close text window
+;	  dialogue window
 L3D164:
-	JSR Hide_oam_in_msgbox	; D164  $20 $37 $E8
+	JSR Hide_oam_in_msgbox	; D164  $20 $37 $E8	show sprites behind text window
 	LDA #$05		; D167  $A9 $05
 	STA $66			; D169  $85 $66		pointer to cursor position data ??
 	LDX #$06		; D16B  $A2 $06
 	BNE L3D178		; D16D  $D0 $09
 ; Name	:
-; Marks	:
+; Marks	: keyword/item select window
    ;; sub start ;;
-    JSR $E83D                ; D16F  $20 $3D $E8
+    JSR $E83D                ; D16F  $20 $3D $E8	show sprites behind text window
     LDA #$07                 ; D172  $A9 $07
     STA $66                  ; D174  $85 $66
     LDX #$0E                 ; D176  $A2 $0E
@@ -2692,10 +2827,10 @@ L3D186:
 	STA in_y_pos		; D194  $85 $2A
 	LDA player_dir		; D196  $A5 $33
 	PHA			; D198  $48
-	LDA #$08		; D199  $A9 $08
+	LDA #$08		; D199  $A9 $08		move player up
 	STA player_dir		; D19B  $85 $33		not player_dir but temp buffer
 L3D19D:
-	JSR L3D209		; D19D  $20 $09 $D2
+	JSR L3D209		; D19D  $20 $09 $D2	init player movement
 	JSR Wait_NMI		; D1A0  $20 $00 $FE
 	JSR Map_update		; D1A3  $20 $1B $D2
 	LDA nt_y_pos		; D1A6  $A5 $2F
@@ -2718,13 +2853,14 @@ L3D19D:
 	PLA			; D1C7  $68
 	STA $69			; D1C8  $85 $69
 	LDA #$00		; D1CA  $A9 $00
-	STA mov_spd		; D1CC  $85 $34
+	STA mov_spd		; D1CC  $85 $34		clear movement speed
 	LDA bank		; D1CE  $A5 $57
 	JMP Swap_PRG_		; D1D0  $4C $03 $FE
 ; End of
 
 ; Name	:
 ; Marks	: map processing ??
+;	  draw sub-map
    ;; sub start ;;
 	LDA #$00		; D1D3  $A9 $00
 	STA nt_y_pos		; D1D5  $85 $2F
@@ -2743,16 +2879,16 @@ L3D1E6:
 	AND #$3F		; D1EB  $29 $3F
 	STA in_y_pos		; D1ED  $85 $2A
 L3D1EF:
-	LDA #$08		; D1EF  $A9 $08
+	LDA #$08		; D1EF  $A9 $08		move player up
 	STA player_dir		; D1F1  $85 $33
 L3D1F3:
-	JSR L3D209		; D1F3  $20 $09 $D2	map process ?? (tile copy to RAM ??)
+	JSR L3D209		; D1F3  $20 $09 $D2	init player movement - map process ?? (tile copy to RAM ??)
 	JSR Map_update		; D1F6  $20 $1B $D2
 	JSR $D226		; D1F9  $20 $26 $D2	calc x, y ??
 	LDA nt_y_pos		; D1FC  $A5 $2F
 	BNE L3D1F3		; D1FE  $D0 $F3		loop
 	LDA #$00		; D200  $A9 $00
-	STA player_dir		; D202  $85 $33
+	STA player_dir		; D202  $85 $33		clear movement speed
 	STA map_update		; D204  $85 $32
 	STA mov_spd		; D206  $85 $34
 	RTS			; D208  $60
@@ -2761,14 +2897,15 @@ L3D1F3:
 ; Name	:
 ; Marks	: Check world map or normal map
 ;	  $33 = player dir ?? or calcurated player dir ??
+;	  init player movement
 L3D209:
 	LDA scroll_dir_map	; D209  $A5 $2D
 	LSR A			; D20B  $4A
-	BCC L3D214		; D20C  $90 $06		if world map
-	JSR $D4AD		; D20E  $20 $AD $D4	check update ??
+	BCC L3D214		; D20C  $90 $06		branch if on world map
+	JSR $D4AD		; D20E  $20 $AD $D4	init player movement (normal map) - check update ??
 	JMP L3D217		; D211  $4C $17 $D2
 L3D214:
-	JSR $D3E2		; D214  $20 $E2 $D3	world map tile set, vehicle check, etc...
+	JSR $D3E2		; D214  $20 $E2 $D3	init player movement (world map) - world map tile set, vehicle check, etc...
 L3D217:
 	JSR $D24A		; D217  $20 $4A $D2	text window attributes ?? copy to RAM buffer ?? init ?
 	RTS			; D21A  $60
@@ -2777,6 +2914,7 @@ L3D217:
 ; Name	: Map_update
 ; Marks	: background processing ??
 ;	  map_update done(set to 00h)
+;	  update map background
 ;; sub start ;;
 Map_update:
 	JSR $D66A		; D21B  $20 $6A $D6	copy from tile to PPU
@@ -2791,7 +2929,7 @@ Map_update:
 ;; sub start ;;
 	LDA scroll_dir_map	; D226  $A5 $2D
 	LSR A			; D228  $4A
-	BCC L3D237		; D229  $90 $0C		if world map
+	BCC L3D237		; D229  $90 $0C		branch if on world map
 	LDA in_y_pos		; D22B  $A5 $2A
 	SEC			; D22D  $38
 	SBC #$01		; D22E  $E9 $01
@@ -2820,6 +2958,7 @@ L3D247:
 ;	  $80 = ppu_addr_L, $81=textwin_attr, $82 = ppu_addr_H, $86 = max repeat count
 ;	  Init text window attribute ??
 ;	  $07D0-, $07E0-, $07F0-
+;	  update text window tilemap for scrolling ??
 ;; sub start ;;
 	LDA #$10		; D24A  $A9 $10
 	STA $86			; D24C  $85 $86
@@ -2930,11 +3069,12 @@ L3D2E7:
 
 ; Name	:
 ; Marks	: copy to PPU
+;	  update dialog window attributes
 ;; sub start ;;
 	LDA scroll_dir_map	; D2FE  $A5 $2D
 	LDX #$0F		; D300  $A2 $0F
 	AND #$02		; D302  $29 $02
-	BEQ L3D308		; D304  $F0 $02		if vertical direction
+	BEQ L3D308		; D304  $F0 $02		branch if moving vertically (vertical direction)
 	LDX #$0E		; D306  $A2 $0E
 L3D308:
 	LDA PpuStatus_2002	; D308  $AD $02 $20
@@ -2950,7 +3090,7 @@ L3D30B:
 	RTS			; D320  $60
 ; End of
 
- ;data block---
+; $D321 - data block---
 ;; [$D321-
 .byte $00,$40,$80,$C0,$00,$40,$80,$C0,$00,$40,$80,$C0,$00,$40,$80
 .byte $C0
@@ -2958,19 +3098,22 @@ L3D30B:
 .byte $20,$20,$20,$20,$21,$21,$21,$21,$22,$22,$22,$22,$23,$23,$23
 .byte $23
 
+;---------------------------------------------------
+
 ; Name	:
 ; Marks	: map bg tilemap bank is 04, 05(id 4xh, 5xh, 6xh, 7xh, Cxh, Dxh, Exh, Fxh)
 ;	  $80(ADDR)
 ;	  $82(ADDR) = normal map tile buffer($7400-??)
+;	  load map data
 ;; sub start ;;
 	LDA #$00		; D341  $A9 $00
 	JSR Swap_PRG_		; D343  $20 $03 $FE
-	LDX $48			; D346  $A6 $48		world map entrance ID ??
-	LDA bg_tilemap_id,X	; D348  $BD $00 $B2
+	LDX $48			; D346  $A6 $48		world map entrance ID
+	LDA bg_tilemap_id,X	; D348  $BD $00 $B2	BANK 00/B200 (tilemap id for each map)
 	PHA			; D34B  $48
 	ASL A			; D34C  $0A
 	ROL A			; D34D  $2A
-	AND #$01		; D34E  $29 $01
+	AND #$01		; D34E  $29 $01		BANK 04 or 05
 	ORA #$04		; D350  $09 $04
 	JSR Swap_PRG_		; D352  $20 $03 $FE
 	PLA			; D355  $68
@@ -2979,15 +3122,16 @@ L3D30B:
 	LDA $8000,X		; D358  $BD $00 $80	pointers to map bg tilemaps(Low)
 	STA $80			; D35B  $85 $80
 	LDA $8001,X		; D35D  $BD $01 $80	pointers to map bg tilemaps(High)
-	STA $81			; D360  $85 $81
-	LDA #$00		; D362  $A9 $00
+	STA $81			; D360  $85 $81		BANK 04/8000 or 05/8000
+	LDA #$00		; D362  $A9 $00		$7400 (buffer for tilemap)
 	STA $82			; D364  $85 $82
 	LDA #$74		; D366  $A9 $74
 	STA $83			; D368  $85 $83
-	JSR L3D39F		; D36A  $20 $9F $D3	copy object properties ??
+	JSR L3D39F		; D36A  $20 $9F $D3	decompress tilemap
 	LDA #$00		; D36D  $A9 $00
 	JSR Swap_PRG_		; D36F  $20 $03 $FE
-	JMP $9C00		; D372  $4C $00 $9C
+	JMP $9C00		; D372  $4C $00 $9C	BANK 00/9C00 (init map)
+; End of
 
 ; Name	: Set_wmap_tile
 ; Marks	: $2C = next overworld y position ??
@@ -2999,11 +3143,12 @@ L3D30B:
 ;	  $86(ADDR) = pointers to world tilemaps
 ;	  $84 = calcurated tile map ??
 ;	  Set world map tile
+;	  load world tilemap
    ;; sub start ;;
 Set_wmap_tile:
 	LDA #$01		; D375  $A9 $01		world map bank
 	JSR Swap_PRG_		; D377  $20 $03 $FE
-	LDA #$80		; D37A  $A9 $80
+	LDA #$80		; D37A  $A9 $80		BANK 01/8000 (pointers to world tilemaps)
 	STA $87			; D37C  $85 $87
 	LDA #$00		; D37E  $A9 $00
 	STA $86			; D380  $85 $86
@@ -3021,25 +3166,27 @@ L3D38A:
 	STA $81			; D392  $85 $81
 	TXA			; D394  $8A
 	AND #$0F		; D395  $29 $0F
-	ORA #$70		; D397  $09 $70
+	ORA #$70		; D397  $09 $70		$7000
 	STA $83			; D399  $85 $83
 	LDA #$00		; D39B  $A9 $00
 	STA $82			; D39D  $85 $82
 ; Name	:
 ; Marks	: Set_nmap_tile
+;	  decompress tilemap
 L3D39F:
 	LDY #$00		; D39F  $A0 $00
 	LDA ($80),Y		; D3A1  $B1 $80		world/normal tilemaps
 	BPL L3D3D0		; D3A3  $10 $2B		bit7 means it has the tilemap counts
 	CMP #$FF		; D3A5  $C9 $FF
-	BEQ L3D3E1		; D3A7  $F0 $38		if tilemap == FFh(end of tilemap)
+	BEQ L3D3E1		; D3A7  $F0 $38		if tilemap == FFh(end of tilemap = terminator)
+; rle
 	AND #$7F		; D3A9  $29 $7F
-	STA $84			; D3AB  $85 $84		tilemap
+	STA $84			; D3AB  $85 $84		tilemap - byte value
 	INC $80			; D3AD  $E6 $80
 	BNE L3D3B3		; D3AF  $D0 $02
 	INC $81			; D3B1  $E6 $81
 L3D3B3:
-	LDA ($80),Y		; D3B3  $B1 $80		world/normal tilemap count
+	LDA ($80),Y		; D3B3  $B1 $80		world/normal tilemap count - run length
 	TAX			; D3B5  $AA
 	LDA $84			; D3B6  $A5 $84
 L3D3B8:
@@ -3059,6 +3206,7 @@ L3D3CA:
 	INC $80			; D3CA  $E6 $80
 	BNE L3D39F		; D3CC  $D0 $D1		loop
     BEQ L3D3DC               ; D3CE  $F0 $0C
+; uncompressed byte
 L3D3D0:
 	STA ($82),Y		; D3D0  $91 $82
 	INC $82			; D3D2  $E6 $82
@@ -3076,6 +3224,7 @@ L3D3E1:
 
 ; Name	:
 ; Marks	: Player direction process
+;	  init player movement (world map)
 ;; sub start ;;
 	LDA player_dir		; D3E2  $A5 $33
 	LSR A			; D3E4  $4A
