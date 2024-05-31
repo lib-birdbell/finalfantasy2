@@ -3237,7 +3237,7 @@ L3D3E1:
 	BCS L3D433		; D3EE  $B0 $43		if up direction
 	RTS			; D3F0  $60
 ; End of
-
+; right
 L3D3F1:
     LDA $27                  ; D3F1  $A5 $27
     CLC                      ; D3F3  $18
@@ -3258,12 +3258,14 @@ L3D40D:
 	LDA #$01		; D40D  $A9 $01
 	STA map_update		; D40F  $85 $32
 	STA mov_spd		; D411  $85 $34
-	JMP L3D45D		; D413  $4C $5D $D4
+	JMP L3D45D		; D413  $4C $5D $D4	update world map movement speed
+; left
 L3D416:
     LDA $27                  ; D416  $A5 $27
     SEC                      ; D418  $38
     SBC #$01                 ; D419  $E9 $01
     JMP L3D3F6               ; D41B  $4C $F6 $D3
+; down
 L3D41E:
 	LDA ow_y_pos		; D41E  $A5 $28
 	CLC			; D420  $18
@@ -3277,6 +3279,7 @@ L3D41E:
 	SEC			; D42E  $38
 	SBC #$0F		; D42F  $E9 $0F
 	BCS L3D444		; D431  $B0 $11
+; up
 L3D433:
 	LDA ow_y_pos		; D433  $A5 $28
 	SEC			; D435  $38
@@ -3300,7 +3303,9 @@ L3D444:
 	JSR Set_wmap_tile	; D454  $20 $75 $D3
 	JSR Copy_map_tileset	; D457  $20 $47 $D5
 	JMP L3D40D		; D45A  $4C $0D $D4
+; End of
 
+; Marks	: update world map movement speed
 L3D45D:
 	LDA vehicle_ID		; D45D  $A5 $42
 	CMP #$08		; D45F  $C9 $08
@@ -3319,15 +3324,15 @@ L3D474:
 	STA $4E			; D476  $85 $4E
 	RTS			; D478  $60
 ; End of
-
 L3D479:
     LDA #$02                 ; D479  $A9 $02
     BNE D472                 ; D47B  $D0 $F5
+; airship
 L3D47D:
     LDA $601A                ; D47D  $AD $1A $60
     LSR A                    ; D480  $4A
     BCC D48F                 ; D481  $90 $0C
-    LDA $25                  ; D483  $A5 $25
+    LDA $25                  ; D483  $A5 $25	2x speed if B button pressed
     AND #$01                 ; D485  $29 $01
     ASL A                    ; D487  $0A
     ASL A                    ; D488  $0A
@@ -3336,10 +3341,10 @@ L3D47D:
     TAX                      ; D48C  $AA
     BNE D4A2                 ; D48D  $D0 $13
 D48F:
-    LDX #$04                 ; D48F  $A2 $04
+    LDX #$04                 ; D48F  $A2 $04	movement speed 4
     LDA $25                  ; D491  $A5 $25
     CLC                      ; D493  $18
-    ADC #$01                 ; D494  $69 $01
+    ADC #$01                 ; D494  $69 $01	enable 2x speed after pressing B 32 times
     AND #$1F                 ; D496  $29 $1F
     BNE D4A2                 ; D498  $D0 $08
     LDA $601A                ; D49A  $AD $1A $60
@@ -3349,15 +3354,17 @@ D4A2:
     LDA $4E                  ; D4A2  $A5 $4E
     BNE D4AA                 ; D4A4  $D0 $04
     INC $4E                  ; D4A6  $E6 $4E
-    LDX #$02                 ; D4A8  $A2 $02
+    LDX #$02                 ; D4A8  $A2 $02	movement speed 2
 D4AA:
-    STX $34                  ; D4AA  $86 $34
+    STX $34                  ; D4AA  $86 $34	set movement speed
     RTS                      ; D4AC  $60
+; End of
 
 ; Name	:
 ; Marks	: process as a player facing direction ??
 ;	  $33 are polluted.(Originally player direction)
 ;	  in_x_pos, in_y_pos are also polluted.
+;	  init player movement (normal map)
 ;; sub start ;;
 	LDA player_dir		; D4AD  $A5 $33
 	LSR A			; D4AF  $4A
@@ -3370,7 +3377,7 @@ D4AA:
 	BCS L3D517		; D4B9  $B0 $5C
 	RTS			; D4BB  $60
 ; End of
-
+; right
 ; $33 = 01h
 L3D4BC:
     LDA $29                  ; D4BC  $A5 $29
@@ -3399,7 +3406,7 @@ L3D4E1:
 	NOP			; D4E6  $EA
 	RTS			; D4E7  $60
 ; End of
-
+; left
 ; $33 = 02h
 L3D4E8:
     LDA $29                  ; D4E8  $A5 $29
@@ -3412,7 +3419,7 @@ L3D4E8:
     AND #$3F                 ; D4F4  $29 $3F
     JMP L3D4CA               ; D4F6  $4C $CA $D4
 ; End of
-
+; down
 ; $33 = 04h
 L3D4F9:
     LDA $2A                  ; D4F9  $A5 $2A
@@ -3432,7 +3439,7 @@ L3D4F9:
     SEC                      ; D512  $38
     SBC #$0F                 ; D513  $E9 $0F
     BCS L3D531               ; D515  $B0 $1A
-
+; up
 ; $33 = 08h	down ??
 L3D517:
 	LDA in_y_pos		; D517  $A5 $2A
@@ -3471,6 +3478,7 @@ L3D531:
 ; DEST	: $0780-$078F, $0790-$079F, $07A0-$07AF, $07B0-$07BF, $07C0-$07CF
 ; Marks	: $80(ADDR) - ($7000-$7FFF) = generic buffer(overworld map 256 x 16 tile)
 ;	  Copy map tileset ??
+;	  load tiles for scrolling (world map)
    ;; sub start ;;
 Copy_map_tileset:
 	LDX #$00		; D547  $A2 $00
@@ -3483,6 +3491,7 @@ Copy_map_tileset:
 	LDA scroll_dir_map	; D555  $A5 $2D
 	AND #$02		; D557  $29 $02
 	BNE L3D586		; D559  $D0 $2B		if horizontal direction
+; horizontal
 L3D55B:
 	LDY #$00		; D55B  $A0 $00
 	LDA ($80),Y		; D55D  $B1 $80
@@ -3503,7 +3512,7 @@ L3D55B:
 	BCC L3D55B		; D583  $90 $D6		loop
 	RTS			; D585  $60
 ; End of Copy_map_tileset
-
+;vertical
 L3D586:
     LDY #$00                 ; D586  $A0 $00
     LDA ($80),Y              ; D588  $B1 $80
@@ -3535,6 +3544,7 @@ L3D586:
 ;	  tile copy from $0500 -> $0780
 ;	  $0780-$07BF is tileset 16 x 16 ??
 ;	  $07C0 is attribute
+;	  load tiles for scrolling (normal map)
 ;; sub start ;;
 	LDX #$00		; D5BA  $A2 $00
 	LDA $2C			; D5BC  $A5 $2C		map row to load for vertical scrolling ??
@@ -3565,10 +3575,10 @@ L3D5DE:
 	ORA $2C			; D5E2  $05 $2C
 	AND #$20		; D5E4  $29 $20
 	BEQ L3D5ED		; D5E6  $F0 $05
-	LDY #$38		; D5E8  $A0 $38
+	LDY #$38		; D5E8  $A0 $38		fill tile
 	JMP L3D5F0		; D5EA  $4C $F0 $D5
 L3D5ED:
-	LDA ($80),Y		; D5ED  $B1 $80		load from wram ?? ex> $7230, may be map bg tilemap (32x32)
+	LDA ($80),Y		; D5ED  $B1 $80		tile id - load from wram ?? ex> $7230, may be map bg tilemap (32x32)
 	TAY			; D5EF  $A8		A is offset ??
 L3D5F0:
 	LDA $0500,Y		; D5F0  $B9 $00 $05	map tileset (TL)
@@ -3593,7 +3603,7 @@ L3D5F0:
 	BCC L3D5DE		; D61E  $90 $BE
 	RTS			; D620  $60
 ; End of
-
+; horizontal
 L3D621:
     LDY #$00                 ; D621  $A0 $00
     LDA $2C                  ; D623  $A5 $2C
@@ -3634,9 +3644,10 @@ L3D633:
 ; Name	:
 ; Marks	: $30, $31, $80(ADDR)=PPU_ADDR, $82
 ;	  Fill 1 line as bg tile at once
+;	  update map background tilemap
 ;; sub start ;;
 	LDX $30			; D66A  $A6 $30
-	LDA $D321,X		; D66C  $BD $21 $D3
+	LDA $D321,X		; D66C  $BD $21 $D3	ppu address
 	STA $80			; D66F  $85 $80
 	LDA $D331,X		; D671  $BD $31 $D3
 	STA $81			; D674  $85 $81
@@ -3662,8 +3673,9 @@ L3D685:
 L3D694:
 	LDA scroll_dir_map	; D694  $A5 $2D
 	AND #$02		; D696  $29 $02
-	BEQ L3D69D		; D698  $F0 $03		if vertical direction
+	BEQ L3D69D		; D698  $F0 $03		branch if moving vertically (vertical direction)
 	JMP L3D730		; D69A  $4C $30 $D7
+; vertical
 L3D69D:
 	TXA			; D69D  $8A		$31 ??
 	EOR #$0F		; D69E  $49 $0F
@@ -3737,7 +3749,7 @@ L3D71E:
 L3D72F:
 	RTS			; D72F  $60
 ; End of
-
+; horizontal
 L3D730:
     LDA #$0F                 ; D730  $A9 $0F
     SEC                      ; D732  $38
@@ -3818,8 +3830,9 @@ L3D7C5:
 ; Marks	: $84 = ??, $85 = ??
 ;	  $84 = visible area, $85 = invisible area(dark)
 ;	  slate out effect
+;	  screen wipe out (world map)
 ;; sub start ;;
-	JSR $D990		; D7CB  $20 $90 $D9	Init sprites / make sound ??
+	JSR $D990		; D7CB  $20 $90 $D9	Init sprites(hide) / make sound ??
 	LDA #$70		; D7CE  $A9 $70
 	STA $84			; D7D0  $85 $84
 	LDA #$01		; D7D2  $A9 $01
@@ -3844,8 +3857,9 @@ L3D7D6:
 ; Marks	: $84, $85
 ;	  $84 = visible area, $85 = invisible area(dark)
 ;	  slate in effect
+;	  screen wipe in (world map)
    ;; sub start ;;
-	JSR $D990		; D7F0  $20 $90 $D9	Init sprites / make sound ??
+	JSR $D990		; D7F0  $20 $90 $D9	Init sprites(hide) / make sound ??
 	LDA #$01		; D7F3  $A9 $01
 	STA $84			; D7F5  $85 $84
 	LDA #$DF		; D7F7  $A9 $DF
@@ -3875,6 +3889,7 @@ L3D812:
 ; Marks	: $82 = repeat count ??
 ;	  $84 = visible area, $85 = invisible area(dark)
 ;	  slate effect with sound
+;	  update screen wipe (world map)
 ;; sub start ;;
 Slate_effect:
 	JSR Wait_NMI		; D81E  $20 $00 $FE
@@ -3882,22 +3897,22 @@ Slate_effect:
 	STA PpuMask_2001	; D823  $8D $01 $20	Ppu enable show background
 	JSR Palette_copy	; D826  $20 $30 $DC
 	JSR Scroll_slate	; D829  $20 $89 $D8
-	JSR $D8BA		; D82C  $20 $BA $D8	Delay ??
+	JSR $D8BA		; D82C  $20 $BA $D8	Delay ?? - wait for vblank to end
 	LDX $84			; D82F  $A6 $84
 L3D831:
-	JSR $D962		; D831  $20 $62 $D9	Another delay ??
+	JSR $D962		; D831  $20 $62 $D9	Another delay ?? - wait one scanline
 	DEX			; D834  $CA
 	BNE L3D831		; D835  $D0 $FA		loop
 	LDA #$00		; D837  $A9 $00		sprite/background hide
 	STA PpuMask_2001	; D839  $8D $01 $20
 	LDX $85			; D83C  $A6 $85
 L3D83E:
-	JSR $D962		; D83E  $20 $62 $D9	Another delay ??
+	JSR $D962		; D83E  $20 $62 $D9	Another delay ?? - wait one scanline
 	DEX			; D841  $CA
 	BNE L3D83E		; D842  $D0 $FA		loop
-	LDA PpuStatus_2002	; D844  $AD $02 $20
+	LDA PpuStatus_2002	; D844  $AD $02 $20	latch ppu
 	LDX nt_y_pos		; D847  $A6 $2F
-	LDA $D87A,X		; D849  $BD $7A $D8	PPU address from nametable y
+	LDA $D87A,X		; D849  $BD $7A $D8	PPU address from nametable y - change ppu address on the fly
 	STA PpuAddr_2006	; D84C  $8D $06 $20
 	LDA $D86A,X		; D84F  $BD $6A $D8
 	STA PpuAddr_2006	; D852  $8D $06 $20
@@ -3906,14 +3921,14 @@ L3D83E:
 	STA PpuMask_2001	; D85A  $8D $01 $20	Ppu enable show background
 	LDA $85			; D85D  $A5 $85
 	ASL A			; D85F  $0A
-	STA Sq0Timer_4002	; D860  $8D $02 $40
+	STA Sq0Timer_4002	; D860  $8D $02 $40	update sound effect
 	ROL A			; D863  $2A
 	AND #$01		; D864  $29 $01
 	STA Sq0Length_4003	; D866  $8D $03 $40
 	RTS			; D869  $60
 ; End of Slate_effect
 
- ;data block---
+; $D86A - data block = ppu address for bottom half of screen wipe
 ; NameTable address
 ;; [$D86A-$D879] 00h-0Fh
 .byte $E0,$20,$60,$A0,$E0,$20,$60,$A0,$20,$60,$A0,$E0,$20,$60,$A0,$E0
@@ -3924,6 +3939,7 @@ L3D83E:
 ; SRC	: $84 = visible area
 ; Marks	: $80 = scroll y offset
 ;	  ppu scroll
+;	  update ppu scroll for screen wipe
  ;; sub start ;;
 Scroll_slate:
 	LDA #$70		; D889  $A9 $70
@@ -3960,6 +3976,8 @@ L3D8B6:
 
 ; Name	:
 ; Marks	: delay ??
+;	  wait for vblank to end
+;	  2608 cycles total ~ 23 scanlines
 ;; sub start ;;
 	LDX #$90		; D8BA  $A2 $90
 L3D8BC:
@@ -3976,8 +3994,9 @@ L3D8BE:
 	RTS                      ; D8C8  $60
 ; End of
 
+; Marks	: screen wipe in (normal map)
 L3D8C9:
-	JSR $D977		; D8C9  $20 $77 $D9	init sprite / sound process ??
+	JSR $D977		; D8C9  $20 $77 $D9	init sprite(hide) / sound process ??
 	LDA #$85		; D8CC  $A9 $85
 	STA $84			; D8CE  $85 $84
 	LDA #$01		; D8D0  $A9 $01
@@ -4000,8 +4019,9 @@ L3D8D4:
 
 ; Name	:
 ; Marks	: $84 = blank screen size, $85 = show screen size
+;	  screen wipe out (normal map)
    ;; sub start ;;
-	JSR $D977		; D8EE  $20 $77 $D9	init sprites ??
+	JSR $D977		; D8EE  $20 $77 $D9	init sprites(hide) ??
 	LDA #$21		; D8F1  $A9 $21
 	STA $84			; D8F3  $85 $84
 	LDA #$C5		; D8F5  $A9 $C5
@@ -4031,6 +4051,7 @@ L3D910:
 
 ; Name	:
 ; Marks	:
+;	  update ppu (screen wipe)
 ;; sub start ;;
 	LDA #$02		; D922  $A9 $02
 	STA SpriteDma_4014	; D924  $8D $14 $40
@@ -4046,25 +4067,26 @@ L3D932:
 ; Name	:
 ; Marks	: eye open/close effect ??
 ;	  $84 = blank screen size, $85 = show screen size
+;	  update screen wipe (normal map)
    ;; sub start ;;
 	JSR Wait_NMI		; D935  $20 $00 $FE
-	JSR $D922		; D938  $20 $22 $D9	copy NT, palette, scroll
+	JSR $D922		; D938  $20 $22 $D9	copy NT, palette, scroll - update ppu
 	LDX #$0A		; D93B  $A2 $0A
 L3D93D:
 	DEX			; D93D  $CA
-	BNE L3D93D		; D93E  $D0 $FD		delay ??
+	BNE L3D93D		; D93E  $D0 $FD		delay ?? - wait a few cycles
 	LDA #$10		; D940  $A9 $10		show sprite only
 	STA PpuMask_2001	; D942  $8D $01 $20
 	LDX $84			; D945  $A6 $84
 L3D947:
-	JSR $D962		; D947  $20 $62 $D9	Another delay ??
+	JSR $D962		; D947  $20 $62 $D9	Another delay ?? - wait one scanline
 	DEX			; D94A  $CA
 	BNE L3D947		; D94B  $D0 $FA
 	LDA #$1E		; D94D  $A9 $1E		show sprite/background
 	STA PpuMask_2001	; D94F  $8D $01 $20
 	LDX $85			; D952  $A6 $85
 L3D954:
-	JSR $D962		; D954  $20 $62 $D9	Another delay ??
+	JSR $D962		; D954  $20 $62 $D9	Another delay ?? - wait one scanline
 	DEX			; D957  $CA
 	BNE L3D954		; D958  $D0 $FA
 	LDA #$10		; D95A  $A9 $10		show sprite only
@@ -4075,8 +4097,9 @@ L3D954:
 ; Name	:
 ; Marks	: $82
 ;	  Delay by $82 ??
+;	  wait one scanline
    ;; sub start ;;
-	LDY #$10		; D962  $A0 $10
+	LDY #$10		; D962  $A0 $10		wait a few cycles
 L3D964:
 	DEY			; D964  $88
 	BNE L3D964		; D965  $D0 $FD
@@ -4087,7 +4110,6 @@ L3D964:
 	STA $82			; D96F  $85 $82
 	RTS			; D971  $60
 ; End of
-
 L3D972:
 	LDA #$00		; D972  $A9 $00
 	LDA $82			; D974  $A5 $82
@@ -4095,19 +4117,21 @@ L3D972:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: hide all sprites
 ;; sub start ;;
-	JSR Init_sprites	; D977  $20 $7D $D9
+	JSR Init_sprites	; D977  $20 $7D $D9	hide all sprites
 	JMP L3C746		; D97A  $4C $46 $C7	sound process ??
+; End of
 
 ; Name	: Init_sprites
 ; Marks	: init PPU sprites
+;	  hide all sprites
    ;; sub start ;;
 Init_sprites:
 	LDA #$F0		; D97D  $A9 $F0
 	LDX #$00		; D97F  $A2 $00
 L3D981:
-	STA $0200,X		; D981  $9D $00 $02
+	STA $0200,X		; D981  $9D $00 $02	reset sprite data
 	INX			; D984  $E8
 	BNE L3D981		; D985  $D0 $FA		loop
 	JSR Wait_NMI		; D987  $20 $00 $FE
@@ -4118,16 +4142,19 @@ L3D981:
 
 ; Name	:
 ; Marks	: Init sprites / make sound ??
+;	  hide all sprites, wipe sound effect
 ;; sub start ;;
-	JSR Init_sprites	; D990  $20 $7D $D9
+	JSR Init_sprites	; D990  $20 $7D $D9	hide all sprites
 	LDA #$01		; D993  $A9 $01
-	STA ApuStatus_4015	; D995  $8D $15 $40
+	STA ApuStatus_4015	; D995  $8D $15 $40	enable square 1 only
 	LDA #$38		; D998  $A9 $38
 	STA Sq0Duty_4000	; D99A  $8D $00 $40
 	LDA #$8B		; D99D  $A9 $8B
-	STA Sq0Sweep_4001	; D99F  $8D $01 $40
+	STA Sq0Sweep_4001	; D99F  $8D $01 $40	use sweep unit
 	RTS			; D9A2  $60
 ; End of
+
+;----------------------------------------------------------
 
 ; Name	:
 ; Marks	:
@@ -4279,6 +4306,8 @@ DA5E:
 	RTS			; DA8E  $60
 ; End of Set_wmap_event
 
+;----------------------------------------------
+
 ;; sub start ;;
     LDA $42                  ; DA8F  $A5 $42
     STA $6018                ; DA91  $8D $18 $60
@@ -4304,6 +4333,7 @@ L3DAAC:
     EOR #$FF                 ; DABB  $49 $FF
     STA $62FF                ; DABD  $8D $FF $62
     RTS                      ; DAC0  $60
+; End of
 
 ; Name	:
 ; A	: Save file number - #$00, #$01, #$02, #$03
@@ -4341,10 +4371,13 @@ L3DAF0:
     RTS                      ; DAF0  $60
 ; End of Check_savefile
 
+;----------------------------------------------------
+
 ; Name	:
 ; A	:
 ; Marks	: $8400 = some address(may be text address)
 ;	  Check text ??
+;	  load menu text ???
 ;; sub start ;;
 	PHA			; DAF1  $48
 	LDA #$0A		; DAF2  $A9 $0A		text 2 bank
@@ -4352,7 +4385,7 @@ L3DAF0:
 	PLA			; DAF7  $68
 	ASL A			; DAF8  $0A
 	TAY			; DAF9  $A8
-	LDA $8400,Y		; DAFA  $B9 $00 $84
+	LDA $8400,Y		; DAFA  $B9 $00 $84	BANK 0A/8400 get text pointer
 	STA $80			; DAFD  $85 $80
 	LDA $8401,Y		; DAFF  $B9 $01 $84
 	STA $81			; DB02  $85 $81
@@ -4383,6 +4416,7 @@ L3DB21:
 
 ; Name	: SndE_cur_sel
 ; Marks	: Cursor click sound effect
+;	  cursor sound effect (confirm)
 SndE_cur_sel:
 	LDA #$7D		; DB2E  $A9 $7D
 	STA Sq1Duty_4004	; DB30  $8D $04 $40
@@ -4398,6 +4432,7 @@ SndE_cur_sel:
 
 ; Name	: SndE_cur_mov
 ; Marks	: Cursor move sound effect
+;	  cursor sound effect (move)
 ;; sub start ;;
 SndE_cur_mov:
 	LDA #$7C		; DB45  $A9 $7C
@@ -4414,24 +4449,25 @@ SndE_cur_mov:
 
 ; Name	:
 ; Marks	: event ?? if no event, check key
+;	  execute event script / update joypad input
 ;; sub start ;;
 	LDA event		; DB5C  $A5 $6C
 	BEQ Key_process		; DB5E  $F0 $42		if A == 00h(no event)
     CMP #$01                 ; DB60  $C9 $01
     BNE L3DB95               ; DB62  $D0 $31
-    LDA $17                  ; DB64  $A5 $17
+    LDA $17                  ; DB64  $A5 $17	check event repeat count
     BNE L3DB95               ; DB66  $D0 $2D
     LDA #$0D                 ; DB68  $A9 $0D
     JSR Swap_PRG_               ; DB6A  $20 $03 $FE
     LDY #$00                 ; DB6D  $A0 $00
-    LDA ($72),Y              ; DB6F  $B1 $72
+    LDA ($72),Y              ; DB6F  $B1 $72	event command
     CMP #$F9                 ; DB71  $C9 $F9
-    BNE L3DB8E               ; DB73  $D0 $19
+    BNE L3DB8E               ; DB73  $D0 $19	branch if not repeat
     INY                      ; DB75  $C8
-    LDA ($72),Y              ; DB76  $B1 $72
+    LDA ($72),Y              ; DB76  $B1 $72	set event repeat counter
     STA $17                  ; DB78  $85 $17
     DEC $17                  ; DB7A  $C6 $17
-    LDA $72                  ; DB7C  $A5 $72
+    LDA $72                  ; DB7C  $A5 $72	increment event scrpit pointer
     CLC                      ; DB7E  $18
     ADC #$02                 ; DB7F  $69 $02
     STA $72                  ; DB81  $85 $72
@@ -4448,7 +4484,7 @@ L3DB8E:
 L3DB95:
     LDA #$03                 ; DB95  $A9 $03
     JSR Swap_PRG_               ; DB97  $20 $03 $FE
-    JSR $A000                ; DB9A  $20 $00 $A0
+    JSR $A000                ; DB9A  $20 $00 $A0	BANK 03/A000 (execute event command)
     LDA #$0E                 ; DB9D  $A9 $0E
     JMP Swap_PRG_               ; DB9F  $4C $03 $FE
 ; End of event ??
@@ -4458,15 +4494,17 @@ L3DB95:
 ;	  $20 = current pressed key(abesudlr)
 ;	  $21 = ??
 ;	  $22 = e_pressing, $23 = s_pressing, $24 = a_pressing, $25 = b_pressing
+;	  update joypad input
 Key_process:
-	JSR Get_key		; DBA2  $20 $A9 $DB
-	JSR Key_check		; DBA5  $20 $C2 $DB
+	JSR Get_key		; DBA2  $20 $A9 $DB	read joypad registers
+	JSR Key_check		; DBA5  $20 $C2 $DB	update button data
 	RTS			; DBA8  $60
 ; End of Key_process
 
 ; Name	: Get_Key
 ; Marks	: store key status in $20(key1p)
 ;	  bit7: A, bit6: B, bit5: Select, bit4: Start, bit3: Up, bit2: Down, bit1: left, bit0: right
+;	  read joypad registers
 Get_key:
 ;; sub start ;;
 	LDA #$01		; DBA9  $A9 $01
@@ -4476,7 +4514,7 @@ Get_key:
 	LDX #$08		; DBB3  $A2 $08
 L3DBB5:
 	LDA Ctrl1_4016		; DBB5  $AD $16 $40
-	AND #$03		; DBB8  $29 $03
+	AND #$03		; DBB8  $29 $03		support expansion controllers
 	CMP #$01		; DBBA  $C9 $01
 	ROL key1p		; DBBC  $26 $20
 	DEX			; DBBE  $CA
@@ -4488,6 +4526,7 @@ L3DBB5:
 ; X	: default = 00h
 ; Marks	: key process ?? and mark to $24(a_pressing), $25(b_pressing)
 ;	  $21 = previous key ??, $81 = +pad pressed ??
+;	  update button data
 ;; sub start ;;
 tmp_pad = $81
 Key_check:
@@ -4566,6 +4605,7 @@ L3DC2F:
 ; Src	: RAM $03C0 - $03DF ($1F)
 ; Marks	: Fill PPU Palette indexes from RAM
 ;	  Universal background color is #$00
+;	  copy color palettes to ppu
 ;; sub start ;;
 Palette_copy:
     LDA PpuStatus_2002       ; DC30  $AD $02 $20
@@ -4591,6 +4631,7 @@ L3DC3F:
 
 ; Name	:
 ; Marks	: Sprite reflesh ??
+;	  hide all sprites
 L3DC5E:
 	JSR Init_Page2		; DC5E  $20 $6E $C4
 	JSR Wait_NMI		; DC61  $20 $00 $FE
@@ -4602,16 +4643,18 @@ L3DC5E:
 ; Name	:
 ; Marks	: $8C = effect repeat count
 ;	  battle effect(graphic/sound)
+;	  do battle flash and sound effect
 ;; sub start ;;
 	LDA #$08		; DC6A  $A9 $08		noise channel enable
 	STA ApuStatus_4015	; DC6C  $8D $15 $40
 	LDA #$00		; DC6F  $A9 $00
 	STA $8C			; DC71  $85 $8C
+; start of frame loop
 L3DC73:
 	JSR Wait_NMI		; DC73  $20 $00 $FE
 	LDA scroll_dir_map	; DC76  $A5 $2D
 	LSR A			; DC78  $4A
-	BCC L3DC81		; DC79  $90 $06		if world map
+	BCC L3DC81		; DC79  $90 $06		branch if on world map
 	JSR Scroll_normal	; DC7B  $20 $F5 $CD
 	JMP $DC84		; DC7E  $4C $84 $DC
 L3DC81:
@@ -4633,18 +4676,19 @@ L3DC81:
 	STA NoiseLength_400F	; DC9F  $8D $0F $40
 	INC $8C			; DCA2  $E6 $8C
 	LDA $8C			; DCA4  $A5 $8C
-	CMP #$41		; DCA6  $C9 $41
+	CMP #$41		; DCA6  $C9 $41		loop for 65 frames
 	BCC L3DC73		; DCA8  $90 $C9		loop - battle encount graphic/sound effect
 	LDA #$00		; DCAA  $A9 $00		hide sprite/background
 	STA PpuMask_2001	; DCAC  $8D $01 $20
 	STA ApuStatus_4015	; DCAF  $8D $15 $40
-	JMP L3DC5E		; DCB2  $4C $5E $DC	sprite reflesh ??
+	JMP L3DC5E		; DCB2  $4C $5E $DC	sprite reflesh ?? - hide all sprites
 ; End of
 
 ; Name	:
 ; Marks	: attribute table ?? init ??
+;	  copy color palettes to ppu
 ;; sub start ;;
-	LDA PpuStatus_2002	; DCB5  $AD $02 $20
+	LDA PpuStatus_2002	; DCB5  $AD $02 $20	latch ppu
 	LDX #$00		; DCB8  $A2 $00
 	LDA #$3F		; DCBA  $A9 $3F		$3F00: palette_RAM_idx
 	STA PpuAddr_2006	; DCBC  $8D $06 $20
@@ -4656,7 +4700,7 @@ L3DCC4:
 	INX                      ; DCCA  $E8
 	CPX #$10                 ; DCCB  $E0 $10
 	BCC L3DCC4               ; DCCD  $90 $F5	loop
-	LDA PpuStatus_2002       ; DCCF  $AD $02 $20
+	LDA PpuStatus_2002       ; DCCF  $AD $02 $20	latch ppu
 	LDA #$3F                 ; DCD2  $A9 $3F
 	STA PpuAddr_2006         ; DCD4  $8D $06 $20
 	LDA #$00                 ; DCD7  $A9 $00
@@ -4666,8 +4710,10 @@ L3DCC4:
 	RTS                      ; DCE2  $60
 ; End of
 
+; Marks	: filter map bg palette
+;	  carry: set = blue filter, clear = red filter
 L3DCE3:
-    LDA #$05                 ; DCE3  $A9 $05
+    LDA #$05                 ; DCE3  $A9 $05	red filter
     STA $61                  ; DCE5  $85 $61
     BCC L3DCEC               ; DCE7  $90 $03
     JMP L3DD27               ; DCE9  $4C $27 $DD
@@ -4690,12 +4736,12 @@ L3DD06:
     PHA                      ; DD06  $48
     AND #$03                 ; DD07  $29 $03
     BNE L3DD12               ; DD09  $D0 $07
-    JSR $DD7B                ; DD0B  $20 $7B $DD
+    JSR $DD7B                ; DD0B  $20 $7B $DD	update palette filter
     CPY #$00                 ; DD0E  $C0 $00
     BEQ L3DD25               ; DD10  $F0 $13
 L3DD12:
     JSR Wait_NMI		; JSR $FE00                ; DD12  $20 $00 $FE
-    JSR $DCB5                ; DD15  $20 $B5 $DC
+    JSR $DCB5                ; DD15  $20 $B5 $DC	copy color palettes to ppu
 	JSR Scroll_normal	; DD18  $20 $F5 $CD
     JSR L3C746               ; DD1B  $20 $46 $C7	sound process ??
     PLA                      ; DD1E  $68
@@ -4707,7 +4753,7 @@ L3DD25:
     RTS                      ; DD26  $60
 
 L3DD27:
-    LDA #$02                 ; DD27  $A9 $02
+    LDA #$02                 ; DD27  $A9 $02	blue filter
     STA $61                  ; DD29  $85 $61
     JSR L3DCEC               ; DD2B  $20 $EC $DC
     JSR Get_key			; JSR $DBA9                ; DD2E  $20 $A9 $DB
@@ -4725,6 +4771,9 @@ L3DD35:
 	JSR Scroll_normal	; DD4A  $20 $F5 $CD
     LDA $57                  ; DD4D  $A5 $57
     JMP Swap_PRG_               ; DD4F  $4C $03 $FE
+; End of
+
+; Marks	: unused ???
     LDA $DD73,X              ; DD52  $BD $73 $DD
     STA $0200                ; DD55  $8D $00 $02
     LDA $DD74,X              ; DD58  $BD $74 $DD
@@ -4742,13 +4791,14 @@ L3DD35:
 ;; [DD73 : 3DD83]
 .byte $F8,$F8,$F8,$F8,$6C,$74,$6C,$74
 
+; Marks	: update palette filter
 ;; sub start ;;
     LDY #$00                 ; DD7B  $A0 $00
     LDX #$0D                 ; DD7D  $A2 $0D
 L3DD7F:
     LDA $03F0,X              ; DD7F  $BD $F0 $03
     CMP #$0F                 ; DD82  $C9 $0F
-    BEQ L3DDA0               ; DD84  $F0 $1A
+    BEQ L3DDA0               ; DD84  $F0 $1A	skip if black
     PHA                      ; DD86  $48
     AND #$10                 ; DD87  $29 $10
     STA $80                  ; DD89  $85 $80
@@ -4769,13 +4819,18 @@ L3DDA0:
     DEX                      ; DDA0  $CA
     BPL L3DD7F               ; DDA1  $10 $DC
     RTS                      ; DDA3  $60
+; End of
 
 ; Name	:
 ; A	: some effect ??
 ; Marks	: $8C
+; [ fade in/out ]
+; A: -----?ab
+;      a: 0 = world map, 1 = normal map
+;      b: 0 = fade out, 1 = fade in
 L3DDA4:
 	STA $8C			; DDA4  $85 $8C
-	JSR L3DC5E		; DDA6  $20 $5E $DC	sprite reflesh ??
+	JSR L3DC5E		; DDA6  $20 $5E $DC	sprite reflesh ?? - hide all sprites
 	JSR Copy_attr		; DDA9  $20 $0E $DE	copy palette ??
 	LDA #$01		; DDAC  $A9 $01
 L3DDAE:
@@ -4787,7 +4842,7 @@ L3DDAE:
 	BEQ L3DDCD		; DDB8  $F0 $13
 L3DDBA:
 	JSR Wait_NMI		; DDBA  $20 $00 $FE
-	JSR $DCB5		; DDBD  $20 $B5 $DC	attribute table init ??
+	JSR $DCB5		; DDBD  $20 $B5 $DC	attribute table init ?? - copy color palettes to ppu
 	JSR $DDDD		; DDC0  $20 $DD $DD	scroll ??
 	JSR L3C746		; DDC3  $20 $46 $C7	sound process ??
 	PLA			; DDC6  $68
@@ -4820,7 +4875,6 @@ L3DDD8:
 	STA PpuScroll_2005	; DDEF  $8D $05 $20
 	STA PpuScroll_2005	; DDF2  $8D $05 $20
 	RTS			; DDF5  $60
-; End of
 
 L3DDF6:
 	LDA $8C			; DDF6  $A5 $8C
@@ -4830,13 +4884,13 @@ L3DDF6:
 	LDA #$0A		; DDFF  $A9 $0A		show background
 	STA PpuMask_2001	; DE01  $8D $01 $20
 	RTS			; DE04  $60
-; End of
 
 L3DE05:
 	JSR Scroll_normal	; DE05  $20 $F5 $CD
     LDA #$0A                 ; DE08  $A9 $0A
     STA PpuMask_2001         ; DE0A  $8D $01 $20
     RTS                      ; DE0D  $60
+; End of
 
 ; Name	: Copy_attr
 ; Marks	: $8C
@@ -4845,11 +4899,11 @@ Copy_attr:
 	LDX #$00		; DE0E  $A2 $00
 	LDA $8C			; DE10  $A5 $8C
 	LSR A			; DE12  $4A
-	BCC Copy_bg_palettes	; DE13  $90 $10
+	BCC Copy_bg_palettes	; DE13  $90 $10		branch if fading out
 	JSR Copy_bg_palettes	; DE15  $20 $25 $DE
 	DEX			; DE18  $CA
 L3DE19:
-	LDA $03F0,X		; DE19  $BD $F0 $03	attribute table ?? check ??
+	LDA $03F0,X		; DE19  $BD $F0 $03	attribute table ?? check ?? - if fading in, start with darkest colors
 	AND #$0F		; DE1C  $29 $0F
 	STA $03F0,X		; DE1E  $9D $F0 $03
 	DEX			; DE21  $CA
@@ -4875,6 +4929,7 @@ Copy_bg_palettes:
 ;	  0Fh: no problem
 ;	  attr - 10h > 0: no problem
 ;	  attr - 10h <= 0: 0Fh
+;	  update colors for fade
 ;; sub start ;;
 	LDY #$00		; DE31  $A0 $00
 	LDX #$00		; DE33  $A2 $00
@@ -4882,7 +4937,7 @@ Copy_bg_palettes:
 	LSR A			; DE37  $4A
 	BCS L3DE52		; DE38  $B0 $18
 L3DE3A:
-	LDA $03F0,X		; DE3A  $BD $F0 $03	attribute table ??
+	LDA $03F0,X		; DE3A  $BD $F0 $03	attribute table ?? - decrease brightness
 	CMP #$0F		; DE3D  $C9 $0F
 	BEQ L3DE4C		; DE3F  $F0 $0B
 	SEC			; DE41  $38
@@ -4897,10 +4952,8 @@ L3DE4C:
 	CPX #$10		; DE4D  $E0 $10
 	BNE L3DE3A		; DE4F  $D0 $E9
 	RTS			; DE51  $60
-; End of
-
 L3DE52:
-    LDA $03F0,X              ; DE52  $BD $F0 $03
+    LDA $03F0,X              ; DE52  $BD $F0 $03	increase brightness
     CMP $03C0,X              ; DE55  $DD $C0 $03
     BEQ L3DE61               ; DE58  $F0 $07
     CLC                      ; DE5A  $18
@@ -4912,9 +4965,11 @@ L3DE61:
     CPX #$10                 ; DE62  $E0 $10
     BCC L3DE52               ; DE64  $90 $EC
     RTS                      ; DE66  $60
+; End of
 
 ; Name	:
 ; Marks	: Sound effect ?? - caution
+;	  play error sound effect
 L3DE67:
 	LDA #$01		; DE67  $A9 $01
 	STA $E5			; DE69  $85 $E5
@@ -4924,7 +4979,7 @@ L3DE67:
 	STA NoiseVolume_400C	; DE73  $8D $0C $40
 	LDY #$0F		; DE76  $A0 $0F
 L3DE78:
-	JSR $DE89		; DE78  $20 $89 $DE
+	JSR $DE89		; DE78  $20 $89 $DE	update ??? sound effect
 	DEY			; DE7B  $88
 	BPL L3DE78		; DE7C  $10 $FA
 	LDA #$30		; DE7E  $A9 $30
@@ -4936,6 +4991,7 @@ L3DE78:
 
 ; Name	:
 ; Marks	:
+;	  update error sound effect
 ;; sub start ;;
 	JSR Wait_NMI		; DE89  $20 $00 $FE
 	LDA #$7C                 ; DE8C  $A9 $7C
@@ -4949,10 +5005,13 @@ L3DE78:
 	RTS                      ; DEA0  $60
 ; End of
 
+;-----------------------------------------
+
 ; Marks	: $80(ADDR) = Index(offset), Attributes table address = $E3B7
 ;	  $82 = cursor tile index base = $FC
 ;	  Set cursor Index, Attributes table address
 ;	  Set cursor tile index base
+;	  draw cursor sprite
 L3DEA1:
 Set_cursor:
 	LDA #$E3		; DEA1  $A9 $E3
@@ -4964,8 +5023,9 @@ Set_cursor:
 	JMP Set_cur_data	; DEAD  $4C $02 $E1	Set OAM(2x2 tile)
 ; End of
 
+; Marks	: update dreadnought sprites
 L3DEB0:
-	JSR $E238		; DEB0  $20 $38 $E2	dreadnaught ??
+	JSR $E238		; DEB0  $20 $38 $E2	check if dreadnought is onscreen
 	BCS L3DEB8		; DEB3  $B0 $03
 	JMP $DEE0		; DEB5  $4C $E0 $DE
 L3DEB8:
@@ -4988,32 +5048,37 @@ DED4:
     LDA $F0                  ; DED7  $A5 $F0
     LSR A                    ; DED9  $4A
     BCC DEDF                 ; DEDA  $90 $03
-    JMP $DEF6                ; DEDC  $4C $F6 $DE
+    JMP $DEF6                ; DEDC  $4C $F6 $DE	draw dreadnought shadow
 DEDF:
     RTS                      ; DEDF  $60
 ; End of
 
-	LDA #$E2		; DEE0  $A9 $E2
+;
+	LDA #$E2		; DEE0  $A9 $E2		BANK 0F/E279
 	STA $55			; DEE2  $85 $55
 	LDA #$79		; DEE4  $A9 $79
 	STA $54			; DEE6  $85 $54
 	JMP $DF1E		; DEE8  $4C $1E $DF
 ; End of
 
-	LDA #$E2		; DEEB  $A9 $E2
+;
+	LDA #$E2		; DEEB  $A9 $E2		BANK 0F/E2BA
 	STA $55			; DEED  $85 $55
 	LDA #$BA		; DEEF  $A9 $BA
 	STA $54			; DEF1  $85 $54
 	JMP $DF1E		; DEF3  $4C $1E $DF
 ; End of
 
-	LDA #$E2		; DEF6  $A9 $E2
+; Name	:
+; Marks	: draw dreadnought shadow
+	LDA #$E2		; DEF6  $A9 $E2		BANK 0F/E2FB
 	STA $55			; DEF8  $85 $55
 	LDA #$FB		; DEFA  $A9 $FB
 	STA $54			; DEFC  $85 $54
 	JMP $DF1E		; DEFE  $4C $1E $DF
 ; End of
 
+;
 DF01:
     STX $26                  ; DF01  $86 $26
     LDA $40                  ; DF03  $A5 $40
@@ -5032,8 +5097,10 @@ DF01:
 DF1B:
     STA $41                  ; DF1B  $85 $41
     RTS                      ; DF1D  $60
+; End of
 
 ; Marks	:
+;	  draw dreadnought sprites
     LDX $26                  ; DF1E  $A6 $26
 DF20:
     LDY #$00                 ; DF20  $A0 $00
@@ -5088,6 +5155,9 @@ DF74:
     BCC DF20                 ; DF7B  $90 $A3
     INC $55                  ; DF7D  $E6 $55
 	JMP $DF20		; DF7F  $4C $20 $DF	loop
+; End of
+
+;
     LDA #$6F                 ; DF82  $A9 $6F
     STA $8A                  ; DF84  $85 $8A
 DF86:
@@ -5102,7 +5172,9 @@ DF86:
     LDA #$02                 ; DF97  $A9 $02
     STA $33                  ; DF99  $85 $33
     RTS                      ; DF9B  $60
+; End of
 
+;
     LDA #$4F                 ; DF9C  $A9 $4F
     STA $8A                  ; DF9E  $85 $8A
 DFA0:
@@ -5119,7 +5191,9 @@ DFA0:
     LDA #$00                 ; DFB5  $A9 $00
     STA NoiseVolume_400C     ; DFB7  $8D $0C $40
     RTS                      ; DFBA  $60
+; End of
 
+;
     JSR Wait_NMI		; JSR $FE00                ; DFBB  $20 $00 $FE
     LDA #$02                 ; DFBE  $A9 $02
     STA SpriteDma_4014       ; DFC0  $8D $14 $40
@@ -5143,7 +5217,7 @@ DFA0:
     JSR $E0AA                ; DFE8  $20 $AA $E0
     JSR $E17B                ; DFEB  $20 $7B $E1
     JSR $E194                ; DFEE  $20 $94 $E1
-    JSR $E1A8                ; DFF1  $20 $A8 $E1
+    JSR $E1A8                ; DFF1  $20 $A8 $E1	update chocobo sprite
     JSR L3E1FB               ; DFF4  $20 $FB $E1
     LDA #$38                 ; DFF7  $A9 $38
     STA NoiseVolume_400C     ; DFF9  $8D $0C $40
@@ -5154,9 +5228,11 @@ L3E003:
     LDA #$00                 ; E003  $A9 $00
     STA NoiseLength_400F     ; E005  $8D $0F $40
     RTS                      ; E008  $60
+; End of
 
 ; Name	:
 ; Marks	: check vehicle ??
+;	  update sprites (world map)
 ;; sub start ;;
 	LDY vehicle_ID		; E009  $A4 $42
 	CPY #$08		; E00B  $C0 $08		airship
@@ -5170,8 +5246,9 @@ L3E003:
 ; Y	: vehicle
 ; SRC	: $43 == ??
 ; Marks	: ATTR bit5 set
+;	  update player sprite
 ;; sub start ;;
-	JSR $E073		; E017  $20 $73 $E0	moving OAM
+	JSR $E073		; E017  $20 $73 $E0	moving OAM - draw player sprite
 	LDA $43			; E01A  $A5 $43		what is this ?? check entrance ??
 	AND #$12		; E01C  $29 $12
 	BEQ L3E030		; E01E  $F0 $10		if A == 00h
@@ -5194,39 +5271,43 @@ L3E030:
 L3E046:
 	LDA scroll_dir_map	; E046  $A5 $2D
 	LSR A			; E048  $4A
-	BCC L3E04C		; E049  $90 $01		if world map
+	BCC L3E04C		; E049  $90 $01		branch if on the world map
 	RTS			; E04B  $60
 ; End of
-
+; no vehicle
 L3E04C:
 	JSR $E1E0		; E04C  $20 $E0 $E1	Check vehicle ?? airship ??
 	JSR $E17B		; E04F  $20 $7B $E1	Check airship ??
 	JSR $E194		; E052  $20 $94 $E1	Check ship ??
-	JSR $E1A8		; E055  $20 $A8 $E1	Check chocobo ?? vehicle ??
+	JSR $E1A8		; E055  $20 $A8 $E1	Check chocobo ?? vehicle ?? - update chocobo sprite
 	JMP L3E1FB		; E058  $4C $FB $E1	Check dreadnaught ??
+; airship
 L3E05B:
-    JSR $E073                ; E05B  $20 $73 $E0	moving OAM
+    JSR $E073                ; E05B  $20 $73 $E0	moving OAM - draw player sprite
     JMP $E04F                ; E05E  $4C $4F $E0
+; ship
 L3E061:
-    JSR $E073                ; E061  $20 $73 $E0	moving OAM
+    JSR $E073                ; E061  $20 $73 $E0	moving OAM - draw player sprite
     JSR $E1E0                ; E064  $20 $E0 $E1
     JSR $E055                ; E067  $20 $55 $E0
     JMP $E174                ; E06A  $4C $74 $E1
+; canoe/snowcraft
 L3E06D:
-    JSR $E073                ; E06D  $20 $73 $E0	moving OAM
+    JSR $E073                ; E06D  $20 $73 $E0	moving OAM - draw player sprite
     JMP L3E04C               ; E070  $4C $4C $E0
-; loop ??
+; End of
 
 ; Name	:
-; Y	: vehicle ??
+; Y	: vehicle
 ; Marks	: $80(ADDR), $82: Chocobo riding ??
 ;	  set player moving OAM
+;	  draw player sprite
 ;; sub start ;;
-	LDA #$70		; E073  $A9 $70
+	LDA #$70		; E073  $A9 $70		x position always $70
 	STA oam_x		; E075  $85 $40
-	LDA $E16B,Y		; E077  $B9 $6B $E1
+	LDA $E16B,Y		; E077  $B9 $6B $E1	y position for vehicle
 	CPY #$08		; E07A  $C0 $08		airship ??
-	BNE L3E086		; E07C  $D0 $08		if Y != 08h
+	BNE L3E086		; E07C  $D0 $08		if Y != 08h, branch if not in airship
 	STA oam_y		; E07E  $85 $41		airship ??
 	LDA frame_cnt_L		; E080  $A5 $F0
 	ASL A			; E082  $0A
@@ -5247,36 +5328,38 @@ L3E08E:
 	BEQ E0CC		; E09D  $F0 $2D		if Y == 02h
 	CPY #$04		; E09F  $C0 $04
 	BEQ E0C7		; E0A1  $F0 $24		if Y == 04h
-	LDA #$28		; E0A3  $A9 $28
+; airship
+	LDA #$28		; E0A3  $A9 $28	deaw airship
     STA $82                  ; E0A5  $85 $82
     JSR $E0D1                ; E0A7  $20 $D1 $E0
     LDA $F0                  ; E0AA  $A5 $F0
     LSR A                    ; E0AC  $4A
-    BCC E0C6                 ; E0AD  $90 $17
+    BCC E0C6                 ; E0AD  $90 $17	return every other frame
     LDA #$6F                 ; E0AF  $A9 $6F
     STA $41                  ; E0B1  $85 $41
     LDA #$70                 ; E0B3  $A9 $70
     STA $40                  ; E0B5  $85 $40
-    LDA #$B4                 ; E0B7  $A9 $B4
+    LDA #$B4                 ; E0B7  $A9 $B4	draw airship shadow
     STA $82                  ; E0B9  $85 $82
-    LDA #$AF                 ; E0BB  $A9 $AF
+    LDA #$AF                 ; E0BB  $A9 $AF	BANK 0F/E3AF
     STA $80                  ; E0BD  $85 $80
     LDA #$E3                 ; E0BF  $A9 $E3
     STA $81                  ; E0C1  $85 $81
 	JMP Set_cur_data	; E0C3  $4C $02 $E1
 E0C6:
     RTS                      ; E0C6  $60
-
+; ship
 E0C7:
     LDA $6003                ; E0C7  $AD $03 $60
     BNE E0CF                 ; E0CA  $D0 $03
+; canoe/snowcraft/chocobo
 E0CC:
     LDA $6019                ; E0CC  $AD $19 $60
 E0CF:
     STA $82                  ; E0CF  $85 $82
     LDA $80                  ; E0D1  $A5 $80
     CLC                      ; E0D3  $18
-    ADC #$6F                 ; E0D4  $69 $6F
+    ADC #$6F                 ; E0D4  $69 $6F	BANK 0F/E36F (vehicle sprite data)
     STA $80                  ; E0D6  $85 $80
     LDA #$E3                 ; E0D8  $A9 $E3
     ADC #$00                 ; E0DA  $69 $00
@@ -5286,7 +5369,7 @@ L3E0E1:
 	LDA scroll_dir_map	; E0E1  $A5 $2D
 	AND #$01		; E0E3  $29 $01
 	LSR A			; E0E5  $4A
-	BCS L3E0F3		; E0E6  $B0 $0B		if normal map
+	BCS L3E0F3		; E0E6  $B0 $0B		branch if on normal map
 	LDA chocobo_stat	; E0E8  $AD $08 $60	case : world map
 	AND #$02		; E0EB  $29 $02
 	BEQ L3E0F3		; E0ED  $F0 $04
@@ -5294,7 +5377,7 @@ L3E0E1:
     BNE E0CF                 ; E0F1  $D0 $DC
 L3E0F3:
 	STA $82			; E0F3  $85 $82		vertical = 00h, horizontal = 01h (scroll direction)??
-	LDA #$2F		; E0F5  $A9 $2F
+	LDA #$2F		; E0F5  $A9 $2F		BANK 0F/E32F (map character sprite data)
 	CLC			; E0F7  $18
 	ADC $80			; E0F8  $65 $80
 	STA $80			; E0FA  $85 $80
@@ -5363,17 +5446,16 @@ Set_cur_data:
 	RTS			; E16A  $60
 ; End of Set_cur_data
 
-   ;data block---
+; $E16B - data block = player sprite y position for each vehicle
 ;; [$E16B-
 .byte $6C,$6C,$6F,$6F,$6F
-;; [$E170 : 3E180]
-.byte $6F,$6F,$6F,$4F,$AD,$03
+;; [$E170 : 3E170]
+.byte $6F,$6F,$6F,$4F
 
-    RTS                      ; E176  $60
-
+;
+	LDA $6003		; E174	$AD $03 $60
     CMP #$10                 ; E177  $C9 $10
     BEQ E194                 ; E179  $F0 $19
-
 ; Name	:
 ; Marks	:
 ;; sub start ;;
@@ -5381,7 +5463,7 @@ Set_cur_data:
 	BEQ L3E1C7		; E17E  $F0 $47
 	LDX $6001		; E180  $AE $01 $60	Ship x position ??
 	LDY $6002		; E183  $AC $02 $60	Ship y position ??
-	JSR Ship_visible	; E186  $20 $08 $E2
+	JSR Ship_visible	; E186  $20 $08 $E2	check if coordinates are onscreen
 	BCS L3E1C7		; E189  $B0 $3C		if Ship is not visible(far from here)
 	LDA #$00                 ; E18B  $A9 $00
 	STA $80                  ; E18D  $85 $80
@@ -5394,24 +5476,26 @@ Set_cur_data:
 E194:
 	LDX ship_x		; E194  $AE $0D $60
 	LDY ship_y		; E197  $AC $0E $60
-	JSR Ship_visible	; E19A  $20 $08 $E2
+	JSR Ship_visible	; E19A  $20 $08 $E2	check if coordinates are onscreen
 	BCS L3E1C7               ; E19D  $B0 $28
 	LDA #$00                 ; E19F  $A9 $00
 	STA $80                  ; E1A1  $85 $80
 	LDA #$C0                 ; E1A3  $A9 $C0
 	JMP $E0CF                ; E1A5  $4C $CF $E0
+; End of
 
 ; Name	:
 ; Marks	:
+;	  update chocobo sprite
 ;; sub start ;;
 	LDA chocobo_stat	; E1A8  $AD $08 $60
-	BMI L3E1D0		; E1AB  $30 $23
-	BEQ L3E1C7		; E1AD  $F0 $18
+	BMI L3E1D0		; E1AB  $30 $23		branch if chocobo is running away
+	BEQ L3E1C7		; E1AD  $F0 $18		branch if chocobo is hidden
 	CMP #$02		; E1AF  $C9 $02
-	BEQ L3E1C7		; E1B1  $F0 $14
+	BEQ L3E1C7		; E1B1  $F0 $14		return if player is riding chocobo ??
 	LDX chocobo_x		; E1B3  $AE $09 $60
 	LDY chocobo_y		; E1B6  $AC $0A $60
-	JSR Ship_visible	; E1B9  $20 $08 $E2
+	JSR Ship_visible	; E1B9  $20 $08 $E2	check if coordinates are onscreen
 	BCS L3E1C7		; E1BC  $B0 $09		if Ship is not visible(far from here)
     LDA #$00                 ; E1BE  $A9 $00
     STA $80                  ; E1C0  $85 $80
@@ -5421,18 +5505,23 @@ L3E1C7:
 	RTS			; E1C7  $60
 ; End of Check airship ?? / Ship_visible
 
+; Marks	: execute object command
  LDA #$03                 ; E1C8  $A9 $03
     JSR Swap_PRG_               ; E1CA  $20 $03 $FE
-    JMP $A003                ; E1CD  $4C $03 $A0	event code
+    JMP $A003                ; E1CD  $4C $03 $A0	BANK 03/A003 (execute object command) - event code
+; End of
+
+; Marks	: draw chocobo running away
 L3E1D0:
-    LDX #$01                 ; E1D0  $A2 $01
-    JSR $E1C8                ; E1D2  $20 $C8 $E1
-    BCS E1DA                 ; E1D5  $B0 $03
+    LDX #$01                 ; E1D0  $A2 $01	update chocobo position
+    JSR $E1C8                ; E1D2  $20 $C8 $E1	execute object command
+    BCS E1DA                 ; E1D5  $B0 $03	branch if chocobo ran offscreen
     JMP $E0D1                ; E1D7  $4C $D1 $E0
 E1DA:
-    LDA #$00                 ; E1DA  $A9 $00
+    LDA #$00                 ; E1DA  $A9 $00	hide chocobo
     STA $6008                ; E1DC  $8D $08 $60
     RTS                      ; E1DF  $60
+; End of
 
 ; Name	:
 ; Marks	: Check airship ??
@@ -5440,27 +5529,35 @@ E1DA:
 	LDA airship_flag	; E1E0  $AD $04 $60
 	BMI L3E203		; E1E3  $30 $1E
 	BEQ L3E1C7		; E1E5  $F0 $E0
-    LDX $6005                ; E1E7  $AE $05 $60
+    LDX $6005                ; E1E7  $AE $05 $60	airship xy position
     LDY $6006                ; E1EA  $AC $06 $60
-	JSR Ship_visible	; E1ED  $20 $08 $E2
+	JSR Ship_visible	; E1ED  $20 $08 $E2	check if coordinates are onscreen
     BCS L3E1C7               ; E1F0  $B0 $D5
     LDA #$10                 ; E1F2  $A9 $10
     STA $80                  ; E1F4  $85 $80
     LDA #$28                 ; E1F6  $A9 $28
     JMP $E0CF                ; E1F8  $4C $CF $E0
+; End of
+
+; Marks	: update dreadnought
 L3E1FB:
 	LDA dreadnaught_flag	; E1FB  $AD $14 $60
-	BEQ L3E1C7		; E1FE  $F0 $C7
-	JMP L3DEB0		; E200  $4C $B0 $DE
+	BEQ L3E1C7		; E1FE  $F0 $C7		return if dreadnought is not visible
+	JMP L3DEB0		; E200  $4C $B0 $DE	update dreadnought sprites
+; End of
+
+;
 L3E203:
     LDX #$04                 ; E203  $A2 $04
-    JMP $E1C8                ; E205  $4C $C8 $E1
+    JMP $E1C8                ; E205  $4C $C8 $E1	execute object command
+; End of
 
 ; Name	: Ship_visible
 ; X	: ship_x ??
 ; Y	: ship_y ??
 ; Ret	: Carry flag(Set = Not visible, Reset = Visible)
 ; Marks	:
+;	  check if coordinates are onscreen
 ;; sub start ;;
 Ship_visible:
 	TYA			; E208  $98
@@ -5472,7 +5569,7 @@ Ship_visible:
 	ASL A			; E211  $0A
 	ASL A			; E212  $0A
 	ASL A			; E213  $0A
-	CLC			; E214  $18
+	CLC			; E214  $18		*** bug *** (should be SEC)
 	SBC ver_stile_pos	; E215  $E5 $36
 	CMP #$EC		; E217  $C9 $EC
 	BCS L3E236		; E219  $B0 $1B
@@ -5495,15 +5592,14 @@ Ship_visible:
 	CLC			; E234  $18
 	RTS			; E235  $60
 ; End of Ship_visible
-
 L3E236:
 	SEC			; E236  $38
 	RTS			; E237  $60
-; End of
+; End of Ship_visible
 
 ; Name	:
 ; Ret	: Carry flag(Set: skip ??, Reset: )
-; Marks	:
+; Marks	: check if dreadnought is onscreen
 ;; sub start ;;
 	LDA dreadnaught_y	; E238  $AD $16 $60
 	SEC			; E23B  $38
@@ -5548,10 +5644,11 @@ E275:
     STX $61                  ; E275  $86 $61
     CLC                      ; E277  $18
     RTS                      ; E278  $60
+; End of
 
-;data block
+; $E280 - data block = dreadnought sprite data
 .byte $00,$88,$02,$00,$00,$89,$02
-;;; [E280 : 3E290]
+;;; [E280 : 3E280]
 .byte $08,$00,$8A,$02,$08,$00,$8B,$02,$08,$08,$8C,$02,$00,$00,$9D,$02
 .byte $08,$00,$8E,$02,$08,$00,$9F,$02,$08,$08,$90,$02,$00,$00,$91,$02
 .byte $08,$00,$92,$02,$08,$00,$93,$02,$08,$08,$94,$02,$00,$00,$95,$02
@@ -5559,16 +5656,21 @@ E275:
 .byte $02,$08,$00,$9A,$02,$08,$00,$9B,$02,$08,$08,$9C,$02,$00,$00,$9D
 .byte $02,$08,$00,$9E,$02,$08,$00,$9F,$02,$08,$08,$A0,$02,$00,$00,$91
 .byte $02,$08,$00,$92,$02,$08,$00,$93,$02,$08,$08,$A1,$02,$00,$00,$95
-.byte $02,$08,$00,$96,$02,$08,$00,$97,$02,$08,$FF,$00,$B8,$02,$00,$00
+.byte $02,$08,$00,$96,$02,$08,$00,$97,$02,$08,$FF
+
+;$E2FB - data block = dreadnaught shadow sprite data
+.byte $00,$B8,$02,$00,$00
 .byte $B9,$02,$08,$00,$B9,$02,$08,$00,$B8,$42,$08,$FF
+
 
 ; Name	:
 ; DEST	: $40 = ??
 ; Marks	: event ??
+;	  update sprites (normal map)
 ;; sub start ;;
 	LDY #$01		; E30C  $A0 $01		sprite index ?? vehicle(no airship, ship, chocobo) ??
-	JSR $E017		; E30E  $20 $17 $E0	copy sprite to buffer($0200-)
-	LDA #$40		; E311  $A9 $40
+	JSR $E017		; E30E  $20 $17 $E0	copy sprite to buffer($0200-) - update player sprite
+	LDA #$40		; E311  $A9 $40		start at sprite 16
 	STA $26			; E313  $85 $26		pointer to next available sprite
 	LDX #$06		; E315  $A2 $06		event number value = 06h
 	LDA #$03		; E317  $A9 $03
@@ -5576,7 +5678,7 @@ E275:
 	JMP $A003		; E31C  $4C $03 $A0	event code - npc process ??
 ; End of
 
-;data block---
+;$E31F - data block = player sprite offset for each facing direction
 ;; [$E31F : player direction ?? - 1h(right):00h, 2h(left):10h, 4h(down):30h, 8h(up):20h
 .byte $00
 ;; [$E320-$E3B6 : 3E320]
@@ -5588,7 +5690,7 @@ E275:
 .byte $30,$00,$10,$00
 ; up E327
 .byte $20,$00,$10,$00,$30,$00,$10,$00
-; $E32F -OAM(2x2 tile??): Index offset, Attribute
+; $E32F -OAM(2x2 tile??): Index offset, Attribute = player sprite tile index and flags (no vehicle)
 .byte $09,$40,$0B,$41,$08,$40,$0A,$41	; right direction($E32F)
 .byte $0D,$40,$0F,$41,$0C,$40,$0E,$41
 .byte $08,$00,$0A,$01,$09,$00,$0B,$01	; left direction($E33F)
@@ -5597,11 +5699,14 @@ E275:
 .byte $04,$00,$07,$41,$05,$00,$06,$41
 .byte $00,$00,$02,$01,$01,$00,$03,$01	; downward($E35F)
 .byte $00,$00,$03,$41,$01,$00,$02,$41
-.byte $11,$42,$13,$42,$10,$42,$12,$42	; 
+; $E36F
+.byte $11,$42,$13,$42,$10,$42,$12,$42	; player sprite tile index and flags (vehicle)
 .byte $15,$42,$17,$42,$14,$42,$16,$42
 .byte $10,$02,$12,$02,$11,$02,$13,$02,$14,$02,$16,$02,$15,$02,$17,$02,$00
 .byte $02,$02,$02,$01,$02,$03,$02,$04,$02,$06,$02,$05,$02,$07,$02,$08
-.byte $02,$0A,$02,$09,$02,$0B,$02,$0C,$02,$0E,$02,$0D,$02,$0F,$02,$00
+.byte $02,$0A,$02,$09,$02,$0B,$02,$0C,$02,$0E,$02,$0D,$02,$0F,$02
+; $E3AF - airship shadow tile index and flags
+.byte $00
 .byte $02,$02,$02,$01,$02,$03,$02
 ; [$E3B7-$E3BE] OAM(2x2 tile) : Index offset, Attributes
 .byte $00,$03
@@ -5609,6 +5714,7 @@ E275:
 .byte $01,$03
 .byte $03,$03
 
+; Marks	: leftover from ff1
 E3BF:
     RTS                      ; E3BF  $60
 
@@ -5683,7 +5789,12 @@ E3E0:
     ADC #$18                 ; E451  $69 $18
     STA $26                  ; E453  $85 $26
     RTS                      ; E455  $60
+; End of
 
+; $E456 - data block = ff1 character palette ids
+;0F/E456: 01 00 00 01 01 00
+;0F/E45C: 01 01 00 01 01 00
+; here is not code
     ORA ($00,X)              ; E456  $01 $00
     BRK                      ; E458  $00
     ORA ($01,X)              ; E459  $01 $01
@@ -5692,30 +5803,39 @@ E3E0:
     BRK                      ; E45E  $00
     ORA ($01,X)              ; E45F  $01 $01
     BRK                      ; E461  $00
+
+;---------------------------------------------
+
+
+; Marks	: load ending graphics
     LDA #$00                 ; E462  $A9 $00
     STA PpuMask_2001         ; E464  $8D $01 $20
     LDA #$00                 ; E467  $A9 $00
     STA $80                  ; E469  $85 $80
-    LDA #$B0                 ; E46B  $A9 $B0
+    LDA #$B0                 ; E46B  $A9 $B0	BANK 09/B000 (ending graphics)
     STA $81                  ; E46D  $85 $81
-    LDX #$04                 ; E46F  $A2 $04
+    LDX #$04                 ; E46F  $A2 $04	size: $0400 bytes
     LDA #$09                 ; E471  $A9 $09
     JSR Swap_PRG_               ; E473  $20 $03 $FE
-    LDA #$00                 ; E476  $A9 $00
-    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E478  $20 $03 $E5
-    LDA #$80                 ; E47B  $A9 $80
+    LDA #$00                 ; E476  $A9 $00	ppu $0000
+    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E478  $20 $03 $E5	copy large data to ppu
+    LDA #$80                 ; E47B  $A9 $80	BANK 09/8000 (portait graphics)
     STA $81                  ; E47D  $85 $81
-    LDX #$0A                 ; E47F  $A2 $0A
-    LDA #$10                 ; E481  $A9 $10
+    LDX #$0A                 ; E47F  $A2 $0A	size: $0A00 bytes
+    LDA #$10                 ; E481  $A9 $10	ppu $1000
     JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E483  $20 $03 $E5
     LDA #$0E                 ; E486  $A9 $0E
     JMP Swap_PRG_               ; E488  $4C $03 $FE
+; End of
+
+; Marks	: load menu graphics - UNUSED
 	JSR Init_icon_tiles	; E48B  $20 $E1 $E6
 	JMP Init_char_tile	; E48E  $4C $FA $E6
 ; End of
 
 ; Name	: Init_CHR_RAM
 ; Marks	: Set some tile(ICONS) and palettes to PPU
+;	  load menu graphics
 ;; sub start ;;
 Init_CHR_RAM:
 	JSR Init_icon_tiles	; E491  $20 $E1 $E6
@@ -5723,16 +5843,18 @@ Init_CHR_RAM:
 ; End of Init_CHR_RAM
 
 ; Name	:
-; Marks	:
+; Marks	: load normal map graphics
 ;; sub start ;;
 	LDA #$02		; E497  $A9 $02
 	JSR Swap_PRG_		; E499  $20 $03 $FE
 	JSR $E4B3		; E49C  $20 $B3 $E4	copy character potrait
-	JSR $E528		; E49F  $20 $28 $E5	set Ppu_data (sprites??/background??)
-	JMP L3E607		; E4A2  $4C $07 $E6
+	JSR $E528		; E49F  $20 $28 $E5	set Ppu_data (sprites??/background??) - load map bg graphics
+	JMP L3E607		; E4A2  $4C $07 $E6	load npc graphics
+; End of
 
 ; Name	:
 ; Marks	: Copy Ppu(world bg/sprite graphics)
+;	  load world map graphics
 ;; sub start ;;
 	LDA #$02		; E4A5  $A9 $02
 	JSR Swap_PRG_		; E4A7  $20 $03 $FE
