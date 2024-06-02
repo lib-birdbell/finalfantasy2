@@ -2987,7 +2987,7 @@ Cmd_magic_proc:
 	JSR Load_battle_text	; 9DA5	$20 $2F $97	load battle text
 	LDX #$03		; 9DA8	$A2 $03
 L31DAA:
-	LDA $9F70,X		; 9DAA	$BD $70 $9F	mp window position data
+	LDA MP_win_pos,X	; 9DAA	$BD $70 $9F	mp window position data
 	STA $62,X		; 9DAD	$95 $62
 	DEX			; 9DAF	$CA
 	BPL L31DAA		; 9DB0	$10 $F8
@@ -3010,7 +3010,7 @@ L31DC1:
 	JSR Show_item		; 9DD3	$20 $85 $9E
 	LDX #$03		; 9DD6	$A2 $03
 L31DD8:
-	LDA $9F74,X		; 9DD8	$BD $74 $9F	magic list window position data
+	LDA Mag_list_win_pos,X	; 9DD8	$BD $74 $9F	magic list window position data
 	STA $62,X		; 9DDB	$95 $62
 	DEX			; 9DDD	$CA
 	BPL L31DD8		; 9DDE	$10 $F8
@@ -3260,8 +3260,10 @@ Show_magic:
 
 ;; [$9F70 :: 0x31F70]
 ;9F70 - data block = mp window position data
+MP_win_pos:
 .byte $3F,$13,$47,$1E
 ;9F74 - data block = magic list window position data
+Mag_list_win_pos:
 .byte $28,$13,$3E,$1E
 
 Cmd_item_proc:
@@ -6522,10 +6524,10 @@ L334D9:
 	LDA $5E                 ; B4D9	A5 5E     
 	ASL                     ; B4DB	0A        
 	CLC                     ; B4DC	18        
-	ADC #$8A                ; B4DD	69 8A     BE8A (magic effect jump table)
+	ADC #<Magic_effect_tbl	; B4DD	69 8A     BANK 0C/BE8A (magic effect jump table)
 	STA $44                 ; B4DF	85 44     
 	LDA #$00                ; B4E1	A9 00     
-	ADC #$BE                ; B4E3	69 BE     
+	ADC #>Magic_effect_tbl	; B4E3	69 BE     
 	STA $45                 ; B4E5	85 45     
 	LDY #$00                ; B4E7	A0 00     
 	LDA ($44),Y             ; B4E9	B1 44     
