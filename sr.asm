@@ -14,10 +14,10 @@ Number_tile:
 .byte $00,$45,$EF,$FF,$FF,$FF,$EF,$45,$00,$00,$45,$6C,$55,$45,$45,$00	; "miss" half A
 .byte $00,$00,$B6,$FF,$FE,$FF,$FE,$6C,$00,$00,$00,$36,$6C,$36,$6C,$00	; "miss" half B
 
+;--------------------------------------------------------------------------------------
 
 ; Name	: Copy_num_tile
-; Marks	:
-;	  tile index 4Ch
+; Marks	: tile index 4Ch, 4Dh, 4Eh, 4Fh
 Copy_num_tile:
 	LDA #$04
 	STA PpuAddr_2006
@@ -47,6 +47,274 @@ Copy_num_tile_data_loop:
 Copy_num_tile_end:
 	RTS
 ; End of Copy_num_tile
+
+
+;----------------------------------------------------
+;	VERSION 3
+
+bnc_cnt		= $40
+num_leng_tmp	= $55
+dmg_x_tmp	= $62
+dmg_y_tmp	= $63
+
+; Name	: Show_dmg(ver 3)
+; Marks	: How to define enemy or character -> target(2Bh) bit.7
+;	  enemy x,y is tile base(0-1Fh)
+;	  character x,y is real(0-256)
+;	  $40 = bounce counter
+;	  $55 = damage number length
+;	  $62 = x
+;	  $63 = y
+Show_dmg:
+	JSR Get_length		; 8C51	20 AB 8D
+	STX $55			; 8C54	86 55
+	LDX #$4C
+	STX $0231		; INDEX
+	INX
+	STX $0235
+	INX
+	STX $0239
+	INX
+	STX $023D
+	LDX #$02		; ATTR
+	STX $0232
+	STX $0236
+	STX $023A
+	STX $023E
+;Get y position
+	LDY #$2B		; A8BB	$A0 $2B
+	LDA ($9F),Y		; A8BD	$B1 $9F		target m???aiii ??
+	PHA
+	AND #$80
+	BNE Show_dmg_enemy_y
+	PLA			; player xy calcuration
+	AND #$07		; will be changed to 03h ??
+	TAX
+	LDA $7BCE,X		; character y position
+	CLC
+	ADC #$10		; lower of character include dmg heights
+	;ADC #$0A		; lower of character include dmg heights	default is -6
+	STA dmg_y_tmp		; character y
+	BNE Show_dmg_calc_x
+Show_dmg_enemy_y:
+	PLA
+	AND #$07
+	TAX
+	LDA $7B92,X		; monster y position
+	CLC
+	ADC $7B82,X		; monster heights
+	ASL
+	ASL
+	ASL
+	SEC
+	SBC #$08		; dmg heights
+	;SBC #$0E		; dmg heights	default is -6
+	STA dmg_y_tmp		; monster y
+Show_dmg_calc_x:
+; Get X position
+	LDA ($9F),Y		; A8BD	$B1 $9F		target m???aiii ??
+	PHA
+	AND #$80
+	BNE Show_dmg_enemy_x
+	PLA
+	AND #$07
+	TAY
+	LDX num_leng_tmp
+	;LDA $7BD2,Y		; character x position (base)
+	LDA $7BCA,Y		; character x position (current)
+	CLC
+	ADC #$08
+Show_dmg_x_leng:
+	SEC 
+	SBC #$04
+	DEX
+	BNE Show_dmg_x_leng
+	STA dmg_x_tmp		; character x
+	BEQ Show_dmg_x
+Show_dmg_enemy_x:
+	PLA
+	AND #$07
+	TAY
+	;JSR Get_length
+	LDX num_leng_tmp
+	LDA $7B9A,Y		; monster x position
+	ASL
+	CLC
+	ADC $7B8A,Y		; monster widths = use half
+	ASL
+	ASL
+Show_dmg_mob_x_leng:
+	SEC 
+	SBC #$04
+	DEX
+	BNE Show_dmg_mob_x_leng
+	STA dmg_x_tmp		; monster x
+Show_dmg_x:
+	LDX num_leng_tmp
+	STA $0233		; X
+	DEX
+	BEQ Show_dmg_y
+	CLC
+	ADC #$08
+	STA $0237
+	DEX
+	BEQ Show_dmg_y
+	CLC
+	ADC #$08
+	STA $023B
+	DEX
+	BEQ Show_dmg_y
+	CLC
+	ADC #$08
+	STA $023F
+Show_dmg_y:
+	LDX num_leng_tmp
+	LDA dmg_y_tmp
+	SEC
+	SBC #$06		; default is -6
+	STA $0230		; Y
+	DEX
+	BEQ Show_dmg_ppu
+	STA $0234
+	DEX
+	BEQ Show_dmg_ppu
+	STA $0238
+	DEX
+	BEQ Show_dmg_ppu
+	STA $023C
+Show_dmg_ppu:
+	JSR Wait_MENU_snd
+	JSR Set_IRQ_JMP		; 980F	$20 $2A $FA	Wait NMI
+	LDA #$02		; 9817	$A9 $02
+	STA SpriteDma_4014	; 9819	$8D $14 $40
+;palette copy - sprite 2, 1,3 color(0Fh = black, 30h = white, 2Ah = green)
+	LDA #$3F
+	STA PpuAddr_2006
+	LDA #$19
+	STA PpuAddr_2006
+	LDA #$0F
+	STA PpuData_2007
+	STA PpuData_2007
+	LDA #$30
+	STA PpuData_2007
+	JSR Copy_num_tile	; Copy number tile to PPU(direct)
+	JSR Wait_NMI_end
+	;move sprite
+	LDX #$1F
+	STX bnc_cnt		; loop counter
+Show_dmg_bnc:
+	JSR Wait_MENU_snd
+	JSR Set_IRQ_JMP		; 980F	$20 $2A $FA	Wait NMI
+	LDY num_leng_tmp
+	LDX bnc_cnt
+	LDA dmg_y_tmp
+	SEC
+	SBC Dmg_bnc,X
+	STA $0230		; 8D 30 02 - 4	Y
+	DEY
+	BEQ Show_dmg_bnc_end
+	STA $0234		; 8D 34 02 - 4
+	DEY
+	BEQ Show_dmg_bnc_end
+	STA $0238		; 8D 38 02 - 4
+	DEY
+	BEQ Show_dmg_bnc_end
+	STA $023C		; 8D 3C 02 - 4
+Show_dmg_bnc_end:
+	LDA #$02		; 9817	$A9 $02
+	STA SpriteDma_4014	; 9819	$8D $14 $40
+	JSR Wait_NMI_end
+	DEC bnc_cnt
+	BPL Show_dmg_bnc	; loop
+	JSR Wait_MENU_snd
+	JSR Set_IRQ_JMP		; 980F	$20 $2A $FA	Wait NMI
+	LDY #$10		; 9059	$A0 $20		////debug
+	JSR Wait		; 905B	$20 $9B $94	wait 16 frame////debug - to MENU
+	;delete sprite
+.if 0
+	LDA #$FF		; A9 FF		- 2
+	STA $0230		; 8D 30 02	- 4	Y
+	STA $0234		; 8D 34 02	- 4
+	STA $0238		; 8D 38 02	- 4
+	STA $023C		; 8D 3C 02	- 4
+	STA $0233		; 8D 33 02	- 4	X
+	STA $0237		; 8D 37 02	- 4
+	STA $023B		; 8D 3B 02	- 4
+	STA $023F		; 8D 3F 02	- 4	total 26bytes 34 cycles
+.endif
+.if 0
+	LDA #$FF		; A9 FF		- 2
+	LDX #$0C		; A2 0C		- 2
+Show_dmg_del:
+	STA $0230,X		; 9D 30 02	- 4
+	STA $0233,X		; 9D 33 02	- 4
+	DEX			; CA		- 2
+	DEX			; CA		- 2
+	DEX			; CA		- 2
+	DEX			; CA		- 2
+	BPL Show_dmg_del	; 10 ??		- 2or3	total 16 bytes 72 cycles
+.endif
+.if 1
+	LDA #$F0		; A9 FF		- 2
+	LDX #$0F		; A2 0C		- 2
+Show_dmg_del:
+	STA $0230,X		; 9D 30 02	- 4
+	DEX			; CA		- 2
+	BPL Show_dmg_del	; 10 ??		- 2or3	total 10 bytes 148 cycles
+.endif
+	JSR Set_IRQ_JMP		; 980F	$20 $2A $FA	Wait NMI
+	LDA #$02		; 9817	$A9 $02
+	STA SpriteDma_4014	; 9819	$8D $14 $40
+
+	RTS
+; End of Show_dmg
+
+;$8D8B
+Dmg_bnc:
+;.byte $06
+;.byte $0C,$11,$16,$1A,$1A,$1D,$20,$20,$20,$1D,$1A,$16,$11,$0C,$06,$00
+;.byte $01,$03,$04,$05,$06,$07,$07,$07,$07,$07,$06,$05,$04,$03,$01,$00
+.byte $00,$01,$03,$04,$05,$06,$07,$07,$07,$07,$07,$06,$05,$04,$03,$01
+.byte $00,$06,$0C,$11,$16,$1A,$1D,$20,$20,$20,$1D,$1A,$1A,$16,$11,$0C
+
+; Name	: Get_length
+; Ret	: X = length
+; Marks	: 
+Get_length:
+	LDX #$04		; 8DAB	A2 04
+	LDA $65			; 8DAD	A5 65
+	CMP #$FF
+	BNE Get_length_exit
+	DEX
+	LDA $66
+	CMP #$FF
+	BNE Get_length_exit
+	DEX
+	LDA $67
+	CMP #$FF
+	BNE Get_length_exit
+	DEX
+Get_length_exit:
+	RTS
+; End of Get_length
+
+; Name	: Show_miss(ver 3)
+; Marks	: ver3
+Show_miss:
+	LDX #$0A		; 8DC3	A2 0A
+	STX $67			; 8DC5	86 67
+	INX
+	STX $68
+	LDA #$FF
+	STA $65
+	STA $66
+	JMP Show_dmg
+; End of Show_miss
+
+
+;----------------------------------------------------
+;	VERSION 2
+
 
 ; Name	: Show_dmg(ver 2)
 ; Marks	: How to define enemy or character -> target(2Bh) bit.7
@@ -196,6 +464,11 @@ Show_miss:
 	JMP Show_dmg_xy
 ; End of Show_miss
 
+
+;----------------------------------------------------
+;	VERSION 1
+
+
 ; Name	: Show_dmg
 ; Marks	: How to define enemy or character
 ;	  $26 = turn order temp ??
@@ -296,6 +569,9 @@ Show_miss:
 ; End of Show_miss
 
 
+;----------------------------------------------------
+
+
 ; Name	: Swap_PRG_R6
 ; Marks	: It will move to BANK_1FSwap_PRG_R6:
 	PHA	LDA #$06
@@ -304,3 +580,5 @@ Show_miss:
 	STA $8001
 	RTS
 ; End of Swap_PRG_R6
+
+

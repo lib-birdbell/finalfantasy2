@@ -3,6 +3,13 @@
 
 .export	BattleMain_bank0C	;8F43
 .export SortVal_bank0C		;8F46
+.export Init_battle_stats_bank0C	; 8F49
+.export Copy_txt_buf_bank0C	;8F4C
+.export Open_win_bank0C		;8F4F
+.export Update_addr_bank0C	;8F52
+.export HtoD_bank0C		;8F55
+.export Get_win_pos_datap_bank0C	;8F58
+.export Move_OAM_XY_bank0C	;8F5B
 
 .import Set_IRQ_JMP		;FA2A
 .import	Do_009880		;FAFB
@@ -657,17 +664,21 @@ BASE_DELAY	= $20		; wait frame
 ; $8F43- 
 BattleMain_bank0C:
 	JMP Battle_main		; 8F43	$4C $28 $90	battle main
-
 SortVal_bank0C:
 	JMP SortVal		; 8F46	$4C $5E $8F	sort values
+Init_battle_stats_bank0C:
 	JMP Init_battle_stats	; 8F49	$4C $68 $98	init battle stats
+Copy_txt_buf_bank0C:
 	JMP Copy_txt_buf	; 8F4C	$4C $E7 $95	copy text to buffer
-;8F4F
+Open_win_bank0C:
 	JMP Open_win		; 8F4F	$4C $50 $92	open window
+Update_addr_bank0C:
 	JMP Update_addr		; 8F52	$4C $E1 $96	update character/monster pointers
+HtoD_bank0C:
 	JMP HtoD		; 8F55	$4C $49 $97	convert hex to decimal
-;8F58
+Get_win_pos_datap_bank0C:
 	JMP Get_win_pos_datap	; 8F58	$4C $B5 $96	-- same as unused 05/ABD8
+Move_OAM_XY_bank0C:
 	JMP Move_OAM_XY		; 8F5B	$4C $02 $9D	set positions for 16x16 sprite
 ;
 
@@ -5275,7 +5286,7 @@ L32CF0:
 Show_mag_name:
 	LDA $55			; ACF3	$A5 $55
 	STA $64			; ACF5	$85 $64
-	LDA #$B0		; ACF7	$A9 $B0		attack names (05/B0BB)
+	LDA #$B0		; ACF7	$A9 $B0		BANK 05/B0BB (attack names)
 	STA $63			; ACF9	$85 $63
 	LDA #$BB		; ACFB	$A9 $BB
 	STA $62			; ACFD	$85 $62
@@ -5478,7 +5489,7 @@ L32E44:
 	STA $46			; AE4F	$85 $46
 	LDA $44			; AE51	$A5 $44
 	TAX			; AE53	$AA
-	LDA Mob_AI_Sp_atk,X	; AE54	$BD $4B $8E	8D73 -> 8E4B Mob_AI special attack - undead ?? BANK
+	LDA Mob_AI_Sp_atk,X	; AE54	$BD $4B $8E	BANK 0C/8E4B (special attack) - undead ??
 	SEC			; AE57	$38
 	SBC $46			; AE58	$E5 $46
 	BCC L32E67		; AE5A	$90 $0B
@@ -5877,7 +5888,7 @@ L330AF:
 	STA $9B			; B0C6	$85 $9B
 	LDA $9B			; B0C8	$A5 $9B
 	AND #$80		; B0CA	$29 $80
-	BEQ L330D4		; B0CC	$F0 $06		branch if damage is not negative ???
+	BEQ L330D4		; B0CC	$F0 $06		branch if damage is not negative - bit7 is no dmg msg
 	LDA #$00		; B0CE	$A9 $00		set damage to zero
 	STA $9A			; B0D0	$85 $9A
 	STA $9B			; B0D2	$85 $9B
@@ -6431,7 +6442,7 @@ L3340D:
 	LDA $05			; B436	$A5 $05
 	ADC #>Magic_prop
 	;ADC #$85		; B438	$69 $85
-	STA $45			; B43A	$85 $45
+	STA $45			; B43A	$85 $45		BANK 0C/85D9 (Magic properties)
 	LDY #$00		; B43C	$A0 $00
 	LDA ($44),Y		; B43E	$B1 $44
 	STA $5E			; B440	85 5E     
@@ -6519,21 +6530,21 @@ L334CC:
 	LDY #$17                ; B4D0	A0 17     
 	AND ($A1),Y             ; B4D2	31 A1     
 	BEQ L334D9              ; B4D4	F0 03     
-	JMP Restore_HP           ; B4D6	4C FB BC  restore hp
+	JMP Restore_HP		; B4D6	$4C $FB $BC	restore hp
 L334D9:
-	LDA $5E                 ; B4D9	A5 5E     
-	ASL                     ; B4DB	0A        
-	CLC                     ; B4DC	18        
-	ADC #<Magic_effect_tbl	; B4DD	69 8A     BANK 0C/BE8A (magic effect jump table)
-	STA $44                 ; B4DF	85 44     
-	LDA #$00                ; B4E1	A9 00     
-	ADC #>Magic_effect_tbl	; B4E3	69 BE     
-	STA $45                 ; B4E5	85 45     
-	LDY #$00                ; B4E7	A0 00     
-	LDA ($44),Y             ; B4E9	B1 44     
-	STA $46                 ; B4EB	85 46     
-	INY                     ; B4ED	C8        
-	LDA ($44),Y             ; B4EE	B1 44     
+	LDA $5E			; B4D9	$A5 $5E     
+	ASL			; B4DB	$0A        
+	CLC			; B4DC	$18        
+	ADC #<Magic_effect_tbl	; B4DD	$69 $8A     BANK 0C/BE8A (magic effect jump table)
+	STA $44			; B4DF	$85 $44     
+	LDA #$00		; B4E1	$A9 $00     
+	ADC #>Magic_effect_tbl	; B4E3	$69 $BE     
+	STA $45			; B4E5	85 $45     
+	LDY #$00		; B4E7	A0 $00     
+	LDA ($44),Y		; B4E9	$B1 $44     
+	STA $46			; B4EB	$85 $46     
+	INY			; B4ED	$C8        
+	LDA ($44),Y		; B4EE	$B1 $44     
 	STA $47                 ; B4F0	85 47     
 	JSR Do_mag_effect       ; B4F2	20 87 BE  do magic effect
 	LDY #$0A                ; B4F5	A0 0A     

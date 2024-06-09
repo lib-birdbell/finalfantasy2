@@ -18,12 +18,17 @@
 .export	Set_cursor		;DEA1
 .export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
+.export	SR_BattleMain		;FB06
+.export	SR_SortVal		;FB0C
+.export	SR_Init_battle_stats	;FB17
+.export	Load_text_gfx		;FB84
 .export	Copy_char_tile		;FBBA
 .export	Get_data_BANK_0C	;FBE6
 .export	Set_wpn_pal		;FC03
 .export	Multi			;FC79
 .export	Multi16			;FC98
 .export DoDivision		;FCC3
+.export	Get_nybble		;FD07
 .export Random			;FD11
 .export	Weapon_type		;FDC7
 .export Wait_NMI_end		;FD46
@@ -47,6 +52,14 @@
 
 .import	BattleMain_bank0C	;8F43 - bank_0C
 .import SortVal_bank0C		;8F46 - bank_0C
+.import Init_battle_stats_bank0C	;8F49 - bank_0C
+.import Copy_txt_buf_bank0C	;8F4C - bank_0C
+.import Open_win_bank0C		;8F4F - bank_0C
+.import Update_addr_bank0C	;8F52 - bank_0C
+.import HtoD_bank0C		;8F55 - bank_0C
+.import Get_win_pos_datap_bank0C	;8F58 - bank_0C
+.import Move_OAM_XY_bank0C	;8F5B - bank_0C
+
 
 .segment "BANK_FIXED"
 
@@ -8947,7 +8960,7 @@ Swap_ret_bank:
 
 ; A	: bank
 ; SRC	: $40(ADDR) = excute code address
-L3FA88:
+Exec_bank:
 	PHA			; FA88  $48
 	LDA bank_ret_tmp	; FA89  $A5 $3E		bank temp buffer ??
 	STA $3F			; FA8B  $85 $3F		bank temp buffer save ??
@@ -9022,7 +9035,7 @@ L3FAF0:
 	LDA #$96		; FAF2  $A9 $96
 	STA $41			; FAF4  $85 $41
 	LDA #$0B		; FAF6  $A9 $0B
-	JMP L3FA88		; FAF8  $4C $88 $FA
+	JMP Exec_bank		; FAF8  $4C $88 $FA
 ; End of and to FA88
 
 ; Name	:
@@ -9036,42 +9049,56 @@ Do_009880:
 	JMP Swap_ret_bank	; FB03  $4C $84 $FA
 ; End of
 
+; Name	: SR_BattleMain
 ; Marks	: Swap bank 0C and go battle main code
-L3FB06:
+;	  Use on BANK 0B
+SR_BattleMain:
 	JSR Swap_bank_0C_ret	; FB06  $20 $7D $FA
 	JMP BattleMain_bank0C	; FB09  $4C $43 $8F	bank 0C - battle code -> battle main code
+; End of SR_BattleMain
 
-; Name	:
+; Name	: SR_SortVal
 ; Marks	: Swap bank 0C and go battle sort value code
 ;	  for sort value from another bank
 ;; sub start ;;
+SR_SortVal:
 	PHA			; FB0C  $48
 	JSR Swap_bank_0C_ret	; FB0D  $20 $7D $FA
 	PLA			; FB10  $68
 	JSR SortVal_bank0C	; FB11  $20 $46 $8F	bank 0C - battle code -> sort value
 	JMP Swap_bank_0B_ret	; FB14  $4C $79 $FA
+; End of SR_SortVal
 
 ; Marks	: $40(ADDR) = excute code address ??
 ;; sub start ;;
-    LDA #$49                 ; FB17  $A9 $49
-    BNE L3FB31               ; FB19  $D0 $16
-    LDA #$4C                 ; FB1B  $A9 $4C
-    BNE L3FB31               ; FB1D  $D0 $12
-    LDA #$4F                 ; FB1F  $A9 $4F
-    BNE L3FB31               ; FB21  $D0 $0E
-    LDA #$52                 ; FB23  $A9 $52
-    BNE L3FB31               ; FB25  $D0 $0A
-    LDA #$55                 ; FB27  $A9 $55
-    BNE L3FB31               ; FB29  $D0 $06
-    LDA #$58                 ; FB2B  $A9 $58
-    BNE L3FB31               ; FB2D  $D0 $02
-    LDA #$5B                 ; FB2F  $A9 $5B
-L3FB31:
-    STA $40                  ; FB31  $85 $40
-    LDA #$8F                 ; FB33  $A9 $8F
-    STA $41                  ; FB35  $85 $41
-    LDA #BANK_BATTLE         ; FB37  $A9 $0C
-    JMP L3FA88               ; FB39  $4C $88 $FA
+SR_Init_battle_stats:
+	LDA #<Init_battle_stats_bank0C	; FB17	$A9 $49
+	BNE Exec_battle_bank		; FB19	$D0 $16
+;
+	LDA #<Copy_txt_buf_bank0C	; FB1B	$A9 $4C
+	BNE Exec_battle_bank		; FB1D	$D0 $12
+;
+	LDA #<Open_win_bank0C	; FB1F	$A9 $4F
+	BNE Exec_battle_bank		; FB21	$D0 $0E
+;
+	LDA #<Update_addr_bank0C	;FB23	$A9 $52
+	BNE Exec_battle_bank		; FB25	$D0 $0A
+;
+	LDA #<HtoD_bank0C	; FB27	$A9 $55
+	BNE Exec_battle_bank		; FB29  $D0 $06
+;
+	LDA #<Get_win_pos_datap_bank0C	; FB2B	$A9 $58
+	BNE Exec_battle_bank		; FB2D	$D0 $02
+;
+	LDA #<Move_OAM_XY_bank0C	; FB2F	$A9 $5B
+Exec_battle_bank:
+	STA $40			; FB31	$85 $40
+	LDA #>Init_battle_stats_bank0C	; FB33	$A9 $8F
+	STA $41			; FB35	$85 $41
+	LDA #BANK_BATTLE	; FB37	$A9 $0C
+	JMP Exec_bank		; FB39	$4C $88 $FA
+; End of
+
 L3FB3C:
     JSR $FA71                ; FB3C  $20 $71 $FA
     JMP $9F00                ; FB3F  $4C $00 $9F
@@ -9085,7 +9112,7 @@ L3FB48:
     LDA #$9F                 ; FB4A  $A9 $9F
     STA $41                  ; FB4C  $85 $41
     LDA #$05                 ; FB4E  $A9 $05
-    JMP L3FA88               ; FB50  $4C $88 $FA
+ 	JMP Exec_bank		; FB50  $4C $88 $FA
 ; End of
 
 ; Name	:
@@ -9109,7 +9136,7 @@ L3FB48:
     STA $04                  ; FB6A  $85 $04
 L3FB6C:
     LDX #$00                 ; FB6C  $A2 $00
-    JSR L3FD6F               ; FB6E  $20 $6F $FD
+    JSR Set_buf_to_Ppu               ; FB6E  $20 $6F $FD
     INC $01                  ; FB71  $E6 $01
     INC $03                  ; FB73  $E6 $03
     DEC $04                  ; FB75  $C6 $04
@@ -9128,33 +9155,39 @@ L3FB6C:
     JMP Swap_PRG             ; FB81  $4C $1A $FE
 ; End of
 
+; Name	: Load_text_gfx
+; Marks	: $00(ADDR) = $06E0 - DEST
+;	  $02(ADDR) = $8A00 - SRC
+;	  total size = $0920 bytes
+;	  Use on BANK 0B
 ;; sub start ;;
-    JSR Swap_bank_09                ; FB84  $20 $75 $FA
-    LDA #$06                 ; FB87  $A9 $06
-    STA $01                  ; FB89  $85 $01
-    LDA #$E0                 ; FB8B  $A9 $E0
-    STA $00                  ; FB8D  $85 $00
-    LDA #$8A                 ; FB8F  $A9 $8A
-    STA $03                  ; FB91  $85 $03
-    LDA #$00                 ; FB93  $A9 $00
-    STA $02                  ; FB95  $85 $02
-    LDA #$09                 ; FB97  $A9 $09
-    STA $04                  ; FB99  $85 $04
-L3FB9B:
-    JSR L3FD6F               ; FB9B  $20 $6F $FD
-    INC $01                  ; FB9E  $E6 $01
-    INC $03                  ; FBA0  $E6 $03
-    DEC $04                  ; FBA2  $C6 $04
-    BNE L3FB9B               ; FBA4  $D0 $F5
-    LDX #$20                 ; FBA6  $A2 $20
-    JSR L3FD6F               ; FBA8  $20 $6F $FD
+Load_text_gfx:
+	JSR Swap_bank_09	; FB84  $20 $75 $FA
+	LDA #$06		; FB87  $A9 $06
+	STA $01			; FB89  $85 $01
+	LDA #$E0		; FB8B  $A9 $E0		ppu $06E0-$0FFF
+	STA $00			; FB8D  $85 $00
+	LDA #$8A		; FB8F  $A9 $8A
+	STA $03			; FB91  $85 $03
+	LDA #$00		; FB93  $A9 $00		BANK 09/8A00 (text graphics)
+	STA $02			; FB95  $85 $02
+	LDA #$09		; FB97  $A9 $09		$0900 bytes
+	STA $04			; FB99  $85 $04
+Load_text_gfx_loop:
+	JSR Set_buf_to_Ppu	; FB9B  $20 $6F $FD
+	INC $01			; FB9E  $E6 $01
+	INC $03			; FBA0  $E6 $03
+	DEC $04			; FBA2  $C6 $04
+	BNE Load_text_gfx_loop	; FBA4  $D0 $F5
+	LDX #$20		; FBA6  $A2 $20		remaining $20 bytes out of $0920 bytes
+	JSR Set_buf_to_Ppu	; FBA8  $20 $6F $FD
 	JMP Swap_ret_bank	; FBAB  $4C $84 $FA
-; End of
+; End of Load_text_gfx
 
 L3FBAE:
     JSR Swap_bank_09                ; FBAE  $20 $75 $FA
     JSR Set_IRQ_JMP		; JSR L3FA2A               ; FBB1  $20 $2A $FA
-    JSR L3FD6F               ; FBB4  $20 $6F $FD
+    JSR Set_buf_to_Ppu               ; FBB4  $20 $6F $FD
 	JMP Swap_ret_bank	; FBB7  $4C $84 $FA
 ; End of
 
@@ -9163,6 +9196,7 @@ L3FBAE:
 ; Y	: Size to copy
 ; SRC	: $00(ADDR) = tile address
 ; Marks	: Copy character tiles to graphics buffer($7600-)
+;	  Use on BANK 0B, BANK 0F
 ;; sub start ;;
 Copy_char_tile:
 	JSR Swap_bank_09	; FBBA  $20 $75 $FA
@@ -9170,22 +9204,24 @@ Copy_char_tile:
 	JMP Swap_ret_bank	; FBC0  $4C $84 $FA
 ; End of Copy_char_tile
 
+; Name	:
+; Marks	: Load battle animation graphics ??
 ;; sub start ;;
     JSR Swap_bank_09                ; FBC3  $20 $75 $FA
     LDA #$00                 ; FBC6  $A9 $00
     STA $02                  ; FBC8  $85 $02
-    LDA #$9A                 ; FBCA  $A9 $9A
+    LDA #$9A                 ; FBCA  $A9 $9A	BANK 09/9A00
     STA $03                  ; FBCC  $85 $03
     LDA #$05                 ; FBCE  $A9 $05
     STA $01                  ; FBD0  $85 $01
-    LDA #$00                 ; FBD2  $A9 $00
+    LDA #$00                 ; FBD2  $A9 $00	ppu $0500
     STA $00                  ; FBD4  $85 $00
     TAX                      ; FBD6  $AA
-    JSR L3FD6F               ; FBD7  $20 $6F $FD
-    INC $01                  ; FBDA  $E6 $01
-    INC $03                  ; FBDC  $E6 $03
+    JSR Set_buf_to_Ppu               ; FBD7  $20 $6F $FD
+    INC $01                  ; FBDA  $E6 $01	ppu $0600
+    INC $03                  ; FBDC  $E6 $03	BANK 09/9B00
     LDX #$C0                 ; FBDE  $A2 $C0
-    JSR L3FD6F               ; FBE0  $20 $6F $FD
+    JSR Set_buf_to_Ppu               ; FBE0  $20 $6F $FD
 	JMP Swap_ret_bank	; FBE3  $4C $84 $FA
 ; End of
 
@@ -9417,16 +9453,22 @@ DoDivision:
    @End:
     RTS                      ; FD06  $60
 
+; Name	: Get_nybble
+; A	: input data
+; Ret	: A = high nybble, X = low nybble
+; Marks	:
 ;; sub start ;;
-    PHA                      ; FD07  $48
-    AND #$0F                 ; FD08  $29 $0F
-    TAX                      ; FD0A  $AA
-    PLA                      ; FD0B  $68
-    LSR A                    ; FD0C  $4A
-    LSR A                    ; FD0D  $4A
-    LSR A                    ; FD0E  $4A
-    LSR A                    ; FD0F  $4A
-    RTS                      ; FD10  $60
+Get_nybble:
+	PHA			; FD07  $48
+	AND #$0F		; FD08  $29 $0F
+	TAX			; FD0A  $AA
+	PLA			; FD0B  $68
+	LSR A			; FD0C  $4A
+	LSR A			; FD0D  $4A
+	LSR A			; FD0E  $4A
+	LSR A			; FD0F  $4A
+	RTS			; FD10  $60
+; End of Get_nybble
 
 ; Name	: Random
 ; A	: Maximum value
@@ -9511,8 +9553,7 @@ Wait_MENU_snd:
 ; X	: Size to copy
 ; DEST	: $00(ADDR)
 ; SRC	: $02(ADDR)
-; Marks	:
-L3FD6F:
+; Marks	: Use on BANK 0B, BANK 0F
 Set_buf_to_Ppu:
 	JSR Set_PpuAddr_00	; FD6F  $20 $7E $FD
 	LDY #$00		; FD72  $A0 $00
