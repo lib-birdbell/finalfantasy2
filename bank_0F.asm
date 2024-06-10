@@ -50,6 +50,11 @@
 .import wmap_ent_y		;B440 - bank_00
 .import wmap_ent_id		;B480 - bank_00
 
+.import	Map_rnd_battle_rate	;8000 - bank_0B
+.import	Nmap_battle_grp		;8100 - bank_0B
+.import	Wmap_battle_grp		;8200 - bank_0B
+.import	Rnd_battle_grp		;8280 - bank_0B
+
 .import	BattleMain_bank0C	;8F43 - bank_0C
 .import SortVal_bank0C		;8F46 - bank_0C
 .import Init_battle_stats_bank0C	;8F49 - bank_0C
@@ -799,6 +804,7 @@ APU_init:
 ;	  DOWN ward
 ;	  battle event= $6A: battle group, $44: tile_prop set to 20h
 ;	  check destination tile (world map)
+;	  use BANK 0B
 ;; sub start ;;
 	LSR A			; C4B4  $4A
 	BCS L3C4CB		; C4B5  $B0 $14		right
@@ -914,9 +920,9 @@ C567:
 	AND #$40		; C56C  $29 $40
 	ORA $80			; C56E  $05 $80
 	TAX			; C570  $AA
-	LDA #$0B		; C571  $A9 $0B
+	LDA #$0B		; C571  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
 	JSR Swap_PRG_		; C573  $20 $03 $FE
-	LDA $8200,X		; C576  $BD $00 $82	BANK 0B/8200 - world map battle groups
+	LDA Wmap_battle_grp,X	; C576  $BD $00 $82	BANK 0B/8200 (world map battle groups)
 ; Marks	: choose from battle group
 	LDY #$00		; C579  $A0 $00
 	STY $81			; C57B  $84 $81
@@ -927,10 +933,10 @@ C567:
 	ASL A			; C583  $0A
 	ROL $81			; C584  $26 $81
 	CLC			; C586  $18
-	ADC #$80		; C587  $69 $80		0B/8280 (random battle groups)
+	ADC #<Rnd_battle_grp	; C587  $69 $80		BANK 0B/8280 (random battle groups)
 	STA $80			; C589  $85 $80
 	LDA $81			; C58B  $A5 $81
-	ADC #$82		; C58D  $69 $82
+	ADC #>Rnd_battle_grp	; C58D  $69 $82
 	STA $81			; C58F  $85 $81
 	LDA #$0B		; C591  $A9 $0B
 	JSR Swap_PRG_		; C593  $20 $03 $FE
@@ -2467,6 +2473,7 @@ L3CF50:
 ; End of
 
 ; Marks	: check random battle
+;	  use BANK 0B
 L3CF57:
     LDA $6C                  ; CF57  $A5 $6C
     BNE L3CF85               ; CF59  $D0 $2A	return if an event is running
@@ -2482,10 +2489,10 @@ L3CF6B:
 	JSR Get_rndnum		; CF6B  $20 $AD $C5
     CMP $F8                  ; CF6E  $C5 $F8
     BCS L3CF85               ; CF70  $B0 $13
-    LDA #$0B                 ; CF72  $A9 $0B
+	LDA #$0B		; CF72  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
     JSR Swap_PRG_               ; CF74  $20 $03 $FE
     LDX $48                  ; CF77  $A6 $48
-    LDA $8100,X              ; CF79  $BD $00 $81	BANK 0B/8100
+	LDA Nmap_battle_grp,X	; CF79  $BD $00 $81	BANK 0B/8100 (normal map battle group)
     JSR $C579                ; CF7C  $20 $79 $C5	choose from battle group
     LDA $43                  ; CF7F  $A5 $43
     ORA #$20                 ; CF81  $09 $20
@@ -2678,6 +2685,7 @@ L3D07B:
 ; Marks	: Init variables
 ;	  $68, $84 = X ??, $69, $85 = Y ??
 ;	  init map
+;	  use BANK 00, BANK 0B
 ;; sub start ;;
 	LDA #$00		; D09A  $A9 $00
 	STA text_win_mode	; D09C  $85 $37
@@ -2748,10 +2756,10 @@ L3D11D:
 	LDA #$00		; D11D  $A9 $00
 	STA tile_prop		; D11F  $85 $44
 	STA $45			; D121  $85 $45
-	LDA #$0B		; D123  $A9 $0B
+	LDA #$0B		; D123  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
 	JSR Swap_PRG_		; D125  $20 $03 $FE
 	LDX $48			; D128  $A6 $48		world map entrance ID - map id
-	LDA $8000,X		; D12A  $BD $00 $80	BANK 0B/8000 *map random battle rates)
+	LDA Map_rnd_battle_rate,X	; D12A  $BD $00 $80	BANK 0B/8000 (map random battle rates)
 	STA $F8			; D12D  $85 $F8		set random battle rate
 	LDA #$00		; D12F  $A9 $00
 	JSR Swap_PRG_		; D131  $20 $03 $FE

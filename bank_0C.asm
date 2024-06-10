@@ -1977,6 +1977,11 @@ Load_battle_text:
 ;	  $65 = Source/1000
 ;	  $64 = Source/10000 or Divided value
 ;	  Empty is fill as FFh(Not zero)
+;	  digit 0 = 80h
+;	  digit 1 = 81h
+;	  ...
+;	  digit 8 = 88h
+;	  digit 9 = 89h
 HtoD:
 	LDA #$10		; 9749	$A9 $10		10000
 	STA $70			; 975B	$85 $70

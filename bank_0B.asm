@@ -1,6 +1,11 @@
 .include "Constants.inc"
 .include "variables.inc"
 
+.export	Map_rnd_battle_rate	;8000
+.export	Nmap_battle_grp		;8100
+.export	Wmap_battle_grp		;8200
+.export	Rnd_battle_grp		;8280
+
 .import Set_IRQ_JMP		;FA2A
 .import	SR_BattleMain		;FB06
 .import	SR_SortVal		;FB0C
@@ -23,7 +28,7 @@
 
 ; ========== map random battle rates ($8000-$80FF) START ==========
 ;; [$8000 :: 0x2C000]
-
+Map_rnd_battle_rate:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$10,$00,$00,$00,$09,$09,$09
@@ -45,7 +50,7 @@
 
 ; ========== normal map battle groups ($8100-$81FF) START ==========
 ;; [$8100 :: 0x2C100]
-
+Nmap_battle_grp:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$6F,$00,$00,$00,$0B,$0B,$0C
@@ -70,7 +75,7 @@
 ; $8240-$827F : after tornado
 ; world map devide as 32 x 32 area
 ;; [$8200 :: 0x2C200]
-
+Wmap_battle_grp:
 .byte $19,$20,$05,$0F,$0F,$0F,$27,$19,$19,$19,$05,$05,$03,$04,$27,$27
 .byte $1A,$00,$00,$02,$03,$04,$04,$04,$1A,$40,$00,$00,$04,$0D,$0D,$0D
 .byte $36,$40,$36,$36,$36,$2D,$2E,$2E,$36,$37,$37,$36,$20,$2D,$2E,$2E
@@ -84,6 +89,7 @@
 
 ; ========== random battle groups (116 * 8 bytes) ($8280-$861F) START ==========
 ;; [$8280 :: 0x2C280]
+Rnd_battle_grp:
 .byte $5F,$5F,$20,$20,$A0,$A0,$21,$21,$5F,$20,$20,$A0,$A0,$21,$21,$E4
 .byte $20,$A0,$21,$E4,$DF,$E0,$23,$24,$21,$E4,$DF,$E0,$23,$24,$A2,$27
 .byte $E4,$DF,$E0,$23,$24,$A2,$27,$60,$DF,$E0,$23,$24,$A2,$27,$60,$A6
@@ -160,6 +166,7 @@
 
 ; ========== battle properties (128 * 8 bytes) ($8620-$8A1F) START ==========
 ;; [$8620 :: 0x2C620]
+Battle_prop:
 .byte $68,$56,$36,$23,$54,$02,$08,$46,$6D,$00,$11,$4D,$4E,$25,$5F,$60
 .byte $79,$21,$23,$27,$29,$06,$21,$22,$79,$02,$30,$25,$2A,$07,$01,$00
 .byte $3D,$01,$01,$4E,$4F,$31,$72,$71,$3D,$23,$23,$3C,$28,$28,$29,$64
@@ -241,6 +248,7 @@
 
 ; ========== surprise rate for each battle ($8A20-$8A9F) START ==========
 ;; [$8A20 :: 0x2CA20]
+Surpise_rate:
 .byte $24,$10,$14,$14,$14,$18,$18,$28,$18,$20,$1C,$28,$18,$18,$20,$20
 .byte $20,$24,$1C,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28,$28
 .byte $10,$10,$10,$10,$10,$14,$18,$10,$14,$18,$1C,$18,$28,$18,$28,$10
@@ -253,6 +261,7 @@
 
 
 ; ========== monster sets (64 * 4 bytes) ($8AA0-$8B9F) START ==========
+Mob_sets:
 .byte $00,$02,$01,$03,$09,$04,$06,$05,$0C,$0D,$07,$0E,$0B,$10,$07,$0A
 .byte $0A,$08,$10,$11,$0E,$08,$0B,$0F,$16,$14,$17,$1A,$12,$18,$1B,$13
 .byte $18,$1B,$13,$19,$17,$1A,$18,$1B,$18,$1B,$19,$1C,$1E,$19,$1C,$22
@@ -277,6 +286,7 @@
 
 ; ========== monster min/max counts (122 * 4 bytes) ($8BA0-$8D87) START ==========
 ;; [$8BA0 :: 0x2CBA0]
+Mob_minmax_cnt:
 .byte $00,$42,$00,$00,$52,$00,$00,$00,$31,$31,$00,$00,$00,$00,$42,$00
 .byte $50,$00,$62,$00,$40,$40,$42,$00,$00,$77,$00,$11,$40,$70,$50,$11
 .byte $11,$00,$00,$00,$00,$00,$00,$44,$30,$40,$20,$31,$00,$00,$31,$00
@@ -321,6 +331,7 @@
 ; by weapon( from Knife(3Ah(00h)) to Yoichi Bow(6Fh(35h))
 ; bank_00 -> $9700,X $9780,X $9800,X
 ;; [$8D88 :: 0x2CD88]
+Wpn_pal_ofs:
 .byte $60,$65,$67,$63,$6E,$6D,$6B,$6F
 .byte $60,$67,$70,$6A,$69,$61,$63,$73,$60,$64,$67,$70,$6F,$61,$6A,$71
 .byte $63,$6D,$64,$67,$71,$68,$66,$62,$6F,$61,$6A,$63,$6B,$6C,$60,$60
@@ -330,6 +341,7 @@
 
 ; ========== monster widths ($8DBE-$8DCD) START ==========
 ;; [$8DBE :: 0x2CDBE]
+Mob_width:
 .byte $04,$04
 .byte $04,$04,$06,$06,$06,$06,$06,$0C,$0C,$0C,$0C,$0C,$0C,$12
 ; ========== monster widths ($8DBE-$8DCD) END ==========
@@ -337,6 +349,7 @@
 
 ; ========== monster heights ($8DCE-$8DDD) START ==========
 ;; [$8DCE :: 0x2CDCE]
+Mob_height:
 .byte $04,$04
 .byte $06,$06,$06,$06,$06,$06,$0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
 ; ========== monster heights ($8DCE-$8DDD) END ==========
@@ -344,6 +357,7 @@
 
 ; ========== boss tilemaps (6 * 144 bytes) ($8DDE-$9215) START ==========
 ;; [$8DDE :: 0x2CDDE]
+Boss_tile:
 .byte $00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$20,$21
@@ -681,7 +695,7 @@ L2D716:
 	CPX #$04		; 971D	$E0 $04
 	BNE L2D716		; 971F	$D0 $F5
 	LDX #$FC		; 9721	$A2 $FC
-	JSR $9DE9		; 9723	$20 $E9 $9D
+	JSR Rst_OAM_buf		; 9723	$20 $E9 $9D
 	JSR $974F		; 9726	$20 $4F $97
 	LDY #$0C		; 9729	$A0 $0C
 ; Name	: is subroutine ?? - fill ppu block
@@ -876,7 +890,7 @@ L2D82C:
 	AND #$7F		; 9856	$29 $7F
 	PHA			; 9858	$48
 	TAY			; 9859	$A8
-	LDA $8A20,Y		; 985A	$B9 $20 $8A	surprise rate for each battle
+	LDA Surpise_rate,Y	; 985A	$B9 $20 $8A	BANK 0B/8A20 (surprise rate for each battle)
 	CMP $0A			; 985D	$C5 $0A
 	BEQ L2D865		; 985F	$F0 $04
 	BCC L2D865		; 9861	$90 $02
@@ -901,10 +915,10 @@ L2D87A:
 	LDX #$08		; 987E	$A2 $08
 	JSR Multi		; 9880	$20 $79 $FC
 	LDA $02			; 9883	$A5 $02
-	ADC #$20		; 9885	$69 $20
+	ADC #<Battle_prop	; 9885	$69 $20
 	STA $0A			; 9887	$85 $0A
 	LDA $03			; 9889	$A5 $03
- 	ADC #$86		; 988B	$69 $86
+ 	ADC #>Battle_prop	; 988B	$69 $86
 	STA $0B			; 988D	$85 $0B		BANK 0B/8620 (battle properties)
 	LDA $7B48		; 988F	$AD $48 $7B
 	ROL A			; 9892	$2A
@@ -915,20 +929,20 @@ L2D87A:
 	LDX #$04		; 989A	$A2 $04
 	JSR Multi		; 989C	$20 $79 $FC
 	LDA $02			; 989F	$A5 $02
-	ADC #$A0		; 98A1	$69 $A0
+	ADC #<Mob_minmax_cnt	; 98A1	$69 $A0
 	STA $0C			; 98A3	$85 $0C
 	LDA $03			; 98A5	$A5 $03
-	ADC #$8B		; 98A7	$69 $8B
-	STA $0D			; 98A9	$85 $0D		BANK 0B/8BA0 (monster counts)
+	ADC #>Mob_minmax_cnt	; 98A7	$69 $8B
+	STA $0D			; 98A9	$85 $0D		BANK 0B/8BA0 (monster min max counts)
 	LDY #$05		; 98AB	$A0 $05
 	LDA ($0A),Y		; 98AD	$B1 $0A
 	LDX #$04		; 98AF	$A2 $04
 	JSR Multi		; 98B1	$20 $79 $FC
 	LDA $02			; 98B4	$A5 $02
-	ADC #$A0		; 98B6	$69 $A0
+	ADC #<Mob_sets		; 98B6	$69 $A0
 	STA $0E			; 98B8	$85 $0E
 	LDA $03			; 98BA	$A5 $03
-	ADC #$8A		; 98BC	$69 $8A		BANK 0B/8AA0 (monster sets)
+	ADC #>Mob_sets		; 98BC	$69 $8A		BANK 0B/8AA0 (monster sets)
 	STA $0F			; 98BE	$85 $0F
 	LDY #$00		; 98C0	$A0 $00
 L2D8C2:
@@ -1085,9 +1099,9 @@ L2D9E2:
 	LDX #$03		; 99E2	$A2 $03
 L2D9E4:
 	LDY $10,X		; 99E4	$B4 $10
-	LDA $8DBE,Y		; 99E6	$B9 $BE $8D
+	LDA Mob_width,Y		; 99E6	$B9 $BE $8D	BANK 0B/8DBE (monster widths)
 	STA $18,X		; 99E9	$95 $18
-	LDA $8DCE,Y		; 99EB	$B9 $CE $8D
+	LDA Mob_height,Y	; 99EB	$B9 $CE $8D	BANK 0B/8DCE (monster heights)
 	STA $1C,X		; 99EE	$95 $1C
 	CPY #$02		; 99F0	$C0 $02
 	BCS L2D9F8		; 99F2	$B0 $04
@@ -1755,25 +1769,28 @@ L2DDD3:
 ;	  Y (A0h, B8h, D0h, E8h) - character OAM buffer offset
 ;	  hide character sprite
 Rst_char_OAM_buf:
-	LDY $9DF5,X		; 9DDA	$BC $F5 $9D
+	LDY OAM_char_start,X	; 9DDA	$BC $F5 $9D
 	LDX #$18		; 9DDD	$A2 $18
 	BNE L2DDEB		; 9DDF	$D0 $0A
-; End of Rst_char_OAM_buf
-
 ; Name	: Rst_act_OAM_buf
 ; Marks	: Reset Action OAM buffer. From $0270-$029F(OAM[28]-OAM[39])
 ;	  Character OAM[28]-[33], Weapon OAM[34]-[39]
+;	  X = size
+;	  Y = start offset
 ;	  hide ??? sprites
 Rst_act_OAM_buf:
 	LDY #$70		; 9DE1	$A0 $70
 	LDX #$30		; 9DE3	$A2 $30
 	BNE L2DDEB		; 9DE5	$D0 $04
-; Name	:
-; Marks	: Reset ?? OAM buffer. From $0204-$029F(OAM[1]-OAM[27])
+; Name	: Rst_all_act_OAM_buf
+; Marks	: Reset ?? OAM buffer. From $0204-$029F(OAM[1]-OAM[39])
 ;	  hide ??? sprites
+Rst_all_act_OAM_buf:
 	LDX #$9C		; 9DE7	$A2 $9C
-; Name	:
-; Marks	:
+; Name	: Rst_OAM_buf
+; X	: size
+; Marks	: Reset all OAM buffer
+Rst_OAM_buf:
 	LDY #$04		; 9DE9	$A0 $04
 L2DDEB:
 	LDA #$F0		; 9DEB	$A9 $F0
@@ -1783,11 +1800,13 @@ L2DDED:
 	DEX			; 9DF1	$CA
 	BNE L2DDED		; 9DF2	$D0 $F9		loop
 	RTS			; 9DF4	$60
+; End of Rst_OAM_buf
+; End of Rst_all_act_OAM_buf
 ; End of Rst_act_OAM_buf
-; End of
 ; End of Rst_char_OAM_buf
 
 ;9DF5 - data block : character OAM buffer
+OAM_char_start:
 .byte $A0,$B8,$D0,$E8
 
 ; Name	:
@@ -1859,7 +1878,7 @@ Apply_OAM_pal:
 ; End of Apply_OAM_pal
 
 ; Name	: Wait_MENU_NMI
-; Marks	:
+; Marks	: Wait MENU -> Wait NMI
 Wait_MENU_NMI:
 	JSR Wait_MENU_snd	; 9E3F	$20 $5B $FD
 	JMP Set_IRQ_JMP		; 9E42	$4C $2A $FA	Wait NMI
@@ -2055,10 +2074,10 @@ L2DF57:
 	LDX #$90		; 9F5E	A2 90
 	JSR Multi		; 9F60	20 79 FC	multiply
 	LDA $02			; 9F63	A5 02     
-	ADC #$DE		; 9F65	69 DE		BANK 0B/8DDE
+	ADC #<Boss_tile		; 9F65	69 DE		BANK 0B/8DDE (boss tile map)
 	STA $02			; 9F67	85 02
 	LDA $03			; 9F69	A5 03
-	ADC #$8D		; 9F6B	69 8D
+	ADC #>Boss_tile		; 9F6B	69 8D
 	STA $03			; 9F6D	85 03
 	LDA $7B82		; 9F6F	AD 82 7B
 	STA $04			; 9F72	85 04
@@ -3103,7 +3122,7 @@ L2E5FC:
 	LDX cur_char_idx	; A605	$A6 $9E
 	CPX #$04		; A607	$E0 $04
 	BCC L2E615		; A609	$90 $0A
-	JSR $9DE7		; A60B	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; A60B	$20 $E7 $9D
 	LDA #$00		; A60E	$A9 $00
 	STA $43			; A610	$85 $43
 	JMP $A61D		; A612	$4C $1D $A6
@@ -3733,7 +3752,7 @@ L2E981:
 	STA $06			; A9A7	$85 $06
 	LDA $7B82,X		; A9A9	$BD $82 $7B
 	STA $07			; A9AC	$85 $07
-	JSR $9DE7		; A9AE	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; A9AE	$20 $E7 $9D
 	LDX $00			; A9B1	$A6 $00
 	LDA $7B72,X		; A9B3	$BD $72 $7B
 	CMP #$09		; A9B6	$C9 $09
@@ -3883,7 +3902,7 @@ L2EA98:
 L2EAAF:
 	JMP $AA43		; AAAF	$4C $43 $AA
 L2EAB2:
-	JSR $9DE7		; AAB2	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; AAB2	$20 $E7 $9D
 	JMP Apply_OAM		; AAB5	$4C $2A $9E
 ; End of
 
@@ -4411,7 +4430,7 @@ L2EDED:
 	LDA #$18		; ADF6	$A9 $18		wait 24 frames
 	STA $10			; ADF8	$85 $10
 L2EDFA:
-	JSR $9E2A		; ADFA	$20 $2A $9E
+	JSR Apply_OAM		; ADFA	$20 $2A $9E
 	DEC $10			; ADFF	$C6 $10
 	BNE L2EDFA		; ADFF	$D0 $F9
 	LDX #$03		; AE01	$A2 $03
@@ -4449,7 +4468,7 @@ L2EE38:
 	DEC $10			; AE3D	$C6 $10
 	LDX $10			; AE3F	$A6 $10
 	BPL L2EE1D		; AE41	$10 $DA
-	JSR $9E2A		; AE43	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; AE43	$20 $2A $9E	wait for vblank (menu & oam update)
 	LDX #$03		; AE46	$A2 $03
 	LDA #$00		; AE48	$A9 $00
 	STA $00			; AE4A	$85 $00
@@ -4471,7 +4490,7 @@ L2EE65:
 	STA $0200,X		; AE65	$9D $00 $02
 	INX			; AE68	$E8
 	BNE L2EE65		; AE69	$D0 $FA
-	JMP $9E2A		; AE6B	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		; AE6B	$4C $2A $9E	wait for vblank (menu & oam update)
 ; End of
 
 ; Marks	: characters run away
@@ -4491,7 +4510,7 @@ L2EE89:
 	DEC $10			; AE89	$C6 $10
 	LDX $10			; AE8B	$A6 $10
 	BPL L2EE72		; AE8D	$10 $E3
-	JSR $9E2A		; AE8F	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; AE8F	$20 $2A $9E	wait for vblank (menu & oam update)
 L2EE92:
 	LDX #$03		; AE92	$A2 $03
 	STX $10			; AE94	$86 $10
@@ -4519,7 +4538,7 @@ L2EEB5:
 	LDA #$04		; AEC0	$A9 $04
 	STA $00			; AEC2	$85 $00
 L2EEC4:
-	JSR $9E2A		; AEC4	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; AEC4	$20 $2A $9E	wait for vblank (menu & oam update)
 	DEC $00			; AEC7	$C6 $00
 	BNE L2EEC4		; AEC9	$D0 $F9
 	LDX #$03		; AECB	$A2 $03
@@ -4554,7 +4573,7 @@ L2EEEA:
 	LDA $930A		; AEF9	$AD $0A $93	play song
 	STA $E0			; AEFC	$85 $E0
 L2EEFE:
-	JSR $9E2A		; AEFE	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; AEFE	$20 $2A $9E	wait for vblank (menu & oam update)
 	JSR $FC34		; AF01	$20 $34 $FC	update joypad input
 	LDA $34			; AF04	$A5 $34
 	BEQ L2EEFE		; AF06	$F0 $F6		wait for keypress
@@ -4574,11 +4593,11 @@ L2EF1D:
 	LDA #$5A		; AF1D	$A9 $5A		wait 90 frames
 	STA $00			; AF1F	$85 $00
 L2EF21:
-	JSR $9E2A		; AF21	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; AF21	$20 $2A $9E	wait for vblank (menu & oam update)
 	DEC $00			; AF24	$C6 $00
 	BNE L2EF21		; AF26	$D0 $F9
 L2EF28:
-	JSR $9E2A		; AF28	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; AF28	$20 $2A $9E	wait for vblank (menu & oam update)
 	PLA			; AF2B	$68
 	PLA			; AF2C	$68
 	PLA			; AF2D	$68
@@ -4588,7 +4607,7 @@ L2EF28:
 
 ; Marks	: load status graphics
 	JSR Wait_NMI_end	; AF32	$20 $46 $FD
-	JSR $9DE7		; AF35	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; AF35	$20 $E7 $9D
 	JSR Init_gfx_buf	; AF38	$20 $CF $9D
 	LDX #$03		; AF3B	$A2 $03
 	STX $04			; AF3D	$86 $04
@@ -4827,7 +4846,7 @@ L2F0D0:
 	LDX $22			; B0D0	$A6 $22
 	DEX			; B0D2	$CA
 	BPL L2F08B		; B0D3	$10 $B6		loop
-	JSR $9DE7		; B0D5	$20 $E7 $9D	Reset ??? OAM[1-27] buffer
+	JSR Rst_all_act_OAM_buf	; B0D5	$20 $E7 $9D	Reset ??? OAM[1-39] buffer
 	LDX $26			; B0D8	$A6 $26		character index temp ??
 	JSR $A43A		; B0DA	$20 $3A $A4	check character graphics type
 	JSR Apply_OAM		; B0DD	$20 $2A $9E
@@ -5008,7 +5027,7 @@ L2F1F0:
 	LDX #$03		; B204	$A2 $03
 L2F206:
 	STX $1C			; B206	$86 $1C
-	JSR $9E2A		; B208	$20 $2A $9E
+	JSR Apply_OAM		; B208	$20 $2A $9E
 	LDX $1C			; B20B	$A6 $1C
 	STX $09			; B20D	$86 $09
 L2F20F:
@@ -5039,7 +5058,7 @@ L2F20F:
 	STA $0E,X		; B23A	$95 $0E     
 	DEC $09			; B23C	$C6 $09     
 	BPL L2F20F		; B23E	$10 $CF     
-	JSR $9E2A		; B240	$20 $2A $9E     ; wait for vblank (menu & oam update)
+	JSR Apply_OAM		; B240	$20 $2A $9E     ; wait for vblank (menu & oam update)
 	LDX $16			; B243	$A6 $16     
 	LDA $7B8A,X		; B245	$BD $8A $7B  
 	LSR			; B248	$4A        
@@ -5055,7 +5074,7 @@ L2F252:
 	LDX #$09		; B25C	$A2 $09     
 	JSR $9E72		; B25E	$20 $72 $9E     ; play battle sound effect
 L2F261:
-	JSR $9E2A		; B261	$20 $2A $9E     ; wait for vblank (menu & oam update)
+	JSR Apply_OAM		; B261	$20 $2A $9E     ; wait for vblank (menu & oam update)
 	JSR $B425		; B264	$20 $25 $B4  
 	JSR $B3D7		; B267	$20 $D7 $B3  
 	DEC $19			; B26A	$C6 $19     
@@ -5067,7 +5086,7 @@ L2F272:
 	JSR $9DFC		; B275	$20 $FC $9D  
 	CPY #$A0		; B278	$C0 $A0     
 	BNE L2F272		; B27A	$D0 $F6     
-	JSR $9E2A		; B27C	$20 $2A $9E     ; wait for vblank (menu & oam update)
+	JSR Apply_OAM		; B27C	$20 $2A $9E     ; wait for vblank (menu & oam update)
 	LDA #$08		; B27F	$A9 $08     
 	JSR $9E1F		; B281	$20 $1F $9E     ; wait 8 frames
 	DEC $1D			; B284	$C6 $1D     
@@ -5075,7 +5094,7 @@ L2F272:
 	JMP $B208		; B288	$4C $08 $B2  
 L2F28B:
 	JSR $9DE1		; B28B	$20 $E1 $9D  
-	JMP $9E2A		; B28E	$4C $2A $9E     ; wait for vblank (menu & oam update)
+	JMP Apply_OAM		; B28E	$4C $2A $9E     ; wait for vblank (menu & oam update)
 ; Weapon effect ??
 	LDA #$00		; B291	$A9 $00
 	STA $02			; B293	$85 $02
@@ -5329,7 +5348,7 @@ L2F432:
 	SBC #$0A		; B446	$E9 $0A
 	BMI L2F453		; B448	$30 $09		if shield or fist
 	TAY			; B44A	$A8
-	LDX $8D88,Y		; B44B	$BE $88 $8D	weapon palettes offset
+	LDX Wpn_pal_ofs,Y	; B44B	$BE $88 $8D	BANK 0B/8D88 (weapon palettes offset)
 L2F44E:
 	LDY #$19		; B44E	$A0 $19
 	JSR Set_wpn_pal		; B450	$20 $03 $FC
@@ -5586,12 +5605,14 @@ L2F5CC:
 .byte $03,$04,$05,$00,$02,$03,$04,$05,$09,$08,$07,$06,$05,$04,$03,$02
 .byte $05,$04,$03,$02,$01,$00
 
-;
+; Name	:
+; Marks	:
 	JSR $B5FF		; B5F6	$20 $FF $B5
-	JSR $9DE7		; B5F9	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; B5F9	$20 $E7 $9D
 	JMP $9E33		; B5FC	$4C $33 $9E
 ; End of
 
+; Name	:
 ; Marks	:
 	LDA $7CB0		; B5FF	$AD $B0 $7C
 	CMP #$18		; B602	$C9 $18
@@ -5626,8 +5647,8 @@ L2F624:
 	LDA $00			; B63B	$A5 $00
 	BNE L2F624		; B63D	$D0 $E5
 L2F63F:
-	JSR $9DE7		; B63F	$20 $E7 $9D
-	JSR $9E2A		; B642	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Rst_all_act_OAM_buf	; B63F	$20 $E7 $9D
+	JSR Apply_OAM		; B642	$20 $2A $9E	wait for vblank (menu & oam update)
 	LDX $7CB1		; B645	$AE $B1 $7C
 	LDY #$19		; B648	$A0 $19		sprite palette 2
 	JSR $FC03		; B64A	$20 $03 $FC	load battle palette
@@ -5763,7 +5784,7 @@ L2F752:
 	STA $0203,Y		; B78C	$99 $03 $02
 	JMP $9DFC		; B78F	$4C $FC $9D
 ;
-	JSR $9DE7		; B792	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; B792	$20 $E7 $9D
 	JSR $9E01		; B795	$20 $01 $9E
 	LDA $7B8A,X		; B798	$BD $8A $7B
 	LSR			; B79B	$4A
@@ -5840,7 +5861,7 @@ L2F7EF:
 ;
 	DEX			; B814	$CA
 	STX $09			; B815	$86 $09
-	JSR $9E2A		; B817	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; B817	$20 $2A $9E	wait for vblank (menu & oam update)
 L2F81A:
 	LDX #$00		; B81A	$A2 $00
 	LDA $0C			; B81C	$A5 $0C
@@ -5863,16 +5884,16 @@ L2F81A:
 	LDA $09			; B83C	$A5 $09
 	AND #$02		; B83E	$29 $02
 	BNE L2F845		; B840	$D0 $03
-	JSR $9E2A		; B842	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; B842	$20 $2A $9E	wait for vblank (menu & oam update)
 L2F845:
 	DEC $09			; B845	$C6 $09
 	BPL L2F81A		; B847	$10 $D1
-	JMP $9E2A		; B849	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		; B849	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
 	STA $1C			; B84C	$85 $1C
 	DEX			; B84E	$CA
 	STX $1D			; B84F	$86 $1D
-	JSR $9E2A		; B851	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; B851	$20 $2A $9E	wait for vblank (menu & oam update)
 L2F854:
 	LDX #$00		; B854	$A2 $00
 	LDA $1C			; B856	$A5 $1C
@@ -5883,9 +5904,9 @@ L2F854:
 	STA $7630,X		; B860	$9D $30 $76
 	DEC $1D			; B863	$C6 $1D
 	BPL L2F854		; B865	$10 $ED
-	JMP $9E2A		; B867	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		; B867	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
-	JSR $9DE7		; B86A	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; B86A	$20 $E7 $9D
 	LDA #$10		; B86D	$A9 $10
 	STA $19			; B86F	$85 $19
 	LDY #$00		; B871	$A0 $00
@@ -6028,7 +6049,7 @@ L2F94D:
 	LDX #$00		; B957	$A2 $00
 L2F959:
 	STX $18			; B959	$86 $18
-	JSR $9DE7		; B95B	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; B95B	$20 $E7 $9D
 	LDA $0A			; B95E	$A5 $0A
 	STA $08			; B960	$85 $08
 	LDY $07			; B962	$A4 $07
@@ -6115,7 +6136,7 @@ L2F9E4:
 	BNE L2F9E4		; B9EE	$D0 $F4
 	LDA #$01		; B9F0	$A9 $01
 	JSR $9E1F		; B9F2	$20 $1F $9E	wait 1 frame
-	JSR $9DE7		; B9F5	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; B9F5	$20 $E7 $9D
 	LDA #$02		; B9F8	$A9 $02
 	JSR $9E1F		; B9FA	$20 $1F $9E	wait 2 frames
 	DEC $0E			; B9FD	$C6 $0E
@@ -6126,7 +6147,7 @@ L2FA03:
 	STA $79B0,X		; BA05	$9D $B0 $79
 	DEX			; BA08	$CA
 	BPL L2FA03		; BA09	$10 $F8
-	JSR $9DE7		; BA0B	$20 $E7 $9D
+	JSR Rst_all_act_OAM_buf	; BA0B	$20 $E7 $9D
 	LDA #$03		; BA0E	$A9 $03
 	JSR $9E1F		; BA10	$20 $1F $9E	wait 3 frames
 	LDA #$FC		; BA13	$A9 $FC
@@ -6230,7 +6251,7 @@ L2FAAB:
 	INY			; BAD8	$C8
 	CPY #$09		; BAD9	$C0 $09
 	BNE L2FAAB		; BADB	$D0 $CE
-	JSR $9E2A		; BADD	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		; BADD	$20 $2A $9E	wait for vblank (menu & oam update)
 	JSR $9E6B		; BAE0	$20 $6B $9E	play magic sound effect
 	LDA #$02		; BAE3	$A9 $02
 	STA $03			; BAE5	$85 $03
@@ -6472,7 +6493,7 @@ L2FCB7:
 	STX $0F			;BCB7	$86 $0F
 	DEC $0E			;BCB9	$C6 $0E
 	BNE L2FC9D		;BCBB	$D0 $E0
-	JMP $9E2A		;BCBD	$4C $2A $9E	wait for lvblank (menu & oam update)
+	JMP Apply_OAM		;BCBD	$4C $2A $9E	wait for lvblank (menu & oam update)
 ;
 	JSR $BEFF		;BCC0	$20 $FF $BE
 	LDX $27			;BCC3	$A6 $27
@@ -6593,7 +6614,7 @@ L2FD78:
 	LDA #$FF		;BD92	$A9 $FF
 	STA $7B62,X		;BD94	$9D $62 $7B
 	DEC $7B4D		;BD97	$CE $4D $7B	decrement number of monsters remaining
-	JMP $9E2A		;BD9A	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		;BD9A	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
 	LDA #$03		;BD9D	$A9 $03
 	STA $14			;BD9F	$85 $14
@@ -6602,7 +6623,7 @@ L2FDA1:
 	DEC $14			;BDA4	$C6 $14
 	BNE L2FDA1		;BDA6	$D0 $F9
 	JSR $B131		;BDA8	$20 $31 $B1
-	JMP $9E2A		;BDAB	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		;BDAB	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
 	JSR $B8E5		;BDAE	$20 $E5 $B8
 	LDA #$0B		;BDB1	$A9 $0B
@@ -6646,7 +6667,7 @@ L2FDFD:
 	DEC $17			;BE00	$C6 $17
 	BNE L2FDFD		;BE02	$D0 $F9 
 	JSR $B86A		;BE04	$20 $6A $B8
-	JSR $9E2A		;BE07	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Apply_OAM		;BE07	$20 $2A $9E	wait for vblank (menu & oam update)
 	LDX #$00		;BE0A	$A2 $00 
 	LDY #$00		;BE0C	$A0 $00 
 L2FE0E:
@@ -6660,7 +6681,7 @@ L2FE18:
 	BNE L2FE0E		;BE1B	$D0 $F1 
 	TYA			;BE1D	$98 
 	BNE L2FDF9		;BE1E	$D0 $D9 
-	JMP $9E2A		;BE20	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		;BE20	$4C $2A $9E	wait for vblank (menu & oam update)
 ; End of
 
 ; Marks	:
@@ -6747,7 +6768,7 @@ L2FEB7:
 	JSR $9E72		; BEB9	$20 $72 $9E	play battle sound effect
 	LDX $27			; BEBC	$A6 $27
 	JSR $B131		; BEBE	$20 $31 $B1
-	JMP $9E2A		; BEC1	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		; BEC1	$4C $2A $9E	wait for vblank (menu & oam update)
 ; End of
 
 ; Marks	:
@@ -6761,7 +6782,7 @@ L2FECB:
 	JSR $9E72		; BECD	$20 $72 $9E	play battle sound effect
 	LDX $27			; BED0	$A6 $27
 	JSR $B131		; BED2	$20 $31 $B1
-	JMP $9E2A		; BED5	$4C $2A $9E	wait for vblank (menu & oam update)
+	JMP Apply_OAM		; BED5	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
 	JSR $9E6B		; BED8	$20 $6B $9E	play magic sound effect
 	LDX #$10		; BEDB	$A2 $10
