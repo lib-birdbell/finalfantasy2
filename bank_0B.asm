@@ -865,7 +865,12 @@ L2D82C:
 
 ; Name	:
 ; Marks	: load battle properties
-; battle properties format (0B/8620)
+;	  BANK 0B/8620 (battle properties format)
+;	  BANK 0B/8A20 (surprise rate for each battle)
+;	  BANK 0B/8AA0 (monster sets)
+;	  BANK 0B/8BA0 (monster min max counts)
+;	  BANK 0B/8DBE (monster widths)
+;	  BANK 0B/8DCE (monster heights)
 ;	  $00 pppp?ggg
 ;	        p: monster palettes
 ;	        g: monster graphics set -> $7B4C
@@ -1570,7 +1575,7 @@ L2DCDB:
 .byte $01,$02,$04,$08,$10,$20,$40,$80
 
 ;9CEE
-; Marks	:
+; Marks	: use BANK 09
 ;	  copy cursor graphics to ppu
 	JSR $9D06		; 9CEE	$20 $06 $9D	reset cursor sprites
 	LDA #$80		; 9CF1	$A9 $80
@@ -1809,19 +1814,22 @@ L2DDED:
 OAM_char_start:
 .byte $A0,$B8,$D0,$E8
 
-; Name	:
+; Name	: Set_OAM_val
 ; A	: value
 ; Y	: offset (increment after)
 ; Marks	: Set OAM value
+Set_OAM_val:
 	STA $0200,Y		; 9DF9	$99 $00 $02
-; Name	:
-; Marks	:
+; Name	: Y_inc4
+; Marks	: increase Y
+Y_inc4:
 	INY			; 9DFC	$C8
 	INY			; 9DFD	$C8
 	INY			; 9DFE	$C8
 	INY			; 9DFF	$C8
 	RTS			; 9E00	$60
-; End of
+; End of Y_inc4
+; End of Set_OAM_val
 
 ; Name	:
 ; Marks	: Get target monster id ??
@@ -1833,7 +1841,14 @@ OAM_char_start:
 	RTS			; 9E07	$60
 ; End of
 
+; Name	: Set_OAM_buf
+; Y	: OAM buffer offset
 ; Makrs	: Copy sprite to OAM data
+;	  $00 = X
+;	  $01 = Y
+;	  $02 = INDEX
+;	  $03 = ATTR
+Set_OAM_buf:
 	LDA $01			; 9E08	A5 01
 	STA $0200,Y		; 9E0A	99 00 02
 	LDA $02			; 9E0D	A5 02
@@ -1842,8 +1857,8 @@ OAM_char_start:
 	STA $0202,Y		; 9E14	99 02 02
 	LDA $00			; 9E17	A5 00
 	STA $0203,Y		; 9E19	99 03 02
-	JMP $9DFC		; 9E1C	4C FC 9D	next sprite
-; End of
+	JMP Y_inc4		; 9E1C	4C FC 9D	next sprite (Y+4)
+; End of Set_OAM_buf
 
 ; Name	: Gfx_delay
 ; A	: delay count
@@ -1950,7 +1965,7 @@ L2DE8C:
 	DEX			; 9E92	CA
 	BPL L2DE83		; 9E93	10 EE
 	LDA #$06		; 9E95	A9 06
-	JSR $9E1F		; 9E97	20 1F 9E	wait 6 frames
+	JSR Gfx_delay		; 9E97	20 1F 9E	wait 6 frames
 	DEC $01			; 9E9A	C6 01
 	BNE L2DE81		; 9E9C	D0 E3
 	RTS			; 9E9E	60
@@ -2066,6 +2081,7 @@ L2DF52:
 
 ;; [$9F57 :: 0x2DF57]
 ; Marks	: init boss tilemap
+;	  BANK 0B/8DDE (boss tile map)
 L2DF57:
 	LDA $7B72		; 9F57	AD 72 7B
 	PHA			; 9F5A	48
@@ -2117,6 +2133,7 @@ L2DFA0:
 
 ; Name	:
 ; Marks	: Fade in battle bg
+;	  BANK 07/B800 or 08/B800 (battle bg graphics)
 	LDA $7B49		; 9FAE	$AD $49 $7B	battle bg
 	AND #$07		; 9FB1	$29 $07
 	CLC			; 9FB3	$18
@@ -2495,8 +2512,9 @@ L2E1EE:
 	LDA #$27		; A201	$A9 $27		ppu $27C0 (right attribute table)
 	BNE L2E1EE		; A203	$D0 $E9
 ; End of
+
 ; Name	:
-; Marks	:
+; Marks	: BANK 0B/9216 (???)
 	TAY			; A205	$A8
 	LDA $7B62,Y		; A206	$B9 $62 $7B
 	BPL L2E20C		; A209	$10 $01
@@ -2695,7 +2713,7 @@ L2E348:
 	LDX $05			; A34C	$A6 $05
 	LDA $9288,X		; A34E	$BD $88 $92	??
 	INC $05			; A351	$E6 $05
-	JSR $ADA4		; A353	$20 $A4 $AD	as14 Get address ??
+	JSR Low_to_high		; A353	$20 $A4 $AD	asl4 Get address ??
 	ROL $01			; A356	$26 $01
 	ADC #$00		; A358	$69 $00
 	STA $00			; A35A	$85 $00
@@ -2717,7 +2735,7 @@ L2E370:
 	LDY $7BA2,X		; A374	BC A2 7B
 	DEY			; A377	88
 	TYA			; A378	98
-	JSR $ADA4		; A379	20 A4 AD	asl4
+	JSR Low_to_high		; A379	20 A4 AD	asl4
 	STA $02			; A37C	85 02
 	LDY $00			; A37E	A4 00
 	BEQ L2E386		; A380	F0 04
@@ -3912,7 +3930,7 @@ L2EAB2:
 	LDX #$00		; AABA	$A2 $00
 L2EABC:
 	STA ($00),Y		; AABC	$91 $00
-	JSR $9DFC		; AABE	$20 $FC $9D
+	JSR Y_inc4		; AABE	$20 $FC $9D
 	INX			; AAC1	$E8
 	CPX $06			; AAC2	$E4 $06
 	BNE L2EABC		; AAC4	$D0 $F6
@@ -4002,7 +4020,7 @@ L2EB30:
 	SBC #$10		; AB62	$E9 $10
 	STA $04			; AB64	$85 $04
 	LDA #$04		; AB66	$A9 $04
-	JSR $9E1F		; AB68	$20 $1F $9E
+	JSR Gfx_delay		; AB68	$20 $1F $9E	wait 4 frames
 	DEC $06			; AB6B	$C6 $06
 	BNE L2EB18		; AB6D	$D0 $A9
 	LDA #$00		; AB6F	$A9 $00
@@ -4371,12 +4389,29 @@ L2ED87:
 Calc_char_addr:
 	ASL A			; ADA2	$0A
 	ASL A			; ADA3	$0A
-;ADA4
+; Name	: Low_to_high
+; A	: input value
+; Ret	: A
+; Marks	: 00h -> 00h
+;	  01h -> 10h
+;	  02h -> 20h
+;	  03h -> 30h
+Low_to_high:
 	ASL A			; ADA4	$0A
+; Name	: Multi8
+; A	: input value
+; Ret	: A
+; Marks	: 00h -> 00h
+;	  01h -> 08h
+;	  02h -> 10h
+;	  03h -> 18h
+Multi8:
 	ASL A			; ADA5	$0A
 	ASL A			; ADA6	$0A
 	ASL A			; ADA7	$0A
 	RTS			; ADA8	$60
+; End of Multi8
+; End of Low_to_high
 ; End of Calc_char_addr
 
 ; Marks	: asl (16-bit)
@@ -4606,6 +4641,7 @@ L2EF28:
 ; End of
 
 ; Marks	: load status graphics
+;	  BANK 0B/9BC0 (status graphics) ??
 	JSR Wait_NMI_end	; AF32	$20 $46 $FD
 	JSR Rst_all_act_OAM_buf	; AF35	$20 $E7 $9D
 	JSR Init_gfx_buf	; AF38	$20 $CF $9D
@@ -4774,10 +4810,10 @@ L2F048:
 ; Name	:
 ; Marks	:
 	TXA			; B051	$8A
-	JSR $ADA4		; B052	$20 $A4 $AD
+	JSR Low_to_high		; B052	$20 $A4 $AD
 	STA $02			; B055	$85 $02
 	TXA			; B057	$8A
-	JSR $ADA5		; B058	$20 $A5 $AD
+	JSR Multi8		; B058	$20 $A5 $AD
 	CLC			; B05B	$18
 	ADC $02			; B05C	$65 $02
 	ADC #$31		; B05E	$69 $31
@@ -4785,7 +4821,7 @@ L2F048:
 	LDA ($00),Y		; B061	$B1 $00
 	EOR #$02		; B063	$49 $02
 	STA ($00),Y		; B065	$91 $00
-	JSR $9DFC		; B067	$20 $FC $9D
+	JSR Y_inc4		; B067	$20 $FC $9D
 	LDA ($00),Y		; B06A	$B1 $00
 	EOR #$02		; B06C	$49 $02
 	STA ($00),Y		; B06E	$91 $00
@@ -5067,8 +5103,8 @@ L2F20F:
 	LDY #$84		; B24E	$A0 $84     
 	LDA #$F0		; B250	$A9 $F0     
 L2F252:
-	JSR $9DF9		; B252	$20 $F9 $9D     ; set oam value
-	JSR $9DFC		; B255	$20 $FC $9D  
+	JSR Set_OAM_val		; B252	$20 $F9 $9D     ; set oam value
+	JSR Y_inc4		; B255	$20 $FC $9D  
 	CPY #$A4		; B258	$C0 $A4     
 	BNE L2F252		; B25A	$D0 $F6     
 	LDX #$09		; B25C	$A2 $09     
@@ -5082,13 +5118,13 @@ L2F261:
 	LDY #$80		; B26E	$A0 $80     
 	LDA #$F0		; B270	$A9 $F0     
 L2F272:
-	JSR $9DF9		; B272	$20 $F9 $9D     ; set oam value
-	JSR $9DFC		; B275	$20 $FC $9D  
+	JSR Set_OAM_val		; B272	$20 $F9 $9D     ; set oam value
+	JSR Y_inc4		; B275	$20 $FC $9D  
 	CPY #$A0		; B278	$C0 $A0     
 	BNE L2F272		; B27A	$D0 $F6     
 	JSR Apply_OAM		; B27C	$20 $2A $9E     ; wait for vblank (menu & oam update)
 	LDA #$08		; B27F	$A9 $08     
-	JSR $9E1F		; B281	$20 $1F $9E     ; wait 8 frames
+	JSR Gfx_delay		; B281	$20 $1F $9E	wait 8 frames
 	DEC $1D			; B284	$C6 $1D     
 	BEQ L2F28B		; B286	$F0 $03     
 	JMP $B208		; B288	$4C $08 $B2  
@@ -5106,7 +5142,7 @@ L2F29A:
 	LDX #$00		; B29F	$A2 $00
 L2F2A1:
 	LDA $B461,X		; B2A1	$BD $61 $B4	OAM INDEX
-	JSR $9DF9		; B2A4	$20 $F9 $9D	Set INDEX to OAM buffer
+	JSR Set_OAM_val		; B2A4	$20 $F9 $9D	Set INDEX to OAM buffer
 	INX			; B2A7	$E8
 	CPX #$04		; B2A8	$E0 $04
 	BNE L2F2A1		; B2AA	$D0 $F5
@@ -5115,7 +5151,7 @@ L2F2A1:
 L2F2B0:
 	LDA $B465,X		; B2B0	$BD $65 $B4	OAM ATTR
 	EOR $02			; B2B3	$45 $02
-	JSR $9DF9		; B2B5	$20 $F9 $9D	Set ATTR to OAM buffer
+	JSR Set_OAM_val		; B2B5	$20 $F9 $9D	Set ATTR to OAM buffer
 	INX			; B2B8	$E8
 	CPX #$04		; B2B9	$E0 $04
 	BNE L2F2B0		; B2BB	$D0 $F3
@@ -5142,7 +5178,7 @@ L2F2C9:
 	LDX #$00		; B2E1	$A2 $00
 L2F2E3:
 	LDA $04			; B2E3	$A5 $04
-	JSR $9DF9		; B2E5	$20 $F9 $9D	Set X to OAM buffer
+	JSR Set_OAM_val		; B2E5	$20 $F9 $9D	Set X to OAM buffer
 	CLC			; B2E8	$18
 	LDA $04			; B2E9	$A5 $04
 	ADC $05			; B2EB	$65 $05
@@ -5165,7 +5201,7 @@ L2F2E3:
 	STY $07			; B309	$84 $07
 L2F30B:
 	LDA $06			; B30B	$A5 $06
-	JSR $9DF9		; B30D	$20 $F9 $9D	Set Y to OAM buffer
+	JSR Set_OAM_val		; B30D	$20 $F9 $9D	Set Y to OAM buffer
 	CLC			; B310	$18
 	ADC #$08		; B311	$69 $08
 	STA $06			; B313	$85 $06
@@ -5178,7 +5214,7 @@ L2F30B:
 	STY $07			; B322	$84 $07
 L2F324:
 	LDA #$F0		; B324	$A9 $F0		Remove effect(End of effect)
-	JSR $9DF9		; B326	$20 $F9 $9D	Set Y(Reset) to OAM buffer and next
+	JSR Set_OAM_val		; B326	$20 $F9 $9D	Set Y(Reset) to OAM buffer and next
 	STY $07			; B329	$84 $07
 	JSR Apply_OAM_pal	; B32B	$20 $33 $9E
 	LDY $07			; B32E	$A4 $07
@@ -5266,7 +5302,7 @@ L2F385:
 	JSR $AD19		; B3C7	$20 $19 $AD
 	JSR $9E33		; B3CA	$20 $33 $9E	wait for vblank (menu, oam & color update)
 	LDA #$02		; B3CD	$A9 $02
-	JSR $9E1F		; B3CF	$20 $1F $9E	wait 2 frames
+	JSR Gfx_delay		; B3CF	$20 $1F $9E	wait 2 frames
 	DEC $17			; B3D2	$C6 $17
 	BNE L2F360		; B3D4	$D0 $8A
 	RTS			; B3D6	$60
@@ -5336,7 +5372,7 @@ L2F432:
 
 ; Name	:
 ; X	: 00h = right hand, 01h = left hand
-; Marks	:
+; Marks	: BANK 0B/8D88 (weapon palettes offset)
 	STX $00			; B436	$86 $00		l/r hand
 	LDY $20,X		; B438	$B4 $20		weapon action type ??
 	LDX $7CB1		; B43A	$AE $B1 $7C	attack animation palette
@@ -5362,7 +5398,7 @@ L2F453:
 	SBC #$02		; B457	$E9 $02
 	LDX #$00		; B459	$A2 $00
 	JSR Random		; B45B	$20 $11 $FD
-	JMP $ADA5		; B45E	$4C $A5 $AD	as13
+	JMP Multi8		; B45E	$4C $A5 $AD	asl3
 ; End of
 
 ;B461 - data block = OAM index
@@ -5700,7 +5736,7 @@ L2F6CB:
 L2F6EB:
 	JSR $B86A		; B6EB	$20 $6A $B8
 	LDA $13			; B6EE	$A5 $13	$	number of frames to wait
-	JSR $9E1F		; B6F0	$20 $1F $9E	wait
+	JSR Gfx_delay		; B6F0	$20 $1F $9E	wait
 	JSR $B727		; B6F3	$20 $27 $B7
 	JSR $B746		; B6F6	$20 $46 $B7
 	CMP #$FF		; B6F9	$C9 $FF
@@ -5771,7 +5807,7 @@ L2F752:
 	CLC			; B770	$18
 	ADC $00			; B771	$65 $00
 	STA $0203,Y		; B773	$99 $03 $02
-	JMP $9DFC		; B776	$4C $FC $9D
+	JMP Y_inc4		; B776	$4C $FC $9D
 ;
 	LDY #$10		; B779	$A0 $10
 	LDA $01			; B77B	$A5 $01
@@ -5782,7 +5818,7 @@ L2F752:
 	STA $0202,Y		; B787	$99 $02 $02
 	LDA $00			; B78A	$A5 $00
 	STA $0203,Y		; B78C	$99 $03 $02
-	JMP $9DFC		; B78F	$4C $FC $9D
+	JMP Y_inc4		; B78F	$4C $FC $9D
 ;
 	JSR Rst_all_act_OAM_buf	; B792	$20 $E7 $9D
 	JSR $9E01		; B795	$20 $01 $9E
@@ -5922,7 +5958,7 @@ L2F873:
 	BMI L2F8A5		; B886	$30 $1D
 	LDA $7620,Y		; B888	$B9 $20 $76
 	BMI L2F8A5		; B88B	$30 $18
-	JSR $ADA4		; B88D	$20 $A4 $AD	asl4
+	JSR Low_to_high		; B88D	$20 $A4 $AD	asl4
 	TAX			; B890	$AA
 L2F891:
 	STX $04			; B891	$86 $04
@@ -5942,11 +5978,16 @@ L2F8A5:
 	BNE L2F873		; B8AA	$D0 $C7
 	RTS			; B8AC	$60
 ;
+
+; Name	:
+; Marks	: +$1C = frame data pointer
+; DEST	: $7640,X = 
+;	  copy some data
 	ASL			; B8AD	$0A
 	TAX			; B8AE	$AA
-	LDA $BF25,X		; B8AF	$BD $25 $BF
+	LDA Frm_data_tbl,X	; B8AF	$BD $25 $BF
 	STA $1C			; B8B2	$85 $1C
-	LDA $BF26,X		; B8B4	$BD $26 $BF
+	LDA Frm_data_tbl+1,X	; B8B4	$BD $26 $BF
 	STA $1D			; B8B7	$85 $1D
 	LDY #$00		; B8B9	$A0 $00
 	LDA ($1C),Y		; B8BB	$B1 $1C
@@ -5966,7 +6007,7 @@ L2F8CD:
 	INY			; B8D2	$C8
 	INX			; B8D3	$E8
 	DEC $01			; B8D4	$C6 $01
-	BNE L2F8CD		; B8D6	$D0 $F5
+	BNE L2F8CD		; B8D6	$D0 $F5		loop
 	DEX			; B8D8	$CA
 	TXA			; B8D9	$8A
 	AND #$F0		; B8DA	$29 $F0
@@ -5974,22 +6015,28 @@ L2F8CD:
 	ADC #$10		; B8DD	$69 $10
 	TAX			; B8DF	$AA
 	DEC $00			; B8E0	$C6 $00
-	BNE L2F8C9		; B8E2	$D0 $E5
+	BNE L2F8C9		; B8E2	$D0 $E5		loop
 	RTS			; B8E4	$60
-;
+; End of
+
+; Name	:
+; X	: fill data
+; DEST	: $7600,Y(start from $7620)
+; Marks	: $7620-$762F = FFh, $7630-$763F = X
+;	  file text 1 char ??
 	LDY #$20		; B8E5	$A0 $20
 	LDA #$FF		; B8E7	$A9 $FF
 L2F8E9:
 	STA $7600,Y		; B8E9	$99 $00 $76
 	INY			; B8EC	$C8
 	CPY #$30		; B8ED	$C0 $30
-	BNE L2F8E9		; B8EF	$D0 $F8
+	BNE L2F8E9		; B8EF	$D0 $F8		loop
 	TXA			; B8F1	$8A
 L2F8F2:
 	STA $7600,Y		; B8F2	$99 $00 $76
 	INY			; B8F5	$C8
 	CPY #$40		; B8F6	$C0 $40
-	BNE L2F8F2		; B8F8	$D0 $F8
+	BNE L2F8F2		; B8F8	$D0 $F8		loop
 	RTS			; B8FA	$60
 ; End of
 
@@ -6015,7 +6062,7 @@ L2F903:
 	LDA $27			; B91C	$A5 $27
 	CMP #$04		; B91E	$C9 $04
 	BCC L2F92B		; B920	$90 $09
-	LDA $7B82,X		; B922	$BD $82 $7B
+	LDA $7B82,X		; B922	$BD $82 $7B	monster heights
 	ASL			; B925	$0A
 	ASL			; B926	$0A
 	ADC $0B			; B927	$65 $0B
@@ -6090,7 +6137,7 @@ L2F991:
 	DEC $19			; B999	$C6 $19
 	BNE L2F969		; B99B	$D0 $CC
 	LDA #$03		; B99D	$A9 $03
-	JSR $9E1F		; B99F	$20 $1F $9E	wait 3 frames
+	JSR Gfx_delay		; B99F	$20 $1F $9E	wait 3 frames
 	LDX $18			; B9A2	$A6 $18
 	INX			; B9A4	$E8
 	CPX #$0C		; B9A5	$E0 $0C
@@ -6099,8 +6146,9 @@ L2F991:
 ; End of
 
 ; $B9AA - data block = ??
-.byte $00,$01,$03,$05,$07,$01
-.byte $02,$04,$06,$08
+.byte $00,$01,$03,$05,$07
+; $B9AF
+.byte $01,$02,$04,$06,$08
 
 ; $B9B4
 	LDX #$03		; B9B4	$A2 $03
@@ -6135,10 +6183,10 @@ L2F9E4:
 	CPX #$24		; B9EC	$E0 $24
 	BNE L2F9E4		; B9EE	$D0 $F4
 	LDA #$01		; B9F0	$A9 $01
-	JSR $9E1F		; B9F2	$20 $1F $9E	wait 1 frame
+	JSR Gfx_delay		; B9F2	$20 $1F $9E	wait 1 frame
 	JSR Rst_all_act_OAM_buf	; B9F5	$20 $E7 $9D
 	LDA #$02		; B9F8	$A9 $02
-	JSR $9E1F		; B9FA	$20 $1F $9E	wait 2 frames
+	JSR Gfx_delay		; B9FA	$20 $1F $9E	wait 2 frames
 	DEC $0E			; B9FD	$C6 $0E
 	BNE L2F9DE		; B9FF	$D0 $DD
 	LDX #$03		; BA01	$A2 $03
@@ -6149,7 +6197,7 @@ L2FA03:
 	BPL L2FA03		; BA09	$10 $F8
 	JSR Rst_all_act_OAM_buf	; BA0B	$20 $E7 $9D
 	LDA #$03		; BA0E	$A9 $03
-	JSR $9E1F		; BA10	$20 $1F $9E	wait 3 frames
+	JSR Gfx_delay		; BA10	$20 $1F $9E	wait 3 frames
 	LDA #$FC		; BA13	$A9 $FC
 	STA $00			; BA15	$85 $00
 	LDA #$10		; BA17	$A9 $10
@@ -6170,7 +6218,7 @@ L2FA2A:
 	CPY #$24		; BA34	$C0 $24
 	BNE L2FA2A		; BA36	$D0 $F2
 	LDA #$03		; BA38	$A9 $03
-	JMP $9E1F		; BA3A	$4C $1F $9E	wait 3 frames
+	JMP Gfx_delay		; BA3A	$4C $1F $9E	wait 3 frames
 	LDA #$06		; BA3D	$A9 $06
 	STA $14			; BA3F	$85 $14
 	LDA #$01		; BA41	$A9 $01
@@ -6280,12 +6328,12 @@ L2FB09:
 	STA $01			; BB0C	$85 $01
 	LDA $76C0,X		; BB0E	$BD $C0 $76
 	STA $00			; BB11	$85 $00
-	JSR $9E08		; BB13	$20 $08 $9E	copy sprite to oamdata
+	JSR Set_OAM_buf		; BB13	$20 $08 $9E	copy sprite to OAM buffer
 	INX			; BB16	$E8
 	CPX $12			; BB17	$E4 $12
 	BNE L2FAF3		; BB19	$D0 $D8
 	LDA #$01		; BB1B	$A9 $01
-	JSR $9E1F		; BB1D	$20 $1F $9E	wait 1 frame
+	JSR Gfx_delay		; BB1D	$20 $1F $9E	wait 1 frame
 	DEC $11			; BB20	$C6 $11
 	BNE L2FAEF		; BB22	$D0 $CB
 	LDX $0E			; BB24	$A6 $0E
@@ -6336,7 +6384,7 @@ L2FB37:
 	JSR $B8AD		;BB94	$20 $AD $B8
 	JSR $B86A		;BB97	$20 $6A $B8
 	LDA #$04		;BB9A	$A9 $04 
-	JSR $9E1F		;BB9C	$20 $1F $9E	wait 4 frames
+	JSR Gfx_delay		;BB9C	$20 $1F $9E	wait 4 frames
 	LDX $27			;BB9F	$A6 $27 
 	CPX #$04		;BBA1	$E0 $04 
 	BCC L2FBAB		;BBA3	$90 $06 
@@ -6359,7 +6407,7 @@ L2FBAB:
 	JSR $A1E4		;BBC1	$20 $E4 $A1	copy left attribute table to ppu
 	JSR Wait_NMI_end	;BBC4	$20 $46 $FD	wait for first battle field scanline
 	LDA #$06		;BBC7	$A9 $06 $
-	JSR $9E1F		;BBC9	$20 $1F $9E	wait 6 frames
+	JSR Gfx_delay		;BBC9	$20 $1F $9E	wait 6 frames
 	JSR $9E01		;BBCC	$20 $01 $9E
 	JSR $A951		;BBCF	$20 $51 $A9
 L2FBD2:
@@ -6479,7 +6527,7 @@ L2FC76:
 L2FC9D:
 	JSR $B86A		;BC9D	$20 $6A $B8
 	LDA #$01		;BCA0	$A9 $01
-	JSR $9E1F		;BCA2	$20 $1F $9E	wait 1 frame
+	JSR Gfx_delay		;BCA2	$20 $1F $9E	wait 1 frames
 	LDX $0F			;BCA5	$A6 $0F
 	LDA $07,X		;BCA7	$B5 $07
 	CLC			;BCA9	$18
@@ -6507,7 +6555,7 @@ L2FCCD:
 	JSR $BCDD		;BCCD	$20 $DD $BC
 	JSR $B779		;BCD0	$20 $79 $B7
 	LDA #$02		;BCD3	$A9 $02
-	JSR $9E1F		;BCD5	$20 $1F $9E	wait 2 frames
+	JSR Gfx_delay		;BCD5	$20 $1F $9E	wait 2 frames
 	DEC $04			;BCD8	$C6 $04
 	BNE L2FCCD		;BCDA	$D0 $F1
 	RTS			;BCDC	$60
@@ -6545,7 +6593,7 @@ L2FD10:
 	JSR $BD20		;BD10	$20 $20 $BD
 	JSR $B779		;BD13	$20 $79 $B7
 	LDA #$02		;BD16	$A9 $02
-	JSR $9E1F		;BD18	$20 $1F $9E	wait 2 frames
+	JSR Gfx_delay		;BD18	$20 $1F $9E	wait 2 frames
 	DEC $04			;BD1B	$C6 $04
 	BNE L2FD10		;BD1D	$D0 $F1
 	RTS			;BD1F	$60
@@ -6582,7 +6630,7 @@ L2FD54:
 	LDA $93B6,Y		;BD55	$B9 $B6 $93
 	INY			;BD58	$C8
 	STY $02			;BD59	$84 $02
-	JSR $9E1F		;BD5B	$20 $1F $9E	wait
+	JSR Gfx_delay		;BD5B	$20 $1F $9E	wait $02 frames
 	LDY $02			;BD5E	$A4 $02
 	DEC $01			;BD60	$C6 $01
 	BNE L2FD3B		;BD62	$D0 $D7
@@ -6798,7 +6846,7 @@ L2FEE7:
 L2FEEA:
 	JSR $9D71		; BEEA	$20 $71 $9D
 	LDA #$02		; BEED	$A9 $02
-	JSR $9E1F		; BEEF	$20 $1F $9E	wait 2 frames
+	JSR Gfx_delay		; BEEF	$20 $1F $9E	wait 2 frames
 	LDX $04			; BEF2	$A6 $04
 	DEX			; BEF4	$CA
 	BNE L2FEDD		; BEF5	$D0 $E6
@@ -6831,22 +6879,83 @@ L2FF09:
 
 ;$BF25 - data block = pointers to frame data ???
 ;; [$BF25 : 0x2FF25 ]
-.byte $45,$BF,$53,$BF,$5D,$BF,$75,$BF,$67,$BF,$87
-.byte $BF,$99,$BF,$AB,$BF,$B5,$BF,$BA,$BF,$BF,$BF,$CD,$BF,$D3,$BF,$D7
-.byte $BF,$DB,$BF,$E0,$BF
+Frm_data_tbl:
+.word Frm_d00			; BF25	$45 $BF
+.word Frm_d01			; BF27	$53 $BF
+.word Frm_d02			; BF29	$5D $BF
+.word Frm_d03			; BF2B	$75 $BF
+.word Frm_d04			; BF2D	$67 $BF
+.word Frm_d05			; BF2F	$87 $BF
+.word Frm_d06			; BF31	$99 $BF
+.word Frm_d07			; BF33	$AB $BF
+.word Frm_d08			; BF35	$B5 $BF
+.word Frm_d09			; BF37	$BA $BF
+.word Frm_d10			; BF39	$BF $BF
+.word Frm_d11			; BF3B	$CD $BF
+.word Frm_d12			; BF3D	$D3 $BF
+.word Frm_d13			; BF3F	$D7 $BF
+.word Frm_d14			; BF41	$DB $BF
+.word Frm_d15			; BF43	$E0 $BF
 
 ;$BF45 - data block = frame data ??
-.byte $04,$03,$27,$6C,$6D,$6E,$28,$6F,$70,$71,$29
-.byte $72,$73,$74,$01,$08,$00,$24,$25,$26,$27,$28,$29,$2A,$02,$03,$00
-.byte $2B,$24,$2C,$25,$2D,$26,$2E,$04,$03,$00,$01,$2B,$2F,$25,$30,$2D
-.byte $31,$27,$32,$33,$34,$10,$01,$0C,$0D,$3E,$3F,$0E,$0F,$40,$41,$42
-.byte $43,$44,$45,$46,$47,$48,$49,$04,$04,$00,$0D,$2B,$4A,$24,$4B,$2C
-.byte $4C,$25,$4D,$2D,$4E,$26,$4F,$2E,$50,$04,$04,$00,$01,$02,$03,$27
-.byte $32,$33,$34,$51,$52,$53,$4A,$54,$55,$56,$57,$04,$02,$00,$58,$59
-.byte $5A,$24,$4B,$2C,$5C,$03,$01,$00,$5B,$5D,$03,$01,$26,$5E,$5F,$04
-.byte $03,$60,$61,$62,$63,$64,$65,$66,$67,$68,$69,$6A,$6B,$04,$01,$00
-.byte $01,$02,$03,$02,$01,$00,$01,$02,$01,$0C,$0D,$03,$01,$75,$76,$77
-.byte $03,$01,$78,$79,$7A
+; 00h = count small loop, 01h = count big loop
+Frm_d00:
+.byte $04,$03
+.byte $27,$6C,$6D,$6E,$28,$6F,$70,$71,$29
+.byte $72,$73,$74
+Frm_d01:
+.byte $01,$08
+.byte $00,$24,$25,$26,$27,$28,$29,$2A
+Frm_d02:
+.byte $02,$03
+.byte $00
+.byte $2B,$24,$2C,$25,$2D,$26,$2E
+Frm_d04:
+.byte $04,$03
+.byte $00,$01,$2B,$2F,$25,$30,$2D
+.byte $31,$27,$32,$33,$34
+Frm_d03:
+.byte $10,$01
+.byte $0C,$0D,$3E,$3F,$0E,$0F,$40,$41,$42
+.byte $43,$44,$45,$46,$47,$48,$49
+Frm_d05:
+.byte $04,$04
+.byte $00,$0D,$2B,$4A,$24,$4B,$2C
+.byte $4C,$25,$4D,$2D,$4E,$26,$4F,$2E,$50
+Frm_d06:
+.byte $04,$04
+.byte $00,$01,$02,$03,$27
+.byte $32,$33,$34,$51,$52,$53,$4A,$54,$55,$56,$57
+Frm_d07:
+.byte $04,$02
+.byte $00,$58,$59
+.byte $5A,$24,$4B,$2C,$5C
+Frm_d08:
+.byte $03,$01
+.byte $00,$5B,$5D
+Frm_d09:
+.byte $03,$01
+.byte $26,$5E,$5F
+Frm_d10:
+.byte $04
+.byte $03
+.byte $60,$61,$62,$63,$64,$65,$66,$67,$68,$69,$6A,$6B
+Frm_d11:
+.byte $04,$01
+.byte $00
+.byte $01,$02,$03
+Frm_d12:
+.byte $02,$01
+.byte $00,$01
+Frm_d13:
+.byte $02,$01
+.byte $0C,$0D
+Frm_d14:
+.byte $03,$01
+.byte $75,$76,$77
+Frm_d15:
+.byte $03,$01
+.byte $78,$79,$7A
 
 ;BFE5 - data block = stale data
 .byte $76,$77,$03,$01,$78,$79,$7A,$01,$00,$01,$02
