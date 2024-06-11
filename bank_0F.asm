@@ -2,12 +2,9 @@
 .include "variables.inc"
 
 .export L3FD8C
-.export L3FA0F
-.export L3FD46
 .export L3FA2A			;FA2A
 .export Set_IRQ_JMP		;FA2A
 .export	Do_009880		;FAFB
-;.export L3FD5B		Wait_MENU_snd
 .export Init_Page2		;C46E
 ;C74F
 .export Check_savefile		;DAC1
@@ -18,6 +15,11 @@
 .export	Set_cursor		;DEA1
 .export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
+.export	Ret_to_map		;FA0F
+.export	SR_Battle_win		;FAD8
+.export	SR_Battle_fadeout	;FADC
+.export	SR_Battle_runaway	;FAE8
+.export	SR_battle_defeat	;FAEC
 .export	SR_BattleMain		;FB06
 .export	SR_SortVal		;FB0C
 .export	SR_Init_battle_stats	;FB17
@@ -37,6 +39,7 @@
 .export	Set_PpuAddr_00		;FD7E
 .export Wait_NMI		;FE00
 .export Swap_PRG_		;FE03
+.export	OnReset			;FE2E
 .export	Init_variables		;FFB0
 
 .import	Update_char_equip 	;9880 - bank_00
@@ -54,6 +57,10 @@
 .import	Nmap_battle_grp		;8100 - bank_0B
 .import	Wmap_battle_grp		;8200 - bank_0B
 .import	Rnd_battle_grp		;8280 - bank_0B
+.import	Win_celemony_0B		;9627 - bank_0B
+.import	Fade_out_0B		;962A - bank_0B
+.import	Run_away_0B		;9633 - bank_0B
+.import	Battle_defeat_0B	;9636 - bank_0B
 
 .import	BattleMain_bank0C	;8F43 - bank_0C
 .import SortVal_bank0C		;8F46 - bank_0C
@@ -8833,16 +8840,18 @@ rnum_tbl:
     STA $3E                  ; FA09  $85 $3E	bank ret tmp ??
     PLA                      ; FA0B  $68
     JSR $FAFB                ; FA0C  $20 $FB $FA
-L3FA0F:
-    LDA #$0E                 ; FA0F  $A9 $0E
-    JSR Swap_PRG             ; FA11  $20 $1A $FE
-    LDX #$B0                 ; FA14  $A2 $B0
-L3FA16:
-    LDA $7BFF,X              ; FA16  $BD $FF $7B
-    STA $FF,X                ; FA19  $95 $FF
-    DEX                      ; FA1B  $CA
-    BNE L3FA16               ; FA1C  $D0 $F8
-    RTS                      ; FA1E  $60
+; Marks	: Return from battle to map. Used BANK 05, BANK 0C
+Ret_to_map:
+	LDA #$0E		; FA0F  $A9 $0E		BANK 0E
+	JSR Swap_PRG		; FA11  $20 $1A $FE
+	LDX #$B0		; FA14  $A2 $B0
+Ret_to_map_restore_zpage:
+	LDA $7BFF,X		; FA16  $BD $FF $7B	restore saved zero page($7C00-$7CAF)
+	STA $FF,X		; FA19  $95 $FF
+	DEX			; FA1B  $CA
+	BNE Ret_to_map_restore_zpage	; FA1C  $D0 $F8	loop
+	RTS			; FA1E  $60
+; End of Ret_to_map
 
 ; Name	: Zpage_store
 ; Ret	: X = 0
@@ -9001,48 +9010,57 @@ L3FA9E:
 ; Marks	: $40(ADDR) = execute code address
 ;	  bank 0B $96xx
 	LDA #$12		; FABC  $A9 $12
-	BNE L3FAF0		; FABE  $D0 $30
+	BNE Exec_battle_gfx_bank		; FABE  $D0 $30
     LDA #$15                 ; FAC0  $A9 $15
-    BNE L3FAF0               ; FAC2  $D0 $2C
+    BNE Exec_battle_gfx_bank               ; FAC2  $D0 $2C
     LDA #$18                 ; FAC4  $A9 $18
-    BNE L3FAF0               ; FAC6  $D0 $28
+    BNE Exec_battle_gfx_bank               ; FAC6  $D0 $28
     LDA #$1B                 ; FAC8  $A9 $1B
-    BNE L3FAF0               ; FACA  $D0 $24
+    BNE Exec_battle_gfx_bank               ; FACA  $D0 $24
 ; Name	:
 ; Marks	:
 	LDA #$1E		; FACC  $A9 $1E
-	BNE L3FAF0		; FACE  $D0 $20
+	BNE Exec_battle_gfx_bank		; FACE  $D0 $20
 ; Name	:
 ; Marks	:
 	LDA #$21		; FAD0  $A9 $21
-	BNE L3FAF0		; FAD2  $D0 $1C
+	BNE Exec_battle_gfx_bank		; FAD2  $D0 $1C
 
     LDA #$24                 ; FAD4  $A9 $24
-    BNE L3FAF0               ; FAD6  $D0 $18
-; Name	:
-; Marks	:
-    LDA #$27                 ; FAD8  $A9 $27
-    BNE L3FAF0               ; FADA  $D0 $14
-    LDA #$2A                 ; FADC  $A9 $2A
-    BNE L3FAF0               ; FADE  $D0 $10
+    BNE Exec_battle_gfx_bank               ; FAD6  $D0 $18
+; Name	: SR_Battle_win
+; Marks	: Used on BANK 0C
+SR_Battle_win:
+	LDA #<Win_celemony_0B	; FAD8  $A9 $27
+	BNE Exec_battle_gfx_bank; FADA  $D0 $14
+; Name	: SR_Battle_fadeout
+; Marks	: Used on BANK 05
+SR_Battle_fadeout:
+	LDA #<Fade_out_0B	; FADC  $A9 $2A
+	BNE Exec_battle_gfx_bank; FADE  $D0 $10
 ; Name	:
 ; Marks	:
 	LDA #$2D		; FAE0  $A9 $2D
-	BNE L3FAF0		; FAE2  $D0 $0C
+	BNE Exec_battle_gfx_bank; FAE2  $D0 $0C
 ; Name	:
 	LDA #$30		; FAE4  $A9 $30
-	BNE L3FAF0		; FAE6  $D0 $08
-    LDA #$33                 ; FAE8  $A9 $33
-    BNE L3FAF0               ; FAEA  $D0 $04
-L3FAEC:
-    LDA #$36                 ; FAEC  $A9 $36
-    BNE L3FAF0               ; FAEE  $D0 $00
-L3FAF0:
+	BNE Exec_battle_gfx_bank; FAE6  $D0 $08
+; Name	: SR_Battle_runaway
+; Marks	: Used on BANK 0C
+SR_Battle_runaway:
+	LDA #<Run_away_0B	; FAE8  $A9 $33
+	BNE Exec_battle_gfx_bank; FAEA  $D0 $04
+; Name	: SR_battle_defeat
+; Marks	: Used on BANK 0C
+SR_battle_defeat:
+	LDA #<Battle_defeat_0B	; FAEC  $A9 $36
+	BNE Exec_battle_gfx_bank; FAEE  $D0 $00
+Exec_battle_gfx_bank:
 ; A	: 
 	STA $40			; FAF0  $85 $40
-	LDA #$96		; FAF2  $A9 $96
+	LDA #>Battle_defeat_0B	; FAF2  $A9 $96
 	STA $41			; FAF4  $85 $41
-	LDA #$0B		; FAF6  $A9 $0B
+	LDA #$0B		; FAF6  $A9 $0B		BANK 0B
 	JMP Exec_bank		; FAF8  $4C $88 $FA
 ; End of and to FA88
 
@@ -9285,6 +9303,7 @@ Set_wpn_pal:
 	JMP Swap_ret_bank	; FC1A  $4C $84 $FA
 ; End of Set_wpn_pal
 
+; unused ??
     LDA #$00                 ; FC1D  $A9 $00
     JSR Swap_PRG             ; FC1F  $20 $1A $FE
     LDA $9700,X              ; FC22  $BD $00 $97
@@ -9300,8 +9319,9 @@ Set_wpn_pal:
 ; Marks	: Get key on battle command ??
 ;	  $34 = result ??, $35 =, $36 = key repeat delay ??
 ;	  expension port works
+;	  update joypad input
 ;; sub start ;;
-	LDA $35			; FC34  $A5 $35
+	LDA $35			; FC34  $A5 $35		save buttons pressed last frame
 	STA $34			; FC36  $85 $34		key
 	LDA #$01		; FC38  $A9 $01
 	STA Ctrl1_4016		; FC3A  $8D $16 $40
@@ -9310,38 +9330,39 @@ Set_wpn_pal:
 	LDX #$08		; FC42  $A2 $08
 L3FC44:
 	LDA Ctrl1_4016		; FC44  $AD $16 $40
-	ROR A			; FC47  $6A
+	ROR A			; FC47  $6A		support expansion controller
 	BCS L3FC4B		; FC48  $B0 $01
 	ROR A			; FC4A  $6A
 L3FC4B:
 	ROR $35			; FC4B  $66 $35
 	DEX			; FC4D  $CA
-	BNE L3FC44		; FC4E  $D0 $F4
+	BNE L3FC44		; FC4E  $D0 $F4		next button
 	LDA $34			; FC50  $A5 $34
 	ORA $35			; FC52  $05 $35
-	BNE L3FC5D		; FC54  $D0 $07
+	BNE L3FC5D		; FC54  $D0 $07		branch if buttons pressed or released
+; no button pressed
 	STA $34			; FC56  $85 $34
-	LDA #$08		; FC58  $A9 $08
+	LDA #$08		; FC58  $A9 $08		reset repeat counter
 	STA $36			; FC5A  $85 $36
 	RTS			; FC5C  $60
 ; End of Get key on battle
-
 L3FC5D:
     LDA $34                  ; FC5D  $A5 $34
     AND $35                  ; FC5F  $25 $35
-    BNE L3FC6C               ; FC61  $D0 $09
+    BNE L3FC6C               ; FC61  $D0 $09		branch if new buttons pressed
+; new buttons pressed
 L3FC63:
-    LDA $34                  ; FC63  $A5 $34
+    LDA $34                  ; FC63  $A5 $34		buttons pressed last frame
     EOR #$FF                 ; FC65  $49 $FF
     AND $35                  ; FC67  $25 $35
     STA $34                  ; FC69  $85 $34
     RTS                      ; FC6B  $60
 ; End of Get key on battle
-
+; buttons held
 L3FC6C:
-    DEC $36                  ; FC6C  $C6 $36
+    DEC $36                  ; FC6C  $C6 $36		decrement repeat counter
     BNE L3FC63               ; FC6E  $D0 $F3
-    LDA #$04                 ; FC70  $A9 $04
+    LDA #$04                 ; FC70  $A9 $04		reset repeat counter
     STA $36                  ; FC72  $85 $36
     LDA $35                  ; FC74  $A5 $35
     STA $34                  ; FC76  $85 $34
@@ -9379,11 +9400,11 @@ L3FC90:
 ; End of Multi
 
 ; Name	: Multi16
+; Ret	: $04,$05,$06,$07 = result(32-bit value)
 ; Marks	: multiply (16-bit)
 ;	  $00,$01 = target(16-bit value)
 ;	  $02,$03 = target(16-bit value)
 ;	  ++$04 = +$00 * +$02
-;	  $04,$05,$06,$07 = result(32-bit value)
 ;; sub start ;;
 Multi16:
 	LDX #$10		; FC98  $A2 $10
@@ -9413,6 +9434,7 @@ L3FCB7:
 	RTS			; FCC2  $60
 ; End of Multi16
 
+; Name	: DoDivision
 ;; sub start ;;
 
 ;; NESDEV Discord, Learning Assistance: 
@@ -9426,10 +9448,10 @@ DoDivision:
     STA $06                  ; FCCB  $85 $06
     LDA $00                  ; FCCD  $A5 $00
     ORA $01                  ; FCCF  $05 $01
-    BEQ @End                 ; FCD1  $F0 $33
+    BEQ @End                 ; FCD1  $F0 $33	return if denominator is zero
     LDA $02                  ; FCD3  $A5 $02
     ORA $03                  ; FCD5  $05 $03
-    BEQ @End                 ; FCD7  $F0 $2D
+    BEQ @End                 ; FCD7  $F0 $2D	return if numerator is zero
     LDX #$10                 ; FCD9  $A2 $10
 
    @Loop:
@@ -9460,6 +9482,7 @@ DoDivision:
 
    @End:
     RTS                      ; FD06  $60
+; End of DoDivision
 
 ; Name	: Get_nybble
 ; A	: input data
@@ -9521,17 +9544,16 @@ L3FD45:
 ; End of Random
 
 
-;; Battle text thing. Waits for Sprite 0 hit?
 
 ; Name	: Wait_NMI_end
 ; A	:
 ; SRC	: $3B = PpuControl_2000, $39 = PpuScroll_2005 1st, $37 = PpuScroll_2005 2nd
 ; Marks	: wait VBlank end by scroll sprite 0 hit
 ;	  Scroll reset
-L3FD46:
+;	  Battle text thing. Waits for Sprite 0 hit?
 Wait_NMI_end:
 	BIT PpuStatus_2002	; FD46  $2C $02 $20	resets paired write latch w to 0.
-	BVS L3FD46		; FD49  $70 $FB		loop
+	BVS Wait_NMI_end	; FD49  $70 $FB		loop
 L3FD4B:
 Ctrl_Scroll:
 	LDA PpuCtrl_NT		; FD4B  $A5 $3B
@@ -9545,10 +9567,9 @@ Ctrl_Scroll:
 
 ; Name	: Wait_MENU_snd
 ; Marks	: Set Ppu for menu area ??
-L3FD5B:
 Wait_MENU_snd:
 	BIT PpuStatus_2002	; FD5B  $2C $02 $20
-	BVC L3FD5B		; FD5E  $50 $FB		loop - wait sprite 0 hit
+	BVC Wait_MENU_snd	; FD5E  $50 $FB		loop - wait sprite 0 hit
 	LDA PpuCtrl_menu	; FD60  $A5 $3A
 	AND #$EF		; FD62  $29 $EF		set background pattern table address to $0000
 	STA PpuControl_2000	; FD64  $8D $00 $20
@@ -9561,7 +9582,7 @@ Wait_MENU_snd:
 ; X	: Size to copy
 ; DEST	: $00(ADDR)
 ; SRC	: $02(ADDR)
-; Marks	: Use on BANK 0B, BANK 0F
+; Marks	: Used on BANK 0B, BANK 0F
 Set_buf_to_Ppu:
 	JSR Set_PpuAddr_00	; FD6F  $20 $7E $FD
 	LDY #$00		; FD72  $A0 $00
@@ -9575,7 +9596,9 @@ Set_buf_to_Ppu_loop:
 ; End of Set_buf_to_Ppu
 
 ; Name	: Set_PpuAddr_00
-; Marks	: Set PpuAddr by $00(ADDR)
+; SRC	: +$00 = ppu address
+; Marks	: Set PpuAddr on +$00
+;	  Used on BANK 0B, BANK 0F
 ;; sub start ;;
 Set_PpuAddr_00:
 	LDA PpuStatus_2002	; FD7E  $AD $02 $20
@@ -9589,8 +9612,10 @@ Set_PpuAddr_00:
 ; Name	:
 ; X	: bank to swap
 ; Marks	: $64(ADDR) = battle text ??
+;	  +$62 = pointer table address
+;	  $AA = buffer offset
 ;	  Load battle text ??
-;	  used on BANK 0C
+;	  Used on BANK 0C
 L3FD8C:
 	TXA			; FD8C  $8A
 	JSR Swap_PRG		; FD8D  $20 $1A $FE
@@ -9601,7 +9626,7 @@ L3FD8C:
 	ASL A			; FD97  $0A
 	ROL $65			; FD98  $26 $65
 	CLC			; FD9A  $18
-	ADC $62			; FD9B  $65 $62
+	ADC $62			; FD9B  $65 $62		get pointer offset
 	STA $64			; FD9D  $85 $64
 	LDA $65			; FD9F  $A5 $65
 	ADC $63			; FDA1  $65 $63
@@ -9618,12 +9643,12 @@ L3FD8C:
 ;; JIGS - Mesen's debugger screwed up here. Replacing it with bytes.
 	.byte $AE,$AA,$00
 L3FDB4:
-	LDA ($64),Y		; FDB4  $B1 $64
+	LDA ($64),Y		; FDB4  $B1 $64		copy to buffer
 	STA $7D47,X		; FDB6  $9D $47 $7D	text buffer
-	BEQ L3FDC1		; FDB9  $F0 $06
+	BEQ L3FDC1		; FDB9  $F0 $06		branch if null-terminator
 	INY			; FDBB  $C8
 	INX			; FDBC  $E8
-	CPX #$11		; FDBD  $E0 $11
+	CPX #$11		; FDBD  $E0 $11		max 17 bytes
 	BNE L3FDB4		; FDBF  $D0 $F3
 L3FDC1:
 	STX $7CBF		; FDC1  $8E $BF $7C	text length ??
@@ -9633,6 +9658,7 @@ L3FDC1:
 ; Name	: Weapon_type
 ; Marks	: Set right/left weapon type
 ;	  Weapon properties is in bank_0C
+;	  Used on BANK 0B
 ;; sub start ;;
 Weapon_type:
 	LDA #BANK_BATTLE	; FDC7  $A9 $0C		Need properties BANK
@@ -9656,35 +9682,37 @@ Weapon_type:
 ;	  $02 + F6h -> $00
 ;	  $03 + 80h -> $01
 ;	  $00(ADDR) = bank_0C
+;	  use BANK 0C
 ;; sub start ;;
 Get_weapon_type:
 	LDX #$09		; FDDF  $A2 $09
 	JSR Multi		; FDE1  $20 $79 $FC	get weapon properties address
 	LDA $02			; FDE4  $A5 $02
-	ADC #<Weapon_prop
-	;ADC #$F6		; FDE6  $69 $F6
+	ADC #<Weapon_prop	; FDE6	$69 $F6		BANK 0C/80F6 (weapon properties)
 	STA $00			; FDE8  $85 $00
 	LDA $03			; FDEA  $A5 $03
-	ADC #>Weapon_prop
-	;ADC #$80		; FDEC  $69 $80
+	ADC #>Weapon_prop	; FDEC	$69 $80
 	STA $01			; FDEE  $85 $01
 	LDY #$00		; FDF0  $A0 $00
 	LDA ($00),Y		; FDF2  $B1 $00		ex> 82EEh - weapon properties(type)
 	RTS			; FDF4  $60
 ; End of Get_weapon_type
 
- ;data block---
+; stale code = (now at 0F/FDBD), data block ?? - unused code
 ;; [FDF5 : 3FE05]
-.byte $11,$D0,$F3,$4C,$34,$FA,$00,$00,$00,$00,$00
+.byte $11,$D0,$F3,$4C,$34,$FA
+
+; $FDFB
+.byte $00,$00,$00,$00,$00
 ;========== BATTLE CODE ($FA00-$FDFF) END ==========
 
 
 ; ========== system code ($FE00-$FFDF) START ==========
 ; Name	: Wait_NMI
-; Marks	: fall in loop for wait NMI
+; Marks	: fall in loop for wait NMI start
 Wait_NMI:
 ;; sub start ;;
-    JMP L3FEAD               ; FE00  $4C $AD $FE
+	JMP Wait_NMI_		; FE00  $4C $AD $FE
 ; End of Wait_NMI
 
 Swap_PRG_:
@@ -9697,16 +9725,16 @@ Swap_PRG_:
 ; Marks	: MMC1 control REGISTER
 ;	  A will be 0
 MMC1_CONTROL_REGISTER:
-    STA $9FFF                ; FE06  $8D $FF $9F
-    LSR A                    ; FE09  $4A
-    STA $9FFF                ; FE0A  $8D $FF $9F
-    LSR A                    ; FE0D  $4A
-    STA $9FFF                ; FE0E  $8D $FF $9F
-    LSR A                    ; FE11  $4A
-    STA $9FFF                ; FE12  $8D $FF $9F
-    LSR A                    ; FE15  $4A
-    STA $9FFF                ; FE16  $8D $FF $9F
-    RTS                      ; FE19  $60
+	STA $9FFF		; FE06  $8D $FF $9F
+	LSR A			; FE09  $4A
+	STA $9FFF		; FE0A  $8D $FF $9F
+	LSR A			; FE0D  $4A
+	STA $9FFF		; FE0E  $8D $FF $9F
+	LSR A			; FE11  $4A
+	STA $9FFF		; FE12  $8D $FF $9F
+	LSR A			; FE15  $4A
+	STA $9FFF		; FE16  $8D $FF $9F
+	RTS			; FE19  $60
 ; End of MMC1_CONTROL_REGISTER
 
 ; Name	: Swap_PRG
@@ -9714,18 +9742,25 @@ MMC1_CONTROL_REGISTER:
 ; Marks	: Change Program Rom Bank
 ;	  A will be 0
 Swap_PRG:
-    STA $FFF9                ; FE1A  $8D $F9 $FF
-    LSR A                    ; FE1D  $4A
-    STA $FFF9                ; FE1E  $8D $F9 $FF
-    LSR A                    ; FE21  $4A
-    STA $FFF9                ; FE22  $8D $F9 $FF
-    LSR A                    ; FE25  $4A
-    STA $FFF9                ; FE26  $8D $F9 $FF
-    LSR A                    ; FE29  $4A
-    STA $FFF9                ; FE2A  $8D $F9 $FF
-    RTS                      ; FE2D  $60
+	STA $FFF9		; FE1A  $8D $F9 $FF
+	LSR A			; FE1D  $4A
+	STA $FFF9		; FE1E  $8D $F9 $FF
+	LSR A			; FE21  $4A
+	STA $FFF9		; FE22  $8D $F9 $FF
+	LSR A			; FE25  $4A
+	STA $FFF9		; FE26  $8D $F9 $FF
+	LSR A			; FE29  $4A
+	STA $FFF9		; FE2A  $8D $F9 $FF
+	RTS			; FE2D  $60
 ; End of Swap_PRG
 
+
+
+
+
+;======================================================================
+;				R E S E T
+;======================================================================
 OnReset:
     SEI                      ; FE2E  $78
     LDA #$00                 ; FE2F  $A9 $00
@@ -9748,8 +9783,8 @@ OnReset:
     STA $DFFF                ; FE50  $8D $FF $DF
     STA $FFF9                ; FE53  $8D $F9 $FF
 	; Set switch CHR ROM 8KB, switch 16KB bank at $8000, fix last bank at $C000, vertical Mirroring
-    LDA #$0E                 ; FE56  $A9 $0E
-    JSR MMC1_CONTROL_REGISTER                ; FE58  $20 $06 $FE = JSR $FE06                ; FE58  $20 $06 $FE
+	LDA #$0E		; FE56  $A9 $0E		BANK 0E
+	JSR MMC1_CONTROL_REGISTER	; FE58  $20 $06 $FE
 	; Set CHR bank 0 = already set 8KB CHR RAM mode
     STA $BFFF                ; FE5B  $8D $FF $BF
     STA $BFFF                ; FE5E  $8D $FF $BF
@@ -9771,76 +9806,71 @@ OnReset:
     STA DmcFreq_4010         ; FE84  $8D $10 $40
     LDA #$C0                 ; FE87  $A9 $C0
     STA Ctrl2_FrameCtr_4017  ; FE89  $8D $17 $40
-	; Set SP init
     DEX                      ; FE8C  $CA
-    TXS                      ; FE8D  $9A
-    STX $0100                ; FE8E  $8E $00 $01
-	; PPU Palettes init
-    JSR Palettes_init        ; JSR $FEBF                ; FE91  $20 $BF $FE
-	; Why called twice ??
-    LDA #$06                 ; FE94  $A9 $06
-    JSR Swap_PRG             ; FE96  $20 $1A $FE
-    LDA #$40                 ; FE99  $A9 $40
-    STA $0100                ; FE9B  $8D $00 $01
-	; How about go to $C025 ??
-    JMP $C000                ; FE9E  $4C $00 $C0
+	TXS			; FE8D	$9A		Set SP init
+	STX $0100		; FE8E  $8E $00 $01
+	JSR Palettes_init	; FE91	$20 $BF $FE
+	LDA #$06		; FE94  $A9 $06		BANK 06 - Called twice, before on $FE79, why ??
+	JSR Swap_PRG		; FE96  $20 $1A $FE
+	LDA #$40		; FE99  $A9 $40		Set instruction to RTI
+	STA $0100		; FE9B  $8D $00 $01
+	JMP $C000		; FE9E  $4C $00 $C0	How about go to $C025 directly ??
 ; End of OnReset
 
 ; < NMI routine >
 ; Marks	: set RTI on $0100(NMI) and Return
 ;	  NMI routine(Wait NMI) and return
-L3FEA1:
-    LDA PpuStatus_2002       ; FEA1  $AD $02 $20
-    LDA #$40                 ; FEA4  $A9 $40
-    STA $0100                ; FEA6  $8D $00 $01
-    PLA                      ; FEA9  $68
-    PLA                      ; FEAA  $68
-    PLA                      ; FEAB  $68
-    RTS                      ; FEAC  $60
+NMI_routine:
+	LDA PpuStatus_2002       ; FEA1  $AD $02 $20
+	LDA #$40                 ; FEA4  $A9 $40	Set instruction to RTI
+	STA $0100                ; FEA6  $8D $00 $01
+	PLA                      ; FEA9  $68
+	PLA                      ; FEAA  $68
+	PLA                      ; FEAB  $68
+	RTS                      ; FEAC  $60
 ; End of NMI
 
-;set JMP to $FEA1 on $0100(NMI) and wait NMI
-L3FEAD:
-    LDA #$A1                 ; FEAD  $A9 $A1
-    STA $0101                ; FEAF  $8D $01 $01
-    LDA #$FE                 ; FEB2  $A9 $FE
-    STA $0102                ; FEB4  $8D $02 $01
-    LDA #$4C                 ; FEB7  $A9 $4C
-    STA $0100                ; FEB9  $8D $00 $01
-; Endless loop - wait NMI or IRQ
+; Marks	: set JMP to $FEA1 on $0100(NMI) and wait NMI
+Wait_NMI_:
+	LDA #<NMI_routine	; FEAD  $A9 $A1
+	STA $0101		; FEAF  $8D $01 $01
+	LDA #>NMI_routine	; FEB2  $A9 $FE
+	STA $0102		; FEB4  $8D $02 $01
+	LDA #$4C		; FEB7  $A9 $4C		Set instruction to JMP
+	STA $0100		; FEB9  $8D $00 $01
 OnIRQ:
-L3FEBC:
-    JMP L3FEBC               ; FEBC  $4C $BC $FE
+	JMP OnIRQ		; FEBC  $4C $BC $FE	Endless loop - wait NMI or IRQ
 ; End of Wait_NMI
 
 ; Name	: Palettes_init
 ; Marks	: Palettes init
+;	  Set 0Fh to $3F00-$3F0F
 Palettes_init:
-    LDA #$00                 ; FEBF  $A9 $00
-    STA PpuMask_2001         ; FEC1  $8D $01 $20
-    LDA PpuStatus_2002       ; FEC4  $AD $02 $20
-    LDA #$3F                 ; FEC7  $A9 $3F
-    STA PpuAddr_2006         ; FEC9  $8D $06 $20
-    LDA #$00                 ; FECC  $A9 $00
-    STA PpuAddr_2006         ; FECE  $8D $06 $20
-    LDX #$10                 ; FED1  $A2 $10
-    LDA #$0F                 ; FED3  $A9 $0F
-FED5:
-    STA PpuData_2007         ; FED5  $8D $07 $20
-    DEX                      ; FED8  $CA
-    BNE FED5                 ; FED9  $D0 $FA
-    LDA #$3F                 ; FEDB  $A9 $3F
-    STA PpuAddr_2006         ; FEDD  $8D $06 $20
-    LDA #$00                 ; FEE0  $A9 $00
-    STA PpuAddr_2006         ; FEE2  $8D $06 $20
-    STA PpuAddr_2006         ; FEE5  $8D $06 $20
-    STA PpuAddr_2006         ; FEE8  $8D $06 $20
-    RTS                      ; FEEB  $60
+	LDA #$00		; FEBF  $A9 $00		hide sprite/background
+	STA PpuMask_2001	; FEC1  $8D $01 $20
+	LDA PpuStatus_2002	; FEC4  $AD $02 $20
+	LDA #$3F		; FEC7  $A9 $3F
+	STA PpuAddr_2006	; FEC9  $8D $06 $20
+	LDA #$00		; FECC  $A9 $00
+	STA PpuAddr_2006	; FECE  $8D $06 $20
+	LDX #$10		; FED1  $A2 $10
+	LDA #$0F		; FED3  $A9 $0F
+Palettes_init_loop:
+	STA PpuData_2007	; FED5  $8D $07 $20
+	DEX			; FED8  $CA
+	BNE Palettes_init_loop	; FED9  $D0 $FA
+	LDA #$3F		; FEDB  $A9 $3F
+	STA PpuAddr_2006	; FEDD  $8D $06 $20
+	LDA #$00		; FEE0  $A9 $00
+	STA PpuAddr_2006	; FEE2  $8D $06 $20
+	STA PpuAddr_2006	; FEE5  $8D $06 $20
+	STA PpuAddr_2006	; FEE8  $8D $06 $20
+	RTS			; FEEB  $60
 ; End of Palettes_init
 
- ;data block---
+; $FEEC - data block = padding
 .byte $00,$00,$00,$00
-;; [FEF0 : 3FF00]
+;; [FEF0 : 3FEF0]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $0B,$0C,$0D,$0E,$00,$03,$03,$FE,$0F,$10,$11,$12,$13,$14,$15,$16
 .byte $00,$00,$0F,$10,$14,$15,$12,$13,$17,$18,$14,$15,$19,$1A,$1B,$1C
@@ -9851,6 +9881,7 @@ FED5:
 .byte $33,$34,$35,$36,$37,$00,$2F,$30,$34,$35,$32,$33,$38,$39,$34,$35
 .byte $3A,$3B,$3C,$00,$00,$31,$31,$FF,$A9,$23
 
+; unknown code
 STA PpuAddr_2006         ; FF7A  $8D $06 $20
     LDA #$E0                 ; FF7D  $A9 $E0
     STA PpuAddr_2006         ; FF7F  $8D $06 $20
@@ -9880,19 +9911,37 @@ FF97:
  ;data block---
 ;; [FFA0 : 3FFAF]
 .byte $0F,$0F,$0F,$00,$0F,$00,$10,$0F,$10,$30,$0F,$30,$00,$00,$00,$00
+
+;--------------------------------------------------
+
 ; Name	: Init_variables
 ; Marks	: Swap to bank_00(map) and Init variables
+;	  init sram
+;	  Used on BANK 0E
 Init_variables:
-	LDA #$00		; FFB0	$A9 $00
+	LDA #$00		; FFB0	$A9 $00		BANK 00
 	JSR Swap_PRG_		; FFB2	$20 $03 $FE
 	JSR Init_var		; FFB5	$20 $09 $9C
-	LDA #$0E		; FFB8	$A9 $0E
+	LDA #$0E		; FFB8	$A9 $0E		BANK 0E
 	JMP Swap_PRG_		; FFBA	$4C $03 $FE
 ; End of Init_variables
-;; [FFBD : 3FFBF]
+
+;; [FFBD : 3FFBF] - unused code ??
 .byte $00,$00,$00
-;; [FFC0 : 3FFCF]
-.byte $A9,$01,$20,$03,$FE,$20,$B0,$BF,$A9,$09,$4C,$03,$FE,$00,$00,$00
+
+;--------------------------------------------------
+
+; Marks	: decompress world tilemap (minimap)
+;	  Used on BANK 09
+	LDA #$01		; FFC0	$A9 $01
+	JSR Swap_PRG_		; FFC2	$20 $03 $FE
+	JSR $BFB0		; FFC5	$20 $B0 $BF
+	LDA #$09		; FFC8	$A9 $09
+	JMP Swap_PRG_		; FFCA	$4C $03 $FE
+; End of
+
+;$FFCD - data block = padding
+.byte $00,$00,$00
 ;; [FFD0 : 3FFDF]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ; ========== system code ($FE00-$FFDF) END ==========
@@ -9901,6 +9950,7 @@ Init_variables:
 ;; [FFE0-FFF9 : 3FFE0] - rom info
 .byte $20
 .byte "F2eBETAv93-Demi"
+;$FFF0
 .byte $14,$58,$00,$00,$48,$04,$01,$0E,$C3,$E2
 
 

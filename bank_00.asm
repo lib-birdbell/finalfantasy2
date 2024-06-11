@@ -11,6 +11,8 @@
 .export wmap_ent_y		;B440
 .export wmap_ent_id		;B480
 
+.import Wait_NMI_end		;FD46
+
 .segment "BANK_00"
 
 ; Commented out due to  compilation order change.
@@ -1118,14 +1120,14 @@ L01BCC:
 	BEQ L01BD7		; 9BD2	F0 03
 	JSR $9EF2		; 9BD4	20 F2 9E
 L01BD7:
-	JSR $FD46		; 9BD7	20 46 FD
+	JSR Wait_NMI_end	; 9BD7	20 46 FD
 	JSR $FC34		; 9BDA	20 34 FC
 	JSR $FAE4		; 9BDD	20 E4 FA
 	JSR $9CBC		; 9BE0	20 BC 9C
 .byte $AD,$34,$00
 	;LDA $0034		; 9BE3	AD 34 00
 	BEQ L01BD7		; 9BE6	F0 EF
-	JSR $FD46		; 9BE8	20 46 FD
+	JSR Wait_NMI_end	; 9BE8	20 46 FD
 	LDA $5D			; 9BEB	A5 5D
 .byte $F0,$27
 	;BEQ L01C16		; 9BED	F0 27

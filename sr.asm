@@ -582,3 +582,36 @@ Show_miss:
 ; End of Swap_PRG_R6
 
 
+;----------------------------------------------------
+; Marks	: Next_target (ver 2)
+	LDY #$2B		; A8D4	$A0 $2B		enemy target
+	LDA ($9F),Y		; A8D6	$B1 $9F		target
+	TAX			; AA
+	INX			; E8
+	ASL A			; 0A
+	TXA			; 8A
+	BCC Next_target_player	; 90 XX
+	AND #$87		; 29 87
+	STA ($9F),Y		; 91 9F
+	BNE L328D4		; D0 XX	- 12 bytes
+Next_target_player:
+	AND #$03		; 29 03			target is player
+	STA ($9F),Y		; 91 9F
+	BPL L328D4		; 10 XX	- 6 bytes + 12
+
+; Marks	: Next_target (ver 1)
+	LDY #$2B		; A8D4	$A0 $2B		enemy target
+	LDA ($9F),Y		; A8D6	$B1 $9F		target
+	STA $00
+	INC $00
+	AND #$80
+	BEQ Next_target_player
+	LDA $00
+	AND #$87
+	STA ($9F),Y
+	JMP L328D4		; - 17 bytes
+Next_target_player:
+	LDA $00			; target is player
+	AND #$03
+	STA ($9F),Y
+	JMP L328D4		; - 9 bytes + 17

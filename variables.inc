@@ -531,7 +531,7 @@ rng_tbl			= $7A48	; $7A48-$7B47
 
 
 
-battle_result            = $7B48 ; not sure yet
+battle_result            = $7B48 ; not sure yet - battle id ??
 _7B49_unknown		= $7B49
 ;$7B4B = flag to prevent monsters from trying to Flee
 

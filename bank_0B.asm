@@ -6,6 +6,12 @@
 .export	Wmap_battle_grp		;8200
 .export	Rnd_battle_grp		;8280
 
+.export	Win_celemony_0B		;9627
+.export	Fade_out_0B		;962A
+.export	Run_away_0B		;9633
+.export	Battle_defeat_0B	;9636
+
+.import	Ret_to_map		;FA0F
 .import Set_IRQ_JMP		;FA2A
 .import	SR_BattleMain		;FB06
 .import	SR_SortVal		;FB0C
@@ -23,6 +29,7 @@
 .import	Wait_MENU_snd		;FD5B
 .import	Set_buf_to_Ppu		;FD6F
 .import	Set_PpuAddr_00		;FD7E
+.import	OnReset			;FE2E
 
 .segment "BANK_0B"
 
@@ -454,11 +461,15 @@ Boss_tile:
 .byte $01,$41,$40,$50,$00,$00,$00,$00,$00,$00,$2B,$00,$EE,$EF,$F0,$F1
 .byte $F2,$F3,$F4,$00
 ;; [$9264 :: 0x2D264] (6 * 6 bytes)
-.byte $00,$08,$00,$08,$00,$08,$F8,$00,$08,$F8,$00,$08
+Sprite_X_tbl:
+.byte $00,$08,$00,$08,$00,$08
+.byte $F8,$00,$08,$F8,$00,$08
 .byte $FC,$04,$FC,$04,$FC,$04
 ;9276 - character graphics type
-.byte $00,$00,$08,$08,$10,$10,$08,$08,$08,$10
-.byte $10,$10,$F8,$F8,$00,$00,$08,$08
+Sprite_Y_tbl:
+.byte $00,$00,$08,$08,$10,$10
+.byte $08,$08,$08,$10,$10,$10
+.byte $F8,$F8,$00,$00,$08,$08
 ;; [$9288 :: 0x2D288] (8 * 6 bytes) (6 * 6 bytes ??)
 .byte $00,$01,$02,$03,$04,$05
 .byte $00,$01,$02,$03,$06,$07
@@ -479,17 +490,21 @@ Boss_tile:
 ; ========== status info (4 * 15 bytes) ($92A8-$92F3) END ==========
 
 
-;; [$92F4 :: 0x2D2F4] (3 * 6 bytes)
-.byte $00,$01,$02,$03,$04,$05,$00,$01,$02,$03,$06,$07
-
-;; [$9300 :: 0x2D300]
-
+;; [$92F4-$9305 :: 0x2D2F4] (3 * 6 bytes)
+Sprite_idx_A:
+.byte $00,$01,$02,$03,$04,$05
+.byte $00,$01,$02,$03,$06,$07
 .byte $20,$21,$22,$23,$24,$25
 
 
 ; ========== battle songs ($9306-$930A) START ==========
 ;; [$9306 :: 0x2D306]
-.byte $52,$53,$54,$55,$56
+Battle_songs:
+.byte $52	; battle
+.byte $53	; final battle
+.byte $54	; fall sound
+.byte $55	; battle win
+.byte $56	; game over
 ; ========== battle sound effects ($930B-$9332) START ==========
 ;; [$930B :: 0x2D30B]
 .byte $00,$01,$05,$08,$04
@@ -581,12 +596,16 @@ Boss_tile:
 	JMP $B071		; 961E	$4C $71 $B0
 	JMP $9CEE		; 9621	$4C $EE $9C
 	JMP $ABDE		; 9624	$4C $DE $AB
-	JMP $ADBF		; 9627	$4C $BF $AD
-	JMP $9E79		; 962A	$4C $79 $9E
+Win_celemony_0B:
+	JMP Win_celemony	; 9627	$4C $BF $AD
+Fade_out_0B:
+	JMP Fade_out		; 962A	$4C $79 $9E
 	JMP $AF32		; 962D	$4C $32 $AF
 	JMP Status_move		; 9630	$4C $CB $AF	status animation ?? From FA88
-	JMP $AE6E		; 9633	$4C $6E $AE
-	JMP $AEF2		; 9636	$4C $F2 $AE
+Run_away_0B:
+	JMP Run_away		; 9633	$4C $6E $AE
+Battle_defeat_0B:
+	JMP Battle_defeat	; 9636	$4C $F2 $AE
 ; End of Subroutine list
 
 ; init battle
@@ -622,7 +641,7 @@ Boss_tile:
 	BMI L2D686		; 9683	$30 $01		branch if "B" battle
 	INX			; 9685	$E8
 L2D686:
-	LDA $9306,X		; 9686	$BD $06 $93	battle song
+	LDA Battle_songs,X	; 9686	$BD $06 $93	battle song (normal battle song)
 	STA $E0			; 9689	$85 $E0
 	JSR Copy_OAM		; 968B	$20 $4E $9E
 	LDA #$1E		; 968E	$A9 $1E		enable sprites and background
@@ -1942,34 +1961,37 @@ Copy_OAM_dma_:
 	JMP $FA59		; 9E76	$4C $59 $FA	play sound effect
 ; End of
 
-;9E79
+; Name	: Fade_out
 ; Marks	: Fade out palettes
 ;	  $00 = offset of last color
+;	  $01 = repeat count
+Fade_out:
 	LDA #$1F		; 9E79	$A9 $1F
 	STA $00			; 9E7B	$85 $00
-;
-	LDA #$04		; 9E7D	A9 04
+Fade_out_:
+; SRC	: $00
+	LDA #$04		; 9E7D	A9 04		repeat count
 	STA $01			; 9E7F	85 01
 ; start of loop
-L2DE81:
+Fade_out_loop:
 	LDX $00			; 9E81	A6 00
 L2DE83:
-	LDA $79A8,X		; 9E83	BD A8 79	color palettes
+	LDA $79A8,X		; 9E83	BD A8 79	color palettes ($79A8-$79C7)
 	CMP #$10		; 9E86	C9 10
-	BCS L2DE8C		; 9E88	B0 02
+	BCS Fade_out_darkning	; 9E88	B0 02
 	LDA #$1F		; 9E8A	A9 1F		black
-L2DE8C:
+Fade_out_darkning:
 	SEC			; 9E8C	38
 	SBC #$10		; 9E8D	E9 10		decrement color brightness
 	STA $79A8,X		; 9E8F	9D A8 79
 	DEX			; 9E92	CA
-	BPL L2DE83		; 9E93	10 EE
+	BPL L2DE83		; 9E93	10 EE		loop
 	LDA #$06		; 9E95	A9 06
 	JSR Gfx_delay		; 9E97	20 1F 9E	wait 6 frames
 	DEC $01			; 9E9A	C6 01
-	BNE L2DE81		; 9E9C	D0 E3
+	BNE Fade_out_loop	; 9E9C	D0 E3		loop
 	RTS			; 9E9E	60
-; End of
+; End of Fade_out
 
 ; Name	:
 ; Marks	: init tilemap for battle bg
@@ -2631,7 +2653,7 @@ L2E2A2:
 	STA $00			; A2CB	$85 $00
 	LDA #$03		; A2CD	$A9 $03
 	STA $01			; A2CF	$85 $01
-	JSR $A3AB		; A2D1	$20 $AB $A3
+	JSR Wait_MENU_NMI_end_OAM	; A2D1	$20 $AB $A3
 	LDX $26			; A2D4	$A6 $26
 	LDA $07			; A2D6	$A5 $07
 	JSR $A321		; A2D8	$20 $21 $A3
@@ -2640,7 +2662,7 @@ L2E2A2:
 	STA $00			; A2E0	$85 $00
 	LDA #$03		; A2E2	$A9 $03
 	STA $01			; A2E4	$85 $01
-	JMP $A3AB		; A2E6	$4C $AB $A3
+	JMP Wait_MENU_NMI_end_OAM	; A2E6	$4C $AB $A3
 ; End of
 
 ; Name	:
@@ -2666,10 +2688,11 @@ L2E2F9:
 ; End of
 
 ; Name	:
+; X	:
 ; Marks	:
 	TXA			; A306	$8A
 	PHA			; A307	$48
-	LDA $7BC2,X		; A308	$BD $C2 $7B
+	LDA $7BC2,X		; A308	$BD $C2 $7B	character lower sprite pose ???
 	JSR $A321		; A30B	$20 $21 $A3
 	PLA			; A30E	$68
 	LDX #$60		; A30F	$A2 $60
@@ -2679,17 +2702,17 @@ L2E2F9:
 	LDA $03			; A318	$A5 $03
 	ADC #$02		; A31A	$69 $02
 	STA $01			; A31C	$85 $01
-	JMP $A3AB		; A31E	$4C $AB $A3
+	JMP Wait_MENU_NMI_end_OAM	; A31E	$4C $AB $A3
 ; End of
 
 ; Name	:
-; A	: weapon properties ??
+; A	: weapon properties ?? character lower sprite pose ??
 ; X	:
 ; Marks	:
 	STA $00			; A321	$85 $00
 	JSR Init_gfx_buf	; A323	$20 $CF $9D
 	LDA $7BA2,X		; A326	$BD $A2 $7B	character graphics type
-	BEQ L2E32E		; A329	$F0 $03
+	BEQ L2E32E		; A329	$F0 $03		branch if normal status
 	BPL L2E370		; A32B	$10 $43
 	RTS			; A32D	$60
 ; End of
@@ -2767,19 +2790,21 @@ L2E3A4:
 	JMP Copy_char_tile	; A3A8	4C BA FB	copy sprite graphics to buffer
 ; End of
 
-; Name	:
-; Marks	:
+; Name	: Wait_MENU_NMI_end_OAM
+; Marks	: Wait MENU with sound, then apply OAM on NMI, finaly NMI end
+Wait_MENU_NMI_end_OAM:
 	JSR Wait_MENU_snd	; A3AB	$20 $5B $FD
 	LDX #$60		; A3AE	$A2 $60
 	JSR Apply_OAM_tile	; A3B0	$20 $BA $9D
 	JMP Wait_NMI_end	; A3B3	$4C $46 $FD
-; End of
+; End of Wait_MENU_NMI_end_OAM
 
 ;A3B6 - data block ??
 .byte $00,$10,$C0,$C0,$20,$10,$30
 
 ; Name	:
 ; Marks	: Init character sprite data
+;	  $00 = offset 0-6
 	LDA #$00		; A3BD	$A9 $00
 	STA $04			; A3BF	$85 $04
 	STA $00			; A3C1	$85 $00
@@ -2787,67 +2812,78 @@ L2E3A4:
 	STA $05			; A3C5	$85 $05
 L2E3C7:
 	LDX $00			; A3C7	$A6 $00
-	LDY $A42C,X		; A3C9	$BC $2C $A4
-	JSR $A3E3		; A3CC	$20 $E3 $A3
+	LDY Sprite_idx_ofs,X	; A3C9	$BC $2C $A4
+	JSR Set_sprite_index	; A3CC	$20 $E3 $A3
 	LDX $00			; A3CF	$A6 $00
-	LDY $A433,X		; A3D1	$BC $33 $A4
-	JSR $A3F1		; A3D4	$20 $F1 $A3
-	JSR $A404		; A3D7	$20 $04 $A4
+	LDY Sprite_xy_ofs,X	; A3D1	$BC $33 $A4
+	JSR Set_sprite_xy	; A3D4	$20 $F1 $A3
+	JSR Set_char_sprite	; A3D7	$20 $04 $A4
 	INC $00			; A3DA	$E6 $00
 	LDX $00			; A3DC	$A6 $00
 	CPX #$07		; A3DE	$E0 $07
-	BNE L2E3C7		; A3E0	$D0 $E5
+	BNE L2E3C7		; A3E0	$D0 $E5		loop
 	RTS			; A3E2	$60
 ; End of
 
-; Name	:
-; Marks	:
+; Name	: Set_sprite_index
+; Y	: offset
+; Marks	: Set data to $14-$19(6 bytes) = INDEX
+Set_sprite_index:
 	LDX #$00		; A3E3	$A2 $00
 L2E3E5:
-	LDA $92F4,Y		; A3E5	$B9 $F4 $92
+	LDA Sprite_idx_A,Y	; A3E5	$B9 $F4 $92
 	STA $14,X		; A3E8	$95 $14
 	INX			; A3EA	$E8
 	INY			; A3EB	$C8
 	CPX #$06		; A3EC	$E0 $06
-	BNE L2E3E5		; A3EE	$D0 $F5
+	BNE L2E3E5		; A3EE	$D0 $F5		loop
 	RTS			; A3F0	$60
-; End of
+; End of Set_sprite_index
 
-; Name	:
-; Marks	:
+; Name	: Set_sprite_xy
+; Marks	: Set data to $0E-$13(6 bytes) = X
+;	  Set data to $08-$0D(6 bytes) = Y
+Set_sprite_xy:
 	LDX #$00		; A3F1	$A2 $00
 L2E3F3:
-	LDA $9264,Y		; A3F3	$B9 $64 $92
+	LDA Sprite_X_tbl,Y	; A3F3	$B9 $64 $92
 	STA $0E,X		; A3F6	$95 $0E
-	LDA $9276,Y		; A3F8	$B9 $76 $92
+	LDA Sprite_Y_tbl,Y	; A3F8	$B9 $76 $92
 	STA $08,X		; A3FB	$95 $08
 	INX			; A3FD	$E8
 	INY			; A3FE	$C8
 	CPX #$06		; A3FF	$E0 $06
 	BNE L2E3F3		; A401	$D0 $F0
 	RTS			; A403	$60
-; End of
+; End of Set_sprite_xy
 
-; Name	:
-; Marks	:
+; Name	: Set_char_sprite
+; Marks	: $04(ADDR)
+;	  $08 = OAM Y
+;	  $0E = OAM X
+;	  $14 = OAM INDEX
+;	  set 6 tiles
+;	  +$04 = ??
+;	  Set character sprite to buffer
+Set_char_sprite:
 	LDY #$00		; A404	$A0 $00
 	LDX #$00		; A406	$A2 $00
 L2E408:
-	LDA $08,X		; A408	$B5 $08
+	LDA $08,X		; A408	$B5 $08		OAM Y
 	STA ($04),Y		; A40A	$91 $04
 	INY			; A40C	$C8
-	LDA $14,X		; A40D	$B5 $14
+	LDA $14,X		; A40D	$B5 $14		OAM INDEX
 	STA ($04),Y		; A40F	$91 $04
 	INY			; A411	$C8
-	LDA #$00		; A412	$A9 $00
+	LDA #$00		; A412	$A9 $00		OAM ATTR
 	STA ($04),Y		; A414	$91 $04
 	INY			; A416	$C8
-	LDA $0E,X		; A417	$B5 $0E
+	LDA $0E,X		; A417	$B5 $0E		OAM X
 	STA ($04),Y		; A419	$91 $04
 	INY			; A41B	$C8
 	INX			; A41C	$E8
 	CPY #$18		; A41D	$C0 $18
-	BNE L2E408		; A41F	$D0 $E7
+	BNE L2E408		; A41F	$D0 $E7		loop
 	TYA			; A421	$98
 	CLC			; A422	$18
 	ADC $04			; A423	$65 $04
@@ -2856,11 +2892,13 @@ L2E408:
 	INC $05			; A429	$E6 $05
 L2E42B:
 	RTS			; A42B	$60
-; End of
+; End of Set_char_sprite
 
-; $A42C-$A439 data block
-.byte $00,$06,$0C,$00
-.byte $06,$0C,$0C,$00,$00,$00,$0C,$0C,$0C,$06
+; $A42C-$A439 data block(14 bytes)
+Sprite_idx_ofs:
+.byte $00,$06,$0C,$00,$06,$0C,$0C
+Sprite_xy_ofs:
+.byte $00,$00,$00,$0C,$0C,$0C,$06
 
 ; Name	:
 ; X	: char_idx
@@ -3958,7 +3996,7 @@ L2EABC:
 	JSR $9E72		; AAE4	$20 $72 $9E
 	LDA #$07		; AAE7	$A9 $07
 	STA $00			; AAE9	$85 $00
-	JMP $9E7D		; AAEB	$4C $7D $9E
+	JMP Fade_out_		; AAEB	$4C $7D $9E
 L2EAEE:
 	LDA #$40		; AAEE	$A9 $40
 	STA $E0			; AAF0	$85 $E0
@@ -4051,7 +4089,7 @@ L2EB30:
 
 ; Marks	:
 ;AB95
-	JSR $FD7E		; AB95	$20 $7E $FD
+	JSR Set_PpuAddr_00	; AB95	$20 $7E $FD
 	LDA $2007		; AB98	$AD $07 $20
 	LDY #$00		; AB9B	$A0 $00
 L2EB9D:
@@ -4141,7 +4179,7 @@ L2EC21:
 	LDX #$00		; AC21	$A2 $00
 L2EC23:
 	CLC			; AC23	$18
-	LDA $9276,Y		; AC24	$B9 $76 $92
+	LDA Sprite_Y_tbl,Y	; AC24	$B9 $76 $92
 	ADC $03			; AC27	$65 $03		y
 	STA $0270,X		; AC29	$9D $70 $02	OAM_Y
 	INX			; AC2C	$E8
@@ -4153,7 +4191,7 @@ L2EC23:
 	STA $0270,X		; AC37	$9D $70 $02	ATTR
 	INX			; AC3A	$E8
 	CLC			; AC3B	$18
-	LDA $9264,Y		; AC3C	$B9 $64 $92
+	LDA Sprite_X_tbl,Y	; AC3C	$B9 $64 $92
 	ADC $02			; AC3F	$65 $02		X
 	STA $0270,X		; AC41	$9D $70 $02	OAM_X
 	INX			; AC44	$E8
@@ -4432,9 +4470,10 @@ Multi8:
 	RTS			; ADBE	$0A
 ; End of
 	
+; Name	: Win_celemony
 ; Marks	: characters run off-screen
-;ADBF
-	LDA $9309		; ADBF	$AD $09	$E0	play song
+Win_celemony:
+	LDA Battle_songs+3	; ADBF	$AD $09	$E0	play song (battle win)
 	STA $E0			; ADC2	$85 $E0
 	LDX #$03		; ADC4	$A2 $03
 	STX $10			; ADC6	$86 $10
@@ -4526,9 +4565,11 @@ L2EE65:
 	INX			; AE68	$E8
 	BNE L2EE65		; AE69	$D0 $FA
 	JMP Apply_OAM		; AE6B	$4C $2A $9E	wait for vblank (menu & oam update)
-; End of
+; End of Win_celemony
 
+; Name	: Run_away
 ; Marks	: characters run away
+Run_away:
 	LDX #$03		; AE6E	$A2 $03
 	STX $10			; AE70	$86 $10
 L2EE72:
@@ -4598,47 +4639,50 @@ L2EEEA:
 	INX			; AEED	$E8
 	BNE L2EEEA		; AEEE	$D0 $FA
 	BEQ L2EF28		; AEF0	$F0 $36		return from battle
-; End of
+; End of Run_away
 
+; Name	: Battle_defeat
 ; Marks	: battle defeat
-;AEF2
-	LDA $7B48		; AEF2	$AD $48 $7B
+;	  Used on BANK 0C
+Battle_defeat:
+	LDA $7B48		; AEF2	$AD $48 $7B	battle id
 	CMP #$7F		; AEF5	$C9 $7F
 	BEQ L2EF08		; AEF7	$F0 $0F		branch if intro battle
-	LDA $930A		; AEF9	$AD $0A $93	play song
+	LDA Battle_songs+4	; AEF9	$AD $0A $93	play song (game over)
 	STA $E0			; AEFC	$85 $E0
 L2EEFE:
 	JSR Apply_OAM		; AEFE	$20 $2A $9E	wait for vblank (menu & oam update)
 	JSR $FC34		; AF01	$20 $34 $FC	update joypad input
 	LDA $34			; AF04	$A5 $34
-	BEQ L2EEFE		; AF06	$F0 $F6		wait for keypress
+	BEQ L2EEFE		; AF06	$F0 $F6		wait for any keypress
 L2EF08:
-	JSR $9E79		; AF08	$20 $79 $9E	fade out palettes
+	JSR Fade_out		; AF08	$20 $79 $9E	fade out palettes
 	LDA #$40		; AF0B	$A9 $40		play song $00 (silence)
 	STA $E0			; AF0D	$85 $E0
-	LDA $7B48		; AF0F	$AD $48 $7B
+	LDA $7B48		; AF0F	$AD $48 $7B	battle id
 	CMP #$7F		; AF12	$C9 $7F
 	BEQ L2EF1D		; AF14	$F0 $07		branch if intro battle
 	PLA			; AF16	$68
 	PLA			; AF17	$68
 	PLA			; AF18	$68
 	PLA			; AF19	$68
-	JMP $FE2E		; AF1A	$4C $2E $FE	reset
+	JMP OnReset		; AF1A	$4C $2E $FE	system reset - defeated(player lose)
+; End of Battle_defeat - system reset
 L2EF1D:
 	LDA #$5A		; AF1D	$A9 $5A		wait 90 frames
 	STA $00			; AF1F	$85 $00
 L2EF21:
 	JSR Apply_OAM		; AF21	$20 $2A $9E	wait for vblank (menu & oam update)
 	DEC $00			; AF24	$C6 $00
-	BNE L2EF21		; AF26	$D0 $F9
+	BNE L2EF21		; AF26	$D0 $F9		loop
 L2EF28:
 	JSR Apply_OAM		; AF28	$20 $2A $9E	wait for vblank (menu & oam update)
 	PLA			; AF2B	$68
 	PLA			; AF2C	$68
 	PLA			; AF2D	$68
 	PLA			; AF2E	$68
-	JMP $FA0F		; AF2F	$4C $0F $FA	return from battle
-; End of
+	JMP Ret_to_map		; AF2F	$4C $0F $FA	return from battle
+; End of Battle_defeat
 
 ; Marks	: load status graphics
 ;	  BANK 0B/9BC0 (status graphics) ??

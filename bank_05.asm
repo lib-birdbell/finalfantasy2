@@ -2,8 +2,8 @@
 .include "variables.inc"
 
 .import L3FD8C
-.import L3FA0F
-.import L3FD46
+.import Ret_to_map		;FA0F
+.import	SR_Battle_fadeout	;FADC
 .import Wait_NMI_end		;FD46
 .import L3FA2A
 .import	Wait_MENU_snd		;FD5B
@@ -1899,8 +1899,8 @@ B9FB2:
 	LDA #$00		; 9FC0	$A9 $00
 	STA $5C			; 9FC2	$85 $5C
 	JSR $A0FA		; 9FC4	$20 $FA $A0
-	JSR L3FD46		; 9FC7	$20 $46 $FD
-	JSR $FADC		; 9FCA	$20 $DC $FA
+	JSR Wait_NMI_end	; 9FC7	$20 $46 $FD
+	JSR SR_Battle_fadeout	; 9FCA	$20 $DC $FA
 	LDA $3A			; 9FCD	$A5 $3A
 	ORA #$01		; 9FCF	$09 $01
 	AND #$EF		; 9FD1	$29 $EF
@@ -1937,11 +1937,11 @@ B9FFE:
 	JSR $A193		; A015	$20 $93 $A1
 	JSR Wait_MENU_snd	; A018	$20 $5B $FD
 L1601B:
-	JSR L3FD46		; A01B	$20 $46 $FD
-	JSR $FADC		; A01E	$20 $DC $FA
+	JSR Wait_NMI_end	; A01B	$20 $46 $FD
+	JSR SR_Battle_fadeout	; A01E	$20 $DC $FA
 	PLA			; A021	$68
 	PLA			; A022	$68
-	JMP L3FA0F		; A023	$4C $0F $FA
+	JMP Ret_to_map		; A023	$4C $0F $FA
 ;A026
 .byte $0F,$00,$02,$30,$20,$6A,$A4,$20,$AF,$AB,$A9
 	JMP ($00A2)		; A031	$6C $A2 $00
@@ -2021,7 +2021,7 @@ L16092:
 ; End of
 
 ;;----------------;;
-	JSR L3FD46		; A0AA	$20 $46 $FD
+	JSR Wait_NMI_end		; A0AA	$20 $46 $FD
 	LDA #$78		; A0AD	$A9 $78
 	STA $A9			; A0AF	$85 $A9
 	LDA #$58		; A0B1	$A9 $58
@@ -2060,7 +2060,7 @@ A0EC:
 	BPL A0EC		; A0F2	$10 $F8
 	JSR Wait_MENU_snd	; A0F4	$20 $5B $FD
 	JMP $FB1F		; A0F7	$4C $1F $FB
-	JSR L3FD46		; A0FA	$20 $46 $FD
+	JSR Wait_NMI_end		; A0FA	$20 $46 $FD
 	LDA #$76		; A0FD	$A9 $76
 	STA $A9			; A0FF	$85 $A9
 	LDA #$00		; A101	$A9 $00
@@ -2172,7 +2172,7 @@ A1A3:
 	JSR $FB2F		; A1CD	$20 $2F $FB
 A1D0:
 	JSR $A18A		; A1D0	$20 $8A $A1
-	JSR L3FD46		; A1D3	$20 $46 $FD
+	JSR Wait_NMI_end		; A1D3	$20 $46 $FD
 	JSR $FC34		; A1D6	$20 $34 $FC
 ;	LDA $0034		; A1D9	$AD $34 $00
 .byte $AD,$34,$00
@@ -2545,7 +2545,7 @@ A408:
 .byte $A8, $D0
 
 L1645E:
-	JSR L3FD46		; A45E	$20 $46 $FD
+	JSR Wait_NMI_end		; A45E	$20 $46 $FD
 	JMP Wait_MENU_snd	; A461	$4C $5B $FD
 ; End of
 
@@ -2553,7 +2553,7 @@ L1645E:
 ; Marks	:
 ;; sub start ;;
 	JSR Wait_MENU_snd	; A464	$20 $5B $FD
- 	JMP L3FD46		; A467	$4C $46 $FD
+ 	JMP Wait_NMI_end		; A467	$4C $46 $FD
 	JSR L1645E		; A46A	$20 $5E $A4
  	JMP L3FA2A		; A46D	$4C $2A $FA
 ; End of
@@ -2566,7 +2566,7 @@ L1645E:
 ;; sub start ;;
 
 CheckSomeStatStuff:
-	JSR L3FD46		; A47B	$20 $46 $FD - Waits for a sprite 0 hit to do battle message stuff.
+	JSR Wait_NMI_end		; A47B	$20 $46 $FD - Waits for a sprite 0 hit to do battle message stuff.
 A47F:
 	LDX #$00		; A47F	$A2 $00 - Set X to 0 and clear these variables
 	STX entity_counter	; A481	$86 $9E
@@ -2910,7 +2910,7 @@ L1670A:
     LDA $AC
     BNE L1670A
     JSR L3FA2A
-    JSR L3FD46
+    JSR Wait_NMI_end
     LDA $E1
     CMP #$FF
     BNE L1671D
@@ -2942,7 +2942,7 @@ L1672B:
     LDA #$00
     STA $64
     JSR L16A57
-    JSR L3FD46
+    JSR Wait_NMI_end
     JSR $A084
     LDA #$B2
     STA $63
@@ -3000,13 +3000,13 @@ L1679F:
     JSR $AA41
     LDY $AB
     JSR $A9C4
-    JSR L3FD46
+    JSR Wait_NMI_end
     JSR $AA48
     LDA $AD
     BEQ L167D0
     JMP $A752
 L167D0:
-    JSR L3FD46
+    JSR Wait_NMI_end
     LDA #$00
     STA $64
     JSR L16B4F
@@ -3412,7 +3412,7 @@ L16A40:
 .byte $64,$50,$3C,$28,$1E,$14,$0A,$05
 
 L16A57:
-	JSR L3FD46		; AA5A	$20 $46 $FD
+	JSR Wait_NMI_end		; AA5A	$20 $46 $FD
 	LDA #$AB		; AA57	$A9 $AB
 	STA $63			; AA55	$85 $63
 	LDA #$F8		; AA5E	$A9 $F8
@@ -3441,7 +3441,7 @@ L16A83:
 	DEX			; AA89	$CA
 	BNE L16A83		; AA8A	$D0 $F7
 	STY $5C			; AA8C	$84 $5C
-	JSR L3FD46		; AA8E	$20 $46 $FD
+	JSR Wait_NMI_end		; AA8E	$20 $46 $FD
 	CLC			; AA91	$18
 	LDA $54			; AA92	$A5 $54
 	ADC #$20		; AA94	$69 $20
@@ -3504,7 +3504,7 @@ L16AEC:
 L16AFF:
 	JMP L1645E		; AAFF	$4C $5E $A4
 L16B02:
-	JSR L3FD46
+	JSR Wait_NMI_end
 	JMP L16AC5
 
 ;; sub start ;;
@@ -3547,7 +3547,7 @@ L16B4C:
     RTS
 
 L16B4F:
-    JSR L3FD46
+    JSR Wait_NMI_end
     LDA #$AB
     STA $63
     LDA #$F8
@@ -3596,7 +3596,7 @@ L16B8F:
     INY
     DEX
     BNE L16B8F
-    JSR L3FD46
+    JSR Wait_NMI_end
     SEC
     LDA $54
     SBC #$20
