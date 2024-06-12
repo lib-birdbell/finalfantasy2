@@ -13,6 +13,7 @@
 
 .import Set_IRQ_JMP		;FA2A
 .import	SR_Battle_win		;FAD8
+.import SR_Battle_status	;FAE4
 .import	SR_Battle_runaway	;FAE8
 .import	SR_battle_defeat	;FAEC
 .import	Do_009880		;FAFB
@@ -1079,7 +1080,7 @@ Get_cmd_input:
 	STA $5D			; 91BE	$85 $5D
 	STA $50			; 91C0	$85 $50
 	STA $51			; 91C2	$85 $51
-	JSR $FAE4		; 91C4	$20 $E4 $FA	bank 0B - $9630
+	JSR SR_Battle_status	; 91C4	$20 $E4 $FA	BANK 0B - $9630
 	JSR Get_cmd		; 91C7	$20 $A8 $9B	battle command input
 	JSR Wait_NMI_end	; 91CA	$20 $46 $FD
 .byte $AD,$34,$00
@@ -1168,7 +1169,7 @@ Target_sel:
 	INY			; 9245	$C8
 	LDA ($62),Y		; 9246	$B1 $62
 	STA $65			; 9248	$85 $65
-	JSR $FAE4		; 924A	$20 $E4 $FA	bank 0B - $9630
+	JSR SR_Battle_status	; 924A	$20 $E4 $FA	BANK 0B - $9630
 	JMP ($0064)		; 924D	$6C $64 $00
 ; End of Target_sel
 
@@ -2726,7 +2727,7 @@ Get_cmd:
 	STA $65			; 9BCA	$85 $65		$64(ADDR) $0240 is cursor LT
 	JSR Move_OAM_XY		; 9BCC	$20 $02 $9D	set cursor OAM x,y position
 L31BCF:
-	JSR $FAE4		; 9BCF	$20 $E4 $FA	status animation ??
+	JSR SR_Battle_status	; 9BCF	$20 $E4 $FA
 	LDA $7CBA		; 9BD2	$AD $BA $7C
 	BEQ L31BDA		; 9BD5	$F0 $03
 	JSR Show_magic		; 9BD7	$20 $F5 $9E
@@ -2734,7 +2735,7 @@ L31BDA:
 Get_cmd_begin:
 	JSR Wait_NMI_end	; 9BDA	$20 $46 $FD
 	JSR $FC34		; 9BDD	$20 $34 $FC	Get key for command ??
-	JSR $FAE4		; 9BE0	$20 $E4 $FA	status animation ??
+	JSR SR_Battle_status	; 9BE0	$20 $E4 $FA
 	JSR Draw_cursor		; 9BE3	$20 $BF $9C	check something($51) ?? cursor ??
 .byte $AD,$34,$00
 	;LDA $0034		; 9BE6	$AD $34 $00	key - rlduseba
@@ -2862,7 +2863,7 @@ L31C7C:
 	LDA #$02		; 9CAA	$A9 $02
 	STA $65			; 9CAC	$85 $65		$0240 OAM[16]
 	JSR Move_OAM_XY		; 9CAE	$20 $02 $9D	set cursor OAM X,Y position
-	JSR $FAE4		; 9CB1	$20 $E4 $FA
+	JSR SR_Battle_status	; 9CB1	$20 $E4 $FA
 	LDA $7CBA		; 9CB4	$AD $BA $7C
 	BEQ L31CBC		; 9CB7	$F0 $03
 	JSR Show_magic		; 9CB9	$20 $F5 $9E
@@ -3788,7 +3789,7 @@ Cursor_mv:
 ; Marks	:
 Hide_cursor:
 	JSR Hide_cursor_buf	; A2BC	$20 $90 $9A	hide cursor sprites
-	JMP $FAE4		; A2BF	$4C $E4 $FA	update status animation
+	JMP SR_Battle_status	; A2BF	$4C $E4 $FA	update status animation
 ; End of Hide_cursor
 
 ; Name	: Calc_item_cursor

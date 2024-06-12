@@ -538,6 +538,13 @@ _7B49_unknown		= $7B49
 statup_confirmation      = $7B62 ; 8 bytes, all $FF during testing 
 ; but the next $10 bytes are 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
 
+mob_heights		= $7B82
+mob_y_poss		= $7B92
+mob_widths		= $7B8A
+mob_x_poss		= $7B9A
+char_x_cpos		= $7BCA
+char_y_pos		= $7BCE
+char_x_bpos		= $7BD2
 
 
 

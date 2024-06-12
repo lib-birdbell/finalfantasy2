@@ -18,11 +18,13 @@
 .export	Ret_to_map		;FA0F
 .export	SR_Battle_win		;FAD8
 .export	SR_Battle_fadeout	;FADC
+.export SR_Battle_status	;FAE4
 .export	SR_Battle_runaway	;FAE8
 .export	SR_battle_defeat	;FAEC
 .export	SR_BattleMain		;FB06
 .export	SR_SortVal		;FB0C
 .export	SR_Init_battle_stats	;FB17
+.export	Set_mob_gfx		;FB62
 .export	Load_text_gfx		;FB84
 .export	Copy_char_tile		;FBBA
 .export	Get_data_BANK_0C	;FBE6
@@ -59,6 +61,7 @@
 .import	Rnd_battle_grp		;8280 - bank_0B
 .import	Win_celemony_0B		;9627 - bank_0B
 .import	Fade_out_0B		;962A - bank_0B
+.import	Status_ani_0B		;9630 - bank_0B
 .import	Run_away_0B		;9633 - bank_0B
 .import	Battle_defeat_0B	;9636 - bank_0B
 
@@ -9042,8 +9045,10 @@ SR_Battle_fadeout:
 ; Marks	:
 	LDA #$2D		; FAE0  $A9 $2D
 	BNE Exec_battle_gfx_bank; FAE2  $D0 $0C
-; Name	:
-	LDA #$30		; FAE4  $A9 $30
+; Name	: SR_Battle_status
+; Marks	: Used on BANK 0C
+SR_Battle_status:
+	LDA #<Status_ani_0B	; FAE4  $A9 $30
 	BNE Exec_battle_gfx_bank; FAE6  $D0 $08
 ; Name	: SR_Battle_runaway
 ; Marks	: Used on BANK 0C
@@ -9147,7 +9152,7 @@ L3FB48:
 ;; sub start ;;
     LDA $7B49                ; FB53  $AD $49 $7B
     LSR A                    ; FB56  $4A
-    JSR $FB7C                ; FB57  $20 $7C $FB
+    JSR Calc_tile_addr                ; FB57  $20 $7C $FB
     TAY                      ; FB5A  $A8
     TAX                      ; FB5B  $AA
 	; Tile copy to SRAM
@@ -9155,31 +9160,37 @@ L3FB48:
 	JMP Swap_ret_bank	; FB5F  $4C $84 $FA
 ; End of
 
+; Name	: Set_mob_gfx
+; Marks	: Load monster graphics
 ;; sub start ;;
-    LDA $7B4C                ; FB62  $AD $4C $7B
-    JSR $FB7C                ; FB65  $20 $7C $FB
-    LDA #$0E                 ; FB68  $A9 $0E
-    STA $04                  ; FB6A  $85 $04
+Set_mob_gfx:
+	LDA $7B4C		; FB62  $AD $4C $7B	monster graphics set
+	JSR Calc_tile_addr	; FB65  $20 $7C $FB
+	LDA #$0E		; FB68  $A9 $0E
+	STA $04			; FB6A  $85 $04
 L3FB6C:
-    LDX #$00                 ; FB6C  $A2 $00
-    JSR Set_buf_to_Ppu               ; FB6E  $20 $6F $FD
-    INC $01                  ; FB71  $E6 $01
-    INC $03                  ; FB73  $E6 $03
-    DEC $04                  ; FB75  $C6 $04
-    BNE L3FB6C               ; FB77  $D0 $F3
+	LDX #$00		; FB6C  $A2 $00
+	JSR Set_buf_to_Ppu	; FB6E  $20 $6F $FD
+	INC $01			; FB71  $E6 $01
+	INC $03			; FB73  $E6 $03
+	DEC $04			; FB75  $C6 $04
+	BNE L3FB6C		; FB77  $D0 $F3		loop
 	JMP Swap_ret_bank	; FB79  $4C $84 $FA
-; End of
+; End of Set_mob_gfx
 
-; Name	:
-; A	:
+; Name	: Calc_tile_bank
+; A	: monster graphics set
 ; Marks	: Swap Program bank to A/4 + #$07
+;	  monster graphics BANK is 07h or 08h
+;	  and swap BANK
 ;; sub start ;;
-    LSR A                    ; FB7C  $4A
-    LSR A                    ; FB7D  $4A
-    CLC                      ; FB7E  $18
-    ADC #$07                 ; FB7F  $69 $07
-    JMP Swap_PRG             ; FB81  $4C $1A $FE
-; End of
+Calc_tile_addr:
+	LSR A			; FB7C  $4A
+	LSR A			; FB7D  $4A
+	CLC			; FB7E  $18
+	ADC #$07		; FB7F  $69 $07
+	JMP Swap_PRG		; FB81  $4C $1A $FE
+; End of Calc_tile_addr
 
 ; Name	: Load_text_gfx
 ; Marks	: $00(ADDR) = $06E0 - DEST
