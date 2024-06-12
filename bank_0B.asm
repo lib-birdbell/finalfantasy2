@@ -8,6 +8,7 @@
 
 .export	Win_celemony_0B		;9627
 .export	Fade_out_0B		;962A
+.export	Set_status_gfx_0B	;962D
 .export	Status_ani_0B		;9630
 .export	Run_away_0B		;9633
 .export	Battle_defeat_0B	;9636
@@ -622,7 +623,8 @@ Win_celemony_0B:
 	JMP Win_celemony	; 9627	$4C $BF $AD
 Fade_out_0B:
 	JMP Fade_out		; 962A	$4C $79 $9E
-	JMP $AF32		; 962D	$4C $32 $AF
+Set_status_gfx_0B:
+	JMP Set_status_gfx	; 962D	$4C $32 $AF
 Status_ani_0B:
 	JMP Status_ani		; 9630	$4C $CB $AF
 Run_away_0B:
@@ -2966,7 +2968,6 @@ Sprite_xy_ofs:
 	BPL L2E442		; A43F	$10 $01
 	RTS			; A441	$60
 ; End of
-
 L2E442:
 	STA $05			; A442	$85 $05
 	LDA $7BC2,X		; A444	$BD $C2 $7B	character lower sprite pose ?? - 01h stand, 02h walk ??
@@ -2976,11 +2977,11 @@ L2E442:
 	LDX #$08		; A44D	$A2 $08
 	LDA $07			; A44F	$A5 $07
 	CMP #$03		; A451	$C9 $03
-	BCC L2E457		; A453	$90 $02
+	BCC L2E457		; A453	$90 $02		branch if pose is 0,1,2(multi 8)
 	LDX #$06		; A455	$A2 $06
 L2E457:
 	LDA $04			; A457	$A5 $04
-	JSR Multi		; A459	$20 $79 $FC
+	JSR Multi		; A459	$20 $79 $FC	character index x 6 or x 8
 	LDA $02			; A45C	$A5 $02
 	STA $08			; A45E	$85 $08
 	LDA #$00		; A460	$A9 $00
@@ -4512,6 +4513,10 @@ Multi8:
 ; Marks	: asl (16-bit)
 	ASL			; ADA9	$0A
 	ROL $01			; ADAA	$26 $01
+; Name	: Multi64
+; Ret	: A = low byte, $01 = high byte
+; Marks	: ASL 6
+Multi64:
 	ASL			; ADAC	$0A
 	ROL $01			; ADAD	$26 $01
 	ASL			; ADAF	$0A
@@ -4525,7 +4530,7 @@ Multi8:
 	ASL			; ADBB	$0A
 	ROL $01			; ADBC	$26 $01
 	RTS			; ADBE	$0A
-; End of
+; End of Multi64
 	
 ; Name	: Win_celemony
 ; Marks	: characters run off-screen
@@ -4741,33 +4746,35 @@ L2EF28:
 	JMP Ret_to_map		; AF2F	$4C $0F $FA	return from battle
 ; End of Battle_defeat
 
+; Name	: Set_status_gfx
 ; Marks	: load status graphics
-;	  BANK 0B/9BC0 (status graphics) ??
+;	  BANK 09/9BC0 (status graphics)
+Set_status_gfx:
 	JSR Wait_NMI_end	; AF32	$20 $46 $FD
 	JSR Rst_all_act_OAM_buf	; AF35	$20 $E7 $9D
 	JSR Init_gfx_buf	; AF38	$20 $CF $9D
 	LDX #$03		; AF3B	$A2 $03
 	STX $04			; AF3D	$86 $04
 L2EF3F:
-	LDA $7BA2,X		; AF3F	$BD $A2 $7B
+	LDA $7BA2,X		; AF3F	$BD $A2 $7B	character graphics type
 	BMI L2EF6E		; AF42	$30 $2A
-	LDA $7BAE,X		; AF44	$BD $AE $7B
+	LDA $7BAE,X		; AF44	$BD $AE $7B	character pose
 	CMP #$03		; AF47	$C9 $03
 	BCS L2EF6E		; AF49	$B0 $23
 	LDA #$00		; AF4B	$A9 $00
 	STA $01			; AF4D	$85 $01
-	LDA $7BB2,X		; AF4F	$BD $B2 $7B
+	LDA $7BB2,X		; AF4F	$BD $B2 $7B	status graphics
 	CMP #$FF		; AF52	$C9 $FF
 	BEQ L2EF6E		; AF54	$F0 $18
-	JSR $ADAC		; AF56	$20 $AC $AD	as16 (16-bit)
+	JSR Multi64		; AF56	$20 $AC $AD	asl6 (16-bit)
 	CLC			; AF59	$18
-	ADC #$C0		; AF5A	$69 $C0		BANK 0B/9BC0 (status graphics)
+	ADC #$C0		; AF5A	$69 $C0		BANK 09/9BC0 (status graphics)
 	STA $00			; AF5C	$85 $00
 	LDA $01			; AF5E	$A5 $01
 	ADC #$9B		; AF60	$69 $9B
 	STA $01			; AF62	$85 $01
 	TXA			; AF64	$8A
-	JSR Calc_char_addr	; AF65	$20 $A2 $AD	as16
+	JSR Calc_char_addr	; AF65	$20 $A2 $AD	asl6
 	TAX			; AF68	$AA
 	LDY #$40		; AF69	$A0 $40
 	JSR Copy_char_tile	; AF6B	$20 $BA $FB	copy sprite graphics to buffer
@@ -4820,7 +4827,7 @@ L2EFA8:
 	STA $43			; AFC3	$85 $43
 	JSR Apply_OAM_pal	; AFC5	$20 $33 $9E
 	JMP Wait_MENU_snd	; AFC8	$4C $5B $FD
-; End of
+; End of Set_status_gfx
 
 ; Name	: Status_ani
 ; Marks	: $00(ADDR) = OAM address ??

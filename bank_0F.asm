@@ -18,7 +18,8 @@
 .export	Ret_to_map		;FA0F
 .export	SR_Battle_win		;FAD8
 .export	SR_Battle_fadeout	;FADC
-.export SR_Battle_status	;FAE4
+.export	SR_Battle_set_status	;FAE0
+.export SR_Battle_status_ani	;FAE4
 .export	SR_Battle_runaway	;FAE8
 .export	SR_battle_defeat	;FAEC
 .export	SR_BattleMain		;FB06
@@ -61,6 +62,7 @@
 .import	Rnd_battle_grp		;8280 - bank_0B
 .import	Win_celemony_0B		;9627 - bank_0B
 .import	Fade_out_0B		;962A - bank_0B
+.import	Set_status_gfx_0B	;962D - bank_0B
 .import	Status_ani_0B		;9630 - bank_0B
 .import	Run_away_0B		;9633 - bank_0B
 .import	Battle_defeat_0B	;9636 - bank_0B
@@ -9025,9 +9027,9 @@ L3FA9E:
 	LDA #$1E		; FACC  $A9 $1E
 	BNE Exec_battle_gfx_bank		; FACE  $D0 $20
 ; Name	:
-; Marks	:
+; Marks	: Used on BANK 05, BANK 0C
 	LDA #$21		; FAD0  $A9 $21
-	BNE Exec_battle_gfx_bank		; FAD2  $D0 $1C
+	BNE Exec_battle_gfx_bank; FAD2  $D0 $1C
 
     LDA #$24                 ; FAD4  $A9 $24
     BNE Exec_battle_gfx_bank               ; FAD6  $D0 $18
@@ -9041,13 +9043,14 @@ SR_Battle_win:
 SR_Battle_fadeout:
 	LDA #<Fade_out_0B	; FADC  $A9 $2A
 	BNE Exec_battle_gfx_bank; FADE  $D0 $10
-; Name	:
-; Marks	:
-	LDA #$2D		; FAE0  $A9 $2D
-	BNE Exec_battle_gfx_bank; FAE2  $D0 $0C
-; Name	: SR_Battle_status
+; Name	: SR_Battle_set_status
 ; Marks	: Used on BANK 0C
-SR_Battle_status:
+SR_Battle_set_status:
+	LDA #<Set_status_gfx_0B	; FAE0  $A9 $2D
+	BNE Exec_battle_gfx_bank; FAE2  $D0 $0C
+; Name	: SR_Battle_status_ani
+; Marks	: Used on BANK 0C
+SR_Battle_status_ani:
 	LDA #<Status_ani_0B	; FAE4  $A9 $30
 	BNE Exec_battle_gfx_bank; FAE6  $D0 $08
 ; Name	: SR_Battle_runaway
