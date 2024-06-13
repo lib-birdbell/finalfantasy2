@@ -12,6 +12,8 @@
 .export Move_OAM_XY_bank0C	;8F5B
 
 .import Set_IRQ_JMP		;FA2A
+.import	SR_Battle_mob_dead	;FAC8
+.import	SR_Battle_attack	;FACC
 .import	SR_Battle_win		;FAD8
 .import	SR_Battle_set_status	;FAE0
 .import SR_Battle_status_ani	;FAE4
@@ -5000,7 +5002,7 @@ L32AE1:
 	STA $7B62,X		; AAF7	$9D $62 $7B	monster id in each slot
 	LDY #$01		; AAFA	$A0 $01
 	STY $A5			; AAFC	$84 $A5
-	JSR $FAC8		; AAFE	$20 $C8 $FA	monster eliminate animation
+	JSR SR_Battle_mob_dead	; AAFE	$20 $C8 $FA	monster eliminate animation
 	DEC $7B4D		; AB01	$CE $4D $7B	number of monsters remaining - decrement
 	JMP Do_act_chk_msg	; AB04	$4C $0D $AB
 L32B07:
@@ -5041,7 +5043,7 @@ L32B21:
 	STA $7B6A,X		; AB4D	$9D $6A $7B
 	LDA #$02		; AB50	$A9 $02
 	STA $A5			; AB52	$85 $A5
-	JSR $FAC8		; AB54	$20 $C8 $FA
+	JSR SR_Battle_mob_dead	; AB54	$20 $C8 $FA
 	DEC $7B4D		; AB57	$CE $4D $7B	decrement number of monsters remaining
 L32B5A:
 	JSR Wait_MENU_snd	; AB5A	$20 $5B $FD
@@ -5091,7 +5093,7 @@ L32BA3:
 	JSR Wait_NMI_end	; ABAB	$20 $46 $FD
 	JSR Update_sram		; ABAE	$20 $2F $AD
 	JSR Wait_MENUs_NMIe	; ABB1	$20 $63 $9A
-	JMP $FAE8		; ABB4	$4C $E8 $FA	characters run away
+	JMP SR_Battle_runaway	; ABB4	$4C $E8 $FA	characters run away
 L32BB7:
 	JSR Wait_MENU_snd	; ABB7	$20 $5B $FD
 	JSR Chk_battle_end	; ABBA	$20 $30 $AF	????  not analyzed

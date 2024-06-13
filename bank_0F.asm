@@ -16,6 +16,8 @@
 .export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
 .export	Ret_to_map		;FA0F
+.export	SR_Battle_mob_dead	;FAC8
+.export	SR_Battle_attack	;FACC
 .export	SR_Battle_win		;FAD8
 .export	SR_Battle_fadeout	;FADC
 .export	SR_Battle_set_status	;FAE0
@@ -60,6 +62,8 @@
 .import	Nmap_battle_grp		;8100 - bank_0B
 .import	Wmap_battle_grp		;8200 - bank_0B
 .import	Rnd_battle_grp		;8280 - bank_0B
+.import	Mob_dead_ani_0B		;961B - bank_0B
+.import	Attack_0B		;961E - bank_0B
 .import	Win_celemony_0B		;9627 - bank_0B
 .import	Fade_out_0B		;962A - bank_0B
 .import	Set_status_gfx_0B	;962D - bank_0B
@@ -9020,12 +9024,16 @@ L3FA9E:
     BNE Exec_battle_gfx_bank               ; FAC2  $D0 $2C
     LDA #$18                 ; FAC4  $A9 $18
     BNE Exec_battle_gfx_bank               ; FAC6  $D0 $28
-    LDA #$1B                 ; FAC8  $A9 $1B
-    BNE Exec_battle_gfx_bank               ; FACA  $D0 $24
-; Name	:
-; Marks	:
-	LDA #$1E		; FACC  $A9 $1E
-	BNE Exec_battle_gfx_bank		; FACE  $D0 $20
+; Name	: SR_Battle_mob_dead
+; Marks	: Used on BANK 0C
+SR_Battle_mob_dead:
+	LDA #<Mob_dead_ani_0B	; FAC8  $A9 $1B
+	BNE Exec_battle_gfx_bank; FACA  $D0 $24
+; Name	: SR_Battle_attack
+; Marks	: Used on BANK 0C
+SR_Battle_attack:
+	LDA #<Attack_0B		; FACC  $A9 $1E
+	BNE Exec_battle_gfx_bank; FACE  $D0 $20
 ; Name	:
 ; Marks	: Used on BANK 05, BANK 0C
 	LDA #$21		; FAD0  $A9 $21
@@ -9235,7 +9243,7 @@ L3FBAE:
 ; X	: Start index($7600,X)
 ; Y	: Size to copy
 ; SRC	: $00(ADDR) = tile address
-; Marks	: Copy character tiles to graphics buffer($7600-)
+; Marks	: Copy character tiles to graphics buffer($7600-), not only character tile but also battle graphics
 ;	  Use on BANK 0B, BANK 0F
 ;; sub start ;;
 Copy_char_tile:
