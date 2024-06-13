@@ -9245,6 +9245,7 @@ L3FBAE:
 ; SRC	: $00(ADDR) = tile address
 ; Marks	: Copy character tiles to graphics buffer($7600-), not only character tile but also battle graphics
 ;	  Use on BANK 0B, BANK 0F
+;	  ** It's not for character tile only **
 ;; sub start ;;
 Copy_char_tile:
 	JSR Swap_bank_09	; FBBA  $20 $75 $FA

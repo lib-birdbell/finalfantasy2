@@ -22,7 +22,7 @@
 .import	SR_Init_battle_stats	;FB17
 .import	Set_mob_gfx		;FB62
 .import	Load_text_gfx		;FB84
-.import	Copy_char_tile		;FBBA
+.import	Copy_char_tile		;FBBA	- not character tile
 .import	Set_wpn_pal		;FC03
 .import	Multi			;FC79
 .import	Multi16			;FC98
@@ -2394,7 +2394,7 @@ L2E0AF:
 	STA $7BC6,X		; A0B2	$9D $C6 $7B	init character base x positions
 	JSR $A102		; A0B5	$20 $02 $A1
 	LDX $10			; A0B8	$A6 $10
-	JSR Draw_char		; A0BA	$20 $3A $A4	draw character
+	JSR Draw_char		; A0BA	$20 $3A $A4
 	LDX $10			; A0BD	$A6 $10
 	DEX			; A0BF	$CA
 	BPL L2E0A2		; A0C0	$10 $E0
@@ -2411,7 +2411,7 @@ L2E0C7:
 	JSR $A512		; A0D3	$20 $12 $A5	move character
 L2E0D6:
 	LDX $10			; A0D6	$A6 $10
-	JSR Draw_char		; A0D8	$20 $3A $A4	draw character
+	JSR Draw_char		; A0D8	$20 $3A $A4
 	LDX $10			; A0DB	$A6 $10		next character
 	DEX			; A0DD	$CA
 	BPL L2E0C7		; A0DE	$10 $E7
@@ -2427,7 +2427,7 @@ L2E0E2:
 L2E0F2:
 	STX $10			; A0F2	$86 $10
 	JSR $ABFD		; A0F4	$20 $FD $AB
-	JSR Draw_char		; A0F7	$20 $3A $A4	draw character
+	JSR Draw_char		; A0F7	$20 $3A $A4
 	LDX $10			; A0FA	$A6 $10
 	DEX			; A0FC	$CA
 	BPL L2E0F2		; A0FD	$10 $F3
@@ -2733,7 +2733,7 @@ L2E2A2:
 ;	  some tile copy to $0380, $03E0
 Set_tile_to_ppu:
 	STA $08			; A2BD	$85 $08		weapon action type temp ??
-	LDX $26			; A2BF	$A6 $26
+	LDX char_idx_atk	; A2BF	$A6 $26
 	LDA $06			; A2C1	$A5 $06		weapon properties temp ??
 	JSR Status_char_ppu	; A2C3	$20 $21 $A3
 	JSR And_1F		; A2C6	$20 $E9 $A2
@@ -2742,7 +2742,7 @@ Set_tile_to_ppu:
 	LDA #$03		; A2CD	$A9 $03
 	STA $01			; A2CF	$85 $01		destination address, +$00 = $0380
 	JSR Wait_MENU_NMI_end_OAM	; A2D1	$20 $AB $A3
-	LDX $26			; A2D4	$A6 $26
+	LDX char_idx_atk	; A2D4	$A6 $26
 	LDA $07			; A2D6	$A5 $07
 	JSR Status_char_ppu	; A2D8	$20 $21 $A3
 	JSR And_1F		; A2DB	$20 $E9 $A2
@@ -3001,6 +3001,7 @@ Sprite_xy_ofs:
 ; Name	: Draw_char
 ; X	: char_idx
 ; Marks	: walk pose ?? attack pose ??
+;	  Draw character on buffer
 Draw_char:
 	STX $04			; A43A	$86 $04
 	LDA $7BA2,X		; A43C	$BD $A2 $7B	character graphics type (hidden if msb set) normal/mini/toad
@@ -4225,10 +4226,10 @@ Copy_ppu_to_buf_loop:
 Snd_dead_eft_tbl:
 .byte $04,$0E
 
-; Name	: Set_some_tile_ppu
+; Name	: Set_wpn_tile_ppu
 ; A	:
 ; Marks	: +$00 = tile address
-Set_some_tile_ppu:
+Set_wpn_tile_ppu:
 	TAX			; ABA9	$AA
 	CPX #$01		; ABAA	$E0 $01
 	BCC L2EBAF		; ABAC	$90 $01
@@ -4256,7 +4257,7 @@ L2EBB4:
 	JSR Set_02_gfxbuf	; ABD5	$20 $C6 $9D
 	JSR Copy_tile_ppu	; ABD8	$20 $A2 $9D
 	JMP Wait_NMI_end	; ABDB	$4C $46 $FD
-; End of Set_some_tile_ppu
+; End of Set_wpn_tile_ppu
 
 ; Name	:
 ; Marks	: load character graphics
@@ -4333,7 +4334,7 @@ L2EC23:
 Atk_char_w_wpn_ani:
 	STX $02			; AC4B	$86 $02		weapon type ?? animation type ??
 	STA $03			; AC4D	$85 $03
-	LDX $26			; AC4F	$A6 $26		character index
+	LDX char_idx_atk	; AC4F	$A6 $26
 	LDA char_x_cpos,X	; AC51	$BD $CA $7B
 	STA $04			; AC54	$85 $04
 	LDA char_y_pos,X	; AC56	$BD $CE $7B
@@ -4403,7 +4404,7 @@ L2ECBF:
 	STA $0288		; ACC1	$8D $88 $02
 	LDA #$53		; ACC4	$A9 $53
 	STA $0289		; ACC6	$8D $89 $02
-	LDX $26			; ACC9	$A6 $26
+	LDX char_idx_atk	; ACC9	$A6 $26
 	LDA $7BB6,X		; ACCB	$BD $B6 $7B
 	STA $028A		; ACCE	$8D $8A $02
 	LDA $06			; ACD1	$A5 $06
@@ -5006,11 +5007,14 @@ L2F048:
 
 ; Name	: Attack
 ; Marks	: show attack animation
+;	  $1E,$1F = ??
+;	  $20,$21 = action type on each hand ?? (knife==01h,)
+;	  $22 = current processing l/r hand ??
 Attack:
 	JSR Wait_NMI_end	; B071	$20 $46 $FD
 	LDX char_idx_atk	; B074	$A6 $26
 	CPX #$04		; B076	$E0 $04
-	BCC L2F07D		; B078	$90 $03
+	BCC L2F07D		; B078	$90 $03		branch if attacker is player
 	JMP Attack_char		; B07A	$4C $E8 $B0
 L2F07D:
 	LDA $2B			; B07D	$A5 $2B
@@ -5020,7 +5024,7 @@ L2F07D:
 	JSR Check_lr_wpn	; B086	$20 $69 $B4	Check weapon ??
 	LDX #$01		; B089	$A2 $01
 L2F08B:
-	STX $22			; B08B	$86 $22		loop counter ??
+	STX $22			; B08B	$86 $22		loop counter ?? l/r hand ??
 	LDA $20,X		; B08D	$B5 $20		weapon action type ??
 	BEQ L2F0D0		; B08F	$F0 $3F
 	TXA			; B091	$8A
@@ -5034,7 +5038,7 @@ L2F096:
 	STA $06			; B09D	$85 $06
 	LDA Wpn_prop_B,Y	; B09F	$B9 $EB $93
 	STA $07			; B0A2	$85 $07
-	LDX $26			; B0A4	$A6 $26		X = character index
+	LDX char_idx_atk	; B0A4	$A6 $26		X = character index
 	LDA $7BA2,X		; B0A6	$BD $A2 $7B	character graphics type
 	BEQ L2F0B2		; B0A9	$F0 $07		branch if normal status
 	LDX #$02		; B0AB	$A2 $02
@@ -5052,37 +5056,37 @@ L2F0B2:
 	BNE L2F0C5		; B0C1	$D0 $02
 	LDA #$08		; B0C3	$A9 $08
 L2F0C5:
-	JSR Set_some_tile_ppu	; B0C5	$20 $A9 $AB
+	JSR Set_wpn_tile_ppu	; B0C5	$20 $A9 $AB
 	LDX $22			; B0C8	$A6 $22
-	JSR Apply_wpn_pal	; B0CA	$20 $36 $B4	Check weapon l/r hand ??
+	JSR Apply_wpn_pal	; B0CA	$20 $36 $B4
 	JSR Attack_char_wpn_ani	; B0CD	$20 $B5 $B4	attack animation 0000 - character with weapon - have subroutine by weapon
 L2F0D0:
 	LDX $22			; B0D0	$A6 $22
 	DEX			; B0D2	$CA
-	BPL L2F08B		; B0D3	$10 $B6		loop
+	BPL L2F08B		; B0D3	$10 $B6		loop - next hand(left -> right)
 	JSR Rst_all_act_OAM_buf	; B0D5	$20 $E7 $9D	Reset ??? OAM[1-39] buffer
-	LDX $26			; B0D8	$A6 $26		character index temp ??
+	LDX char_idx_atk	; B0D8	$A6 $26
 	JSR Draw_char		; B0DA	$20 $3A $A4	check character graphics type
 	JSR Apply_OAM		; B0DD	$20 $2A $9E
-	LDX $26			; B0E0	$A6 $26		character index temp ??
+	LDX char_idx_atk	; B0E0	$A6 $26
 	JSR Char_mov_base	; B0E2	$20 $33 $A6
 L2F0E5:
 	JMP JB0EB		; B0E5	$4C $EB $B0
 Attack_char:
 	JMP JB0EB		; B0E8	$4C $EB $B0
 JB0EB:
-	LDX $27			; B0EB	$A6 $27
+	LDX $27			; B0EB	$A6 $27		target id
 	CPX #$04		; B0ED	$E0 $04
-	BCC L2F100		; B0EF	$90 $0F
-	LDX $26			; B0F1	$A6 $26
+	BCC Attack_target_p	; B0EF	$90 $0F		branch if target is player
+	LDX char_idx_atk	; B0F1	$A6 $26
 	CPX #$04		; B0F3	$E0 $04
-	BCC L2F0FD		; B0F5	$90 $06
+	BCC L2F0FD		; B0F5	$90 $06		branch if attacker is player
 	LDA #$02		; B0F7	$A9 $02
 	STA $20			; B0F9	$85 $20
 	STA $21			; B0FB	$85 $21
 L2F0FD:
 	JMP Attack_last		; B0FD	$4C $84 $B1
-L2F100:
+Attack_target_p:
 	BIT $28			; B100	$24 $28
 	BVC L2F12E		; B102	$50 $2A
 	BMI L2F10C		; B104	$30 $06
@@ -5176,11 +5180,12 @@ lr_hand_tmp	= $18
 ; Name	: Weapon_hit_ani
 ; Marks	: $00(ADDR) = $9320 = battle animation graphics
 ;	  Weapon animation graphics (weapon with monster)
+;	  OAM[28-31] is weapon hit sprite
 Weapon_hit_ani:
 	LDA #$20		; B199	$A9 $20
 	STA $00			; B19B	$85 $00
 	LDA #$93		; B19D	$A9 $93
-	STA $01			; B19F	$85 $01
+	STA $01			; B19F	$85 $01		BANK 09/9320 (battle animation graphics)
 	LDX #$00		; B1A1	$A2 $00
 	LDY #$60		; B1A3	$A0 $60
 	JSR Copy_char_tile	; B1A5	$20 $BA $FB
@@ -5195,7 +5200,7 @@ Weapon_hit_ani:
 	LDX #$00		; B1BB	$A2 $00
 	STX $18			; B1BD	$86 $18
 L2F1BF:
-	JSR Apply_wpn_pal	; B1BF	$20 $36 $B4	Check weapon l/r hand ??
+	JSR Apply_wpn_pal	; B1BF	$20 $36 $B4
 	LDX $18			; B1C2	$A6 $18
 	LDA $20,X		; B1C4	$B5 $20		weapon action type ??
 	JSR $B1D2		; B1C6	$20 $D2 $B1	weapon effect animation ??
@@ -5657,7 +5662,7 @@ gfx_delay_cnt	= $17
 ; Name	: Attack_char_wpn_ani
 ; Marks	: Attack animation (character with weapon)
 Attack_char_wpn_ani:
-	LDX $26			; B4B5	$A6 $26		character index temp
+	LDX char_idx_atk	; B4B5	$A6 $26
 	JSR Rst_char_OAM_buf	; B4B7	$20 $DA $9D
 	JSR Rst_act_OAM_buf	; B4BA	$20 $E1 $9D
 	STX atk_ani_AB_tmp	; B4BD	$86 $16
@@ -5686,7 +5691,7 @@ L2F4D4:
 	STA $01			; B4E0	$85 $01
 .byte $6C,$00,$00
 	;JMP ($0000)		; B4E2	$6C $00 $00
-SR_B4E5:	; Axe attack ??
+SR_B4E5:	; Sword, Knife, Axe, Mace, Spear attack
 	INY			; B4E5	$C8
 	STY $19			; B4E6	$84 $19		attack type 2 temp ??
 	LDA #$04		; B4E8	$A9 $04		character attack with weapon motion counter
@@ -5701,7 +5706,7 @@ L2F4EC:
 	BNE L2F4EC		; B3F9	$D0 $F1
 	RTS			; B4FB	$60
 ;
-SR_B4FC:
+SR_B4FC:	; Fist attack
 	INY			; B4FC	$C8
 L2F4FD:
 	STY $19			; B4FD	$84 $19
@@ -5718,17 +5723,17 @@ L2F507:
 	BNE L2F507		; B510	$D0 $F5
 	RTS			; B512	$60
 ;
-SR_B513:
+SR_B513:	; Bow attack
 	INY			; B513	$C8
 	STY $19			; B514	$84 $19
-	LDX $26			; B516	$A6 $26		character index ??
+	LDX char_idx_atk	; B516	$A6 $26
 	LDA $7BA2,X		; B518	$BD $A2 $7B	character graphics type
 	BEQ L2F521		; B51B	$F0 $04
 	LDY #$03		; B51D	$A0 $03
 	BNE L2F4FD		; B51F	$D0 $DC
 L2F521:
 	JSR Apply_OAM		; B521	$20 $2A $9E
-	LDX $26			; B524	$A6 $26		character index ??
+	LDX char_idx_atk	; B524	$A6 $26
 	LDA char_x_cpos,X	; B526	$BD $CA $7B
 	SEC			; B529	$38
 	SBC #$0C		; B52A	$E9 $0C
@@ -5809,7 +5814,7 @@ Atk_pose_snd:
 ; Name	: Atk_pose
 ; Marks	: attack pose with weapon
 Atk_pose:
-	LDX $26			; B5AE	$A6 $26		character index
+	LDX char_idx_atk	; B5AE	$A6 $26
 	LDY #$38		; B5B0	$A0 $38
 	LDA atk_ani_AB_tmp	; B5B2	$A5 $16		animation A/B
 	AND #$01		; B5B4	$29 $01
@@ -5818,7 +5823,7 @@ Atk_pose:
 L2F5BA:
 	TYA			; B5BA	$98
 	JSR $AC07		; B5BB	$20 $07 $AC	Set character graphic to OAM buffer(attack pose ??)
-	LDX $26			; B5BE	$A6 $26		character index
+	LDX char_idx_atk	; B5BE	$A6 $26
 	LDA $7BA2,X		; B5C0	$BD $A2 $7B	character graphics type
 	BNE L2F5CC		; B5C3	$D0 $07
 	LDX $19			; B5C5	$A6 $19		attack type 2 temp ??
@@ -5841,7 +5846,9 @@ Atk_motion_sr:
 
 ;B5DE - data block - weapon action type ??
 .byte $00,$01
-.byte $03,$04,$05,$00,$02,$03,$04,$05,$09,$08,$07,$06,$05,$04,$03,$02
+.byte $03,$04,$05,$00,$02,$03,$04,$05
+;B5E8
+.byte $09,$08,$07,$06,$05,$04,$03,$02
 .byte $05,$04,$03,$02,$01,$00
 
 ; Name	: Magic_ani
