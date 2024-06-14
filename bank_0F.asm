@@ -37,6 +37,7 @@
 .export DoDivision		;FCC3
 .export	Get_nybble		;FD07
 .export Random			;FD11
+.export	Ctrl_Scroll		;FD4B
 .export	Weapon_type		;FDC7
 .export Wait_NMI_end		;FD46
 .export	Wait_MENU_snd		;FD5B
@@ -70,6 +71,7 @@
 .import	Status_ani_0B		;9630 - bank_0B
 .import	Run_away_0B		;9633 - bank_0B
 .import	Battle_defeat_0B	;9636 - bank_0B
+.import	Init_battle		;9639 - bank_0B
 
 .import	BattleMain_bank0C	;8F43 - bank_0C
 .import SortVal_bank0C		;8F46 - bank_0C
@@ -171,7 +173,7 @@ SAVEFILE_SEL:
 	STA ch_stats_4		; C088  $8D $C0 $61
 	LDX #$00		; C08B  $A2 $00
 	LDA #$7F		; C08D  $A9 $7F
-	JSR $FA00		; C08F  $20 $00 $FA	battle code - story ??
+	JSR Battle_start	; C08F  $20 $00 $FA	battle code - story ??
 	LDA #$80		; C092  $A9 $80
 	STA $62F5		; C094  $8D $F5 $62	trigger id ?? (event??)
 	LDX #$00		; C097  $A2 $00
@@ -331,7 +333,7 @@ L3C1B1:
 	STA ApuStatus_4015	; C1B9  $8D $15 $40
 	JSR Get_bat_bg		; C1BC  $20 $5C $C7
 	LDA $6A			; C1BF  $A5 $6A
-	JSR $FA00		; C1C1  $20 $00 $FA	excute battle code
+	JSR Battle_start	; C1C1  $20 $00 $FA	excute battle code
 	JMP L3C8BC		; C1C4  $4C $BC $C8	reload world map
 ; $80: entrance
 L3C1C7:
@@ -1725,7 +1727,7 @@ L3CA8D:
 	LDA $9400,X		; CAA7  $BD $00 $94	BANK 00 - battle bg for each map
 	TAX			; CAAA  $AA
 	LDA $6A			; CAAB  $A5 $6A		battle group ??
-	JSR $FA00		; CAAD  $20 $00 $FA	battle code
+	JSR Battle_start	; CAAD  $20 $00 $FA	battle code
 	JSR L3D07B		; CAB0  $20 $7B $D0	reload map - battle end
 	JMP NM_LOOP		; CAB3  $4C $44 $CA	LOOP - NORMAL MAP
 ; $40: exit (to previous map)
@@ -8837,10 +8839,12 @@ rnum_tbl:
 
 ;========== BATTLE CODE ($FA00-$FFE0) START ==========
 
-; Name	:
+; Name	: Battle_start
 ; Marks	: Battle code
 ;; sub start ;;
-	JMP L3FA9E		; FA00  $4C $9E $FA
+Battle_start:
+	JMP Battle_code		; FA00  $4C $9E $FA
+; End of Battle_start(very long loop code)
 
 ;; sub start ;;
     PHA                      ; FA03  $48
@@ -8999,9 +9003,12 @@ Exec_bank:
 	JMP ($0040)		; FA97  $6C $40 $00	ex> bank_0B : 9630
 	LDA $3F			; FA9A  $A5 $3F		bank temp buffer load ??
 	BPL Swap_PRG_ret	; FA9C  $10 $E1
+;
+
+; Marks	: battle code start
 ; A	: battle ID ??
 ; X	: battle back ground ID ??
-L3FA9E:
+Battle_code:
 	STA $7B48		; FA9E  $8D $48 $7B	battle ID
 	TXA			; FAA1  $8A
 	AND #$0F		; FAA2  $29 $0F
@@ -9013,7 +9020,8 @@ L3FA9E:
 	STA current_song_ID	; FAB1  $85 $E0
 	JSR Swap_bank_0B_ret	; FAB3  $20 $79 $FA	bank swap
 	JSR L3FA48		; FAB6  $20 $48 $FA
-    JMP $9639                ; FAB9  $4C $39 $96
+	JMP Init_battle		; FAB9  $4C $39 $96	Init battle - long loop code
+; End of Battle_start(long loop code)
 
 ; Name	:
 ; Marks	: $40(ADDR) = execute code address
@@ -9159,7 +9167,7 @@ L3FB48:
 
 ; Name	:
 ; SRC	: $7B49
-; Marks	:
+; Marks	: copy graphics to buffer
 ;; sub start ;;
     LDA $7B49                ; FB53  $AD $49 $7B
     LSR A                    ; FB56  $4A
@@ -9577,7 +9585,6 @@ L3FD45:
 Wait_NMI_end:
 	BIT PpuStatus_2002	; FD46  $2C $02 $20	resets paired write latch w to 0.
 	BVS Wait_NMI_end	; FD49  $70 $FB		loop
-L3FD4B:
 Ctrl_Scroll:
 	LDA PpuCtrl_NT		; FD4B  $A5 $3B
 	STA PpuControl_2000	; FD4D  $8D $00 $20

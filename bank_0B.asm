@@ -14,6 +14,7 @@
 .export	Status_ani_0B		;9630
 .export	Run_away_0B		;9633
 .export	Battle_defeat_0B	;9636
+.export	Init_battle		;9639
 
 .import	Ret_to_map		;FA0F
 .import Set_IRQ_JMP		;FA2A
@@ -29,6 +30,7 @@
 .import DoDivision		;FCC3
 .import	Get_nybble		;FD07
 .import Random			;FD11
+.import	Ctrl_Scroll		;FD4B
 .import	Weapon_type		;FDC7
 .import Wait_NMI_end		;FD46
 .import	Wait_MENU_snd		;FD5B
@@ -457,8 +459,9 @@ Boss_tile:
 
 ; ========== (??? * 9 bytes) ($9216-$9263) START ==========
 ; monster id per data(09h-0Fh)
-; ??? table
+; ??? table, OAM index ??
 ;; [$9216 :: 0x2D216]
+Bigmob_attr_tbl:
 .byte $00,$00,$15,$15,$51,$50,$05,$50,$00
 ;921F
 .byte $55,$51,$54,$04,$40,$50,$05,$00,$00
@@ -475,7 +478,10 @@ Boss_tile:
 ;9255
 .byte $00,$00,$00,$00,$00
 ;925A-925B
-.byte $2B,$00,$EE,$EF,$F0,$F1
+Mask_pal:
+.byte $2B,$00
+;925C:
+.byte $EE,$EF,$F0,$F1
 .byte $F2,$F3,$F4,$00
 ;; [$9264 :: 0x2D264] (6 * 6 bytes)
 Sprite_X_tbl:
@@ -537,12 +543,19 @@ Battle_snd_eft_tbl:
 .byte $04,$1F,$03,$02,$06,$07,$00,$00,$0A,$1D,$00,$0B,$0C,$09,$11,$20
 .byte $0D,$16,$13,$14,$15,$0E,$0E,$0F,$0F,$0E,$19,$1C,$1C,$10,$18,$10
 .byte $17,$05,$17
+Mov_step:
+.byte $00,$00,$00,$02,$01,$02,$02,$01
+Mov_y_step:
+.byte $00,$00,$00,$FB,$FF,$00,$03,$03
+Char_low_step:
+.byte $01,$01,$02,$02,$02,$02,$02,$01
 
-.byte $00,$00,$00,$02,$01,$02,$02,$01,$00,$00,$00,$FB,$FF
-.byte $00,$03,$03,$01,$01,$02,$02,$02,$02,$02,$01,$01,$02,$07,$07,$08
+Char_low_pos:
+.byte $01,$02,$07,$07,$08
 
 ; ========== spell targeting (1 bit per sepll) ($9350-$9354) START ==========
 ;; [$9350 :: 0x2D350]
+Spell_target:
 .byte $FF,$FF,$01,$E0,$F7
 ; $9355 - (?? x 5 byte) OAM INDEX ??
 .byte $50,$51,$52,$53,$00,$51,$50,$53,$52,$01,$53
@@ -552,7 +565,9 @@ Battle_snd_eft_tbl:
 .byte $02,$57,$57,$57,$57,$02,$54,$00,$55,$00,$00,$56,$57,$00,$00,$00
 ; $93A0 - OAM ATTR ??
 .byte $02,$02,$02,$02,$42,$42,$42,$42,$02,$42,$82,$C2,$08,$F8,$F0,$00
-.byte $10,$F8,$FC,$04,$FC,$0A,$08,$02,$31,$04,$00,$33,$04,$02,$35,$04
+.byte $10,$F8,$FC,$04,$FC,$0A
+Pal_color:	;93B6 - palette color
+.byte $08,$02,$31,$04,$00,$33,$04,$02,$35,$04
 .byte $00,$37,$04,$04,$39,$04,$00,$3B,$04,$05,$3D,$04,$00,$3F,$04,$00
 .byte $08,$00,$00,$08,$52,$53,$00,$51,$50,$53,$52,$01,$53,$50
 ; $93DE - weapon type ?? (action type ??)
@@ -567,7 +582,9 @@ Wpn_prop_A:
 ; $93EB	-
 Wpn_prop_B:
 .byte $01,$02,$02,$06,$05
-.byte $01,$04,$02,$02,$05,$01,$06,$02,$02,$05,$00,$00,$08,$08,$10,$10
+.byte $01,$04,$02,$02,$05,$01,$06,$02,$02,$05
+OAM_Y_tbl:			; 93FA
+.byte $00,$00,$08,$08,$10,$10
 
 ;; [$9400 :: 0x2D400]
 
@@ -578,7 +595,9 @@ Wpn_prop_B:
 .byte $18,$18,$18,$18,$08,$00,$08,$00,$08,$00,$08,$00,$00,$08,$00,$00
 .byte $08,$08,$00,$08,$08,$08,$08,$10,$08,$10,$00,$00,$08,$08,$00,$00
 .byte $08,$08,$00,$00,$08,$08,$00,$08,$08,$00,$08,$08,$00,$08,$08,$00
-.byte $08,$10,$00,$08,$10,$02,$05,$02,$11,$14,$44,$45,$46,$47,$48,$49
+.byte $08,$10,$00,$08,$10,$02,$05,$02,$11,$14
+OAM_INDEX_tbl:			; 947A
+.byte $44,$45,$46,$47,$48,$49
 .byte $4A,$4B,$4C,$4D,$4E,$4F,$45,$44,$47,$46,$49,$48,$4B,$4A,$4D,$4C
 .byte $4F,$4E,$44,$45,$46,$44,$44,$46,$45,$45,$46,$45,$44,$44,$45,$46
 .byte $47,$48,$49,$4A,$4B,$44,$45,$46,$47,$45,$47,$47,$49,$4A,$4B,$44
@@ -586,7 +605,9 @@ Wpn_prop_B:
 .byte $45,$44,$44,$45,$44,$45,$45,$46,$46,$47,$47,$47,$46,$45,$4B,$4A
 .byte $49,$48,$44,$44,$44,$45,$45,$46,$48,$49,$60,$61,$62,$63,$64,$65
 .byte $66,$67,$68,$69,$6A,$6B,$48,$48,$48,$49,$49,$49,$4A,$4A,$4A,$44
-.byte $45,$46,$47,$48,$49,$24,$12,$00,$00,$00,$02,$02,$02,$02,$02,$02
+.byte $45,$46,$47,$48,$49,$24,$12,$00,$00,$00
+OAM_ATTR_tbl:			; 94FA
+.byte $02,$02,$02,$02,$02,$02
 
 ;; [$9500 :: 0x2D500]
 
@@ -597,7 +618,9 @@ Wpn_prop_B:
 .byte $C2,$C2,$82,$82,$C2,$42,$C2,$42,$C2,$42,$C2,$C2,$C2,$C2,$C2,$C2
 .byte $C2,$C2,$42,$82,$C2,$02,$C2,$02,$02,$02,$02,$02,$02,$02,$02,$02
 .byte $02,$02,$02,$02,$02,$02,$42,$82,$C2,$42,$82,$C2,$42,$82,$C2,$42
-.byte $42,$42,$42,$42,$42,$00,$01,$00,$00,$00,$00,$08,$00,$08,$00,$08
+.byte $42,$42,$42,$42,$42,$00,$01,$00,$00,$00
+OAM_X_tbl:			; 957A
+.byte $00,$08,$00,$08,$00,$08
 .byte $00,$08,$00,$08,$00,$08,$00,$08,$00,$08,$00,$08,$00,$08,$00,$08
 .byte $00,$08,$0A,$0A,$12,$08,$12,$00,$08,$12,$18,$02,$11,$1A,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$08,$08,$08,$08,$00,$08,$00
@@ -615,8 +638,8 @@ Wpn_prop_B:
 	JMP Set_ppu_data_00	; 9600	$4C $63 $9D
 	JMP Set_ppu_data	; 9603	$4C $68 $9D
 	JMP Apply_palettes	; 9606	$4C $7C $9D
-	JMP $9D58		; 9609	$4C $58 $9D
-	JMP $9D5B		; 960C	$4C $5B $9D
+	JMP Fill_ppu_inc_00	; 9609	$4C $58 $9D
+	JMP Fill_ppu_inc	; 960C	$4C $5B $9D
 	JMP Copy_tile_ppu	; 960F	$4C $A2 $9D	tile copy ppu
 	JMP $A5BA		; 9612	$4C $BA $A5
 	JMP $A6A2		; 9615	$4C $A2 $A6
@@ -626,7 +649,7 @@ Mob_dead_ani_0B:
 Attack_0B:
 	JMP Attack		; 961E	$4C $71 $B0
 	JMP $9CEE		; 9621	$4C $EE $9C
-	JMP $ABDE		; 9624	$4C $DE $AB
+	JMP Load_char_gfx	; 9624	$4C $DE $AB
 Win_celemony_0B:
 	JMP Win_celemony	; 9627	$4C $BF $AD
 Fade_out_0B:
@@ -641,13 +664,15 @@ Battle_defeat_0B:
 	JMP Battle_defeat	; 9636	$4C $F2 $AE
 ; End of Subroutine list
 
-; init battle
-	JSR $96C3		; 9639	$20 $C3 $96	init ppu
+; Marks	: init battle
+;	  loop for battle
+Init_battle:
+	JSR Init_ppu		; 9639	$20 $C3 $96	init ppu
 	JSR Make_rng_tbl	; 963C	$20 $D5 $97	init rng
-	JSR $FBC3		; 963F	$20 $C3 $FB
-	JSR $983D		; 9642	$20 $3D $98	load battle properties
+	JSR $FBC3		; 963F	$20 $C3 $FB	load battle animation graphics ??
+	JSR Load_battle_prop	; 9642	$20 $3D $98	load battle properties
 	JSR SR_Init_battle_stats	; 9645	$20 $17 $FB
-	LDA $7B4C		; 9648	$AD $4C $7B
+	LDA $7B4C		; 9648	$AD $4C $7B	monster graphics set
 	AND #$03		; 964B	$29 $03
 	LDX #$0E		; 964D	$A2 $0E
 	JSR Multi		; 964F	$20 $79 $FC
@@ -661,11 +686,11 @@ Battle_defeat_0B:
 	STA $01			; 9660	$85 $01
 	JSR Set_mob_gfx		; 9662	$20 $62 $FB	load monster graphics
 	JSR Load_text_gfx	; 9665	$20 $84 $FB	load text graphics
-	JSR $976C		; 9668	$20 $6C $97	init attribute table
-	JSR $A1E4		; 966B	$20 $E4 $A1	copy left attribute table to ppu
-	JSR $A1F9		; 966E	$20 $F9 $A1	copy right attribute tale to ppu
-	JSR $9E9F		; 9671	$20 $9F $9E	init tilemap for battle bg
-	JSR $9EFA		; 9674	$20 $FA $9E	init tilemap for monsters
+	JSR Init_attr_tbl	; 9668	$20 $6C $97	init attribute table
+	JSR Copy_l_attr		; 966B	$20 $E4 $A1	copy left attribute table to ppu
+	JSR Copy_r_attr		; 966E	$20 $F9 $A1	copy right attribute tale to ppu
+	JSR Init_tile_bg	; 9671	$20 $9F $9E	init tilemap for battle bg
+	JSR Init_tilemap_mobs	; 9674	$20 $FA $9E	init tilemap for monsters
 	LDX #$00		; 9677	$A2 $00
 	LDA mob_gfx_id		; 9679	$AD $72 $7B
 	CMP #$09		; 967C	$C9 $09
@@ -680,15 +705,14 @@ L2D686:
 	LDA #$1E		; 968E	$A9 $1E		enable sprites and background
 	STA $3C			; 9690	$85 $3C
 	STA PpuMask_2001	; 9692	$8D $01 $20
-	JSR $A04E		; 9695	$20 $4E $A0	monster entry
+	JSR Mob_entry		; 9695	$20 $4E $A0	monster entry
 	LDX $7B49		; 9698	$AE $49 $7B	battle bg
 	LDY #$09		; 969B	$A0 $09		bg palette 2
 	JSR Set_wpn_pal		; 969D	$20 $03 $FC
-	JSR $9E54		; 96A0	$20 $54 $9E
-	; PPU set Some data : ??
-	JSR $9FAE		; 96A3	$20 $AE $9F	fade in battle bg
+	JSR Snd_wait_NMI_OAM_PAL; 96A0	$20 $54 $9E
+	JSR Fadein_battle_bg	; 96A3	$20 $AE $9F	fade in battle bg
 	JSR Init_char_sprite	; 96A6	$20 $BD $A3	init character sprite data
-	JSR $9B43		; 96A9	$20 $43 $9B	init character graphics
+	JSR Init_char_gfx	; 96A9	$20 $43 $9B	init character graphics
 	JSR $A08D		; 96AC	$20 $8D $A0	character entry
 	LDA #$00		; 96AF	$A9 $00
 	STA $79B5		; 96B1	$8D $B5 $79
@@ -698,10 +722,11 @@ L2D686:
 	LDA #$08		; 96BC	$A9 $08
 	STA $36			; 96BE	$85 $36
 	JMP SR_BattleMain	; 96C0	$4C $06 $FB
-; End of
+; End of Battle_code
 
-; Name	:
+; Name	: Init_ppu
 ; Marks	: init ppu
+Init_ppu:
 	JSR Reset_all_pal	; 96C3	$20 $3E $97
 	JSR Set_IRQ_JMP		; 96C6	$20 $2A $FA	Wait NMI
 	JSR Apply_palettes	; 96C9	$20 $7C $9D
@@ -718,15 +743,14 @@ L2D686:
 	LDX #$FF		; 96E2	$A2 $FF
 	STX $36			; 96E4	$86 $36
 	TAY			; 96E6	$A8
-	JSR $972B		; 96E7	$20 $2B $97
+	JSR Fill_ppu_blk	; 96E7	$20 $2B $97
 	LDY #$27		; 96EA	$A0 $27
 L2D6EC:
-	; PPU set #$00(zero) : ($1100-$11FF)
-	JSR Set_ppu_data	; 96EC	$20 $68 $9D
+	JSR Set_ppu_data	; 96EC	$20 $68 $9D	PPU set #$00(zero) : ($1100-$11FF)
 	DEY			; 96EF	$88
 	BNE L2D6EC		; 96F0	$D0 $FA
 	LDY #$04		; 96F2	$A0 $04
-	JSR $972B		; 96F4	$20 $2B $97
+	JSR Fill_ppu_blk	; 96F4	$20 $2B $97
 	LDX #$60		; 96F7	$A2 $60
 	JSR Set_ppu_data	; 96F9	$20 $68 $9D
 	LDY #$26		; 96FC	$A0 $26
@@ -735,30 +759,35 @@ L2D6EC:
 	LDX #$60		; 9703	$A2 $60
 	JSR Set_ppu_data	; 9705	$20 $68 $9D
 	LDY #$08		; 9708	$A0 $08
-	JSR $972B		; 970A	$20 $2B $97
+	JSR Fill_ppu_blk	; 970A	$20 $2B $97
 	LDX #$26		; 970D	$A2 $26
 	STX $01			; 970F	$86 $01
 	LDX #$20		; 9711	$A2 $20
-	JSR Set_ppu_data_00	; 9713	$20 $63 $9D
+	JSR Set_ppu_data_00	; 9713	$20 $63 $9D	X will be 0
 L2D716:
-	LDA $97D1,X		; 9716	$BD $D1 $97
-	STA $0200,X		; 9719	$9D $00 $02
+	LDA Sprite0_init_data,X	; 9716	$BD $D1 $97
+	STA $0200,X		; 9719	$9D $00 $02	OAM[0]
 	INX			; 971C	$E8
 	CPX #$04		; 971D	$E0 $04
-	BNE L2D716		; 971F	$D0 $F5
+	BNE L2D716		; 971F	$D0 $F5		loop
 	LDX #$FC		; 9721	$A2 $FC
 	JSR Rst_OAM_buf		; 9723	$20 $E9 $9D
-	JSR $974F		; 9726	$20 $4F $97
+	JSR Set_underbar_tile	; 9726	$20 $4F $97
 	LDY #$0C		; 9729	$A0 $0C
-; Name	: is subroutine ?? - fill ppu block
-	LDA $97B5,Y		; 972B	$B9 $B5 $97
+; Name	: Fill_ppu_blk
+; Y	: offset
+; Marks	: is subroutine ?? - fill ppu block
+;	  $00(ADDR) = ppu address
+Fill_ppu_blk:
+	LDA Ppu_init_data,Y	; 972B	$B9 $B5 $97
 	STA $00			; 972E	$85 $00
-	LDA $97B6,Y		; 9730	$B9 $B6 $97
+	LDA Ppu_init_data+1,Y	; 9730	$B9 $B6 $97
 	STA $01			; 9733	$85 $01
-	LDA $97B7,Y		; 9735	$B9 $B7 $97
-	LDX $97B8,Y		; 9738	$BE $B8 $97
+	LDA Ppu_init_data+2,Y	; 9735	$B9 $B7 $97
+	LDX Ppu_init_data+3,Y	; 9738	$BE $B8 $97
 	JMP Set_ppu_data_00	; 973B	$4C $63 $9D
-; End of
+; End of Fill_ppu_blk
+; End of Init_ppu
 
 ; Name	: Reset_all_pal
 ; Marks	: reset all palettes
@@ -780,34 +809,38 @@ L2D744:
 ; End of Reset_pal
 ; End of Reset_all_pal
 
-; ?????
+; ????? - unused
 	JSR Wait_MENU_NMI	; 974C	$20 $3F $9E
 
-; Name	:
-; Marks	:
+; Name	: Set_underbar_tile
+; Marks	: ppu $1050-$105F = 00h
+;	  ppu $105F	  = FFh
+;	  background tile id 5 set to underbar tile
+Set_underbar_tile:
 	LDY #$10		; 974F	$A0 $10
-	JSR $972B		; 9751	$20 $2B $97
+	JSR Fill_ppu_blk	; 9751	$20 $2B $97
 	LDY #$14		; 9754	$A0 $14
-	JSR $972B		; 9756	$20 $2B $97
+	JSR Fill_ppu_blk	; 9756	$20 $2B $97
 	JMP Wait_NMI_end	; 9759	$4C $46 $FD
-; End of
+; End of Set_underbar_tile
 
-;
+; unused ??
 	JSR Wait_MENU_NMI	; 975C	$20 $3F $9E
 	LDY #$10		; 975F	$A0 $10
-	JSR $972B		; 9761	$20 $2B $97
+	JSR Fill_ppu_blk	; 9761	$20 $2B $97
 	LDY #$18		; 9764	$A0 $18
-	JSR $972B		; 9766	$20 $2B $97
+	JSR Fill_ppu_blk	; 9766	$20 $2B $97
 	JMP Wait_NMI_end	; 9769	$4C $46 $FD
 ; End of
 
-; Name	:
+; Name	: Init_attr_tbl
 ; Marks	:
 ;	  init attribute table
+Init_attr_tbl:
 	LDX #$00		; 976C	$A2 $00
 	LDA #$FF		; 976E	$A9 $FF
 L2D770:
-	STA $79C8,X		; 9770	$9D $C8 $79	attribute table
+	STA $79C8,X		; 9770	$9D $C8 $79	left screen attribute table
 	INX			; 9773	$E8
 	CPX #$80		; 9774	$E0 $80
 	BNE L2D770		; 9776	$D0 $F8
@@ -830,25 +863,26 @@ L2D770:
 	STA $0C			; 979A	$85 $0C
 L2D79C:
 	LDA $0C			; 979C	$A5 $0C
-	JSR $A205		; 979E	$20 $05 $A2
+	JSR Init_mob_attr	; 979E	$20 $05 $A2
 	INC $0C			; 97A1	$E6 $0C
 	LDA $0C			; 97A3	$A5 $0C
 	CMP #$08		; 97A5	$C9 $08
 	BNE L2D79C		; 97A7	$D0 $F3		loop
 	LDX #$40		; 97A9	$A2 $40
 L2D7AB:
-	LDA $79C7,X		; 97AB	$BD $C7 $79	last color palettes
-	STA $7A07,X		; 97AE	$9D $07 $7A	last attribute table
+	LDA $79C7,X		; 97AB	$BD $C7 $79	last of color palettes
+	STA $7A07,X		; 97AE	$9D $07 $7A	last of attribute table
 	DEX			; 97B1	$CA
 	BNE L2D7AB		; 97B2	$D0 $F7
 	RTS			; 97B4	$60
-; End of
+; End of Init_attr_tbl
 
 ; ppu init fill data (8 * 4 bytes)
 ;   +$00: ppu address
 ;    $02: fill value
 ;    $03: size (zero = 256 bytes)
-; data block $97B5-$97D4
+; data block $97B5-$97D4 - 00h-1Bh
+Ppu_init_data:
 .byte $00,$00,$00,$00	; ppu $0000-$00FF <- $00 (clear all ppu ram)
 .byte $60,$22,$FF,$00	; ppu $2260-$235F <- $FF
 .byte $40,$22,$05,$20	; ppu $2240-$225F <- $05
@@ -857,7 +891,8 @@ L2D7AB:
 .byte $5F,$10,$FF,$01	; ppu $105F	  <- $FF
 .byte $58,$10,$FF,$08	; ppu $1058-$105F <- $FF
 
-; 97D1 - data block = raster timing sprite data
+; 97D1 - data block = raster timing sprite data(OAM) Y,INDEX,ATTR,X
+Sprite0_init_data:
 .byte $8F,$6D,$23,$F8
 
 ; Name	: Make_rng_tbl
@@ -928,7 +963,7 @@ L2D82C:
 	RTS			; 983C	$60
 ; End of Make_rng_tbl
 
-; Name	:
+; Name	: Load_battle_prop
 ; Marks	: load battle properties
 ;	  BANK 0B/8620 (battle properties format)
 ;	  BANK 0B/8A20 (surprise rate for each battle)
@@ -946,6 +981,7 @@ L2D82C:
 ;	  $05 monster id
 ;	  $06 monster count (A)
 ;	  $07 monster count (B)
+Load_battle_prop:
 	LDX #$00		; 983D	$A2 $00		roll for characters
 	LDA #$63		; 983F	$A9 $63
 	JSR Random		; 9841	$20 $11 $FD
@@ -1141,30 +1177,28 @@ L2D9B0:
 L2D9B2:
 	LDA $10,X		; 99B2	$B5 $10
 	CMP #$09		; 99B4	$C9 $09
-	BCS L2D9BF		; 99B6	$B0 $07
+	BCS L2D9BF		; 99B6	$B0 $07		branch if monster is big or boss
 	INX			; 99B7	$E8
 	CPX #$04		; 99B9	$E0 $04
-	BNE L2D9B2		; 99BB	$D0 $F5
+	BNE L2D9B2		; 99BB	$D0 $F5		loop
 	BEQ L2D9E2		; 99BD	$F0 $23
 L2D9BF:
-	STA $10			; 99BF	$85 $10
-L2D9C1:
+	STA $10			; 99BF	$85 $10		CASE: big or boss monster
 	LDA $7B4E,X		; 99C1	$BD $4E $7B
 	STA $7B4E		; 99C4	$8D $4E $7B
 	LDA #$01		; 99C7	$A9 $01
 	STA $7B52		; 99C9	$8D $52 $7B
 	LDX #$01		; 99CC	$A2 $01
 L2D9CE:
-	LDA #$00		; 99CE	$A9 $00
+	LDA #$00		; 99CE	$A9 $00		clear rest data
 	STA $10,X		; 99D0	$95 $10
-	STA $7B52,X		; 99D2	$9D $52 $7B
+	STA $7B52,X		; 99D2	$9D $52 $7B	monster counts
 	LDA #$FF		; 99D5	$A9 $FF
-	STA $7B4E,X		; 99D7	$9D $4E $7B
+	STA $7B4E,X		; 99D7	$9D $4E $7B	monster ids ($FF = none)
 	INX			; 99DA	$E8
 	CPX #$04		; 99DB	$E0 $04
-	BNE L2D9CE		; 99DD	$D0 $EF
+	BNE L2D9CE		; 99DD	$D0 $EF		loop
 	JMP L2DA5B		; 99DF	$4C $5B $9A
-;
 L2D9E2:
 	LDX #$03		; 99E2	$A2 $03
 L2D9E4:
@@ -1206,7 +1240,8 @@ L2DA1D:
 L2DA2A:
 	DEX			; 9A2A	$CA
 	BPL L2DA0A		; 9A2B	$10 $DD
-	JSR $9A97		; 9A2D	$20 $97 $9A
+	JSR Chk_mob_remaining	; 9A2D	$20 $97 $9A
+; Marks	:
 ;9A30
 	LDA #$00		; 9A30	$A9 $00
 	STA $00			; 9A32	$85 $00
@@ -1220,11 +1255,11 @@ L2DA35:
 L2DA3E:
 	LDY $7B62,X		; 9A3E	$BC $62 $7B	monster id in each slot
 	INY			; 9A41	$C8
-	BNE L2DA48		; 9A42	$D0 $04
+	BNE L2DA48		; 9A42	$D0 $04		branch if monster id is FFh
 	DEX			; 9A44	$CA
-	BPL L2DA3E		; 9A45	$10 $F7
-	RTS			; 9A47	$60
-; End of
+	BPL L2DA3E		; 9A45	$10 $F7		loop
+	RTS			; 9A47	$60		no more remaining monster
+; End of Load_battle_prop
 L2DA48:
 	TXA			; 9A48	$8A
 	LSR A			; 9A49	$4A
@@ -1236,57 +1271,57 @@ L2DA48:
 	INX			; 9A51	$E8
 	LDA #$01		; 9A52	$A9 $01
 L2DA54:
-	STA $7B5A,X		; 9A54	$9D $5A $7B
+	STA $7B5A,X		; 9A54	$9D $5A $7B	monster rows(0:f, 1:b)
 	DEX			; 9A57	$CA
 	BPL L2DA54		; 9A58	$10 $FA
 L2DA5A:
 	RTS			; 9A5A	$60
-; End of
+; End of Load_battle_prop
 L2DA5B:
 	LDA #$00		; 9A5B	$A9 $00
-	STA $7B5A		; 9A5D	8D 5A 7B  
-	LDA $7B4E		; 9A60	AD 4E 7B  
-	STA $7B62		; 9A63	8D 62 7B  
-	LDA $10			; 9A66	A5 10     
-	STA mob_gfx_id		; 9A68	8D 72 7B  
-	CMP #$0F		; 9A6B	C9 0F     
-	BEQ L2DA83		; 9A6D	F0 14     
-	LDA #$0C		; 9A6F	A9 0C     
-	STA mob_heights		; 9A71	8D 82 7B  
-	STA mob_widths		; 9A74	8D 8A 7B  
-	LDA #$06		; 9A77	A9 06     
-	STA mob_y_poss		; 9A79	8D 92 7B  
-	LDA #$04		; 9A7C	A9 04     
-	STA mob_x_poss		; 9A7E	8D 9A 7B  
-	BNE L2DA97		; 9A81	D0 14     
+	STA $7B5A		; 9A5D	$8D $5A $7B	monster rows(f=0,b=1): first value only
+	LDA $7B4E		; 9A60	$AD $4E $7B	monster ids ($FF = none): first value only
+	STA $7B62		; 9A63	$8D $62 $7B	monster id in each slot: first value only
+	LDA $10			; 9A66	$A5 $10
+	STA mob_gfx_id		; 9A68	$8D $72 $7B
+	CMP #$0F		; 9A6B	$C9 $0F
+	BEQ L2DA83		; 9A6D	$F0 $14		branch if finall boss
+	LDA #$0C		; 9A6F	$A9 $0C
+	STA mob_heights		; 9A71	$8D $82 $7B
+	STA mob_widths		; 9A74	$8D $8A $7B
+	LDA #$06		; 9A77	$A9 $06
+	STA mob_y_poss		; 9A79	$8D $92 $7B
+	LDA #$04		; 9A7C	$A9 $04
+	STA mob_x_poss		; 9A7E	$8D $9A $7B
+	BNE Chk_mob_remaining	; 9A81	$D0 $14
 L2DA83:
-	LDA #$0C		; 9A83	A9 0C     
-	STA mob_heights		; 9A85	8D 82 7B  
-	LDA #$12		; 9A88	A9 12     
-	STA mob_widths		; 9A8A	8D 8A 7B  
-	LDA #$06		; 9A8D	A9 06     
-	STA mob_y_poss		; 9A8F	8D 92 7B  
-	LDA #$02		; 9A92	A9 02     
-	STA mob_x_poss		; 9A94	8D 9A 7B  
-; Name	:
+	LDA #$0C		; 9A83	$A9 $0C
+	STA mob_heights		; 9A85	$8D $82 $7B
+	LDA #$12		; 9A88	$A9 $12
+	STA mob_widths		; 9A8A	$8D $8A $7B
+	LDA #$06		; 9A8D	$A9 $06
+	STA mob_y_poss		; 9A8F	$8D $92 $7B
+	LDA #$02		; 9A92	$A9 $02
+	STA mob_x_poss		; 9A94	$8D $9A $7B
+; Name	: Chk_mob_remaining
 ; Marks	:
-L2DA97:
+Chk_mob_remaining:
 	LDA #$00		; 9A97	$A9 $00
 	STA $7B4D		; 9A99	$8D $4D $7B	clear number of monsters remaining
 	LDX #$07		; 9A9C	$A2 $07
 L2DA9E:
-	LDA $7B62,X		; 9A9E	$BD $62 $7B
-	STA $7B6A,X		; 9AA1	$9D $6A $7B
+	LDA $7B62,X		; 9A9E	$BD $62 $7B	monster id in each slot
+	STA $7B6A,X		; 9AA1	$9D $6A $7B	item dropped by each monster
 	BMI L2DAA9		; 9AA4	$30 $03
 	INC $7B4D		; 9AA6	$EE $4D $7B	increment number of monsters remaining
 L2DAA9:
 	DEX			; 9AA9	$CA
-	BPL L2DA9E		; 9AAA	$10 $F2
+	BPL L2DA9E		; 9AAA	$10 $F2		loop
 	RTS			; 9AAC	$60
 ; End of
 
 ; Name	:
-; Marks	;
+; Marks	; $0C,X=??
 	LDA #$00		; 9AAD	$A9 $00
 	TAX			; 9AAF	$AA
 	TAY			; 9AB0	$A8
@@ -1376,9 +1411,10 @@ L2DB34:
 	JMP $9AB7		; 9B40	4C B7 9A  
 ; End of
 
-; Name	:
+; Name	: Init_char_gfx
 ; Marks	:
 ;	  init character graphics
+Init_char_gfx:
 	LDX #$00		; 9B43	$A2 $00
 Get_char_id_loop:
 	TXA			; 9B45	$8A
@@ -1413,20 +1449,21 @@ L2DB62:
 	JSR Init_char_spritep	; 9B7F	$20 $8B $9C	init character sprite pointers
 	LDX #$03		; 9B82	$A2 $03
 L2DB84:
-	STX $27			; 9B84	$86 $27
-	JSR $ABDE		; 9B86	$20 $DE $AB	load character graphics
-	LDX $27			; 9B89	$A6 $27
+	STX $27			; 9B84	$86 $27		target id(character index)
+	JSR Load_char_gfx	; 9B86	$20 $DE $AB	load character graphics
+	LDX $27			; 9B89	$A6 $27		target id(character index)
 	DEX			; 9B8B	$CA
-	BPL L2DB84		; 8B8C	$10 $F6
+	BPL L2DB84		; 8B8C	$10 $F6		loop
 	RTS			; 9B8E	$60
-; End of
+; End of Init_char_gfx
 
-; Name	:
-; Marks	:
+; Name	: Init_char_pal_id
+; Marks	: $00, $01
 ;	  init character palette id
-	LDA $925A		; 9B8F	$AD $5A $92	palette for each character
+Init_char_pal_id:
+	LDA Mask_pal		; 9B8F	$AD $5A $92	palette for each character
 	STA $00			; 9B92	$85 $00
-	LDA $925B		; 9B94	$AD $5B $92
+	LDA Mask_pal+1		; 9B94	$AD $5B $92
 	STA $01			; 9B97	$85 $01
 	LDX $7BBA,Y		; 9B99	$BE $BA $7B
 	JSR Check_bit		; 9B9C	$20 $D1 $9C	check bit ini +$00
@@ -1442,14 +1479,15 @@ L2DBA6:
 	LDX #$03		; 9BAD	$A2 $03		use sprite palette 3
 L2DBAF:
 	TXA			; 9BAF	$8A
-	STA $7BB6,Y		; 9BB0	$99 $B6 $7B	set character palette id
+	STA $7BB6,Y		; 9BB0	$99 $B6 $7B	set character palette id(7BB6-7BB9)
 	RTS			; 9BB3	$60
-; End of
+; End of Init_char_pal_id
 
-; Name	:
-; X	:
+; Name	: Init_battle_stat
+; X	: target id
 ; Marks	: +$00 = character battle stats
 ;	  Get status ?? Init status ??
+Init_battle_stat:
 	STX $06			; 9BB4	$86 $06
 	LDA #$30		; 9BB6	$A9 $30
 	JSR Multi		; 9BB8	$20 $79 $FC
@@ -1561,7 +1599,7 @@ L2DC75:
 	LDA Status_gfx,Y	; 9C84	$B9 $E5 $92
 	STA $7BB2,X		; 9C87	$9D $B2 $7B	status graphics
 	RTS			; 9C8A	$60
-; End of
+; End of Init_battle_stat
 
 
 ; 0B/92B8: 00 09 01 0A 02 03 0C 04 0F 0B 0E 0D 05 06 07  ; status priority
@@ -1656,7 +1694,7 @@ Check_bit_low:
 ;9CEE
 ; Marks	: use BANK 09
 ;	  copy cursor graphics to ppu
-	JSR $9D06		; 9CEE	$20 $06 $9D	reset cursor sprites
+	JSR Reset_cursor_sprites	; 9CEE	$20 $06 $9D	reset cursor sprites
 	LDA #$80		; 9CF1	$A9 $80
 	STA $00			; 9CF3	$85 $00
 	LDA #$04		; 9CF5	$A9 $04		ppu $0400
@@ -1669,14 +1707,16 @@ Check_bit_low:
 	JMP $FBAE		; 9D03	$4C $AE $FB
 ; End of
 
-; Name	:
-; Marks	: reset cursor sprites
+; Name	: Reset_cursor_sprites
+; Marks	: reset cursor sprites OAM buffer
+;	  $24(ADDR), $26(ADDR), $28(ADDR), $2A(ADDR) = OAM buffer address
+Reset_cursor_sprites:
 	LDA #$02		; 9D06	$A9 $02
 	STA $25			; 9D08	$85 $25
 	STA $27			; 9D0A	$85 $27
 	STA $29			; 9D0C	$85 $29
 	STA $2B			; 9D0E	$85 $2B
-	LDA #$40		; 9D10	$A9 $40		use sprites 16-31 (4 * 4 sprites)
+	LDA #$40		; 9D10	$A9 $40		use sprites OAM[16-31] (4 * 4 sprites)
 	STA $24			; 9D12	$85 $24
 	LDA #$50		; 9D14	$A9 $50
 	STA $26			; 9D16	$85 $26
@@ -1687,16 +1727,16 @@ Check_bit_low:
 	LDY #$3F		; 9D20	$A0 $3F
 	LDA #$F0		; 9D22	$A9 $F0		hide all cursors
 L2DD24:
-	STA ($24),Y		; 9D24	$91 $24
+	STA ($24),Y		; 9D24	$91 $24		$0240-$027F <- 0Fh
 	DEY			; 9D26	$88
 	BPL L2DD24		; 9D27	$10 $FB
 	LDA #$03		; 9D29	$A9 $03		use palette 3
-	STA $0242		; 9D2B	$8D $42 $02	OAM ATTR
+	STA $0242		; 9D2B	$8D $42 $02	OAM[16-19] ATTR
 	STA $0246		; 9D2E	$8D $46 $02
 	STA $024A		; 9D31	$8D $4A $02
 	STA $024E		; 9D34	$8D $4E $02
 	LDX #$48		; 9D37	$A2 $48
-	STX $0241		; 9D39	$8E $41 $02	OAM INDEX
+	STX $0241		; 9D39	$8E $41 $02	OAM[16-19] INDEX
 	INX			; 9D3C	$E8
 	STX $0245		; 9D3D	$8E $45 $02
 	INX			; 9D40	$E8
@@ -1711,25 +1751,27 @@ L2DD4A:
 	STA ($2A),Y		; 9D50	$91 $2A
 	INY			; 9D52	$C8
 	CPY #$10		; 9D53	$C0 $10
-	BNE L2DD4A		; 9D55	$D0 $F3
+	BNE L2DD4A		; 9D55	$D0 $F3		loop
 	RTS			; 9D57	$60
-; End of
+; End of Reset_cursor_sprites
 
-; Name	:
+; Name	: Fill_ppu_inc_00
 ; X	: size
 ; Y	: first value
 ; Marks	: fill ppu sequential (set address)
 ;	  +$00: ppu address
+Fill_ppu_inc_00:
 	JSR Set_PpuAddr_00	; 9D58	$20 $7E $FD
-; Name	:
+; Name	: Fill_ppu_inc
 ; Marks	: fill ppu sequential
-L2DD5B:
+Fill_ppu_inc:
 	STY PpuData_2007	; 9D5B	$8C $07 $20
 	INY			; 9D5E	$C8
 	DEX			; 9D5F	$CA
-	BNE L2DD5B		; 9D60	$D0 $F9
+	BNE Fill_ppu_inc	; 9D60	$D0 $F9		loop
 	RTS			; 9D62	$60
-; End of
+; End of Fill_ppu_inc
+; End of Fill_ppu_inc_00
 
 ; Name	: Set_ppu_data_00
 ; A	: fill value
@@ -1757,13 +1799,17 @@ Set_ppu_data:
 ;9D6F
 ; Marks	:
 	LDA #$0F		; 9D6F	A9 0F     
-	LDX #$1C		; 9D71	A2 1C     
+; Name	: Set_pal_x0
+; A	: color value
+; Marks	: set palette
+Set_pal_x0:
+	LDX #$1C		; 9D71	$A2 $1C		start from sprite_3.0
 L2DD73:
-	STA $79A8,X		; 9D73	9D A8 79  
-	JSR $9E03		; 9D76	20 03 9E  
-	BPL L2DD73		; 9D79	10 F8     
-	RTS			; 9D7B	60        
-; End of
+	STA $79A8,X		; 9D73	$9D $A8 $79	color palette
+	JSR X_dec4		; 9D76	$20 $03 $9E
+	BPL L2DD73		; 9D79	$10 $F8
+	RTS			; 9D7B	$60
+; End of Set_pal_x0
 
 ; Name	: Apply_palettes
 ; Marks	: Copy color palettes to ppu
@@ -1924,11 +1970,15 @@ Y_inc4:
 ; Marks	: Get target monster id ??
 Target_to_mob_id:
 	LDX $27			; 9E01	$A6 $27		target id ??
+; Name	: X_dec4
+; Marks	: decrease X
+X_dec4:
 	DEX			; 9E03	$CA
 	DEX			; 9E04	$CA
 	DEX			; 9E05	$CA
 	DEX			; 9E06	$CA
 	RTS			; 9E07	$60
+; End of X_dec4
 ; End of Target_to_mob_id
 
 ; Name	: Set_OAM_buf
@@ -2001,13 +2051,15 @@ Copy_OAM:
 	JMP Copy_OAM_dma_	; 9E51	$4C $60 $9E
 ; End of Copy_OAM
 
-; Name	:
+; Name	: Snd_wait_NMI_OAM_PAL
 ; Marks	: wait for vblank (OAM & color update)
+;	  processing on NMI
+Snd_wait_NMI_OAM_PAL:
 	JSR $FA48		; 9E54	$20 $48 $FA	update sound
 	JSR Copy_OAM		; 9E57	$20 $4E $9E
 	JSR Apply_palettes	; 9E5A	$20 $7C $9D
-	JMP $FD4B		; 9E5D	$4C $4B $FD
-; End of
+	JMP Ctrl_Scroll		; 9E5D	$4C $4B $FD
+; End of Snd_wait_NMI_OAM_PAL
 
 ; Name	: Copy_OAM_dma_
 ; Marks	: Copy OAM by DMA from 0x0200 to PPU OAM
@@ -2019,8 +2071,10 @@ Copy_OAM_dma_:
 	RTS			; 9E6A	$60
 ; End of Copy_OAM_dma_
 
+; Name	: Play_mag_snd_eft
 ; Marks	: Play magic sound effect
-	LDA $7CB0		; 9E6B	$AD $B0 $7C
+Play_mag_snd_eft:
+	LDA $7CB0		; 9E6B	$AD $B0 $7C	attack animation id
 	CLC			; 9E6E	$18
 	ADC #$10		; 9E6F	$69 $10
 	TAX			; 9E70	$AA
@@ -2032,6 +2086,7 @@ Play_snd_eft:
 	TAX			; 9E75	$AA
 	JMP $FA59		; 9E76	$4C $59 $FA	play sound effect
 ; End of Play_snd_eft
+; End of Play_mag_snd_eft
 
 ; Name	: Fade_out
 ; Marks	: Fade out palettes
@@ -2065,8 +2120,9 @@ Fade_out_darkning:
 	RTS			; 9E9E	60
 ; End of Fade_out
 
-; Name	:
+; Name	: Init_tile_bg
 ; Marks	: init tilemap for battle bg
+Init_tile_bg:
 	LDA #$20		; 9E9F	$A9 $20
 	STA $01			; 9EA1	$85 $01
 	LDA #$20		; 9EA3	$A9 $20
@@ -2085,15 +2141,15 @@ L2DEB9:
 L2DEBD:
 	LDY $02			; 9EBD	$A4 $02
 	LDX #$04		; 9EBF	$A2 $04
-	JSR $9D5B		; 9EC1	$20 $5B $9D
+	JSR Fill_ppu_inc	; 9EC1	$20 $5B $9D
 	LDY $02			; 9EC4	$A4 $02
 	INY			; 9EC6	$C8
 	INY			; 9EC7	$C8
 	LDX #$02		; 9EC8	$A2 $02
-	JSR $9D5B		; 9ECA	$20 $5B $9D
+	JSR Fill_ppu_inc	; 9ECA	$20 $5B $9D
 	LDY $02			; 9ECD	$A4 $02
 	LDX #$02		; 9ECF	$A2 $02
-	JSR $9D5B		; 9ED1	$20 $5B $9D
+	JSR Fill_ppu_inc	; 9ED1	$20 $5B $9D
 	DEC $04			; 9ED4	$C6 $04
 	BNE L2DEBD		; 9ED6	$D0 $E5
 	LDA $02			; 9ED8	$A5 $02
@@ -2103,44 +2159,47 @@ L2DEBD:
 	DEC $05			; 9EDF	$C6 $05
 	BNE L2DEB9		; 9EE1	$D0 $D6
 	RTS			; 9EE3	$60
-; End of
+; End of Init_tile_bg
 L2DEE4:
 	LDA #$08		; 9EE4	A9 08
 	STA $04			; 9EE6	85 04
 L2DEE8:
 	LDY $02			; 9EE8	A4 02
 	LDX #$04		; 9EEA	A2 04
-	JSR $9D5B		; 9EEC	20 5B 9D	fill ppu sequential
+	JSR Fill_ppu_inc	; 9EEC	20 5B 9D	fill ppu sequential
 	DEC $04			; 9EEF	C6 04
 	BNE L2DEE8		; 9EF1	D0 F5
 	STY $02			; 9EF3	84 02
 	DEC $05			; 9EF5	C6 05
-	BNE L2DEE4		; 9EF7	D0 EB
+	BNE L2DEE4		; 9EF7	D0 EB		loop
 	RTS			; 9EF9	60
-; End of
+; End of Init_tile_bg
 
-; Name	:
+; Name	: Init_tilemap_mobs
 ; Marks	:
+Init_tilemap_mobs:
 	LDA mob_gfx_id		; 9EFA	$AD $72 $7B
 	CMP #$09		; 9EFD	$C9 $09
-	BCS L2DF57		; 9EFF	$B0 $56
+	BCS Init_boss_tilemap	; 9EFF	$B0 $56		branch if big monster
 	LDY #$07		; 9F01	$A0 $07
 	STY $04			; 9F03	$84 $04
 L2DF05:
 	LDY $04			; 9F05	$A4 $04
-	LDA $7B62,Y		; 9F07	$B9 $62 $7B
+	LDA $7B62,Y		; 9F07	$B9 $62 $7B	monster id in each slot
 	BMI L2DF0F		; 9F0A	$30 $03
-	JSR $9F14		; 9F0C	$20 $14 $9F
+	JSR Init_mob_tilemap	; 9F0C	$20 $14 $9F
 L2DF0F:
 	DEC $04			; 9F0F	$C6 $04
 	BPL L2DF05		; 9F11	$10 $F2
 	RTS			; 9F13	$60
-; End of
+; End of Init_tilemap_mobs
 
-; Name	:
-; Marks	:
+; Name	: Init_mob_tilemap
+; Y	: monster graphics id
+; Marks	: $00,$01,$02,$03
+Init_mob_tilemap:
 	LDX mob_gfx_id,Y	; 9F14	$BE $72 $7B
-	LDA $9FA5,X		; 9F17	$BD $A5 $9F
+	LDA Mob_tile_1st_tile,X	; 9F17	$BD $A5 $9F
 	STA $05			; 9F1A	$85 $05
 	LDA mob_y_poss,Y	; 9F1C	$B9 $92 $7B
 	LDX #$20		; 9F1F	$A2 $20
@@ -2157,26 +2216,26 @@ L2DF0F:
 	STA $03			; 9F39	$85 $03
 	JSR Set_IRQ_JMP		; 9F3B	$20 $2A $FA	Wait NMI
 L2DF3E:
-	LDY $05			; 9F3E	$A4 $05
-	LDX $02			; 9F40	$A6 $02
-	JSR $9D58		; 9F42	$20 $58 $9D
+	LDY $05			; 9F3E	$A4 $05		start value
+	LDX $02			; 9F40	$A6 $02		size - monster width
+	JSR Fill_ppu_inc_00	; 9F42	$20 $58 $9D
 	STY $05			; 9F45	$84 $05
 	LDA $00			; 9F47	$A5 $00
 	CLC			; 9F49	$18
-	ADC #$20		; 9F4A	$69 $20
+	ADC #$20		; 9F4A	$69 $20		add address 20h
 	STA $00			; 9F4C	$85 $00
 	BCC L2DF52		; 9F4E	$90 $02
 	INC $01			; 9F50	$E6 $01
 L2DF52:
 	DEC $03			; 9F52	$C6 $03
-	BNE L2DF3E		; 9F54	$D0 $E8
+	BNE L2DF3E		; 9F54	$D0 $E8		loop
 	RTS			; 9F56	$60
-; End of
+; End of Init_mob_tilemap
 
 ;; [$9F57 :: 0x2DF57]
 ; Marks	: init boss tilemap
 ;	  BANK 0B/8DDE (boss tile map)
-L2DF57:
+Init_boss_tilemap:
 	LDA mob_gfx_id		; 9F57	AD 72 7B
 	PHA			; 9F5A	48
 	SEC			; 9F5B	38
@@ -2220,14 +2279,16 @@ L2DFA0:
 	DEC $04			; 9FA0	C6 04
 	BNE L2DF85		; 9FA2	D0 E1
 	RTS			; 9FA4	60
-; End of
+; End of Init_mob_tilemap
 
-; 9FA5 - data block = first tile index for each monster
+; 9FA5 - data block = first tile index for each monster (0-8)
+Mob_tile_1st_tile:
 .byte $20,$30,$40,$58,$70,$94,$B8,$DC,$B8
 
-; Name	:
+; Name	: Fadein_battle_bg
 ; Marks	: Fade in battle bg
 ;	  BANK 07/B800 or 08/B800 (battle bg graphics)
+Fadein_battle_bg:
 	LDA $7B49		; 9FAE	$AD $49 $7B	battle bg
 	AND #$07		; 9FB1	$29 $07
 	CLC			; 9FB3	$18
@@ -2242,7 +2303,7 @@ L2DFA0:
 L2DFC2:
 	STA $7700,X		; 9FC2	$9D $00 $77	clear 2nd half of buffer
 	INX			; 9FC5	$E8
-	BNE L2DFC2		; 9FC6	$D0 $FA
+	BNE L2DFC2		; 9FC6	$D0 $FA		loop
 	; Set RAM $07=$08,$09=$00,$05,$06=$01,$08=$10
 	LDA #$08		; 9FC8	$A9 $08
 	STA $07			; 9FCA	$85 $07
@@ -2251,7 +2312,7 @@ L2DFC2:
 	LDA #$01		; 9FD0	$A9 $01
 	STA $05			; 9FD2	$85 $05
 	STA $06			; 9FD4	$85 $06
-; start of frame loop
+Fadein_battle_bg_loop:
 	LDA #$10		; 9FD6	$A9 $10
 	STA $08			; 9FD8	$85 $08
 	; $06->$05
@@ -2312,9 +2373,9 @@ L2E02D:
 	JSR $FA48		; A030	$20 $48 $FA	update sound
 	LDA $00			; A033	$A5 $00
 	BNE L2E01A		; A035	$D0 $E3
-	DEC $07			; A037	$C6 $07
+	DEC $07			; A037	$C6 $07		repeat count
 	BEQ L2E03E		; A039	$F0 $03
-	JMP $9FD6		; A03B	$4C $D6 $9F
+	JMP Fadein_battle_bg_loop	; A03B	$4C $D6 $9F
 L2E03E:
 	LDA #$08		; A03E	$A9 $08
 	STA $07			; A040	$85 $07
@@ -2322,30 +2383,33 @@ L2E03E:
 	EOR #$08		; A044	$49 $08
 	STA $09			; A046	$85 $09
 	BEQ L2E04D		; A048	$F0 $03
-	JMP $9FD6		; A04A	$4C $D6 $9F
+	JMP Fadein_battle_bg_loop	; A04A	$4C $D6 $9F
 L2E04D:
 	RTS			; A04D	$60
-; End of
+; End of Fadein_battle_bg
 	
-; Name	:
+; Name	: Mob_entry
 ; Marks	: Monster entry
-	LDX $7B56		; A04E	$AE $56 $7B
+;	  monster moving effect on battle start
+Mob_entry:
+	LDX $7B56		; A04E	$AE $56 $7B	monster palette 1
 	LDY #$01		; A051	$A0 $01		bg palette 0
 	JSR Set_wpn_pal		; A053	$20 $03 $FC	load battle palette
-	LDX $7B57		; A056	$AE $57 $7B
+	LDX $7B57		; A056	$AE $57 $7B	monster palette 2
 	LDY #$05		; A059	$A0 $05		bg palette 1
 	JSR Set_wpn_pal		; A05B	$20 $03 $FC
 	LDA #$A0		; A05E	$A9 $A0		initial bg horizontal scroll position
 	STA $01			; A060	$85 $01
 ; start of frame loop
-	JSR $9E54		; A062	$20 $54 $9E
+Mob_entry_start:
+	JSR Snd_wait_NMI_OAM_PAL; A062	$20 $54 $9E
 	LDA $01			; A065	$A5 $01
 	SEC			; A067	$38
 	SBC #$10		; A068	$E9 $10
 	STA $01			; A06A	$85 $01
 	BCS L2E06F		; A06C	$B0 $01
 	RTS			; A06E	$60
-; End of
+; End of Mob_entry
 L2E06F:
 	LDA #$31		; A06F	$A9 $31		skip 40 scanlines for battle bg
 	STA $00			; A071	$85 $00
@@ -2354,19 +2418,19 @@ L2E073:
 	BVS L2E073		; A076	$70 $FB
 L2E078:
 	LDX #$12		; A078	$A2 $12		(2)		\
-	JSR $A089		; A07A	$20 $89 $A0	(6) + 78 = 84	| 93 * 49 = 4557 cycles
+	JSR Wait_78c		; A07A	$20 $89 $A0	(6) + 78 = 84	| 93 * 49 = 4557 cycles
 	DEC $00			; A07D	$C6 $00		(5)		|  ~40 scanlines
 	BNE L2E078		; A07F	$D0 $F7		(2)		/
 	LDA $01			; A081	$A5 $01
 	STA PpuScroll_2005	; A083	$8D $05 $20	set ppu horizontal scroll
-	JMP $A062		; A086	$4C $62 $A0
-; End of
+	JMP Mob_entry_start	; A086	$4C $62 $A0	loop
+; Mob_entry loop
 
-; Name	:
+; Name	: Wait_78c
 ; Marks	: wait 78 cycles
-L2E089:
+Wait_78c:
 	DEX			; A089	$CA		(2) * 18 = 36
-	BNE L2E089		; A08A	$D0 $FD		(2) * 18 = 36
+	BNE Wait_78c		; A08A	$D0 $FD		(2) * 18 = 36
 	RTS			; A08C	$60		(6)
 ; End of
 
@@ -2408,7 +2472,7 @@ L2E0C7:
 	CMP char_x_bpos,X	; A0CC	$DD $D2 $7B
 	BEQ L2E0D6		; A0CF	$F0 $05		branch if character is done moving
 	LDA #$80		; A0D1	$A9 $80		move left
-	JSR $A512		; A0D3	$20 $12 $A5	move character
+	JSR Calc_mov_pos	; A0D3	$20 $12 $A5	move character
 L2E0D6:
 	LDX $10			; A0D6	$A6 $10
 	JSR Draw_char		; A0D8	$20 $3A $A4
@@ -2426,7 +2490,7 @@ L2E0E2:
 	LDX #$03		; A0F0	$A2 $03
 L2E0F2:
 	STX $10			; A0F2	$86 $10
-	JSR $ABFD		; A0F4	$20 $FD $AB
+	JSR Set_char_low_pos	; A0F4	$20 $FD $AB
 	JSR Draw_char		; A0F7	$20 $3A $A4
 	LDX $10			; A0FA	$A6 $10
 	DEX			; A0FC	$CA
@@ -2479,10 +2543,10 @@ L2E12B:
 	LDX $02			; A12D	$A6 $02
 	LDY $00			; A12F	$A4 $00
 L2E131:
-	LDA $79C8,Y		; A131	$B9 $C8 $79	attribute table
+	LDA $79C8,Y		; A131	$B9 $C8 $79	left screen attribute table
 	AND $06			; A134	$25 $06
 	ORA $05			; A136	$05 $05
-	STA $79C8,Y		; A138	$99 $C8 $79	attribute table
+	STA $79C8,Y		; A138	$99 $C8 $79	left screen attribute table
 	LDA $07			; A13B	$A5 $07
 	EOR #$01		; A13D	$49 $01
 	STA $07			; A13F	$85 $07
@@ -2518,12 +2582,17 @@ L2E16D:
 	RTS			; A171	$60
 ; End of Calc_attr_tbl
 
-; Marks	: $02(ADDR) = ??? table
+; A	: repeat count
+; X	: repeat count B
+; Marks	: $02(ADDR) = ??? table, big monster attribute ??
+;	  $00 = ??, $01 = ??
+;	  $09 = ??
 ;A172
+Last_attr:
 	STX $05			; A172	86 05
 	STA $04			; A174	85 04
 	LDY #$00		; A176	A0 00
-	JSR $A1DA		; A178	20 DA A1
+	JSR Set_attr_9216	; A178	20 DA A1	$06=??, $07=04h
 L2E17B:
 	LDA $00			; A17B	A5 00
 	STA $0B			; A17D	85 0B
@@ -2548,12 +2617,12 @@ L2E199:
 	ASL $08			; A19C	06 08
 	ASL $08			; A19E	06 08
 	DEX			; A1A0	CA
-	BNE L2E199		; A1A1	D0 F6
+	BNE L2E199		; A1A1	D0 F6		loop
 L2E1A3:
 	LDX $0B			; A1A3	A6 0B
-	AND $79C8,X		; A1A5	3D C8 79	attribute table
+	AND $79C8,X		; A1A5	3D C8 79	left screen attribute table
 	ORA $08			; A1A8	05 08
-	STA $79C8,X		; A1AA	9D C8 79	attribute table
+	STA $79C8,X		; A1AA	9D C8 79	left screen attribute table
 	LDA $09			; A1AD	A5 09
 	EOR #$01		; A1AF	49 01
 	STA $09			; A1B1	85 09
@@ -2563,10 +2632,10 @@ L2E1A3:
 L2E1B9:
 	DEC $07			; A1B9	C6 07
 	BNE L2E1C0		; A1BB	D0 03
-	JSR $A1DA		; A1BD	20 DA A1
+	JSR Set_attr_9216	; A1BD	20 DA A1
 L2E1C0:
 	DEC $0A			; A1C0	C6 0A
-	BNE L2E187		; A1C2	D0 C3
+	BNE L2E187		; A1C2	D0 C3		loop
 	LDA $01			; A1C4	A5 01
 	EOR #$02		; A1C6	49 02
 	STA $01			; A1C8	85 01
@@ -2578,51 +2647,56 @@ L2E1C0:
 	STA $00			; A1D3	85 00
 L2E1D5:
 	DEC $04			; A1D5	C6 04
-	BNE L2E17B		; A1D7	D0 A2
+	BNE L2E17B		; A1D7	D0 A2		loop
 	RTS			; A1D9	60
 ; End of
 
-; Name	:
-; Y	: offset
+; Name	: Set_attr_9216
+; Y	: offset (0-8 ??)
 ; DEST	: $06 = , $07 = 04h
-; Marks	:
+; Marks	: $02(ADDR)=9216
+Set_attr_9216:
 	LDA ($02),Y		; A1DA	B1 02
 	STA $06			; A1DC	85 06
 	INY			; A1DE	C8
 	LDA #$04		; A1DF	A9 04
 	STA $07			; A1E1	85 07
 	RTS			; A1E3	60
-; End of
+; End of Set_attr_9216
 
-; Name	:
-; Marks	: Copy left attrubyte table to ppu
+; Name	: Copy_l_attr
+; Marks	: Copy left screen attribute table to ppu
+Copy_l_attr:
 	LDA #$C8		; A1E4	$A9 $C8
 	STA $02			; A1E6	$85 $02
 	LDA #$79		; A1E8	$A9 $79
-	STA $03			; A1EA	$85 $03		79C8
-	LDA #$23		; A1EC	$A9 $23		ppu 23C0 (left attribute table)
-L2E1EE:
+	STA $03			; A1EA	$85 $03		src $79C8
+	LDA #$23		; A1EC	$A9 $23		dest ppu 23C0 (left screen attribute table)
+Copy_attr_to_ppu:
 	STA $01			; A1EE	$85 $01
 	LDA #$C0		; A1F0	$A9 $C0
 	STA $00			; A1F2	$85 $00
-	LDX #$40		; A1F4	$A2 $40
+	LDX #$40		; A1F4	$A2 $40		size to copy
 	JMP Set_buf_to_Ppu	; A1F6	$4C $6F $FD
-; End of
+; End of Copy_l_attr
+; End of Copy_r_attr
 
-; Name	:
-; Marks	: Copy right attribute table to ppu
+; Name	: Copy_r_attr
+; Marks	: Copy right screen attribute table to ppu
+Copy_r_attr:
 	LDA #$08		; A1F9	$A9 $08
 	STA $02			; A1FB	$85 $02
 	LDA #$7A		; A1FD	$A9 $7A
-	STA $03			; A1FF	$85 $03		7A08
-	LDA #$27		; A201	$A9 $27		ppu $27C0 (right attribute table)
-	BNE L2E1EE		; A203	$D0 $E9
-; End of
+	STA $03			; A1FF	$85 $03		src $7A08
+	LDA #$27		; A201	$A9 $27		ppu $27C0 (right screen attribute table)
+	BNE Copy_attr_to_ppu	; A203	$D0 $E9
+; End of Copy_r_attr
 
-; Name	:
+; Name	: Init_mob_attr
 ; A	: monster id
 ; Marks	: BANK 0B/9216 (???)
 ;	  +$02 = 9216 + 9n ??? table
+Init_mob_attr:
 	TAY			; A205	$A8
 	LDA $7B62,Y		; A206	$B9 $62 $7B	monster id in each slot
 	BPL L2E20C		; A209	$10 $01
@@ -2633,6 +2707,9 @@ L2E20C:
 	CMP #$09		; A20F	$C9 $09
 	BCS L2E22F		; A211	$B0 $1C		branch if monster size is big ??
 	LDA $7B7A,Y		; A213	$B9 $7A $7B	??
+; Name	: Calc_mob_xy
+; Marks	:
+Calc_mob_xy:
 	STA $02			; A216	$85 $02
 	LDX mob_x_poss,Y	; A218	$BE $9A $7B
 	LDA mob_y_poss,Y	; A21B	$B9 $92 $7B
@@ -2644,17 +2721,17 @@ L2E20C:
 	LSR A			; A229	$4A
 	LDY $02			; A22A	$A4 $02
 	JMP Calc_attr_tbl	; A22C	$4C $0F $A1
-; End of
+; End of Calc_mob_xy
 L2E22F:
 	SBC #$09		; A22F	E9 09
 	PHA			; A231	48
 	LDX #$09		; A232	A2 09
 	JSR Multi		; A234	20 79 FC	multiply
 	LDA $02			; A237	A5 02
-	ADC #$16		; A239	69 16		BANK 0B/9216
+	ADC #<Bigmob_attr_tbl	; A239	69 16		BANK 0B/9216
 	STA $02			; A23B	85 02
 	LDA $03			; A23D	A5 03
-	ADC #$92		; A23F	69 92
+	ADC #>Bigmob_attr_tbl	; A23F	69 92
 	STA $03			; A241	85 03
 	PLA			; A243	68
 	CMP #$06		; A244	C9 06
@@ -2674,11 +2751,12 @@ L2E256:
 	LDX #$09		; A25E	A2 09
 	LDA #$06		; A260	A9 06
 L2E262:
-	JMP $A172		; A262	4C 72 A1
-; End of
+	JMP Last_attr		; A262	4C 72 A1
+; End of Init_mob_attr
 
-; Name	:
+; Name	: Copy_char_gfx_ppu
 ; Marks	: Copy character graphics to ppu
+Copy_char_gfx_ppu:
 	STX $04			; A265	$86 $04
 	JSR Init_gfx_buf	; A267	$20 $CF $9D
 	LDY $7BA2,X		; A26A	$BC $A2 $7B
@@ -2690,7 +2768,7 @@ L2E262:
 	ADC #$9E		; A275	$69 $9E
 	STA $01			; A277	$85 $01
 	LDA #$00		; A279	$A9 $00
-	STA $00			; A27B	$85 $00		09/9E00 (battle character graphics)
+	STA $00			; A27B	$85 $00		BANK 09/9E00 (battle character graphics)
 	LDX #$00		; A27D	$A2 $00
 	LDY #$80		; A27F	$A0 $80
 	BNE L2E29F		; A281	$D0 $1C
@@ -2725,7 +2803,7 @@ L2E2A2:
 	JSR Set_02_gfxbuf	; A2B4	$20 $C6 $9D
 	JSR Copy_tile_ppu	; A2B7	$20 $A2 $9D	copy 8 tiles to ppu
 	JMP Wait_NMI_end	; A2BA	$4C $46 $FD
-; End of
+; End of Copy_char_gfx_ppu
 
 ; Name	: Set_tile_to_ppu
 ; A	: weapon action type ??
@@ -3043,7 +3121,7 @@ L2E477:
 	ADC #$00		; A47E	$69 $00
 	STA $00			; A480	$85 $00
 	LDA $03			; A482	$A5 $03
-	ADC #$79		; A484	$69 $79		$00(ADDR) character sprite data ??
+	ADC #$79		; A484	$69 $79		$00(ADDR) character sprite data ?? 7900
 	STA $01			; A486	$85 $01
 	LDA $04			; A488	$A5 $04
 	ASL A			; A48A	$0A
@@ -3136,9 +3214,11 @@ L2E4EB:
 D_A50B:
 .byte $00,$01,$02,$02,$02,$02,$02
 
-; Name	:
-; A	:
+; Name	: Calc_mov_pos
+; A	: Move direction(80h=left, 00h=right)
+; X	: character idx
 ; Marks	: every 4 step, lower sprite(leg) graphic will change
+Calc_mov_pos:
 	STA $00			; A512	$85 $00
 	LDA $7BA2,X		; A514	$BD $A2 $7B	character graphics type
 	BMI L2E556		; A517	$30 $3D
@@ -3148,43 +3228,42 @@ D_A50B:
 	LDA $7BD6,X		; A51F	$BD $D6 $7B
 	AND #$07		; A522	$29 $07
 	STA $7BD6,X		; A524	$9D $D6 $7B
-	TAY			; A527	$A8
+	TAY			; A527	$A8		Y=0-7
 	LDA char_x_cpos,X	; A528	$BD $CA $7B
 	BIT $00			; A52B	$24 $00
-	BPL L2E536		; A52D	$10 $07
+	BPL L2E536		; A52D	$10 $07		branch if direction is right
 	SEC			; A52F	$38
-	SBC $9333,Y		; A530	$F9 $33 $93
-	JMP $A53A		; A533	$4C $3A $A5
-; End of
+	SBC Mov_step,Y		; A530	$F9 $33 $93
+	JMP Calc_mov_pos_y	; A533	$4C $3A $A5
 L2E536:
 	CLC			; A536	$18
-	ADC $9333,Y		; A537	$79 $33 $93
+	ADC Mov_step,Y		; A537	$79 $33 $93
+Calc_mov_pos_y:
 	STA char_x_cpos,X	; A53A	$9D $CA $7B
 	LDA char_y_pos,X	; A53D	$BD $CE $7B
 	CLC			; A540	$18
-	ADC $933B,Y		; A541	$79 $3B $93
+	ADC Mov_y_step,Y	; A541	$79 $3B $93
 	STA char_y_pos,X	; A544	$9D $CE $7B
 	LDA $7BC2,X		; A547	$BD $C2 $7B
 	BEQ L2E552		; A54A	$F0 $06
-	LDA $9343,Y		; A54C	$B9 $43 $93
-	STA $7BC2,X		; A54F	$9D $C2 $7B
+	LDA Char_low_step,Y	; A54C	$B9 $43 $93
+	STA $7BC2,X		; A54F	$9D $C2 $7B	character lower sprite pose ???
 L2E552:
-	INC $7BD6,X		; A552	$FE $D6 $7B
+	INC $7BD6,X		; A552	$FE $D6 $7B	step count ??
 	RTS			; A555	$60
-; End of
-
-; Marks	: mormal
+; End of Calc_mov_pos
+; Marks	: mormal or hidden, 2 pixel fix move
 L2E556:
 	LDA char_x_cpos,X	; A556	$BD $CA $7B
 	BIT $00			; A559	$24 $00
-	BPL L2E563		; A55B	$10 $06
+	BPL L2E563		; A55B	$10 $06		branch if direction is right
 	SEC			; A55D	$38
 	SBC #$02		; A55E	$E9 $02
-	JMP $A566		; A560	$4C $66 $A5
-;
+	JMP Calc_mov_pos_pose	; A560	$4C $66 $A5
 L2E563:
 	CLC			; A563	$18
 	ADC #$02		; A564	$69 $02		moving step(2 pixel)
+Calc_mov_pos_pose:
 	STA char_x_cpos,X	; A566	$9D $CA $7B
 	LDA $7BD6,X		; A569	$BD $D6 $7B
 	CMP #$03		; A56C	$C9 $03		run motion step(change every 3)
@@ -3195,12 +3274,11 @@ L2E563:
 	EOR #$FF		; A578	$49 $FF
 	STA $7BDA,X		; A57A	$9D $DA $7B
 	BEQ L2E582		; A57D	$F0 $03
-	JSR $A5A7		; A57F	$20 $A7 $A5	character lower sprite pose calc ??
+	JSR Calc_low_pos	; A57F	$20 $A7 $A5
 L2E582:
 	INC $7BD6,X		; A582	$FE $D6 $7B
 	RTS			; A585	$60
-; End of
-
+; End of Calc_mov_pos
 ; Marks	: mini
 L2E586:
 	LDA char_x_cpos,X	; A586	$BD $CA $7B
@@ -3208,22 +3286,25 @@ L2E586:
 	BPL L2E593		; A58B	$10 $06
 	SEC			; A58D	$38
 	SBC #$01		; A58E	$E9 $01
-	JMP $A596		; A590	$4C $96 $A5
+	JMP Calc_mov_pos_mini	; A590	$4C $96 $A5
 L2E593:
 	CLC			; A593	$18
 	ADC #$01		; A594	$69 $01
+Calc_mov_pos_mini:
 	STA char_x_cpos,X	; A596	$9D $CA $7B
-	LDA $7BD6,X		; A599	$BD $D6 $7B
+	LDA $7BD6,X		; A599	$BD $D6 $7B	counter
 	AND #$01		; A59C	$29 $01
 	BEQ L2E5A3		; A59E	$F0 $03
-	JSR $A5A7		; A5A0	$20 $A7 $A5
+	JSR Calc_low_pos	; A5A0	$20 $A7 $A5
 L2E5A3:
-	INC $7BD6,X		; A5A3	$FE $D6 $7B
+	INC $7BD6,X		; A5A3	$FE $D6 $7B	counter next
 	RTS			; A5A6	$60
-; End of
+; End of Calc_mov_pos
 
-; Name	:
+; Name	: Calc_low_pos
+; X	: character idx
 ; Marks	:
+Calc_low_pos:
 	LDY $7BC6,X		; A5A7	$BC $C6 $7B
 	LDA $7BC2,X		; A5AA	$BD $C2 $7B	character lower sprite pose ??
 	BEQ L2E5B9		; A5AD	$F0 $0A
@@ -3235,8 +3316,10 @@ L2E5B5:
 	STA $7BC2,X		; A5B6	$9D $C2 $7B	character lower sprite pose ??
 L2E5B9:
 	RTS			; A5B9	$60
-; End of
+; End of Calc_low_pos
 
+; Name	:
+; Marks	:
 	JSR Init_char_spritep	; A5BA	$20 $8B $9C	Check back/front row, set pointers to char sprite
 	LDX #$03		; A5BD	$A2 $03
 	STX $10			; A5BF	$86 $10		temp char idx ??
@@ -3245,7 +3328,7 @@ L2E5C1:
 	LDA char_x_cpos,X	; A5C4	$BD $CA $7B
 	CMP char_x_bpos,X	; A5C7	$DD $D2 $7B
 	BEQ L2E5CF		; A5CA	$F0 $03
-	JSR $A680		; A5CC	$20 $80 $A6	set OAM buffer
+	JSR Draw_pose_buf_x	; A5CC	$20 $80 $A6	set OAM buffer
 L2E5CF:
 	DEC $10			; A5CF	$C6 $10		temp char idx ??
 	LDX $10			; A5D1	$A6 $10		temp char idx ??
@@ -3306,7 +3389,7 @@ Char_mov_act:
 	LDA #act_mov_front	; A626	$A9 $80
 	STA char_mov_dir	; A628	$85 $13
 	JSR Walk_motion		; A62A	$20 $47 $A6	loop subroutine
-	JSR $A67E		; A62D	$20 $7E $A6	graphics calc (init pose) ??
+	JSR Draw_pose_buf	; A62D	$20 $7E $A6	graphics calc (init pose)
 	JMP Show_char_pos	; A630	$4C $95 $A6	Show character status move graphic
 ; End of Char_mov_act
 
@@ -3320,14 +3403,14 @@ Char_mov_base:
 	LDA #act_mov_back	; A63A	$A9 $00
 	STA char_mov_dir	; A63C	$85 $13
 	JSR Walk_motion		; A63E	$20 $47 $A6	loop subroutine
-	JSR Set_char_pose_idx	; A641	$20 $76 $A6	graphics calc (init pose) ??
+	JSR Set_char_pose_idx	; A641	$20 $76 $A6	graphics calc (init pose)
 	JMP Show_char_pos	; A644	$4C $95 $A6	Show status move graphic
 ; End of Char_mov_base
 
 ; Name	: Walk_motion
 ; Marks	:
 Walk_motion:
-	JSR $A67E		; A647	$20 $7E $A6	OAM buffer process ?? (character pose ??)
+	JSR Draw_pose_buf	; A647	$20 $7E $A6	OAM buffer process ?? (character pose ??)
 Walk_motion_loop:
 	JSR Show_char_pos	; A64A	$20 $95 $A6	Show character status move graphic
 	LDX char_idx_tmp	; A64D	$A6 $12
@@ -3335,7 +3418,7 @@ Walk_motion_loop:
 	CMP $11			; A652	$C5 $11
 	BEQ L2E673		; A654	$F0 $1D		if $11==$7BCA,X break loop
 	LDA char_mov_dir	; A656	$A5 $13
-	JSR $A512		; A658	$20 $12 $A5	walk move ??
+	JSR Calc_mov_pos	; A658	$20 $12 $A5	walk move ??
 	LDX char_idx_tmp	; A65B	$A6 $12
 	LDY $7BA2,X		; A65D	$BC $A2 $7B	character graphics type
 	CPY #$02		; A660	$C0 $02		toad
@@ -3359,16 +3442,19 @@ Set_char_pose_idx:
 ; X	: character index ??
 ; Marks	:
 Set_char_pose:
-	JSR $ABFD		; A678	$20 $FD $AB	character pose calc ?? set variables
+	JSR Set_char_low_pos	; A678	$20 $FD $AB
 	JMP Draw_char		; A67B	$4C $3A $A4	calc pose and copy to OAM buffer(init pose ??)
 ; End of Set_char_pose(_idx)
 
-; Name	:
-; Marks	:
+; Name	: Draw_pose_buf
+; Marks	: Draw init character pose to OAM buffer
+Draw_pose_buf:
 	LDX char_idx_tmp	; A67E	$A6 $12
-; Name	:
+; Name	: Draw_pose_buf_x
 ; X	: character index
 ; Marks	: Init somethin ?? OAM set, character OAM address start from $02A0
+;	  Draw init character pose to OAM buffer with X(character index)
+Draw_pose_buf_x:
 	LDA #$00		; A680	$A9 $00
 	STA $7BD6,X		; A682	$9D $D6 $7B
 	STA $7BDA,X		; A685	$9D $DA $7B
@@ -3377,7 +3463,8 @@ Set_char_pose:
 	LDA #$02		; A68D	$A9 $02
 	STA $7BC6,X		; A68F	$9D $C6 $7B
 	JMP Draw_char		; A692	$4C $3A $A4	calc pose and copy to OAM buffer(init pose ??)
-; End of
+; End of Draw_pose_buf_x
+; End of Draw_pose_buf
 
 ; Name	: Show_char_pos
 ; Marks	: Show status move graphic
@@ -3391,21 +3478,23 @@ L2E69C:
 	JMP Wait_NMI_end	; A69F	$4C $46 $FD
 ; End of Show_char_pos
 
+; Name	:
+; Marks	: $80
 	LDX #$04		; A6A2	$A2 $04
 L2E6A4:
-	LDA $9350,X		; A6A4	$BD $50 $93
+	LDA Spell_target,X	; A6A4	$BD $50 $93
 	STA $00,X		; A6A7	$95 $00
 	DEX			; A6A9	$CA
-	BPL L2E6A4		; A6AA	$10 $F8
+	BPL L2E6A4		; A6AA	$10 $F8		loop
 	LDA #$00		; A6AC	$A9 $00
 	STA $0C			; A6AE	$85 $0C
 	STA $0D			; A6B0	$85 $0D
 	STA $0E			; A6B2	$85 $0E
 	LDA #$FF		; A6B4	$A9 $FF
 	STA $0B			; A6B6	$85 $0B
-	LDY #$2A		; A6B8	$A0 $2A
+	LDY #$2A		; A6B8	$A0 $2A		battle command
 	LDA ($80),Y		; A6BA	$B1 $80
-	BEQ L2E6D0		; A6BC	$F0,$12
+	BEQ L2E6D0		; A6BC	$F0 $12
 	TAX			; A6BE	$AA
 L2E6BF:
 	ROR $04			; A6BF	$66 $04
@@ -3418,8 +3507,8 @@ L2E6BF:
 	BCC L2E6D6		; A6CC	$90 $08
 	BCS L2E6DC		; A6CE	$B0 $0C
 L2E6D0:
-	JSR $A6F1		; A6D0	$20 $F1 $A6
-	JMP $A707		; A6D3	$4C $07 $A7
+	JSR Chk_mob_rows	; A6D0	$20 $F1 $A6
+	JMP L2E707		; A6D3	$4C $07 $A7
 ; target characters
 L2E6D6:
 	LDA #$00		; A6D6	$A9 $00
@@ -3427,50 +3516,57 @@ L2E6D6:
 	BEQ L2E707		; A6DA	$F0 $2B
 ; target monsters
 L2E6DC:
-	JSR $A6E2		; A6DC	$20 $E2 $A6
-	JMP $A707		; A6DF	$4C $07 $A7
+	JSR Chk_mob_alive	; A6DC	$20 $E2 $A6
+	JMP L2E707		; A6DF	$4C $07 $A7
 ; End of
 
-;
+; Name	: Chk_mob_alive
+; Ret	: $0D = monster id
+; Marks	:
+Chk_mob_alive:
 	LDX #$00		; A6E2	$A2 $00
 L2E6E4:
 	STX $0D			; A6E4	$86 $0D
-	LDA $7B62,X		; A6E6	$BD $62 $7B
+	LDA $7B62,X		; A6E6	$BD $62 $7B	monster id in each slot
 	BPL L2E6F0		; A6E9	$10 $05
 	INX			; A6EB	$E8
 	CPX #$08		; A6EB	$E0 $08
-	BNE L2E6E4		; A6ED	$D0 $F4
+	BNE L2E6E4		; A6ED	$D0 $F4		loop
 L2E6F0:
 	RTS			; A6F0	$60
+; End of Chk_mob_alive
 
-; Name	:
+; Name	: Chk_mob_rows
+; Ret	: $0D = monster id
 ; Marks	:
+Chk_mob_rows:
 	LDA #$FF		; A6F1	$A9 $FF
 	STA $0E			; A6F3	$85 $0E
 	LDX #$07		; A6F5	$A2 $07
 L2E6F7:
 	STX $0D			; A6F7	$86 $0D
-	LDA $7B62,X		; A6F9	$BD $62 $7B
+	LDA $7B62,X		; A6F9	$BD $62 $7B	monster id in each slot
 	BMI L2E703		; A6FC	$30 $05
-	LDA $7B5A,X		; A6FE	$BD $5A $7B
+	LDA $7B5A,X		; A6FE	$BD $5A $7B	monster rows(0=f,1=b)
 	BEQ L2E706		; A701	$F0 $03
 L2E703:
 	DEX			; A703	$CA
 	BPL L2E6F7		; A704	$10 $F1
 L2E706:
 	RTS			; A706	$60
-; End of
+; End of Chk_mob_rows
+
 L2E707:
 	LDA #$00		; A707	$A9 $00
 	STA $0F			; A709	$85 $0F
 	JSR $A86F		; A70B	$20 $6F $A8
-	JSR $A94B		; A70E	$20 $4B $A9	update status animation
+	JSR Status_ani_NMI_end	; A70E	$20 $4B $A9	update status animation
 	LDA $0C			; A711	$A5 $0C
 	ORA $0D			; A713	$05 $0D
 	AND #$80		; A715	$29 $80
 	BEQ L2D71F		; A717	$F0 $06
 	JSR $A86F		; A719	$20 $6F $A8
-	JSR $A94B		; A71C	$20 $4B $A9	update status animation
+	JSR Status_ani_NMI_end	; A71C	$20 $4B $A9	update status animation
 L2D71F:
 	JSR $FC34		; A71F	$20 $34 $FC	update joypad input
 	LDA $0B			; A722	$A5 $0B
@@ -3698,15 +3794,15 @@ L2E861:
 L2E863:
 	LDY #$2B		; A863	$A0 $2B
 	STA ($80),Y		; A865	$91 $80		set target
-	JSR $9D06		; A867	$20 $06 $9D	reset cursor sprites
+	JSR Reset_cursor_sprites	; A867	$20 $06 $9D	reset cursor sprites
 	PLA			; A86A	$68
 	PLA			; A86B	$68
-	JMP $A94B		; A86C	$4C $4B $A9	update status animation
+	JMP Status_ani_NMI_end	; A86C	$4C $4B $A9	update status animation
 ; End of
 
 ; Name	:
 ; Marks	:
-	JSR $9D06		; A86F	$20 $06 $9D
+	JSR Reset_cursor_sprites; A86F	$20 $06 $9D
 	LDA $0B			; A872	$A5 $0B
 	BNE L2E895		; A874	$D0 $1F
 	LDA #$00		; A876	$A9 $00
@@ -3748,11 +3844,12 @@ L2E8A9:
 ; End of
 
 ; Name	:
+; A	:
 ; Marks	:
 L2E8B4:
 	STA $02			; A8B4	$85 $02
-	LDA $7BA2,X		; A8B6	$BD $A2 $7B
-	BEQ L2E8CD		; A8B9	$F0 $12
+	LDA $7BA2,X		; A8B6	$BD $A2 $7B	character graphics type
+	BEQ L2E8CD		; A8B9	$F0 $12		branch if status is normal
 	LDA char_x_cpos,X	; A8BB	$BD $CA $7B
 	SEC			; A8BE	$38
 	SBC #$10		; A8BF	$E9 $10
@@ -3842,32 +3939,34 @@ L2E939:
 	RTS			; A94A	$60
 ; End of
 
-; Name	:
+; Name	: Status_ani_NMI_end
 ; Marks	:
+Status_ani_NMI_end:
 	JSR Status_ani		; A94B	$20 $CB $AF
 	JMP Wait_NMI_end	; A94E	$4C $46 $FD
-;
+; End of Status_ani_NMI_end
 
 ;-------------------------------------------------------------------
 
-; Name	:
-; Marks	:
+; Name	: Mob_dead
+; Marks	: Monster dead(eliminate) process and animation
+Mob_dead:
 	LDA #$03		; A951	$A9 $03
 	STA $A5			; A953	$85 $A5
 	JSR Mob_dead_ani	; A955	$20 $70 $A9
-	LDY #$08		; A958	$A0 $08
+	LDY #$08		; A958	$A0 $08		status 1
 	LDA ($A1),Y		; A95A	$B1 $A1
-	ORA #$80		; A95C	$09 $80
+	ORA #$80		; A95C	$09 $80		dead
 	STA ($A1),Y		; A95E	$91 $A1
-	LDY #$2B		; A960	$A0 $2B
+	LDY #$2B		; A960	$A0 $2B		target
 	LDA ($9F),Y		; A962	$B1 $9F
 	AND #$7F		; A964	$29 $7F
 	TAX			; A966	$AA
 	LDA #$FF		; A967	$A9 $FF
-	STA $7B62,X		; A969	$9D $62 $7B
+	STA $7B62,X		; A969	$9D $62 $7B	monster id each slot
 	DEC $7B4D		; A96C	$CE $4D $7B	decrement number of monsters remaining
 	RTS			; A96F	$60
-; End of
+; End of Mob_dead
 
 ; Name	: Mob_dead_ani
 ; Marks	: $27 = ??
@@ -4259,36 +4358,39 @@ L2EBB4:
 	JMP Wait_NMI_end	; ABDB	$4C $46 $FD
 ; End of Set_wpn_tile_ppu
 
-; Name	:
+; Name	: Load_char_gfx
 ; Marks	: load character graphics
-	LDX $27			; ABDE	$A6 $27
-	JSR $9BB4		; ABE0	$20 $B4 $9B
+Load_char_gfx:
+	LDX $27			; ABDE	$A6 $27		target id
+	JSR Init_battle_stat	; ABE0	$20 $B4 $9B
 	LDX $27			; ABE3	$A6 $27
-	JSR $ABFD		; ABE5	$20 $FD $AB
+	JSR Set_char_low_pos	; ABE5	$20 $FD $AB
 	JSR Lower_sprite	; ABE8	$20 $06 $A3
 	LDX $27			; ABEB	$A6 $27
-	JSR $A265		; ABED	$20 $65 $A2
+	JSR Copy_char_gfx_ppu	; ABED	$20 $65 $A2
 	LDY $27			; ABF0	$A4 $27
-	JSR $9B8F		; ABF2	$20 $8F $9B
+	JSR Init_char_pal_id	; ABF2	$20 $8F $9B
 	LDX $27			; ABF5	$A6 $27
 	JSR Draw_char		; ABF7	$20 $3A $A4
 	JMP Apply_OAM		; ABFA	$4C $2A $9E
-; End of
+; End of Load_char_gfx
 
-; Name	:
-; X	:
-; Y	:
+; Name	: Set_char_low_pos
+; X	: character idx
 ; Marks	:
+Set_char_low_pos:
 	LDY $7BAE,X		; ABFD	$BC $AE $7B	character pose
-	LDA $934B,Y		; AC00	$B9 $4B $93	battle sound effect ??
+	LDA Char_low_pos,Y	; AC00	$B9 $4B $93	battle sound effect ?? xxxxx
 	STA $7BC2,X		; AC03	$9D $C2 $7B	character lower sprite pose ??
 	RTS			; AC06	$60
-; End of
+; End of Set_char_low_pos
 
-; Name	:
+; Name	: Set_char_OAM_buf
 ; A	: 3Eh or 38h (Index start)
 ; X	: character index
-; Marks	: 2 x 3 tiles
+; Marks	: 2 x 3 tiles OAM[28-33]
+;	  Attack pose ??
+Set_char_OAM_buf:
 	STA $00			; AC07	$85 $00
 	LDA $7BB6,X		; AC09	$BD $B6 $7B	character palette id
 	STA $01			; AC0C	$85 $01
@@ -4324,7 +4426,7 @@ L2EC23:
 	CPX #$18		; AC46	$E0 $18
 	BNE L2EC23		; AC48	$D0 $D9		loop
 	RTS			; AC4A	$60
-; End of
+; End of Set_char_OAM_buf
 
 ; Name	: Atk_char_w_wpn_ani
 ; A	: attack animation type A/B
@@ -4666,7 +4768,7 @@ L2EE2E:
 	LDA #$02		; AE2E	$A9 $02
 	STA $7BC6,X		; AE30	$9D $C6 $7B
 	LDA #$80		; AE33	$A9 $80		move left
-	JSR $A512		; AE35	$20 $12 $A5	move character
+	JSR Calc_mov_pos	; AE35	$20 $12 $A5	move character
 L2EE38:
 	LDX $10			; AE38	$A6 $10
 	JSR Draw_char		; AE3A	$20 $3A $A4	draw character
@@ -4735,7 +4837,7 @@ L2EEAB:
 	LDA #$02		; AEAB	$A9 $02
 	STA $7BC6,X		; AEAD	$9D $C6 $7B
 	LDA #$00		; AEB0	$A9 $00		move right
-	JSR $A512		; AEB2	$20 $12 $A5	move character
+	JSR Calc_mov_pos	; AEB2	$20 $12 $A5	move character
 L2EEB5:
 	LDX $10			; AEB5	$A6 $10
 	JSR Draw_char		; AEB7	$20 $3A $A4	draw character
@@ -5668,15 +5770,15 @@ Attack_char_wpn_ani:
 	STX atk_ani_AB_tmp	; B4BD	$86 $16
 	LDA #$04		; B4BF	$A9 $04
 	STA gfx_delay_cnt	; B4C1	$85 $17		motion delay count
-	LDX $22			; B4C3	$A6 $22
+	LDX $22			; B4C3	$A6 $22		l/r hand(r=0,l=1)
 	TXA			; B4C5	$8A
-	BEQ L2F4CA		; B4C6	$F0 $02
+	BEQ L2F4CA		; B4C6	$F0 $02		branch if right hand
 	LDA #$05		; B4C8	$A9 $05
 L2F4CA:
 	CLC			; B4CA	$18
 	ADC $20,X		; B4CB	$75 $20		weapon action type temp ??
 	TAX			; B4CD	$AA
-	LDY $B5DE,X		; B4CE	$BC $DE $B5	weapon action type ??
+	LDY Atk_motion_tbl,X	; B4CE	$BC $DE $B5	weapon action type ??
 	BNE L2F4D4		; B4D1	$D0 $01
 	RTS			; B4D3	$60
 ; End of Attack_char_wpn_ani
@@ -5691,7 +5793,7 @@ L2F4D4:
 	STA $01			; B4E0	$85 $01
 .byte $6C,$00,$00
 	;JMP ($0000)		; B4E2	$6C $00 $00
-SR_B4E5:	; Sword, Knife, Axe, Mace, Spear attack
+SR_Normal:	; Sword, Knife, Axe, Mace, Spear attack
 	INY			; B4E5	$C8
 	STY $19			; B4E6	$84 $19		attack type 2 temp ??
 	LDA #$04		; B4E8	$A9 $04		character attack with weapon motion counter
@@ -5706,7 +5808,7 @@ L2F4EC:
 	BNE L2F4EC		; B3F9	$D0 $F1
 	RTS			; B4FB	$60
 ;
-SR_B4FC:	; Fist attack
+SR_Fist:	; Fist attack
 	INY			; B4FC	$C8
 L2F4FD:
 	STY $19			; B4FD	$84 $19
@@ -5723,7 +5825,7 @@ L2F507:
 	BNE L2F507		; B510	$D0 $F5
 	RTS			; B512	$60
 ;
-SR_B513:	; Bow attack
+SR_Bow:		; Bow attack
 	INY			; B513	$C8
 	STY $19			; B514	$84 $19
 	LDX char_idx_atk	; B516	$A6 $26
@@ -5775,7 +5877,7 @@ L2F562:
 	BCS L2F562		; B575	$B0 $EB
 	RTS			; B577	$60
 ; End of
-SR_B578:
+SR_Mag_rdy:	; Magic
 	INY			; B578	C8
 	INY			; B579	C8
 	STY $19			; B57A	84 19
@@ -5790,19 +5892,19 @@ L2F585:
 	LDA #$0F		; B58B	A9 0F
 	BNE L2F592		; B58D	D0 03
 L2F58F:
-	LDA $79C1		; B58F	AD C1 79
+	LDA $79C1		; B58F	AD C1 79	color palette sprite_2.1
 L2F592:
-	JSR $9D71		; B592	20 71 9D
+	JSR Set_pal_x0		; B592	20 71 9D
 	LDX $18			; B595	A6 18
-	LDA $B5E8,X		; B597	BD E8 B5
+	LDA DB5E8,X		; B597	BD E8 B5
 	STA $16			; B59A	85 16
-	JSR $B5AE		; B59C	20 AE B5
+	JSR Atk_pose		; B59C	20 AE B5
 	DEC $18			; B59F	C6 18
-	BPL L2F585		; B5A1	10 E2
+	BPL L2F585		; B5A1	10 E2		loop
 	LDA #$0F		; B5A3	A9 0F
-	JSR $9D71		; B5A5	20 71 9D
+	JSR Set_pal_x0		; B5A5	20 71 9D
 	JMP Apply_OAM_pal	; B5A8	4C 33 9E	wait for vblank (menu, oam & color update)
-;
+; End of SR_Mag_rdy
 ; End of Attack_char_wpn_ani ??
 
 ; Name	; Atk_pose_snd
@@ -5822,7 +5924,7 @@ Atk_pose:
 	LDY #$3E		; B5B8	$A0 $3E
 L2F5BA:
 	TYA			; B5BA	$98
-	JSR $AC07		; B5BB	$20 $07 $AC	Set character graphic to OAM buffer(attack pose ??)
+	JSR Set_char_OAM_buf	; B5BB	$20 $07 $AC	Set character graphic to OAM buffer(attack pose ??)
 	LDX char_idx_atk	; B5BE	$A6 $26
 	LDA $7BA2,X		; B5C0	$BD $A2 $7B	character graphics type
 	BNE L2F5CC		; B5C3	$D0 $07
@@ -5838,18 +5940,18 @@ L2F5CC:
 
 ;B5D4 - data block - jump address[5:0-4]
 Atk_motion_sr:
-.word SR_B4E5			; B5D4	$E5 $B4
-.word SR_B4E5			; B5D6	$E5 $B4
-.word SR_B4FC			; B5D8	$FC $B4
-.word SR_B513			; B5DA	$13 $B5
-.word SR_B578			; B5DC	$78 $B5
+.word SR_Normal			; B5D4	$E5 $B4
+.word SR_Normal			; B5D6	$E5 $B4
+.word SR_Fist			; B5D8	$FC $B4
+.word SR_Bow			; B5DA	$13 $B5
+.word SR_Mag_rdy		; B5DC	$78 $B5
 
 ;B5DE - data block - weapon action type ??
-.byte $00,$01
-.byte $03,$04,$05,$00,$02,$03,$04,$05
+Atk_motion_tbl:
+.byte $00,$01,$03,$04,$05,$00,$02,$03,$04,$05
 ;B5E8
-.byte $09,$08,$07,$06,$05,$04,$03,$02
-.byte $05,$04,$03,$02,$01,$00
+DB5E8:
+.byte $09,$08,$07,$06,$05,$04,$03,$02,$05,$04,$03,$02,$01,$00
 
 ; Name	: Magic_ani
 ; Marks	:
@@ -5869,7 +5971,7 @@ Magic_ani_:
 	TAX			; B607	$AA
 	LDA Mag_ani_p,X		; B608	$BD $62 $B6	pointers to magic animation graphics
 	STA $00			; B60B	$85 $00
-	LDA Mag_ani_p+1,X	; B60D	$BD $63 $B6
+	LDA Mag_ani_p+1,X	; B60D	$BD $63 $B6	BANK 09/ (magic animation tile)
 	STA $01			; B610	$85 $01
 	LDX #$00		; B612	$A2 $00		load 12 tiles
 	LDY #$C0 		; B614	$A0 $C0
@@ -5899,7 +6001,7 @@ L2F63F:
 	JSR Apply_OAM		; B642	$20 $2A $9E	wait for vblank (menu & oam update)
 	LDX $7CB1		; B645	$AE $B1 $7C	attack animation palette
 	LDY #$19		; B648	$A0 $19		sprite palette 2
-	JSR $FC03		; B64A	$20 $03 $FC	load battle palette
+	JSR Set_wpn_pal		; B64A	$20 $03 $FC	load battle palette
 	JSR Apply_OAM_pal	; B64D	$20 $33 $9E	wait for vblank (menu, oam & color update)
 	LDA $7CB0		; B650	$AD $B0 $7C	attack animation id
 	ASL			; B653	$0A
@@ -5913,19 +6015,61 @@ L2F63F:
 ; End of Magic_ani_
 
 ;$B662 - data block = pointers to magic animation graphics
+; BANK 09/8800-9D80
 Mag_ani_p:
-.byte $00,$97,$C0,$97,$80,$96,$80,$95,$00,$96,$40,$95,$00,$95
-.byte $00,$90,$00,$94,$C0,$95,$80,$93,$E0,$94,$80,$94,$00,$90,$00,$90
-.byte $00,$90,$C0,$9D,$80,$9D,$00,$90,$00,$90,$00,$90,$60,$88,$60,$93
+.byte $00,$97
+.byte $C0,$97
+.byte $80,$96
+.byte $80,$95
+.byte $00,$96
+.byte $40,$95
+.byte $00,$95
+.byte $00,$90
+.byte $00,$94
+.byte $C0,$95
+.byte $80,$93
+.byte $E0,$94
+.byte $80,$94
+.byte $00,$90
+.byte $00,$90
+.byte $00,$90
+.byte $C0,$9D
+.byte $80,$9D
+.byte $00,$90
+.byte $00,$90
+.byte $00,$90
 .byte $60,$88
+.byte $60,$93
+.byte $60,$88
+; End of Mag_ani_p
 
 ;$B692 - data block = magic animation jump table
 Mag_SR_tbl:
 .word SR_B8FB			; B692	$FB $B8
-.byte $B4,$B9,$3D,$BA,$53,$BA,$56,$BA,$65,$BA,$61,$BB
-.byte $AC,$BB,$D3,$BB,$E9,$BB,$F8,$BB,$07,$BC,$16,$BC,$D8,$BE,$D8,$BE
-.byte $D8,$BE,$C0,$BC,$FF,$BC,$31,$BD,$31,$BD,$31,$BD,$9D,$BD,$B0,$BE
-.byte $C4,$BE
+.word SR_B9B4			; B694	$B4 $B9
+.word SR_BA3D			; B696	$3D $BA
+.word SR_BA53			; B698	$53 $BA
+.word SR_BA56			; B69A	$56 $BA
+.word SR_BA65			; BA9C	$65 $BA
+.word SR_BB61			; BA9E	$61 $BB
+.word SR_BBAC			; BAA0	$AC $BB
+.word SR_BBD3			; BAA2	$D3 $BB
+.word SR_BBE9			; BAA4	$E9 $BB
+.word SR_BBF8			; BAA6	$F8 $BB
+.word SR_BC07			; BAA8	$07 $BC
+.word SR_BC16			; BAAA	$16 $BC
+.word SR_BED8			; B6AC	$D8 $BE
+.word SR_BED8			; B6AE	$D8 $BE
+.word SR_BED8			; B6B0	$D8 $BE
+.word SR_BCC0			; B6B2	$C0 $BC
+.word SR_BCFF			; B6B4	$FF $BC
+.word SR_BD31			; B6B6	$31 $BD
+.word SR_BD31			; B6B8	$31 $BD
+.word SR_BD31			; B6BA	$31 $BD
+.word SR_BD9D			; B6BC	$9D $BD
+.word SR_BEB0			; B6BE	$B0 $BE
+.word SR_BEC4			; BEC0	$C4 $BE
+; End of Mag_SR_tbl
 
 ; Marks	:
 	RTS 			; B6C2	$60
@@ -5938,18 +6082,18 @@ L2F6CB:
 	ORA #$01		; B6CB	$09 $01
 	STA $18			; B6CD	$85 $18
 	LDX #$01		; B6CF	$A2 $01
-	JSR $B8E5		; B6D1	$20 $E5 $B8
-	JSR $B6FE		; B6D4	$20 $FE $B6
+	JSR Fill_gfx_buf	; B6D1	$20 $E5 $B8
+	JSR Calc_XY		; B6D4	$20 $FE $B6
 	LDX $18			; B6D7	$A6 $18
-	JSR $B814		; B6D9	$20 $14 $B8
+	JSR Set_rnd_gfx_buf	; B6D9	$20 $14 $B8
 	LDA $14			; B6DC	$A5 $14
 	LDX $18			; B6DE	$A6 $18
-	JSR $B84C		; B6E0	$20 $4C $B8
-	JSR $9E6B		; B6E3	$20 $6B $9E	play magic sound effect
+	JSR Set_rnd_data	; B6E0	$20 $4C $B8
+	JSR Play_mag_snd_eft	; B6E3	$20 $6B $9E	play magic sound effect
 	LDA $12			; B6E6	$A5 $12
-	JSR $B8AD		; B6E8	$20 $AD $B8
+	JSR Set_frm_data	; B6E8	$20 $AD $B8
 L2F6EB:
-	JSR $B86A		; B6EB	$20 $6A $B8
+	JSR Copy_OAM_buf	; B6EB	$20 $6A $B8
 	LDA $13			; B6EE	$A5 $13	$	number of frames to wait
 	JSR Gfx_delay		; B6F0	$20 $1F $9E	wait
 	JSR $B727		; B6F3	$20 $27 $B7
@@ -5958,6 +6102,10 @@ L2F6EB:
 	BEQ L2F6EB		; B6FB	$F0 $EE
 	RTS			; B6FD	$60
 ;
+
+; Name	: Calc_XY
+; Marks	:
+Calc_XY:
 	LDA #$08		; B6FE	$A9 $08
 	STA $00			; B700	$85 $00
 	STA $01			; B702	$85 $01
@@ -5970,17 +6118,20 @@ L2F6EB:
 	ASL			; B711	$0A
 	ASL			; B712	$0A
 	STA $03			; B713	$85 $03
-	JSR $B7C8		; B715	$20 $C8 $B7
-	LDX $27			; B718	$A6 $27
+	JSR Set_XY_pos		; B715	$20 $C8 $B7
+	LDX $27			; B718	$A6 $27		target id ??
 	CPX #$04		; B71A	$E0 $04
-	BCC L2F726		; B71C	$90 $08
+	BCC L2F726		; B71C	$90 $08		branch if player
 	DEC $0C			; B71E	$C6 $0C
 	DEC $0C			; B720	$C6 $0C
 	DEC $0D			; B722	$C6 $0D
 	DEC $0D			; B724	$C6 $0D
 L2F726:
 	RTS			; B726	$60
-;
+; Calc_XY
+
+; Name	:
+; Marks	:
 	LDX #$00		; B727	$A2 $00
 L2F729:
 	INC $7630,X		; B729	$FE $30 $76
@@ -6010,31 +6161,45 @@ L2F752:
 	BNE L2F749		; B755	$D0 $F2
 	RTS			; B757	$60
 ;
-	LDA $93FA,X		; B758	$BD $FA $93
+
+; Name	: Set_OAM_buf_tbl
+; X	: OAM table offset
+; Y	: OAM buffer offset
+; Marks	: Set OAM buffer from table
+;	  $01=Y offset, $00=X offset
+Set_OAM_buf_tbl:
+	LDA OAM_Y_tbl,X		; B758	$BD $FA $93
 	CLC			; B75B	$18
 	ADC $01			; B75C	$65 $01
-	STA $0200,Y		; B75E	$99 $00 $02
-	LDA $947A,X		; B761	$BD $7A $94
-	STA $0201,Y		; B764	$99 $01 $02
-	LDA $94FA,X		; B767	$BD $FA $94
-	STA $0202,Y		; B76A	$99 $02 $02
-	LDA $957A,X		; B76D	$BD $7A $95
+	STA $0200,Y		; B75E	$99 $00 $02	OAM Y
+	LDA OAM_INDEX_tbl,X	; B761	$BD $7A $94
+	STA $0201,Y		; B764	$99 $01 $02	OAM INDEX
+	LDA OAM_ATTR_tbl,X	; B767	$BD $FA $94
+	STA $0202,Y		; B76A	$99 $02 $02	OAM ATTR
+	LDA OAM_X_tbl,X		; B76D	$BD $7A $95
 	CLC			; B770	$18
 	ADC $00			; B771	$65 $00
-	STA $0203,Y		; B773	$99 $03 $02
+	STA $0203,Y		; B773	$99 $03 $02	OAM X
 	JMP Y_inc4		; B776	$4C $FC $9D
-;
+; End of Set_OAM_buf_tbl
+
+; Name	: Set_OAM_buf_00
+; Marks	: $00 = X, $01 = Y, $02 = INDEX
+Set_OAM_buf_00:
 	LDY #$10		; B779	$A0 $10
 	LDA $01			; B77B	$A5 $01
-	STA $0200,Y		; B77D	$99 $00 $02
+	STA $0200,Y		; B77D	$99 $00 $02	OAM Y
 	LDA $02			; B780	$A5 $02
-	STA $0201,Y		; B782	$99 $01 $02
+	STA $0201,Y		; B782	$99 $01 $02	OAM INDEX
 	LDA #$02		; B785	$A9 $02
-	STA $0202,Y		; B787	$99 $02 $02
+	STA $0202,Y		; B787	$99 $02 $02	OAM ATTR
 	LDA $00			; B78A	$A5 $00
-	STA $0203,Y		; B78C	$99 $03 $02
+	STA $0203,Y		; B78C	$99 $03 $02	OAM X
 	JMP Y_inc4		; B78F	$4C $FC $9D
-;
+; End of Set_OAM_buf_00
+
+; Name	:
+; Marks	:
 	JSR Rst_all_act_OAM_buf	; B792	$20 $E7 $9D
 	JSR Target_to_mob_id	; B795	$20 $01 $9E
 	LDA mob_widths,X	; B798	$BD $8A $7B
@@ -6056,22 +6221,35 @@ L2F752:
 	LDY $7B7A,X		; B7B2	$BC $7A $7B
 	LDX $7B56,Y		; B7B5	$BE $56 $7B
 	LDY #$19		; B7B8	$A0 $19	$	sprite palette 2
-	JSR $FC03		; B7BA	$20 $03 $FC	load battle palette
+	JSR Set_wpn_pal		; B7BA	$20 $03 $FC	load battle palette
 	LDA #$00		; B7BD	$A9 $00
 	STA $03			; B7BF	$85 $03
 	LDA #$10		; B7C1	$A9 $10
 	STA $04			; B7C3	$85 $04
 	JMP Apply_OAM_pal	; B7C5	$4C $33 $9E	wait for vblank (menu, oam & color update)
 ;
-	JSR $B7D4		; B7C8	$20 $D4 $B7
+
+; Name	: Set_XY_pos
+; SRC	: $00,$01,$02 = monster width,$03 = monster height
+; DEST	: $0A,$0B,$00,$01
+; Marks	: $0A,$00 = X position
+;	  $0B,$01 = Y position
+Set_XY_pos:
+	JSR Get_XY_pos_		; B7C8	$20 $D4 $B7
 	STA $0A			; B7CB	$85 $0A
 	STY $0B			; B7CD	$84 $0B
 	STA $00			; B7CF	$85 $00
 	STY $01			; B7D1	$84 $01
 	RTS			; B7D3	$60
-	LDX $27			; B7D4	$A6 $27
+; End of Set_XY_pos
+
+; Name	: Get_XY_pos_
+; Ret	: Y = y position, A = x position
+; Marks	: $01=??, $02=??, $03=??, $04=??
+Get_XY_pos_:
+	LDX $27			; B7D4	$A6 $27		target id ??
 	CPX #$04		; B7D6	$E0 $04
-	BCS L2F7EF		; B7D8	$B0 $15
+	BCS L2F7EF		; B7D8	$B0 $15		branch if monster
 	LDY #$03		; B7DA	$A0 $03
 	STY $0D			; B7DC	$84 $0D
 	DEY			; B7DE	$88
@@ -6084,9 +6262,9 @@ L2F752:
 	SEC			; B7EB	$38
 	SBC $00			; B7EC	$E5 $00
 	RTS			; B7EE	$60
-;
+; End of Get_XY_pos_
 L2F7EF:
-	JSR $9E03		; B7EF	$20 $03 $9E
+	JSR X_dec4		; B7EF	$20 $03 $9E
 	LDA mob_heights,X	; B7F2	$BD $82 $7B
 	STA $0D			; B7F5	$85 $0D
 	LSR			; B7F7	$4A
@@ -6109,7 +6287,13 @@ L2F7EF:
 	SEC			; B810	$38
 	SBC $02			; B811	$E5 $02
 	RTS			; B813	$60
-;
+; End of Get_XY_pos_
+
+; Name	: Set_rnd_gfx_buf
+; X	: repeat count
+; Marks	: Set random data
+;	  $0C,$0D = max value for random
+Set_rnd_gfx_buf:
 	DEX			; B814	$CA
 	STX $09			; B815	$86 $09
 	JSR Apply_OAM		; B817	$20 $2A $9E	wait for vblank (menu & oam update)
@@ -6117,7 +6301,7 @@ L2F81A:
 	LDX #$00		; B81A	$A2 $00
 	LDA $0C			; B81C	$A5 $0C
 	JSR Random		; B81E	$20 $11 $FD	random (X..A)
-	LDY $09			; B821	$A4 $09
+	LDY $09			; B821	$A4 $09		index
 	ASL			; B823	$0A
 	ASL			; B824	$0A
 	ASL			; B825	$0A
@@ -6126,7 +6310,7 @@ L2F81A:
 	LDX #$00		; B82B	$A2 $00
 	LDA $0D			; B82D	$A5 $0D
 	JSR Random		; B82F	$20 $11 $FD	random (X..A)
-	LDY $09			; B832	$A4 $09
+	LDY $09			; B832	$A4 $09		index
 	ASL			; B834	$0A
 	ASL			; B835	$0A
 	ASL			; B836	$0A
@@ -6138,9 +6322,15 @@ L2F81A:
 	JSR Apply_OAM		; B842	$20 $2A $9E	wait for vblank (menu & oam update)
 L2F845:
 	DEC $09			; B845	$C6 $09
-	BPL L2F81A		; B847	$10 $D1
+	BPL L2F81A		; B847	$10 $D1		loop
 	JMP Apply_OAM		; B849	$4C $2A $9E	wait for vblank (menu & oam update)
-;
+; End of Set_rnd_gfx_buf
+
+; Name	: Set_rnd_data
+; A	:
+; X	: repeat count
+; Marks	: Set random data 7630,X
+Set_rnd_data:
 	STA $1C			; B84C	$85 $1C
 	DEX			; B84E	$CA
 	STX $1D			; B84F	$86 $1D
@@ -6148,15 +6338,20 @@ L2F845:
 L2F854:
 	LDX #$00		; B854	$A2 $00
 	LDA $1C			; B856	$A5 $1C
-	JSR Random		; B858	$20 $11 $FD	random (X..A)
+	JSR Random		; B858	$20 $11 $FD	random (X..A)	0-28
 	SEC			; B85B	$38
 	SBC $1C			; B85C	$E5 $1C
 	LDX $1D			; B85E	$A6 $1D
 	STA $7630,X		; B860	$9D $30 $76
 	DEC $1D			; B863	$C6 $1D
-	BPL L2F854		; B865	$10 $ED
+	BPL L2F854		; B865	$10 $ED		loop
 	JMP Apply_OAM		; B867	$4C $2A $9E	wait for vblank (menu & oam update)
-;
+; End of Set_rnd_data
+
+; Name	: Copy_OAM_buf
+; Marks	: $1A=loop counter=$03(temp)
+;	  $18=loop counter=$02(temp)
+Copy_OAM_buf:
 	JSR Rst_all_act_OAM_buf	; B86A	$20 $E7 $9D
 	LDA #$10		; B86D	$A9 $10
 	STA $19			; B86F	$85 $19
@@ -6164,9 +6359,9 @@ L2F854:
 L2F873:
 	STY $02			; B873	$84 $02
 	LDA $7600,Y		; B875	$B9 $00 $76
-	STA $00			; B878	$85 $00
+	STA $00			; B878	$85 $00		x offset
 	LDA $7610,Y		; B87A	$B9 $10 $76
-	STA $01			; B87D	$85 $01
+	STA $01			; B87D	$85 $01		y offset
 	LDA $1A			; B87F	$A5 $1A
 	STA $03			; B881	$85 $03
 	LDA $7630,Y		; B883	$B9 $30 $76
@@ -6178,26 +6373,28 @@ L2F873:
 L2F891:
 	STX $04			; B891	$86 $04
 	LDA $7640,X		; B893	$BD $40 $76
-	TAX			; B896	$AA
-	LDY $19			; B897	$A4 $19
-	JSR $B758		; B899	$20 $58 $B7
+	TAX			; B896	$AA		table offset(source)
+	LDY $19			; B897	$A4 $19		OAM buffer offset(dest)
+	JSR Set_OAM_buf_tbl	; B899	$20 $58 $B7
 	STY $19			; B89C	$84 $19
 	LDX $04			; B89E	$A6 $04
 	INX			; B8A0	$E8
 	DEC $03			; B8A1	$C6 $03
-	BNE L2F891		; B8A3	$D0 $EC
+	BNE L2F891		; B8A3	$D0 $EC		loop
 L2F8A5:
 	LDY $02			; B8A5	$A4 $02
 	INY			; B8A7	$C8
 	CPY $18			; B8A8	$C4 $18
-	BNE L2F873		; B8AA	$D0 $C7
+	BNE L2F873		; B8AA	$D0 $C7		loop
 	RTS			; B8AC	$60
-;
+; End of Copy_OAM_buf
 
-; Name	:
+; Name	: Set_frm_data
+; A	: frame data index
 ; Marks	: +$1C = frame data pointer
 ; DEST	: $7640,X = 
 ;	  copy some data
+Set_frm_data:
 	ASL			; B8AD	$0A
 	TAX			; B8AE	$AA
 	LDA Frm_data_tbl,X	; B8AF	$BD $25 $BF
@@ -6205,10 +6402,10 @@ L2F8A5:
 	LDA Frm_data_tbl+1,X	; B8B4	$BD $26 $BF
 	STA $1D			; B8B7	$85 $1D
 	LDY #$00		; B8B9	$A0 $00
-	LDA ($1C),Y		; B8BB	$B1 $1C
+	LDA ($1C),Y		; B8BB	$B1 $1C		count ??
 	STA $1A			; B8BD	$85 $1A
 	INY			; B8BF	$C8
-	LDA ($1C),Y		; B8C0	$B1 $1C
+	LDA ($1C),Y		; B8C0	$B1 $1C		count ??
 	STA $1B			; B8C2	$85 $1B
 	STA $00			; B8C4	$85 $00
 	INY			; B8C6	$C8
@@ -6232,13 +6429,14 @@ L2F8CD:
 	DEC $00			; B8E0	$C6 $00
 	BNE L2F8C9		; B8E2	$D0 $E5		loop
 	RTS			; B8E4	$60
-; End of
+; End of Set_frm_data
 
-; Name	:
+; Name	: Fill_gfx_buf
 ; X	: fill data
 ; DEST	: $7600,Y(start from $7620)
 ; Marks	: $7620-$762F = FFh, $7630-$763F = X
 ;	  file text 1 char ??
+Fill_gfx_buf:
 	LDY #$20		; B8E5	$A0 $20
 	LDA #$FF		; B8E7	$A9 $FF
 L2F8E9:
@@ -6253,7 +6451,7 @@ L2F8F2:
 	CPY #$40		; B8F6	$C0 $40
 	BNE L2F8F2		; B8F8	$D0 $F8		loop
 	RTS			; B8FA	$60
-; End of
+; End of Fill_gfx_buf
 
 ; Marks	: magic animation
 SR_B8FB:
@@ -6274,7 +6472,7 @@ L2F903:
 	STA $02			; B913	$85 $02
 	LDA #$00		; B915	$A9 $00
 	STA $03			; B917	$85 $03
-	JSR $B7C8		; B919	$20 $C8 $B7
+	JSR Set_XY_pos		; B919	$20 $C8 $B7
 	LDA $27			; B91C	$A5 $27
 	CMP #$04		; B91E	$C9 $04
 	BCC L2F92B		; B920	$90 $09
@@ -6293,10 +6491,10 @@ L2F92B:
 	ADC $0A			; B933	$65 $0A
 	STA $0A			; B935	$85 $0A
 	LDX $06			; B937	$A6 $06
-	LDA $B9AA,X		; B939	$BD $AA $B9
+	LDA DB9AA,X		; B939	$BD $AA $B9
 	STA $0C			; B93C	$85 $0C
 	STA $17			; B93E	$85 $17
-	LDA $B9AF,X		; B940	$BD $AF $B9
+	LDA DB9AF,X		; B940	$BD $AF $B9
 	STA $0D			; B943	$85 $0D
 	STA $16			; B945	$85 $16
 	TXA			; B947	$8A
@@ -6308,7 +6506,7 @@ L2F94D:
 	EOR #$01		; B94F	$49 $01
 	DEX			; B951	$CA
 	BPL L2F94D		; B952	$10 $F9
-	JSR $9E6B		; B954	$20 $6B $9E	play magic sound effect
+	JSR Play_mag_snd_eft	; B954	$20 $6B $9E	play magic sound effect
 	LDX #$00		; B957	$A2 $00
 L2F959:
 	STX $18			; B959	$86 $18
@@ -6346,7 +6544,7 @@ L2F969:
 	BCC L2F991		; B98D	$90 $02
 	LDX #$0C		; B98F	$A2 $0C
 L2F991:
-	JSR $B758		; B991	$20 $58 $B7
+	JSR Set_OAM_buf_tbl	; B991	$20 $58 $B7
 	INX			; B994	$E8
 	DEC $1A			; B995	$C6 $1A
 	BNE L2F991		; B997	$D0 $F8
@@ -6362,11 +6560,13 @@ L2F991:
 ; End of
 
 ; $B9AA - data block = ??
+DB9AA:
 .byte $00,$01,$03,$05,$07
 ; $B9AF
+DB9AF:
 .byte $01,$02,$04,$06,$08
 
-; $B9B4
+SR_B9B4:
 	LDX #$03		; B9B4	$A2 $03
 L2F9B6:
 	LDA $79B0,X		; B9B6	$BD $B0 $79
@@ -6377,7 +6577,7 @@ L2F9B6:
 	LDX #$08		; B9C0	$A2 $08
 	JSR Reset_pal		; B9C2	$20 $42 $97
 	JSR Apply_OAM_pal	; B9C5	$20 $33 $9E	wait for vblank (menu,oam & color update)
-	JSR $9E6B		; B9C8	$20 $6B $9E	play magic sound effect
+	JSR Play_mag_snd_eft	; B9C8	$20 $6B $9E	play magic sound effect
 	LDX #$05		; B9CB	$A2 $05
 	STX $0E			; B9CD	$86 $0E
 	STX $0F			; B9CF	$86 $0F
@@ -6393,7 +6593,7 @@ L2F9DE:
 	LDX #$18		; B9E2	$A2 $18
 L2F9E4:
 	LDY $03			; B9E4	$A4 $03
-	JSR $B758		; B9E6	$20 $58 $B7
+	JSR Set_OAM_buf_tbl	; B9E6	$20 $58 $B7
 	STY $03			; B9E9	$84 $03
 	INX			; B9EB	$E8
 	CPX #$24		; B9EC	$E0 $24
@@ -6422,11 +6622,11 @@ L2FA03:
 	STA $03			; BA1D	$85 $03
 	LDA #$04		; BA1F	$A9 $04
 	STA $02			; BA21	$85 $02
-	JSR $B7C8		; BA23	$20 $C8 $B7
+	JSR Set_XY_pos		; BA23	$20 $C8 $B7
 	LDY #$10		; BA26	$A0 $10
 	LDX #$26		; BA28	$A2 $26
 L2FA2A:
-	JSR $B758		; BA2A	$20 $58 $B7
+	JSR Set_OAM_buf_tbl	; BA2A	$20 $58 $B7
 	LDA $01			; BA2D	$A5 $01
 	CLC			; BA2F	$18
 	ADC #$08		; BA30	$69 $08
@@ -6435,6 +6635,7 @@ L2FA2A:
 	BNE L2FA2A		; BA36	$D0 $F2
 	LDA #$03		; BA38	$A9 $03
 	JMP Gfx_delay		; BA3A	$4C $1F $9E	wait 3 frames
+SR_BA3D:
 	LDA #$06		; BA3D	$A9 $06
 	STA $14			; BA3F	$85 $14
 	LDA #$01		; BA41	$A9 $01
@@ -6447,7 +6648,13 @@ L2FA2A:
 	ASL			; BA4D	$0A
 	ADC #$07		; BA4E	$69 $07
 	JMP $B6CD		; BA50	$4C $CD $B6
+;
+
+SR_BA53:
 	JMP $BF16		; BA53	$4C $16 $BF
+;
+
+SR_BA56:
 	LDA #$06		; BA56	$A9 $06
 	STA $14			; BA58	$85 $14
 	LDA #$04		; BA5A	$A9 $04
@@ -6457,18 +6664,18 @@ L2FA2A:
 	JMP $B6C3		; BA62	$4C $C3 $B6
 ; End of
 
-; Marks	: BA60
+SR_BA65:
 	JSR Init_gfx_buf	; BA65	$20 $CF $9D
 	JSR Target_to_mob_id	; BA68	$20 $01 $9E
 	LDY mob_gfx_id,X	; BA6B	$BC $72 $7B
-	LDA $BB38,Y		; BA6E	$B9 $38 $BB
+	LDA DBB38,Y		; BA6E	$B9 $38 $BB
 	STA $02			; BA71	$85 $02
-	LDA $BB48,Y		; BA73	$B9 $48 $BB
+	LDA DBB48,Y		; BA73	$B9 $48 $BB
 	STA $03			; BA76	$85 $03
 	LDA #$10		; BA78	$A9 $10
 	STA $00			; BA7A	$85 $00
 	STA $01			; BA7C	$85 $01
-	JSR $B7C8		; BA7E	$20 $C8 $B7
+	JSR Set_XY_pos		; BA7E	$20 $C8 $B7
 	LDA #$09		; BA81	$A9 $09
 	STA $12			; BA83	$85 $12
 	LDA $0B			; BA85	$A5 $0B
@@ -6477,7 +6684,7 @@ L2FA2A:
 	LDX $27			; BA8A	$A6 $27
 	CPX #$04		; BA8C	$E0 $04
 	BCC L2FAA7		; BA8E	$90 $17
-	JSR $9E03		; BA90	$20 $03 $9E
+	JSR X_dec4		; BA90	$20 $03 $9E
 	LDY mob_heights,X	; BA93	$BC $82 $7B
 	CPY #$07		; BA96	$C0 $07
 	BCC L2FAA7		; BA98	$90 $0D
@@ -6491,7 +6698,7 @@ L2FAA7:
 	STA $10			; BAA7	$85 $10
 	LDY #$00		; BAA9	$A0 $00
 L2FAAB:
-	LDA $BB58,Y		; BAAB	$B9 $58 $BB
+	LDA DBB58,Y		; BAAB	$B9 $58 $BB
 	JSR Get_nybble		; BAAE	$20 $07 $FD	get low/high nybble
 	ASL			; BAB1	$0A
 	ASL			; BAB2	$0A
@@ -6516,7 +6723,7 @@ L2FAAB:
 	CPY #$09		; BAD9	$C0 $09
 	BNE L2FAAB		; BADB	$D0 $CE
 	JSR Apply_OAM		; BADD	$20 $2A $9E	wait for vblank (menu & oam update)
-	JSR $9E6B		; BAE0	$20 $6B $9E	play magic sound effect
+	JSR Play_mag_snd_eft	; BAE0	$20 $6B $9E	play magic sound effect
 	LDA #$02		; BAE3	$A9 $02
 	STA $03			; BAE5	$85 $03
 	LDX #$44		; BAE7	$A2 $44
@@ -6559,26 +6766,31 @@ L2FB09:
 	LDX $27			; BB2B	$A6 $27
 	CPX #$04		; BB2D	$E0 $04
 	BCC L2FB37		; BB2F	$90 $06
-	JSR $9E03		; BB31	$20 $03 $9E
-	JSR $A951		; BB34	$20 $51 $A9
+	JSR X_dec4		; BB31	$20 $03 $9E
+	JSR Mob_dead		; BB34	$20 $51 $A9
 L2FB37:
 	RTS			; BB37	$60
 ; End of
 
-;BB38 - data block = ??
+;BB38 - data block = ?? width ??
+DBB38:
 .byte $18,$18,$18,$18,$18,$18,$18,$18
-.byte $18,$30,$30,$30,$30,$30,$30,$30,$18,$18,$18,$18,$18,$18,$18,$18
+.byte $18,$30,$30,$30,$30,$30,$30,$30
+; height ??
+DBB48:
+.byte $18,$18,$18,$18,$18,$18,$18,$18
 .byte $30,$30,$30,$30,$30,$30,$30,$30
 
 ;BB58 - data block = ??
+DBB58:
 .byte $02,$11,$14,$23,$25,$30,$42,$44
 .byte $51
 
-; Marks	:
+SR_BB61:
 	LDA #$01		;BB61	$A9 $01
 	STA $18			;BB63	$85 $18
 	LDX #$01		;BB65	$A2 $01
-	JSR $B8E5		;BB67	$20 $E5 $B8
+	JSR Fill_gfx_buf	;BB67	$20 $E5 $B8
 	LDA #$00		;BB6A	$A9 $00 
 	STA $7620		;BB6C	$8D $20 $76
 	STA $7630		;BB6F	$8D $30 $76
@@ -6590,45 +6802,49 @@ L2FB37:
 	STA $03			;BB7C	$85 $03 
 	LDA #$10		;BB7E	$A9 $10 
 	STA $02			;BB80	$85 $02 
-	JSR $B7C8		;BB82	$20 $C8 $B7
+	JSR Set_XY_pos		;BB82	$20 $C8 $B7
 	LDA $0A			;BB85	$A5 $0A 
 	STA $7600		;BB87	$8D $00 $76
 	LDY $0B			;BB8A	$A4 $0B 
 	STY $7610		;BB8C	$8C $10 $76
-	JSR $9E6B		;BB8F	$20 $6B $9E	play magic sound effect
+	JSR Play_mag_snd_eft	;BB8F	$20 $6B $9E	play magic sound effect
 	LDA #$03		;BB92	$A9 $03 
-	JSR $B8AD		;BB94	$20 $AD $B8
-	JSR $B86A		;BB97	$20 $6A $B8
+	JSR Set_frm_data	;BB94	$20 $AD $B8
+	JSR Copy_OAM_buf	;BB97	$20 $6A $B8
 	LDA #$04		;BB9A	$A9 $04 
 	JSR Gfx_delay		;BB9C	$20 $1F $9E	wait 4 frames
 	LDX $27			;BB9F	$A6 $27 
 	CPX #$04		;BBA1	$E0 $04 
 	BCC L2FBAB		;BBA3	$90 $06 
-	JSR $9E03		;BBA5	$20 $03 $9E
-	JSR $A951		;BBA8	$20 $51 $A9
+	JSR X_dec4		;BBA5	$20 $03 $9E
+	JSR Mob_dead		;BBA8	$20 $51 $A9
 L2FBAB:
 	RTS			;BBAB	$60 
-;
-	JSR $9E6B		;BBAC	$20 $6B $9E	play magic sound effect
-	LDY $27			;BBAF	$A4 $27 
+; End of
+
+SR_BBAC:
+	JSR Play_mag_snd_eft	;BBAC	$20 $6B $9E	play magic sound effect
+	LDY $27			;BBAF	$A4 $27		target id
 	CPY #$04		;BBB1	$C0 $04 
-	BCC L2FBD2		;BBB3	$90 $1D 
+	BCC L2FBD2		;BBB3	$90 $1D		branch if player
 	DEY			;BBB5	$88 
 	DEY			;BBB6	$88 
 	DEY			;BBB7	$88 
 	DEY			;BBB8	$88 
 	LDA #$03		;BBB9	$A9 $03 
-	JSR $A216		;BBBB	$20 $16 $A2
+	JSR Calc_mob_xy		;BBBB	$20 $16 $A2
 	JSR Wait_MENU_NMI	;BBBE	$20 $3F $9E	render menu and wait for vblank
-	JSR $A1E4		;BBC1	$20 $E4 $A1	copy left attribute table to ppu
+	JSR Copy_l_attr		;BBC1	$20 $E4 $A1	copy left attribute table to ppu
 	JSR Wait_NMI_end	;BBC4	$20 $46 $FD	wait for first battle field scanline
 	LDA #$06		;BBC7	$A9 $06 $
 	JSR Gfx_delay		;BBC9	$20 $1F $9E	wait 6 frames
 	JSR Target_to_mob_id	;BBCC	$20 $01 $9E
-	JSR $A951		;BBCF	$20 $51 $A9
+	JSR Mob_dead		;BBCF	$20 $51 $A9
 L2FBD2:
 	RTS			;BBD2	$60 
-;
+; End of SR_BBAC
+
+SR_BBD3:
 	LDA #$08		;BBD3	$A9 $08 
 	STA $14			;BBD5	$85 $14 
 	LDA #$01		;BBD7	$A9 $01 
@@ -6642,6 +6858,8 @@ L2FBD2:
 	ADC #$07		;BBE4	$69 $07 
 	JMP $B6CD		;BBE6	$4C $CD $B6
 ;
+
+SR_BBE9:
 	LDA #$06		;BBE9	$A9 $06 
 	STA $14			;BBEB	$85 $14 
 	LDA #$05		;BBED	$A9 $05 
@@ -6650,6 +6868,8 @@ L2FBD2:
 	STA $13			;BBF3	$85 $13 
 	JMP $B6C3		;BBF5	$4C $C3 $B6
 ;
+
+SR_BBF8:
 	LDA #$06		;BBF8	$A9 $06 
 	STA $14			;BBFA	$85 $14 
 	LDA #$06		;BBFC	$A9 $06 
@@ -6658,6 +6878,8 @@ L2FBD2:
 	STA $13			;BC02	$85 $13 
 	JMP $B6C3		;BC04	$4C $C3 $B6
 ;
+
+SR_BC07:
 	LDA #$06		;BC07	$A9 $06 
 	STA $14			;BC09	$85 $14 
 	LDA #$07		;BC0B	$A9 $07 
@@ -6666,10 +6888,12 @@ L2FBD2:
 	STA $13			;BC11	$85 $13 
 	JMP $B6C3		;BC13	$4C $C3 $B6
 ;
+
+SR_BC16:
 	LDA #$01		;BC16	$A9 $01 
 	STA $18			;BC18	$85 $18
 	LDX #$01		;BC1A	$A2 $01
-	JSR $B8E5		;BC1C	$20 $E5 $B8
+	JSR Fill_gfx_buf	;BC1C	$20 $E5 $B8
 	LDX $27			;BC1F	$A6 $27
 	CPX #$04		;BC21	$E0 $04
 	BCS L2FC3C		;BC23	$B0 $17
@@ -6688,7 +6912,7 @@ L2FBD2:
 L2FC3C:
 	LDA #$0E		;BC3C	$A9 $0E
 	STA $10			;BC3E	$85 $10
-	JSR $9E03		;BC40	$20 $03 $9E
+	JSR X_dec4		;BC40	$20 $03 $9E
 	LDA mob_heights,X	;BC43	$BD $82 $7B
 	STA $0D			;BC46	$85 $0D
 	LSR			;BC48	$4A
@@ -6723,7 +6947,7 @@ L2FC76:
 	TXA			;BC76	$8A
 	CLC			;BC77	$18
 	ADC $10			;BC78	$65 $10
-	JSR $B8AD		;BC7A	$20 $AD $B8
+	JSR Set_frm_data	;BC7A	$20 $AD $B8
 	LDA $29			;BC7D	$A5 $29
 	LSR			;BC7F	$4A
 	ASL			;BC80	$0A
@@ -6737,11 +6961,11 @@ L2FC76:
 	STA $7630		;BC8F	$8D $30 $76
 	STA $08			;BC92	$85 $08
 	STA $0F			;BC94	$85 $0F
-	JSR $9E6B		;BC96	$20 $6B $9E	play magic sound effect
+	JSR Play_mag_snd_eft	;BC96	$20 $6B $9E	play magic sound effect
 	LDA $29			;BC99	$A5 $29
 	STA $0E			;BC9B	$85 $0E
 L2FC9D:
-	JSR $B86A		;BC9D	$20 $6A $B8
+	JSR Copy_OAM_buf	;BC9D	$20 $6A $B8
 	LDA #$01		;BCA0	$A9 $01
 	JSR Gfx_delay		;BCA2	$20 $1F $9E	wait 1 frames
 	LDX $0F			;BCA5	$A6 $0F
@@ -6759,6 +6983,8 @@ L2FCB7:
 	BNE L2FC9D		;BCBB	$D0 $E0
 	JMP Apply_OAM		;BCBD	$4C $2A $9E	wait for lvblank (menu & oam update)
 ;
+
+SR_BCC0:
 	JSR $BEFF		;BCC0	$20 $FF $BE
 	LDX $27			;BCC3	$A6 $27
 	CPX #$04		;BCC5	$E0 $04
@@ -6769,32 +6995,37 @@ L2FCCA:
 	JSR $B792		;BCCA	$20 $92 $B7
 L2FCCD:
 	JSR $BCDD		;BCCD	$20 $DD $BC
-	JSR $B779		;BCD0	$20 $79 $B7
+	JSR Set_OAM_buf_00	;BCD0	$20 $79 $B7
 	LDA #$02		;BCD3	$A9 $02
 	JSR Gfx_delay		;BCD5	$20 $1F $9E	wait 2 frames
 	DEC $04			;BCD8	$C6 $04
-	BNE L2FCCD		;BCDA	$D0 $F1
+	BNE L2FCCD		;BCDA	$D0 $F1		loop
 	RTS			;BCDC	$60
 ;
+
+; Name	:
+; Marks	:
 	LDA $03			;BCDD	$A5 $03
 	AND #$07		;BCDF	$29 $07
 	STA $03			;BCE1	$85 $03
-	TAY			;BCE3	$A8
+	TAY			;BCE3	$A8		Y = 0-7
 	LDA $00			;BCE4	$A5 $00
 	SEC			;BCE6	$38
-	SBC $9333,Y		;BCE7	$F9 $33 $93
+	SBC Mov_step,Y		;BCE7	$F9 $33 $93
 	STA $00			;BCEA	$85 $00
 	LDA $01			;BCEC	$A5 $01
 	CLC			;BCEE	$18
-	ADC $933B,Y		;BCEF	$79 $3B $93
+	ADC Mov_y_step,Y	;BCEF	$79 $3B $93
 	STA $01			;BCF2	$85 $01
-	LDA $9343,Y		;BCF4	$B9 $43 $93
+	LDA Char_low_step,Y	;BCF4	$B9 $43 $93
 	CLC			;BCF7	$18
 	ADC #$43		;BCF8	$69 $43
 	STA $02			;BCFA	$85 $02
 	INC $03			;BCFC	$E6 $03
 	RTS			;BCFE	$60
 ;
+
+SR_BCFF:
 	JSR $BEFF		;BCFF	$20 $FF $BE
 	LDX $27			;BD02	$A6 $27
 	CPX #$04		;BD04	$E0 $04
@@ -6807,7 +7038,7 @@ L2FD09:
 	STA $02			;BD0E	$85 $02
 L2FD10:
 	JSR $BD20		;BD10	$20 $20 $BD
-	JSR $B779		;BD13	$20 $79 $B7
+	JSR Set_OAM_buf_00	;BD13	$20 $79 $B7
 	LDA #$02		;BD16	$A9 $02
 	JSR Gfx_delay		;BD18	$20 $1F $9E	wait 2 frames
 	DEC $04			;BD1B	$C6 $04
@@ -6824,26 +7055,28 @@ L2FD10:
 	INC $03			;BD2E	$E6 $03
 	RTS			;BD30	$60
 ;
-	JSR $9E6B		;BD31	$20 $6B $9E	play magic sound effect
-	LDA $93B6		;BD34	$AD $B6 $93
+
+SR_BD31:
+	JSR Play_mag_snd_eft	;BD31	$20 $6B $9E	play magic sound effect
+	LDA Pal_color		;BD34	$AD $B6 $93
 	STA $01			;BD37	$85 $01
 	LDY #$01		;BD39	$A0 $01
 L2FD3B:
 	STY $02			;BD3B	$84 $02
-	LDX $7CB0		;BD3D	$AE $B0 $7C
+	LDX $7CB0		;BD3D	$AE $B0 $7C	color palette background_2.0
 	CPX #$13		;BD40	$E0 $13
 	BEQ L2FD49		;BD42	$F0 $05
-	LDA $93B6,Y		;BD44	$B9 $B6 $93
+	LDA Pal_color,Y		;BD44	$B9 $B6 $93
 	STA $39			;BD47	$85 $39
 L2FD49:
 	INY			;BD49	$C8
 	CPX #$12		;BD4A	$E0 $12
 	BEQ L2FD54		;BD4C	$F0 $06
-	LDA $93B6,Y		;BD4E	$B9 $B6 $93
-	JSR $9D71		;BD51	$20 $71 $9D
+	LDA Pal_color,Y		;BD4E	$B9 $B6 $93
+	JSR Set_pal_x0		;BD51	$20 $71 $9D
 L2FD54:
 	INY			;BD54	$C8
-	LDA $93B6,Y		;BD55	$B9 $B6 $93
+	LDA Pal_color,Y		;BD55	$B9 $B6 $93
 	INY			;BD58	$C8
 	STY $02			;BD59	$84 $02
 	JSR Gfx_delay		;BD5B	$20 $1F $9E	wait $02 frames
@@ -6851,11 +7084,11 @@ L2FD54:
 	DEC $01			;BD60	$C6 $01
 	BNE L2FD3B		;BD62	$D0 $D7
 	LDA #$0F		;BD64	$A9 $0F
-	JSR $9D71		;BD66	$20 $71 $9D
+	JSR Set_pal_x0		;BD66	$20 $71 $9D
 	LDA #$00		;BD69	$A9 $00
 	STA $39			;BD6B	$85 $39
 	JSR Apply_OAM_pal	;BD6D	$20 $33 $9E	wait for vblank (menu,oam & color update)
-	LDA $7CB0		;BD70	$AD $B0 $7C
+	LDA $7CB0		;BD70	$AD $B0 $7C	color_palette background_2.0
 	CMP #$14		;BD73	$C9 $14
 	BEQ L2FD78		;BD75	$F0 $01
 	RTS			;BD77	$60
@@ -6880,6 +7113,8 @@ L2FD78:
 	DEC $7B4D		;BD97	$CE $4D $7B	decrement number of monsters remaining
 	JMP Apply_OAM		;BD9A	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
+
+SR_BD9D:
 	LDA #$03		;BD9D	$A9 $03
 	STA $14			;BD9F	$85 $14
 L2FDA1:
@@ -6889,9 +7124,13 @@ L2FDA1:
 	JSR Mov_attack_effect	;BDA8	$20 $31 $B1
 	JMP Apply_OAM		;BDAB	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
-	JSR $B8E5		;BDAE	$20 $E5 $B8
+
+; Name	:
+; X	: data for fill in gfx buffer
+; Marks	:
+	JSR Fill_gfx_buf	;BDAE	$20 $E5 $B8
 	LDA #$0B		;BDB1	$A9 $0B
-	JSR $B8AD		;BDB3	$20 $AD $B8
+	JSR Set_frm_data	;BDB3	$20 $AD $B8
 	LDX #$03		;BDB6	$A2 $03
 	STX $18			;BDB8	$86 $18
 	LDY #$07		;BDBA	$A0 $07
@@ -6922,7 +7161,7 @@ L2FDD7:
 	BPL L2FDD7		;BDF0	$10 $E5
 	LDA #$7F		;BDF2	$A9 $7F
 	LDX $18			;BDF4	$A6 $18
-	JSR $B84C		;BDF6	$20 $4C $B8
+	JSR Set_rnd_data	;BDF6	$20 $4C $B8
 L2FDF9:
 	LDA #$08		;BDF9	$A9 $08
 	STA $17			;BDFB	$85 $17
@@ -6930,7 +7169,7 @@ L2FDFD:
 	JSR $BE4F		;BDFD	$20 $4F $BE
 	DEC $17			;BE00	$C6 $17
 	BNE L2FDFD		;BE02	$D0 $F9 
-	JSR $B86A		;BE04	$20 $6A $B8
+	JSR Copy_OAM_buf	;BE04	$20 $6A $B8
 	JSR Apply_OAM		;BE07	$20 $2A $9E	wait for vblank (menu & oam update)
 	LDX #$00		;BE0A	$A2 $00 
 	LDY #$00		;BE0C	$A0 $00 
@@ -6975,14 +7214,16 @@ L2FE3E:
 ; Marks	:
 	JSR $BE23		; BE47	$20 $23 $BE
 	LDX $18			; BE4A	$A6 $18
-	JMP $B814		; BE4C	$4C $14 $B8
+	JMP Set_rnd_gfx_buf	; BE4C	$4C $14 $B8
+; End of
+
 	LDX #$00		; BE4F	$A2 $00
 L2FE51:
 	STX $16			; BE51	$86 $16
 	INC $7630,X		; BE53	$FE $30 $76
 	LDA $7630,X		; BE56	$BD $30 $76
 	BMI L2FE9A		; BE59	$30 $3F
-	JSR $9E6B		; BE5B	$20 $6B $9E	play magic sound effect
+	JSR Play_mag_snd_eft	; BE5B	$20 $6B $9E	play magic sound effect
 	LDX $16			; BE5E	$A6 $16
 	LDA #$00		; BE60	$A9 $00
 	STA $7620,X		; BE62	$9D $20 $76
@@ -7016,13 +7257,14 @@ L2FE9A:
 	RTS			; BE9F	$60
 ; End of
 
-;$BEA0 - data block = ??
+;$BEA0 - data block = ?? unused ??
 .byte $98,$00,$04,$02,$C0,$78,$06,$02,$00,$00,$05,$02
 
 ; Marks	:
 	RTS 			; BEAC	$60
 	SEI			; BEAD	$78
 	ASL $02			; BEAE	$06 $02
+SR_BEB0:
 	LDX $27			; BEB0	$A6 $27
 	CPX #$04		; BEB2	$E0 $04
 	BCC L2FEB7		; BEB4	$90 $01
@@ -7035,7 +7277,7 @@ L2FEB7:
 	JMP Apply_OAM		; BEC1	$4C $2A $9E	wait for vblank (menu & oam update)
 ; End of
 
-; Marks	:
+SR_BEC4:
 	LDX $27			; BEC4	$A6 $27
 	CPX #$04		; BEC6	$E0 $04
 	BCC L2FECB		; BEC8	$90 $01
@@ -7048,7 +7290,9 @@ L2FECB:
 	JSR Mov_attack_effect	; BED2	$20 $31 $B1
 	JMP Apply_OAM		; BED5	$4C $2A $9E	wait for vblank (menu & oam update)
 ;
-	JSR $9E6B		; BED8	$20 $6B $9E	play magic sound effect
+
+SR_BED8:
+	JSR Play_mag_snd_eft	; BED8	$20 $6B $9E	play magic sound effect
 	LDX #$10		; BEDB	$A2 $10
 L2FEDD:
 	STX $04			; BEDD	$86 $04
@@ -7058,16 +7302,16 @@ L2FEDD:
 	LDA #$0F		; BEE3	$A9 $0F
 	BNE L2FEEA		; BEE5	$D0 $03
 L2FEE7:
-	LDA $79C1		; BEE7	$AD $C1 $79
+	LDA $79C1		; BEE7	$AD $C1 $79	color palette sprite_2.1
 L2FEEA:
-	JSR $9D71		; BEEA	$20 $71 $9D
+	JSR Set_pal_x0		; BEEA	$20 $71 $9D
 	LDA #$02		; BEED	$A9 $02
 	JSR Gfx_delay		; BEEF	$20 $1F $9E	wait 2 frames
 	LDX $04			; BEF2	$A6 $04
 	DEX			; BEF4	$CA
 	BNE L2FEDD		; BEF5	$D0 $E6
 	LDA #$0F		; BEF7	$A9 $0F
-	JSR $9D71		; BEF9	$20 $71 $9D
+	JSR Set_pal_x0		; BEF9	$20 $71 $9D
 	JMP Apply_OAM_pal	; BEFC	$4C $33 $9E	wait for vblank (menu, oam & color update)
 ;
 	JSR $BF16		; BEFF	$20 $16 $BF
@@ -7078,12 +7322,15 @@ L2FEEA:
 L2FF09:
 	LDA $27			; BF09	$A5 $27
 	PHA			; BF0B	$48
-	JSR $9E03		; BF0C	$20 $03 $9E
-	JSR $A951		; BF0F	$20 $51 $A9
+	JSR X_dec4		; BF0C	$20 $03 $9E
+	JSR Mob_dead		; BF0F	$20 $51 $A9
 	PLA			; BF12	$68
 	STA $27			; BF13	$85 $27
 	RTS			; BF15	$60
-;
+; End of
+
+; Name	:
+; Marks	:
 	LDA #$06		; BF16	$A9 $06
 	STA $14			; BF18	$85 $14
 	LDA #$0A		; BF1A	$A9 $0A
