@@ -15,8 +15,10 @@ BANK_PORTRAITS       = $09
 BANK_OVERWORLD_DATA  = $0A
 
 BANK_BATTLELOAD      = $0B	; battle graphics code
+BANK_BATTLE_ANI		= $0B	; battle graphics code
+BANK_RATE_GRP		= $0B	; map battle random rate / map battle group
 
-BANK_BATTLE          = $0C	; battle main code
+BANK_BATTLE		= $0C	; battle main code
 
 BANK_MUSIC           = $0D
 

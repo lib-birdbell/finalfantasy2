@@ -3,6 +3,7 @@
 
 .import L3FD8C
 .import Ret_to_map		;FA0F
+.import	SR_Battle_cursor	;FAD0
 .import	SR_Battle_fadeout	;FADC
 .import Wait_NMI_end		;FD46
 .import L3FA2A
@@ -1864,7 +1865,7 @@ B9F44:
 	STA $46			; 9F73	$85 $46
 	JSR $A02A		; 9F75	$20 $2A $A0
 	JSR L1645E		; 9F78	$20 $5E $A4
-	JSR $FAD0		; 9F7B	$20 $D0 $FA
+	JSR SR_Battle_cursor	; 9F7B	$20 $D0 $FA
 	LDA #$00		; 9F7E	$A9 $00
 	STA $5C			; 9F80	$85 $5C
 	JSR $A0AA		; 9F82	$20 $AA $A0

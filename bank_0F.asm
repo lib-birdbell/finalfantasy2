@@ -16,8 +16,13 @@
 .export Init_CHR_RAM		;E491		
 .export Clear_Nametable0	;F321
 .export	Ret_to_map		;FA0F
+.export	SR_Battle_pose		;FABC
+.export	SR_Battle_target	;FAC0
+.export	SR_Battle_front		;FAC4
 .export	SR_Battle_mob_dead	;FAC8
 .export	SR_Battle_attack	;FACC
+.export	SR_Battle_cursor	;FAD0
+.export	SR_Battle_char		;FAD4
 .export	SR_Battle_win		;FAD8
 .export	SR_Battle_fadeout	;FADC
 .export	SR_Battle_set_status	;FAE0
@@ -63,8 +68,13 @@
 .import	Nmap_battle_grp		;8100 - bank_0B
 .import	Wmap_battle_grp		;8200 - bank_0B
 .import	Rnd_battle_grp		;8280 - bank_0B
+.import	Char_pose_0B		;9612 = bank_0B
+.import	Chk_mag_target_0B	;9615 = bank_0B
+.import	Set_front_0B		;9618 - bank_0B
 .import	Mob_dead_ani_0B		;961B - bank_0B
 .import	Attack_0B		;961E - bank_0B
+.import	Copy_cursor_0B		;9621 - bank_0B
+.import	Load_char_0B		;9624 - bank_0B
 .import	Win_celemony_0B		;9627 - bank_0B
 .import	Fade_out_0B		;962A - bank_0B
 .import	Set_status_gfx_0B	;962D - bank_0B
@@ -938,7 +948,7 @@ C567:
 	AND #$40		; C56C  $29 $40
 	ORA $80			; C56E  $05 $80
 	TAX			; C570  $AA
-	LDA #$0B		; C571  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
+	LDA #BANK_RATE_GRP	; C571  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
 	JSR Swap_PRG_		; C573  $20 $03 $FE
 	LDA Wmap_battle_grp,X	; C576  $BD $00 $82	BANK 0B/8200 (world map battle groups)
 ; Marks	: choose from battle group
@@ -956,7 +966,7 @@ C567:
 	LDA $81			; C58B  $A5 $81
 	ADC #>Rnd_battle_grp	; C58D  $69 $82
 	STA $81			; C58F  $85 $81
-	LDA #$0B		; C591  $A9 $0B
+	LDA #BANK_RATE_GRP	; C591  $A9 $0B
 	JSR Swap_PRG_		; C593  $20 $03 $FE
 	INC rng_cnt_bat		; C596  $E6 $F7
 	LDX rng_cnt_bat		; C598  $A6 $F7
@@ -2507,7 +2517,7 @@ L3CF6B:
 	JSR Get_rndnum		; CF6B  $20 $AD $C5
     CMP $F8                  ; CF6E  $C5 $F8
     BCS L3CF85               ; CF70  $B0 $13
-	LDA #$0B		; CF72  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
+	LDA #BANK_RATE_GRP	; CF72  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
     JSR Swap_PRG_               ; CF74  $20 $03 $FE
     LDX $48                  ; CF77  $A6 $48
 	LDA Nmap_battle_grp,X	; CF79  $BD $00 $81	BANK 0B/8100 (normal map battle group)
@@ -2682,7 +2692,7 @@ L3D07B:
     JSR $D09A                ; D07B  $20 $9A $D0	init map
     LDA #$03                 ; D07E  $A9 $03
     JMP L3DDA4               ; D080  $4C $A4 $DD	fade in/out
-; end of
+; End of
 
 ; Name	:
 ; Marks	: load map
@@ -2774,7 +2784,7 @@ L3D11D:
 	LDA #$00		; D11D  $A9 $00
 	STA tile_prop		; D11F  $85 $44
 	STA $45			; D121  $85 $45
-	LDA #$0B		; D123  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
+	LDA #BANK_RATE_GRP	; D123  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
 	JSR Swap_PRG_		; D125  $20 $03 $FE
 	LDX $48			; D128  $A6 $48		world map entrance ID - map id
 	LDA Map_rnd_battle_rate,X	; D12A  $BD $00 $80	BANK 0B/8000 (map random battle rates)
@@ -4914,6 +4924,7 @@ L3DDD8:
 	STA PpuScroll_2005	; DDEF  $8D $05 $20
 	STA PpuScroll_2005	; DDF2  $8D $05 $20
 	RTS			; DDF5  $60
+; End of
 
 L3DDF6:
 	LDA $8C			; DDF6  $A5 $8C
@@ -4923,6 +4934,7 @@ L3DDF6:
 	LDA #$0A		; DDFF  $A9 $0A		show background
 	STA PpuMask_2001	; DE01  $8D $01 $20
 	RTS			; DE04  $60
+; End of
 
 L3DE05:
 	JSR Scroll_normal	; DE05  $20 $F5 $CD
@@ -9023,15 +9035,22 @@ Battle_code:
 	JMP Init_battle		; FAB9  $4C $39 $96	Init battle - long loop code
 ; End of Battle_start(long loop code)
 
-; Name	:
+; Name	: SR_Battle_pose
 ; Marks	: $40(ADDR) = execute code address
-;	  bank 0B $96xx
-	LDA #$12		; FABC  $A9 $12
-	BNE Exec_battle_gfx_bank		; FABE  $D0 $30
-    LDA #$15                 ; FAC0  $A9 $15
-    BNE Exec_battle_gfx_bank               ; FAC2  $D0 $2C
-    LDA #$18                 ; FAC4  $A9 $18
-    BNE Exec_battle_gfx_bank               ; FAC6  $D0 $28
+;	  Used on BANK 0C
+SR_Battle_pose:
+	LDA #<Char_pose_0B	; FABC  $A9 $12
+	BNE Exec_battle_gfx_bank; FABE  $D0 $30
+; Name	: SR_Battle_target
+; Marks	: Used on BANK 0C
+SR_Battle_target:
+	LDA #<Chk_mag_target_0B	; FAC0  $A9 $15
+	BNE Exec_battle_gfx_bank; FAC2  $D0 $2C
+; Name	: SR_Battle_front
+; Marks	: Used on BANK 0C
+SR_Battle_front:
+	LDA #<Set_front_0B	; FAC4  $A9 $18
+	BNE Exec_battle_gfx_bank; FAC6  $D0 $28
 ; Name	: SR_Battle_mob_dead
 ; Marks	: Used on BANK 0C
 SR_Battle_mob_dead:
@@ -9042,13 +9061,16 @@ SR_Battle_mob_dead:
 SR_Battle_attack:
 	LDA #<Attack_0B		; FACC  $A9 $1E
 	BNE Exec_battle_gfx_bank; FACE  $D0 $20
-; Name	:
+; Name	: SR_Battle_cursor
 ; Marks	: Used on BANK 05, BANK 0C
-	LDA #$21		; FAD0  $A9 $21
+SR_Battle_cursor:
+	LDA #<Copy_cursor_0B	; FAD0  $A9 $21
 	BNE Exec_battle_gfx_bank; FAD2  $D0 $1C
-
-    LDA #$24                 ; FAD4  $A9 $24
-    BNE Exec_battle_gfx_bank               ; FAD6  $D0 $18
+; Name	: SR_Battle_char
+; Marks	: Used on BANK 0C
+SR_Battle_char:
+	LDA #<Load_char_0B	; FAD4  $A9 $24
+	BNE Exec_battle_gfx_bank; FAD6  $D0 $18
 ; Name	: SR_Battle_win
 ; Marks	: Used on BANK 0C
 SR_Battle_win:
@@ -9436,6 +9458,7 @@ L3FC90:
 ;	  $00,$01 = target(16-bit value)
 ;	  $02,$03 = target(16-bit value)
 ;	  ++$04 = +$00 * +$02
+;	  $04,$05,$06,$07 = result(32-bit value)
 ;; sub start ;;
 Multi16:
 	LDX #$10		; FC98  $A2 $10
@@ -9868,6 +9891,7 @@ Wait_NMI_:
 	STA $0102		; FEB4  $8D $02 $01
 	LDA #$4C		; FEB7  $A9 $4C		Set instruction to JMP
 	STA $0100		; FEB9  $8D $00 $01
+; Endless loop - wait NMI or IRQ
 OnIRQ:
 	JMP OnIRQ		; FEBC  $4C $BC $FE	Endless loop - wait NMI or IRQ
 ; End of Wait_NMI
@@ -9900,7 +9924,7 @@ Palettes_init_loop:
 
 ; $FEEC - data block = padding
 .byte $00,$00,$00,$00
-;; [FEF0 : 3FEF0]
+;; [FEF0 : 3FF00]
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $0B,$0C,$0D,$0E,$00,$03,$03,$FE,$0F,$10,$11,$12,$13,$14,$15,$16
 .byte $00,$00,$0F,$10,$14,$15,$12,$13,$17,$18,$14,$15,$19,$1A,$1B,$1C

@@ -6,8 +6,13 @@
 .export	Wmap_battle_grp		;8200
 .export	Rnd_battle_grp		;8280
 
+.export	Char_pose_0B		;9612
+.export	Chk_mag_target_0B	;9615
+.export	Set_front_0B		;9618
 .export	Mob_dead_ani_0B		;961B
 .export	Attack_0B		;961E
+.export	Copy_cursor_0B		;9621
+.export	Load_char_0B		;9624
 .export	Win_celemony_0B		;9627
 .export	Fade_out_0B		;962A
 .export	Set_status_gfx_0B	;962D
@@ -564,7 +569,10 @@ Spell_target:
 .byte $53,$02,$54,$54,$54,$54,$02,$55,$55,$55,$55,$02,$56,$56,$56,$56
 .byte $02,$57,$57,$57,$57,$02,$54,$00,$55,$00,$00,$56,$57,$00,$00,$00
 ; $93A0 - OAM ATTR ??
-.byte $02,$02,$02,$02,$42,$42,$42,$42,$02,$42,$82,$C2,$08,$F8,$F0,$00
+.byte $02,$02,$02,$02,$42,$42,$42,$42,$02,$42,$82,$C2
+; $93AC
+OAM_XY:
+.byte $08,$F8,$F0,$00
 .byte $10,$F8,$FC,$04,$FC,$0A
 Pal_color:	;93B6 - palette color
 .byte $08,$02,$31,$04,$00,$33,$04,$02,$35,$04
@@ -641,14 +649,19 @@ OAM_X_tbl:			; 957A
 	JMP Fill_ppu_inc_00	; 9609	$4C $58 $9D
 	JMP Fill_ppu_inc	; 960C	$4C $5B $9D
 	JMP Copy_tile_ppu	; 960F	$4C $A2 $9D	tile copy ppu
-	JMP $A5BA		; 9612	$4C $BA $A5
-	JMP $A6A2		; 9615	$4C $A2 $A6
-	JMP $9A30		; 9618	$4C $30 $9A
+Char_pose_0B:
+	JMP Char_pose		; 9612	$4C $BA $A5
+Chk_mag_target_0B:
+	JMP Chk_mag_target	; 9615	$4C $A2 $A6
+Set_front_0B:
+	JMP Set_mob_front	; 9618	$4C $30 $9A
 Mob_dead_ani_0B:
 	JMP Mob_dead_ani	; 961B	$4C $70 $A9
 Attack_0B:
 	JMP Attack		; 961E	$4C $71 $B0
-	JMP $9CEE		; 9621	$4C $EE $9C
+Copy_cursor_0B:
+	JMP Copy_cursor_gfx	; 9621	$4C $EE $9C
+Load_char_0B:
 	JMP Load_char_gfx	; 9624	$4C $DE $AB
 Win_celemony_0B:
 	JMP Win_celemony	; 9627	$4C $BF $AD
@@ -1241,8 +1254,9 @@ L2DA2A:
 	DEX			; 9A2A	$CA
 	BPL L2DA0A		; 9A2B	$10 $DD
 	JSR Chk_mob_remaining	; 9A2D	$20 $97 $9A
+; Name	: Set_mob_front
 ; Marks	:
-;9A30
+Set_mob_front:
 	LDA #$00		; 9A30	$A9 $00
 	STA $00			; 9A32	$85 $00
 	TAX			; 9A34	$AA
@@ -1259,6 +1273,7 @@ L2DA3E:
 	DEX			; 9A44	$CA
 	BPL L2DA3E		; 9A45	$10 $F7		loop
 	RTS			; 9A47	$60		no more remaining monster
+; End of Set_mob_front
 ; End of Load_battle_prop
 L2DA48:
 	TXA			; 9A48	$8A
@@ -1678,7 +1693,7 @@ Set_mob_arr:
 ; X	: bit = 0-15
 ; Marks	: check bit in +$00
 Check_bit:
-	LDA $9CDE,X		; 9CD1	$BD $DE $9C
+	LDA Bit_mask,X		; 9CD1	$BD $DE $9C
 	CPX #$08		; 9CD4	$E0 $08
 	BCC Check_bit_low	; 9CD6	$90 $03
 	BIT $01			; 9CD8	$24 $01
@@ -1689,14 +1704,14 @@ Check_bit_low:
 	RTS			; 9CDD	$60
 ; End of Check_bit
 
-; $9CDE - data block = bit masks
-.byte $01,$02,$04,$08,$10,$20,$40,$80
-; $9CE6
-.byte $01,$02,$04,$08,$10,$20,$40,$80
+; $9CDE-$9CED(16 bytes) - data block = bit masks
+Bit_mask:
+.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
 
-;9CEE
+; Name	: Copy_cursor_gfx
 ; Marks	: use BANK 09
 ;	  copy cursor graphics to ppu
+Copy_cursor_gfx:
 	JSR Reset_cursor_sprites	; 9CEE	$20 $06 $9D	reset cursor sprites
 	LDA #$80		; 9CF1	$A9 $80
 	STA $00			; 9CF3	$85 $00
@@ -1708,7 +1723,7 @@ Check_bit_low:
 	STA $03			; 9CFF	$85 $03		BANK 09/89C0
 	LDX #$40		; 9D01	$A2 $40		size $40 bytes
 	JMP $FBAE		; 9D03	$4C $AE $FB	load some buffer
-; End of
+; End of Copy_cursor_gfx
 
 ; Name	: Reset_cursor_sprites
 ; Marks	: reset cursor sprites OAM buffer
@@ -2042,10 +2057,16 @@ Wait_MENU_NMI:
 	JMP Set_IRQ_JMP		; 9E42	$4C $2A $FA	Wait NMI
 ; End of Wait_MENU_NMI
 
+
+
+;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ;9E45 - unused
 	JSR Set_IRQ_JMP		; 9E45	$20 $2A $FA	Wait NMI
 	JSR $9E36		; 9E48	$20 $36 $9E
 	JMP $FA48		; 9E4B	$4C $48 $FA	update sound
+;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
 
 ; Name	: Copy_OAM
 ; Marks	:
@@ -2813,6 +2834,7 @@ L2E2A2:
 ; A	: weapon action type ??
 ; Marks	: +$02 = source address to copy to +$00
 ;	  some tile copy to $0380, $03E0
+;	  $00(ADDR) = ppu address
 Set_tile_to_ppu:
 	STA $08			; A2BD	$85 $08		weapon action type temp ??
 	LDX char_idx_atk	; A2BF	$A6 $26
@@ -2954,7 +2976,7 @@ L2E387:
 	ADC $02			; A390	65 02
 	STA $00			; A392	85 00
 	LDA #$88		; A394	A9 88
-	STA $01			; A396	85 01
+	STA $01			; A396	85 01		BANK ??
 	BNE L2E3A4		; A398	D0 0A
 L2E39A:
 	ASL $02			; A39A	06 02
@@ -3322,8 +3344,9 @@ L2E5B9:
 	RTS			; A5B9	$60
 ; End of Calc_low_pos
 
-; Name	:
+; Name	: Char_pose
 ; Marks	:
+Char_pose:
 	JSR Init_char_spritep	; A5BA	$20 $8B $9C	Check back/front row, set pointers to char sprite
 	LDX #$03		; A5BD	$A2 $03
 	STX $10			; A5BF	$86 $10		temp char idx ??
@@ -3374,7 +3397,7 @@ L2E615:
 	JSR Set_char_pose_idx	; A61A	$20 $76 $A6
 L2E61D:
 	JMP Show_char_pos	; A61D	$4C $95 $A6	Show character status move graphic
-; End of
+; End of Char_pose
 
 ;////////// temporary variables //////////
 char_mov_x_dest	= $11
@@ -3488,8 +3511,10 @@ L2E69C:
 	JMP Wait_NMI_end	; A69F	$4C $46 $FD
 ; End of Show_char_pos
 
-; Name	:
+; Name	: Chk_mag_target
 ; Marks	: $80
+;	  $00,$01,$02,$03,$04 = Spell target
+Chk_mag_target:
 	LDX #$04		; A6A2	$A2 $04
 L2E6A4:
 	LDA Spell_target,X	; A6A4	$BD $50 $93
@@ -3504,7 +3529,7 @@ L2E6A4:
 	STA $0B			; A6B6	$85 $0B
 	LDY #$2A		; A6B8	$A0 $2A		battle command
 	LDA ($80),Y		; A6BA	$B1 $80
-	BEQ L2E6D0		; A6BC	$F0 $12
+	BEQ L2E6D0		; A6BC	$F0 $12		branch if command is normal fight attack
 	TAX			; A6BE	$AA
 L2E6BF:
 	ROR $04			; A6BF	$66 $04
@@ -3513,7 +3538,7 @@ L2E6BF:
 	ROR $01			; A6C5	$66 $01
 	ROR $00			; A6C7	$66 $00
 	DEX			; A6C9	$CA
-	BNE L2E6BF		; A6CA	$D0 $F3
+	BNE L2E6BF		; A6CA	$D0 $F3		loop
 	BCC L2E6D6		; A6CC	$90 $08
 	BCS L2E6DC		; A6CE	$B0 $0C
 L2E6D0:
@@ -3528,7 +3553,7 @@ L2E6D6:
 L2E6DC:
 	JSR Chk_mob_alive	; A6DC	$20 $E2 $A6
 	JMP L2E707		; A6DF	$4C $07 $A7
-; End of
+; End of Chk_mag_target
 
 ; Name	: Chk_mob_alive
 ; Ret	: $0D = monster id
@@ -4480,27 +4505,30 @@ L2EC60:
 ; End of Atk_char_w_wpn_ani
 
 SR_AC71:
-	LDA $03			; AC71	$A5 $03
+	LDA $03			; AC71	$A5 $03		attack animation type A/B ??
 	AND #$01		; AC73	$29 $01
 	EOR #$01		; AC75	$49 $01
 	STA $06			; AC77	$85 $06
-	JSR $AD64		; AC79	$20 $64 $AD
+	JSR Set_idx_attr	; AC79	$20 $64 $AD
 	LDA $06			; AC7C	$A5 $06
 	EOR #$01		; AC7E	$49 $01
-	JSR $AD3F		; AC80	$20 $3F $AD
-	JMP $AD19		; AC83	$4C $19 $AD
+	JSR Set_x_y		; AC80	$20 $3F $AD
+	JMP Atk_char_w_wpn_ani_last	; AC83	$4C $19 $AD
 ;
+
 SR_AC86:
 	LDA $03			; AC86	$A5 $03
 	AND #$01		; AC88	$29 $01
 	EOR #$01		; AC8A	$49 $01
 	STA $06			; AC8C	$85 $06
-	JSR $AD64		; AC8E	$20 $64 $AD
+	JSR Set_idx_attr	; AC8E	$20 $64 $AD
 	LDX $06			; AC91	$A6 $06
 	INX			; AC93	$E8
 	TXA			; AC94	$8A
-	JSR $AD3F		; AC95	$20 $3F $AD
-	JMP $AD19		; AC98	$4C $19 $AD
+	JSR Set_x_y		; AC95	$20 $3F $AD
+	JMP Atk_char_w_wpn_ani_last	; AC98	$4C $19 $AD
+;
+
 SR_AC9B:
 	LDA $03			; AC9B	$A5 $03
 	AND #$01		; AC9D	$29 $01
@@ -4524,19 +4552,20 @@ L2ECA7:
 	INC $06			; ACBD	$E6 $06
 L2ECBF:
 	LDA $07			; ACBF	$A5 $07
-	STA $0288		; ACC1	$8D $88 $02
+	STA $0288		; ACC1	$8D $88 $02	OAM[34] Y
 	LDA #$53		; ACC4	$A9 $53
-	STA $0289		; ACC6	$8D $89 $02
+	STA $0289		; ACC6	$8D $89 $02	OAM[34] INDEX
 	LDX char_idx_atk	; ACC9	$A6 $26
 	LDA $7BB6,X		; ACCB	$BD $B6 $7B
-	STA $028A		; ACCE	$8D $8A $02
+	STA $028A		; ACCE	$8D $8A $02	OAM[34] ATTR
 	LDA $06			; ACD1	$A5 $06
-	STA $028B		; ACD3	$8D $8B $02
+	STA $028B		; ACD3	$8D $8B $02	OAM[34] X
 	RTS			; ACD6	$60
 ;
+
 SR_ACD7:
 	LDA #$03		; ACD7	$A9 $03
-	JSR $AD3F		; ACD9	$20 $3F $AD
+	JSR Set_x_y		; ACD9	$20 $3F $AD
 	LDA $03			; ACDC	$A5 $03
 	BEQ L2ECE8		; ACDE	$F0 $08
 	LDA #$F0		; ACE0	$A9 $F0
@@ -4544,13 +4573,13 @@ SR_ACD7:
 	STA $0D			; ACE4	$85 $0D
 	LDA #$0D		; ACE6	$A9 $0D
 L2ECE8:
-	JSR $AD64		; ACE8	$20 $64 $AD
-	JMP $AD19		; ACEA	$4C $19 $AD
+	JSR Set_idx_attr	; ACE8	$20 $64 $AD
+	JMP Atk_char_w_wpn_ani_last	; ACEA	$4C $19 $AD
 ; End of
 
 SR_ACEE:
 	LDA #$0E		; ACEE	$A9 $0E
-	JSR $AD64		; ACF0	$20 $64 $AD	some OAM calcuration ??
+	JSR Set_idx_attr	; ACF0	$20 $64 $AD	some OAM calcuration ??
 	LDA $1C			; ACF3	$A5 $1C
 	STA $06			; ACF5	$85 $06		x ??
 	CLC			; ACF7	$18
@@ -4561,47 +4590,59 @@ SR_ACEE:
 	STA $0B			; AD00	$85 $0B
 	LDY #$10		; AD02	$A0 $10
 	LDA #$02		; AD04	$A9 $02
-	JMP $AD1D		; AD06	$4C $1D $AD
+	JMP Atk_char_w_wpn_ani_last_	; AD06	$4C $1D $AD
 ;
+
 SR_AD09:
 	LDA $03			; AD09	$A5 $03
 	CLC			; AD0B	$18
 	ADC #$03		; AD0C	$69 $03
-	JSR $AD64		; AD0E	$20 $64 $AD
+	JSR Set_idx_attr	; AD0E	$20 $64 $AD
 	LDA #$01		; AD11	$A9 $01
-	JSR $AD3F		; AD13	$20 $3F $AD
-	JMP $AD19		; AD16	$4C $19 $AD
+	JSR Set_x_y		; AD13	$20 $3F $AD
+	JMP Atk_char_w_wpn_ani_last	; AD16	$4C $19 $AD
 ; End of
 
 ; Marks	: $00 = repeat count(tile size)
+;	  $06, $07, $08, $09 = OAM X
+;	  $0A, $0B, $0C, $0D = OAM Y
+Atk_char_w_wpn_ani_last:
 	LDY #$00		; AD19	$A0 $00
 	LDA #$04		; AD1B	$A9 $04
+; A	: repeat count
+; Y	: OAM offset
+; Marks	:
+Atk_char_w_wpn_ani_last_:
 	STA $00			; AD1D	$85 $00
 	LDX #$00		; AD1F	$A2 $00
 L2ED21:
 	LDA $0A,X		; AD21	$B5 $0A
-	STA $0288,Y		; AD23	$99 $88 $02	OAM Y
+	STA $0288,Y		; AD23	$99 $88 $02	OAM[34,35,36,37] Y
 	INY			; AD26	$C8
 	LDA $0E,X		; AD27	$B5 $0E
-	STA $0288,Y		; AD29	$99 $88 $02	OAM INDEX
+	STA $0288,Y		; AD29	$99 $88 $02	OAM[34,35,36,37] INDEX
 	INY			; AD2C	$C8
 	LDA $12,X		; AD2D	$B5 $12
-	STA $0288,Y		; AD2F	$99 $88 $02	OAM ATTR
+	STA $0288,Y		; AD2F	$99 $88 $02	OAM[34,35,36,37] ATTR
 	INY			; AD32	$C8
 	LDA $06,X		; AD33	$B5 $06
-	STA $0288,Y		; AD35	$99 $88 $02	OAM X
+	STA $0288,Y		; AD35	$99 $88 $02	OAM[34,35,36,37] X
 	INY			; AD38	$C8
 	INX			; AD39	$E8
 	CPX $00			; AD3A	$E4 $00
 	BNE L2ED21		; AD3C	$D0 $E3
 	RTS			; AD3E	$60
-; End of
+; End of Atk_char_w_wpn_ani
 
-; Name	:
-; Marks	:
+; Name	: Set_x_y
+; A	:
+; Marks	: $04, $05 = ADC ??
+;	  $06(L), $07(R), $08(L), $09(R) = OAM[34-37] X
+;	  $0A(T), $0B(T), $0C(B), $0D(B) = OAM[34-37] Y
+Set_x_y:
 	ASL A			; AD3F	$0A
 	TAX			; AD40	$AA
-	LDA $93AC,X		; AD41	$BD $AC $93
+	LDA OAM_XY,X		; AD41	$BD $AC $93	BANK 0B/93AC
 	CLC			; AD44	$18
 	ADC $04			; AD45	$65 $04
 	STA $06			; AD47	$85 $06
@@ -4610,7 +4651,7 @@ L2ED21:
 	ADC #$08		; AD4C	$69 $08
 	STA $07			; AD4E	$85 $07
 	STA $09			; AD50	$85 $09
-	LDA $93AD,X		; AD52	$BD $AD $93
+	LDA OAM_XY+1,X		; AD52	$BD $AD $93	BANK 0B/93AD
 	CLC			; AD55	$18
 	ADC $05			; AD56	$65 $05
 	STA $0A			; AD58	$85 $0A
@@ -4620,18 +4661,22 @@ L2ED21:
 	STA $0C			; AD5F	$85 $0C
 	STA $0D			; AD61	$85 $0D
 	RTS			; AF63	$60
-; End of
+; End of Set_x_y
 
-; Name	:
+; Name	: Set_idx_attr
 ; A	:
-; Marks	: $0E-$11, $12-$15
+; Marks	: $0E-$11 = OAM INDEX
+;	  $12-$15 = OAM ATTR
+;	  $00(ADDR) = OAM index 9355-
+;	  $02(ADDR) = OAM attribute 93A0-
+Set_idx_attr:
 	LDX #$05		; AD64	$A2 $05
 	JSR Multi		; AD66	$20 $79 $FC
 	LDA $02			; AD69	$A5 $02
 	ADC #$55		; AD6B	$69 $55
 	STA $00			; AD6D	$85 $00
 	LDA $03			; AD6E	$A5 $03
-	ADC #$93		; AD71	$69 $93
+	ADC #$93		; AD71	$69 $93		BANK 0B/9355
 	STA $01			; AD73	$85 $01
 	LDY #$04		; AD75	$A0 $04
 	LDA ($00),Y		; AD77	$B1 $00
@@ -4639,7 +4684,7 @@ L2ED21:
 	ASL A			; AD7A	$0A
 	ADC #$A0		; AD7B	$69 $A0
 	STA $02			; AD7D	$85 $02
-	LDA #$93		; AD7F	$A9 $93
+	LDA #$93		; AD7F	$A9 $93		BANK 0B/93A0
 	ADC #$00		; AD81	$69 $00
 	STA $03			; AD83	$85 $03
 	LDY #$03		; AD85	$A0 $03
@@ -4651,9 +4696,9 @@ L2ED87:
 .byte $99,$12,$00
 	;STA $0012,Y		; AD8E	$99 $12 $00	ATTR
 	DEY			; AD91	$88
-	BPL L2ED87		; AD92	$10 $F3
+	BPL L2ED87		; AD92	$10 $F3		loop
 	RTS			; AD94	$60
-; End of
+; End of Set_idx_attr
 
 ; $AD95 - data block = jump address[6:0-5]
 Atk_w_wpn_sr_tbl:
@@ -4940,7 +4985,8 @@ L2EF28:
 
 ; Name	: Set_status_gfx
 ; Marks	: load status graphics
-;	  BANK 09/9BC0 (status graphics)
+;	  use BANK 09/9BC0 (status graphics)
+;	  $00(ADDR) = ppu address
 Set_status_gfx:
 	JSR Wait_NMI_end	; AF32	$20 $46 $FD
 	JSR Rst_all_act_OAM_buf	; AF35	$20 $E7 $9D
@@ -5097,9 +5143,9 @@ L2F01F:
 	DEC $04			; B03A	$C6 $04
 	BNE L2F01F		; B03C	$D0 $E1		loop
 	LDA $7BB2,X		; B03E	$BD $B2 $7B	status graphics (FFh = none)
-	CMP #$06		; B041	$C9 $06
+	CMP #$06		; B041	$C9 $06		status graphics (06: confused)
 	BNE L2F048		; B043	$D0 $03
-	JSR $B051		; B045	$20 $51 $B0
+	JSR Status_conf_ani	; B045	$20 $51 $B0
 L2F048:
 	INC $7BDF,X		; B048	$FE $DF $7B	frame conter for status animation
 	DEX			; B04B	$CA
@@ -5107,8 +5153,9 @@ L2F048:
 	JMP Copy_OAM		; B04E	$4C $4E $9E
 ; End of Status_ani
 
-; Name	:
-; Marks	:
+; Name	: Status_conf_ani
+; Marks	: $00(ADDR) = ??
+Status_conf_ani:
 	TXA			; B051	$8A
 	JSR Low_to_high		; B052	$20 $A4 $AD
 	STA $02			; B055	$85 $02
@@ -5126,7 +5173,7 @@ L2F048:
 	EOR #$02		; B06C	$49 $02
 	STA ($00),Y		; B06E	$91 $00
 	RTS			; B070	$60
-; End of
+; End of Status_conf_ani
 
 ; Name	: Attack
 ; Marks	: show attack animation
@@ -5304,6 +5351,7 @@ lr_hand_tmp	= $18
 ; Marks	: $00(ADDR) = $9320 = battle animation graphics
 ;	  Weapon animation graphics (weapon with monster)
 ;	  OAM[28-31] is weapon hit sprite
+;	  use BANK 09
 Weapon_hit_ani:
 	LDA #$20		; B199	$A9 $20
 	STA $00			; B19B	$85 $00
@@ -5326,18 +5374,20 @@ L2F1BF:
 	JSR Apply_wpn_pal	; B1BF	$20 $36 $B4
 	LDX $18			; B1C2	$A6 $18
 	LDA $20,X		; B1C4	$B5 $20		weapon action type ??
-	JSR $B1D2		; B1C6	$20 $D2 $B1	weapon effect animation ??
+	JSR Do_wpn_eft_ani	; B1C6	$20 $D2 $B1	weapon effect animation ??
 	INC $18			; B1C9	$E6 $18
 	LDX $18			; B1CB	$A6 $18
-	CPX #$02		; B1CD	$E0 $02
+	CPX #$02		; B1CD	$E0 $02		motion repeat count
 	BNE L2F1BF		; B1CF	$D0 $EE		loop
 	RTS			; B1D1	$60
 ; End of Weapon_hit_ani
 
-; Name	:
+; Name	: Do_wpn_eft_ani
 ; A	:
 ; Marks	: weapon effect animation ??
 ;	  weapon action type 00h is skip animation ??
+;	  $17 = repeat count
+Do_wpn_eft_ani:
 	TAY			; B1D2	$A8
 	BNE L2F1D6		; B1D3	$D0 $01
 	RTS			; B1D5	$60
@@ -5615,14 +5665,14 @@ L2F385:
 	LDA #$82		; B3C1	$A9 $82
 	STA $14			; B3C3	$85 $14
 	STA $15			; B3C5	$85 $15
-	JSR $AD19		; B3C7	$20 $19 $AD
+	JSR Atk_char_w_wpn_ani_last	; B3C7	$20 $19 $AD
 	JSR Apply_OAM_pal	; B3CA	$20 $33 $9E	wait for vblank (menu, oam & color update)
 	LDA #$02		; B3CD	$A9 $02
 	JSR Gfx_delay		; B3CF	$20 $1F $9E	wait 2 frames
 	DEC $17			; B3D2	$C6 $17
-	BNE L2F360		; B3D4	$D0 $8A
+	BNE L2F360		; B3D4	$D0 $8A		loop
 	RTS			; B3D6	$60
-; End of
+; End of Do_wpn_eft_ani
 
 ; Name	: Set_32_39_OAM
 ; Marks	: $00 = ATTR, $02,$03 = INDEX, $0A.. = X, $0E.. = Y
@@ -5998,6 +6048,7 @@ Magic_ani:
 
 ; Name	: Magic_ani_
 ; Marks	: +$00 = pointers to magic animation graphics
+;	  use BANK 09
 Magic_ani_:
 	LDA $7CB0		; B5FF	$AD $B0 $7C	attack animation id
 	CMP #$18		; B602	$C9 $18

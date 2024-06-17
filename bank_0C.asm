@@ -12,8 +12,13 @@
 .export Move_OAM_XY_bank0C	;8F5B
 
 .import Set_IRQ_JMP		;FA2A
+.import	SR_Battle_pose		;FABC
+.import	SR_Battle_target	;FAC0
+.import	SR_Battle_front		;FAC4
 .import	SR_Battle_mob_dead	;FAC8
 .import	SR_Battle_attack	;FACC
+.import	SR_Battle_cursor	;FAD0
+.import	SR_Battle_char		;FAD4
 .import	SR_Battle_win		;FAD8
 .import	SR_Battle_set_status	;FAE0
 .import SR_Battle_status_ani	;FAE4
@@ -27,7 +32,7 @@
 
 .segment "BANK_0C"
 
-;; [$8000 :: 0x30010]
+;; [$8000 :: 0x30000]
 
 .export	Armor_prop
 .export	Weapon_prop
@@ -885,7 +890,7 @@ L3102F:
 Battle_main_begin:
 	JSR Get_mob_act		; 905E	$20 $5E $A3
 	JSR SR_Battle_set_status; 9061	$20 $E0 $FA	bank 0B - animation $962D
-	JSR $FAD0		; 9064	$20 $D0 $FA	bank 0B - animation $9CEE
+	JSR SR_Battle_cursor	; 9064	$20 $D0 $FA	bank 0B - animation $9CEE
 	LDA #$00		; 9067	$A9 $00
 	STA $9E			; 9069	$85 $9E
 L3106B:
@@ -906,7 +911,7 @@ L3107F:
 	JSR Wait_NMI_end	; 9088	$20 $46 $FD
 	LDA #$04		; 908B	$A9 $04
 	STA $9E			; 908D	$85 $9E
-	JSR $FABC		; 908F	$20 $BC $FA	bank 0B - $9612
+	JSR SR_Battle_pose	; 908F	$20 $BC $FA	bank 0B - $9612
 	LDA #$00		; 9092	$A9 $00
 	STA $9E			; 9094	$85 $9E
 	JSR Wait_MENU_snd	; 9096	$20 $5B $FD
@@ -1065,7 +1070,7 @@ Get_cmd_input:
 	BNE L311D7		; 9198	$D0 $3D
 	JSR Check_conf_par_slp	; 919A	$20 $11 $92
 	BNE L311D7		; 919D	$D0 $38
-	JSR $FABC		; 919F	$20 $BC $FA	bank 0B - $9612
+	JSR SR_Battle_pose	; 919F	$20 $BC $FA	bank 0B - $9612
 	LDA #$01		; 91A2	$A9 $01
 	STA $7CE3		; 91A4	$8D $E3 $7C	current character's spell list ??
 	STA $7CE7		; 91A7	$8D $E7 $7C
@@ -1535,7 +1540,7 @@ Cmd_attack_proc:
 	INC $7CF3,X		; 9468	$FE $F3 $7C	-- physical attack counter
 	JSR Wait_MENU_snd	; 946B	$20 $5B $FD
 	JSR Wait_NMI_end	; 946E	$20,$46 $FD
-	JSR $FAC0		; 9471	$20 $C0 $FA
+	JSR SR_Battle_target	; 9471	$20 $C0 $FA
 	LDY #$2B		; 9474	$A0 $2B
 	LDA ($80),Y		; 9476	$B1 $80
 	CMP #$FF		; 9478	$C9 $FF
@@ -3083,7 +3088,7 @@ L31E23:
 	BCC L31E02		; 9E31	$90 $CF
 L31E33:
 	JSR Wait_NMI_end	; 9E33	$20 $46 $FD
-	JSR $FAC0		; 9E36	$20 $C0 $FA	choose targets
+	JSR SR_Battle_target	; 9E36	$20 $C0 $FA	choose targets
 	JSR Wait_MENU_snd	; 9E39	$20 $5B $FD
 	LDY #$2B		; 9E3C	$A0 $2B
 	LDA ($80),Y		; 9E3E	$B1 $80		targets
@@ -5007,7 +5012,7 @@ L32AE1:
 	JMP Do_act_chk_msg	; AB04	$4C $0D $AB
 L32B07:
 	JSR Chk_low_hp		; AB07	$20 $E0 $AE
-	JSR $FAD4		; AB0A	$20 $D4 $FA	load character graphics
+	JSR SR_Battle_char	; AB0A	$20 $D4 $FA	load character graphics
 Do_act_chk_msg:
 L32B0D:
 	LDX #$00		; AB0D	$A2 $00
@@ -5137,7 +5142,7 @@ L32C03:
 	JMP Do_act_start	; AC0D	$4C $46 $A7	LOOP for next TURN ORDER ==========
 L32C10:
 	JSR Wait_MENUs_NMIe	; AC10	$20 $63 $9A
-	JSR $FAC4		; AC13	$20 $C4 $FA
+	JSR SR_Battle_front	; AC13	$20 $C4 $FA
 	LDA #$00		; AC16	$A9 $00
 	STA $7B4A		; AC18	$8D $4A $7B
 	JSR Wait_MENU_snd	; AC1B	$20 $5B $FD
@@ -5536,7 +5541,7 @@ L32E91:
 	BCS L32E9F		; AE95	$B0 $08
 	STA $27			; AE97	$85 $27
 	JSR Wait_MENUs_NMIe	; AE99	$20 $63 $9A
-	JSR $FAD4		; AE9C	$20 $D4 $FA	load character graphics
+	JSR SR_Battle_char	; AE9C	$20 $D4 $FA	load character graphics
 L32E9F:
 	JSR Wait_MENU_snd	; AE9F	$20 $5B $FD
 	INC $9E			; AEA2	$E6 $9E
@@ -6406,7 +6411,7 @@ Do_magic_action:
 	LDA ($9F),Y             ; B3DC	B1 9F     spell id
 	STA $6C                 ; B3DE	85 6C     
 	STA $5E                 ; B3E0	85 5E     
-	LDX turn_order_cnt	; B3E2	$AE $BB $7C
+	LDX turn_order_cnt	; B3E2	$AE $BB $7C	counter for turn order
 	LDA $7D5E,X             ; B3E5	BD 5E 7D  turn order
 	CMP #$04                ; B3E8	C9 04     
 	BCC L3340D              ; B3EA	90 21     branch if a character
