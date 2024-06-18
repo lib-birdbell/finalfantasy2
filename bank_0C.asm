@@ -926,7 +926,7 @@ Init_battle_ram:
 	LDA #$00		; 909F	$A9 $00
 	LDX #$00		; 90A1	$A2 $00
 L310A3:
-	STA $7CB0,X		; 90A3	$9D $B0 $7C
+	STA atk_ani_id,X	; 90A3	$9D $B0 $7C
 	INX			; 90A6	$E8
 	CPX #$9F		; 90A7	$E0 $9F
 	BNE L310A3		; 90A9	$D0 $F8
@@ -4860,7 +4860,7 @@ L329CA:
 	LDA ($9F),Y		; A9D9	$B1 $9F		status 2
 	AND #$48		; A9DB	$29 $48
 	BNE L329E6		; A9DD	$D0 $07		branch if paralyzed or asleep
-	JSR $FACC		; A9DF	$20 $CC $FA	attack animation - Long loop
+	JSR SR_Battle_attack	; A9DF	$20 $CC $FA	attack animation - Long loop
 	LDA #$01		; A9E2	$A9 $01
 	STA $2B			; A9E4	$85 $2B
 L329E6:
@@ -6395,6 +6395,8 @@ L333C5:
 
 ; Name	: Do_magic_action
 ; Marks	: do magic/item action
+;	  $44(ADDR) = temporary address
+;	  $9F(ADD) = attacter stats
 Do_magic_action:
 	LDA #$00		; B3C6	A9 00     
 	STA $4A                 ; B3C8	85 4A     
@@ -6404,174 +6406,172 @@ Do_magic_action:
 	LDA #$80                ; B3CF	A9 80     
 .byte $8D,$AF,$00
 	;STA $00AF               ; B3D1	8D AF 00  
-	LDA $28                 ; B3D4	A5 28     
-	ORA #$40                ; B3D6	09 40     
-	STA $28                 ; B3D8	85 28     
-	LDY #$2A                ; B3DA	A0 2A     
-	LDA ($9F),Y             ; B3DC	B1 9F     spell id
-	STA $6C                 ; B3DE	85 6C     
-	STA $5E                 ; B3E0	85 5E     
+	LDA $28			; B3D4	$A5 $28
+	ORA #$40		; B3D6	$09 $40
+	STA $28			; B3D8	$85 $28
+	LDY #$2A		; B3DA	$A0 $2A
+	LDA ($9F),Y		; B3DC	$B1 $9F		spell id
+	STA $6C			; B3DE	$85 $6C
+	STA $5E			; B3E0	$85 $5E
 	LDX turn_order_cnt	; B3E2	$AE $BB $7C	counter for turn order
-	LDA $7D5E,X             ; B3E5	BD 5E 7D  turn order
-	CMP #$04                ; B3E8	C9 04     
-	BCC L3340D              ; B3EA	90 21     branch if a character
-	SEC                     ; B3EC	38        monster attacker
-	SBC #$04                ; B3ED	E9 04     
-	TAX                     ; B3EF	AA        
-	LDA $7CD3,X             ; B3F0	BD D3 7C  
-	CLC                     ; B3F3	18        
-	ADC #$64                ; B3F4	69 64     
-	STA $E4                 ; B3F6	85 E4     
-	LDY #$23                ; B3F8	A0 23     
-	LDA ($9F),Y             ; B3FA	B1 9F     palette id
-	STA $7CB1               ; B3FC	8D B1 7C  
-	INY                     ; B3FF	C8        
-	LDA ($9F),Y             ; B400	B1 9F     animation id
-	STA $7CB0               ; B402	8D B0 7C  
-	INY                     ; B405	C8        
-	LDA ($9F),Y             ; B406	B1 9F     
-	STA $29                 ; B408	85 29     
-	JMP Do_magic_act_chk    ; B40A	4C 87 B4  
+	LDA $7D5E,X		; B3E5	$BD $5E $7D	turn order
+	CMP #$04		; B3E8	$C9 $04
+	BCC L3340D		; B3EA	$90 $21		branch if a character
+	SEC			; B3EC	$38		monster attacker
+	SBC #$04		; B3ED	$E9 $04
+	TAX			; B3EF	$AA
+	LDA $7CD3,X		; B3F0	$BD $D3 $7C
+	CLC			; B3F3	$18
+	ADC #$64		; B3F4	$69 $64
+	STA $E4			; B3F6	$85 $E4
+	LDY #$23		; B3F8	$A0 $23
+	LDA ($9F),Y		; B3FA	$B1 $9F		palette id
+	STA $7CB1		; B3FC	$8D $B1 $7C
+	INY			; B3FF	$C8
+	LDA ($9F),Y		; B400	$B1 $9F		animation id
+	STA atk_ani_id		; B402	$8D $B0 $7C
+	INY			; B405	$C8
+	LDA ($9F),Y		; B406	$B1 $9F
+	STA $29			; B408	$85 $29
+	JMP Do_magic_act_chk	; B40A	$4C $87 $B4
 L3340D:
-	LDY #$25                ; B40D	A0 25     character attacker
-	LDA ($9F),Y             ; B40F	B1 9F     spell level
-	STA $29                 ; B411	85 29     
-	LDA $6C                 ; B413	A5 6C     
-	TAX                     ; B415	AA        
-	DEX                     ; B416	CA        
-	TXA                     ; B417	8A        
-	STA $6C                 ; B418	85 6C     
-	CLC                     ; B41A	18        
-	ADC #$64                ; B41B	69 64     
-	STA $E4                 ; B41D	85 E4     
-	LDA $6C                 ; B41F	A5 6C     
-	STA $00                 ; B421	85 00     
-	LDA #$07                ; B423	A9 07     size	7 bytes
-	STA $02                 ; B425	85 02     
-	LDA #$00                ; B427	A9 00     
-	STA $01                 ; B429	85 01     
-	STA $03                 ; B42B	85 03     
-	JSR Multi16             ; B42D	20 98 FC  multiply (16-bit)
+	LDY #$25                ; B40D	$A0 $25		character attacker
+	LDA ($9F),Y             ; B40F	$B1 $9F		spell level
+	STA $29                 ; B411	$85 $29
+	LDA $6C                 ; B413	$A5 $6C
+	TAX                     ; B415	$AA
+	DEX                     ; B416	$CA
+	TXA                     ; B417	$8A
+	STA $6C                 ; B418	$85 $6C     
+	CLC                     ; B41A	$18
+	ADC #$64                ; B41B	$69 $64
+	STA $E4                 ; B41D	$85 $E4
+	LDA $6C                 ; B41F	$A5 $6C
+	STA $00                 ; B421	$85 $00
+	LDA #$07                ; B423	$A9 $07		size	7 bytes
+	STA $02                 ; B425	$85 $02
+	LDA #$00                ; B427	$A9 $00
+	STA $01                 ; B429	$85 $01
+	STA $03                 ; B42B	$85 $03
+	JSR Multi16             ; B42D	$20 $98		FC  multiply (16-bit)
 	LDA $04			; B430	$A5 $04
-	ADC #<Magic_prop
-	;ADC #$D9		; B432	$69 $D9
+	ADC #<Magic_prop	; B432	$69 $D9
 	STA $44			; B434	$85 $44
 	LDA $05			; B436	$A5 $05
-	ADC #>Magic_prop
-	;ADC #$85		; B438	$69 $85
+	ADC #>Magic_prop	; B438	$69 $85
 	STA $45			; B43A	$85 $45		BANK 0C/85D9 (Magic properties)
 	LDY #$00		; B43C	$A0 $00
-	LDA ($44),Y		; B43E	$B1 $44
-	STA $5E			; B440	85 5E     
-	INY                     ; B442	C8        
-	LDA ($44),Y             ; B443	B1 44     byte 1 (spell %)
-	STA $46                 ; B445	85 46     
-	INY                     ; B447	C8        
-	LDA ($44),Y             ; B448	B1 44     byte 2 (spell power)
-	STA $47                 ; B44A	85 47     
-	INY                     ; B44C	C8        
-	LDA ($44),Y             ; B44D	B1 44     byte 3 (parameter 1)
-	STA $48                 ; B44F	85 48     
-	INY                     ; B451	C8        
-	LDA ($44),Y             ; B452	B1 44     byte 4 (parameter 2)
-	STA $49                 ; B454	85 49     
-	INY                     ; B456	C8        
-	LDA ($44),Y             ; B457	B1 44     byte 5 (palette id)
-	STA $7CB1               ; B459	8D B1 7C  
-	INY                     ; B45C	C8        
-	LDA ($44),Y             ; B45D	B1 44     byte 6 (animation id)
-	STA $7CB0               ; B45F	8D B0 7C  
-	LDY #$26                ; B462	A0 26     
-	LDX #$00                ; B464	A2 00     
+	LDA ($44),Y		; B43E	$B1 $44		byte 0 (magic type)
+	STA $5E			; B440	$85 $5E		magic type temp
+	INY			; B442	$C8
+	LDA ($44),Y		; B443	$B1 $44		byte 1 (spell %)
+	STA $46			; B445	$85 $46
+	INY			; B447	$C8   
+	LDA ($44),Y		; B448	$B1 $44		byte 2 (spell power)
+	STA $47			; B44A	$85 $47
+	INY			; B44C	$C8
+	LDA ($44),Y		; B44D	$B1 $44		byte 3 (parameter 1)
+	STA $48			; B44F	$85 $48
+	INY			; B451	$C8
+	LDA ($44),Y		; B452	$B1 $44		byte 4 (parameter 2)
+	STA $49			; B454	$85 $49
+	INY			; B456	$C8
+	LDA ($44),Y		; B457	$B1 $44		byte 5 (palette id)
+	STA $7CB1		; B459	$8D $B1 $7C	attack animation palette
+	INY			; B45C	$C8
+	LDA ($44),Y		; B45D	$B1 $44		byte 6 (animation id)
+	STA atk_ani_id		; B45F	$8D $B0 $7C
+	LDY #$26                ; B462	$A0 $26		mod. spell %
+	LDX #$00                ; B464	$A2 $00
 L33466:
-	LDA $46,X               ; B466	B5 46     
-	STA ($9F),Y             ; B468	91 9F     copy to spell stats
-	INY                     ; B46A	C8        
-	INX                     ; B46B	E8        
-	CPX #$04                ; B46C	E0 04     
-	BNE L33466              ; B46E	D0 F6     
-	LDA $6C                 ; B470	A5 6C     
-	CMP #$14                ; B472	C9 14     
-	BCS L3347E              ; B474	B0 08     
-	LDY #$12                ; B476	A0 12     use intellect
-	JSR Calc_spell_mod      ; B478	20 51 B5  calculate mod. spell stats
-	JMP Do_magic_act_chk    ; B47B	4C 87 B4  
+	LDA $46,X		; B466	$B5 $46
+	STA ($9F),Y		; B468	$91 $9F		copy to spell stats(spell %, spell power, parameter 1, paramter 2)
+	INY			; B46A	$C8
+	INX			; B46B	$E8
+	CPX #$04		; B46C	$E0 $04
+	BNE L33466		; B46E	$D0 $F6		loop
+	LDA $6C			; B470	$A5 $6C
+	CMP #$14		; B472	$C9 $14
+	BCS L3347E		; B474	$B0 $08
+	LDY #$12		; B476	$A0 $12		use intellect
+	JSR Calc_spell_mod	; B478	$20 $51 $B5	calculate mod. spell stats
+	JMP Do_magic_act_chk	; B47B	$4C $87 $B4
 L3347E:
-	CMP #$28                ; B47E	C9 28     
-	BCS L33487              ; B480	B0 05     
-	LDY #$13                ; B482	A0 13     use spirit
-	JSR Calc_spell_mod      ; B484	20 51 B5  calculate mod. spell stats
+	CMP #$28		; B47E	$C9 $28
+	BCS L33487		; B480	$B0 $05
+	LDY #$13		; B482	$A0 $13		use spirit
+	JSR Calc_spell_mod	; B484	$20 $51 $B5	calculate mod. spell stats
 Do_magic_act_chk:
 L33487:
-	JSR Get_target_status1  ; B487	20 76 AF  get target status 1
-	AND #$C0                ; B48A	29 C0     
-	BEQ L3349B              ; B48C	F0 0D     branch if not dead
-	LDA $6C                 ; B48E	A5 6C     
-	CMP #$15                ; B490	C9 15     life can target dead characters
-	BEQ L3349B              ; B492	F0 07     
-	CMP #$17                ; B494	C9 17     esuna can target dead characters
-	BEQ L3349B              ; B496	F0 03     
-	JMP Magic_ineft         ; B498	4C 73 BE  magic ineffective
+	JSR Get_target_status1	; B487	$20 $76 $AF	get target status 1
+	AND #$C0		; B48A	$29 $C0
+	BEQ L3349B		; B48C	$F0 $0D		branch if not dead
+	LDA $6C			; B48E	$A5 $6C
+	CMP #$15		; B490	$C9 $15		life can target dead characters
+	BEQ L3349B		; B492	$F0 $07
+	CMP #$17		; B494	$C9 $17		esuna can target dead characters
+	BEQ L3349B		; B496	$F0 $03
+	JMP Magic_ineft		; B498	$4C $73 $BE	magic ineffective
 L3349B:
-	LDA $A6                 ; B49B	A5 A6     
-	BEQ L334B1              ; B49D	F0 12     
-	LDY #$26                ; B49F	A0 26     
-	LDA ($9F),Y             ; B4A1	B1 9F     save attacker mod. spell %
-	STA $70                 ; B4A3	85 70     
-	LSR                     ; B4A5	4A        
-	STA ($9F),Y             ; B4A6	91 9F     halve spell %
-	INY                     ; B4A8	C8        
-	LDA ($9F),Y             ; B4A9	B1 9F     save attacker mod. spell power
-	STA $71                 ; B4AB	85 71     
-	LSR                     ; B4AD	4A        
-	LSR                     ; B4AE	4A        
-	STA ($9F),Y             ; B4AF	91 9F     
+	LDA $A6			; B49B	$A5 $A6
+	BEQ L334B1		; B49D	$F0 $12
+	LDY #$26		; B49F	$A0 $26
+	LDA ($9F),Y		; B4A1	$B1 $9F		save attacker mod. spell %
+	STA $70			; B4A3	$85 $70
+	LSR			; B4A5	$4A   
+	STA ($9F),Y		; B4A6	$91 $9F		halve spell %
+	INY	 		; B4A8	$C8   
+	LDA ($9F),Y		; B4A9	$B1 $9F		save attacker mod. spell power
+	STA $71			; B4AB	$85 $71
+	LSR			; B4AD	$4A   
+	LSR			; B4AE	$4A   
+	STA ($9F),Y		; B4AF	$91 $9F
 L334B1:
-	JSR Get_target_status1  ; B4B1	20 76 AF  get target status 1
-	AND #$C0                ; B4B4	29 C0     
-	BEQ L334C3              ; B4B6	F0 0B     
-	LDA $6C                 ; B4B8	A5 6C     
-	CMP #$15                ; B4BA	C9 15     
-	BEQ L334C3              ; B4BC	F0 05     
-	CMP #$17                ; B4BE	C9 17     
-	BEQ L334C3              ; B4C0	F0 01     
-	RTS                     ; B4C2	60        
+	JSR Get_target_status1	; B4B1	$20 $76 $AF	get target status 1
+	AND #$C0		; B4B4	$29 $C0
+	BEQ L334C3		; B4B6	$F0 $0B
+	LDA $6C			; B4B8	$A5 $6C
+	CMP #$15		; B4BA	$C9 $15
+	BEQ L334C3		; B4BC	$F0 $05
+	CMP #$17		; B4BE	$C9 $17
+	BEQ L334C3		; B4C0	$F0 $01
+	RTS			; B4C2	$60
 L334C3:
-	LDA $6C                 ; B4C3	A5 6C     
-	CMP #$14                ; B4C5	C9 14     
-	BCS L334CC              ; B4C7	B0 03     
-	JSR Chk_mag_wall        ; B4C9	20 12 BC  check magic wall
+	LDA $6C			; B4C3	$A5 $6C
+	CMP #$14		; B4C5	$C9 $14
+	BCS L334CC		; B4C7	$B0 $03
+	JSR Chk_mag_wall	; B4C9	$20 $12 $BC	check magic wall
 L334CC:
-	LDY #$28                ; B4CC	A0 28     
-	LDA ($9F),Y             ; B4CE	B1 9F     
-	LDY #$17                ; B4D0	A0 17     
-	AND ($A1),Y             ; B4D2	31 A1     
-	BEQ L334D9              ; B4D4	F0 03     
+	LDY #$28		; B4CC	$A0 $28		spell parameter 1
+	LDA ($9F),Y		; B4CE	$B1 $9F
+	LDY #$17		; B4D0	$A0 $17		absorbed elements
+	AND ($A1),Y		; B4D2	$31 $A1
+	BEQ L334D9		; B4D4	$F0 $03
 	JMP Restore_HP		; B4D6	$4C $FB $BC	restore hp
 L334D9:
-	LDA $5E			; B4D9	$A5 $5E     
-	ASL			; B4DB	$0A        
-	CLC			; B4DC	$18        
-	ADC #<Magic_effect_tbl	; B4DD	$69 $8A     BANK 0C/BE8A (magic effect jump table)
-	STA $44			; B4DF	$85 $44     
-	LDA #$00		; B4E1	$A9 $00     
-	ADC #>Magic_effect_tbl	; B4E3	$69 $BE     
-	STA $45			; B4E5	85 $45     
-	LDY #$00		; B4E7	A0 $00     
-	LDA ($44),Y		; B4E9	$B1 $44     
-	STA $46			; B4EB	$85 $46     
-	INY			; B4ED	$C8        
-	LDA ($44),Y		; B4EE	$B1 $44     
-	STA $47                 ; B4F0	85 47     
-	JSR Do_mag_effect       ; B4F2	20 87 BE  do magic effect
-	LDY #$0A                ; B4F5	A0 0A     
-	LDA ($9F),Y             ; B4F7	B1 9F     
-	INY                     ; B4F9	C8        
-	ORA ($9F),Y             ; B4FA	11 9F     
-	BNE L33504              ; B4FC	D0 06     branch if attacker hp is not zero
-	LDY #$08                ; B4FE	A0 08     
-	LDA #$80                ; B500	A9 80     
-	STA ($9F),Y             ; B502	91 9F     make attacker dead
+	LDA $5E			; B4D9	$A5 $5E		magic type temp
+	ASL			; B4DB	$0A
+	CLC			; B4DC	$18
+	ADC #<Magic_effect_tbl	; B4DD	$69 $8A		BANK 0C/BE8A (magic effect jump table)
+	STA $44			; B4DF	$85 $44
+	LDA #$00		; B4E1	$A9 $00
+	ADC #>Magic_effect_tbl	; B4E3	$69 $BE
+	STA $45			; B4E5	$85 $45
+	LDY #$00		; B4E7	$A0 $00
+	LDA ($44),Y		; B4E9	$B1 $44
+	STA $46			; B4EB	$85 $46
+	INY			; B4ED	$C8
+	LDA ($44),Y		; B4EE	$B1 $44
+	STA $47                 ; B4F0	$85 $47
+	JSR Do_mag_effect       ; B4F2	$20 $87 $BE	do magic effect
+	LDY #$0A                ; B4F5	$A0 $0A
+	LDA ($9F),Y             ; B4F7	$B1 $9F
+	INY                     ; B4F9	$C8
+	ORA ($9F),Y             ; B4FA	$11 $9F
+	BNE L33504              ; B4FC	$D0 $06		branch if attacker hp is not zero
+	LDY #$08                ; B4FE	$A0 $08
+	LDA #$80                ; B500	$A9 $80
+	STA ($9F),Y             ; B502	$91 $9F		make attacker dead
 L33504:
 	LDA $71                 ; B504	A5 71     
 	LDY #$27                ; B506	A0 27     
@@ -6699,29 +6699,30 @@ Magic_heal_done:
 
 ; Name	: Inflict_status
 ; Marks	: magic effect $03/$04	inflict status
+;	  break
 Inflict_status:
-	LDA $5E                 ; B5A7	A5 5E     
-	CMP #$04                ; B5A9	C9 04     
-	BEQ L335C8              ; B5AB	F0 1B     
-	LDA #$08                ; B5AD	A9 08     status 1
-	STA $5E                 ; B5AF	85 5E     
-	JSR Infl_status         ; B5B1	20 E2 B5  inflict status
-	LDY #$08                ; B5B4	A0 08     
-	LDA ($A1),Y             ; B5B6	B1 A1     
-	AND #$80                ; B5B8	29 80     
-	BEQ L335C5              ; B5BA	F0 09     
-	LDY #$00                ; B5BC	A0 00     
-	STY $A5                 ; B5BE	84 A5     
-	LDY #$0B                ; B5C0	A0 0B     
-	JSR Set_HP_0            ; B5C2	20 8D B5  set target hp to zero
+	LDA $5E			; B5A7	$A5 $5E		magic type temp
+	CMP #$04		; B5A9	$C9 $04
+	BEQ L335C8		; B5AB	$F0 $1B
+	LDA #$08		; B5AD	$A9 $08
+	STA $5E			; B5AF	$85 $5E		magic type temp - anymore
+	JSR Infl_status		; B5B1	$20 $E2 $B5	inflict status
+	LDY #$08		; B5B4	$A0 $08
+	LDA ($A1),Y		; B5B6	$B1 $A1		status 1
+	AND #$80		; B5B8	$29 $80
+	BEQ L335C5		; B5BA	$F0 $09		branch if not dead
+	LDY #$00		; B5BC	$A0 $00
+	STY $A5			; B5BE	$84 $A5
+	LDY #$0B		; B5C0	$A0 $0B
+	JSR Set_HP_0		; B5C2	$20 $8D $B5	set target hp to zero
 L335C5:
-	JMP inflict_status_end  ; B5C5	4C CF B5  
+	JMP inflict_status_end	; B5C5	$4C $CF $B5
 L335C8:
-	LDA #$09                ; B5C8	A9 09     status 2
-	STA $5E                 ; B5CA	85 5E     
-	JSR Infl_status         ; B5CC	20 E2 B5  inflict status
+	LDA #$09		; B5C8	$A9 $09		status 2
+	STA $5E			; B5CA	$85 $5E
+	JSR Infl_status		; B5CC	$20 $E2 $B5	inflict status
 inflict_status_end:
-	RTS                     ; B5CF	60        
+	RTS			; B5CF	$60        
 ; End of life ??
 
 ; Name	: Comp_5254
@@ -7902,7 +7903,7 @@ Restore_HP:
 	STY $51			; BD04	84 51
 	JSR Add_target_HMP	; BD06	20 1B BD	restore target's hp/mp
 	LDA #$0B		; BD09	A9 0B
-	STA $7CB0		; BD0B	8D B0 7C  	attack animation id
+	STA atk_ani_id		; BD0B	$8D $B0 $7C
 	LDA #$5D		; BD0E	A9 5D		$5D	"HP"
 	JSR Add_msg_que		; BD10	20 92 BF	add to battle message queue
 	LDA #$EA		; BD13	A9 EA		$6A	" up!"

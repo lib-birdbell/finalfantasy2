@@ -563,12 +563,14 @@ Char_low_pos:
 Spell_target:
 .byte $FF,$FF,$01,$E0,$F7
 ; $9355 - (?? x 5 byte) OAM INDEX ??
+OAM_INDEX:
 .byte $50,$51,$52,$53,$00,$51,$50,$53,$52,$01,$53
 .byte $50,$50,$50,$00,$50,$51,$51,$50,$00,$51,$50,$50,$51,$02,$52,$53
 .byte $53,$53,$02,$53,$52,$53,$53,$02,$53,$53,$53,$52,$02,$53,$52,$53
 .byte $53,$02,$54,$54,$54,$54,$02,$55,$55,$55,$55,$02,$56,$56,$56,$56
 .byte $02,$57,$57,$57,$57,$02,$54,$00,$55,$00,$00,$56,$57,$00,$00,$00
 ; $93A0 - OAM ATTR ??
+OAM_ATTR:
 .byte $02,$02,$02,$02,$42,$42,$42,$42,$02,$42,$82,$C2
 ; $93AC
 OAM_XY:
@@ -1664,9 +1666,9 @@ L2DC8D:
 ; Name	: Set_mob_arr
 ; A	: monster y position
 ; X	: monster x position
-; DEST	: $00
-; Marks	: 6543 2x11
-;	  ---- --yx
+; Ret	: $00, $01
+; Marks	: $00 = Y -> 6543 2000
+;	  $01 = ? -> 0000 00yx
 Set_mob_arr:
 	LSR A			; 9CB8	$4A
 	LSR A			; 9CB9	$4A
@@ -1894,7 +1896,7 @@ Apply_OAM_buf:
 
 ; Name	: Set_02_gfxbuf
 ; Marks	: Set $02(ADDR) to $7600
-;	  Init ppu data buffer address
+;	  Init ppu data buffer address to $7600
 Set_02_gfxbuf:
 	LDA #$00		; 9DC6	$A9 $00
 	STA $02			; 9DC8	$85 $02
@@ -2098,7 +2100,7 @@ Copy_OAM_dma_:
 ; Name	: Play_mag_snd_eft
 ; Marks	: Play magic sound effect
 Play_mag_snd_eft:
-	LDA $7CB0		; 9E6B	$AD $B0 $7C	attack animation id
+	LDA atk_ani_id		; 9E6B	$AD $B0 $7C
 	CLC			; 9E6E	$18
 	ADC #$10		; 9E6F	$69 $10
 	TAX			; 9E70	$AA
@@ -2106,7 +2108,7 @@ Play_mag_snd_eft:
 ; X	: Sound effect index
 ; Marks	: Play battle sound effect
 Play_snd_eft:
-	LDA Battle_snd_eft_tbl,X	; 9E72	$BD $0B $93	battle sound effect ??
+	LDA Battle_snd_eft_tbl,X; 9E72	$BD $0B $93	battle sound effect ??
 	TAX			; 9E75	$AA
 	JMP $FA59		; 9E76	$4C $59 $FA	play sound effect
 ; End of Play_snd_eft
@@ -2538,7 +2540,7 @@ L2E10B:
 ; End of Get_char_x
 
 ; Name	: Calc_attr_tbl
-; A	: repeat count($03)
+; A	: repeat count($03) - monster height
 ; X	: another repeat count($02)
 ; Y	: ($04)
 ; SRC	: $00 = monster xy array 6543 2-yx
@@ -2733,6 +2735,8 @@ L2E20C:
 	BCS L2E22F		; A211	$B0 $1C		branch if monster size is big ??
 	LDA $7B7A,Y		; A213	$B9 $7A $7B	??
 ; Name	: Calc_mob_xy
+; A	: 03h
+; Y	: monster index
 ; Marks	:
 Calc_mob_xy:
 	STA $02			; A216	$85 $02
@@ -4673,18 +4677,18 @@ Set_idx_attr:
 	LDX #$05		; AD64	$A2 $05
 	JSR Multi		; AD66	$20 $79 $FC
 	LDA $02			; AD69	$A5 $02
-	ADC #$55		; AD6B	$69 $55
+	ADC #<OAM_INDEX		; AD6B	$69 $55
 	STA $00			; AD6D	$85 $00
 	LDA $03			; AD6E	$A5 $03
-	ADC #$93		; AD71	$69 $93		BANK 0B/9355
+	ADC #>OAM_INDEX		; AD71	$69 $93		BANK 0B/9355
 	STA $01			; AD73	$85 $01
 	LDY #$04		; AD75	$A0 $04
 	LDA ($00),Y		; AD77	$B1 $00
 	ASL A			; AD79	$0A
 	ASL A			; AD7A	$0A
-	ADC #$A0		; AD7B	$69 $A0
+	ADC #<OAM_ATTR		; AD7B	$69 $A0
 	STA $02			; AD7D	$85 $02
-	LDA #$93		; AD7F	$A9 $93		BANK 0B/93A0
+	LDA #>OAM_ATTR		; AD7F	$A9 $93		BANK 0B/93A0
 	ADC #$00		; AD81	$69 $00
 	STA $03			; AD83	$85 $03
 	LDY #$03		; AD85	$A0 $03
@@ -5175,11 +5179,14 @@ Status_conf_ani:
 	RTS			; B070	$60
 ; End of Status_conf_ani
 
+target_id_tmp = $27
+
 ; Name	: Attack
-; Marks	: show attack animation
+; Marks	: show attack animation (very long subroutine)
 ;	  $1E,$1F = ??
 ;	  $20,$21 = action type on each hand ?? (knife==01h,)
 ;	  $22 = current processing l/r hand ??
+;	  $2B = ??
 Attack:
 	JSR Wait_NMI_end	; B071	$20 $46 $FD
 	LDX char_idx_atk	; B074	$A6 $26
@@ -5216,7 +5223,7 @@ L2F096:
 	INX			; B0AF	$E8
 	STX $07			; B0B0	$86 $07
 L2F0B2:
-	LDX $22			; B0B2	$A6 $22		loop counter ??
+	LDX $22			; B0B2	$A6 $22		loop counter ?? l/r hand ??
 	LDA $20,X		; B0B4	$B5 $20
 	JSR Set_tile_to_ppu	; B0B6	$20 $BD $A2
 	LDX $22			; B0B9	$A6 $22
@@ -5227,25 +5234,25 @@ L2F0B2:
 	LDA #$08		; B0C3	$A9 $08
 L2F0C5:
 	JSR Set_wpn_tile_ppu	; B0C5	$20 $A9 $AB
-	LDX $22			; B0C8	$A6 $22
+	LDX $22			; B0C8	$A6 $22		l/r hand ??
 	JSR Apply_wpn_pal	; B0CA	$20 $36 $B4
 	JSR Attack_char_wpn_ani	; B0CD	$20 $B5 $B4	attack animation 0000 - character with weapon - have subroutine by weapon
 L2F0D0:
-	LDX $22			; B0D0	$A6 $22
+	LDX $22			; B0D0	$A6 $22		l/r hand ??
 	DEX			; B0D2	$CA
 	BPL L2F08B		; B0D3	$10 $B6		loop - next hand(left -> right)
 	JSR Rst_all_act_OAM_buf	; B0D5	$20 $E7 $9D	Reset ??? OAM[1-39] buffer
 	LDX char_idx_atk	; B0D8	$A6 $26
-	JSR Draw_char		; B0DA	$20 $3A $A4	check character graphics type
+	JSR Draw_char		; B0DA	$20 $3A $A4	check character graphics type - normal pose
 	JSR Apply_OAM		; B0DD	$20 $2A $9E
 	LDX char_idx_atk	; B0E0	$A6 $26
 	JSR Char_mov_base	; B0E2	$20 $33 $A6
 L2F0E5:
-	JMP JB0EB		; B0E5	$4C $EB $B0
+	JMP Attack_chk_target 	; B0E5	$4C $EB $B0
 Attack_char:
-	JMP JB0EB		; B0E8	$4C $EB $B0
-JB0EB:
-	LDX $27			; B0EB	$A6 $27		target id
+	JMP Attack_chk_target	; B0E8	$4C $EB $B0
+Attack_chk_target:
+	LDX target_id_tmp	; B0EB	$A6 $27
 	CPX #$04		; B0ED	$E0 $04
 	BCC Attack_target_p	; B0EF	$90 $0F		branch if target is player
 	LDX char_idx_atk	; B0F1	$A6 $26
@@ -5960,8 +5967,10 @@ L2F562:
 	RTS			; B577	$60
 ; End of Attack_char_wpn_ani(Bow attack)
 
-; Name	:
-; Marks	:
+; Name	: SR_Mag_rdy
+; Marks	: magic ready animation
+;	  $18 = ??
+;	  $19 = motion?? animation number?? +2
 SR_Mag_rdy:	; Magic
 	INY			; B578	C8
 	INY			; B579	C8
@@ -5974,7 +5983,7 @@ L2F585:
 	LDA $18			; B585	A5 18
 	AND #$01		; B587	29 01
 	BEQ L2F58F		; B589	F0 04
-	LDA #$0F		; B58B	A9 0F
+	LDA #$0F		; B58B	A9 0F		color for motion A/B
 	BNE L2F592		; B58D	D0 03
 L2F58F:
 	LDA $79C1		; B58F	AD C1 79	color palette sprite_2.1
@@ -5983,10 +5992,10 @@ L2F592:
 	LDX $18			; B595	A6 18
 	LDA Mag_motion_tbl,X	; B597	BD E8 B5
 	STA atk_ani_AB_tmp	; B59A	85 16
-	JSR Atk_pose		; B59C	20 AE B5
+	JSR Atk_pose		; B59C	20 AE B5	pose with magic ball
 	DEC $18			; B59F	C6 18
 	BPL L2F585		; B5A1	10 E2		loop
-	LDA #$0F		; B5A3	A9 0F
+	LDA #$0F		; B5A3	A9 0F		color for motion A/B
 	JSR Set_pal_x0		; B5A5	20 71 9D
 	JMP Apply_OAM_pal	; B5A8	4C 33 9E	wait for vblank (menu, oam & color update)
 ; End of SR_Mag_rdy
@@ -6047,12 +6056,14 @@ Magic_ani:
 ; End of Magic_ani
 
 ; Name	: Magic_ani_
-; Marks	: +$00 = pointers to magic animation graphics
+; Marks	: 1st +$00 = pointers to magic animation graphics
+; SRC	: +$02 = pointers to graphics buffer address($7600)
+; DEST	: 2nd +$00 = pointers to PPU
 ;	  use BANK 09
 Magic_ani_:
-	LDA $7CB0		; B5FF	$AD $B0 $7C	attack animation id
+	LDA atk_ani_id		; B5FF	$AD $B0 $7C
 	CMP #$18		; B602	$C9 $18
-	BCS L2F63F		; B604	$B0 $39		branch
+	BCS L2F63F		; B604	$B0 $39		branch if animation not defined ?? (max is 17h)
 	ASL			; B606	$0A
 	TAX			; B607	$AA
 	LDA Mag_ani_p,X		; B608	$BD $62 $B6	pointers to magic animation graphics
@@ -6065,7 +6076,7 @@ Magic_ani_:
 	LDA #$40		; B619	$A9 $40
 	STA $00			; B61B	$85 $00
 	LDA #$04		; B61D	$A9 $04
-	STA $01			; B61F	$85 $01
+	STA $01			; B61F	$85 $01		Set PPU address to $0440: $00(ADDR)
 	JSR Set_02_gfxbuf	; B621	$20 $C6 $9D
 L2F624:
 	JSR Wait_MENU_snd	; B624	$20 $5B $FD	wait for first menu scanline
@@ -6078,10 +6089,10 @@ L2F624:
 	TYA			; B632	$98
 	CLC			; B633	$18
 	ADC $00			; B634	$65 $00
-	STA $00			; B636	$85 $00
+	STA $00			; B636	$85 $00		address add 06h on $00(ADDR), $02(ADDR)
 	JSR Wait_NMI_end	; B638	$20 $46 $FD	wait for first battlefield scanline
 	LDA $00			; B63B	$A5 $00
-	BNE L2F624		; B63D	$D0 $E5
+	BNE L2F624		; B63D	$D0 $E5		loop for copy to PPU
 L2F63F:
 	JSR Rst_all_act_OAM_buf	; B63F	$20 $E7 $9D
 	JSR Apply_OAM		; B642	$20 $2A $9E	wait for vblank (menu & oam update)
@@ -6089,7 +6100,7 @@ L2F63F:
 	LDY #$19		; B648	$A0 $19		sprite palette 2
 	JSR Set_wpn_pal		; B64A	$20 $03 $FC	load battle palette
 	JSR Apply_OAM_pal	; B64D	$20 $33 $9E	wait for vblank (menu, oam & color update)
-	LDA $7CB0		; B650	$AD $B0 $7C	attack animation id
+	LDA atk_ani_id		; B650	$AD $B0 $7C
 	ASL			; B653	$0A
 	TAX			; B654	$AA
 	LDA Mag_SR_tbl,X	; B655	$BD $92 $B6	magic animation jump table
@@ -6925,9 +6936,10 @@ L2FBAB:
 	RTS			;BBAB	$60 
 ; End of
 
+; Marks	: magic break - monster color change to gray scale
 SR_BBAC:
 	JSR Play_mag_snd_eft	;BBAC	$20 $6B $9E	play magic sound effect
-	LDY $27			;BBAF	$A4 $27		target id
+	LDY target_id_tmp	;BBAF	$A4 $27
 	CPY #$04		;BBB1	$C0 $04 
 	BCC L2FBD2		;BBB3	$90 $1D		branch if player
 	DEY			;BBB5	$88 
@@ -7173,7 +7185,7 @@ SR_BD31:
 	LDY #$01		;BD39	$A0 $01
 L2FD3B:
 	STY $02			;BD3B	$84 $02
-	LDX $7CB0		;BD3D	$AE $B0 $7C	color palette background_2.0
+	LDX atk_ani_id		;BD3D	$AE $B0 $7C
 	CPX #$13		;BD40	$E0 $13
 	BEQ L2FD49		;BD42	$F0 $05
 	LDA Pal_color,Y		;BD44	$B9 $B6 $93
@@ -7198,7 +7210,7 @@ L2FD54:
 	LDA #$00		;BD69	$A9 $00
 	STA $39			;BD6B	$85 $39
 	JSR Apply_OAM_pal	;BD6D	$20 $33 $9E	wait for vblank (menu,oam & color update)
-	LDA $7CB0		;BD70	$AD $B0 $7C	color_palette background_2.0
+	LDA atk_ani_id		;BD70	$AD $B0 $7C
 	CMP #$14		;BD73	$C9 $14
 	BEQ L2FD78		;BD75	$F0 $01
 	RTS			;BD77	$60

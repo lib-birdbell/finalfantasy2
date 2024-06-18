@@ -555,7 +555,7 @@ char_x_bpos		= $7BD2
 
 
 
-
+atk_ani_id		= $7CB0
 
 turn_order_cnt		= $7CBB
 
