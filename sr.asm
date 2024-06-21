@@ -1,4 +1,41 @@
 
+; Name	: Mob_flashing
+; Marks	: 57 bytes(39h)
+Mob_flashing:
+	PHA			; BF03	$48
+	LDA $02			; A5 02
+	PHA			; 48
+	LDA $03			; A5 03
+	PHA			; 48
+	LDY $26			; A9 26	turn order temp
+	DEY			; 88
+	DEY			; 88
+	DEY			; 88
+	DEY			; 88
+	LDA #$03		; BF10	$A9 $03 	color bg palette_3
+	JSR Calc_mob_xy		; BF12	$20 $16 $A1
+	JSR Wait_MENUs_NMI	; 20 3F 9D
+	JSR Copy_l_attr		; BF18	$20 $E4 $A0	copy left attribute table to ppu
+	JSR Wait_NMI_end	; BF1B	$20 $46 $FD	wait for first battle field scanline
+	LDA #$02		; BF1E	$A9 $02
+	JSR Gfx_delay		; BF20	$20 $1F $9D	wait 2 frames
+	LDA $26			; A5 26
+	SEC			; 38
+	SBC #$04		; E9 04	- 5 bytes
+	JSR Init_mob_attr	; BF28	$20 $05 $A1
+	JSR Wait_MENUs_NMI	; 20 3F 9D
+	JSR Copy_l_attr		; BB2E	$20 $E4 $A0	copy left attribute table to ppu
+	JSR Wait_NMI_end	; BB31	$20 $46 $FD	wait for first battle field scanline
+	PLA			; 68
+	LDA $03			; A5 03
+	PLA			; 68
+	LDA $02			; A5 02
+	PLA			; 68
+	RTS			; 60
+; End of Mob_flashing
+
+;--------------------------------------------------------------------------------------
+
 ; Number tile image 0-9
 Number_tile:
 .byte $3C,$7E,$FF,$FF,$FF,$FF,$7E,$3C,$00,$3C,$66,$66,$66,$66,$3C,$00	; '0'
@@ -310,6 +347,38 @@ Show_miss:
 	STA $66
 	JMP Show_dmg
 ; End of Show_miss
+
+; Name	: Show_poison
+; Marks	: +$80 = status base address(current)
+;	  +$9F = status base address for Show_dmg
+;	  $44 = poison/venom dmg
+;	  +$62 = damage
+Show_poison:
+	LDA $80			; 8DBD	$A5 $80
+	STA $9F			; 8DBF	$85 $9F
+	LDA $81			; 8DC1	$A5 $81
+	STA $A0			; 8DC3	$85 $A0
+	LDA $9E			; 8DC5	$A5 $9E	order (00h-03h = player, 04h-0Bh = enemy)
+	CMP #$04		; 8DC7	$C9 $04
+	BCC Show_poison_enemy	; 8DC9	$90 $05
+	SEC			; 8DCB	$38
+	SBC #$04		; 8DCC	$E9 $04
+	ORA #$80		; 8DCE	$09 $80	enemy flag	- 5 byte
+.if 0
+	SBC #$0B or #$0D
+	AND #$87
+.endif
+Show_poison_enemy:
+	LDY #$2B		; 8DD0	$A0 $2B	status target m??? aiii
+	STA ($9F),Y		; 8DD2	$91 $9F
+	LDA $44			; 8DD4	$A5 $44
+	STA $62			; 8DD6	$85 $62
+	LDA #$00		; 8DD8	$A9 $00
+	STA $63			; 8DDA	$85 $63
+	JSR HtoD		; 8DDC	$20 $A0 $96	convert hex to decimal
+	JSR Show_dmg		; 8DDF	$20 $2B $8C
+	RTS			; 8DE2	$60
+; End of Show_poison
 
 
 ;----------------------------------------------------

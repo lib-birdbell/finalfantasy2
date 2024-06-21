@@ -636,8 +636,11 @@ Mob_AI:
 .byte $55,$57,$5C,$81,$71,$5B,$6E,$67	; 8E33
 .byte $10,$00,$10,$00,$00,$00,$00,$00	; 8E3B
 .byte $0F,$00,$0F,$00,$00,$00,$00,$00	; 8E43
+;bit:0, 1,     2,     3,    4,   5,   6,       7
+;    ??,low hp,poison,sleep,mute,mini,paralyze,confuse
 Mob_AI_Sp_atk:				; 26
 .byte $00,$00,$46,$3C,$32,$28,$1E,$14	; 8E4B
+
 .byte $21,$21,$21,$21,$21,$21,$21,$21	; 8E53
 .byte $52,$52,$52,$52,$52,$52,$52,$52	; 8E5B
 .byte $22,$23,$24,$25,$22,$23,$24,$25	; 8E63
@@ -4703,7 +4706,7 @@ L328B7:
 	LDA ($9F),Y		; A8BD	$B1 $9F		target m???aiii ??
 	AND #$08		; A8BF	$29 $08
 	BEQ L328D4		; A8C1	$F0 $11
-	LDA ($9F),Y		; A8C3	$B1 $9F		ally target
+	LDA ($9F),Y		; A8C3	$B1 $9F		all target
 	PHA			; A8C5	$48
 	BMI L328CB		; A8C6	$30 $03
 	SEC			; A8C8	$38
@@ -5483,9 +5486,15 @@ L32E25:
 ; Name	: Chk_sp_atk
 ; Marks	: not certain
 ;	  use another BANK
+;	  $27 = player index temp
+;	  $44 = check status2 loop count temp
+;	  $45 = status 2 temp
+;	  $46 = probability % temp
+;	  $47 = status 2 for bit shift temp
+;	  $9E = current character index
 Chk_sp_atk:
 	LDA #$00		; AE28	$A9 $00
-	STA $9E			; AE2A	$85 $9E
+	STA cur_char_idx	; AE2A	$85 $9E
 Mob_sp_atk:
 	JSR Wait_NMI_end	; AE2C	$20 $46 $FD
 	JSR Update_addr		; AE2F	$20 $E1 $96	get status 2
@@ -5497,16 +5506,16 @@ Mob_sp_atk:
 	JSR Get_stat_status2	; AE3D	$20 $80 $AF	get status 2
 	STA $45			; AE40	$85 $45
 	STA $47			; AE42	$85 $47
-L32E44:
-	LSR $47			; AE44	$46 $47
+Mob_sp_atk_status2:
+	LSR $47			; AE44	$46 $47		bit check buffer
 	BCC L32E67		; AE46	$90 $1F
 	LDX #$01		; AE48	$A2 $01
 	LDA #$64		; AE4A	$A9 $64
 	JSR Random		; AE4C	$20 $11 $FD	random (X..A)
-	STA $46			; AE4F	$85 $46
+	STA $46			; AE4F	$85 $46		restoration probability %
 	LDA $44			; AE51	$A5 $44
 	TAX			; AE53	$AA
-	LDA Mob_AI_Sp_atk,X	; AE54	$BD $4B $8E	BANK 0C/8E4B (special attack) - undead ??
+	LDA Mob_AI_Sp_atk,X	; AE54	$BD $4B $8E	BANK 0C/8E4B (special attack) - restoration probability
 	SEC			; AE57	$38
 	SBC $46			; AE58	$E5 $46
 	BCC L32E67		; AE5A	$90 $0B
@@ -5519,8 +5528,8 @@ L32E67:
 	INC $44			; AE67	$E6 $44
 	LDA $44			; AE69	$A5 $44
 	CMP #$08		; AE6B	$C9 $08
-	BNE L32E44		; AE6D	$D0 $D5
-	JSR Get_stat_status2	; AE6F	$20 $80 $AF	get status 2
+	BNE Mob_sp_atk_status2	; AE6D	$D0 $D5		loop for bit check
+	JSR Get_stat_status2	; AE6F	$20 $80 $AF	get status 2 ---------- check poison/venom/draw status
 	AND #$04		; AE72	$29 $04		poison
 	BEQ L32E80		; AE74	$F0 $0A
 	LDX #$00		; AE76	$A2 $00
@@ -5536,16 +5545,16 @@ L32E80:
 	JSR Random		; AE8B	$20 $11 $FD	random (X..A)
 	JSR Poison_dmg		; AE8E	$20 $B0 $AE
 L32E91:
-	LDA $9E			; AE91	$A5 $9E
+	LDA cur_char_idx	; AE91	$A5 $9E
 	CMP #$04		; AE93	$C9 $04
-	BCS L32E9F		; AE95	$B0 $08
+	BCS L32E9F		; AE95	$B0 $08		branch if monster(skip)
 	STA $27			; AE97	$85 $27
 	JSR Wait_MENUs_NMIe	; AE99	$20 $63 $9A
 	JSR SR_Battle_char	; AE9C	$20 $D4 $FA	load character graphics
 L32E9F:
 	JSR Wait_MENU_snd	; AE9F	$20 $5B $FD
-	INC $9E			; AEA2	$E6 $9E
-	LDA $9E			; AEA4	$A5 $9E
+	INC cur_char_idx	; AEA2	$E6 $9E
+	LDA cur_char_idx	; AEA4	$A5 $9E
 	CMP #$0C		; AEA6	$C9 $0C
 	BEQ L32EAD		; AEA8	$F0 $03
 	JMP Mob_sp_atk		; AEAA	$4C $2C $AE

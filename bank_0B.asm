@@ -825,7 +825,7 @@ L2D744:
 ; End of Reset_all_pal
 
 ; ????? - unused
-	JSR Wait_MENU_NMI	; 974C	$20 $3F $9E
+	JSR Wait_MENUs_NMI	; 974C	$20 $3F $9E
 
 ; Name	: Set_underbar_tile
 ; Marks	: ppu $1050-$105F = 00h
@@ -840,7 +840,7 @@ Set_underbar_tile:
 ; End of Set_underbar_tile
 
 ; unused ??
-	JSR Wait_MENU_NMI	; 975C	$20 $3F $9E
+	JSR Wait_MENUs_NMI	; 975C	$20 $3F $9E
 	LDY #$10		; 975F	$A0 $10
 	JSR Fill_ppu_blk	; 9761	$20 $2B $97
 	LDY #$18		; 9764	$A0 $18
@@ -1667,7 +1667,7 @@ L2DC8D:
 ; A	: monster y position
 ; X	: monster x position
 ; Ret	: $00, $01
-; Marks	: $00 = Y -> 6543 2000
+; Marks	: $00 = Y -> 6543 20yx
 ;	  $01 = ? -> 0000 00yx
 Set_mob_arr:
 	LSR A			; 9CB8	$4A
@@ -2038,7 +2038,7 @@ Gfx_delay:
 ; Marks	: Have to be called in scanline 241 - 151(before MENU/sprite 0 hit)
 ;	  Use 1 frame
 Apply_OAM:
-	JSR Wait_MENU_NMI	; 9E2A	$20 $3F $9E
+	JSR Wait_MENUs_NMI	; 9E2A	$20 $3F $9E
 	JSR Copy_OAM_dma_	; 9E2D	$20 $60 $9E
 	JMP Wait_NMI_end	; 9E30	$4C $46 $FD
 ; End of Apply_OAM
@@ -2046,18 +2046,18 @@ Apply_OAM:
 ; Name	: Apply_OAM_pal
 ; Marks	:
 Apply_OAM_pal:
-	JSR Wait_MENU_NMI	; 9E33	$20 $3F $9E
+	JSR Wait_MENUs_NMI	; 9E33	$20 $3F $9E
 	JSR Copy_OAM_dma_	; 9E36	$20 $60 $9E
 	JSR Apply_palettes	; 9E39	$20 $7C $9D
 	JMP Wait_NMI_end	; 9E3C	$4C $46 $FD
 ; End of Apply_OAM_pal
 
-; Name	: Wait_MENU_NMI
-; Marks	: Wait MENU -> Wait NMI
-Wait_MENU_NMI:
+; Name	: Wait_MENUs_NMI
+; Marks	: Wait MENU with sound -> Wait NMI
+Wait_MENUs_NMI:
 	JSR Wait_MENU_snd	; 9E3F	$20 $5B $FD
 	JMP Set_IRQ_JMP		; 9E42	$4C $2A $FA	Wait NMI
-; End of Wait_MENU_NMI
+; End of Wait_MENUs_NMI
 
 
 
@@ -2541,11 +2541,11 @@ L2E10B:
 
 ; Name	: Calc_attr_tbl
 ; A	: repeat count($03) - monster height
-; X	: another repeat count($02)
-; Y	: ($04)
-; SRC	: $00 = monster xy array 6543 2-yx
-;	  $01 =
-; Marks	:
+; X	: repeat count($02) - monster width
+; Y	: ($04) - 03h = attribute value ??
+; SRC	: $00 = Y -> 6543 20yx
+;	  $01 = monster xy array 0000 00yx
+; Marks	: attribute = bit76,54,32,10 = bottom right | bottom left | top right | top left
 Calc_attr_tbl:
 	STX $02			; A10F	$86 $02
 	STA $03			; A111	$85 $03
@@ -2553,7 +2553,7 @@ Calc_attr_tbl:
 L2E115:
 	LDA $04			; A115	$A5 $04
 	STA $05			; A117	$85 $05
-	LDA #$FC		; A119	$A9 $FC
+	LDA #$FC		; A119	$A9 $FC		start from top left(xxxx xxoo)
 	LDY $01			; A11B	$A4 $01
 	STY $07			; A11D	$84 $07
 	BEQ L2E12B		; A11F	$F0 $0A
@@ -2566,25 +2566,25 @@ L2E121:
 	DEY			; A128	$88
 	BNE L2E121		; A129	$D0 $F6
 L2E12B:
-	STA $06			; A12B	$85 $06
+	STA $06			; A12B	$85 $06		bit mask
 	LDX $02			; A12D	$A6 $02
 	LDY $00			; A12F	$A4 $00
 L2E131:
 	LDA $79C8,Y		; A131	$B9 $C8 $79	left screen attribute table
-	AND $06			; A134	$25 $06
-	ORA $05			; A136	$05 $05
+	AND $06			; A134	$25 $06		bit mask(FC,F3,3F,CF)
+	ORA $05			; A136	$05 $05		bit fill data, each 2bit
 	STA $79C8,Y		; A138	$99 $C8 $79	left screen attribute table
 	LDA $07			; A13B	$A5 $07
 	EOR #$01		; A13D	$49 $01
 	STA $07			; A13F	$85 $07
 	AND #$01		; A141	$29 $01
 	SEC			; A143	$38
-	BEQ L2E150		; A144	$F0 $0A
+	BEQ L2E150		; A144	$F0 $0A		branch if before attribute is right
 	ROL $06			; A146	$26 $06
 	ROL $06			; A148	$26 $06
 	ASL $05			; A14A	$06 $05
 	ASL $05			; A14C	$06 $05
-	BCC L2E159		; A14E	$90 $09
+	BCC L2E159		; A14E	$90 $09		branch if FCh(top left)
 L2E150:
 	ROR $06			; A150	$66 $06
 	ROR $06			; A152	$66 $06
@@ -2693,11 +2693,14 @@ Set_attr_9216:
 
 ; Name	: Copy_l_attr
 ; Marks	: Copy left screen attribute table to ppu
+;	  from $02(ADDR) = $79C8 to
+;	  $00(ADDR) = $2300
+;	  size to copy is 40h
 Copy_l_attr:
 	LDA #$C8		; A1E4	$A9 $C8
 	STA $02			; A1E6	$85 $02
 	LDA #$79		; A1E8	$A9 $79
-	STA $03			; A1EA	$85 $03		src $79C8
+	STA $03			; A1EA	$85 $03		src $79C8(left screen attribute table)
 	LDA #$23		; A1EC	$A9 $23		dest ppu 23C0 (left screen attribute table)
 Copy_attr_to_ppu:
 	STA $01			; A1EE	$85 $01
@@ -2980,7 +2983,7 @@ L2E387:
 	ADC $02			; A390	65 02
 	STA $00			; A392	85 00
 	LDA #$88		; A394	A9 88
-	STA $01			; A396	85 01		BANK ??
+	STA $01			; A396	85 01		BANK 09/8840 (tile address) = $00
 	BNE L2E3A4		; A398	D0 0A
 L2E39A:
 	ASL $02			; A39A	06 02
@@ -4289,7 +4292,7 @@ L2EB18:
 	STA $01			; AB1E	$85 $01
 L2EB20:
 	JSR Invert_39h		; AB20	$20 $76 $AB
-	JSR Wait_MENU_NMI	; AB23	$20 $3F $9E
+	JSR Wait_MENUs_NMI	; AB23	$20 $3F $9E
 	JSR Copy_ppu_to_buf	; AB26	$20 $95 $AB
 	JSR Wait_NMI_end	; AB29	$20 $46 $FD
 	LDX #$00		; AB2C	$A2 $00
@@ -4344,7 +4347,7 @@ Invert_39h:
 ; SRC	: $12=ppu address L, $13=ppu address H, $06=copy to size, +$00 = ppu address
 ; Marks	: Set ppu data as 00h
 Clear_ppu:
-	JSR Wait_MENU_NMI	; AB7D	$20 $3F $9E
+	JSR Wait_MENUs_NMI	; AB7D	$20 $3F $9E
 	JSR Copy_OAM_dma_	; AB80	$20 $60 $9E
 	LDA $12			; AB83	$A5 $12
 	STA $00			; AB85	$85 $00
@@ -5192,7 +5195,7 @@ Attack:
 	LDX char_idx_atk	; B074	$A6 $26
 	CPX #$04		; B076	$E0 $04
 	BCC L2F07D		; B078	$90 $03		branch if attacker is player
-	JMP Attack_char		; B07A	$4C $E8 $B0
+	JMP Attack_mob_to_char	; B07A	$4C $E8 $B0
 L2F07D:
 	LDA $2B			; B07D	$A5 $2B
 	BNE L2F0E5		; B07F	$D0 $64
@@ -5249,7 +5252,7 @@ L2F0D0:
 	JSR Char_mov_base	; B0E2	$20 $33 $A6
 L2F0E5:
 	JMP Attack_chk_target 	; B0E5	$4C $EB $B0
-Attack_char:
+Attack_mob_to_char:
 	JMP Attack_chk_target	; B0E8	$4C $EB $B0
 Attack_chk_target:
 	LDX target_id_tmp	; B0EB	$A6 $27
@@ -6948,7 +6951,7 @@ SR_BBAC:
 	DEY			;BBB8	$88 
 	LDA #$03		;BBB9	$A9 $03 
 	JSR Calc_mob_xy		;BBBB	$20 $16 $A2
-	JSR Wait_MENU_NMI	;BBBE	$20 $3F $9E	render menu and wait for vblank
+	JSR Wait_MENUs_NMI	;BBBE	$20 $3F $9E	render menu and wait for vblank
 	JSR Copy_l_attr		;BBC1	$20 $E4 $A1	copy left attribute table to ppu
 	JSR Wait_NMI_end	;BBC4	$20 $46 $FD	wait for first battle field scanline
 	LDA #$06		;BBC7	$A9 $06 $

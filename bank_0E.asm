@@ -242,11 +242,45 @@
 ; ========== MAP/MENU CODE START($8800-$C000) ==========
 ;; [$8800 :: 0x38800]
 
-.byte $A2,$00,$A9,$14,$85,$40,$A9,$0F,$85,$41,$20,$52,$88,$A2,$40,$A9
-.byte $84,$85,$40,$A9,$0F,$85,$41,$20,$52,$88,$A2,$80,$A9,$24,$85,$40
-.byte $A9,$5F,$85,$41,$20,$52,$88,$A2,$C0,$A9,$94,$85,$40,$A9,$5F,$85
-.byte $41,$D0,$1F,$A9,$0F,$85,$41,$A9,$64,$85,$40,$D0,$15,$A9,$14,$85
-.byte $40,$A9,$0F,$85,$41,$D0,$0B
+; Name	:
+; Marks	: draw portait (main menu)
+	LDX #$00		; 8800	$A2 $00
+	LDA #$14		; 8802	$A9 $14
+	STA $40			; 8804	$85 $40
+	LDA #$0F		; 8806	$A9 $0F
+	STA $41			; 8808	$85 $41
+	JSR $8852		; 880A	$20 $52 $88	draw portrait
+	LDX #$40		; 880D	$A2 $40
+	LDA #$84		; 880F	$A9 $84
+	STA $40			; 8811	$85 $40
+	LDA #$0F		; 8813	$A9 $0F
+	STA $41			; 8815	$85 $41
+	JSR $8852		; 8817	$20 $52 $88	draw portrait
+	LDX #$80		; 881A	$A2 $80
+	LDA #$24		; 881C	$A9 $24
+	STA $40			; 881E	$85 $40
+	LDA #$5F		; 8820	$A9 $5F
+	STA $41			; 8822	$85 $41
+	JSR $8852		; 8824	$20 $52 $88	draw portrait
+	LDX #$C0		; 8827	$A2 $C0
+	LDA #$94		; 8829	$A9 $94
+	STA $40			; 882B	$85 $40
+	LDA #$5F		; 882D	$A9 $5F
+	STA $41			; 882F	$85 $41
+	BNE L38852		; 8831	$D0 $1F		draw portrait
+; Marks	: draw portrait (equip/magic menu)
+	LDA #$0F		; 8833	$A9 $0F
+	STA $41			; 8835	$85 $41
+	LDA #$64		; 8837	$A9 $64
+	STA $40			; 8839	$85 $40
+	BNE L38852		; 883B	$D0 $15		draw portrait
+; Name	:
+; Marks	: draw portrait (stats menu)
+	LDA #$14		; 883D	$A9 $14
+	STA $40			; 883F	$85 $40
+	LDA #$0F		; 8841	$A9 $0F
+	STA $41			; 8843	$85 $41
+	BNE L38852		; 8845	$D0 $0B		draw portrait
 ; Name	:
 ; Marks	:
 	LDA #$44		; 8847	$A9 $44
@@ -254,9 +288,15 @@
 	LDA #$1F		; 884B	$A9 $1F
 	STA $41			; 884D	$85 $41
 	BNE L38857		; 884F	$D0 $06		must go to ??
+L38851:
 	RTS			; 8851	$60
 ; End of
-.byte $BD,$35,$62,$30,$FA
+
+; X	:
+; Marks	: draw potrait
+L38852:
+	LDA $6235,X		; 8852	$BD $35 $62
+	BMI L38851		; 8855	$30 $FA
 ; X	:
 ; Marks	:
 ;	  OAM copy to buffer ?? Set character potrait ??
@@ -355,117 +395,771 @@ L388EE:
 	RTS			; 890A	$60
 ; End of
 
-; data block---
+; data block = portrait palette id
 ; [$890B- cur_oam_tbl
 .byte $02,$00,$01,$01,$01
 .byte $02,$00,$00,$01,$01,$03,$01
 ; [$8917- cur_idx_base
 .byte $00,$0C,$18,$24,$30,$3C,$48,$54,$60
-.byte $6C,$78,$84,$90,$48,$38,$E9,$20,$AA,$C9,$10,$90,$15,$E9,$10,$0A
-.byte $AA,$18,$65,$67,$AA,$BD,$01,$62,$85,$81,$BD,$00,$62,$85,$80,$4C
-.byte $53,$89,$BD,$A5,$89,$18,$65,$67,$AA,$BD,$00,$61,$85,$80,$BD,$01
-.byte $61,$85,$81,$68,$C9,$22,$90,$21,$C9,$24,$90,$20,$C9,$26,$90,$1F
-.byte $C9,$2D,$90,$22,$C9,$30,$90,$25,$E6,$80,$C9,$38,$90,$1F,$E9,$38
-.byte $05,$67,$AA,$BD,$30,$61,$D0,$15,$60,$4C,$E8,$89,$4C,$DD,$89,$A9
-.byte $00,$85,$81,$4C,$DD,$89,$A9,$00,$85,$81,$4C,$D2,$89,$A5,$81,$48
-.byte $20,$D2,$89,$A9,$C2,$9D,$A0,$07,$E6,$90,$68,$85,$80,$20,$9B,$8B
-.byte $A6,$90,$4C,$24,$8A,$08,$0A,$0C,$0E,$18,$29,$20,$21,$22,$23,$24
-.byte $25,$00,$16,$2A,$2C,$AD,$1C,$60,$85,$80,$AD,$1D,$60,$85,$81,$AD
-.byte $1E,$60,$85,$82,$4C,$FE,$89,$A5,$80,$09,$80,$85,$5F,$A6,$90,$4C
-.byte $2A,$8A,$20,$9B,$8B,$20,$65,$8A,$A6,$90,$4C,$24,$8A,$20,$6A,$8B
-.byte $20,$5B,$8A,$A6,$90,$4C,$1E,$8A,$20,$39,$8B,$20,$51,$8A,$A6,$90
-.byte $4C,$18,$8A,$20,$F6,$8A,$A6,$90,$20,$47,$8A,$4C,$12,$8A,$20,$70
+.byte $6C,$78,$84,$90
 
-;; [$8A00 :: 0x38A00]
+;----------------------------------------------------------------------
 
-.byte $8A,$20,$33,$8A,$A6,$90,$A5,$59,$9D,$A0,$07,$E8,$A5,$5A,$9D,$A0
-.byte $07,$E8,$A5,$5B,$9D,$A0,$07,$E8,$A5,$5C,$9D,$A0,$07,$E8,$A5,$5D
-.byte $9D,$A0,$07,$E8,$A5,$5E,$9D,$A0,$07,$E8,$A5,$5F,$9D,$A0,$07,$E8
-.byte $86,$90,$60,$A5,$59,$C9,$80,$D0,$36,$A9,$FF,$85,$59,$A5,$5A,$C9
-.byte $80,$D0,$2C,$A9,$FF,$85,$5A,$A5,$5B,$C9,$80,$D0,$22,$A9,$FF,$85
-.byte $5B,$A5,$5C,$C9,$80,$D0,$18,$A9,$FF,$85,$5C,$A5,$5D,$C9,$80,$D0
-.byte $0E,$A9,$FF,$85,$5D,$A5,$5E,$C9,$80,$D0,$04,$A9,$FF,$85,$5E,$60
-.byte $A2,$08,$A5,$82,$DD,$B2,$8B,$F0,$0C,$B0,$1C,$CA,$10,$F4,$A2,$80
-.byte $86,$59,$4C,$B3,$8A,$A5,$81,$DD,$BB,$8B,$F0,$04,$90,$ED,$B0,$07
-.byte $A5,$80,$DD,$C4,$8B,$90,$E4,$A5,$80,$38,$FD,$C4,$8B,$85,$80,$A5
-.byte $81,$FD,$BB,$8B,$85,$81,$A5,$82,$FD,$B2,$8B,$85,$82,$8A,$18,$69
-.byte $81,$85,$59,$A2,$08,$A5,$82,$DD,$CD,$8B,$F0,$0C,$B0,$1C,$CA,$10
-.byte $F4,$A2,$80,$86,$5A,$4C,$F6,$8A,$A5,$81,$DD,$D6,$8B,$F0,$04,$90
-.byte $ED,$B0,$07,$A5,$80,$DD,$DF,$8B,$90,$E4,$A5,$80,$38,$FD,$DF,$8B
-.byte $85,$80,$A5,$81,$FD,$D6,$8B,$85,$81,$A5,$82,$FD,$CD,$8B,$85,$82
-.byte $8A,$18,$69,$81,$85,$5A,$A2,$08,$A5,$82,$DD,$E8,$8B,$F0,$0C,$B0
+; Name	:
+; Marks	: decode character strings $20-
+	PHA 			; 8924: 48        
+	SEC                     ; 8925: 38        
+	SBC #$20                ; 8926: E9 20     
+	TAX                     ; 8928: AA        
+	CMP #$10                ; 8929: C9 10     
+	BCC L38942               ; 892B: 90 15     
+; $30-
+	SBC #$10                ; 892D: E9 10     
+	ASL                     ; 892F: 0A        
+	TAX                     ; 8930: AA        
+	CLC                     ; 8931: 18        
+	ADC $67                 ; 8932: 65 67     
+	TAX                     ; 8934: AA        
+	LDA $6201,X             ; 8935: BD 01 62  
+	STA $81                 ; 8938: 85 81     
+	LDA $6200,X             ; 893A: BD 00 62  
+	STA $80                 ; 893D: 85 80     
+	JMP $8953               ; 893F: 4C 53 89  
+; $20-$2F
+L38942:
+	LDA $89A5,X             ; 8942: BD A5 89  
+	CLC                     ; 8945: 18        
+	ADC $67                 ; 8946: 65 67     
+	TAX                     ; 8948: AA        
+	LDA $6100,X             ; 8949: BD 00 61  
+	STA $80                 ; 894C: 85 80     
+	LDA $6101,X             ; 894E: BD 01 61  
+	STA $81                 ; 8951: 85 81     
+	PLA                     ; 8953: 68        
+	CMP #$22                ; 8954: C9 22     
+	BCC L38979               ; 8956: 90 21     
+	CMP #$24                ; 8958: C9 24     
+	BCC L3897C               ; 895A: 90 20     
+	CMP #$26                ; 895C: C9 26     
+	BCC L3897F               ; 895E: 90 1F     
+	CMP #$2D                ; 8960: C9 2D     
+	BCC L38986               ; 8962: 90 22     
+	CMP #$30                ; 8964: C9 30     
+	BCC L3898D               ; 8966: 90 25     
+	INC $80                 ; 8968: E6 80     
+	CMP #$38                ; 896A: C9 38     
+	BCC L3898D               ; 896C: 90 1F     
+	SBC #$38                ; 896E: E9 38     
+	ORA $67                 ; 8970: 05 67     
+	TAX                     ; 8972: AA        
+	LDA $6130,X             ; 8973: BD 30 61  
+	BNE L3898D               ; 8976: D0 15     
+	RTS                     ; 8978: 60        
+L38979:
+	JMP $89E8               ; 8979: 4C E8 89  
+L3897C:
+	JMP $89DD               ; 897C: 4C DD 89  
+; $24-$25: 
+L3897F:
+	LDA #$00                ; 897F: A9 00     
+	STA $81                 ; 8981: 85 81     
+	JMP $89DD               ; 8983: 4C DD 89  
+; $26-$2C: 
+L38986:
+	LDA #$00                ; 8986: A9 00     
+	STA $81                 ; 8988: 85 81     
+	JMP $89D2               ; 898A: 4C D2 89  
+; $2D-
+L3898D:
+	LDA $81                 ; 898D: A5 81     
+	PHA                     ; 898F: 48        
+	JSR $89D2               ; 8990: 20 D2 89  
+	LDA #$C2                ; 8993: A9 C2     
+	STA $07A0,X             ; 8995: 9D A0 07  
+	INC $90                 ; 8998: E6 90     
+	PLA                     ; 899A: 68        
+	STA $80                 ; 899B: 85 80     
+	JSR $8B9B               ; 899D: 20 9B 8B  
+	LDX $90                 ; 89A0: A6 90     
+	JMP $8A24               ; 89A2: 4C 24 8A  
+;
 
-;; [$8B00 :: 0x38B00]
+;$89A5
+.byte $08,$0A,$0C,$0E,$18,$29,$20,$21,$22,$23,$24
+.byte $25,$00,$16,$2A,$2C
 
-.byte $1C,$CA,$10,$F4,$A2,$80,$86,$5B,$4C,$39,$8B,$A5,$81,$DD,$F1,$8B
-.byte $F0,$04,$90,$ED,$B0,$07,$A5,$80,$DD,$FA,$8B,$90,$E4,$A5,$80,$38
-.byte $FD,$FA,$8B,$85,$80,$A5,$81,$FD,$F1,$8B,$85,$81,$A5,$82,$FD,$E8
-.byte $8B,$85,$82,$8A,$18,$69,$81,$85,$5B,$A2,$08,$A5,$81,$DD,$03,$8C
-.byte $F0,$0C,$B0,$11,$CA,$10,$F4,$A2,$80,$86,$5C,$4C,$6A,$8B,$A5,$80
-.byte $DD,$0C,$8C,$90,$EF,$A5,$80,$38,$FD,$0C,$8C,$85,$80,$A5,$81,$FD
-.byte $03,$8C,$85,$81,$8A,$18,$69,$81,$85,$5C,$A2,$08,$A5,$81,$DD,$15
-.byte $8C,$F0,$0C,$B0,$11,$CA,$10,$F4,$A2,$80,$86,$5D,$4C,$9B,$8B,$A5
-.byte $80,$DD,$1E,$8C,$90,$EF,$A5,$80,$38,$FD,$1E,$8C,$85,$80,$A5,$81
-.byte $FD,$15,$8C,$85,$81,$8A,$18,$69,$81,$85,$5D,$A2,$00,$A5,$80,$C9
-.byte $0A,$90,$05,$E9,$0A,$E8,$D0,$F7,$09,$80,$85,$5F,$8A,$09,$80,$85
-.byte $5E,$60,$0F,$1E,$2D,$3D,$4C,$5B,$6A,$7A,$89,$42,$84,$C6,$09,$4B
-.byte $8D,$CF,$12,$54,$40,$80,$C0,$00,$40,$80,$C0,$00,$40,$01,$03,$04
-.byte $06,$07,$09,$0A,$0C,$0D,$86,$0D,$93,$1A,$A1,$27,$AE,$35,$BB,$A0
-.byte $40,$E0,$80,$20,$C0,$60,$00,$A0,$00,$00,$00,$00,$00,$00,$01,$01
-.byte $01,$27,$4E,$75,$9C,$C3,$EA,$11,$38,$5F,$10,$20,$30,$40,$50,$60
+; Name	:
+; Marks	:
+	LDA $601C		; 89B5	$AD $1C $60	gil
+	STA $80			; 89B8	$85 $80
+	LDA $601D		; 89BA	$AD $1D $60
+	STA $81			; 89BD	$85 $81
+	LDA $601E		; 89BF	$AD $1E $60
+	STA $82			; 89C2	$85 $82
+	JMP $89FE		; 89C4	$4C $FE $89
+; End of
 
-;; [$8C00 :: 0x38C00]
+; Name	:
+; Marks	:
+	LDA $80			; 89C7	$A5 $80
+	ORA #$80		; 89C9	$09 $80
+	STA $5F			; 89CB	$85 $5F
+	LDX $90			; 89CD	$A6 $90
+	JMP $8A2A		; 89CF	$4C $2A $8A
+; End of
 
-.byte $70,$80,$90,$03,$07,$0B,$0F,$13,$17,$1B,$1F,$23,$E8,$D0,$B8,$A0
-.byte $88,$70,$58,$40,$28,$00,$00,$01,$01,$01,$02,$02,$03,$03,$64,$C8
-.byte $2C,$90,$F4,$58,$BC,$20,$84,$20,$B6,$8E,$A9,$14,$20,$3E,$96,$20
-.byte $47,$8E,$B0,$7B,$20,$6F,$D1,$20,$5E,$90,$A9,$1C,$20,$9B,$8E,$20
-.byte $39,$91,$A9,$15,$20,$3E,$96,$A9,$00,$85,$A2,$A9,$01,$85,$A3,$A9
-.byte $00,$8D,$F0,$79,$20,$CA,$95,$A9,$04,$20,$F9,$96,$A5,$25,$D0,$4F
-.byte $A5,$24,$F0,$F0,$20,$5E,$90,$AE,$F0,$79,$BD,$02,$7B,$85,$80,$BD
-.byte $03,$7B,$85,$81,$20,$81,$90,$90,$0B,$A9,$19,$20,$3E,$96,$20,$7B
-.byte $8E,$4C,$42,$8C,$BD,$00,$7B,$8D,$FC,$62,$BD,$01,$7B,$8D,$FD,$62
-.byte $A9,$02,$0D,$04,$60,$8D,$04,$60,$AD,$3C,$62,$8D,$05,$60,$AD,$3D
-.byte $62,$8D,$06,$60,$A9,$16,$20,$3E,$96,$20,$39,$91,$20,$7B,$8E,$4C
-.byte $B8,$91,$A9,$00,$85,$96,$20,$1E,$E9,$AE,$C1,$61,$AD,$F5,$62,$10
-.byte $02,$A2,$00,$8A,$0D,$01,$61,$0D,$41,$61,$0D,$81,$61,$30,$0B,$A9
-.byte $44,$20,$F2,$95,$20,$7B,$8E,$4C,$B8,$91,$A2,$00,$20,$FE,$8C,$A2
-.byte $40,$20,$FE,$8C,$A2,$80,$20,$FE,$8C,$A2,$C0,$20,$FE,$8C,$A9,$48
-.byte $20,$F2,$95,$20,$7B,$8E,$AD,$BA,$62,$85,$6C,$4C,$B8,$91,$BD,$35
+; Name	:
+; Marks	:
+	JSR $8B9B		; 89D2	$20 $9B $8B
+	JSR $8A65		; 89D5	$20 $65 $8A
+	LDX $90			; 89D8	$A6 $90
+	JMP $8A24		; 89DA	$4C $24 $8A
+; $22-$23:
+	JSR $8B6A		; 89DD	$20 $6A $8B
+	JSR $8A5B		; 89E0	$20 $5B $8A
+	LDX $90			; 89E3	$A6 $90
+	JMP $8A1E		; 89E5	$4C $1E $8A
+; $20-$21:
+	JSR $8B39		; 89E8	$20 $39 $8B
+	JSR $8A51		; 89EB	$20 $51 $8A
+	LDX $90			; 89EE	$A6 $90
+	JMP $8A18		; 89F0	$4C $18 $8A
+; End of
 
-;; [$8D00 :: 0x38D00]
+; Name	:
+; Marks	:
+	JSR $8AF6		; 89F3	$20 $F6 $8A
+	LDX $90			; 89F6	$A6 $90
+	JSR $8A47		; 89F8	$20 $47 $8A
+	JMP $8A12		; 89FB	$4C $12 $8A
+	JSR $8A70		; 89FE	$20 $70 $8A
+	JSR $8A33		; 8A01	$20 $33 $8A
+	LDX $90			; 8A04	$A6 $90
+	LDA $59			; 8A06	$A5 $59
+	STA $07A0,X		; 8A08	$9D $A0 $07
+	INX			; 8A0B	$E8
+	LDA $5A			; 8A0C	$A5 $5A
+	STA $07A0,X		; 8A0E	$9D $A0 $07
+	INX			; 8A11	$E8
+	LDA $5B			; 8A12	$A5 $5B
+	STA $07A0,X		; 8A14	$9D $A0 $07
+	INX			; 8A17	$E8
+	LDA $5C			; 8A18	$A5 $5C
+	STA $07A0,X		; 8A1A	$9D $A0 $07
+	INX			; 8A1D	$E8
+	LDA $5D			; 8A1E	$A5 $5D
+	STA $07A0,X		; 8A20	$9D $A0 $07
+	INX			; 8A23	$E8
+	LDA $5E			; 8A24	$A5 $5E
+	STA $07A0,X		; 8A26	$9D $A0 $07
+	INX			; 8A29	$E8
+	LDA $5F			; 8A2A	$A5 $5F
+	STA $07A0,X		; 8A2C	$9D $A0 $07
+	INX			; 8A2F	$E8
+	STX $90			; 8A30	$86 $90
+	RTS			; 8A32	$60
+;
 
-.byte $62,$30,$0F,$BD,$01,$61,$10,$0A,$29,$7F,$9D,$01,$61,$A9,$01,$9D
-.byte $08,$61,$60,$A9,$00,$85,$61,$85,$62,$A2,$00,$20,$3A,$8D,$8A,$18
-.byte $69,$40,$AA,$D0,$F6,$46,$62,$66,$61,$46,$62,$66,$61,$A2,$00,$20
-.byte $65,$8D,$8A,$18,$69,$40,$AA,$D0,$F6,$60,$BD,$35,$62,$30,$25,$BD
-.byte $01,$61,$29,$C0,$D0,$1E,$BD,$0A,$61,$38,$FD,$08,$61,$85,$80,$BD
-.byte $0B,$61,$FD,$09,$61,$85,$81,$A5,$80,$18,$65,$61,$85,$61,$A5,$81
-.byte $65,$62,$85,$62,$60,$BD,$35,$62,$30,$FA,$BD,$01,$61,$29,$C0,$D0
-.byte $F3,$BD,$0E,$61,$38,$FD,$0C,$61,$85,$80,$BD,$0F,$61,$FD,$0D,$61
-.byte $4C,$55,$8D,$20,$13,$8D,$A9,$0D,$20,$3E,$96,$20,$B6,$8E,$20,$39
-.byte $91,$20,$47,$8E,$90,$0E,$A9,$10,$20,$3E,$96,$20,$6F,$D1,$20,$7B
-.byte $8E,$4C,$B8,$91,$A5,$61,$85,$80,$A5,$62,$85,$81,$20,$81,$90,$90
-.byte $0B,$A9,$0E,$20,$3E,$96,$20,$7B,$8E,$4C,$96,$8D,$20,$39,$91,$A9
-.byte $0F,$20,$3E,$96,$20,$D2,$8D,$20,$7B,$8E,$AD,$BB,$62,$85,$6C,$4C
-.byte $B8,$91,$A2,$00,$BD,$01,$61,$29,$C0,$D0,$1D,$BD,$35,$62,$30,$18
-.byte $BD,$0A,$61,$9D,$08,$61,$BD,$0B,$61,$9D,$09,$61,$BD,$0E,$61,$9D
-.byte $0C,$61,$BD,$0F,$61,$9D,$0D,$61,$8A,$18,$69,$40,$AA,$D0,$D5,$60
+; Name	:
+; Marks	:
+	LDA $59			; 8A33	$A5 $59
+	CMP #$80		; 8A35	$C9 $80
+	BNE L38A6F		; 8A37	$D0 $36
+	LDA #$FF		; 8A39	$A9 $FF
+	STA $59			; 8A3B	$85 $59
+	LDA $5A			; 8A3D	$A5 $5A
+	CMP #$80		; 8A3F	$C9 $80
+	BNE L38A6F		; 8A41	$D0 $2C
+	LDA #$FF		; 8A43	$A9 $FF
+	STA $5A			; 8A45	$85 $5A
+	LDA $5B			; 8A47	$A5 $5B
+	CMP #$80		; 8A49	$C9 $80
+	BNE L38A6F		; 8A4B	$D0 $22
+	LDA #$FF		; 8A4D	$A9 $FF
+	STA $5B			; 8A4F	$85 $5B
+	LDA $5C			; 8A51	$A5 $5C
+	CMP #$80		; 8A53	$C9 $80
+	BNE L38A6F		; 8A55	$D0 $18
+	LDA #$FF		; 8A57	$A9 $FF
+	STA $5C			; 8A59	$85 $5C
+	LDA $5D			; 8A5B	$A5 $5D
+	CMP #$80		; 8A5D	$C9 $80
+	BNE L38A6F		; 8A5F	$D0 $0E
+	LDA #$FF		; 8A61	$A9 $FF
+	STA $5D			; 8A63	$85 $5D
+	LDA $5E			; 8A65	$A5 $5E
+	CMP #$80		; 8A67	$C9 $80
+	BNE L38A6F		; 8A69	$D0 $04
+	LDA #$FF		; 8A6B	$A9 $FF
+	STA $5E			; 8A6D	$85 $5E
+L38A6F:
+	RTS			; 8A6F	$60
+; End of
 
-;; [$8E00 :: 0x38E00]
+;8A70
+; Name	:
+; Marks	: convert hex to decimal
+;	  7 digits
+	LDX #$08		; 8A70	$A2 $08
+L38A72:
+	LDA $82			; 8A72	$A5 $82
+	CMP $8BB2,X		; 8A74	$DD $B2 $8B
+	BEQ L38A85		; 8A77	$F0 $0C
+	BCS L38A97		; 8A79	$B0 $1C
+L38A7B:
+	DEX			; 8A7B	$CA
+	BPL L38A72		; 8A7C	$10 $F4
+	LDX #$80		; 8A7E	$A2 $80
+	STX $59			; 8A80	$86 $59
+	JMP $8AB3		; 8A82	$4C $B3 $8A
+L38A85:
+	LDA $81			; 8A85	$A5 $81
+	CMP $8BBB,X		; 8A87	$DD $BB $8B
+	BEQ L38A90		; 8A8A	$F0 $04
+	BCC L38A7B		; 8A8C	$90 $ED
+	BCS L38A97		; 8A8E	$B0 $07
+L38A90:
+	LDA $80			; 8A90	$A5 $80
+	CMP $8BC4,X		; 8A92	$DD $C4 $8B
+	BCC L38A7B		; 8A95	$90 $E4
+L38A97:
+	LDA $80			; 8A97	$A5 $80
+	SEC			; 8A99	$38
+	SBC $8BC4,X		; 8A9A	$FD $C4 $8B
+	STA $80			; 8A9D	$85 $80
+	LDA $81			; 8A9F	$A5 $81
+	SBC $8BBB,X		; 8AA1	$FD $BB $8B
+	STA $81			; 8AA4	$85 $81
+	LDA $82			; 8AA6	$A5 $82
+	SBC $8BB2,X		; 8AA8	$FD $B2 $8B
+	STA $82			; 8AAB	$85 $82
+	TXA			; 8AAD	$8A
+	CLC			; 8AAE	$18
+	ADC #$81		; 8AAF	$69 $81
+	STA $59			; 8AB1	$85 $59
+	; 6 digits
+	LDX #$08		; 8AB3	$A2 $08
+L38AB5:
+	LDA $82			; 8AB5	$A5 $82
+	CMP $8BCD,X		; 8AB7	$DD $CD $8B
+	BEQ L38AC8		; 8ABA	$F0 $0C
+	BCS L38ADA		; 8ABC	$B0 $1C
+L38ABE:
+	DEX			; 8ABE	$CA
+	BPL L38AB5		; 8ABF	$10 $F4
+	LDX #$80		; 8AC1	$A2 $80
+	STX $5A			; 8AC3	$86 $5A
+	JMP $8AF6		; 8AC5	$4C $F6 $8A
+L38AC8:
+	LDA $81			; 8AC8	$A5 $81
+	CMP $8BD6,X		; 8ACA	$DD $D6 $8B
+	BEQ L38AD3		; 8ACD	$F0 $04
+	BCC L38ABE		; 8ACF	$90 $ED
+	BCS L38ADA		; 8AD1	$B0 $07
+L38AD3:
+	LDA $80			; 8AD3	$A5 $80
+	CMP $8BDF,X		; 8AD5	$DD $DF $8B
+	BCC L38ABE		; 8AD8	$90 $E4
+L38ADA:
+	LDA $80			; 8ADA	$A5 $80
+	SEC			; 8ADC	$38
+	SBC $8BDF,X		; 8ADD	$FD $DF $8B
+	STA $80			; 8AE0	$85 $80
+	LDA $81			; 8AE2	$A5 $81
+	SBC $8BD6,X		; 8AE4	$FD $D6 $8B
+	STA $81			; 8AE7	$85 $81
+	LDA $82			; 8AE9	$A5 $82
+	SBC $8BCD,X		; 8AEB	$FD $CD $8B
+	STA $82			; 8AEE	$85 $82
+	TXA			; 8AF0	$8A
+	CLC			; 8AF1	$18
+	ADC #$81		; 8AF2	$69 $81
+	STA $5A			; 8AF4	$85 $5A
+	; 5 digits
+	LDX #$08		; 8AF6	$A2 $08
+L38AF8:
+	LDA $82			; 8AF8	$A5 $82
+	CMP $8BE8,X		; 8AFA	$DD $E8 $8B
+	BEQ L38B0B		; 8AFD	$F0 $0C
+	BCS L38B1D		; 8AFF	$B0 $1C
+L38B01:
+	DEX			; 8B01	$CA
+	BPL L38AF8		; 8B02	$10 $F4
+	LDX #$80		; 8B04	$A2 $80
+	STX $5B			; 8B06	$86 $5B
+	JMP $8B39		; 8B08	$4C $39 $8B
+L38B0B:
+	LDA $81			; 8B0B	$A5 $81
+	CMP $8BF1,X		; 8B0D	$DD $F1 $8B
+	BEQ L38B16		; 8B10	$F0 $04
+	BCC L38B01		; 8B12	$90 $ED
+	BCS L38B1D		; 8B14	$B0 $07
+L38B16:
+	LDA $80			; 8B16	$A5 $80
+	CMP $8BFA,X		; 8B18	$DD $FA $8B
+	BCC L38B01		; 8B1B	$90 $E4
+L38B1D:
+	LDA $80			; 8B1D	$A5 $80
+	SEC			; 8B1F	$38
+	SBC $8BFA,X		; 8B20	$FD $FA $8B
+	STA $80			; 8B23	$85 $80
+	LDA $81			; 8B25	$A5 $81
+	SBC $8BF1,X		; 8B27	$FD $F1 $8B
+	STA $81			; 8B2A	$85 $81
+	LDA $82			; 8B2C	$A5 $82
+	SBC $8BE8,X		; 8B2E	$FD $E8 $8B
+	STA $82			; 8B31	$85 $82
+	TXA			; 8B33	$8A
+	CLC			; 8B34	$18
+	ADC #$81		; 8B35	$69 $81
+	STA $5B			; 8B37	$85 $5B
+	; 4 digits
+	LDX #$08		; 8B39	$A2 $08
+L38B3B:
+	LDA $81			; 8B3B	$A5 $81
+	CMP $8C03,X		; 8B3D	$DD $03 $8C
+	BEQ L38B4E		; 8B40	$F0 $0C
+	BCS L38B55		; 8B42	$B0 $11
+L38B44:
+	DEX			; 8B44	$CA
+	BPL L38B3B		; 8B45	$10 $F4
+	LDX #$80		; 8B47	$A2 $80
+	STX $5C			; 8B49	$86 $5C
+	JMP $8B6A		; 8B4B	$4C $6A $8B
+L38B4E:
+	LDA $80			; 8B4E	$A5 $80
+	CMP $8C0C,X		; 8B50	$DD $0C $8C
+	BCC L38B44		; 8B53	$90 $EF
+L38B55:
+	LDA $80			; 8B55	$A5 $80
+	SEC			; 8B57	$38
+	SBC $8C0C,X		; 8B58	$FD $0C $8C
+	STA $80			; 8B5B	$85 $80
+	LDA $81			; 8B5D	$A5 $81
+	SBC $8C03,X		; 8B5F	$FD $03 $8C
+	STA $81			; 8B62	$85 $81
+	TXA			; 8B64	$8A
+	CLC			; 8B65	$18
+	ADC #$81		; 8B66	$69 $81
+	STA $5C			; 8B68	$85 $5C
+	; 3 digits
+	LDX #$08		; 8B6A	$A2 $08
+L38B6C:
+	LDA $81			; 8B6C	$A5 $81
+	CMP $8C15,X		; 8B6E	$DD $15 $8C
+	BEQ L38B7F		; 8B71	$F0 $0C
+	BCS L38B86		; 8B73	$B0 $11
+L38B75:
+	DEX			; 8B75	$CA
+	BPL L38B6C		; 8B76	$10 $F4
+	LDX #$80		; 8B78	$A2 $80
+	STX $5D			; 8B7A	$86 $5D
+	JMP $8B9B		; 8B7C	$4C $9B $8B
+L38B7F:
+	LDA $80			; 8B7F	$A5 $80
+	CMP $8C1E,X		; 8B81	$DD $1E $8C
+	BCC L38B75		; 8B84	$90 $EF
+L38B86:
+	LDA $80			; 8B86	$A5 $80
+	SEC			; 8B88	$38
+	SBC $8C1E,X		; 8B89	$FD $1E $8C
+	STA $80			; 8B8C	$85 $80
+	LDA $81			; 8B8E	$A5 $81
+	SBC $8C15,X		; 8B90	$FD $15 $8C
+	STA $81			; 8B93	$85 $81
+	TXA			; 8B95	$8A
+	CLC			; 8B96	$18
+	ADC #$81		; 8B97	$69 $81
+	STA $5D			; 8B99	$85 $5D
+	; 2 digits
+	LDX #$00		; 8B9B	A2 00
+	LDA $80			; 8B9D	A5 80
+L38B9F:
+	CMP #$0A		; 8B9F	C9 0A
+	BCC L38BA8		; 8BA1	90 05
+	SBC #$0A		; 8BA3	E9 0A
+	INX			; 8BA5	E8
+	BNE L38B9F		; 8BA6	D0 F7
+L38BA8:
+	ORA #$80		; 8BA8	09 80
+	STA $5F			; 8BAA	85 5F
+	TXA			; 8BAC	8A
+	ORA #$80		; 8BAD	09 80
+	STA $5E			; 8BAF	85 5E
+	RTS			; 8BB1	60
+; End of
+	
+; 1,000,000
+.byte $0F,$1E,$2D,$3D,$4C,$5B,$6A,$7A,$89	; 8BB2
+.byte $42,$84,$C6,$09,$4B,$8D,$CF,$12,$54	; 8BBB
+.byte $40,$80,$C0,$00,$40,$80,$C0,$00,$40	; 8BC4
+;,$100,000
+.byte $01,$03,$04,$06,$07,$09,$0A,$0C,$0D	; 8BCD
+.byte $86,$0D,$93,$1A,$A1,$27,$AE,$35,$BB	; 8BD6
+.byte $A0,$40,$E0,$80,$20,$C0,$60,$00,$A0	; 8BDF
+;,$10,000
+.byte $00,$00,$00,$00,$00,$00,$01,$01,$01	; 8BE8
+.byte $27,$4E,$75,$9C,$C3,$EA,$11,$38,$5F	; 8BF1
+.byte $10,$20,$30,$40,$50,$60,$70,$80,$90	; 8BFA
+;,$1000
+.byte $03,$07,$0B,$0F,$13,$17,$1B,$1F,$23	; 8C03
+.byte $E8,$D0,$B8,$A0,$88,$70,$58,$40,$28	; 8C0C
+;,$100
+.byte $00,$00,$01,$01,$01,$02,$02,$03,$03	; 8C15
+.byte $64,$C8,$2C,$90,$F4,$58,$BC,$20,$84	; 8C1E
 
-.byte $AD,$0C,$60,$29,$01,$18,$69,$11,$20,$3E,$96,$A9,$1E,$20,$9B,$8E
-.byte $20,$B6,$8E,$20,$39,$91,$20,$47,$8E,$B0,$29,$AD,$00,$7B,$85,$80
-.byte $AD,$01,$7B,$85,$81,$20,$81,$90,$B0,$0C,$AD,$0C,$60,$09,$02,$8D
-.byte $0C,$60,$A9,$13,$D0,$02,$A9,$19,$20,$3E,$96,$20,$6F,$D1,$20,$39
-.byte $91,$20,$7B,$8E,$4C,$B8,$91,$A9,$00,$85,$24,$85,$25,$A9,$01,$85
-.byte $96,$20,$1E,$E9,$A9,$18,$20,$F2,$95,$A9,$00,$8D,$F0,$78,$A9,$01
-.byte $85,$A2,$20,$CA,$95,$A9,$04,$20,$C5,$96,$A5,$25,$D0,$0B,$A5,$24
-.byte $F0,$F0,$AD,$F0,$78,$D0,$02,$18,$60,$38,$60,$20,$E3,$95,$A9,$00
-.byte $85,$A2,$85,$A3,$85,$A4,$20,$CA,$95,$20,$A9,$DB,$A5,$20,$D0,$F6
-.byte $20,$CA,$95,$20,$A9,$DB,$A5,$20,$F0,$F6,$60,$0A,$0A,$0A,$18,$6D
-.byte $80,$83,$85,$80,$AD,$81,$83,$69,$00,$85,$81,$A0,$0F,$B1,$80,$99
-.byte $00,$7B,$88,$10,$F8,$60
+
+;----------------------------------------------------------------------
+
+
+
+;; [$8C27 :: 0x38C27]
+
+; Marks	: cid's airship ferry
+	JSR $8EB6		; 8C27: $20 $B6 $8E	init player input
+	LDA #$14		; 8C2A: $A9 $14		$0214: "Assistant:Cid's Airship ..."
+	JSR $963E		; 8C2C: $20 $3E $96
+	JSR $8E47		; 8C2F: $20 $47 $8E
+	BCS L38CAF		; 8C32: $B0 $7B
+	JSR $D16F		; 8C34: $20 $6F $D1	close text window (keyword/item)
+	JSR $905E		; 8C37: $20 $5E $90	cursor sound effect (confirm)
+	LDA #$1C		; 8C3A: $A9 $1C
+	JSR $8E9B		; 8C3C: $20 $9B $8E	load shop/ferry data
+	JSR $9139		; 8C3F: $20 $39 $91	open gil window
+	LDA #$15		; 8C42: $A9 $15		$0215: "Go where?"
+	JSR $963E		; 8C44: $20 $3E $96
+	LDA #$00		; 8C47: $A9 $00
+	STA $A2			; 8C49: $85 $A2
+	LDA #$01		; 8C4B: $A9 $01
+	STA $A3			; 8C4D: $85 $A3
+	LDA #$00		; 8C4F: $A9 $00
+	STA $79F0		; 8C51: $8D $F0 $79
+L38C54:
+	JSR $95CA		; 8C54: $20 $CA $95	wait one frame (draw cursors)
+	LDA #$04		; 8C57: $A9 $04
+	JSR $96F9		; 8C59: $20 $F9 $96	update cursor 2 position
+	LDA $25			; 8C5C: $A5 $25
+	BNE L38CAF		; 8C5E: $D0 $4F
+	LDA $24			; 8C60: $A5 $24
+	BEQ L38C54		; 8C62: $F0 $F0
+	JSR $905E		; 8C64: $20 $5E $90	cursor sound effect (confirm)
+	LDX $79F0		; 8C67: $AE $F0 $79
+	LDA $7B02,X		; 8C6A: $BD $02 $7B
+	STA $80			; 8C6D: $85 $80
+	LDA $7B03,X		; 8C6F: $BD $03 $7B
+	STA $81			; 8C72: $85 $81
+	JSR $9081		; 8C74: $20 $81 $90	take gil
+	BCC L38C84		; 8C77: $90 $0B
+	LDA #$19		; 8C79: $A9 $19		$0219: "Oops!Not enough money! Come again!"
+	JSR $963E		; 8C7B: $20 $3E $96
+	JSR $8E7B		; 8C7E: $20 $7B $8E
+	JMP $8C42		; 8C81: $4C $42 $8C
+L38C84:
+	LDA $7B00,X		; 8C84: $BD $00 $7B	set ferry destination position
+	STA $62FC		; 8C87: $8D $FC $62
+	LDA $7B01,X		; 8C8A: $BD $01 $7B
+	STA $62FD		; 8C8D: $8D $FD $62
+	LDA #$02		; 8C90: $A9 $02
+	ORA $6004		; 8C92: $0D $04 $60
+	STA $6004		; 8C95: $8D $04 $60
+	LDA $623C		; 8C98: $AD $3C $62	move airship to poft at (148,58)
+	STA $6005		; 8C9B: $8D $05 $60
+	LDA $623D		; 8C9E: $AD $3D $62
+	STA $6006		; 8CA1: $8D $06 $60
+	LDA #$16		; 8CA4: $A9 $16		$0216: "Thanks!The Airship will be waiting for you outside."
+	JSR $963E		; 8CA6: $20 $3E $96
+	JSR $9139		; 8CA9: $20 $39 $91	open gil window
+	JSR $8E7B		; 8CAC: $20 $7B $8E
+L38CAF:
+	JMP $91B8		; 8CAF: $4C $B8 $91	close window
+;
+
+; Marks	: statue revive
+	LDA #$00		; 8CB2	$A9 $00
+	STA $96			; 8CB4	$85 $96
+	JSR $E91E		; 8CB6	$20 $1E $E9	open window
+	LDX $61C1		; 8CB9	$AE $C1 $61
+	LDA $62F5		; 8CBC	$AD $F5 $62
+	BPL L38CC3		; 8CBF	$10 $02
+	LDX #$00		; 8CC1	$A2 $00
+L38CC3:
+	TXA			; 8CC3	$8A
+	ORA $6101		; 8CC4	$0D $01 $61
+	ORA $6141		; 8CC7	$0D $41 $61
+	ORA $6181		; 8CCA	$0D $81 $61
+	BMI L38CDA		; 8CCD	$30 $0B		branch if any characters are dead
+	LDA #$44		; 8CCF	$A9 $44		$0244: "You can't use this."
+	JSR $95F2		; 8CD1	$20 $F2 $95	load text (multi-page)
+	JSR $8E7B		; 8CD4	$20 $7B $8E
+	JMP $91B8		; 8CD7	$4C $B8 $91	close window
+L38CDA:
+	LDX #$00		; 8CDA	$A2 $00
+	JSR $8CFE		; 8CDC	$20 $FE $8C	revive dead character
+	LDX #$40		; 8CDF	$A2 $40
+	JSR $8CFE		; 8CE1	$20 $FE $8C	revive dead character
+	LDX #$80		; 8CE4	$A2 $80
+	JSR $8CFE		; 8CE6	$20 $FE $8C	revive dead character
+	LDX #$C0		; 8CE9	$A2 $C0
+	JSR $8CFE		; 8CEB	$20 $FE $8C	revive dead character
+	LDA #$48		; 8CEE	$A9 $48		$0248: "As you pray,a warm light..."
+	JSR $95F2		; 8CF0	$20 $F2 $95	load text (multi-page)
+	JSR $8E7B		; 8CF3	$20 $7B $8E
+	LDA $62BA		; 8CF6	$AD $BA $62	statue revive event
+	STA $6C			; 8CF9	$85 $6C
+	JMP $91B8		; 8CFB	$4C $B8 $91	close window
+;
+
+; Name	:
+; Marks	: revive character
+	LDA $6235,X		; 8CFE	$BD $35 $62
+	BMI L38D12		; 8D01	$30 $0F		return if character slot empty
+	LDA $6101,X		; 8D03	$BD $01 $61
+	BPL L38D12		; 8D06	$10 $0A		return if character is not dead
+	AND #$7F		; 8D08	$29 $7F
+	STA $6101,X		; 8D0A	$9D $01 $61	remove dead status
+	LDA #$01		; 8D0D	$A9 $01
+	STA $6108,X		; 8D0F	$9D $08 $61	set hp to 1
+L38D12:
+	RTS			; 8D12	$60
+; End of
+
+; Name	:
+; Marks	: calculate inn cost
+; inn cost = (total hp deficit + total mp deficit) / 4
+	LDA #$00		; 8D13	$A9 $00
+	STA $61			; 8D15	$85 $61
+	STA $62			; 8D17	$85 $62
+	LDX #$00		; 8D19	$A2 $00
+L38D1B:
+	JSR $8D3A		; 8D1B	$20 $3A $8D	get total hp deficit
+	TXA			; 8D1E	$8A
+	CLC			; 8D1F	$18
+	ADC #$40		; 8D20	$69 $40		next character
+	TAX			; 8D22	$AA
+	BNE L38D1B		; 8D23	$D0 $F6
+	LSR $62			; 8D25	$46 $62		divide by 4
+	ROR $61			; 8D27	$66 $61
+	LSR $62			; 8D29	$46 $62
+	ROR $61			; 8D2B	$66 $61
+	LDX #$00		; 8D2D	$A2 $00
+L38D2F:
+	JSR $8D65		; 8D2F	$20 $65 $8D	get total mp deficit
+	TXA			; 8D32	$8A
+	CLC			; 8D33	$18
+	ADC #$40		; 8D34	$69 $40		next character
+	TAX			; 8D36	$AA
+	BNE L38D2F		; 8D37	$D0 $F6
+	RTS			; 8D39	$60
+; End of
+
+; Name	:
+; Marks	: get total hp deficit
+	LDA $6235,X		; 8D3A	$BD $35 $62
+	BMI L38D64		; 8D3D	$30 $25		return if character slot empty
+	LDA $6101,X		; 8D3F	$BD $01 $61
+	AND #$C0		; 8D42	$29 $C0
+	BNE L38D64		; 8D44	$D0 $1E		return if character is dead or stone
+	LDA $610A,X		; 8D46	$BD $0A $61
+	SEC			; 8D49	$38
+	SBC $6108,X		; 8D4A	$FD $08 $61	max hp - current hp
+	STA $80			; 8D4D	$85 $80
+	LDA $610B,X		; 8D4F	$BD $0B $61
+	SBC $6109,X		; 8D52	$FD $09 $61
+	STA $81			; 8D55	$85 $81
+	LDA $80			; 8D57	$A5 $80
+	CLC			; 8D59	$18
+	ADC $61			; 8D5A	$65 $61
+	STA $61			; 8D5C	$85 $61
+	LDA $81			; 8D5E	$A5 $81
+	ADC $62			; 8D60	$65 $62
+	STA $62			; 8D62	$85 $62
+L38D64:
+	RTS			; 8D64	$60
+; End of
+
+; Name	:
+; Marks	: get total mp deficit
+	LDA $6235,X		; 8D65	$BD $35 $62
+	BMI L38D64		; 8D68	$30 $FA		return if character slot empty
+	LDA $6101,X		; 8D6A	$BD $01 $61
+	AND #$C0		; 8D6D	$29 $C0
+	BNE L38D64		; 8D6F	$D0 $F3		return if character is dead or stone
+	LDA $610E,X		; 8D71	$BD $0E $61
+	SEC			; 8D74	$38
+	SBC $610C,X		; 8D75	$FD $0C $61	max mp - current mp
+	STA $80			; 8D78	$85 $80
+	LDA $610F,X		; 8D7A	$BD $0F $61
+	SBC $610D,X		; 8D7D	$FD $0D $61
+	JMP $8D55		; 8D80: $4C $55 $8D
+; End of
+
+; Marks	: inn
+	JSR $8D13		; 8D83	20 13 8D	calculate inn cost
+	LDA #$0D		; 8D86	A9 0D		$020D: "Welcome! It will cost \x04 gil...""
+	JSR $963E		; 8D88	20 3E 96
+	JSR $8EB6		; 8D8B	20 B6 8E	init player input
+	JSR $9139		; 8D8E	20 39 91	open gil window
+	JSR $8E47		; 8D91	20 47 8E
+	BCC L38DA4		; 8D94	90 0E
+	LDA #$10		; 8D96	A9 10		$0210: "Please come again!"
+	JSR $963E		; 8D98	20 3E 96
+	JSR $D16F		; 8D9B	20 6F D1	close text window (keyword/item)
+	JSR $8E7B		; 8D9E	20 7B 8E
+	JMP $91B8		; 8DA1	4C B8 91	close window
+L38DA4:
+	LDA $61			; 8DA4	A5 61
+	STA $80			; 8DA6	85 80
+	LDA $62			; 8DA8	A5 62
+	STA $81			; 8DAA	85 81
+	JSR $9081		; 8DAC	20 81 90	take gil
+	BCC L38DBC		; 8DAF	90 0B
+	LDA #$0E		; 8DB1	A9 0E		$020E: "You don't have enough gil."
+	JSR $963E		; 8DB3	20 3E 96
+	JSR $8E7B		; 8DB6	20 7B 8E
+	JMP $8D96		; 8DB9	4C 96 8D
+L38DBC:
+	JSR $9139		; 8DBC	20 39 91	open gil window
+	LDA #$0F		; 8DBF	A9 0F		$020F: "Pleasant dreams…"
+	JSR $963E		; 8DC1	20 3E 96
+	JSR $8DD2		; 8DC4	20 D2 8D	set party hp/mp to max
+	JSR $8E7B		; 8DC7	20 7B 8E
+	LDA $62BB		; 8DCA	AD BB 62	inn event
+	STA $6C			; 8DCD	85 6C
+	JMP $91B8		; 8DCF	4C B8 91	close window
+;
+
+; Name	:
+; Marks	: set party hp/mp to max
+	LDX #$00		; 8DD2	$A2 $00
+L38DD4:
+	LDA $6101,X		; 8DD4	$BD $01 $61
+	AND #$C0		; 8DD7	$29 $C0
+	BNE L38DF8		; 8DD9	$D0 $1D
+	LDA $6235,X		; 8DDB	$BD $35 $62
+	BMI L38DF8		; 8DDE	$30 $18
+	LDA $610A,X		; 8DE0	$BD $0A $61
+	STA $6108,X		; 8DE3	$9D $08 $61
+	LDA $610B,X		; 8DE6	$BD $0B $61
+	STA $6109,X		; 8DE9	$9D $09 $61
+	LDA $610E,X		; 8DEC	$BD $0E $61
+	STA $610C,X		; 8DEF	$9D $0C $61
+	LDA $610F,X		; 8DF2	$BD $0F $61
+	STA $610D,X		; 8DF5	$9D $0D $61
+L38DF8:
+	TXA			; 8DF8	$8A
+	CLC			; 8DF9	$18
+	ADC #$40		; 8DFA	$69 $40
+	TAX			; 8DFC	$AA
+	BNE L38DD4		; 8DFD	$D0 $D5
+	RTS			; 8DFF	$60
+; End of
+
+; Marks	: ship ferry
+	LDA $600C		; 8E00	$AD $0C $60
+	AND #$01		; 8E03	$29 $01		poft or paloom
+	CLC			; 8E05	$18
+	ADC #$11		; 8E06	$69 $11		$0211: "You need a ride? 32 gil will take you to Poft!"
+	JSR $963E		; 8E08	$20 $3E $96
+	LDA #$1E		; 8E0B	$A9 $1E
+	JSR $8E9B		; 8E0D	$20 $9B $8E	load shop/ferry data
+	JSR $8EB6		; 8E10	$20 $B6 $8E	init player input
+	JSR $9139		; 8E13	$20 $39 $91	open gil window
+	JSR $8E47		; 8E16	$20 $47 $8E
+	BCS L38E44		; 8E19	$B0 $29
+	LDA $7B00		; 8E1B	$AD $00 $7B	gil cost (from 0E/86FD)
+	STA $80			; 8E1E	$85 $80
+	LDA $7B01		; 8E20	$AD $01 $7B
+	STA $81			; 8E23	$85 $81
+	JSR $9081		; 8E25	$20 $81 $90	take gil
+	BCS L38E36		; 8E28	$B0 $0C		branch if not enough gil
+	LDA $600C		; 8E2A	$AD $0C $60
+	ORA #$02		; 8E2D	$09 $02
+	STA $600C		; 8E2F	$8D $0C $60
+	LDA #$13		; 8E32	$A9 $13		$0213: "Done!Just board the ship ..."
+	BNE L38E38		; 8E34	$D0 $02
+L38E36:
+	LDA #$19		; 8E36	$A9 $19		$0219: "Oops!Not enough money! Come again!"
+L38E38:
+	JSR $963E		; 8E38	$20 $3E 96
+	JSR $D16F		; 8E3B	$20 $6F D1	close text window (keyword/item)
+	JSR $9139		; 8E3E	$20 $39 91	open gil window
+	JSR $8E7B		; 8E41	$20 $7B 8E
+L38E44:
+	JMP $91B8		; 8E44	$4C $B8 91	close window
+;
+
+; Name	:
+; Marks	:
+	LDA #$00		; 8E47	$A9 $00
+	STA $24			; 8E49	$85 $24
+	STA $25			; 8E4B	$85 $25
+	LDA #$01		; 8E4D	$A9 $01
+	STA $96			; 8E4F	$85 $96
+	JSR $E91E		; 8E51	$20 $1E $E9	open window
+	LDA #$18		; 8E54	$A9 $18
+	JSR $95F2		; 8E56	$20 $F2 $95	load text (multi-page)
+	LDA #$00		; 8E59	$A9 $00
+	STA $78F0		; 8E5B	$8D $F0 $78
+	LDA #$01		; 8E5E	$A9 $01
+	STA $A2			; 8E60	$85 $A2
+L38E62:
+	JSR $95CA		; 8E62	$20 $CA $95	wait one frame (draw cursors)
+	LDA #$04		; 8E65	$A9 $04
+	JSR $96C5		; 8E67	$20 $C5 $96	get cursor 1 position
+	LDA $25			; 8E6A	$A5 $25
+	BNE L38E79		; 8E6C	$D0 $0B
+	LDA $24			; 8E6E	$A5 $24
+	BEQ L38E62		; 8E70	$F0 $F0
+	LDA $78F0		; 8E72	$AD $F0 $78
+	BNE L38E79		; 8E75	$D0 $02
+	CLC			; 8E77	$18
+	RTS			; 8E78	$60
+L38E79:
+	SEC			; 8E79	$38
+	RTS			; 8E7A	$60
+; End of
+
+; Name	:
+; Marks	:
+	JSR $95E3		; 8E7B	$20 $E3 $95
+	LDA #$00		; 8E7E	$A9 $00
+	STA $A2			; 8E80	$85 $A2
+	STA $A3			; 8E82	$85 $A3
+	STA $A4			; 8E84	$85 $A4
+L38E86:
+	JSR $95CA		; 8E86	$20 $CA $95	wait one frame (draw cursors)
+	JSR $DBA9		; 8E89	$20 $A9 $DB	read joypad registers
+	LDA $20			; 8E8C	$A5 $20
+	BNE L38E86		; 8E8E	$D0 $F6
+L38E90:
+	JSR $95CA		; 8E90	$20 $CA $95	wait one frame (draw cursors)
+	JSR $DBA9		; 8E93	$20 $A9 $DB	read joypad registers
+	LDA $20			; 8E96	$A5 $20
+	BEQ L38E90		; 8E98	$F0 $F6
+	RTS			; 8E9A	$60
+; End of
+
+; Name	:
+; A	: shop/ferry id
+; Marks	: load shop/ferry data
+;	  shops are 8 bytes each, airship ferry is 16 bytes, ship ferry is 2 bytes
+	ASL			; 8E9B	$0A
+	ASL			; 8E9C	$0A
+	ASL			; 8E9D	$0A
+	CLC			; 8E9E	$18
+	ADC $8380		; 8E9F	$6D $80 $83
+	STA $80			; 8EA2	$85 $80
+	LDA $8381		; 8EA4	$AD $81 $83
+	ADC #$00		; 8EA7	$69 $00
+	STA $81			; 8EA9	$85 $81
+	LDY #$0F		; 8EAB	$A0 $0F		copy 16 bytes
+L38EAD:
+	LDA ($80),Y		; 8EAD	$B1 $80
+	STA $7B00,Y		; 8EAF	$99 $00 $7B
+	DEY			; 8EB2	$88
+	BPL L38EAD		; 8EB3	$10 $F8
+	RTS			; 8EB5	$60
+; End of
 
 ; Name	: Get_udlr
 ; DEST	: bank($57) = bank #$0E
@@ -487,37 +1181,221 @@ Get_udlr:
 	RTS			; 8ECF	$60
 ; End of Get_udlr
 
-.byte $C9,$E0,$90,$01,$60,$C9,$DC,$90,$16,$D0,$03,$4C,$00,$8E,$C9,$DD
-.byte $D0,$03,$4C,$27,$8C,$C9,$DE,$D0,$03,$4C,$83,$8D,$4C,$B2,$8C,$A9
-.byte $05,$20,$3E,$96,$A5,$A0,$29,$1F,$20,$9B,$8E,$20,$FD,$90,$20,$B6
+; A	: shop id
+; Marks	: shop window
+	CMP #$E0		; 8ED0	$C9 $E0
+	BCC L38ED5		; 8ED2	$90 $01
+	RTS			; 8ED4	$60
+L38ED5:
+	CMP #$DC		; 8ED5	$C9 $DC
+	BCC L38EEF		; 8ED7	$90 $16
+	BNE L38EDE		; 8ED9	$D0 $03
+	JMP $8E00		; 8EDB	$4C $00 $8E	$DC: ship ferry
+L38EDE:
+	CMP #$DD		; 8EDE	$C9 $DD
+	BNE L38EE5		; 8EE0	$D0 $03
+	JMP $8C27		; 8EE2	$4C $27 $8C	$DD: cid's airship ferry
+L38EE5:
+	CMP #$DE		; 8EE5	$C9 $DE
+	BNE L38EEC		; 8EE7	$D0 $03
+	JMP $8D83		; 8EE9	$4C $83 $8D	$DE: inn
+L38EEC:
+	JMP $8CB2		; 8EEC	$4C $B2 $8C	$DF: statue revive
+; $C0-$DB: normal shop
+L38EEF:
+	LDA #$05		; 8EEF	$A9 $05		$0205: "What can I do for you?"
+	JSR $963E		; 8EF1	$20 $3E $96
+	LDA $A0			; 8EF4	$A5 $A0		npc id
+	AND #$1F		; 8EF6	$29 $1F
+	JSR $8E9B		; 8EF8	$20 $9B $8E	load shop/ferry data
+	JSR $90FD		; 8EFB	$20 $FD $90	load shop item list text
+	JSR $8EB6		; 8EFE	$20 $B6 $8E	init player input
+	JSR $9139		; 8F01	$20 $39 $91	open gil window
+	LDA #$01		; 8F04	$A9 $01		buy/sell/exit window
+	STA $96			; 8F06	$85 $96
+	JSR $E91E		; 8F08	$20 $1E $E9	open window
+	LDA #$17		; 8F0B	$A9 $17		$0217: "Buy Sell Exit"
+	JSR $95F2		; 8F0D	$20 $F2 $95	load text (multi-page)
+	LDA #$01		; 8F10	$A9 $01
+	STA $A2			; 8F12	$85 $A2
+L38F14:
+	JSR $95CA		; 8F14	$20 $CA $95	wait one frame (draw cursors)
+	LDA #$04		; 8F17	$A9 $04
+	JSR $96C5		; 8F19	$20 $C5 $96	get cursor 1 position
+	LDA $25			; 8F1C	$A5 $25
+	BNE L38F3C		; 8F1E	$D0 $1C
+	LDA $24			; 8F20	$A5 $24
+	BEQ L38F14		; 8F22	$F0 $F0
+	JSR $905E		; 8F24	$20 $5E $90	cursor sound effect (confirm)
+	LDA $78F0		; 8F27	$AD $F0 $78
+	BNE L38F32		; 8F2A	$D0 $06
+	JSR $8F3F		; 8F2C	$20 $3F $8F	shop menu (buy)
+	JMP $8EFE		; 8F2F	$4C $FE $8E
+L38F32:
+	CMP #$04		; 8F32	$C9 $04
+	BNE L38F3C		; 8F34	$D0 $06
+	JSR $8F98		; 8F36	$20 $98 $8F	shop menu (sell)
+	JMP $8EFE		; 8F39	$4C $FE $8E
+L38F3C:
+	JMP $91B8		; 8F3C	$4C $B8 $91	close window
+;
 
-;; [$8F00 :: 0x38F00]
+; Name	:
+; Marks	: shop menu (buy)
+	JSR $90B5		; 8F3F	$20 $B5 $90	find first empty inventory slot
+	BCC L38F4A		; 8F42	$90 $06		branch if inventory is not full
+	LDA #$08		; 8F44	$A9 $08		$0208: "You're carrying too much."
+	JSR $963E		; 8F46	$20 $3E $96
+	RTS			; 8F49	$60
+L38F4A:
+	LDA #$01		; 8F4A	$A9 $01
+	STA $A3			; 8F4C	$85 $A3
+	JSR $90D6		; 8F4E	$20 $D6 $90
+	LDA #$00		; 8F51	$A9 $00
+	STA $79F0		; 8F53	$8D $F0 $79
+; start of frame loop
+L38F56:
+	JSR $95CA		; 8F56	$20 $CA $95	wait one frame (draw cursors)
+	LDA #$04		; 8F59	$A9 $04
+	JSR $96F9		; 8F5B	$20 $F9 $96	update cursor 2 position
+	LDA $25  		; 8F5E	$A5 $25
+	BNE L38F92		; 8F60	$D0 $30		branch if B button is pressed
+	LDA $24  		; 8F62	$A5 $24
+	BEQ L38F56		; 8F64	$F0 $F0		branch if A button is not pressed
+	JSR $905E		; 8F66	$20 $5E $90	cursor sound effect (confirm)
+	LDA $79F0		; 8F69	$AD $F0 $79
+	LSR			; 8F6C	$4A
+	TAX			; 8F6D	$AA
+	LDA $7B01,X		; 8F6E	$BD $01 $7B	item price
+	JSR $9067		; 8F71	$20 $67 $90	get item purchase price
+	JSR $9081		; 8F74	$20 $81 $90	take gil
+	BCC L38F7F		; 8F77	$90 $06
+	LDA #$07		; 8F79	$A9 $07		$0207: "You don't have enough gil."
+	JSR $963E		; 8F7B	$20 $3E $96
+	RTS			; 8F7E	$60
+L38F7F:
+	LDA $79F0		; 8F7F	$AD $F0 $79
+	LSR			; 8F82	$4A
+	TAY			; 8F83	$A8
+	LDA $7B00,Y		; 8F84	$B9 $00 $7B	item id
+	TAY			; 8F87	$A8
+	JSR $90C4		; 8F88	$20 $C4 $90	shift inventory so first slot is empty
+	TYA			; 8F8B	$98
+	STA $6060,X		; 8F8C	$9D $60 $60	put item in first slot
+	JSR $9567		; 8F8F	$20 $67 $95	show item select window
+L38F92:
+	LDA #$09		; 8F92	$A9 $09		$0209: "Thank you! Anything else?"
+	JMP $963E		; 8F94	$4C $3E $96
+; unused
+	RTS 			; 8F97	$60
+; End of
 
-.byte $8E,$20,$39,$91,$A9,$01,$85,$96,$20,$1E,$E9,$A9,$17,$20,$F2,$95
-.byte $A9,$01,$85,$A2,$20,$CA,$95,$A9,$04,$20,$C5,$96,$A5,$25,$D0,$1C
-.byte $A5,$24,$F0,$F0,$20,$5E,$90,$AD,$F0,$78,$D0,$06,$20,$3F,$8F,$4C
-.byte $FE,$8E,$C9,$04,$D0,$06,$20,$98,$8F,$4C,$FE,$8E,$4C,$B8,$91,$20
-.byte $B5,$90,$90,$06,$A9,$08,$20,$3E,$96,$60,$A9,$01,$85,$A3,$20,$D6
-.byte $90,$A9,$00,$8D,$F0,$79,$20,$CA,$95,$A9,$04,$20,$F9,$96,$A5,$25
-.byte $D0,$30,$A5,$24,$F0,$F0,$20,$5E,$90,$AD,$F0,$79,$4A,$AA,$BD,$01
-.byte $7B,$20,$67,$90,$20,$81,$90,$90,$06,$A9,$07,$20,$3E,$96,$60,$AD
-.byte $F0,$79,$4A,$A8,$B9,$00,$7B,$A8,$20,$C4,$90,$98,$9D,$60,$60,$20
-.byte $67,$95,$A9,$09,$4C,$3E,$96,$60,$A9,$01,$85,$A4,$20,$67,$95,$20
-.byte $EB,$94,$A9,$00,$8D,$F0,$7A,$A9,$0A,$20,$3E,$96,$A9,$00,$85,$A3
-.byte $85,$24,$85,$25,$20,$CA,$95,$A9,$08,$20,$2D,$97,$A5,$25,$D0,$7A
-.byte $A5,$24,$F0,$F0,$20,$5E,$90,$AE,$F0,$7A,$BD,$03,$7A,$AA,$BD,$60
-.byte $60,$C9,$10,$B0,$08,$A9,$0B,$20,$3E,$96,$4C,$B4,$8F,$20,$44,$90
-.byte $A9,$01,$85,$A3,$A9,$00,$8D,$F0,$79,$A9,$0C,$20,$3E,$96,$20,$CA
-.byte $95,$A9,$04,$20,$F9,$96,$A5,$25,$D0,$AD,$A5,$24,$F0,$F0,$20,$5E
 
-;; [$9000 :: 0x39000]
+; Name	:
+; Marks	: shop menu (sell)
+	LDA #$01		; 8F98	$A9 $01
+	STA $A4			; 8F9A	$85 $A4
+	JSR $9567		; 8F9C	$20 $67 $95	show item select window
+	JSR $94EB		; 8F9F	$20 $EB $94	save dialogue window variables
+	LDA #$00		; 8FA2	$A9 $00
+	STA $7AF0		; 8FA4	$8D $F0 $7A
+L38FA7:
+	LDA #$0A		; 8FA7	$A9 $0A		$020A: "What will you sell?"
+	JSR $963E		; 8FA9	$20 $3E $96
+	LDA #$00		; 8FAC	$A9 $00
+	STA $A3			; 8FAE	$85 $A3
+	STA $24			; 8FB0	$85 $24
+	STA $25			; 8FB2	$85 $25
+; start of frame loop (item select)
+L38FB4:
+	JSR $95CA		; 8FB4	$20 $CA $95	wait one frame (draw cursors)
+	LDA #$08		; 8FB7	$A9 $08
+	JSR $972D		; 8FB9	$20 $2D $97	update cursor 3 position
+	LDA $25			; 8FBC	$A5 $25
+	BNE L3903A		; 8FBE	$D0 $7A		branch if B button is pressed
+	LDA $24			; 8FC0	$A5 $24
+	BEQ L38FB4		; 8FC2	$F0 $F0		branch if A button is not pressed
+	JSR $905E		; 8FC4	$20 $5E $90	cursor sound effect (confirm)
+	LDX $7AF0		; 8FC7	$AE $F0 $7A
+	LDA $7A03,X		; 8FCA	$BD $03 $7A
+	TAX			; 8FCD	$AA
+	LDA $6060,X		; 8FCE	$BD $60 $60
+	CMP #$10		; 8FD1	$C9 $10
+	BCS L38FDD		; 8FD3	$B0 $08		branch if not a key item
+	LDA #$0B		; 8FD5	$A9 $0B		$020B: "I can't take that. Anything else?"
+	JSR $963E		; 8FD7	$20 $3E $96
+	JMP $8FB4		; 8FDA	$4C $B4 $8F
+L38FDD:
+	JSR $9044		; 8FDD	$20 $44 $90	get item sell price
+	LDA #$01		; 8FE0	$A9 $01
+	STA $A3			; 8FE2	$85 $A3
+	LDA #$00		; 8FE4	$A9 $00
+	STA $79F0		; 8FE6	$8D $F0 $79
+	LDA #$0C		; 8FE9	$A9 $0C		$020C: "I'll give you \x04 Gil for that.OK? Yes No"
+	JSR $963E		; 8FEB	$20 $3E $96
+; start of frame loop (yes/no)
+L38FEE:
+	JSR $95CA		; 8FEE	$20 $CA $95	wait one frame (draw cursors)
+	LDA #$04		; 8FF1	$A9 $04
+	JSR $96F9		; 8FF3	$20 $F9 $96	update cursor 2 position
+	LDA $25			; 8FF6	$A5 $25
+	BNE L38FA7		; 8FF8	$D0 $AD		branch if B button is pressed
+	LDA $24			; 8FFA	$A5 $24
+	BEQ L38FEE		; 8FFC	$F0 $F0		branch if A button is not pressed
+	JSR $905E		; 8FFE	$20 $5E $90	cursor sound effect (confirm)
+	LDA $79F0		; 9001	$AD $F0 $79
+	BNE L38FA7		; 9004	$D0 $A1
+	LDA $61			; 9006	$A5 $61
+	STA $80			; 9008	$85 $80
+	LDA $62			; 900A	$A5 $62
+	STA $81			; 900C	$85 $81
+	JSR $EFCF		; 900E	$20 $CF $EF	give gil
+	LDX $7AF0		; 9011	$AE $F0 $7A
+	LDA $7A03,X		; 9014	$BD $03 $7A
+	TAX			; 9017	$AA
+	LDA #$00		; 9018	$A9 $00
+	STA $6060,X		; 901A	$9D $60 $60
+	JSR $9139		; 901D	$20 $39 $91	open gil window
+	JSR $9523		; 9020	$20 $23 $95	restore dialogue window variables
+	LDA $1C			; 9023	$A5 $1C
+	STA $3E			; 9025	$85 $3E
+	LDA $1D			; 9027	$A5 $1D
+	STA $3F			; 9029	$85 $3F
+	JSR $E7AC		; 902B	$20 $AC $E7
+	LDA #$09		; 902E	$A9 $09		$0209: "Thank you! Anything else?"
+	JSR $963E		; 9030	$20 $3E $96
+	LDA #$00		; 9033	$A9 $00
+	STA $A3			; 9035	$85 $A3
+	JMP $8FB4		; 9037	$4C $B4 $8F
+; exit sell menu
+L3903A:
+	LDA #$09		; 903A	$A9 $09		$0209: "Thank you! Anything else?"
+	JSR $963E		; 903C	$20 $3E $96
+	LDA #$00		; 903F	$A9 $00
+	STA $A3			; 9041	$85 $A3
+	RTS			; 9043	$60
+; End of
 
-.byte $90,$AD,$F0,$79,$D0,$A1,$A5,$61,$85,$80,$A5,$62,$85,$81,$20,$CF
-.byte $EF,$AE,$F0,$7A,$BD,$03,$7A,$AA,$A9,$00,$9D,$60,$60,$20,$39,$91
-.byte $20,$23,$95,$A5,$1C,$85,$3E,$A5,$1D,$85,$3F,$20,$AC,$E7,$A9,$09
-.byte $20,$3E,$96,$A9,$00,$85,$A3,$4C,$B4,$8F,$A9,$09,$20,$3E,$96,$A9
-.byte $00,$85,$A3,$60,$0A,$AA,$B0,$0B,$BD,$00,$80,$85,$61,$BD,$01,$80
-.byte $85,$62,$60,$BD,$00,$81,$85,$61,$BD,$01,$81,$85,$62,$60
+
+; Name	:
+; Marks	: get item sell price
+; $00-$BF are sell prices corresponding to item id
+	ASL			; 9044	0A
+	TAX			; 9045	AA
+	BCS L39053		; 9046	B0 0B
+	LDA $8000,X		; 9048	BD 00 80	BANK 0E/8000 (item prices)
+	STA $61			; 904B	85 61
+	LDA $8001,X		; 904D	BD 01 80
+	STA $62			; 9050	85 62
+	RTS			; 9052	60
+L39053:
+	LDA $8100,X		; 9053	BD 00 81
+	STA $61			; 9056	85 61
+	LDA $8101,X		; 9058	BD 01 81
+	STA $62			; 905B	85 62
+	RTS			; 905D	60
+; End of
+
 
 ; Name	: Sound_key_init
 ; Marks	: B, A key init, Sound init or Make some sound effect ??
@@ -528,24 +1406,144 @@ KeyRst_SndE:
 	JMP SndE_cur_sel	; 9604	$4C $2E $DB
 ; End of KeyRst_SndE
 
-.byte $0A,$AA,$B0,$0B,$BD,$00,$80,$85,$80
-.byte $BD,$01,$80,$85,$81,$60,$BD,$00,$81,$85,$80,$BD,$01,$81,$85,$81
-.byte $60,$AD,$1E,$60,$D0,$14,$AD,$1D,$60,$C5,$81,$90,$0B,$F0,$02,$B0
-.byte $09,$AD,$1C,$60,$C5,$80,$B0,$02,$38,$60,$AD,$1C,$60,$38,$E5,$80
-.byte $8D,$1C,$60,$AD,$1D,$60,$E5,$81,$8D,$1D,$60,$AD,$1E,$60,$E9,$00
-.byte $8D,$1E,$60,$18,$60,$A2,$00,$BD,$60,$60,$D0,$02,$18,$60,$E8,$E0
-.byte $20,$90,$F4,$60,$20,$B5,$90,$E0,$00,$F0,$0A,$CA,$BD,$60,$60,$9D
-.byte $61,$60,$4C,$C7,$90,$60,$A9,$06,$20,$3E,$96,$A5,$38,$18,$69,$0C
-.byte $29,$3F,$85,$38,$A5,$97,$18,$69,$0C,$85,$97,$A5,$3C,$38,$E9,$0C
-.byte $85,$3C,$A9,$20,$85,$3E,$A9,$7B,$85,$3F,$4C,$AC,$E7,$A0,$00,$A2
+; Name	:
+; Marks	: get item purchase price
+; $E0-$FF are purchase prices, index is from shop data
+	ASL			; 9067	$0A
+	TAX			; 9068	$AA
+	BCS L39076		; 9069	$B0 $0B
+	LDA $8000,X		; 906B	$BD $00 $80	BANK 0E/8000 (item prices)
+	STA $80			; 906E	$85 $80
+	LDA $8001,X		; 9070	$BD $01 $80
+	STA $81			; 9073	$85 $81
+	RTS			; 9075	$60
+L39076:
+	LDA $8100,X		; 9076	$BD $00 $81
+	STA $80			; 9079	$85 $80
+	LDA $8101,X		; 907B	$BD $01 $81
+	STA $81			; 907E	$85 $81
+	RTS			; 9080	$60
+; End of
 
-;; [$9100 :: 0x39100]
+; Name	:
+; Marks	: take gil
+; +$80: gil amount
+; set carry if not enough gil
+	LDA $601E		; 9081	$AD $1E $60
+	BNE L3909A		; 9084	$D0 $14
+	LDA $601D		; 9086	$AD $1D $60
+	CMP $81			; 9089	$C5 $81
+	BCC L39098		; 908B	$90 $0B
+	BEQ L39091		; 908D	$F0 $02
+	BCS L3909A		; 908F	$B0 $09
+L39091:
+	LDA $601C		; 9091	$AD $1C $60	gil
+	CMP $80			; 9094	$C5 $80
+	BCS L3909A		; 9096	$B0 $02
+L39098:
+	SEC			; 9098	$38
+	RTS			; 9099	$60
+L3909A:
+	LDA $601C		; 909A	$AD $1C $60
+	SEC			; 909D	$38
+	SBC $80			; 909E	$E5 $80
+	STA $601C		; 90A0	$8D $1C $60
+	LDA $601D		; 90A3	$AD $1D $60
+	SBC $81			; 90A6	$E5 $81
+	STA $601D		; 90A8	$8D $1D $60
+	LDA $601E		; 90AB	$AD $1E $60
+	SBC #$00		; 90AE	$E9 $00
+	STA $601E		; 90B0	$8D $1E $60
+	CLC			; 90B3	$18
+	RTS			; 90B4	$60
+; End
 
-.byte $00,$B9,$15,$91,$C9,$FF,$D0,$04,$BD,$00,$7B,$E8,$99,$20,$7B,$C8
-.byte $C0,$24,$90,$ED,$60,$16,$00,$18,$FF,$14,$09,$19,$FF,$01,$16,$00
-.byte $18,$FF,$14,$09,$19,$FF,$01,$16,$00,$18,$FF,$14,$09,$19,$FF,$01
-.byte $16,$00,$18,$FF,$14,$09,$19,$FF,$00,$A9,$03,$85,$96,$20,$1E,$E9
-.byte $A9,$1C,$4C,$F2,$95
+; Name	:
+; Marks	: find first empty inventory slot
+; X: empty slot offset (out)
+; set carry if inventory is full
+	LDX #$00		; 90B5	$A2 $00
+L390B7:
+	LDA $6060,X		; 90B7	$BD $60 $60	inventory
+	BNE L390BE		; 90BA	$D0 $02
+	CLC			; 90BC	$18
+	RTS			; 90BD	$60
+L390BE:
+	INX			; 90BE	$E8
+	CPX #$20		; 90BF	$E0 $20
+	BCC L390B7		; 90C1	$90 $F4
+	RTS			; 90C3	$60
+; End of
+
+; Name	:
+; Marks	: shift inventory so first slot is empty
+	JSR $90B5		; 90C4	$20 $B5 $90	find first empty inventory slot
+	CPX #$00		; 90C7	$E0 $00
+	BEQ L390D5		; 90C9	$F0 $0A
+	DEX			; 90CB	$CA
+	LDA $6060,X		; 90CC	$BD $60 $60
+	STA $6061,X		; 90CF	$9D $61 $60
+	JMP $90C7		; 90D2	$4C $C7 $90
+L390D5:
+	RTS			; 90D5	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDA #$06		; 90D6	$A9 $06		$0206: "What would you like?"
+	JSR $963E		; 90D8	$20 $3E $96
+	LDA $38			; 90DB	$A5 $38
+	CLC			; 90DD	$18
+	ADC #$0C		; 90DE	$69 $0C
+	AND #$3F		; 90E0	$29 $3F
+	STA $38			; 90E2	$85 $38
+	LDA $97			; 90E4	$A5 $97
+	CLC			; 90E6	$18
+	ADC #$0C		; 90E7	$69 $0C
+	STA $97			; 90E9	$85 $97
+	LDA $3C			; 90EB	$A5 $3C
+	SEC			; 90ED	$38
+	SBC #$0C		; 90EE	$E9 $0C
+	STA $3C			; 90F0	$85 $3C
+	LDA #$20		; 90F2	$A9 $20
+	STA $3E			; 90F4	$85 $3E
+	LDA #$7B		; 90F6	$A9 $7B
+	STA $3F			; 90F8	$85 $3F
+	JMP $E7AC		; 90FA	$4C $AC $E7
+;
+
+; Name	:
+; Marks	: load shop item list text
+	LDY #$00		; 90FD	$A0 $00
+	LDX #$00		; 90FF	$A2 $00
+L39101:
+	LDA $9115,Y		; 9101	$B9 $15 $91
+	CMP #$FF		; 9104	$C9 $FF
+	BNE L3910C		; 9106	$D0 $04
+	LDA $7B00,X		; 9108	$BD $00 $7B	shop data
+	INX			; 910B	$E8
+L3910C:
+	STA $7B20,Y		; 910C	$99 $20 $7B	text buffer
+	INY			; 910F	$C8
+	CPY #$24		; 9110	$C0 $24
+	BCC L39101		; 9112	$90 $ED
+	RTS			; 9114	$60
+; End of
+
+; shop item list text string (replace $FF's with shop data)
+.byte $16,$00,$18,$FF,$14,$09,$19,$FF,$01,$16,$00,$18,$FF,$14,$09,$19	; 9115
+.byte $FF,$01,$16,$00,$18,$FF,$14,$09,$19,$FF,$01,$16,$00,$18,$FF,$14	; 9125
+.byte $09,$19,$FF,$00							; 9135
+
+; Name	:
+; Marks	: open gil window
+	LDA #$03		; 9139	$A9 $03		gil window
+	STA $96			; 913B	$85 $96
+	JSR $E91E		; 913D	$20 $1E $E9	open window
+	LDA #$1C		; 9140	$A9 $1C		$021C: "\x05 Gil"
+	JMP $95F2		; 9142	$4C $F2 $95	load text (multi-page)
+;
+
 ; Name	:
 ; Marks	:
 	LDA #$00		; 9145	$A9 $00
@@ -594,7 +1592,7 @@ L39187:
 	LDA cur_pos		; 919D	$AD $F0 $78
 	BNE L391A8		; 91A0	$D0 $06
 	JSR $9204		; 91A2	$20 $04 $92	?? loop
-.byte $4C,$74,$91
+	JMP $9174		; 91A5	$4C $74 $91
 L391A8:
 	CMP #$04		; 91A8	$C9 $04
 	BNE L391B2		; 91AA	$D0 $06		A != 04h, not learn ??
@@ -624,14 +1622,28 @@ L391B8:
 	RTS			; 91DB	$60
 ; End of
 
-;; [$91DC
-.byte $20,$A9,$DB,$A5
-.byte $20,$85,$03,$20,$A9,$DB,$20,$CA,$95,$A5,$20,$C5,$03,$F0,$F4,$85
-.byte $03,$20,$A9,$DB,$20,$CA,$95,$A5,$20,$C5,$03,$F0,$F4,$A6,$04,$9A
+; Marks	:
+	JSR $DBA9		; 91DC	$20 $A9 $DB	read joypad registers
+	LDA $20			; 91DF	$A5 $20
+	STA $03			; 91E1	$85 $03
+L391E3:
+	JSR $DBA9		; 91E3	$20 $A9 $DB	read joypad registers
+	JSR $95CA		; 91E6	$20 $CA $95	wait one frame (draw cursors)
+	LDA $20			; 91E9	$A5 $20
+	CMP $03			; 91EB	$C5 $03
+	BEQ L391E3		; 91ED	$F0 $F4
+	STA $03			; 91EF	$85 $03
+L391F1:
+	JSR $DBA9		; 91F1	$20 $A9 $DB	read joypad registers
+	JSR $95CA		; 91F4	$20 $CA $95	wait one frame (draw cursors)
+	LDA $20			; 91F7	$A5 $20
+	CMP $03			; 91F9	$C5 $03
+	BEQ L391F1		; 91FB	$F0 $F4
+	LDX $04			; 91FD	$A6 $04
+	TXS			; 91FF	$9A
+	JMP $91B8		; 9200	$4C $B8 $91
+;
 
-;; [$9200 :: 0x39200]
-
-.byte $4C,$B8,$91
 L39203:
 	RTS			; 9203	$60
 ; End of $9240
@@ -671,40 +1683,183 @@ L39235:
 	JSR $963E		; 923D	$20 $3E $96
 	JMP $9203		; 9240	$4C $03 $92
 ; End of
-
 L39243:
-.byte $86,$08,$20,$14,$96,$AD,$F1,$79,$F0,$04,$A9,$49,$85
-.byte $E0,$A5,$A0,$A6,$08,$C9,$01,$D0,$0C,$E0,$02,$D0,$19,$A0,$50,$20
-.byte $C7,$98,$4C,$03,$92,$C9,$12,$D0,$14,$E0,$0C,$F0,$0C,$E0,$0D,$D0
-.byte $05,$A0,$5B,$20,$07,$99,$4C,$03,$92,$A0,$5A,$D0,$F6,$C9,$13,$D0
-.byte $17,$E0,$06,$D0,$F1,$A0,$13,$20,$07,$99,$A9,$05,$85,$61,$20,$18
-.byte $C0,$A9,$4A,$85,$E0,$4C,$03,$92,$C9,$25,$D0,$17,$E0,$0B,$D0,$D6
-.byte $AD,$1B,$60,$29,$02,$F0,$CF,$A9,$47,$85,$E0,$A9,$0A,$20,$73,$95
-.byte $4C,$03,$92,$C9,$2E,$D0,$09,$E0,$0F,$D0,$BB,$A0,$2E,$4C,$73,$92
-.byte $C9,$30,$D0,$09,$E0,$01,$D0,$AE,$A0,$30,$4C,$73,$92,$C9,$31,$D0
-.byte $13,$E0,$01,$D0,$63,$A9,$01,$20,$73,$95,$A0,$31,$20,$07,$99,$A0
-.byte $10,$4C,$73,$92,$C9,$32,$D0,$15,$E0,$01,$D0,$4C,$AD,$03,$7B,$85
-.byte $6A,$A9,$20,$85,$44,$A0,$32,$20,$07,$99,$4C,$DC,$91,$C9,$35,$D0
+	STX $08			; 9243	$86 $08
+	JSR $9614		; 9245	$20 $14 $96
+	LDA $79F1		; 9248	$AD $F1 $79
+	BEQ L39251		; 924B	$F0 $04
+	LDA #$49		; 924D	$A9 $49		play song $09
+	STA $E0			; 924F	$85 $E0		
+L39251:
+	LDA $A0			; 9251	$A5 $A0		A = npc id
+	LDX $08			; 9253	$A6 $08		X = keyword id
+; npc $01: 
+	CMP #$01		; 9255	$C9 $01
+	BNE L39265		; 9257	$D0 $0C
+	CPX #$02		; 9259	$E0 $02		mythril
+	BNE L39276		; 925B	$D0 $19
+	LDY #$50		; 925D	$A0 $50
+	JSR $98C7		; 925F	$20 $C7 $98	set event switch and show npc
+	JMP $9203		; 9262	$4C $03 $92
+; npc $12
+L39265:
+	CMP #$12		; 9265	$C9 $12
+	BNE L3927D		; 9267	$D0 $14
+	CPX #$0C		; 9269	$E0 $0C
+	BEQ L39279		; 926B	$F0 $0C
+	CPX #$0D		; 926D	$E0 $0D
+	BNE L39276		; 926F	$D0 $05
+	LDY #$5B		; 9271	$A0 $5B
+L39273:
+	JSR $9907		; 9273	$20 $07 $99	hide npc
+L39276:
+	JMP $9203		; 9276	$4C $03 $92  
+L39279:
+	LDY #$5A		; 9279	$A0 $5A
+	BNE L39273		; 927B	$D0 $F6
+; npc $13: josef (salamand)
+L3927D:
+	CMP #$13		; 927D	$C9 $13
+	BNE L39298		; 927F	$D0 $17
+	CPX #$06		; 9281	$E0 $06		Goddess's Bell
+	BNE L39276		; 9283	$D0 $F1
+	LDY #$13		; 9285	$A0 $13
+	JSR $9907		; 9287	$20 $07 $99	hide npc
+	LDA #$05		; 928A	$A9 $05		josef
+	STA $61			; 928C	$85 $61
+	JSR $C018		; 928E	$20 $18 $C0	load guest character properties
+	LDA #$4A		; 9291	$A9 $4A		play song $0A
+	STA $E0			; 9293	$85 $E0
+	JMP $9203		; 9295	$4C $03 $92
+; npc $25
+L39298:
+	CMP #$25		; 9298	$C9 $25
+	BNE L392B3		; 929A	$D0 $17
+	CPX #$0B		; 929C	$E0 $0B
+	BNE L39276		; 929E	$D0 $D6
+	LDA $601B		; 92A0	$AD $1B $60
+	AND #$02		; 92A3	$29 $02
+	BEQ L39276		; 92A5	$F0 $CF		branch if player doesn't have ring
+	LDA #$47		; 92A7	$A9 $47		play song $07
+	STA $E0			; 92A9	$85 $E0
+	LDA #$0A		; 92AB	$A9 $0A		item $0A: WyvernEgg
+	JSR $9573		; 92AD	$20 $73 $95	add item to inventory (unique)
+	JMP $9203		; 92B0	$4C $03 $92
+; npc $2E
+L392B3:
+	CMP #$2E		; 92B3	$C9 $2E
+	BNE L392C0		; 92B5	$D0 $09
+	CPX #$0F		; 92B7	$E0 $0F
+	BNE L39276		; 92B9	$D0 $BB
+	LDY #$2E		; 92BB	$A0 $2E
+	JMP $9273		; 92BD	$4C $73 $92
+; npc $30
+L392C0:
+	CMP #$30		; 92C0	$C9 $30
+	BNE L392CD		; 92C2	$D0 $09
+	CPX #$01		; 92C4	$E0 $01
+	BNE L39276		; 92C6	$D0 $AE
+	LDY #$30		; 92C8	$A0 $30
+	JMP $9273		; 92CA	$4C $73 $92
+; npc $31: scott
+L392CD:
+	CMP #$31		; 92CD	$C9 $31
+	BNE L392E4		; 92CF	$D0 $13
+	CPX #$01		; 92D1	$E0 $01		said keyword $01: wild rose
+	BNE L39338		; 92D3	$D0 $63
+	LDA #$01		; 92D5	$A9 $01		item $01: Ring
+	JSR $9573		; 92D7	$20 $73 $95	add item to inventory (unique)
+	LDY #$31		; 92DA	$A0 $31		scott
+	JSR $9907		; 92DC	$20 $07 $99	hide npc
+	LDY #$10		; 92DF	$A0 $10		paul (altair)
+	JMP $9273		; 92E1	$4C $73 $92
+; npc $32: dreadnought guard
+L392E4:
+	CMP #$32		; 92E4	$C9 $32
+	BNE L392FD		; 92E6	$D0 $15
+	CPX #$01		; 92E8	$E0 $01		Wild Rose
+	BNE L39338		; 92EA	$D0 $4C
+	LDA $7B03		; 92EC	$AD $03 $7B	battle $6E
+	STA $6A			; 92EF	$85 $6A
+	LDA #$20		; 92F1	$A9 $20
+	STA $44			; 92F3	$85 $44
+	LDY #$32		; 92F5	$A0 $32		npc $32 (dreadnought guard)
+	JSR $9907		; 92F7	$20 $07 $99	hide npc
+	JMP $91DC		; 92FA	$4C $DC $91
+; npc $35
+L392FD:
+	CMP #$35		; 92FD	$C9 $35
+	BNE L39316		; 92FF	$D0 $15
+	CPX #$03		; 9301	$E0 $03
+	BNE L39338		; 9303	$D0 $33
+	LDY #$23		; 9305	$A0 $23
+	JSR $989E		; 9307	$20 $9E $98	check event switch
+	BEQ L39338		; 930A	$F0 $2C
+	LDY #$1B		; 930C	$A0 $1B
+	JSR $98C7		; 930E	$20 $C7 $98	set event switch and show npc
+	LDY #$35		; 9311	$A0 $35
+	JMP $9273		; 9313	$4C $73 $92
+; npc $58: deist npc 4
+L39316:
+	CMP #$58		; 9316	$C9 $58
+	BNE L39338		; 9318	$D0 $1E
+	CPX #$0A		; 931A	$E0 $0A		Dragoon
+	BNE L39338		; 931C	$D0 $1A
+	LDA $601B		; 931E	$AD $1B $60
+	AND #$02		; 9321	$29 $02
+	BEQ L39338		; 9323	$F0 $13		branch if player doesn't have pendant
+	LDA #$5F		; 9325	$A9 $5F		item $5F: Excalibr
+	JSR $9573		; 9327	$20 $73 $95	add item to inventory (unique)
+	LDA #$47		; 932A	$A9 $47		play song $07
+	STA $E0			; 932C	$85 $E0
+	LDY #$57		; 932E	$A0 $57
+	JSR $9907		; 9330	$20 $07 $99	hide npc
+	LDY #$58		; 9333	$A0 $58
+	JMP $9273		; 9335	$4C $73 $92
+L39338:
+	JMP $9203		; 9338	$4C $03 $92	return
+;
 
-;; [$9300 :: 0x39300]
-
-.byte $15,$E0,$03,$D0,$33,$A0,$23,$20,$9E,$98,$F0,$2C,$A0,$1B,$20,$C7
-.byte $98,$A0,$35,$4C,$73,$92,$C9,$58,$D0,$1E,$E0,$0A,$D0,$1A,$AD,$1B
-.byte $60,$29,$02,$F0,$13,$A9,$5F,$20,$73,$95,$A9,$47,$85,$E0,$A0,$57
-.byte $20,$07,$99,$A0,$58,$4C,$73,$92,$4C,$03,$92
-;; [$933B
+; Name	:
+; Marks	: learn keyword window
 	LDA $9F			; 933B	$A5 $9F		learn keyword ??
 	BNE L39345		; 933D	$D0 $06
 	LDA #$3F		; 933F	$A9 $3F
 	JSR $963E		; 9341	$20 $3E $96	some process scroll ??
 	RTS			; 9344	$60
 ; End of
-
 L39345:
-.byte $A9,$00,$8D,$F0,$79,$AD,$F1,$79,$D0,$05,$A5
-.byte $9D,$20,$14,$96,$A9,$01,$85,$A3,$20,$CA,$95,$A9,$04,$20,$F9,$96
-.byte $A5,$25,$D0,$1B,$A5,$24,$F0,$F0,$20,$5E,$90,$AE,$F0,$79,$BD,$03
-.byte $79,$20,$97,$95,$20,$5B,$95,$A9,$04,$8D,$F0,$78,$4C,$58,$93,$60
+	LDA #$00		; 9345	$A9 $00
+	STA $79F0		; 9347	$8D $F0 $79
+	LDA $79F1		; 934A	$AD $F1 $79
+	BNE L39354		; 934D	$D0 $05
+	LDA $9D			; 934F	$A5 $9D
+	JSR $9614		; 9351	$20 $14 $96
+L39354:
+	LDA #$01		; 9354	$A9 $01
+	STA $A3			; 9356	$85 $A3
+L39358:
+	JSR $95CA		; 9358	$20 $CA $95	wait one frame (draw cursors)
+	LDA #$04		; 935B	$A9 $04
+	JSR $96F9		; 935D	$20 $F9 $96	update cursor 2 position
+	LDA $25			; 9360	$A5 $25
+	BNE L3937F		; 9362	$D0 $1B
+	LDA $24			; 9364	$A5 $24
+	BEQ L39358		; 9366	$F0 $F0
+	JSR $905E		; 9368	$20 $5E $90	cursor sound effect (confirm)
+	LDX $79F0		; 936B	$AE $F0 $79
+	LDA $7903,X		; 936E	$BD $03 $79
+	JSR $9597		; 9371	$20 $97 $95	learn keyword
+	JSR $955B		; 9374	$20 $5B $95	show keyword select window
+	LDA #$04		; 9377	$A9 $04
+	STA $78F0		; 9379	$8D $F0 $78
+	JMP $9358		; 937C	$4C $58 $93
+L3937F:
+	RTS			; 937F	$60
+; End of
+
+; Marks	: item select window
+; starts at 0E/9381
 L39380:
 	RTS			; 9380	$60
 ; Name	:
