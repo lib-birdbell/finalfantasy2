@@ -48,7 +48,7 @@
 .export	Mob_stat6_tbl
 .export	Mob_stat7_tbl
 .export	Mob_AI
-.export	Mob_AI_Sp_atk
+;.export	Sp_atk_rest_prob
 
 ; ========== armor properties (41 * 6 bytes) ($8000-$80F5) START ==========
 ; 00: Defense, 01: Evade penalty, 02: Int/Soul penalty
@@ -638,7 +638,7 @@ Mob_AI:
 .byte $0F,$00,$0F,$00,$00,$00,$00,$00	; 8E43
 ;bit:0, 1,     2,     3,    4,   5,   6,       7
 ;    ??,low hp,poison,sleep,mute,mini,paralyze,confuse
-Mob_AI_Sp_atk:				; 26
+Sp_atk_rest_prob:			; 26
 .byte $00,$00,$46,$3C,$32,$28,$1E,$14	; 8E4B
 
 .byte $21,$21,$21,$21,$21,$21,$21,$21	; 8E53
@@ -2329,23 +2329,19 @@ L31953:
 	STA $03			; 995D	$85 $03
 	JSR Multi16		; 995F	$20 $98 $FC
 	LDA $04			; 9962	$A5 $04
-	ADC #<Mob_prop
-	;ADC #$C3		; 9964	$69 $C3		Mob_prop (monster properties 0C/87C3) BANK
+	ADC #<Mob_prop		; 9964	$69 $C3		Mob_prop (monster properties 0C/87C3) BANK
 	STA $7A			; 9966	$85 $7A
 	LDA $05			; 9968	$A5 $05
-	ADC #>Mob_prop
-	;ADC #$87		; 996A	$69 $87
+	ADC #>Mob_prop		; 996A	$69 $87
 	STA $7B			; 996C	$85 $7B
 	LDY #$01		; 996E	$A0 $01
 	LDA ($7A),Y		; 9970	$B1 $7A
 	ASL A			; 9972	$0A
 	CLC			; 9973	$18
-	ADC #<Mob_HMP_tbl
-	;ADC #$C3		; 9974	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3) BANK
+	ADC #<Mob_HMP_tbl	; 9974	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3) BANK
 	STA $78			; 9976	$85 $78
 	LDA #$00		; 9978	$A9 $00
-	ADC #>Mob_HMP_tbl
-	;ADC #$8C		; 997A	$69 $8C
+	ADC #>Mob_HMP_tbl	; 997A	$69 $8C
 	STA $79			; 997C	$85 $79
 	LDY #$00		; 997E	$A0 $00
 	LDA ($78),Y		; 9980	$B1 $78
@@ -2359,12 +2355,10 @@ L31953:
 	LDA ($7A),Y		; 998F	$B1 $7A
 	ASL A			; 9991	$0A
 	CLC			; 9992	$18
-	ADC #<Mob_HMP_tbl
-	;ADC #$C3		; 9993	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3) BANK
+	ADC #<Mob_HMP_tbl	; 9993	$69 $C3		Mob_HMP_tbl (monster hp/mp values 0C/8CC3) BANK
 	STA $78			; 9995	$85 $78
 	LDA #$00		; 9997	$A9 $00
-	ADC #>Mob_HMP_tbl
-	;ADC #$8C		; 9999	$69 $8C
+	ADC #>Mob_HMP_tbl	; 9999	$69 $8C
 	STA $79			; 999B	$85 $79
 	LDY #$00		; 999D	$A0 $00
 	LDA ($78),Y		; 999F	$B1 $78
@@ -2480,11 +2474,9 @@ Wait_MENUs_NMIe:
 ; Marks	: set NMI subroutine
 ;	  init battle nmi jump code
 Set_NMI_:
-	LDA #>NMI_BATTLE
-	;LDA #$9A		; 9A69	$A9 $9A
+	LDA #>NMI_BATTLE	; 9A69	$A9 $9A
 	STA $0102		; 9A6B	$8D $02 $01
-	LDA #<NMI_BATTLE
-	;LDA #$79		; 9A6E	$A9 $79
+	LDA #<NMI_BATTLE	; 9A6E	$A9 $79
 	STA $0101		; 9A70	$8D $01 $01
 	LDA #$4C		; 9A73	$A9 $4C
 	STA $0100		; 9A75	$8D $00 $01
@@ -3600,12 +3592,10 @@ L3216C:
 	JSR Multi16		; A17B	$20 $98 $FC	multiply (16-bit)
 	CLC			; A17E	$18
 	LDA $04			; A17F	$A5 $04
-	;ADC #$F6		; A181	$69 $F6		weapon properties (0C/80F6) BANK
-	ADC #<Weapon_prop
+	ADC #<Weapon_prop	; A181	$69 $F6		weapon properties (0C/80F6) BANK
 	STA $62			; A183	$85 $62
 	LDA $05			; A185	$A5 $05
-	;ADC #$80		; A187	$69 $80
-	ADC #>Weapon_prop
+	ADC #>Weapon_prop	; A187	$69 $80
 	STA $63			; A189	$85 $63
 	LDY #$08		; A18B	$A0 $08
 	LDA ($62),Y		; A18D	$B1 $62		get weapon spellcast
@@ -3619,12 +3609,10 @@ Use_item_chk:
 	JSR Multi16		; A19B	$20 $98 $FC
 	CLC			; A19E	$18
 	LDA $04			; A19F	$A5 $04
-	;ADC #$36		; A1A1	$69 $36		ItemAttack_prop (0C/8336) BANK
-	ADC #<ItemAttack_prop
+	ADC #<ItemAttack_prop	; A1A1	$69 $36		ItemAttack_prop (0C/8336) BANK
 	STA $62			; A1A3	$85 $62
 	LDA $05			; A1A5	$A5 $05
-	;ADC #$83		; A1A7	$69 $83
-	ADC #>ItemAttack_prop
+	ADC #>ItemAttack_prop	; A1A7	$69 $83
 	STA $63			; A1A9	$85 $63
 	LDY #$00		; A1AB	$A0 $00
 	LDA ($62),Y		; A1AD	$B1 $62		item attack
@@ -4016,12 +4004,10 @@ L3240D:
 	JSR Multi16		; A41E	$20 $98 $FC	multiply (16-bit), mob id x 0Ah
 	CLC			; A421	$18
 	LDA $04			; A422	$A5 $04
-	ADC #<Mob_prop
-	;ADC #$C3		; A424	$69 $C3		Mob_prop (monster properties 0C/87C3) BANK
+	ADC #<Mob_prop		; A424	$69 $C3		Mob_prop (monster properties 0C/87C3) BANK
 	STA $46			; A426	$85 $46
 	LDA $05			; A428	$A5 $05
-	ADC #>Mob_prop
-	;ADC #$87		; A42A	$69 $87
+	ADC #>Mob_prop		; A42A	$69 $87
 	STA $47			; A42C	$85 $47
 	LDY #$00		; A42E	$A0 $00
 	LDA ($46),Y		; A430	$B1 $46		monster properties byte 0 (special attack)
@@ -4037,12 +4023,10 @@ L32437:
 	JSR Multi16		; A443	$20 $98 $FC
 	CLC			; A446	$18
 	LDA $04			; A447	$A5 $04
-	ADC #<Mob_AI
-	;ADC #$73		; A449	$69 $73		Mob_AI (monster special attacks 0C/8D73) BANK
+	ADC #<Mob_AI		; A449	$69 $73		Mob_AI (monster special attacks 0C/8D73) BANK
 	STA $46			; A44B	$85 $46
 	LDA $05			; A44D	$A5 $05
-	ADC #>Mob_AI
-	;ADC #$8D		; A44F	$69 $8D
+	ADC #>Mob_AI		; A44F	$69 $8D
 	STA $47			; A451	$85 $47
 	LDX #$00		; A453	$A2 $00
 	LDA #$63		; A455	$A9 $63
@@ -4074,12 +4058,10 @@ L32478:
 	JSR Multi16		; A484	$20 $98 $FC	multiply (16-bit), $00 x 05h
 	CLC			; A487	$18
 	LDA $04			; A488	$A5 $04
-	ADC #<ItemAttack_prop
-	;ADC #$36		; A48A	$69 $36		item/attack properties (0C/8336) BANK
+	ADC #<ItemAttack_prop	; A48A	$69 $36		item/attack properties (0C/8336) BANK
 	STA $46			; A48C	$85 $46
 	LDA $05			; A48E	$A5 $05
-	ADC #>ItemAttack_prop
-	;ADC #$83		; A490	$69 $83
+	ADC #>ItemAttack_prop	; A490	$69 $83
 	STA $47			; A492	$85 $47
 	LDY #$01		; A494	$A0 $01
 	LDA ($46),Y		; A496	$B1 $46		read spell level
@@ -4108,10 +4090,10 @@ L32478:
 	JSR Multi16		; A4C2	$20 $98 $FC	multiply (16-bit), magic id * 07h
 	CLC			; A4C5	$18
 	LDA $04			; A4C6	$A5 $04
-	ADC #$D9		; A4C8	$69 $D9		magic properties (0C/85D9) BANK
+	ADC #<Magic_prop	; A4C8	$69 $D9		magic properties (0C/85D9) BANK
 	STA $46			; A4CA	$85 $46
 	LDA $05			; A4CC	$A5 $05
-	ADC #$85		; A4CE	$69 $85
+	ADC #>Magic_prop	; A4CE	$69 $85
 	STA $47			; A4D0	$85 $47
 	LDY #$00		; A4D2	$A0 $00
 	LDA ($46),Y		; A4D4	$B1 $46		battle command
@@ -5149,7 +5131,7 @@ L32C10:
 	LDA #$00		; AC16	$A9 $00
 	STA $7B4A		; AC18	$8D $4A $7B
 	JSR Wait_MENU_snd	; AC1B	$20 $5B $FD
-	JSR Chk_sp_atk		; AC1E	$20 $28 $AE
+	JSR Chk_status_restore	; AC1E	$20 $28 $AE
 	JSR Chk_status		; AC21	$20 $EA $AD
 	JSR Wait_MENU_snd	; AC24	$20 $5B $FD
 	JSR Draw_char_stat_win	; AC27	$20 $2A $91
@@ -5483,7 +5465,7 @@ L32E25:
 	JMP Wait_MENU_snd	; AE25	$4C $5B $FD
 ; End of Chk_status
 
-; Name	: Chk_sp_atk
+; Name	: Chk_status_restore
 ; Marks	: not certain
 ;	  use another BANK
 ;	  $27 = player index temp
@@ -5492,10 +5474,10 @@ L32E25:
 ;	  $46 = probability % temp
 ;	  $47 = status 2 for bit shift temp
 ;	  $9E = current character index
-Chk_sp_atk:
+Chk_status_restore:
 	LDA #$00		; AE28	$A9 $00
 	STA cur_char_idx	; AE2A	$85 $9E
-Mob_sp_atk:
+Chk_status_loop:
 	JSR Wait_NMI_end	; AE2C	$20 $46 $FD
 	JSR Update_addr		; AE2F	$20 $E1 $96	get status 2
 	JSR Get_stat_status2	; AE32	$20 $80 $AF
@@ -5506,61 +5488,61 @@ Mob_sp_atk:
 	JSR Get_stat_status2	; AE3D	$20 $80 $AF	get status 2
 	STA $45			; AE40	$85 $45
 	STA $47			; AE42	$85 $47
-Mob_sp_atk_status2:
+Chk_status2_bit_loop:
 	LSR $47			; AE44	$46 $47		bit check buffer
-	BCC L32E67		; AE46	$90 $1F
+	BCC Chk_status_nothing	; AE46	$90 $1F
 	LDX #$01		; AE48	$A2 $01
 	LDA #$64		; AE4A	$A9 $64
 	JSR Random		; AE4C	$20 $11 $FD	random (X..A)
 	STA $46			; AE4F	$85 $46		restoration probability %
 	LDA $44			; AE51	$A5 $44
 	TAX			; AE53	$AA
-	LDA Mob_AI_Sp_atk,X	; AE54	$BD $4B $8E	BANK 0C/8E4B (special attack) - restoration probability
+	LDA Sp_atk_rest_prob,X	; AE54	$BD $4B $8E	BANK 0C/8E4B (special attack) - restoration probability
 	SEC			; AE57	$38
 	SBC $46			; AE58	$E5 $46
-	BCC L32E67		; AE5A	$90 $0B
+	BCC Chk_status_nothing	; AE5A	$90 $0B
 	LDA $45			; AE5C	$A5 $45
 	JSR Clear_bit		; AE5E	$20 $0E $90	clear bit
 	LDY #$09		; AE61	$A0 $09
 	STA ($80),Y		; AE63	$91 $80
 	STA $45			; AE65	$85 $45
-L32E67:
+Chk_status_nothing:
 	INC $44			; AE67	$E6 $44
 	LDA $44			; AE69	$A5 $44
 	CMP #$08		; AE6B	$C9 $08
-	BNE Mob_sp_atk_status2	; AE6D	$D0 $D5		loop for bit check
+	BNE Chk_status2_bit_loop; AE6D	$D0 $D5		loop for bit check
 	JSR Get_stat_status2	; AE6F	$20 $80 $AF	get status 2 ---------- check poison/venom/draw status
 	AND #$04		; AE72	$29 $04		poison
-	BEQ L32E80		; AE74	$F0 $0A
+	BEQ Chk_status_venom	; AE74	$F0 $0A
 	LDX #$00		; AE76	$A2 $00
 	LDA #$02		; AE78	$A9 $02
 	JSR Random		; AE7A	$20 $11 $FD	random (X..A)
 	JSR Poison_dmg		; AE7D	$20 $B0 $AE
-L32E80:
+Chk_status_venom:
 	JSR Get_status1_80h	; AE80	$20 $6C $AF	get status 1
 	AND #$04		; AE83	$29 $04		venom
-	BEQ L32E91		; AE85	$F0 $0A
+	BEQ Chk_status_char	; AE85	$F0 $0A
 	LDX #$02		; AE87	$A2 $02
 	LDA #$04		; AE89	$A9 $04
 	JSR Random		; AE8B	$20 $11 $FD	random (X..A)
 	JSR Poison_dmg		; AE8E	$20 $B0 $AE
-L32E91:
+Chk_status_char:
 	LDA cur_char_idx	; AE91	$A5 $9E
 	CMP #$04		; AE93	$C9 $04
-	BCS L32E9F		; AE95	$B0 $08		branch if monster(skip)
+	BCS Chk_status_mob	; AE95	$B0 $08		branch if monster(skip)
 	STA $27			; AE97	$85 $27
 	JSR Wait_MENUs_NMIe	; AE99	$20 $63 $9A
 	JSR SR_Battle_char	; AE9C	$20 $D4 $FA	load character graphics
-L32E9F:
+Chk_status_mob:
 	JSR Wait_MENU_snd	; AE9F	$20 $5B $FD
 	INC cur_char_idx	; AEA2	$E6 $9E
 	LDA cur_char_idx	; AEA4	$A5 $9E
 	CMP #$0C		; AEA6	$C9 $0C
-	BEQ L32EAD		; AEA8	$F0 $03
-	JMP Mob_sp_atk		; AEAA	$4C $2C $AE
-L32EAD:
+	BEQ Chk_status_end	; AEA8	$F0 $03
+	JMP Chk_status_loop	; AEAA	$4C $2C $AE
+Chk_status_end:
 	JMP Chk_battle_end	; AEAD	$4C $30 $AF
-; End of Chk_sp_atk
+; End of Chk_status_restore
 
 ; Name	: Poison_dmg
 ; A	: Damage value
@@ -6888,7 +6870,7 @@ Mag_fear:
 L336C2:
 	JMP Magic_ineft         ; B6C2	4C 73 BE  magic ineffective
 L336C5:
-	LDA #$33                ; B6C5	A9 33     Terrified enemy"
+	LDA #$33                ; B6C5	A9 33     "Terrified enemy"
 	JSR Add_msg_que         ; B6C7	20 92 BF  add to battle message queue
 	JMP No_dmg_msg          ; B6CA	4C 7E BE  don't show damage message
 ; End of Mag_fear
