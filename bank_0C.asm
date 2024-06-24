@@ -1631,6 +1631,10 @@ Draw_char_stat:
 ; Name	: Draw_stats
 ; X	: buffer offset
 ; Marks	: draw stats for character
+;	  $44 = ??
+;	  $4E = ??
+;	  $4F = ??
+;	  $7A(ADDR) = ??
 Draw_stats:
 	CLC			; 94F4	$18
 	LDA $4E			; 94F5	$A5 $4E
@@ -1639,17 +1643,17 @@ Draw_stats:
 	LDA $4F			; 94FB	$A5 $4F
 	ADC #$00		; 94FD	$69 $00
 	STA $4F			; 94FF	$85 $4F
-	INC $9E			; 9501	$E6 $9E
+	INC cur_char_idx	; 9501	$E6 $9E
 	TXA			; 9503	$8A
 	PHA			; 9504	$48
 	STA $44			; 9505	$85 $44
 	JSR Update_addr		; 9507	$20 $E1 $96
-	LDA $9E			; 950A	$A5 $9E
+	LDA cur_char_idx	; 950A	$A5 $9E
 	CMP #$03		; 950C	$C9 $03
-	BNE L3151D		; 950E	$D0 $0D
+	BNE L3151D		; 950E	$D0 $0D		branch if chracter index is not guest
 	LDY #$35		; 9510	$A0 $35
 	LDA ($7E),Y		; 9512	$B1 $7E
-	BPL L3151D		; 9514	$10 $07
+	BPL L3151D		; 9514	$10 $07		branch if there are guest character
 	PLA			; 9516	$68
 	LDA #$FF		; 9517	$A9 $FF
 	STA $7697		; 9519	$8D $97 $76
@@ -1660,7 +1664,7 @@ L3151D:
 	LDX #$00		; 951F	$A2 $00
 L31521:
 	LDA ($7A),Y		; 9521	$B1 $7A
-	STA $7D47,X		; 9523	$9D $47 $7D
+	STA $7D47,X		; 9523	$9D $47 $7D	text buffer
 	INX			; 9526	$E8
 	INY			; 9527	$C8
 	CPX #$06		; 9528	$E0 $06
@@ -5079,14 +5083,14 @@ Do_act_chk_order:
 L32BA3:
 	LDA $7CB7		; ABA3	$AD $B7 $7C	monster ran away
 	BEQ L32BB7		; ABA6	$F0 $0F		branch if didn't run away
-	JSR Chk_status		; ABA8	$20 $EA $AD
+	JSR Chk_front_row_dead	; ABA8	$20 $EA $AD
 	JSR Wait_NMI_end	; ABAB	$20 $46 $FD
 	JSR Update_sram		; ABAE	$20 $2F $AD
 	JSR Wait_MENUs_NMIe	; ABB1	$20 $63 $9A
 	JMP SR_Battle_runaway	; ABB4	$4C $E8 $FA	characters run away
 L32BB7:
 	JSR Wait_MENU_snd	; ABB7	$20 $5B $FD
-	JSR Chk_battle_end	; ABBA	$20 $30 $AF	????  not analyzed
+	JSR Chk_all_lost	; ABBA	$20 $30 $AF
 	LDA $7B4D		; ABBD	$AD $4D $7B	number of monsters remaining ??
 	BNE L32BEF		; ABC0	$D0 $2D		branch if any monsters remain
 	LDX #$00		; ABC2	$A2 $00
@@ -5098,7 +5102,7 @@ L32BB7:
 	JSR Wait_MENU_snd	; ABD0	$20 $5B $FD
 	JSR Apply_msg		; ABD3	$20 $2D $AC
 	JSR Wait_NMI_end	; ABD6	$20 $46 $FD
-	JSR Chk_status		; ABD9	$20 $EA $AD
+	JSR Chk_front_row_dead	; ABD9	$20 $EA $AD
 	JSR Wait_NMI_end	; ABDC	$20 $46 $FD
 	JSR SR_Battle_win	; ABDF	$20 $D8 $FA	characters run off-screen
 	LDA #$04		; ABE2	$A9 $04		bottom window
@@ -5132,7 +5136,7 @@ L32C10:
 	STA $7B4A		; AC18	$8D $4A $7B
 	JSR Wait_MENU_snd	; AC1B	$20 $5B $FD
 	JSR Chk_status_restore	; AC1E	$20 $28 $AE
-	JSR Chk_status		; AC21	$20 $EA $AD
+	JSR Chk_front_row_dead	; AC21	$20 $EA $AD
 	JSR Wait_MENU_snd	; AC24	$20 $5B $FD
 	JSR Draw_char_stat_win	; AC27	$20 $2A $91
 	JMP Wait_NMIe_MENUs	; AC2A	$4C $5D $9A
@@ -5405,7 +5409,7 @@ L32DC5:
 	LDA $9E			; ADCF	$A5 $9E
 	CMP #$04		; ADD1	$C9 $04
 	BEQ L32DD8		; ADD3	$F0 $03
-	JMP Update_sram_loop	; ADD5	$4C $33 $AD
+	JMP Update_sram_loop	; ADD5	$4C $33 $AD	loop
 L32DD8:
 	RTS			; ADD8	$60
 ; End of Update_sram
@@ -5426,44 +5430,44 @@ Update_HMP_ram:
 	RTS			; ADE9	$60
 ; End of Update_HMP_ram
 
-; Name	: Chk_status
-; Marks	: ??
-Chk_status:
+; Name	: Chk_front_row_dead
+; Marks	: If all front row party members is dead, make back row
+Chk_front_row_dead:
 	LDX #$00		; ADEA	$A2 $00
-	STX $9E			; ADEC	$86 $9E
+	STX cur_char_idx	; ADEC	$86 $9E
 L32DEE:
 	JSR Update_addr		; ADEE	$20 $E1 $96	update character/monster pointers
-	LDY #$35		; ADF1	$A0 $35
-	LDA ($7E),Y		; ADF3	$B1 $7E		status 2 ??
+	LDY #$35		; ADF1	$A0 $35		bit0 = r: 0=back row, 1=front row
+	LDA ($7E),Y		; ADF3	$B1 $7E		status 2
 	LSR A			; ADF5	$4A
-	BCS L32DFF		; ADF6	$B0 $07
+	BCS L32DFF		; ADF6	$B0 $07		branch if front row
 	JSR Get_status1_80h	; ADF8	$20 $6C $AF	get status 1
 	AND #$C0		; ADFB	$29 $C0		dead and stone
 	BEQ L32E25		; ADFD	$F0 $26
 L32DFF:
-	INC $9E			; ADFF	$E6 $9E
-	LDA $9E			; AE01	$A5 $9E
+	INC cur_char_idx	; ADFF	$E6 $9E
+	LDA cur_char_idx	; AE01	$A5 $9E
 	CMP #$04		; AE03	$C9 $04
-	BNE L32DEE		; AE05	$D0 $E7
+	BNE L32DEE		; AE05	$D0 $E7		loop
 	LDX #$00		; AE07	$A2 $00
-	STX $9E			; AE09	$86 $9E
+	STX cur_char_idx	; AE09	$86 $9E
 L32E0B:
 	JSR Update_addr		; AE0B	$20 $E1 $96	update character/monster pointers
 	JSR Get_status1_80h	; AE0E	$20 $6C $AF	get status 1
 	AND #$C0		; AE11	$29 $C0
-	BNE L32E1D		; AE13	$D0 $08
+	BNE L32E1D		; AE13	$D0 $08		branch if player status is dead or stone
 	LDY #$35		; AE15	$A0 $35
 	LDA ($7E),Y		; AE17	$B1 $7E
 	AND #$FE		; AE19	$29 $FE
 	STA ($7E),Y		; AE1B	$91 $7E
 L32E1D:
-	INC $9E			; AE1D	$E6 $9E
-	LDA $9E			; AE1F	$A5 $9E
+	INC cur_char_idx	; AE1D	$E6 $9E
+	LDA cur_char_idx	; AE1F	$A5 $9E
 	CMP #$04		; AE21	$C9 $04
-	BNE L32E0B		; AE23	$D0 $E6
+	BNE L32E0B		; AE23	$D0 $E6		loop
 L32E25:
 	JMP Wait_MENU_snd	; AE25	$4C $5B $FD
-; End of Chk_status
+; End of Chk_front_row_dead
 
 ; Name	: Chk_status_restore
 ; Marks	: not certain
@@ -5530,7 +5534,7 @@ Chk_status_char:
 	LDA cur_char_idx	; AE91	$A5 $9E
 	CMP #$04		; AE93	$C9 $04
 	BCS Chk_status_mob	; AE95	$B0 $08		branch if monster(skip)
-	STA $27			; AE97	$85 $27
+	STA target_idx		; AE97	$85 $27
 	JSR Wait_MENUs_NMIe	; AE99	$20 $63 $9A
 	JSR SR_Battle_char	; AE9C	$20 $D4 $FA	load character graphics
 Chk_status_mob:
@@ -5541,7 +5545,7 @@ Chk_status_mob:
 	BEQ Chk_status_end	; AEA8	$F0 $03
 	JMP Chk_status_loop	; AEAA	$4C $2C $AE
 Chk_status_end:
-	JMP Chk_battle_end	; AEAD	$4C $30 $AF
+	JMP Chk_all_lost	; AEAD	$4C $30 $AF
 ; End of Chk_status_restore
 
 ; Name	: Poison_dmg
@@ -5629,15 +5633,15 @@ L32F2F:
 	RTS			; AF2F	$60
 ; End of Chk_low_hp
 
-; Name	: Chk_battle_end
-; Marks	: ?? not certained
-Chk_battle_end:
+; Name	: Chk_all_lost
+; Marks	: Check if all party members are wiped out
+Chk_all_lost:
 	JSR Wait_NMIe_MENUs	; AF30	$20 $5D $9A
 	JSR Draw_char_stat_win	; AF33	$20 $2A $91
 	JSR Wait_NMI_end	; AF36	$20 $46 $FD
 	LDX #$00		; AF39	$A2 $00
 L32F3B:
-	STX $9E			; AF3B	$86 $9E
+	STX cur_char_idx	; AF3B	$86 $9E
 	JSR Update_addr		; AF3D	$20 $E1 $96
 	JSR Get_status1_80h	; AF40	$20 $6C $AF
 	AND #$E0		; AF43	$29 $E0
@@ -5647,7 +5651,7 @@ L32F3B:
 	STA ($80),Y		; AF4B	$91 $80		reset battle command
 	INX			; AF4D	$E8		next character
 	CPX #$04		; AF4E	$E0 $04
-	BNE L32F3B		; AF50	$D0 $E9
+	BNE L32F3B		; AF50	$D0 $E9		loop
 	LDX #$00		; AF52	$A2 $00
 	LDA #$17		; AF54	$A9 $17		$17: " lost."
 	STA msg_que,X		; AF56	$9D $BA $7F
@@ -5661,7 +5665,7 @@ L32F3B:
 	JMP SR_battle_defeat	; AF68	$4C $EC $FA	battle defeat
 L32F6B:
 	RTS			; AF6B	$60
-; End of Chk_battle_end
+; End of Chk_all_lost
 
 ; Name	: Get_status1_80h
 ; SRC	: $80(ADDR) = character/monster battle stats (12 * 48bytes) ($7D7A-$7FB9)

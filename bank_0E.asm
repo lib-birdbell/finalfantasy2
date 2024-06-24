@@ -1895,29 +1895,163 @@ L393B7:
 	JMP $9380		; 93BC	$4C $80 $93
 ; End of
 L393BF:
-.byte $86
-.byte $08,$20,$14,$96,$AD,$F1,$79,$F0,$04,$A9,$49,$85,$E0,$A5,$A0,$A6
-.byte $08,$C9,$19,$D0,$17,$E0,$0D,$D0,$10,$A9,$08,$85,$61,$20,$18,$C0
-.byte $A9,$4A,$85,$E0,$A0,$19,$4C,$F6,$93,$4C,$80,$93,$C9,$32,$D0,$0C
-.byte $E0,$03,$D0,$F5,$A0,$32,$20,$07,$99,$4C,$80,$93,$C9,$34,$D0,$3D
+	STX $08			; 93BF	$86 $08
+	JSR $9614		; 93C1	$20 $14 $96
+	LDA $79F1		; 93C4	$AD $F1 $79
+	BEQ L393CD		; 93C7	$F0 $04
+	LDA #$49		; 93C9	$A9 $49		play song $09
+	STA $E0			; 93CB	$85 $E0
+L393CD:
+	LDA $A0			; 93CD	$A5 $A0		A = npc id
+	LDX $08			; 93CF	$A6 $08		X = key item id
+; npc $19: ricard (leviathan)
+	CMP #$19		; 93D1	$C9 $19
+	BNE L393EC		; 93D3	$D0 $17
+	CPX #$0D		; 93D5	$E0 $0D		CrystlRod
+	BNE L393E9		; 93D7	$D0 $10
+	LDA #$08		; 93D9	$A9 $08		ricard
+	STA $61			; 93DB	$85 $61
+	JSR $C018		; 93DD	$20 $18 $C0	load guest character properties
+	LDA #$4A		; 93E0	$A9 $4A		play song $0A
+	STA $E0			; 93E2	$85 $E0
+	LDY #$19		; 93E4	$A0 $19
+	JMP $93F6		; 93E6	$4C $F6 $93
+L393E9:
+	JMP $9380		; 93E9	$4C $80 $93
+; npc $32: dreadnought guard
+L393EC:
+	CMP #$32		; 93EC	$C9 $32
+	BNE L393FC		; 93EE	$D0 $0C
+	CPX #$03		; 93F0	$E0 $03		Pass
+	BNE L393E9		; 93F2	$D0 $F5
+	LDY #$32		; 93F4	$A0 $32
+	JSR $9907		; 93F6	$20 $07 $99	hide npc
+	JMP $9380		; 93F9	$4C $80 $93  
+; npc $34: tobul
+L393FC:
+	CMP #$34		; 93FC	$C9 $34
+	BNE L3943D		; 93FE	$D0 $3D
+	CPX #$04		; 9400	$E0 $04		Mythril
+	BNE L393E9		; 9402	$D0 $E5
+	LDA #$04		; 9404	$A9 $04		item $04: Mythril
+	JSR $958C		; 9406	$20 $8C $95	remove item from inventory
+	LDA #$47		; 9409	$A9 $47		play song $07
+	STA $E0			; 940B	$85 $E0
+	LDA $601A		; 940D	$AD $1A $60	remove mythril
+	AND #$EF		; 9410	$29 $EF
+	STA $601A		; 9412	$8D $1A $60
+	LDY #$C3		; 9415	$A0 $C3		altair mythril weapon shop
+	JSR $98C7		; 9417	$20 $C7 $98	set event switch and show npc
+	LDY #$C4		; 941A	$A0 $C4		altair mythril armor shop
+	JSR $98C7		; 941C	$20 $C7 $98	set event switch and show npc
+	LDY #$CA		; 941F	$A0 $CA		unknown mythril weapon shop
+	JSR $98C7		; 9421	$20 $C7 $98	set event switch and show npc
+	LDY #$23		; 9424	$A0 $23		borghen (bafsk)
+	JSR $98C7		; 9426	$20 $C7 $98	set event switch and show npc
+	LDY #$67		; 9429	$A0 $67		child (rebel base)
+	JSR $98C7		; 942B	$20 $C7 $98	set event switch and show npc
+	LDY #$68		; 942E	$A0 $68		old man (rebel base)
+	JSR $98C7		; 9430	$20 $C7 $98	set event switch and show npc
+	LDY #$69		; 9433	$A0 $69		rebel (rebel base)
+	JSR $98C7		; 9435	$20 $C7 $98	set event switch and show npc
+	LDY #$1A		; 9438	$A0 $1A		dark knight (bafsk)
+	JMP $93F6		; 943A	$4C $F6 $93
+; npc $38: sunfire holder
+L3943D:
+	CMP #$38		; 943D: $C9 $38
+	BNE L3945E		; 943F: $D0 $1D
+	CPX #$07		; 9441: $E0 $07		Egil'sTorch
+	BNE L393E9		; 9443: $D0 $A4
+	LDA #$08		; 9445: $A9 $08		item $08: Sunfire
+	JSR $9573		; 9447: $20 $73 $95	add item to inventory (unique)
+	LDY #$01		; 944A: $A0 $01		hilda (altair throne room)
+	JSR $9907		; 944C: $20 $07 $99	hide npc
+	LDY #$DD		; 944F: $A0 $DD		clear event switch $605B.5
+	JSR $9907		; 9451: $20 $07 $99	hide npc
+	LDY #$07		; 9454: $A0 $07		cid (poft)
+	JSR $9907		; 9456: $20 $07 $99	hide npc
+	LDY #$38		; 9459: $A0 $38		sunfire holder
+	JMP $93F6		; 945B: $4C $F6 $93
+; npc $39: dreadnought core
+L3945E:
+	CMP #$39		; 945E: $C9 $39
+	BNE L3946C		; 9460	$D0 $0A
+	CPX #$08		; 9462	$E0 $08		Sunfire
+	BNE L393E9		; 9464	$D0 $83
+	LDA $7B03		; 9466	$AD $03 $7B	do event $09: sunfire destroys dreadnought
+	JMP $94B3		; 9469	$4C $B3 $94  
+; npc $3B: life spring
+L3946C:
+	CMP #$3B		; 946C	$C9 $3B
+	BNE L3948A		; 946E	$D0 $1A
+	CPX #$0A		; 9470	$E0 $0A		WyvernEgg
+	BNE L394DA		; 9472	$D0 $66
+	LDA #$0A		; 9474	$A9 $0A		item $0A: WyvernEgg
+	JSR $958C		; 9476	$20 $8C $95	remove item from inventory
+	LDA #$47		; 9479	$A9 $47		play song $07
+	STA $E0			; 947B	$85 $E0
+	LDA $601B		; 947D	$AD $1B $60	remove wyvern egg
+	AND #$FB		; 9480	$29 $FB
+	STA $601B		; 9482	$8D $1B $60
+	LDY #$25		; 9485	$A0 $25
+	JMP $93F6		; 9487	$4C $F6 $93
+; npc $40: doppelganger
+L3948A:
+	CMP #$40		; 948A	$C9 $40
+	BNE L39497		; 948C	$D0 $09
+	CPX #$0C		; 948E	$E0 $0C		BlackMask
+	BNE L394DA		; 9490	$D0 $48
+	LDY #$40		; 9492	$A0 $40
+	JMP $93F6		; 9494	$4C $F6 $93
+; npc $46: fynn castle mirror
+L39497:
+	CMP #$46		; 9497	$C9 $46
+	BNE L394B8		; 9499	$D0 $1D
+	CPX #$09		; 949B	$E0 $09		Pendant
+	BNE L394DA		; 949D	$D0 $3B
+	LDY #$45		; 949F	$A0 $45		center orb (mysidian tower)
+	JSR $989E		; 94A1	$20 $9E $98	check event switch
+	BNE L394DA		; 94A4	$D0 $34
+	LDA #$0E		; 94A6	$A9 $0E	$	item $0E: Wyvern
+	JSR $9573		; 94A8	$20 $73 $95	add item to inventory (unique)
+	LDY #$46		; 94AB	$A0 $46	$	fynn castle mirror
+	JSR $9907		; 94AD	$20 $07 $99	hide npc
+	LDA $7B05		; 94B0	$AD $05 $7B	do event $0E: wyvern hatches
+	STA $6C			; 94B3	$85 $6C
+	JMP $91DC		; 94B5	$4C $DC $91
+; npc $54: kashuan keep door
+L394B8:
+	CMP #$54		; 94B8	$C9 $54
+	BNE L394C9		; 94BA	$D0 $0D
+	CPX #$06		; 94BC	$E0 $06		\bellGoddess's
+	BNE L394DA		; 94BE	$D0 $1A
+	LDA #$47		; 94C0	$A9 $47		play song $07
+	STA $E0			; 94C2	$85 $E0
+	LDY #$54		; 94C4	$A0 $54
+	JMP $93F6		; 94C6	$4C $F6 93  
+; npc $59: mysidian statue
+L394C9:
+	CMP #$59		; 94C9	$C9 $59
+	BNE L394DA		; 94CB	$D0 $0D
+	CPX #$0B		; 94CD	$E0 $0B		WhiteMask
+	BNE L394DA		; 94CF	$D0 $09
+	LDA #$47		; 94D1	$A9 $47		play song $07
+	STA $E0			; 94D3	$85 $E0
+	LDY #$59		; 94D5	$A0 $59
+	JSR $9907		; 94D7	$20 $07 $99	hide npc
+L394DA:
+	JMP $9380		; 94DA	$4C $80 $93	return
+; End of
 
-;; [$9400 :: 0x39400]
+; Marks	; unused ??
+	JSR $9523		; 94DD	$20 $23 $95	restore dialogue window variables
+	LDA $1C			; 94E0	$A5 $1C
+	STA $3E			; 94E2	$85 $3E
+	LDA $1D			; 94E4	$A5 $1D
+	STA $3F			; 94E6	$85 $3F
+	JMP $E7AC		; 94E8	$4C $AC $E7
+; End of
 
-.byte $E0,$04,$D0,$E5,$A9,$04,$20,$8C,$95,$A9,$47,$85,$E0,$AD,$1A,$60
-.byte $29,$EF,$8D,$1A,$60,$A0,$C3,$20,$C7,$98,$A0,$C4,$20,$C7,$98,$A0
-.byte $CA,$20,$C7,$98,$A0,$23,$20,$C7,$98,$A0,$67,$20,$C7,$98,$A0,$68
-.byte $20,$C7,$98,$A0,$69,$20,$C7,$98,$A0,$1A,$4C,$F6,$93,$C9,$38,$D0
-.byte $1D,$E0,$07,$D0,$A4,$A9,$08,$20,$73,$95,$A0,$01,$20,$07,$99,$A0
-.byte $DD,$20,$07,$99,$A0,$07,$20,$07,$99,$A0,$38,$4C,$F6,$93,$C9,$39
-.byte $D0,$0A,$E0,$08,$D0,$83,$AD,$03,$7B,$4C,$B3,$94,$C9,$3B,$D0,$1A
-.byte $E0,$0A,$D0,$66,$A9,$0A,$20,$8C,$95,$A9,$47,$85,$E0,$AD,$1B,$60
-.byte $29,$FB,$8D,$1B,$60,$A0,$25,$4C,$F6,$93,$C9,$40,$D0,$09,$E0,$0C
-.byte $D0,$48,$A0,$40,$4C,$F6,$93,$C9,$46,$D0,$1D,$E0,$09,$D0,$3B,$A0
-.byte $45,$20,$9E,$98,$D0,$34,$A9,$0E,$20,$73,$95,$A0,$46,$20,$07,$99
-.byte $AD,$05,$7B,$85,$6C,$4C,$DC,$91,$C9,$54,$D0,$0D,$E0,$06,$D0,$1A
-.byte $A9,$47,$85,$E0,$A0,$54,$4C,$F6,$93,$C9,$59,$D0,$0D,$E0,$0B,$D0
-.byte $09,$A9,$47,$85,$E0,$A0,$59,$20,$07,$99,$4C,$80,$93,$20,$23,$95
-.byte $A5,$1C,$85,$3E,$A5,$1D,$85,$3F,$4C,$AC,$E7
 ; Name	:
 ; Marks	: Save variables
 	LDA text_win_L		; 94EB	$A5 $38
@@ -1945,13 +2079,35 @@ L393BF:
 	RTS			; 9522	$60
 ; End of Save variables ??
 
-;; [$9523-
-.byte $AD,$F8,$7A,$85,$38,$AD,$F9,$7A,$85,$39,$AD,$FA,$7A
-.byte $85,$97,$AD,$FB,$7A,$85,$98,$AD,$FC,$7A,$85,$3C,$AD,$FD,$7A,$85
-.byte $3D,$AD,$F7,$7A,$85,$93,$AD,$FE,$7A,$85,$1C,$AD,$FF,$7A,$85,$1D
-.byte $AD,$F4,$7A,$85,$3E,$AD,$F5,$7A,$85,$3F,$60
 ; Name	:
-; Marks	:
+; Marks	: restore dialogue window variables
+	LDA $7AF8		; 9523	$AD $F8 $7A
+	STA $38			; 9526	$85 $38
+	LDA $7AF9		; 9528	$AD $F9 $7A
+	STA $39			; 952B	$85 $39
+	LDA $7AFA		; 952D	$AD $FA $7A
+	STA $97			; 9530	$85 $97
+	LDA $7AFB		; 9532	$AD $FB $7A
+	STA $98			; 9535	$85 $98
+	LDA $7AFC		; 9537	$AD $FC $7A
+	STA $3C			; 953A	$85 $3C
+	LDA $7AFD		; 953C	$AD $FD $7A
+	STA $3D			; 953F	$85 $3D
+	LDA $7AF7		; 9541	$AD $F7 $7A
+	STA $93			; 9544	$85 $93
+	LDA $7AFE		; 9546	$AD $FE $7A
+	STA $1C			; 9549	$85 $1C
+	LDA $7AFF		; 954B	$AD $FF $7A
+	STA $1D			; 954E	$85 $1D
+	LDA $7AF4		; 9550	$AD $F4 $7A
+	STA $3E			; 9553	$85 $3E
+	LDA $7AF5		; 9555	$AD $F5 $7A
+	STA $3F			; 9558	$85 $3F
+	RTS			; 955A	$60
+; End of
+
+; Name	:
+; Marks	: show keyword select window
 	LDA #$02		; 955B	$A9 $02
 	STA $96			; 955D	$85 $96
 	JSR $E91E		; 955F	$20 $1E $E9
@@ -1960,7 +2116,7 @@ L393BF:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: show item select select window
 	LDA #$02		; 9567	$A9 $02
 	STA $96			; 9569	$85 $96		text window size ??
 	JSR $E91E		; 956B	$20 $1E $E9
@@ -1968,14 +2124,81 @@ L393BF:
 	JMP $9603		; 9570	$4C $03 $96
 ; End of
 
-.byte $20,$7C,$95,$B0,$03,$4C,$73,$98,$60,$A2,$00,$DD,$60
-.byte $60,$F0,$07,$E8,$E0,$20,$90,$F6,$18,$60,$38,$60,$20,$7C,$95,$90
-.byte $05,$A9,$00,$9D,$60,$60,$60,$85,$80,$A2,$0F,$DD,$80,$60,$F0,$18
-.byte $CA,$10,$F8,$A2,$0E,$BD,$80,$60,$9D,$81,$60,$CA,$10,$F7,$A5,$80
-.byte $8D,$80,$60,$A9,$49,$85,$E0,$60,$CA,$30,$0E,$BD,$80,$60,$9D,$81
-.byte $60,$CA,$10,$F7,$A5,$80,$8D,$80,$60,$60
+; Name	:
+; Marks	: add item to inventory (unique)
+	JSR $957C		; 9573	$20 $7C $95	find item in inventory
+	BCS L3957B		; 9576	$B0 $03		return if found
+	JMP $9873		; 9578	$4C $73 $98	add item to inventory
+L3957B:
+	RTS			; 957B	$60        
+; End of
+
+; Name	:
+; Marks	: find item in inventory
+; return carry set if found
+	LDX #$00		; 957C	$A2 $00
+L3957E:
+	CMP $6060,X		; 957E	$DD $60 $60
+	BEQ L3958A		; 9581	$F0 $07
+	INX			; 9583	$E8
+	CPX #$20		; 9584	$E0 $20
+	BCC L3957E		; 9586	$90 $F6
+	CLC			; 9588	$18
+	RTS			; 9589	$60
+L3958A:
+	SEC			; 958A	$38
+	RTS			; 958B	$60
+; End of
+
+; Name	:
+; Marks	: remove item from inventory
+	JSR $957C		; 958C	$20 $7C $95	find item in inventory
+	BCC L39596		; 958F	$90 $05
+	LDA #$00		; 9591	$A9 $00
+	STA $6060,X		; 9593	$9D $60 $60
+L39596:
+	RTS			; 9596	$60
+; End of
+
+; Name	:
+; A	: keyword id
+; Marks	: learn keyword
+	STA $80			; 9597	$85 $80
+	LDX #$0F		; 9599	$A2 $0F
+L3959B:
+	CMP $6080,X		; 959B	$DD $80 $60
+	BEQ L395B8		; 959E	$F0 $18
+	DEX			; 95A0	$CA
+	BPL L3959B		; 95A1	$10 $F8
+	LDX #$0E		; 95A3	$A2 $0E
+L395A5:
+	LDA $6080,X		; 95A5	$BD $80 $60
+	STA $6081,X		; 95A8	$9D $81 $60
+	DEX			; 95AB	$CA
+	BPL L395A5		; 95AC	$10 $F7
+	LDA $80			; 95AE	$A5 $80
+	STA $6080		; 95B0	$8D $80 $60
+	LDA #$49		; 95B3	$A9 $49		play song $09
+	STA $E0			; 95B5	$85 $E0
+	RTS			; 95B7	$60
+L395B8:
+	DEX			; 95B8	$CA
+	BMI L395C9		; 95B9	$30 $0E
+L395BB:
+	LDA $6080,X		; 95BB	$BD $80 $60
+	STA $6081,X		; 95BE	$9D $81 $60
+	DEX			; 95C1	$CA
+	BPL L395BB		; 95C2	$10 $F7
+	LDA $80			; 95C4	$A5 $80
+	STA $6080		; 95C6	$8D $80 $60
+L395C9:
+	RTS			; 95C9	$60
+; End of
+
 ; Name	:
 ; Marks	: Copy OAM
+;	  wait one frame (draw cursors) ]
+;	  used for dialogue with cursors
 	JSR Wait_NMI		; 95CA	$20 $00 $FE
 	LDA #$02		; 95CD	$A9 $02
 	STA SpriteDma_4014	; 95CF	$8D $14 $40
@@ -2001,7 +2224,7 @@ L395E7:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: load text (multi-page)
 	STA text_ID		; 95F2	$85 $92
 	LDA #$0A		; 95F4	$A9 $0A
 	STA text_bank		; 95F6	$85 $93
@@ -2014,7 +2237,7 @@ L395E7:
 
 ; Name	:
 ; A	: text id
-; Marks	:
+; Marks	: load text (single-page)
 	STA text_ID		; 9603	$85 $92
 	LDA #$0A		; 9605	$A9 $0A
 	STA text_bank		; 9607	$85 $93
@@ -2024,12 +2247,34 @@ L395E7:
 	STA $95			; 960F	$85 $95
 	JMP $EA8C		; 9611	$4C $8C $EA
 ; End of
-;; [$9614-
-.byte $48,$20,$64,$D1,$A9,$00,$85,$96,$20,$1E,$E9,$A9
-.byte $00,$8D,$F1,$79,$68,$85,$92,$A9,$00,$85,$94,$A9,$80,$85,$95,$A5
-.byte $A0,$A2,$06,$C9,$60,$90,$02,$A2,$0A,$86,$93,$4C,$54,$EA
+
 ; Name	:
 ; Marks	:
+	PHA 			; 9614	$48
+	JSR $D164		; 9615	$20 $64 $D1	close text window (dialogue)
+	LDA #$00		; 9618	$A9 $00
+	STA $96			; 961A	$85 $96
+	JSR $E91E		; 961C	$20 $1E $E9	open window
+	LDA #$00		; 961F	$A9 $00
+	STA $79F1		; 9621	$8D $F1 $79
+	PLA			; 9624	$68
+	STA $92			; 9625	$85 $92
+	LDA #$00		; 9627	$A9 $00		BANK 0A/8000
+	STA $94			; 9629	$85 $94
+	LDA #$80		; 962B	$A9 $80
+	STA $95			; 962D	$85 $95
+	LDA $A0			; 962F	$A5 $A0
+	LDX #$06		; 9631	$A2 $06
+	CMP #$60		; 9633	$C9 $60
+	BCC L39639		; 9635	$90 $02
+	LDX #$0A		; 9637	$A2 $0A
+L39639:
+	STX $93			; 9639	$86 $93
+	JMP $EA54		; 963B	$4C $54 $EA	load text (multi-page)
+; End of
+
+; Name	:
+; Marks	: display menu message ???
 	PHA			; 963E	$48
 	JSR $D164		; 963F	$20 $64 $D1	some process(scroll) ??
 	LDA #$00		; 9642	$A9 $00
@@ -2043,6 +2288,7 @@ L395E7:
 
 ; Name	:
 ; Marks	: cursor ??
+;	  draw cursor sprite 1
 	LDA $A2			; 9652	$A5 $A2
 	BNE L39657		; 9654	$D0 $01		if A != 00h
 	RTS			; 9656	$60
@@ -2053,6 +2299,8 @@ L39657:
 	LDA $7801,Y		; 965D	$B9 $01 $78
 	JMP Cursor		; 9660	$4C $82 $96
 ; End of 9652
+; Name	:
+; Marks	: draw cursor sprite 2
 	LDA $A3			; 9663	$A5 $A3
 	BNE L39668		; 9665	$D0 $01
 	RTS			; 9667	$60
@@ -2063,6 +2311,8 @@ L39668:
 	LDA $7901,Y		; 966E	$B9 $01 $79
 	JMP Cursor		; 9671	$4C $82 $96
 ; End of
+; Name	:
+; Marks	: draw cursor sprite 3
 	LDA $A4			; 9674	$A5 $A4
 	BNE L39679		; 9676	$D0 $01
 	RTS			; 9678	$60
@@ -2095,7 +2345,7 @@ Cursor:
 
 ; Name	:
 ; Ret	: A(key value ??)
-; Marks	:
+; Marks	: get cursor movement direction
 	JSR $DB5C		; 9693	$20 $5C $DB	event and key check ??
 	LDA key1p		; 9696	$A5 $20
 	AND #$0F		; 9698	$29 $0F
@@ -2132,7 +2382,9 @@ L396C2:
 
 ; Name	:
 ; A	: size of cursor step
+; A	: up/down increment
 ; Marks	: Check cursor position
+;	  get cursor 1 position
 	STA $06			; 96C5	$85 $06
 	JSR $9693		; 96C7	$20 $93 $96	event, key ??
 	AND #$0F		; 96CA	$29 $0F
@@ -2154,7 +2406,6 @@ L396E5:
 L396E8:
 	RTS			; 96E8	$60
 ; End of
-
 ; Marks	: down key pressed -> cursor
 L396E9:
 	LDA cur_pos		; 96E9	$AD $F0 $78
@@ -2164,18 +2415,40 @@ L396E9:
 	BCC L396E5		; 96F2	$90 $F1
 	SBC len_cur_dat		; 96F4	$ED $F1 $78
 	BCS L396E5		; 96F7	$B0 $EC
+; Name	:
+; A	: up/down increment
+; Marks	: update cursor 2 position
 	STA $06			; 96F9	$85 $06
 	JSR $9693		; 96FB	$20 $93 $96
-.byte $29,$0F
-
-;; [$9700 :: 0x39700]
-
-.byte $F0,$1A,$C9,$04,$B0,$04,$A2,$04,$86,$06,$29,$05,$D0,$0F,$AD,$F0
-.byte $79,$38,$E5,$06,$B0,$03,$6D,$F1,$79,$8D,$F0,$79,$60,$AD,$F0,$79
-.byte $18,$65,$06,$CD,$F1,$79,$90,$F1,$ED,$F1,$79,$B0,$EC
+	AND #$0F		; 96FE: $29 $0F
+	BEQ L3971C		; 9700: $F0 $1A
+	CMP #$04		; 9702: $C9 $04
+	BCS L3970A		; 9704: $B0 $04
+	LDX #$04		; 9706: $A2 $04
+	STX $06			; 9708: $86 $06
+L3970A:
+	AND #$05		; 970A: $29 $05
+	BNE L3971D		; 970C: $D0 $0F
+	LDA $79F0		; 970E: $AD $F0 $79
+	SEC			; 9711: $38
+	SBC $06			; 9712: $E5 $06
+	BCS L39719		; 9714: $B0 $03
+	ADC $79F1		; 9716: $6D $F1 $79
+L39719:
+	STA $79F0		; 9719: $8D $F0 $79
+L3971C:
+	RTS			; 971C: $60
+L3971D:
+	LDA $79F0		; 971D: $AD $F0 $79
+	CLC			; 9720: $18
+	ADC $06			; 9721: $65 $06
+	CMP $79F1		; 9723: $CD $F1 $79
+	BCC L39719		; 9726: $90 $F1
+	SBC $79F1		; 9728: $ED $F1 $79
+	BCS L39719		; 972B: $B0 $EC
 ; Name	:
-; A	:
-; Marks	:
+; A	: up/down increment
+; Marks	: update cursor 3 position
 	STA $05			; 972D	$85 $05
 	STA $06			; 972F	$85 $06
 	JSR $9693		; 9731	$20 $93 $96	event? key check
@@ -2195,7 +2468,10 @@ L39740:
 	ADC $05			; 974C	$65 $05
 	STA $05			; 974E	$85 $05
 	JSR $9523		; 9750	$20 $23 $95
-.byte $20,$B6,$E7,$B0,$22,$20,$EB,$94,$A5,$05
+	JSR $E7B6		; 9753	$20 $B6 $E7
+	BCS L3977A		; 9756	$B0 $22
+	JSR $94EB		; 9758	$20 $EB $94	save dialogue window variables
+	LDA $05			; 975B	$A5 $05
 L3975D:
 	STA $7AF0		; 975D	$8D $F0 $7A
 L39760:
@@ -2211,15 +2487,37 @@ L39761:
 L3976E:
 	SBC $05			; 976E	$E5 $05
 	STA $05			; 9770	$85 $05
-	JSR $9523		; 9772	$20 $23 $95
-.byte $20,$97,$E7,$90,$07,$A9,$00,$85,$47,$4C,$67
-.byte $DE,$20,$EB,$94,$A5,$05,$CD,$F1,$7A,$90,$D2,$AD,$F1,$7A,$38,$E9
-.byte $04,$4C,$5D,$97
+	JSR $9523		; 9772	$20 $23 $95	restore dialogue window variables
+	JSR $E797		; 9775	$20 $97 $E7
+	BCC L39781		; 9778	$90 $07
+L3977A:
+	LDA #$00		; 977A	$A9 $00
+	STA $47			; 977C	$85 $47     
+	JMP $DE67		; 977E	$4C $67 $DE	play error sound effect
+L39781:
+	JSR $94EB		; 9781	$20 $EB $94	save dialogue window variables
+	LDA $05			; 9784	$A5 $05
+	CMP $7AF1		; 9786	$CD $F1 $7A
+	BCC L3975D		; 9789	$90 $D2
+	LDA $7AF1		; 978B	$AD $F1 $7A
+	SEC			; 978E	$38
+	SBC #$04		; 978F	$E9 $04
+	JMP $975D		; 9791	$4C $5D $97
+; End of
+
+
+
+;----------------------------------------------------------------------
+
+
+
 ; Name	:
 ; X	: npc id ??
 ; Ret	: A(text_ID)
 ; Marks	: $94(ADDR) ??, $84(ADDR) = pointer to npc scripts
-	LDA #$06		; 9794	$A9 $06
+;	  check npc script
+;	  returns npc dialogue id
+	LDA #$06		; 9794	$A9 $06		BANK 06/8000 (pointers to text 1)
 	STA text_bank		; 9796	$85 $93
 	LDA #$00		; 9798	$A9 $00
 	STA text_offset		; 979A	$85 $94
@@ -2231,7 +2529,7 @@ L3976E:
 	BCS L397FE		; 97A7	$B0 $55
 	CMP #$60		; 97A9	$C9 $60
 	BCC L397B1		; 97AB	$90 $04
-	LDX #$0A		; 97AD	$A2 $0A
+	LDX #$0A		; 97AD	$A2 $0A		BANK 0A/8000 (pointers to text 2)
 	STX text_bank		; 97AF	$86 $93
 L397B1:
 	ASL A			; 97B1	$0A
@@ -2243,7 +2541,9 @@ L397B1:
 	JMP $97C8		; 97BD	$4C $C8 $97
 ; End of
 L397C0:
-.byte $BD,$00,$83,$85,$84,$BD,$01,$83
+	LDA $8300,X		; 97C0	$BD $00 $83
+	STA $84			; 97C3	$85 $84
+	LDA $8301,X		; 97C5	$BD $01 $83
 ; X	: pointers to npc scripts(High byte)
 ; Marks	: $84(ADDR) = pointer to npc script
 ;	  $86(ADDR) = code pointer ??
@@ -2278,23 +2578,118 @@ L397F1:
 L397FE:
 	RTS			; 97FE	$60
 ; End of
-.byte $A2
 
-;; [$9800 :: 0x39800]
+; Name	:
+; Marks	:
+	LDX #$3F		; 97FF	$A2 $3F
+L39801:
+	LDA $61C0,X		; 9801	$BD $C0 $61
+	STA $6090,X		; 9804	$9D $90 $60
+	DEX			; 9807	$CA
+	BPL L39801		; 9808	$10 $F7
+	LDX #$2F		; 980A	$A2 $2F
+L3980C:
+	LDA $62C0,X		; 980C	$BD $C0 $62
+	STA $60D0,X		; 980F	$9D $D0 $60
+	DEX			; 9812	$CA
+	BPL L3980C		; 9813	$10 $F7
+	LDX #$05		; 9815	$A2 $05
+L39817:
+	LDA $62F0,X		; 9817	$BD $F0 $62
+	STA $62F6,X		; 981A	$9D $F6 $62
+	DEX			; 981D	$CA
+	BPL L39817		; 981E	$10 $F7
+	RTS			; 9820	$60
+; End of
 
-.byte $3F,$BD,$C0,$61,$9D,$90,$60,$CA,$10,$F7,$A2,$2F,$BD,$C0,$62,$9D
-.byte $D0,$60,$CA,$10,$F7,$A2,$05,$BD,$F0,$62,$9D,$F6,$62,$CA,$10,$F7
-.byte $60,$A2,$3F,$BD,$C0,$61,$48,$BD,$90,$60,$9D,$C0,$61,$68,$9D,$90
-.byte $60,$CA,$10,$EF,$A2,$2F,$BD,$C0,$62,$48,$BD,$D0,$60,$9D,$C0,$62
-.byte $68,$9D,$D0,$60,$CA,$10,$EF,$A2,$05,$BD,$F0,$62,$48,$BD,$F6,$62
-.byte $9D,$F0,$62,$68,$9D,$F6,$62,$CA,$10,$EF,$A9,$00,$8D,$F5,$62,$8D
-.byte $C1,$61,$60,$A0,$00,$B9,$60,$60,$F0,$07,$C8,$C0,$20,$90,$F6,$38
-.byte $60,$18,$60,$85,$80,$20,$63,$98,$B0,$0A,$A5,$80,$99,$60,$60,$C9
-.byte $10,$90,$02,$18,$60,$A8,$B9,$00,$A4,$85,$81,$B9,$00,$A5,$A8,$B9
-.byte $1A,$60,$05,$81,$99,$1A,$60,$A9,$47,$85,$E0,$18,$60,$60
+; Name	:
+; Marks	:
+	LDX #$3F		; 9821	$A2 $3F
+L39823:
+	LDA $61C0,X		; 9823	$BD $C0 $61
+	PHA			; 9826	$48
+	LDA $6090,X		; 9827	$BD $90 $60
+	STA $61C0,X		; 982A	$9D $C0 $61
+	PLA			; 982D	$68
+	STA $6090,X		; 982E	$9D $90 $60
+	DEX			; 9831	$CA
+	BPL L39823		; 9832	$10 $EF
+	LDX #$2F		; 9834	$A2 $2F
+L39836:
+	LDA $62C0,X		; 9836	$BD $C0 $62
+	PHA			; 9839	$48
+	LDA $60D0,X		; 983A	$BD $D0 $60
+	STA $62C0,X		; 983D	$9D $C0 $62
+	PLA			; 9840	$68
+	STA $60D0,X		; 9841	$9D $D0 $60
+	DEX			; 9844	$CA
+	BPL L39836		; 9845	$10 $EF
+	LDX #$05		; 9847	$A2 $05
+L39849:
+	LDA $62F0,X		; 9849	$BD $F0 $62
+	PHA			; 984C	$48
+	LDA $62F6,X		; 984D	$BD $F6 $62
+	STA $62F0,X		; 9850	$9D $F0 $62
+	PLA			; 9853	$68
+	STA $62F6,X		; 9854	$9D $F6 $62
+	DEX			; 9857	$CA
+	BPL L39849		; 9858	$10 $EF
+	LDA #$00		; 985A	$A9 $00
+	STA $62F5		; 985C	$8D $F5 $62
+	STA $61C1		; 985F	$8D $C1 $61
+	RTS			; 9862	$60
+; End of
+
+; Name	:
+; Marks	: find first empty inventory slot
+	LDY #$00		; 9863	$A0 $00
+L39865:
+	LDA $6060,Y		; 9865	$B9 $60 $60
+	BEQ L39871		; 9868	$F0 $07
+	INY			; 986A	$C8
+	CPY #$20		; 986B	$C0 $20
+	BCC L39865		; 986D	$90 $F6
+	SEC			; 986F	$38
+	RTS			; 9870	$60
+L39871:
+	CLC			; 9871	$18
+	RTS			; 9872	$60
+; End of
+
+; Name	:
+; Marks	: add item to inventory
+; return carry set if inventory is full
+	STA $80			; 9873	$85 $80
+	JSR $9863		; 9875	$20 $63 $98	find first empty inventory slot
+	BCS L39884		; 9878	$B0 $0A		inventory is full
+	LDA $80			; 987A	$A5 $80
+	STA $6060,Y		; 987C	$99 $60 $60
+	CMP #$10		; 987F	$C9 $10
+	BCC L39885		; 9881	$90 $02		branch if key item
+	CLC			; 9883	$18
+L39884:
+	RTS			; 9884	$60
+L39885:
+	TAY			; 9885	$A8
+	LDA $A400,Y		; 9886	$B9 $00 $A4
+	STA $81			; 9889	$85 $81
+	LDA $A500,Y		; 988B	$B9 $00 $A5
+	TAY			; 988E	$A8
+	LDA $601A,Y		; 988F	$B9 $1A $60	set key item switch
+	ORA $81			; 9892	$05 $81
+	STA $601A,Y		; 9894	$99 $1A $60
+	LDA #$47		; 9897	$A9 $47		play song $07
+	STA $E0			; 9899	$85 $E0
+	CLC			; 989B	$18
+	RTS			; 989C	$60
+; unused
+	RTS			; 989D	$60
+;
+
 ; Name	:
 ; Ret	: A
 ; Marks	: $80(ADDR) ??
+;	  check event switch
 	STY $81			; 989E	$84 $81		temp buffer
 	LDA $A400,Y		; 98A0	$B9 $00 $A4
 	STA $80			; 98A3	$85 $80
@@ -2306,8 +2701,22 @@ L397FE:
 	RTS			; 98B0	$60
 ; End of
 
-.byte $84,$80,$B9,$00,$A4,$85,$81,$B9,$00,$A5,$A8,$B9,$40,$60,$05
-.byte $81,$99,$40,$60,$A4,$80,$60,$20,$B1,$98,$A0,$00,$A5,$80,$D9,$0A
+; Name	:
+; Marks	: set event switch
+	STY $80			; 98B1	$84 $80
+	LDA $A400,Y		; 98B3	$B9 $00 $A4
+	STA $81			; 98B6	$85 $81
+	LDA $A500,Y		; 98B8	$B9 $00 $A5
+	TAY			; 98BB	$A8
+	LDA $6040,Y		; 98BC	$B9 $40 $60
+	ORA $81			; 98BF	$05 $81
+	STA $6040,Y		; 98C1	$99 $40 $60
+	LDY $80			; 98C4	$A4 $80
+	RTS			; 98C6	$60
+; End of
+
+;98C7
+.byte $20,$B1,$98,$A0,$00,$A5,$80,$D9,$0A
 .byte $75,$F0,$0A,$98,$18,$69,$10,$A8,$C9,$C0,$90,$F0,$60,$99,$00,$75
 .byte $60,$85,$6A,$A9,$20,$85,$44,$60,$85,$45,$A9,$80,$85,$44,$60,$84
 .byte $80,$B9,$00,$A4,$85,$81,$B9,$00,$A5,$A8,$A5,$81,$49,$FF,$39,$40
