@@ -5359,24 +5359,25 @@ lr_hand_tmp	= $18
 
 ; Name	: Weapon_hit_ani
 ; Marks	: $00(ADDR) = $9320 = battle animation graphics
-;	  Weapon animation graphics (weapon with monster)
+;	  Weapon hit effect animation graphics (weapon with monster)
 ;	  OAM[28-31] is weapon hit sprite
 ;	  use BANK 09
+;	  Copy weapon hit effect tile to ppu
 Weapon_hit_ani:
 	LDA #$20		; B199	$A9 $20
 	STA $00			; B19B	$85 $00
 	LDA #$93		; B19D	$A9 $93
 	STA $01			; B19F	$85 $01		BANK 09/9320 (battle animation graphics)
-	LDX #$00		; B1A1	$A2 $00
-	LDY #$60		; B1A3	$A0 $60
+	LDX #$00		; B1A1	$A2 $00		start index(offset)
+	LDY #$60		; B1A3	$A0 $60		size to copy
 	JSR Copy_char_tile	; B1A5	$20 $BA $FB
 	JSR Wait_MENU_snd	; B1A8	$20 $5B $FD
 	LDA #$40		; B1AB	$A9 $40
 	STA $00			; B1AD	$85 $00
 	LDA #$04		; B1AF	$A9 $04
-	STA $01			; B1B1	$85 $01
-	LDX #$60		; B1B3	$A2 $60
-	JSR Apply_OAM_tile	; B1B5	$20 $BA $9D
+	STA $01			; B1B1	$85 $01		ppu address = $0440(destination to be copied)
+	LDX #$60		; B1B3	$A2 $60		size to copy
+	JSR Apply_OAM_tile	; B1B5	$20 $BA $9D	copy $7600 to ppu $0440
 	JSR Wait_NMI_end	; B1B8	$20 $46 $FD
 	LDX #$00		; B1BB	$A2 $00
 	STX $18			; B1BD	$86 $18
@@ -5393,10 +5394,18 @@ L2F1BF:
 ; End of Weapon_hit_ani
 
 ; Name	: Do_wpn_eft_ani
-; A	:
+; A	: 00h = skip(shield ??), 01h = Axe, Staff
 ; Marks	: weapon effect animation ??
 ;	  weapon action type 00h is skip animation ??
+;	  $04 = effect X position temp
+;	  $06 = effect Y position temp
+;	  $16 = monster index temp
 ;	  $17 = repeat count
+;	  $0A-$11 = ??
+;	  $1C = ??
+;	  $1D = ??
+;	  $24 = ??
+;	  $28 = ??
 Do_wpn_eft_ani:
 	TAY			; B1D2	$A8
 	BNE L2F1D6		; B1D3	$D0 $01
@@ -5409,7 +5418,7 @@ L2F1D6:
 L2F1DB:
 	DEY			; B1DB	$88
 	BNE L2F1E1		; B1DC	$D0 $03
-	JMP JB291		; B1DE	$4C $91 $B2		weapon effect animation ??
+	JMP JB291		; B1DE	$4C $91 $B2	weapon effect animation - Axe, Staff
 ; End of
 L2F1E1:
 	DEY			; B1E1	$88
@@ -5441,7 +5450,7 @@ JB208:
 	LDX $1C			; B20B	$A6 $1C
 	STX $09			; B20D	$86 $09
 L2F20F:
-	LDY $16			; B20F	$A4 $16
+	LDY $16			; B20F	$A4 $16		monster index temp
 	LDA mob_x_poss,Y	; B211	$B9 $9A $7B
 	CLC			; B214	$18
 	ADC mob_widths,Y	; B215	$79 $8A $7B
@@ -5453,7 +5462,7 @@ L2F20F:
 	ASL			; B220	$0A
 	LDX $09			; B221	$A6 $09
 	STA $0A,X		; B223	$95 $0A
-	LDY $16			; B225	$A4 $16
+	LDY $16			; B225	$A4 $16		monster index temp
 	LDA mob_y_poss,Y	; B227	$B9 $92 $7B
 	TAX			; B22A	$AA
 	INX			; B22B	$E8
@@ -5461,51 +5470,51 @@ L2F20F:
 	ADC mob_heights,Y	; B22D	$79 $82 $7B
 	SBC #$02		; B230	$E9 $02
 	JSR Random		; B232	$20 $11 $FD
-	ASL			; B235	$0A        	
-	ASL			; B236	$0A        
-	ASL			; B237	$0A        
-	LDX $09			; B238	$A6 $09     
-	STA $0E,X		; B23A	$95 $0E     
-	DEC $09			; B23C	$C6 $09     
-	BPL L2F20F		; B23E	$10 $CF     
-	JSR Apply_OAM		; B240	$20 $2A $9E     ; wait for vblank (menu & oam update)
-	LDX $16			; B243	$A6 $16     
-	LDA mob_widths,X	; B245	$BD $8A $7B  
-	LSR			; B248	$4A        
-	STA $19			; B249	$85 $19     
-	JSR Set_32_39_OAM	; B24B	$20 $D7 $B3  
-	LDY #$84		; B24E	$A0 $84     
-	LDA #$F0		; B250	$A9 $F0     
+	ASL			; B235	$0A
+	ASL			; B236	$0A
+	ASL			; B237	$0A
+	LDX $09			; B238	$A6 $09
+	STA $0E,X		; B23A	$95 $0E
+	DEC $09			; B23C	$C6 $09
+	BPL L2F20F		; B23E	$10 $CF
+	JSR Apply_OAM		; B240	$20 $2A $9E	wait for vblank (menu & oam update)
+	LDX $16			; B243	$A6 $16
+	LDA mob_widths,X	; B245	$BD $8A $7B
+	LSR			; B248	$4A
+	STA $19			; B249	$85 $19
+	JSR Set_32_39_OAM	; B24B	$20 $D7 $B3
+	LDY #$84		; B24E	$A0 $84
+	LDA #$F0		; B250	$A9 $F0
 L2F252:
-	JSR Set_OAM_val		; B252	$20 $F9 $9D     ; set oam value
-	JSR Y_inc4		; B255	$20 $FC $9D  
-	CPY #$A4		; B258	$C0 $A4     
-	BNE L2F252		; B25A	$D0 $F6     
-	LDX #$09		; B25C	$A2 $09     
+	JSR Set_OAM_val		; B252	$20 $F9 $9D	set oam value
+	JSR Y_inc4		; B255	$20 $FC $9D
+	CPY #$A4		; B258	$C0 $A4
+	BNE L2F252		; B25A	$D0 $F6
+	LDX #$09		; B25C	$A2 $09
 	JSR Play_snd_eft	; B25E	$20 $72 $9E
 L2F261:
-	JSR Apply_OAM		; B261	$20 $2A $9E     ; wait for vblank (menu & oam update)
-	JSR Check_Y_ov		; B264	$20 $25 $B4  
-	JSR Set_32_39_OAM	; B267	$20 $D7 $B3  
-	DEC $19			; B26A	$C6 $19     
-	BNE L2F261		; B26C	$D0 $F3     
-	LDY #$80		; B26E	$A0 $80     
-	LDA #$F0		; B270	$A9 $F0     
+	JSR Apply_OAM		; B261	$20 $2A $9E	wait for vblank (menu & oam update)
+	JSR Check_Y_ov		; B264	$20 $25 $B4
+	JSR Set_32_39_OAM	; B267	$20 $D7 $B3
+	DEC $19			; B26A	$C6 $19
+	BNE L2F261		; B26C	$D0 $F3
+	LDY #$80		; B26E	$A0 $80
+	LDA #$F0		; B270	$A9 $F0
 L2F272:
-	JSR Set_OAM_val		; B272	$20 $F9 $9D     ; set oam value
-	JSR Y_inc4		; B275	$20 $FC $9D  
-	CPY #$A0		; B278	$C0 $A0     
-	BNE L2F272		; B27A	$D0 $F6     
-	JSR Apply_OAM		; B27C	$20 $2A $9E     ; wait for vblank (menu & oam update)
-	LDA #$08		; B27F	$A9 $08     
+	JSR Set_OAM_val		; B272	$20 $F9 $9D	set oam value
+	JSR Y_inc4		; B275	$20 $FC $9D
+	CPY #$A0		; B278	$C0 $A0
+	BNE L2F272		; B27A	$D0 $F6
+	JSR Apply_OAM		; B27C	$20 $2A $9E	wait for vblank (menu & oam update)
+	LDA #$08		; B27F	$A9 $08
 	JSR Gfx_delay		; B281	$20 $1F $9E	wait 8 frames
-	DEC $1D			; B284	$C6 $1D     
-	BEQ L2F28B		; B286	$F0 $03     
-	JMP JB208		; B288	$4C $08 $B2  
+	DEC $1D			; B284	$C6 $1D
+	BEQ L2F28B		; B286	$F0 $03
+	JMP JB208		; B288	$4C $08 $B2
 L2F28B:
-	JSR Rst_act_OAM_buf	; B28B	$20 $E1 $9D  
-	JMP Apply_OAM		; B28E	$4C $2A $9E     ; wait for vblank (menu & oam update)
-; Weapon effect ??
+	JSR Rst_act_OAM_buf	; B28B	$20 $E1 $9D
+	JMP Apply_OAM		; B28E	$4C $2A $9E	wait for vblank (menu & oam update)
+; Weapon effect animation - Axe, Staff
 JB291:
 	LDA #$00		; B291	$A9 $00
 	STA $02			; B293	$85 $02
@@ -5516,20 +5525,20 @@ L2F29A:
 	LDY #$71		; B29D	$A0 $71
 	LDX #$00		; B29F	$A2 $00
 L2F2A1:
-	LDA Oam_index_B461,X	; B2A1	$BD $61 $B4	OAM INDEX
-	JSR Set_OAM_val		; B2A4	$20 $F9 $9D	Set INDEX to OAM buffer
+	LDA Oam_index_B461,X	; B2A1	$BD $61 $B4	OAM INDEX(45h, 44h, 44h, 45h)
+	JSR Set_OAM_val		; B2A4	$20 $F9 $9D	Set INDEX to OAM[28-31] buffer
 	INX			; B2A7	$E8
 	CPX #$04		; B2A8	$E0 $04
-	BNE L2F2A1		; B2AA	$D0 $F5
+	BNE L2F2A1		; B2AA	$D0 $F5		loop
 	LDY #$72		; B2AC	$A0 $72
 	LDX #$00		; B2AE	$A2 $00
 L2F2B0:
 	LDA Oam_attr_B465,X	; B2B0	$BD $65 $B4	OAM ATTR
 	EOR $02			; B2B3	$45 $02
-	JSR Set_OAM_val		; B2B5	$20 $F9 $9D	Set ATTR to OAM buffer
+	JSR Set_OAM_val		; B2B5	$20 $F9 $9D	Set ATTR to OAM[28-31] buffer
 	INX			; B2B8	$E8
 	CPX #$04		; B2B9	$E0 $04
-	BNE L2F2B0		; B2BB	$D0 $F3
+	BNE L2F2B0		; B2BB	$D0 $F3		loop
 	LDA #$01		; B2BD	$A9 $01
 	LDX #$F8		; B2BF	$A2 $F8
 	LDY $02			; B2C1	$A4 $02
@@ -5548,12 +5557,12 @@ L2F2C9:
 	ASL A			; B2DA	$0A
 	ASL A			; B2DB	$0A
 	ASL A			; B2DC	$0A
-	STA $04			; B2DD	$85 $04		monster x ??
+	STA $04			; B2DD	$85 $04		effect X position
 	LDY #$73		; B2DF	$A0 $73
 	LDX #$00		; B2E1	$A2 $00
 L2F2E3:
 	LDA $04			; B2E3	$A5 $04
-	JSR Set_OAM_val		; B2E5	$20 $F9 $9D	Set X to OAM buffer
+	JSR Set_OAM_val		; B2E5	$20 $F9 $9D	Set X to OAM[28-31] buffer
 	CLC			; B2E8	$18
 	LDA $04			; B2E9	$A5 $04
 	ADC $05			; B2EB	$65 $05
@@ -5571,20 +5580,20 @@ L2F2E3:
 	ASL A			; B302	$0A
 	ASL A			; B303	$0A
 	ASL A			; B304	$0A
-	STA $06			; B305	$85 $06		monster y ??
+	STA $06			; B305	$85 $06		effect Y position
 	LDY #$70		; B307	$A0 $70
 	STY $07			; B309	$84 $07
 L2F30B:
 	LDA $06			; B30B	$A5 $06
-	JSR Set_OAM_val		; B30D	$20 $F9 $9D	Set Y to OAM buffer
+	JSR Set_OAM_val		; B30D	$20 $F9 $9D	Set Y to OAM[28-31] buffer
 	CLC			; B310	$18
 	ADC #$08		; B311	$69 $08
-	STA $06			; B313	$85 $06
-	STY $07			; B315	$84 $07
+	STA $06			; B313	$85 $06		effect Y position
+	STY $07			; B315	$84 $07		next OAM Y buffer
 	JSR Apply_OAM_pal	; B317	$20 $33 $9E
 	LDY $07			; B31A	$A4 $07
 	CPY #$80		; B31C	$C0 $80
-	BNE L2F30B		; B31E	$D0 $EB
+	BNE L2F30B		; B31E	$D0 $EB		loop - visible in order(draw)
 	LDY #$70		; B320	$A0 $70
 	STY $07			; B322	$84 $07
 L2F324:
@@ -5594,14 +5603,14 @@ L2F324:
 	JSR Apply_OAM_pal	; B32B	$20 $33 $9E
 	LDY $07			; B32E	$A4 $07
 	CPY #$80		; B330	$C0 $80
-	BNE L2F324		; B332	$D0 $F0
+	BNE L2F324		; B332	$D0 $F0		loop - hide in order
 	LDA $24			; B334	$A5 $24
 	BEQ L2F343		; B336	$F0 $0B
 	LDA $02			; B338	$A5 $02
 	EOR #$40		; B33A	$49 $40
 	STA $02			; B33C	$85 $02
 	BEQ L2F343		; B33E	$F0 $03
-	JMP L2F29A		; B340	$4C $9A $B2	loop
+	JMP L2F29A		; B340	$4C $9A $B2	loop - critical hit ??
 ; End of
 L2F343:
 	RTS			; B343	$60
@@ -5786,7 +5795,7 @@ Get_rnd_pos:
 ;B461 - data block = OAM index
 Oam_index_B461:
 .byte $45,$44,$44,$45
-;B465 - data block = OAM attribute
+;B465 - data block = OAM attribute(Normal, Normal, Normal, H/Y mirror)
 Oam_attr_B465:
 .byte $02,$02,$02,$C2
 

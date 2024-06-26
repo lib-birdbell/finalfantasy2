@@ -2715,18 +2715,83 @@ L39885:
 	RTS			; 98C6	$60
 ; End of
 
-;98C7
-.byte $20,$B1,$98,$A0,$00,$A5,$80,$D9,$0A
-.byte $75,$F0,$0A,$98,$18,$69,$10,$A8,$C9,$C0,$90,$F0,$60,$99,$00,$75
-.byte $60,$85,$6A,$A9,$20,$85,$44,$60,$85,$45,$A9,$80,$85,$44,$60,$84
-.byte $80,$B9,$00,$A4,$85,$81,$B9,$00,$A5,$A8,$A5,$81,$49,$FF,$39,$40
+; Name	:
+; Marks	: set event switch and show npc
+	JSR $98B1		; 98C7	$20 $B1 $98	set event switch
+	LDY #$00		; 98CA	$A0 $00
+L398CC:
+	LDA $80			; 98CC	$A5 $80
+	CMP $750A,Y		; 98CE	$D9 $0A $75
+	BEQ L398DD		; 98D1	$F0 $0A
+	TYA			; 98D3	$98
+	CLC			; 98D4	$18
+	ADC #$10		; 98D5	$69 $10
+	TAY			; 98D7	$A8
+	CMP #$C0		; 98D8	$C9 $C0
+	BCC L398CC		; 98DA	$90 $F0
+	RTS			; 98DC	$60
+L398DD:
+	STA $7500,Y		; 98DD	$99 $00 $75	show npc
+	RTS			; 98E0	$60
+; End of
 
-;; [$9900 :: 0x39900]
+; Name	:
+; Marks	: set battle id
+	STA $6A			; 98E1	$85 $6A
+	LDA #$20		; 98E3	$A9 $20
+	STA $44			; 98E5	$85 $44
+	RTS			; 98E7	$60
+; End of
 
-.byte $60,$99,$40,$60,$A4,$80,$60,$20,$EF,$98,$A0,$00,$A5,$80,$D9,$00
-.byte $75,$F0,$0A,$98,$18,$69,$10,$A8,$C9,$F0,$90,$F0,$60,$A9,$00,$99
+; Marks	: set entrance id
+;	  unused
+	STA $45			; 98E8	$85 $45
+	LDA #$80		; 98EA	$A9 $80
+	STA $44			; 98EC	$85 $44
+	RTS			; 98EE	$60
+; End of
+
+; Name	:
+; Marks	: toggle event switch
+	STY $80			; 98EF	$84 $80
+	LDA $A400,Y		; 98F1	$B9 $00 $A4
+	STA $81			; 98F4	$85 $81
+	LDA $A500,Y		; 98F6	$B9 $00 $A5
+	TAY			; 98F9	$A8
+	LDA $81			; 98FA	$A5 $81
+	EOR #$FF		; 98FC	$49 $FF
+	AND $6040,Y		; 98FE	$39 $40 $60
+	STA $6040,Y		; 9901	$99 $40 $60
+	LDY $80    		; 9904	$A4 $80
+	RTS			; 9906	$60
+; End of
+
+
+; Name	:
+; Y	: npc id
+; Marks	: hide npc
+	JSR $98EF		; 9907	$20 $EF $98	toggle event switch
+	LDY #$00		; 990A	$A0 $00
+L3990C:
+	LDA $80			; 990C	$A5 $80
+	CMP $7500,Y		; 990E	$D9 $00 $75
+	BEQ L3991D		; 9911	$F0 $0A
+	TYA			; 9913	$98
+	CLC			; 9914	$18
+	ADC #$10		; 9915	$69 $10
+	TAY			; 9917	$A8
+	CMP #$F0		; 9918	$C9 $F0
+	BCC L3990C		; 991A	$90 $F0
+	RTS			; 991C	$60
+L3991D:
+	LDA #$00		; 991D	$A9 $00
+	STA $7500,Y		; 991F	$99 $00 $75
+	RTS			; 9922	$60
+; End of
+
 ;; [$9923 - data ?? code pointer
-.byte $00,$75,$60,$A3,$9A,$A4,$9A,$55,$9B,$59,$9B,$76,$9B,$8B,$9B,$30
+; npc script jump table (by npc id)
+.byte $A3,$9A,$A4,$9A,$55,$9B,$59,$9B,$76,$9B,$8B,$9B,$30
 .byte $9C,$3F,$9C,$82,$9C,$B2,$9C,$DF,$9C,$E8,$9C,$15,$9D,$29,$9D,$60
 .byte $9D,$64,$9D,$CE,$9D,$D8,$9D,$13,$9E,$55,$9E,$9A,$9E,$A8,$9E,$55
 .byte $9B,$DD,$9E,$ED,$9E,$1E,$9F,$40,$9F,$44,$9F,$56,$9F,$5A,$9F,$30
@@ -2754,98 +2819,655 @@ L39885:
 .byte $A3,$C8,$A3,$C8,$A3,$C8,$A3,$ED,$A3,$ED,$A3,$ED,$A3,$ED,$A3,$ED
 .byte $A3,$ED,$A3,$ED,$A3,$ED,$A3,$ED,$A3,$ED,$A3,$ED,$A3,$ED,$A3,$ED
 .byte $A3,$ED,$A3,$F1,$A3,$F1,$A3,$F1,$A3,$F1,$A3,$F1,$A3,$F1,$A3,$F1
-.byte $A3,$F1,$A3,$60,$A0,$50,$20,$9E,$98,$D0,$16,$AD,$01,$7B,$8D,$21
-.byte $7B,$AD,$02,$7B,$8D,$31,$7B,$AD,$14,$7B,$8D,$22,$7B,$AD,$00,$7B
-.byte $60,$A0,$08,$20,$9E,$98,$F0,$04,$AD,$03,$7B,$60,$A0,$C3,$20,$9E
-.byte $98,$D0,$1C,$AD,$05,$7B,$8D,$22,$7B,$AD,$06,$7B,$8D,$23,$7B,$AD
-.byte $07,$7B,$8D,$34,$7B,$AD,$08,$7B,$8D,$25,$7B,$AD,$04,$7B,$60,$A0
-.byte $51,$20,$9E,$98,$D0,$0A,$AD,$0A,$7B,$8D,$23,$7B,$AD,$09,$7B,$60
+.byte $A3,$F1,$A3
 
-;; [$9B00 :: 0x39B00]
+; npc $00: no effect
+	RTS			; 9AA3	$60
+; End of
 
-.byte $A0,$09,$20,$9E,$98,$D0,$17,$20,$08,$F3,$90,$04,$AD,$0B,$7B,$60
-.byte $A9,$80,$8D,$F5,$62,$A0,$09,$20,$C7,$98,$AD,$0C,$7B,$60,$A0,$13
-.byte $20,$9E,$98,$F0,$16,$AD,$0E,$7B,$8D,$23,$7B,$AD,$0F,$7B,$8D,$26
-.byte $7B,$AD,$10,$7B,$8D,$27,$7B,$AD,$0D,$7B,$60,$A0,$2B,$20,$9E,$98
-.byte $F0,$04,$AD,$11,$7B,$60,$A0,$0C,$20,$9E,$98,$F0,$04,$AD,$12,$7B
-.byte $60,$AD,$13,$7B,$60,$AD,$00,$7B,$60,$A0,$25,$20,$9E,$98,$F0,$04
-.byte $AD,$00,$7B,$60,$20,$08,$F3,$90,$04,$AD,$03,$7B,$60,$AD,$02,$7B
-.byte $85,$6C,$AD,$01,$7B,$60,$A0,$17,$20,$9E,$98,$F0,$0A,$AD,$01,$7B
-.byte $8D,$21,$7B,$AD,$00,$7B,$60,$AD,$02,$7B,$60,$AD,$1B,$60,$29,$08
-.byte $D0,$28,$AD,$01,$7B,$8D,$28,$7B,$AD,$02,$7B,$8D,$29,$7B,$AD,$03
-.byte $7B,$8D,$2A,$7B,$AD,$04,$7B,$8D,$2B,$7B,$AD,$05,$7B,$8D,$2E,$7B
-.byte $AD,$06,$7B,$8D,$2F,$7B,$AD,$00,$7B,$60,$AD,$1B,$60,$29,$20,$D0
-.byte $04,$AD,$07,$7B,$60,$A0,$19,$20,$9E,$98,$F0,$04,$AD,$08,$7B,$60
-.byte $A0,$45,$20,$9E,$98,$F0,$10,$AD,$0A,$7B,$8D,$2A,$7B,$AD,$0B,$7B
-.byte $8D,$2B,$7B,$AD,$09,$7B,$60,$A0,$46,$20,$9E,$98,$F0,$10,$AD,$0D
-.byte $7B,$8D,$2B,$7B,$AD,$0E,$7B,$8D,$2C,$7B,$AD,$0C,$7B,$60,$A0,$29
+; npc $01: hilda (altair throne room)
+	LDY #$50		; 9AA4	$A0 $50
+	JSR $989E		; 9AA6	$20 $9E $98	check event switch
+	BNE L39AC1		; 9AA9	$D0 $16
+	LDA $7B01		; 9AAB	$AD $01 $7B	$02: "Hilda:The Wild Rose is the insignia..."
+	STA $7B21		; 9AAE	$8D $21 $7B	response to keyword 1 (Wild Rose)
+	LDA $7B02		; 9AB1	$AD $02 $7B	$03: "Hilda:That Ring…It's Scott's!Is..."
+	STA $7B31		; 9AB4	$8D $31 $7B	response to key item 1 (Ring)
+	LDA $7B14		; 9AB7	$AD $14 $7B	$04: "We lost Fynn because the Empire..."
+	STA $7B22		; 9ABA	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B00		; 9ABD	$AD $00 $7B	$01: "Hilda:The password is (Wild Rose)."
+	RTS			; 9AC0	$60
+L39AC1:
+	LDY #$08		; 9AC1	$A0 $08
+	JSR $989E		; 9AC3	$20 $9E $98	check event switch
+	BEQ L39ACC		; 9AC6	$F0 $04
+	LDA $7B03		; 9AC8	$AD $03 $7B	$05: "Minwu is a virtuous white wizard..."
+	RTS			; 9ACB	$60
+L39ACC:
+	LDY #$C3		; 9ACC	$A0 $C3
+	JSR $989E		; 9ACE	$20 $9E $98	check event switch
+	BNE L39AEF		; 9AD1	$D0 $1C
+	LDA $7B05		; 9AD3	$AD $05 $7B	$12: "Please find that Mythril as soon as possible."
+	STA $7B22		; 9AD6	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B06		; 9AD9	$AD $06 $7B	$07: "The Empire is using the people of Bafsk..."
+	STA $7B23		; 9ADC	$8D $23 $7B	response to keyword 3 (mythril)
+	LDA $7B07		; 9ADF	$AD $07 $7B	$09: "You've found the Mythril! Please hand..."
+	STA $7B34		; 9AE2	$8D $34 $7B	response to key item 4 (mythril)
+	LDA $7B08		; 9AE5	$AD $08 $7B	$08: "A man named Cid,former leader of Fynn's ..."
+	STA $7B25		; 9AE8	$8D $25 $7B	response to keyword 5 (Airship)
+	LDA $7B04		; 9AEB	$AD $04 $7B	$06: "The Empire also suffered heavy losses..."
+	RTS			; 9AEE	$60
+L39AEF:
+	LDY #$51		; 9AEF	$A0 $51
+	JSR $989E		; 9AF1	$20 $9E $98	check event switch
+	BNE L39B00		; 9AF4	$D0 $0A
+	LDA $7B0A		; 9AF6	$AD $0A $7B	$0B: "We have a man in Bafsk. He's found a way..."
+	STA $7B23		; 9AF9	$8D $23 $7B	response to keyword 3 (Dreadnought)
+	LDA $7B09		; 9AFC	$AD $09 $7B	$0A: "The Dreadnought's construction is..."
+	RTS			; 9AFF	$60
+L39B00:
+	LDY #$09		; 9B00	$A0 $09
+	JSR $989E		; 9B02	$20 $9E $98	check event switch
+	BNE L39B1E		; 9B05	$D0 $17
+	JSR $F308		; 9B07	$20 $08 $F3	check if any main characters are alive
+	BCC L39B10		; 9B0A	$90 $04
+	LDA $7B0B		; 9B0C	$AD $0B $7B	$FD: "Firion,Maria,or Guy must be alive to advance."
+	RTS			; 9B0F	$60
+L39B10:
+	LDA #$80		; 9B10	$A9 $80
+	STA $62F5		; 9B12	$8D $F5 $62	
+	LDY #$09		; 9B15	$A0 $09
+	JSR $98C7		; 9B17	$20 $C7 $98	set event switch and show npc
+	LDA $7B0C		; 9B1A	$AD $0C $7B	$0C: "Hilda:Many were hurt by the Dreadnought's attack."
+	RTS			; 9B1D	$60
+L39B1E:
+	LDY #$13		; 9B1E	$A0 $13
+	JSR $989E		; 9B20	$20 $9E $98	check event switch
+	BEQ L39B3B		; 9B23	$F0 $16
+	LDA $7B0E		; 9B25	$AD $0E $7B	$0E
+	STA $7B23		; 9B28	$8D $23 $7B	
+	LDA $7B0F		; 9B2B	$AD $0F $7B	$0F
+	STA $7B26		; 9B2E	$8D $26 $7B	
+	LDA $7B10		; 9B31	$AD $10 $7B	$10
+	STA $7B27		; 9B34	$8D $27 $7B	
+	LDA $7B0D		; 9B37	$AD $0D $7B	$0D
+	RTS			; 9B3A	$60
+L39B3B:
+	LDY #$2B		; 9B3B	$A0 $2B
+	JSR $989E		; 9B3D	$20 $9E $98	check event switch
+	BEQ L39B46		; 9B40	$F0 $04
+	LDA $7B11		; 9B42	$AD $11 $7B	$11
+	RTS			; 9B45	$60
+L39B46:
+	LDY #$0C		; 9B46	$A0 $0C
+	JSR $989E		; 9B48	$20 $9E $98	check event switch
+	BEQ L39B51		; 9B4B	$F0 $04
+	LDA $7B12		; 9B4D	$AD $12 $7B	$13
+	RTS			; 9B50	$60
+L39B51:
+	LDA $7B13		; 9B51	$AD $13 $7B	$14
+	RTS			; 9B54	$60
+; End of
 
-;; [$9C00 :: 0x39C00]
+; generic npc (dialogue)
+	LDA $7B00		; 9B55	$AD $00 $7B
+	RTS			; 9B58	$60
+; End of
 
-.byte $20,$9E,$98,$F0,$10,$AD,$10,$7B,$8D,$2B,$7B,$AD,$11,$7B,$8D,$2C
-.byte $7B,$AD,$0F,$7B,$60,$A0,$1D,$20,$9E,$98,$F0,$0A,$AD,$13,$7B,$8D
-.byte $24,$7B,$AD,$12,$7B,$60,$AD,$15,$7B,$8D,$2D,$7B,$AD,$14,$7B,$60
-.byte $A4,$A0,$20,$07,$99,$AD,$01,$7B,$20,$E1,$98,$AD,$00,$7B,$60,$A0
-.byte $51,$20,$9E,$98,$D0,$10,$AD,$01,$7B,$8D,$23,$7B,$AD,$02,$7B,$8D
-.byte $25,$7B,$AD,$00,$7B,$60,$A0,$01,$20,$9E,$98,$F0,$16,$AD,$04,$7B
-.byte $8D,$23,$7B,$AD,$05,$7B,$8D,$25,$7B,$AD,$06,$7B,$8D,$27,$7B,$AD
-.byte $03,$7B,$60,$A0,$39,$20,$9E,$98,$F0,$04,$AD,$07,$7B,$60,$AD,$08
-.byte $7B,$60,$A0,$50,$20,$9E,$98,$D0,$0A,$AD,$01,$7B,$8D,$21,$7B,$AD
-.byte $00,$7B,$60,$A9,$02,$20,$73,$98,$B0,$14,$A0,$08,$20,$07,$99,$A9
-.byte $04,$85,$61,$20,$18,$C0,$A9,$4A,$85,$E0,$AD,$03,$7B,$60,$AD,$02
-.byte $7B,$60,$A0,$01,$20,$9E,$98,$F0,$1C,$AD,$01,$7B,$8D,$23,$7B,$AD
-.byte $02,$7B,$8D,$25,$7B,$AD,$03,$7B,$8D,$26,$7B,$AD,$04,$7B,$8D,$27
-.byte $7B,$AD,$00,$7B,$60,$AD,$06,$7B,$8D,$23,$7B,$AD,$05,$7B,$60,$AD
-.byte $01,$7B,$85,$6C,$AD,$00,$7B,$60,$A0,$C3,$20,$9E,$98,$D0,$1C,$AD
-.byte $01,$7B,$8D,$21,$7B,$AD,$02,$7B,$8D,$22,$7B,$AD,$03,$7B,$8D,$23
+; npc $03: hilda (altair hilda's room)
+	LDY #$25		; 9B59	$A0 $25
+	JSR $989E		; 9B5B	$20 $9E $98	check event switch
+	BEQ L39B64		; 9B5E	$F0 $04
+	LDA $7B00		; 9B60	$AD $00 $7B
+	RTS			; 9B63	$60
+L39B64:
+	JSR $F308		; 9B64	$20 $08 $F3	check if any main characters are alive
+	BCC L39B6D		; 9B67	$90 $04
+	LDA $7B03		; 9B69	$AD $03 $7B
+	RTS			; 9B6C	$60
+L39B6D:
+	LDA $7B02		; 9B6D	$AD $02 $7B
+	STA $6C			; 9B70	$85 $6C
+	LDA $7B01		; 9B72	$AD $01 $7B
+	RTS			; 9B75	$60
+; End of
 
-;; [$9D00 :: 0x39D00]
+; npc $04: hilda (camp)
+	LDY #$17		; 9B76	$A0 $17
+	JSR $989E		; 9B78	$20 $9E $98	check event switch
+	BEQ L39B87		; 9B7B	$F0 $0A
+	LDA $7B01		; 9B7D	$AD $01 $7B
+	STA $7B21		; 9B80	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B00		; 9B83	$AD $00 $7B
+	RTS			; 9B86	$60
+L39B87:
+	LDA $7B02		; 9B87	$AD $02 $7B
+	RTS			; 9B8A	$60
+; End of
 
-.byte $7B,$AD,$05,$7B,$8D,$31,$7B,$AD,$00,$7B,$60,$AD,$06,$7B,$8D,$23
-.byte $7B,$AD,$04,$7B,$60,$A0,$0C,$20,$07,$99,$A9,$06,$85,$61,$20,$18
-.byte $C0,$A9,$4A,$85,$E0,$AD,$00,$7B,$60,$A0,$25,$20,$9E,$98,$F0,$1B
-.byte $AD,$1B,$60,$29,$04,$D0,$10,$AD,$01,$7B,$8D,$2A,$7B,$AD,$02,$7B
-.byte $8D,$2B,$7B,$AD,$00,$7B,$60,$AD,$03,$7B,$60,$A0,$03,$20,$9E,$98
-.byte $F0,$04,$AD,$04,$7B,$60,$AD,$06,$7B,$8D,$2B,$7B,$AD,$05,$7B,$60
-.byte $AD,$00,$7B,$60,$AD,$1B,$60,$29,$08,$D0,$16,$AD,$01,$7B,$8D,$28
-.byte $7B,$AD,$02,$7B,$8D,$29,$7B,$AD,$03,$7B,$8D,$2F,$7B,$AD,$00,$7B
-.byte $60,$A0,$19,$20,$9E,$98,$F0,$04,$AD,$04,$7B,$60,$A0,$45,$20,$9E
-.byte $98,$F0,$04,$AD,$05,$7B,$60,$A0,$46,$20,$9E,$98,$F0,$0A,$AD,$07
-.byte $7B,$8D,$2C,$7B,$AD,$06,$7B,$60,$A0,$29,$20,$9E,$98,$F0,$04,$AD
-.byte $08,$7B,$60,$A0,$1D,$20,$9E,$98,$F0,$0A,$AD,$0A,$7B,$8D,$24,$7B
-.byte $AD,$09,$7B,$60,$AD,$0C,$7B,$8D,$2D,$7B,$AD,$0B,$7B,$60,$AD,$01
-.byte $7B,$8D,$21,$7B,$AD,$00,$7B,$60,$A0,$33,$20,$07,$99,$A0,$33,$20
-.byte $07,$99,$A0,$33,$20,$07,$99,$A0,$33,$20,$07,$99,$A0,$11,$20,$07
-.byte $99,$A0,$21,$20,$07,$99,$A0,$22,$20,$C7,$98,$A0,$84,$20,$B1,$98
+; npc $05: hilda (fynn throne room)
+	LDA $601B		; 9B8B	$AD $1B $60
+	AND #$08		; 9B8E	$29 $08
+	BNE L39BBA		; 9B90	$D0 $28		branch if player has white mask
+	LDA $7B01		; 9B92	$AD $01 $7B
+	STA $7B28		; 9B95	$8D $28 $7B
+	LDA $7B02		; 9B98	$AD $02 $7B
+	STA $7B29		; 9B9B	$8D $29 $7B
+	LDA $7B03		; 9B9E	$AD $03 $7B
+	STA $7B2A		; 9BA1	$8D $2A $7B
+	LDA $7B04		; 9BA4	$AD $04 $7B
+	STA $7B2B		; 9BA7	$8D $2B $7B
+	LDA $7B05		; 9BAA	$AD $05 $7B
+	STA $7B2E		; 9BAD	$8D $2E $7B
+	LDA $7B06		; 9BB0	$AD $06 $7B
+	STA $7B2F		; 9BB3	$8D $2F $7B
+	LDA $7B00		; 9BB6	$AD $00 $7B
+	RTS			; 9BB9	$60
+L39BBA:
+	LDA $601B		; 9BBA	$AD $1B $60
+	AND #$20		; 9BBD	$29 $20
+	BNE L39BC5		; 9BBF	$D0 $04		branch if player has crystal rod
+	LDA $7B07		; 9BC1	$AD $07 $7B
+	RTS			; 9BC4	$60
+L39BC5:
+	LDY #$19		; 9BC5	$A0 $19
+	JSR $989E		; 9BC7	$20 $9E $98	check event switch
+	BEQ L39BD0		; 9BCA	$F0 $04
+	LDA $7B08		; 9BCC	$AD $08 $7B
+	RTS			; 9BCF	$60
+L39BD0:
+	LDY #$45		; 9BD0	$A0 $45
+	JSR $989E		; 9BD2	$20 $9E $98	check event switch
+	BEQ L39BE7		; 9BD5	$F0 $10
+	LDA $7B0A		; 9BD7	$AD $0A $7B
+	STA $7B2A		; 9BDA	$8D $2A $7B
+	LDA $7B0B		; 9BDD	$AD $0B $7B
+	STA $7B2B		; 9BE0	$8D $2B $7B
+	LDA $7B09		; 9BE3	$AD $09 $7B
+	RTS			; 9BE6	$60
+L39BE7:
+	LDY #$46		; 9BE7	$A0 $46
+	JSR $989E		; 9BE9	$20 $9E $98	check event switch
+	BEQ L39BFE		; 9BEC	$F0 $10
+	LDA $7B0D		; 9BEE	$AD $0D $7B
+	STA $7B2B		; 9BF1	$8D $2B $7B
+	LDA $7B0E		; 9BF4	$AD $0E $7B
+	STA $7B2C		; 9BF7	$8D $2C $7B
+	LDA $7B0C		; 9BFA	$AD $0C $7B
+	RTS			; 9BFD	$60
+L39BFE:
+	LDY #$29		; 9BFE	$A0 $29
+	JSR $989E		; 9C00	$20 $9E $98	check event switch
+	BEQ L39C15		; 9C03	$F0 $10
+	LDA $7B10		; 9C05	$AD $10 $7B
+	STA $7B2B		; 9C08	$8D $2B $7B
+	LDA $7B11		; 9C0B	$AD $11 $7B
+	STA $7B2C		; 9C0E	$8D $2C $7B
+	LDA $7B0F		; 9C11	$AD $0F $7B
+	RTS			; 9C14	$60
+L39C15:
+	LDY #$1D		; 9C15	$A0 $1D
+	JSR $989E		; 9C17	$20 $9E $98	check event switch
+	BEQ L39C26		; 9C1A	$F0 $0A
+	LDA $7B13		; 9C1C	$AD $13 $7B
+	STA $7B24		; 9C1F	$8D $24 $7B
+	LDA $7B12		; 9C22	$AD $12 $7B
+	RTS			; 9C25	$60
+L39C26:
+	LDA $7B15		; 9C26	$AD $15 $7B
+	STA $7B2D		; 9C29	$8D $2D $7B
+	LDA $7B14		; 9C2C	$AD $14 $7B
+	RTS			; 9C2F	$60
+; End of
 
-;; [$9E00 :: 0x39E00]
 
-.byte $A0,$85,$20,$B1,$98,$A0,$86,$20,$B1,$98,$A0,$87,$20,$B1,$98,$AD
-.byte $00,$7B,$60,$A0,$41,$20,$9E,$98,$F0,$0A,$AD,$07,$7B,$8D,$2F,$7B
-.byte $AD,$00,$7B,$60,$A0,$29,$20,$9E,$98,$F0,$0A,$AD,$02,$7B,$8D,$2C
-.byte $7B,$AD,$01,$7B,$60,$A0,$26,$20,$9E,$98,$F0,$04,$AD,$03,$7B,$60
-.byte $A0,$1D,$20,$9E,$98,$F0,$0A,$AD,$05,$7B,$8D,$24,$7B,$AD,$04,$7B
-.byte $60,$AD,$06,$7B,$60,$A0,$21,$20,$9E,$98,$F0,$1C,$AD,$01,$7B,$8D
-.byte $21,$7B,$AD,$02,$7B,$8D,$22,$7B,$AD,$03,$7B,$8D,$23,$7B,$AD,$04
-.byte $7B,$8D,$25,$7B,$AD,$00,$7B,$60,$AD,$06,$7B,$8D,$22,$7B,$AD,$07
-.byte $7B,$8D,$23,$7B,$AD,$08,$7B,$8D,$25,$7B,$AD,$09,$7B,$8D,$34,$7B
-.byte $AD,$0A,$7B,$8D,$26,$7B,$AD,$05,$7B,$60,$A0,$14,$20,$07,$99,$A9
-.byte $01,$8D,$00,$60,$AD,$00,$7B,$60,$AD,$01,$7B,$60,$A0,$52,$20,$9E
-.byte $98,$F0,$0F,$A0,$52,$20,$EF,$98,$AD,$01,$7B,$20,$E1,$98,$AD,$00
-.byte $7B,$60,$A0,$15,$20,$07,$99,$20,$FF,$97,$A9,$07,$85,$61,$20,$18
-.byte $C0,$A9,$4A,$85,$E0,$A9,$40,$85,$44,$AD,$02,$7B,$60,$A0,$17,$20
-.byte $07,$99,$20,$21,$98,$A9,$4A,$85,$E0,$AD,$00,$7B,$60,$A0,$45,$20
-.byte $9E,$98,$F0,$04,$AD,$00,$7B,$60,$A0,$29,$20,$9E,$98,$F0,$04,$AD
+; generic npc (battle)
+	LDY $A0			; 9C30	$A4 $A0
+	JSR $9907		; 9C32	$20 $07 $99	hide npc
+	LDA $7B01		; 9C35	$AD $01 $7B	
+	JSR $98E1		; 9C38	$20 $E1 $98	set battle id
+	LDA $7B00		; 9C3B	$AD $00 $7B
+	RTS			; 9C3E	$60
+; End of
 
-;; [$9F00 :: 0x39F00]
+; npc $07: cid (poft)
+	LDY #$51		; 9C3F	$A0 $51
+	JSR $989E		; 9C41	$20 $9E $98	check event switch
+	BNE L39C56		; 9C44	$D0 $10
+	LDA $7B01		; 9C46	$AD $01 $7B
+	STA $7B23		; 9C49	$8D $23 $7B
+	LDA $7B02		; 9C4C	$AD $02 $7B
+	STA $7B25		; 9C4F	$8D $25 $7B
+	LDA $7B00		; 9C52	$AD $00 $7B
+	RTS			; 9C55	$60
+L39C56:
+	LDY #$01		; 9C56	$A0 $01
+	JSR $989E		; 9C58	$20 $9E $98	check event switch
+	BEQ L39C73		; 9C5B	$F0 $16
+	LDA $7B04		; 9C5D	$AD $04 $7B
+	STA $7B23		; 9C60	$8D $23 $7B
+	LDA $7B05		; 9C63	$AD $05 $7B
+	STA $7B25		; 9C66	$8D $25 $7B
+	LDA $7B06		; 9C69	$AD $06 $7B
+	STA $7B27		; 9C6C	$8D $27 $7B
+	LDA $7B03		; 9C6F	$AD $03 $7B
+	RTS			; 9C72	$60
+L39C73:
+	LDY #$39		; 9C73	$A0 $39
+	JSR $989E		; 9C75	$20 $9E $98	check event switch
+	BEQ L39C7E		; 9C78	$F0 $04
+	LDA $7B07		; 9C7A	$AD $07 $7B
+	RTS			; 9C7D	$60
+L39C7E:
+	LDA $7B08		; 9C7E	$AD $08 $7B
+	RTS			; 9C81	$60
+; End of
 
-.byte $01,$7B,$60,$A0,$1D,$20,$9E,$98,$F0,$0A,$AD,$03,$7B,$8D,$24,$7B
-.byte $AD,$02,$7B,$60,$AD,$05,$7B,$8D,$2D,$7B,$AD,$04,$7B,$60,$AD,$01
-.byte $7B,$8D,$28,$7B,$AD,$02,$7B,$8D,$29,$7B,$AD,$03,$7B,$8D,$2B,$7B
-.byte $AD,$04,$7B,$8D,$2A,$7B,$AD,$05,$7B,$8D,$3D,$7B,$AD,$00,$7B,$60
-.byte $AD,$00,$7B,$60,$AD,$01,$7B,$85,$6C,$AD,$00,$7B,$60,$20,$08,$F3
-.byte $90,$F2,$AD,$02,$7B,$60,$AD,$00,$7B,$60,$20,$08,$F3,$B0,$F3,$4C
-.byte $44,$9F,$A4,$A0,$20,$07,$99,$AD,$00,$7B,$60,$A0,$50,$20,$9E,$98
+; npc $08: minwu (altair throne room)
+	LDY #$50		; 9C82	$A0 $50		$604A.0
+	JSR $989E		; 9C84	$20 $9E $98	check event switch
+	BNE L39C93		; 9C87	$D0 $0A
+	LDA $7B01		; 9C89	$AD $01 $7B	$32: "Ah!You know the password..."
+	STA $7B21		; 9C8C	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B00		; 9C8F	$AD $00 $7B	$31: "Minwu:Proceed to Fynn..."
+	RTS			; 9C92	$60
+L39C93:
+	LDA #$02		; 9C93	$A9 $02		item $02: Canoe
+	JSR $9873		; 9C95	$20 $73 $98	add item to inventory
+	BCS L39CAE		; 9C98	$B0 $14		branch if inventory is full
+	LDY #$08		; 9C9A	$A0 $08
+	JSR $9907		; 9C9C	$20 $07 $99	hide npc
+	LDA #$04		; 9C9F	$A9 $04		minwu
+	STA $61			; 9CA1	$85 $61
+	JSR $C018		; 9CA3	$20 $18 $C0	load guest character properties
+	LDA #$4A		; 9CA6	$A9 $4A		play song $0A
+	STA $E0			; 9CA8	$85 $E0
+	LDA $7B03		; 9CAA	$AD $03 $7B	$33: "Minwu:Take my canoe and..."
+	RTS			; 9CAD	$60
+L39CAE:
+	LDA $7B02		; 9CAE	$AD $02 $7B	$FC: "Can't hold any more."
+	RTS			; 9CB1	$60
+; End of
+
+; npc $09: minwu (altair king's room)
+	LDY #$01		; 9CB2	$A0 $01
+	JSR $989E		; 9CB4	$20 $9E $98	check event switch
+	BEQ L39CD5		; 9CB7	$F0 $1C
+	LDA $7B01		; 9CB9	$AD $01 $7B
+	STA $7B23		; 9CBC	$8D $23 $7B
+	LDA $7B02		; 9CBF	$AD $02 $7B
+	STA $7B25		; 9CC2	$8D $25 $7B
+	LDA $7B03		; 9CC5	$AD $03 $7B
+	STA $7B26		; 9CC8	$8D $26 $7B
+	LDA $7B04		; 9CCB	$AD $04 $7B
+	STA $7B27		; 9CCE	$8D $27 $7B
+	LDA $7B00		; 9CD1	$AD $00 $7B
+	RTS			; 9CD4	$60
+L39CD5:
+	LDA $7B06		; 9CD5	$AD $06 $7B
+	STA $7B23		; 9CD8	$8D $23 $7B
+	LDA $7B05		; 9CDB	$AD $05 $7B
+	RTS			; 9CDE	$60
+; End of
+
+; npc $0A: minwu (sealed tower)
+	LDA $7B01		; 9CDF	$AD $01 $7B
+	STA $6C			; 9CE2	$85 $6C
+	LDA $7B00		; 9CE4	$AD $00 $7B
+	RTS			; 9CE7	$60
+; End of
+
+; npc $0B: gordon (altair exterior)
+	LDY #$C3		; 9CE8	$A0 $C3
+	JSR $989E		; 9CEA	$20 $9E $98	check event switch
+	BNE L39D0B		; 9CED	$D0 $1C
+	LDA $7B01		; 9CEF	$AD $01 $7B
+	STA $7B21		; 9CF2	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B02		; 9CF5	$AD $02 $7B
+	STA $7B22		; 9CF8	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B03		; 9CFB	$AD $03 $7B
+	STA $7B23		; 9CFE	$8D $23 $7B
+	LDA $7B05		; 9D01	$AD $05 $7B
+	STA $7B31		; 9D04	$8D $31 $7B
+	LDA $7B00		; 9D07	$AD $00 $7B
+	RTS			; 9D0A	$60
+L39D0B:
+	LDA $7B06		; 9D0B	$AD $06 $7B
+	STA $7B23		; 9D0E	$8D $23 $7B
+	LDA $7B04		; 9D11	$AD $04 $7B
+	RTS			; 9D14	$60
+; End of
+
+; npc $0C: gordon (kashuan keep)
+	LDY #$0C		; 9D15	$A0 $0C
+	JSR $9907		; 9D17	$20 $07 $99	hide npc
+	LDA #$06		; 9D1A	$A9 $06		gordon
+	STA $61			; 9D1C	$85 $61
+	JSR $C018		; 9D1E	$20 $18 $C0	load guest character properties
+	LDA #$4A		; 9D21	$A9 $4A		play song $0A
+	STA $E0			; 9D23	$85 $E0
+	LDA $7B00		; 9D25	$AD $00 $7B
+	RTS			; 9D28	$60
+; End of
+
+; npc $0D: gordon (altair throne room)
+	LDY #$25		; 9D29	$A0 $25
+	JSR $989E		; 9D2B	$20 $9E $98	check event switch
+	BEQ L39D4B		; 9D2E	$F0 $1B
+	LDA $601B		; 9D30	$AD $1B $60
+	AND #$04		; 9D33	$29 $04
+	BNE L39D47		; 9D35	$D0 $10		branch if player has wyvern egg
+	LDA $7B01		; 9D37	$AD $01 $7B
+	STA $7B2A		; 9D3A	$8D $2A $7B
+	LDA $7B02		; 9D3D	$AD $02 $7B
+	STA $7B2B		; 9D40	$8D $2B $7B
+	LDA $7B00		; 9D43	$AD $00 $7B
+	RTS			; 9D46	$60
+L39D47:
+	LDA $7B03		; 9D47	$AD $03 $7B
+	RTS			; 9D4A	$60
+L39D4B:
+	LDY #$03		; 9D4B	$A0 $03
+	JSR $989E		; 9D4D	$20 $9E $98	check event switch
+	BEQ L39D56		; 9D50	$F0 $04
+	LDA $7B04		; 9D52	$AD $04 $7B
+	RTS			; 9D55	$60
+L39D56:
+	LDA $7B06		; 9D56	$AD $06 $7B
+	STA $7B2B		; 9D59	$8D $2B $7B
+	LDA $7B05		; 9D5C	$AD $05 $7B
+	RTS			; 9D5F	$60
+; End of
+
+; npc $0E: gordon (camp)
+	LDA $7B00		; 9D60	$AD $00 $7B
+	RTS			; 9D63	$60
+; End of
+
+; npc $0F: gordon (fynn throne room)
+	LDA $601B		; 9D64	$AD $1B $60
+	AND #$08		; 9D67	$29 $08
+	BNE L39D81		; 9D69	$D0 $16		branch if player has white mask
+	LDA $7B01		; 9D6B	$AD $01 $7B
+	STA $7B28		; 9D6E	$8D $28 $7B
+	LDA $7B02		; 9D71	$AD $02 $7B
+	STA $7B29		; 9D74	$8D $29 $7B
+	LDA $7B03		; 9D77	$AD $03 $7B
+	STA $7B2F		; 9D7A	$8D $2F $7B
+	LDA $7B00		; 9D7D	$AD $00 $7B
+	RTS			; 9D80	$60
+L39D81:
+	LDY #$19		; 9D81	$A0 $19
+	JSR $989E		; 9D83	$20 $9E $98	check event switch
+	BEQ L39D8C		; 9D86	$F0 $04
+	LDA $7B04		; 9D88	$AD $04 $7B
+	RTS			; 9D8B	$60
+L39D8C:
+	LDY #$45		; 9D8C	$A0 $45
+	JSR $989E		; 9D8E	$20 $9E $98	check event switch
+	BEQ L39D97		; 9D91	$F0 $04
+	LDA $7B05		; 9D93	$AD $05 $7B
+	RTS			; 9D96	$60
+L39D97:
+	LDY #$46		; 9D97	$A0 $46
+	JSR $989E		; 9D99	$20 $9E $98	check event switch
+	BEQ L39DA8		; 9D9C	$F0 $0A
+	LDA $7B07		; 9D9E	$AD $07 $7B
+	STA $7B2C		; 9DA1	$8D $2C $7B
+	LDA $7B06		; 9DA4	$AD $06 $7B
+	RTS			; 9DA7	$60
+L39DA8:
+	LDY #$29		; 9DA8	$A0 $29
+	JSR $989E		; 9DAA	$20 $9E $98	check event switch
+	BEQ L39DB3		; 9DAD	$F0 $04
+	LDA $7B08		; 9DAF	$AD $08 $7B
+	RTS			; 9DB2	$60
+L39DB3:
+	LDY #$1D		; 9DB3	$A0 $1D
+	JSR $989E		; 9DB5	$20 $9E $98	check event switch
+	BEQ L39DC4		; 9DB8	$F0 $0A
+	LDA $7B0A		; 9DBA	$AD $0A $7B
+	STA $7B24		; 9DBD	$8D $24 $7B
+	LDA $7B09		; 9DC0	$AD $09 $7B
+	RTS			; 9DC3	$60
+L39DC4:
+	LDA $7B0C		; 9DC4	$AD $0C $7B
+	STA $7B2D		; 9DC7	$8D $2D $7B
+	LDA $7B0B		; 9DCA	$AD $0B $7B
+	RTS			; 9DCD	$60
+; End of
+
+; npc $10: paul (altair)
+	LDA $7B01		; 9DCE	$AD $01 $7B
+	STA $7B21		; 9DD1	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B00		; 9DD4	$AD $00 $7B
+	RTS			; 9DD7	$60
+; End of
+
+; npc $11: paul (semitt falls)
+	LDY #$33		; 9DD8	$A0 $33
+	JSR $9907		; 9DDA	$20 $07 $99	hide npc
+	LDY #$33		; 9DDD	$A0 $33
+	JSR $9907		; 9DDF	$20 $07 $99	hide npc
+	LDY #$33		; 9DE2	$A0 $33
+	JSR $9907		; 9DE4	$20 $07 $99	hide npc
+	LDY #$33		; 9DE7	$A0 $33
+	JSR $9907		; 9DE9	$20 $07 $99	hide npc
+	LDY #$11		; 9DEC	$A0 $11
+	JSR $9907		; 9DEE	$20 $07 $99	hide npc
+	LDY #$21		; 9DF1	$A0 $21
+	JSR $9907		; 9DF3	$20 $07 $99	hide npc
+	LDY #$22		; 9DF6	$A0 $22
+	JSR $98C7		; 9DF8	$20 $C7 $98	set event switch and show npc
+	LDY #$84		; 9DFB	$A0 $84
+	JSR $98B1		; 9DFD	$20 $B1 $98	set event switch
+	LDY #$85		; 9E00	$A0 $85
+	JSR $98B1		; 9E02	$20 $B1 $98	set event switch
+	LDY #$86		; 9E05	$A0 $86
+	JSR $98B1		; 9E07	$20 $B1 $98	set event switch
+	LDY #$87		; 9E0A	$A0 $87
+	JSR $98B1		; 9E0C	$20 $B1 $98	set event switch
+	LDA $7B00		; 9E0F	$AD $00 $7B
+	RTS			; 9E12	$60
+; End of
+
+; npc $12: paul (fynn)
+	LDY #$41		; 9E13	$A0 $41
+	JSR $989E		; 9E15	$20 $9E $98	check event switch
+	BEQ L39E24		; 9E18	$F0 $0A
+	LDA $7B07		; 9E1A	$AD $07 $7B	
+	STA $7B2F		; 9E1D	$8D $2F $7B	
+	LDA $7B00		; 9E20	$AD $00 $7B	
+	RTS			; 9E23	$60
+L39E24:
+	LDY #$29		; 9E24	$A0 $29
+	JSR $989E		; 9E26	$20 $9E $98	check event switch
+	BEQ L39E35		; 9E29	$F0 $0A
+	LDA $7B02		; 9E2B	$AD $02 $7B	
+	STA $7B2C		; 9E2E	$8D $2C $7B	
+	LDA $7B01		; 9E31	$AD $01 $7B	
+	RTS			; 9E34	$60
+L39E35:
+	LDY #$26		; 9E35	$A0 $26
+	JSR $989E		; 9E37	$20 $9E $98	check event switch
+	BEQ L39E40		; 9E3A	$F0 $04
+	LDA $7B03		; 9E3C	$AD $03 $7B	
+	RTS			; 9E3F	$60
+L39E40:
+	LDY #$1D		; 9E40	$A0 $1D
+	JSR $989E		; 9E42	$20 $9E $98	check event switch
+	BEQ L39E51		; 9E45	$F0 $0A
+	LDA $7B05		; 9E47	$AD $05 $7B
+	STA $7B24		; 9E4A	$8D $24 $7B
+	LDA $7B04		; 9E4D	$AD $04 $7B
+	RTS			; 9E50	$60
+L39E51:
+	LDA $7B06		; 9E51	$AD $06 $7B
+	RTS			; 9E54	$60
+; End of
+
+; npc $13: josef
+	LDY #$21		; 9E55	$A0 $21
+	JSR $989E		; 9E57	$20 $9E $98	check event switch
+	BEQ L39E78		; 9E5A	$F0 $1C
+	LDA $7B01		; 9E5C	$AD $01 $7B
+	STA $7B21		; 9E5F	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B02		; 9E62	$AD $02 $7B
+	STA $7B22		; 9E65	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B03		; 9E68	$AD $03 $7B
+	STA $7B23		; 9E6B	$8D $23 $7B
+	LDA $7B04		; 9E6E	$AD $04 $7B
+	STA $7B25		; 9E71	$8D $25 $7B
+	LDA $7B00		; 9E74	$AD $00 $7B
+	RTS			; 9E77	$60
+L39E78:
+	LDA $7B06		; 9E78	$AD $06 $7B
+	STA $7B22		; 9E7B	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B07		; 9E7E	$AD $07 $7B
+	STA $7B23		; 9E81	$8D $23 $7B
+	LDA $7B08		; 9E84	$AD $08 $7B
+	STA $7B25		; 9E87	$8D $25 $7B
+	LDA $7B09		; 9E8A	$AD $09 $7B
+	STA $7B34		; 9E8D	$8D $34 $7B	response to key item 4 (mythril)
+	LDA $7B0A		; 9E90	$AD $0A $7B
+	STA $7B26		; 9E93	$8D $26 $7B
+	LDA $7B05		; 9E96	$AD $05 $7B
+	RTS			; 9E99	$60
+; End of
+
+; npc $14: 
+	LDY #$14		; 9E9A	$A0 $14
+	JSR $9907		; 9E9C	$20 $07 $99	hide npc
+	LDA #$01		; 9E9F	$A9 $01
+	STA $6000		; 9EA1	$8D $00 $60
+	LDA $7B00		; 9EA4	$AD $00 $7B
+	RTS			; 9EA7	$60
+; End of
+
+; npc $15: 
+	LDA $7B01		; 9EA8	$AD $01 $7B
+	RTS			; 9EAB	$60
+; End of
+
+; unused (was leila, altair ???)
+	LDY #$52		; 9EAC	$A0 $52
+	JSR $989E		; 9EAE	$20 $9E $98	check event switch
+	BEQ L39EC2		; 9EB1	$F0 $0F
+	LDY #$52		; 9EB3	$A0 $52
+	JSR $98EF		; 9EB5	$20 $EF $98
+	LDA $7B01		; 9EB8	$AD $01 $7B
+	JSR $98E1		; 9EBB	$20 $E1 $98	set battle id
+	LDA $7B00		; 9EBE	$AD $00 $7B
+	RTS			; 9EC1	$60
+L39EC2:
+	LDY #$15		; 9EC2	$A0 $15
+	JSR $9907		; 9EC4	$20 $07 $99	hide npc
+	JSR $97FF		; 9EC7	$20 $FF $97
+	LDA #$07		; 9ECA	$A9 $07		leila
+	STA $61			; 9ECC	$85 $61
+	JSR $C018		; 9ECE	$20 $18 $C0	load guest character properties
+	LDA #$4A		; 9ED1	$A9 $4A		play song $0A
+	STA $E0			; 9ED3	$85 $E0
+	LDA #$40		; 9ED5	$A9 $40
+	STA $44			; 9ED7	$85 $44
+	LDA $7B02		; 9ED9	$AD $02 $7B
+	RTS			; 9EDC	$60
+; End of
+
+; npc $17: leila (fynn castle 1f)
+	LDY #$17		; 9EDD	$A0 $17
+	JSR $9907		; 9EDF	$20 $07 $99	hide npc
+	JSR $9821		; 9EE2	$20 $21 $98
+	LDA #$4A		; 9EE5	$A9 $4A		play song $0A
+	STA $E0			; 9EE7	$85 $E0
+	LDA $7B00		; 9EE9	$AD $00 $7B
+	RTS			; 9EEC	$60
+; End of
+
+; npc $18: leila (fynn throne room)
+	LDY #$45		; 9EED	$A0 $45
+	JSR $989E		; 9EEF	$20 $9E $98	check event switch
+	BEQ L39EF8		; 9EF2	$F0 $04
+	LDA $7B00		; 9EF4	$AD $00 $7B
+	RTS			; 9EF7	$60
+L39EF8:
+	LDY #$29		; 9EF8	$A0 $29
+	JSR $989E		; 9EFA	$20 $9E $98	check event switch
+	BEQ L39F03		; 9EFD	$F0 $04
+	LDA $7B01		; 9EFF	$AD $01 $7B
+	RTS			; 9F02	$60
+L39F03:
+	LDY #$1D		; 9F03	$A0 $1D
+	JSR $989E		; 9F05	$20 $9E $98	check event switch
+	BEQ L39F14		; 9F08	$F0 $0A
+	LDA $7B03		; 9F0A	$AD $03 $7B
+	STA $7B24		; 9F0D	$8D $24 $7B
+	LDA $7B02		; 9F10	$AD $02 $7B
+	RTS			; 9F13	$60
+L39F14:
+	LDA $7B05		; 9F14	$AD $05 $7B
+	STA $7B2D		; 9F17	$8D $2D $7B
+	LDA $7B04		; 9F1A	$AD $04 $7B
+	RTS			; 9F1D	$60
+; End of
+
+; npc $19: ricard (leviathan)
+	LDA $7B01		; 9F1E	$AD $01 $7B
+	STA $7B28		; 9F21	$8D $28 $7B
+	LDA $7B02		; 9F24	$AD $02 $7B
+	STA $7B29		; 9F27	$8D $29 $7B
+	LDA $7B03		; 9F2A	$AD $03 $7B
+	STA $7B2B		; 9F2D	$8D $2B $7B
+	LDA $7B04		; 9F30	$AD $04 $7B
+	STA $7B2A		; 9F33	$8D $2A $7B
+	LDA $7B05		; 9F36	$AD $05 $7B
+	STA $7B3D		; 9F39	$8D $3D $7B
+	LDA $7B00		; 9F3C	$AD $00 $7B
+	RTS			; 9F3F	$60
+; End of
+
+; npc $1A: dark knight (bafsk)
+	LDA $7B00		; 9F40	$AD $00 $7B
+	RTS			; 9F43	$60
+; End of
+
+; generic npc (do event)
+L39F44:
+	LDA $7B01		; 9F44	$AD $01 $7B
+	STA $6C			; 9F47	$85 $6C
+	LDA $7B00		; 9F49	$AD $00 $7B
+	RTS			; 9F4C	$60
+; End of
+
+; npc $3E: 
+	JSR $F308		; 9F4D	$20 $08 $F3	check if any main characters are alive
+	BCC L39F44		; 9F50	$90 $F2
+L39F52:
+	LDA $7B02		; 9F52	$AD $02 $7B
+	RTS			; 9F55	$60
+; End of
+
+; npc $1C: 
+	LDA $7B00		; 9F56	$AD $00 $7B
+	RTS			; 9F59	$60
+; End of
+
+; npc $1D: dark knight (palamecia)
+	JSR $F308		; 9F5A	$20 $08 $F3	check if any main characters are alive
+	BCS L39F52		; 9F5D	$B0 $F3
+	JMP $9F44		; 9F5F	$4C $44 $9F
+; End of
+
+; hide current npc
+	LDY $A0			; 9F62	$A4 $A0
+	JSR $9907		; 9F64	$20 $07 $99	hide npc
+	LDA $7B00		; 9F67	$AD $00 $7B
+	RTS			; 9F6A	$60
+; End of
+
+;; [$9F6B :: 0x39F6B]
+
+.byte $A0,$50,$20,$9E,$98
 .byte $D0,$04,$AD,$00,$7B,$60,$A0,$09,$20,$9E,$98,$D0,$16,$AD,$02,$7B
 .byte $8D,$21,$7B,$AD,$03,$7B,$8D,$22,$7B,$AD,$04,$7B,$8D,$23,$7B,$AD
 .byte $01,$7B,$60,$A0,$01,$20,$9E,$98,$F0,$16,$AD,$06,$7B,$8D,$25,$7B
