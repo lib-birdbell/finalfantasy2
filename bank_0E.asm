@@ -3465,62 +3465,400 @@ L39F52:
 	RTS			; 9F6A	$60
 ; End of
 
-;; [$9F6B :: 0x39F6B]
+; npc $20: king (altair)
+	LDY #$50		; 9F6B	$A0 $50
+	JSR $989E		; 9F6D	$20 $9E $98	check event switch
+	BNE L39F76		; 9F70	$D0 $04
+	LDA $7B00		; 9F72	$AD $00 $7B
+	RTS			; 9F75	$60
+L39F76:
+	LDY #$09		; 9F76	$A0 $09
+	JSR $989E		; 9F78	$20 $9E $98	check event switch
+	BNE L39F93		; 9F7B	$D0 $16
+	LDA $7B02		; 9F7D	$AD $02 $7B
+	STA $7B21		; 9F80	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B03		; 9F83	$AD $03 $7B
+	STA $7B22		; 9F86	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B04		; 9F89	$AD $04 $7B
+	STA $7B23		; 9F8C	$8D $23 $7B
+	LDA $7B01		; 9F8F	$AD $01 $7B
+	RTS			; 9F92	$60
+L39F93:
+	LDY #$01		; 9F93	$A0 $01
+	JSR $989E		; 9F95	$20 $9E $98	check event switch
+	BEQ L39FB0		; 9F98	$F0 $16
+	LDA $7B06		; 9F9A	$AD $06 $7B
+	STA $7B25		; 9F9D	$8D $25 $7B
+	LDA $7B07		; 9FA0	$AD $07 $7B
+	STA $7B26		; 9FA3	$8D $26 $7B
+	LDA $7B08		; 9FA6	$AD $08 $7B
+	STA $7B27		; 9FA9	$8D $27 $7B
+	LDA $7B05		; 9FAC	$AD $05 $7B
+	RTS			; 9FAF	$60
+L39FB0:
+	LDA $7B09		; 9FB0	$AD $09 $7B
+	RTS			; 9FB3	$60
+; End of
 
-.byte $A0,$50,$20,$9E,$98
-.byte $D0,$04,$AD,$00,$7B,$60,$A0,$09,$20,$9E,$98,$D0,$16,$AD,$02,$7B
-.byte $8D,$21,$7B,$AD,$03,$7B,$8D,$22,$7B,$AD,$04,$7B,$8D,$23,$7B,$AD
-.byte $01,$7B,$60,$A0,$01,$20,$9E,$98,$F0,$16,$AD,$06,$7B,$8D,$25,$7B
-.byte $AD,$07,$7B,$8D,$26,$7B,$AD,$08,$7B,$8D,$27,$7B,$AD,$05,$7B,$60
-.byte $AD,$09,$7B,$60,$A0,$13,$20,$9E,$98,$F0,$04,$AD,$00,$7B,$60,$A0
-.byte $37,$20,$9E,$98,$D0,$04,$AD,$01,$7B,$60,$AD,$02,$7B,$60,$A9,$02
-.byte $2D,$1B,$60,$D0,$10,$AD,$01,$7B,$8D,$2A,$7B,$AD,$02,$7B,$8D,$2B
-.byte $7B,$AD,$00,$7B,$60,$A9,$04,$2D,$1B,$60,$F0,$04,$AD,$07,$7B,$60
-.byte $20,$63,$98,$90,$04,$AD,$03,$7B,$60,$AD,$05,$7B,$8D,$2A,$7B,$AD
+; npc $22: nelly (salamand)
+	LDY #$13		; 9FB4	$A0 $13
+	JSR $989E		; 9FB6	$20 $9E $98	check event switch
+	BEQ L39FBF		; 9FB9	$F0 $04
+	LDA $7B00		; 9FBB	$AD $00 $7B
+	RTS			; 9FBE	$60
+L39FBF:
+	LDY #$37		; 9FBF	$A0 $37
+	JSR $989E		; 9FC1	$20 $9E $98	check event switch
+	BNE L39FCA		; 9FC4	$D0 $04
+	LDA $7B01		; 9FC6	$AD $01 $7B
+	RTS			; 9FC9	$60
+L39FCA:
+	LDA $7B02		; 9FCA	$AD $02 $7B
+	RTS			; 9FCD	$60
+; End of
 
-;; [$A000 :: 0x3A000]
+; npc $25: wyvern (deist)
+	LDA #$02		; 9FCE	$A9 $02
+	AND $601B		; 9FD0	$2D $1B $60
+	BNE L39FE5		; 9FD3	$D0 $10
+	LDA $7B01		; 9FD5	$AD $01 $7B
+	STA $7B2A		; 9FD8	$8D $2A $7B
+	LDA $7B02		; 9FDB	$AD $02 $7B
+	STA $7B2B		; 9FDE	$8D $2B $7B
+	LDA $7B00		; 9FE1	$AD $00 $7B
+	RTS			; 9FE4	$60
+L39FE5:
+	LDA #$04		; 9FE5	$A9 $04
+	AND $601B		; 9FE7	$2D $1B $60
+	BEQ L39FF0		; 9FEA	$F0 $04
+	LDA $7B07		; 9FEC	$AD $07 $7B
+	RTS			; 9FEF	$60
+L39FF0:
+	JSR $9863		; 9FF0	$20 $63 $98	find first empty inventory slot
+	BCC L39FF9		; 9FF3	$90 $04
+	LDA $7B03		; 9FF5	$AD $03 $7B
+	RTS			; 9FF8	$60
+L39FF9:
+	LDA $7B05		; 9FF9	$AD $05 $7B
+	STA $7B2A		; 9FFC	$8D $2A $7B
+	LDA $7B06		; 9FFF	$AD $06 $7B
+	STA $7B2B		; A002	$8D $2B $7B
+	LDA $7B04		; A005	$AD $04 $7B
+	RTS			; A008	$60
+; End of
 
-.byte $06,$7B,$8D,$2B,$7B,$AD,$04,$7B,$60,$A9,$04,$8D,$04,$60,$AD,$01
-.byte $7B,$85,$6C,$AD,$00,$7B,$60,$A0,$1C,$20,$C7,$98,$A0,$02,$20,$07
-.byte $99,$4C,$62,$9F,$A9,$06,$20,$73,$98,$90,$04,$AD,$00,$7B,$60,$A0
-.byte $24,$20,$C7,$98,$A0,$2B,$20,$07,$99,$A9,$47,$85,$E0,$AD,$01,$7B
-.byte $60,$AD,$01,$7B,$8D,$2F,$7B,$AD,$00,$7B,$60,$AD,$01,$7B,$8D,$21
-.byte $7B,$AD,$00,$7B,$60,$20,$63,$98,$90,$04,$AD,$00,$7B,$60,$AD,$02
-.byte $7B,$8D,$21,$7B,$AD,$01,$7B,$60,$AD,$01,$7B,$8D,$33,$7B,$AD,$02
-.byte $7B,$8D,$21,$7B,$AD,$00,$7B,$60,$AD,$00,$7B,$60,$A0,$C3,$20,$9E
-.byte $98,$D0,$16,$AD,$01,$7B,$8D,$21,$7B,$AD,$02,$7B,$8D,$22,$7B,$AD
-.byte $03,$7B,$8D,$34,$7B,$AD,$00,$7B,$60,$AD,$04,$7B,$60,$A0,$23,$20
-.byte $9E,$98,$D0,$10,$AD,$01,$7B,$8D,$21,$7B,$AD,$02,$7B,$8D,$23,$7B
-.byte $AD,$00,$7B,$60,$AD,$04,$7B,$8D,$21,$7B,$AD,$05,$7B,$8D,$23,$7B
-.byte $AD,$03,$7B,$60,$A0,$13,$20,$9E,$98,$F0,$04,$AD,$00,$7B,$60,$A0
-.byte $36,$20,$07,$99,$AD,$01,$7B,$60,$20,$63,$98,$90,$04,$AD,$00,$7B
-.byte $60,$AD,$02,$7B,$8D,$37,$7B,$AD,$01,$7B,$60,$A0,$02,$20,$9E,$98
-.byte $F0,$04,$AD,$00,$7B,$60,$AD,$02,$7B,$8D,$38,$7B,$AD,$01,$7B,$60
 
-;; [$A100 :: 0x3A100]
+; npc $26: cid (paul's house)
+	LDA #$04		; A009	$A9 $04
+	STA $6004		; A00B	$8D $04 $60
+	LDA $7B01		; A00E	$AD $01 $7B
+	STA $6C			; A011	$85 $6C
+	LDA $7B00		; A013	$AD $00 $7B
+	RTS			; A016	$60
+; End of
 
-.byte $A9,$09,$20,$73,$98,$90,$04,$AD,$00,$7B,$60,$A0,$3A,$20,$07,$99
-.byte $A9,$47,$85,$E0,$AD,$01,$7B,$60,$A0,$25,$20,$9E,$98,$F0,$0A,$AD
-.byte $01,$7B,$8D,$3A,$7B,$AD,$00,$7B,$60,$AD,$02,$7B,$60,$AD,$01,$7B
-.byte $20,$E1,$98,$AD,$00,$7B,$60,$A0,$3F,$20,$07,$99,$AD,$12,$60,$49
-.byte $11,$8D,$12,$60,$A0,$5F,$20,$EF,$98,$A0,$05,$20,$C7,$98,$A0,$0F
-.byte $20,$C7,$98,$A0,$12,$20,$B1,$98,$A0,$92,$20,$C7,$98,$A0,$93,$20
-.byte $C7,$98,$A0,$94,$20,$C7,$98,$A0,$95,$20,$C7,$98,$AD,$52,$60,$09
-.byte $C0,$8D,$52,$60,$A9,$FF,$8D,$53,$60,$8D,$54,$60,$AD,$55,$60,$09
-.byte $03,$8D,$55,$60,$AD,$5A,$60,$09,$0E,$8D,$5A,$60,$AD,$01,$7B,$85
-.byte $6C,$AD,$00,$7B,$60,$A0,$59,$20,$9E,$98,$F0,$09,$AD,$01,$7B,$85
-.byte $6C,$AD,$00,$7B,$60,$AD,$03,$7B,$8D,$3C,$7B,$AD,$02,$7B,$60,$A9
-.byte $10,$D0,$0A,$A9,$11,$D0,$06,$A9,$14,$D0,$02,$A9,$13,$85,$80,$A5
-.byte $F0,$29,$C0,$05,$80,$AA,$BD,$00,$61,$18,$69,$0A,$C9,$64,$90,$02
-.byte $A9,$63,$9D,$00,$61,$BD,$10,$61,$18,$69,$0A,$C9,$64,$90,$02,$A9
-.byte $63,$9D,$10,$61,$A4,$A0,$20,$07,$99,$AD,$00,$7B,$60,$A9,$BF,$20
-.byte $73,$98,$90,$04,$AD,$00,$7B,$60,$AD,$02,$7B,$85,$6C,$AD,$01,$7B
+; npc $27: cid (dreadnought)
+	LDY #$1C		; A017	$A0 $1C
+	JSR $98C7		; A019	$20 $C7 $98	set event switch and show npc
+	LDY #$02		; A01C	$A0 $02
+	JSR $9907		; A01E	$20 $07 $99	hide npc
+	JMP $9F62		; A021	$4C $62 $9F	hide current npc
+; End of
 
-;; [$A200 :: 0x3A200]
+; npc $2B: goddess bell sign
+	LDA #$06		; A024	$A9 $06
+	JSR $9873		; A026	$20 $73 $98	add item to inventory
+	BCC L3A02F		; A029	$90 $04
+	LDA $7B00		; A02B	$AD $00 $7B
+	RTS			; A02E	$60
+L3A02F:
+	LDY #$24		; A02F	$A0 $24
+	JSR $98C7		; A031	$20 $C7 $98	set event switch and show npc
+	LDY #$2B		; A034	$A0 $2B
+	JSR $9907		; A036	$20 $07 $99	hide npc
+	LDA #$47		; A039	$A9 $47		play song $07
+	STA $E0			; A03B	$85 $E0
+	LDA $7B01		; A03D	$AD $01 $7B
+	RTS			; A040	$60
+; End of
 
-.byte $60,$A0,$45,$20,$9E,$98,$F0,$0A,$AD,$01,$7B,$8D,$39,$7B,$AD,$00
-.byte $7B,$60,$20,$63,$98,$90,$04,$AD,$02,$7B,$60,$AD,$04,$7B,$8D,$39
-.byte $7B,$AD,$03,$7B,$60
+; npc $2E: fynn throne room secret passage
+	LDA $7B01		; A041	$AD $01 $7B
+	STA $7B2F		; A044	$8D $2F $7B
+	LDA $7B00		; A047	$AD $00 $7B
+	RTS			; A04A	$60
+; End of
+
+; npc $30: 
+	LDA $7B01		; A04B	$AD $01 $7B
+	STA $7B21		; A04E	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B00		; A051	$AD $00 $7B
+	RTS			; A054	$60
+; End of
+
+; npc $31: scott
+	JSR $9863		; A055	$20 $63 $98	find first empty inventory slot
+	BCC L3A05E		; A058	$90 $04
+	LDA $7B00		; A05A	$AD $00 $7B
+	RTS      		; A05D	$60
+L3A05E:
+	LDA $7B02		; A05E	$AD $02 $7B
+	STA $7B21		; A061	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B01		; A064	$AD $01 $7B
+	RTS			; A067	$60
+; End of
+
+; npc $32: dreadnought guard
+	LDA $7B01		; A068	$AD $01 $7B	$CC: "Welcome aboard."
+	STA $7B33		; A06B	$8D $33 $7B	response to key item 3 (Pass)
+	LDA $7B02		; A06E	$AD $02 $7B	$CD: "Rebel curs!"
+	STA $7B21		; A071	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B00		; A074	$AD $00 $7B	$CB: "Guard:What do you want?"
+	RTS			; A077	$60
+; End of
+
+; npc $33: 
+	LDA $7B00		; A078	$AD $00 $7B	$E8: "Slave:Help!"
+	RTS			; A07B	$60
+; End of
+
+; npc $34: tobul the blacksmith
+	LDY #$C3		; A07C	$A0 $C3
+	JSR $989E		; A07E	$20 $9E $98	check event switch
+	BNE L3A099		; A081	$D0 $16
+	LDA $7B01		; A083	$AD $01 $7B	$9F: "Or am I? I'm Tobul,the best blacksmith around!""
+	STA $7B21		; A086	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B02		; A089	$AD $02 $7B	$A0: "If I had some Mythril,I could make finer equipment."
+	STA $7B22		; A08C	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B03		; A08F	$AD $03 $7B	$A1: "That's Mythril!I'll start making new equipment!"
+	STA $7B34		; A092	$8D $34 $7B	response to key item 4 (mythril)
+	LDA $7B00		; A095	$AD $00 $7B	$9E: "Tobul:I'm just a batty old man…"
+	RTS			; A098	$60
+L3A099:
+	LDA $7B04		; A099	$AD $04 $7B	$A2: "No time to talk. There's work to be done!"
+	RTS			; A09C	$60
+; End of
+
+; npc $35: rebel spy (bafsk)
+	LDY #$23		; A09D	$A0 $23
+	JSR $989E		; A09F	$20 $9E $98	check event switch
+	BNE L3A0B4		; A0A2	$D0 $10
+	LDA $7B01		; A0A4	$AD $01 $7B	$C7: "Fools!If the Dark Knight sees ..."
+	STA $7B21		; A0A7	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B02		; A0AA	$AD $02 $7B	$C7: "Fools!If the Dark Knight sees ..."
+	STA $7B23		; A0AD	$8D $23 $7B	response to keyword 3 (dreadnought)
+	LDA $7B00		; A0B0	$AD $00 $7B	$C7: "Fools!If the Dark Knight sees ..."
+	RTS			; A0B3	$60
+L3A0B4:
+	LDA $7B04		; A0B4	$AD $04 $7B	$C9: "You're one of us! I had to keep ..."
+	STA $7B21		; A0B7	$8D $21 $7B	response to keyword 1 (wild rose)
+	LDA $7B05		; A0BA	$AD $05 $7B	$CA: "So you want to destroy the Dreadnought..."
+	STA $7B23		; A0BD	$8D $23 $7B	response to keyword 3 (dreadnought)
+	LDA $7B03		; A0C0	$AD $03 $7B	$C8: "We can goof off more with lazy Borghen ..."
+	RTS			; A0C3	$60
+; End of
+
+; npc $36: 
+	LDY #$13		; A0C4	$A0 $13
+	JSR $989E		; A0C6	$20 $9E $98	check event switch
+	BEQ L3A0CF		; A0C9	$F0 $04
+	LDA $7B00		; A0CB	$AD $00 $7B
+	RTS      		; A0CE	$60
+L3A0CF:
+	LDY #$36 		; A0CF	$A0 $36
+	JSR $9907		; A0D1	$20 $07 $99	hide npc
+	LDA $7B01		; A0D4	$AD $01 $7B
+	RTS			; A0D7	$60
+; End of
+
+; npc $38: sunfire holder
+	JSR $9863		; A0D8	$20 $63 $98	find first empty inventory slot
+	BCC L3A0E1		; A0DB	$90 $04
+	LDA $7B00		; A0DD	$AD $00 $7B
+	RTS			; A0E0	$60
+L3A0E1:
+	LDA $7B02		; A0E1	$AD $02 $7B
+	STA $7B37		; A0E4	$8D $37 $7B
+	LDA $7B01		; A0E7	$AD $01 $7B
+	RTS			; A0EA	$60
+; End of
+
+; npc $39: 
+	LDY #$02		; A0EB	$A0 $02
+	JSR $989E		; A0ED	$20 $9E $98	check event switch
+	BEQ L3A0F6		; A0F0	$F0 $04
+	LDA $7B00		; A0F2	$AD $00 $7B
+	RTS			; A0F5	$60
+L3A0F6:
+	LDA $7B02		; A0F6	$AD $02 $7B
+	STA $7B38		; A0F9	$8D $38 $7B
+	LDA $7B01		; A0FC	$AD $01 $7B
+	RTS			; A0FF	$60
+; End of
+
+; npc $3A: 
+	LDA #$09		; A100	$A9 $09
+	JSR $9873		; A102	$20 $73 $98	add item to inventory
+	BCC L3A10B		; A105	$90 $04
+	LDA $7B00		; A107	$AD $00 $7B
+	RTS      		; A10A	$60
+L3A10B:
+	LDY #$3A 		; A10B	$A0 $3A
+	JSR $9907		; A10D	$20 $07 $99	hide npc
+	LDA #$47 		; A110	$A9 $47		play song $07
+	STA $E0  		; A112	$85 $E0
+	LDA $7B01		; A114	$AD $01 $7B
+	RTS			; A117	$60
+; End of
+
+; npc $3B: 
+	LDY #$25		; A118	$A0 $25
+	JSR $989E		; A11A	$20 $9E $98	check event switch
+	BEQ L3A129		; A11D	$F0 $0A
+	LDA $7B01		; A11F	$AD $01 $7B
+	STA $7B3A		; A122	$8D $3A $7B
+	LDA $7B00		; A125	$AD $00 $7B
+	RTS			; A128	$60
+L3A129:
+	LDA $7B02		; A129	$AD $02 $7B
+	RTS			; A12C	$60
+; End of
+
+; npc $3C,$5F: dreadnought captains, imperial guards (fynn)
+	LDA $7B01		; A12D	$AD $01 $7B
+	JSR $98E1		; A130	$20 $E1 $98	set battle id
+	LDA $7B00		; A133	$AD $00 $7B
+	RTS			; A136	$60
+; End of
+
+; npc $3F: gottos
+	LDY #$3F		; A137	$A0 $3F
+	JSR $9907		; A139	$20 $07 $99	hide npc
+	LDA $6012		; A13C	$AD $12 $60
+	EOR #$11		; A13F	$49 $11
+	STA $6012		; A141	$8D $12 $60
+	LDY #$5F		; A144	$A0 $5F
+	JSR $98EF		; A146	$20 $EF $98
+	LDY #$05		; A149	$A0 $05
+	JSR $98C7		; A14B	$20 $C7 $98	set event switch and show npc
+	LDY #$0F		; A14E	$A0 $0F
+	JSR $98C7		; A150	$20 $C7 $98	set event switch and show npc
+	LDY #$12		; A153	$A0 $12
+	JSR $98B1		; A155	$20 $B1 $98	set event switch
+	LDY #$92		; A158	$A0 $92
+	JSR $98C7		; A15A	$20 $C7 $98	set event switch and show npc
+	LDY #$93		; A15D	$A0 $93
+	JSR $98C7		; A15F	$20 $C7 $98	set event switch and show npc
+	LDY #$94		; A162	$A0 $94
+	JSR $98C7		; A164	$20 $C7 $98	set event switch and show npc
+	LDY #$95		; A167	$A0 $95
+	JSR $98C7		; A169	$20 $C7 $98	set event switch and show npc
+	LDA $6052		; A16C	$AD $52 $60
+	ORA #$C0		; A16F	$09 $C0
+	STA $6052		; A171	$8D $52 $60
+	LDA #$FF		; A174	$A9 $FF
+	STA $6053		; A176	$8D $53 $60
+	STA $6054		; A179	$8D $54 $60
+	LDA $6055		; A17C	$AD $55 $60
+	ORA #$03		; A17F	$09 $03
+	STA $6055		; A181	$8D $55 $60
+	LDA $605A		; A184	$AD $5A $60
+	ORA #$0E		; A187	$09 $0E
+	STA $605A		; A189	$8D $5A $60
+	LDA $7B01		; A18C	$AD $01 $7B
+	STA $6C			; A18F	$85 $6C
+	LDA $7B00		; A191	$AD $00 $7B
+	RTS			; A194	$60
+; End of
+
+; npc $40: doppelganger
+	LDY #$59		; A195	$A0 59
+	JSR $989E		; A197	$20 9E 98	check event switch
+	BEQ L3A1A5		; A19A	$F0 09
+	LDA $7B01		; A19C	$AD 01 7B
+	STA $6C			; A19F	$85 6C
+	LDA $7B00		; A1A1	$AD 00 7B
+	RTS			; A1A4	$60
+L3A1A5:
+	LDA $7B03		; A1A5	$AD 03 7B
+	STA $7B3C		; A1A8	$8D 3C 7B
+	LDA $7B02		; A1AB	$AD 02 7B
+	RTS			; A1AE	$60
+; End of
+
+; npc $41: mysidian orb 1
+	LDA #$10		; A1AF	$A9 $10
+	BNE L3A1BD		; A1B1	$D0 $0A
+; npc $42: mysidian orb 2
+	LDA #$11		; A1B3	$A9 $11
+	BNE L3A1BD		; A1B5	$D0 $06
+; npc $43: mysidian orb 3
+	LDA #$14		; A1B7	$A9 $14
+	BNE L3A1BD		; A1B9	$D0 $02
+; npc $44: mysidian orb 4
+	LDA #$13		; A1BB	$A9 $13    
+L3A1BD:
+	STA $80			; A1BD	$85 $80
+	LDA $F0			; A1BF	$A5 $F0
+	AND #$C0		; A1C1	$29 $C0
+	ORA $80			; A1C3	$05 $80
+	TAX			; A1C5	$AA
+	LDA $6100,X		; A1C6	$BD $00 $61
+	CLC			; A1C9	$18
+	ADC #$0A		; A1CA	$69 $0A
+	CMP #$64		; A1CC	$C9 $64
+	BCC L3A1D2		; A1CE	$90 $02
+	LDA #$63		; A1D0	$A9 $63
+L3A1D2:
+	STA $6100,X		; A1D2	$9D $00 $61
+	LDA $6110,X		; A1D5	$BD $10 $61
+	CLC			; A1D8	$18
+	ADC #$0A		; A1D9	$69 $0A
+	CMP #$64		; A1DB	$C9 $64
+	BCC L3A1E1		; A1DD	$90 $02
+	LDA #$63		; A1DF	$A9 $63
+L3A1E1:
+	STA $6110,X		; A1E1	$9D $10 $61
+	LDY $A0			; A1E4	$A4 $A0
+	JSR $9907		; A1E6	$20 $07 $99	hide npc
+	LDA $7B00		; A1E9	$AD $00 $7B
+	RTS			; A1EC	$60
+; End of
+
+; npc $45: mysidian orb 5
+	LDA #$BF		; A1ED	$A9 $BF
+	JSR $9873		; A1EF	$20 $73 $98	add item to inventory
+	BCC L3A1F8		; A1F2	$90 $04
+	LDA $7B00		; A1F4	$AD $00 $7B
+	RTS			; A1F7	$60
+L3A1F8:
+	LDA $7B02		; A1F8	$AD $02 $7B
+	STA $6C			; A1FB	$85 $6C
+	LDA $7B01		; A1FD	$AD $01 $7B
+	RTS			; A200	$60
+; End of
+
+
+; npc $46: fynn castle mirror
+	LDY #$45		; A201	$A0 $45
+	JSR $989E		; A203	$20 $9E $98	check event switch
+	BEQ L3A212		; A206	$F0 $0A
+	LDA $7B01		; A208	$AD $01 $7B
+	STA $7B39		; A20B	$8D $39 $7B
+	LDA $7B00		; A20E	$AD $00 $7B
+	RTS			; A211	$60
+L3A212:
+	JSR $9863		; A212	$20 $63 $98	find first empty inventory slot
+	BCC L3A21B		; A215	$90 $04
+	LDA $7B02		; A217	$AD $02 $7B
+	RTS			; A21A	$60
+L3A21B:
+	LDA $7B04		; A21B	$AD $04 $7B
+	STA $7B39		; A21E	$8D $39 $7B
+	LDA $7B03		; A221	$AD $03 $7B
+	RTS			; A224	$60
+; End of
+
 ; A	; return
 ; Marks	:
 ; Chocobo_caught
@@ -3534,215 +3872,1338 @@ L39F52:
 	RTS			; A239	$60
 ; End of Chocobo_caught
 
-.byte $AD,$01,$7B,$8D,$22,$7B
-.byte $AD,$02,$7B,$8D,$24,$7B,$AD,$03,$7B,$8D,$25,$7B,$AD,$04,$7B,$8D
-.byte $26,$7B,$AD,$05,$7B,$8D,$27,$7B,$AD,$06,$7B,$8D,$28,$7B,$AD,$07
-.byte $7B,$8D,$29,$7B,$AD,$08,$7B,$8D,$2A,$7B,$AD,$09,$7B,$8D,$2B,$7B
-.byte $AD,$0A,$7B,$8D,$2E,$7B,$AD,$0B,$7B,$8D,$2D,$7B,$AD,$00,$7B,$60
-.byte $AD,$01,$7B,$8D,$36,$7B,$AD,$00,$7B,$60,$A0,$56,$20,$C7,$98,$4C
-.byte $62,$9F,$A0,$57,$20,$C7,$98,$A0,$58,$20,$C7,$98,$4C,$62,$9F,$AD
-.byte $1B,$60,$29,$02,$D0,$10,$AD,$01,$7B,$8D,$2A,$7B,$AD,$02,$7B,$8D
-.byte $2B,$7B,$AD,$00,$7B,$60,$A0,$25,$20,$9E,$98,$F0,$04,$AD,$03,$7B
-.byte $60,$A0,$19,$20,$9E,$98,$F0,$04,$AD,$04,$7B,$60,$A0,$1D,$20,$9E
-.byte $98,$F0,$04,$AD,$05,$7B,$60,$A5,$A0,$C9,$58,$F0,$04,$AD,$06,$7B
-.byte $60,$20,$63,$98,$90,$04,$AD,$06,$7B,$60,$AD,$08,$7B,$8D,$2A,$7B
-.byte $AD,$07,$7B,$60,$AD,$01,$7B,$8D,$3B,$7B,$AD,$00,$7B,$60,$AD,$01
+; npc $4E: mysidia bookshelf
+	LDA $7B01		; A23A	$AD $01 $7B
+	STA $7B22		; A23D	$8D $22 $7B	response to keyword 2 (mythril)
+	LDA $7B02		; A240	$AD $02 $7B
+	STA $7B24		; A243	$8D $24 $7B
+	LDA $7B03		; A246	$AD $03 $7B
+	STA $7B25		; A249	$8D $25 $7B
+	LDA $7B04		; A24C	$AD $04 $7B
+	STA $7B26		; A24F	$8D $26 $7B
+	LDA $7B05		; A252	$AD $05 $7B
+	STA $7B27		; A255	$8D $27 $7B
+	LDA $7B06		; A258	$AD $06 $7B
+	STA $7B28		; A25B	$8D $28 $7B
+	LDA $7B07		; A25E	$AD $07 $7B
+	STA $7B29		; A261	$8D $29 $7B
+	LDA $7B08		; A264	$AD $08 $7B
+	STA $7B2A		; A267	$8D $2A $7B
+	LDA $7B09		; A26A	$AD $09 $7B
+	STA $7B2B		; A26D	$8D $2B $7B
+	LDA $7B0A		; A270	$AD $0A $7B
+	STA $7B2E		; A273	$8D $2E $7B
+	LDA $7B0B		; A276	$AD $0B $7B
+	STA $7B2D		; A279	$8D $2D $7B
+	LDA $7B00		; A27C	$AD $00 $7B
+	RTS			; A27F	$60
+; End of
 
-;; [$A300 :: 0x3A300]
+; npc $54: kashuan keep door
+	LDA $7B01		; A280	$AD $01 $7B
+	STA $7B36		; A283	$8D $36 $7B
+	LDA $7B00		; A286	$AD $00 $7B
+	RTS			; A289	$60
+; End of
 
-.byte $7B,$8D,$26,$7B,$AD,$00,$7B,$60
+; npc $55: deist npc 1
+	LDY #$56		; A28A	$A0 $56
+	JSR $98C7		; A28C	$20 $C7 $98	set event switch and show npc
+	JMP $9F62		; A28F	$4C $62 $9F	hide current npc
+; End of
+
+; npc $56: 
+	LDY #$57		; A292	$A0 $57
+	JSR $98C7		; A294	$20 $C7 $98	set event switch and show npc
+	LDY #$58		; A297	$A0 $58
+	JSR $98C7		; A299	$20 $C7 $98	set event switch and show npc
+	JMP $9F62		; A29C	$4C $62 $9F	hide current npc
+; End of
+
+; npc $57,$58: dragoon child/mother (deist 2F)
+	LDA $601B		; A29F	$AD $1B $60
+	AND #$02		; A2A2	$29 $02
+	BNE L3A2B6		; A2A4	$D0 $10
+	LDA $7B01		; A2A6	$AD $01 $7B
+	STA $7B2A		; A2A9	$8D $2A $7B
+	LDA $7B02		; A2AC	$AD $02 $7B
+	STA $7B2B		; A2AF	$8D $2B $7B
+	LDA $7B00		; A2B2	$AD $00 $7B
+	RTS			; A2B5	$60
+L3A2B6:
+	LDY #$25		; A2B6	$A0 $25
+	JSR $989E		; A2B8	$20 $9E $98	check event switch
+	BEQ L3A2C1		; A2BB	$F0 $04
+	LDA $7B03		; A2BD	$AD $03 $7B
+	RTS			; A2C0	$60
+L3A2C1:
+	LDY #$19		; A2C1	$A0 $19
+	JSR $989E		; A2C3	$20 $9E $98	check event switch
+	BEQ L3A2CC		; A2C6	$F0 $04
+	LDA $7B04		; A2C8	$AD $04 $7B
+	RTS			; A2CB	$60
+L3A2CC:
+	LDY #$1D		; A2CC	$A0 $1D
+	JSR $989E		; A2CE	$20 $9E $98	check event switch
+	BEQ L3A2D7		; A2D1	$F0 $04
+	LDA $7B05		; A2D3	$AD $05 $7B
+	RTS			; A2D6	$60
+L3A2D7:
+	LDA $A0			; A2D7	$A5 $A0
+	CMP #$58		; A2D9	$C9 $58
+	BEQ L3A2E1		; A2DB	$F0 $04
+	LDA $7B06		; A2DD	$AD $06 $7B
+	RTS			; A2E0	$60
+L3A2E1:
+	JSR $9863		; A2E1	$20 $63 $98	find first empty inventory slot
+	BCC L3A2EA		; A2E4	$90 $04
+	LDA $7B06		; A2E6	$AD $06 $7B
+	RTS			; A2E9	$60
+L3A2EA:
+	LDA $7B08		; A2EA	$AD $08 $7B
+	STA $7B2A		; A2ED	$8D $2A $7B
+	LDA $7B07		; A2F0	$AD $07 $7B
+	RTS			; A2F3	$60
+; End of
+
+; npc $59: 
+	LDA $7B01		; A2F4	$AD $01 $7B
+	STA $7B3B		; A2F7	$8D $3B $7B
+	LDA $7B00		; A2FA	$AD $00 $7B
+	RTS			; A2FD	$60
+; End of
+
+; npc $5E: 
+	LDA $7B01		; A2FE	$AD $01 $7B
+	STA $7B26		; A301	$8D $26 $7B
+	LDA $7B00		; A304	$AD $00 $7B
+	RTS			; A307	$60
+; End of
+
 ; ret	: A = text ID
 	LDY #$50		; A308	$A0 $50
-	JSR $989E		; A30A	$20 $9E $98
+	JSR $989E		; A30A	$20 $9E $98	check event switch
 	BNE L3A313		; A30D	$D0 $04
 	LDA $7B00		; A30F	$AD $00 $7B	text ID
 	RTS			; A312	$60
+L3A313:
+	LDY #$C3		; A313	$A0 $C3
+	JSR $989E		; A315	$20 $9E $98	check event switch
+	BNE L3A31E		; A318	$D0 $04
+	LDA $7B01		; A31A	$AD $01 $7B	
+	RTS			; A31D	$60
+L3A31E:
+	LDY #$51		; A31E	$A0 $51
+	JSR $989E		; A320	$20 $9E $98	check event switch
+	BNE L3A329		; A323	$D0 $04
+	LDA $7B02		; A325	$AD $02 $7B	
+	RTS			; A328	$60
+L3A329:
+	LDY #$38		; A329	$A0 $38
+	JSR $989E		; A32B	$20 $9E $98	check event switch
+	BEQ L3A334		; A32E	$F0 $04
+	LDA $7B03		; A330	$AD $03 $7B	
+	RTS			; A333	$60
+L3A334:
+	LDY #$39		; A334	$A0 $39
+	JSR $989E		; A336	$20 $9E $98	check event switch
+	BEQ L3A33F		; A339	$F0 $04
+	LDA $7B04		; A33B	$AD $04 $7B	
+	RTS			; A33E	$60
+L3A33F:
+	LDY #$20		; A33F	$A0 $20
+	JSR $989E		; A341	$20 $9E $98	check event switch
+	BEQ L3A34A		; A344	$F0 $04
+	LDA $7B05		; A346	$AD $05 $7B	
+	RTS			; A349	$60
+L3A34A:
+	LDY #$25		; A34A	$A0 $25
+	JSR $989E		; A34C	$20 $9E $98	check event switch
+	BEQ L3A355		; A34F	$F0 $04
+	LDA $7B06		; A351	$AD $06 $7B	
+	RTS			; A354	$60
+L3A355:
+	LDY #$03		; A355	$A0 $03
+	JSR $989E		; A357	$20 $9E $98	check event switch
+	BEQ L3A360		; A35A	$F0 $04
+	LDA $7B07		; A35C	$AD $07 $7B	
+	RTS			; A35F	$60
+L3A360:
+	LDY #$04		; A360	$A0 $04
+	JSR $989E		; A362	$20 $9E $98	check event switch
+	BNE L3A36B		; A365	$D0 $04
+	LDA $7B08		; A367	$AD $08 $7B	
+	RTS			; A36A	$60
+L3A36B:
+	LDY #$05		; A36B	$A0 $05
+	JSR $989E		; A36D	$20 $9E $98	check event switch
+	BNE L3A376		; A370	$D0 $04
+	LDA $7B09		; A372	$AD $09 $7B
+	RTS			; A375	$60
+L3A376:
+	LDA $7B0A		; A376	$AD $0A $7B
+	RTS			; A379	$60
 ; End of
 
-L3A313:
-.byte $A0,$C3,$20,$9E,$98,$D0,$04,$AD,$01,$7B,$60,$A0,$51
-.byte $20,$9E,$98,$D0,$04,$AD,$02,$7B,$60,$A0,$38,$20,$9E,$98,$F0,$04
-.byte $AD,$03,$7B,$60,$A0,$39,$20,$9E,$98,$F0,$04,$AD,$04,$7B,$60,$A0
-.byte $20,$20,$9E,$98,$F0,$04,$AD,$05,$7B,$60,$A0,$25,$20,$9E,$98,$F0
-.byte $04,$AD,$06,$7B,$60,$A0,$03,$20,$9E,$98,$F0,$04,$AD,$07,$7B,$60
-.byte $A0,$04,$20,$9E,$98,$D0,$04,$AD,$08,$7B,$60,$A0,$05,$20,$9E,$98
-.byte $D0,$04,$AD,$09,$7B,$60,$AD,$0A,$7B,$60,$AD,$00,$7B,$60,$A0,$33
-.byte $20,$9E,$98,$F0,$04,$AD,$00,$7B,$60,$A0,$2B,$20,$9E,$98,$F0,$04
-.byte $AD,$01,$7B,$60,$AD,$02,$7B,$60,$A0,$1A,$20,$9E,$98,$F0,$04,$AD
-.byte $00,$7B,$60,$A0,$23,$20,$9E,$98,$F0,$04,$AD,$01,$7B,$60,$A0,$51
-.byte $20,$9E,$98,$F0,$0B,$A0,$39,$20,$9E,$98,$F0,$04,$AD,$02,$7B,$60
-.byte $AD,$03,$7B,$60,$AD,$00,$7B,$60,$A0,$41,$20,$9E,$98,$F0,$04,$AD
-.byte $00,$7B,$60,$A0,$29,$20,$9E,$98,$F0,$04,$AD,$01,$7B,$60,$A0,$1D
-.byte $20,$9E,$98,$F0,$04,$AD,$02,$7B,$60,$AD,$03,$7B,$60,$AD,$00,$7B
-.byte $60,$A0,$41,$20,$9E,$98,$F0,$04,$AD,$00,$7B,$60,$AD,$01,$7B,$60
+; npc $80,$81: 
+	LDA $7B00		; A37A	$AD $00 $7B
+	RTS			; A37D	$60
+; End of
 
-;; [$A400 :: 0x3A400]
+; npc $82-$87: salamand npcs
+	LDY #$33		; A37E	$A0 $33
+	JSR $989E		; A380	$20 $9E $98	check event switch
+	BEQ L3A389		; A383	$F0 $04
+	LDA $7B00		; A385	$AD $00 $7B
+	RTS			; A388	$60
+L3A389:
+	LDY #$2B		; A389	$A0 $2B
+	JSR $989E		; A38B	$20 $9E $98	check event switch
+	BEQ L3A394		; A38E	$F0 $04
+	LDA $7B01		; A390	$AD $01 $7B
+	RTS			; A393	$60
+L3A394:
+	LDA $7B02		; A394	$AD $02 $7B
+	RTS			; A397	$60
+; End of
 
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
-.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80
+; npc $88-$8F: bafsk npcs
+	LDY #$1A		; A398	$A0 $1A
+	JSR $989E		; A39A	$20 $9E $98	check event switch
+	BEQ L3A3A3		; A39D	$F0 $04
+	LDA $7B00		; A39F	$AD $00 $7B
+	RTS			; A3A2	$60
+L3A3A3:
+	LDY #$23		; A3A3	$A0 $23
+	JSR $989E		; A3A5	$20 $9E $98	check event switch
+	BEQ L3A3AE		; A3A8	$F0 $04
+	LDA $7B01		; A3AA	$AD $01 $7B
+	RTS			; A3AD	$60
+L3A3AE:
+	LDY #$51		; A3AE	$A0 $51
+	JSR $989E		; A3B0	$20 $9E $98	check event switch
+	BEQ L3A3C0		; A3B3	$F0 $0B
+	LDY #$39		; A3B5	$A0 $39
+	JSR $989E		; A3B7	$20 $9E $98	check event switch
+	BEQ L3A3C0		; A3BA	$F0 $04
+	LDA $7B02		; A3BC	$AD $02 $7B
+	RTS			; A3BF	$60
+L3A3C0:
+	LDA $7B03		; A3C0	$AD $03 $7B
+	RTS			; A3C3	$60
+; End of
 
-;; [$A500 :: 0x3A500]
+; generic npc (dialogue)
+	LDA $7B00		; A3C4	$AD $00 $7B
+	RTS			; A3C7	$60
+; End of
 
-.byte $00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$01
-.byte $02,$02,$02,$02,$02,$02,$02,$02,$03,$03,$03,$03,$03,$03,$03,$03
-.byte $04,$04,$04,$04,$04,$04,$04,$04,$05,$05,$05,$05,$05,$05,$05,$05
-.byte $06,$06,$06,$06,$06,$06,$06,$06,$07,$07,$07,$07,$07,$07,$07,$07
-.byte $08,$08,$08,$08,$08,$08,$08,$08,$09,$09,$09,$09,$09,$09,$09,$09
-.byte $0A,$0A,$0A,$0A,$0A,$0A,$0A,$0A,$0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B
-.byte $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C,$0D,$0D,$0D,$0D,$0D,$0D,$0D,$0D
-.byte $0E,$0E,$0E,$0E,$0E,$0E,$0E,$0E,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
-.byte $10,$10,$10,$10,$10,$10,$10,$10,$11,$11,$11,$11,$11,$11,$11,$11
-.byte $12,$12,$12,$12,$12,$12,$12,$12,$13,$13,$13,$13,$13,$13,$13,$13
-.byte $14,$14,$14,$14,$14,$14,$14,$14,$15,$15,$15,$15,$15,$15,$15,$15
-.byte $16,$16,$16,$16,$16,$16,$16,$16,$17,$17,$17,$17,$17,$17,$17,$17
-.byte $18,$18,$18,$18,$18,$18,$18,$18,$19,$19,$19,$19,$19,$19,$19,$19
-.byte $1A,$1A,$1A,$1A,$1A,$1A,$1A,$1A,$1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B
-.byte $1C,$1C,$1C,$1C,$1C,$1C,$1C,$1C,$1D,$1D,$1D,$1D,$1D,$1D,$1D,$1D
-.byte $1E,$1E,$1E,$1E,$1E,$1E,$1E,$1E,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
+; generic npc
+	LDY #$41		; A3C8	$A0 $41
+	JSR $989E		; A3CA	$20 $9E $98	check event switch
+	BEQ L3A3D3		; A3CD	$F0 $04
+	LDA $7B00		; A3CF	$AD $00 $7B
+	RTS			; A3D2	$60
+L3A3D3:
+	LDY #$29		; A3D3	$A0 $29
+	JSR $989E		; A3D5	$20 $9E $98	check event switch
+	BEQ L3A3DE		; A3D8	$F0 $04
+	LDA $7B01		; A3DA	$AD $01 $7B
+	RTS			; A3DD	$60
+L3A3DE:
+	LDY #$1D		; A3DE	$A0 $1D
+	JSR $989E		; A3E0	$20 $9E $98	check event switch
+	BEQ L3A3E9		; A3E3	$F0 $04
+	LDA $7B02		; A3E5	$AD $02 $7B
+	RTS			; A3E8	$60
+L3A3E9:
+	LDA $7B03		; A3E9	$AD $03 $7B
+	RTS			; A3EC	$60
+; End of
 
-;; [$A600 :: 0x3A600]
+; generic npc (dialogue)
+	LDA $7B00		; A3ED	$AD $00 $7B
+	RTS			; A3F0	$60
+; End of
 
-.byte $BD,$01,$61,$29,$C0,$D0,$12,$BD,$09,$61,$DD,$0B,$61,$90,$08,$BD
-.byte $08,$61,$DD,$0A,$61,$B0,$02,$18,$60,$38,$60,$AD,$F0,$79,$18,$69
-.byte $04,$CD,$F1,$79,$B0,$43,$A6,$6E,$20,$00,$A6,$90,$05,$20,$67,$DE
-.byte $38,$60,$A9,$28,$85,$87,$A6,$6E,$BD,$35,$62,$30,$2A,$BD,$01,$61
-.byte $29,$C0,$D0,$23,$A5,$87,$20,$A3,$A7,$85,$80,$A5,$08,$0A,$05,$0A
-.byte $AA,$BD,$10,$62,$18,$69,$01,$85,$81,$20,$B3,$A7,$A5,$82,$85,$80
-.byte $A5,$83,$85,$81,$20,$1F,$A9,$18,$60,$A2,$00,$20,$00,$A6,$90,$1F
-.byte $A2,$40,$20,$00,$A6,$90,$18,$A2,$80,$20,$00,$A6,$90,$11,$AD,$F5
-.byte $62,$30,$07,$A2,$C0,$20,$00,$A6,$90,$05,$20,$67,$DE,$38,$60,$A9
-.byte $00,$85,$6E,$A9,$0A,$85,$87,$20,$36,$A6,$A5,$6E,$18,$69,$40,$85
-.byte $6E,$D0,$F0,$18,$60,$A9,$80,$85,$87,$AD,$F0,$79,$18,$69,$04,$CD
-.byte $F1,$79,$B0,$08,$20,$34,$A7,$20,$0E,$A8,$18,$60,$20,$5B,$A7,$A9
-.byte $00,$20,$D0,$A6,$A9,$40,$20,$D0,$A6,$A9,$80,$20,$D0,$A6,$A9,$C0
-.byte $85,$6E,$AA,$BD,$35,$62,$30,$1A,$BD,$01,$61,$25,$87,$F0,$13,$A5
-.byte $87,$49,$FF,$3D,$01,$61,$9D,$01,$61,$20,$0E,$A8,$5E,$09,$61,$7E
-.byte $08,$61,$18,$60,$A5,$08,$0A,$05,$0A,$AA,$BD,$10,$62,$AA,$E8,$AD
+; generic npc
+	LDY #$41		; A3F1	$A0 $41
+	JSR $989E		; A3F3	$20 $9E $98	check event switch
+	BEQ L3A3FC		; A3F6	$F0 $04
+	LDA $7B00		; A3F8	$AD $00 $7B
+	RTS			; A3FB	$60
+L3A3FC:
+	LDA $7B01		; A3FC	$AD $01 $7B
+	RTS			; A3FF	$60
+; End of
 
-;; [$A700 :: 0x3A700]
+; bit mask for switches
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A400
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A408
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A410
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A418
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A420
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A428
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A430
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A438
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A440
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A448
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A450
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A458
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A460
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A468
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A470
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A478
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A480
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A488
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A490
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A498
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4A0
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4A8
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4B0
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4B8
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4C0
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4C8
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4D0
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4D8
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4E0
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4E8
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4F0
+.byte $01,$02,$04,$08,$10,$20,$40,$80	; A4F8
 
-.byte $F0,$79,$18,$69,$04,$CD,$F1,$79,$B0,$0B,$E8,$BD,$22,$A7,$85,$87
-.byte $20,$34,$A7,$18,$60,$BD,$22,$A7,$85,$87,$20,$5B,$A7,$20,$7F,$A7
-.byte $18,$60,$00,$02,$06,$0E,$1E,$3E,$7E,$FE,$FE,$FE,$FE,$FE,$FE,$FE
-.byte $FE,$FE,$FE,$FE,$A6,$6E,$BD,$01,$61,$25,$87,$D0,$07,$20,$67,$DE
-.byte $68,$68,$38,$60,$A5,$87,$3D,$01,$61,$10,$05,$A9,$01,$9D,$08,$61
-.byte $A5,$87,$49,$FF,$3D,$01,$61,$9D,$01,$61,$60,$AD,$01,$61,$0D,$41
-.byte $61,$0D,$81,$61,$AE,$F5,$62,$30,$03,$0D,$C1,$61,$25,$87,$D0,$06
-.byte $20,$67,$DE,$68,$68,$38,$60,$BD,$01,$61,$25,$87,$D0,$C6,$60,$A2
-.byte $00,$20,$77,$A7,$A2,$40,$20,$77,$A7,$A2,$80,$20,$77,$A7,$A2,$C0
-.byte $AD,$F5,$62,$10,$E2,$60,$85,$80,$20,$AD,$C5,$85,$81,$20,$B3,$A7
-.byte $A5,$83,$60,$A8,$85,$80,$20,$AD,$C5,$85,$81,$20,$B3,$A7,$98,$18
-.byte $65,$83,$60,$A9,$00,$85,$82,$85,$83,$85,$84,$46,$80,$90,$0D,$A5
-.byte $82,$18,$65,$81,$85,$82,$A5,$83,$65,$84,$85,$83,$06,$81,$26,$84
-.byte $A5,$80,$D0,$E7,$60,$A9,$00,$85,$82,$85,$83,$A9,$00,$A2,$08,$06
-.byte $82,$26,$83,$06,$81,$2A,$C5,$84,$90,$08,$E5,$84,$E6,$82,$D0,$02
-.byte $E6,$83,$CA,$D0,$EA,$A2,$08,$06,$82,$26,$83,$06,$80,$2A,$C5,$84
+; byte offset for switches
+.byte $00,$00,$00,$00,$00,$00,$00,$00	; A500
+.byte $01,$01,$01,$01,$01,$01,$01,$01	; A508
+.byte $02,$02,$02,$02,$02,$02,$02,$02	; A510
+.byte $03,$03,$03,$03,$03,$03,$03,$03	; A518
+.byte $04,$04,$04,$04,$04,$04,$04,$04	; A520
+.byte $05,$05,$05,$05,$05,$05,$05,$05	; A528
+.byte $06,$06,$06,$06,$06,$06,$06,$06	; A530
+.byte $07,$07,$07,$07,$07,$07,$07,$07	; A538
+.byte $08,$08,$08,$08,$08,$08,$08,$08	; A540
+.byte $09,$09,$09,$09,$09,$09,$09,$09	; A548
+.byte $0A,$0A,$0A,$0A,$0A,$0A,$0A,$0A	; A550
+.byte $0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B	; A558
+.byte $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C	; A560
+.byte $0D,$0D,$0D,$0D,$0D,$0D,$0D,$0D	; A568
+.byte $0E,$0E,$0E,$0E,$0E,$0E,$0E,$0E	; A570
+.byte $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F	; A578
+.byte $10,$10,$10,$10,$10,$10,$10,$10	; A580
+.byte $11,$11,$11,$11,$11,$11,$11,$11	; A588
+.byte $12,$12,$12,$12,$12,$12,$12,$12	; A590
+.byte $13,$13,$13,$13,$13,$13,$13,$13	; A598
+.byte $14,$14,$14,$14,$14,$14,$14,$14	; A5A0
+.byte $15,$15,$15,$15,$15,$15,$15,$15	; A5A8
+.byte $16,$16,$16,$16,$16,$16,$16,$16	; A5B0
+.byte $17,$17,$17,$17,$17,$17,$17,$17	; A5B8
+.byte $18,$18,$18,$18,$18,$18,$18,$18	; A5C0
+.byte $19,$19,$19,$19,$19,$19,$19,$19	; A5C8
+.byte $1A,$1A,$1A,$1A,$1A,$1A,$1A,$1A	; A5D0
+.byte $1B,$1B,$1B,$1B,$1B,$1B,$1B,$1B	; A5D8
+.byte $1C,$1C,$1C,$1C,$1C,$1C,$1C,$1C	; A5E0
+.byte $1D,$1D,$1D,$1D,$1D,$1D,$1D,$1D	; A5E8
+.byte $1E,$1E,$1E,$1E,$1E,$1E,$1E,$1E	; A5F0
+.byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F	; A5F8
 
-;; [$A800 :: 0x3A800]
 
-.byte $90,$08,$E5,$84,$E6,$82,$D0,$02,$E6,$83,$CA,$D0,$EA,$60,$A6,$6E
-.byte $A5,$08,$0A,$05,$0A,$A8,$B9,$10,$62,$49,$0F,$18,$69,$01,$85,$84
-.byte $BD,$0A,$61,$85,$80,$BD,$0B,$61,$85,$81,$20,$D5,$A7,$A6,$6E,$A5
-.byte $82,$9D,$08,$61,$A5,$83,$9D,$09,$61,$60,$A6,$6E,$A5,$08,$0A,$05
-.byte $0A,$A8,$B9,$10,$62,$49,$0F,$18,$69,$01,$85,$84,$BD,$08,$61,$85
-.byte $80,$BD,$09,$61,$85,$81,$20,$D5,$A7,$A5,$82,$05,$83,$D0,$02,$E6
-.byte $82,$A6,$6E,$A5,$82,$9D,$08,$61,$A5,$83,$9D,$09,$61,$60,$20,$AE
-.byte $AA,$A5,$80,$C5,$81,$F0,$2F,$A5,$81,$C9,$20,$D0,$15,$A6,$80,$BD
-.byte $60,$60,$C9,$10,$B0,$05,$20,$67,$DE,$18,$60,$A9,$00,$9D,$60,$60
-.byte $18,$60,$A6,$80,$BD,$60,$60,$48,$A4,$81,$B9,$60,$60,$9D,$60,$60
-.byte $68,$99,$60,$60,$18,$60,$AA,$BD,$60,$60,$C9,$10,$90,$D8,$C9,$1C
-.byte $90,$0B,$C9,$98,$90,$D0,$C9,$C0,$B0,$CC,$4C,$4F,$AA,$86,$0A,$38
-.byte $E9,$10,$85,$08,$C9,$0B,$D0,$05,$A5,$2D,$4A,$B0,$B9,$A5,$08,$18
-.byte $69,$2B,$20,$01,$A9,$A5,$08,$C9,$0B,$F0,$05,$20,$5E,$AE,$B0,$1F
-.byte $20,$AA,$A9,$B0,$F6,$20,$96,$B3,$A5,$08,$C9,$0B,$F0,$03,$20,$60
-.byte $EE,$A9,$42,$85,$E0,$20,$C6,$AD,$A6,$0A,$A9,$00,$9D,$60,$60,$38
 
-;; [$A900 :: 0x3A900]
+;----------------------------------------------------------------------
 
-.byte $60,$48,$A9,$00,$85,$A2,$20,$80,$B3,$20,$96,$B3,$A2,$10,$20,$86
-.byte $B4,$68,$20,$DF,$B3,$A9,$00,$8D,$F0,$79,$60,$A9,$00,$85,$81,$A5
-.byte $80,$A6,$6E,$18,$7D,$08,$61,$9D,$08,$61,$BD,$09,$61,$65,$81,$9D
-.byte $09,$61,$BD,$09,$61,$DD,$0B,$61,$90,$19,$F0,$02,$B0,$08,$BD,$08
-.byte $61,$DD,$0A,$61,$90,$0D,$BD,$0A,$61,$9D,$08,$61,$BD,$0B,$61,$9D
-.byte $09,$61,$18,$60,$A6,$6E,$18,$7D,$0C,$61,$9D,$0C,$61,$BD,$0D,$61
-.byte $69,$00,$9D,$0D,$61,$BD,$0D,$61,$DD,$0F,$61,$90,$19,$F0,$02,$B0
-.byte $08,$BD,$0C,$61,$DD,$0E,$61,$90,$0D,$BD,$0E,$61,$9D,$0C,$61,$BD
-.byte $0F,$61,$9D,$0D,$61,$18,$60,$85,$80,$3D,$01,$61,$D0,$05,$20,$67
-.byte $DE,$38,$60,$A5,$80,$49,$FF,$3D,$01,$61,$9D,$01,$61,$A5,$80,$29
-.byte $80,$F0,$05,$A9,$01,$9D,$08,$61,$18,$60,$A6,$6E,$A5,$08,$D0,$11
-.byte $BD,$01,$61,$29,$C0,$D0,$D7,$A9,$1E,$20,$A3,$A7,$85,$80,$4C,$1B
-.byte $A9,$C9,$01,$D0,$04,$A9,$04,$D0,$BE,$C9,$02,$D0,$04,$A9,$40,$D0
-.byte $B6,$C9,$03,$D0,$04,$A9,$08,$D0,$AE,$C9,$04,$D0,$04,$A9,$20,$D0
-.byte $A6,$C9,$05,$D0,$04,$A9,$10,$D0,$9E,$C9,$06,$D0,$04,$A9,$02,$D0
-.byte $96,$C9,$07,$D0,$04,$A9,$80,$D0,$8E,$C9,$08,$D0,$0D,$BD,$01,$61
 
-;; [$AA00 :: 0x3AA00]
 
-.byte $29,$C0,$D0,$46,$20,$79,$A9,$4C,$46,$A9,$C9,$09,$D0,$0F,$BD,$01
-.byte $61,$29,$C0,$D0,$35,$A9,$14,$20,$A3,$A7,$4C,$54,$A9,$C9,$0A,$D0
-.byte $11,$BD,$01,$61,$29,$C0,$D0,$22,$A9,$64,$20,$A3,$A7,$85,$80,$4C
-.byte $1B,$A9,$A2,$00,$BD,$01,$61,$29,$C0,$D0,$06,$20,$79,$A9,$20,$46
-.byte $A9,$8A,$18,$69,$40,$AA,$D0,$EC,$18,$60,$20,$67,$DE,$38,$60,$38
-.byte $E9,$98,$85,$08,$18,$69,$C0,$85,$09,$86,$0A,$A9,$3C,$20,$01,$A9
-.byte $20,$5E,$AE,$B0,$47,$A6,$6E,$BD,$01,$61,$29,$F0,$F0,$05,$A9,$4D
-.byte $4C,$7C,$AA,$A5,$09,$20,$BD,$AA,$90,$12,$A9,$3D,$20,$C3,$AD,$A2
-.byte $10,$20,$86,$B4,$A9,$3C,$20,$DF,$B3,$4C,$60,$AA,$20,$CE,$AA,$90
-.byte $05,$A9,$3E,$4C,$7C,$AA,$A9,$42,$85,$E0,$A5,$09,$9D,$30,$61,$A9
-.byte $00,$A6,$0A,$9D,$60,$60,$20,$4A,$AF,$20,$E9,$AD,$38,$60,$AD,$F0
-.byte $78,$4A,$4A,$85,$80,$AD,$F0,$79,$4A,$4A,$85,$81,$60,$A6,$6E,$A0
-.byte $10,$DD,$30,$61,$F0,$06,$E8,$88,$D0,$F7,$18,$60,$38,$60,$A6,$6E
-.byte $A0,$10,$BD,$30,$61,$F0,$06,$E8,$88,$D0,$F7,$38,$60,$18,$60,$20
-.byte $AE,$AA,$A5,$80,$C5,$81,$F0,$62,$A5,$81,$C9,$10,$90,$1A,$A5,$6E
-.byte $05,$80,$AA,$A9,$00,$9D,$30,$61,$A5,$80,$0A,$05,$6E,$AA,$A9,$00
+; Name	:
+; Marks	: check if character can be cured
+; clear carry if can be cured
+	LDA $6101,X		; A600	$BD $01 $61
+	AND #$C0		; A603	$29 $C0
+	BNE L3A619		; A605	$D0 $12		can't cure if dead or stone
+	LDA $6109,X		; A607	$BD $09 $61
+	CMP $610B,X		; A60A	$DD $0B $61
+	BCC L3A617		; A60D	$90 $08
+	LDA $6108,X		; A60F	$BD $08 $61
+	CMP $610A,X		; A612	$DD $0A $61
+	BCS L3A619		; A615	$B0 $02		can't cure if at full hp
+L3A617:
+	CLC			; A617	$18
+	RTS			; A618	$60
+L3A619:
+	SEC			; A619	$38
+	RTS			; A61A	$60
+; End of
 
-;; [$AB00 :: 0x3AB00]
+; Name	:
+; Marks	:
+	LDA $79F0		; A61B	$AD $F0 $79
+	CLC			; A61E	$18
+	ADC #$04		; A61F	$69 $04
+	CMP $79F1		; A621	$CD $F1 $79
+	BCS L3A669		; A624	$B0 $43
+	LDX $6E			; A626	$A6 $6E
+	JSR $A600		; A628	$20 $00 $A6
+	BCC L3A632		; A62B	$90 $05
+	JSR $DE67		; A62D	$20 $67 $DE	play error sound effect
+	SEC			; A630	$38
+	RTS			; A631	$60
+L3A632:
+	LDA #$28		; A632	$A9 $28
+	STA $87			; A634	$85 $87
+	LDX $6E			; A636	$A6 $6E
+	LDA $6235,X		; A638	$BD $35 $62
+	BMI L3A667		; A63B	$30 $2A
+	LDA $6101,X		; A63D	$BD $01 $61
+	AND #$C0		; A640	$29 $C0
+	BNE L3A667		; A642	$D0 $23
+	LDA $87			; A644	$A5 $87
+	JSR $A7A3		; A646	$20 $A3 $A7	A += (0..A)
+	STA $80			; A649	$85 $80
+	LDA $08			; A64B	$A5 $08
+	ASL			; A64D	$0A
+	ORA $0A			; A64E	$05 $0A
+	TAX			; A650	$AA
+	LDA $6210,X		; A651	$BD $10 $62
+	CLC			; A654	$18
+	ADC #$01		; A655	$69 $01
+	STA $81			; A657	$85 $81
+	JSR $A7B3		; A659	$20 $B3 $A7	multiply (8-bit)
+	LDA $82			; A65C	$A5 $82
+	STA $80			; A65E	$85 $80
+	LDA $83			; A660	$A5 $83
+	STA $81			; A662	$85 $81
+	JSR $A91F		; A664	$20 $1F $A9
+L3A667:
+	CLC			; A667	$18
+	RTS			; A668	$60
+L3A669:
+	LDX #$00		; A669	$A2 $00
+	JSR $A600		; A66B	$20 $00 $A6
+	BCC L3A68F		; A66E	$90 $1F
+	LDX #$40		; A670	$A2 $40
+	JSR $A600		; A672	$20 $00 $A6
+	BCC L3A68F		; A675	$90 $18
+	LDX #$80		; A677	$A2 $80
+	JSR $A600		; A679	$20 $00 $A6
+	BCC L3A68F		; A67C	$90 $11
+	LDA $62F5		; A67E	$AD $F5 $62
+	BMI L3A68A		; A681	$30 $07
+	LDX #$C0 		; A683	$A2 $C0
+	JSR $A600		; A685	$20 $00 $A6
+	BCC L3A68F		; A688	$90 $05
+L3A68A:
+	JSR $DE67		; A68A	$20 $67 $DE	play error sound effect
+	SEC			; A68D	$38
+	RTS			; A68E	$60
+L3A68F:
+	LDA #$00		; A68F	$A9 $00
+	STA $6E			; A691	$85 $6E
+L3A693:
+	LDA #$0A		; A693	$A9 $0A
+	STA $87			; A695	$85 $87
+	JSR $A636		; A697	$20 $36 $A6
+	LDA $6E			; A69A	$A5 $6E
+	CLC			; A69C	$18
+	ADC #$40		; A69D	$69 $40
+	STA $6E			; A69F	$85 $6E
+	BNE L3A693		; A6A1	$D0 $F0
+	CLC			; A6A3	$18
+	RTS			; A6A4	$60
+; End of
 
-.byte $9D,$10,$62,$9D,$11,$62,$18,$60,$A5,$6E,$05,$80,$AA,$A5,$6E,$05
-.byte $81,$A8,$BD,$30,$61,$48,$B9,$30,$61,$9D,$30,$61,$68,$99,$30,$61
-.byte $A5,$80,$0A,$05,$6E,$AA,$A5,$81,$0A,$05,$6E,$A8,$BD,$10,$62,$48
-.byte $B9,$10,$62,$9D,$10,$62,$68,$99,$10,$62,$BD,$11,$62,$48,$B9,$11
-.byte $62,$9D,$11,$62,$68,$99,$11,$62,$18,$60,$A5,$6E,$05,$80,$AA,$BD
-.byte $30,$61,$F0,$1C,$85,$82,$A6,$6E,$A5,$80,$0A,$05,$6E,$A8,$B9,$10
-.byte $62,$18,$69,$01,$DD,$0C,$61,$90,$0C,$F0,$0A,$BD,$0D,$61,$D0,$05
-.byte $20,$67,$DE,$18,$60,$A5,$82,$C9,$D0,$D0,$1F,$A5,$2D,$4A,$90,$F0
-.byte $A5,$19,$F0,$57,$A9,$47,$20,$B6,$AD,$20,$E9,$AD,$20,$60,$EE,$A2
-.byte $0B,$20,$86,$B4,$A9,$01,$85,$A2,$18,$60,$C9,$D4,$D0,$03,$4C,$16
-.byte $AC,$C9,$D5,$D0,$03,$4C,$2F,$AC,$C9,$D7,$D0,$03,$4C,$43,$AC,$C9
-.byte $E6,$D0,$BD,$A5,$2D,$4A,$90,$B8,$A5,$19,$D0,$C8,$20,$6B,$AC,$20
-.byte $85,$AC,$A9,$3B,$20,$B6,$AD,$20,$E9,$AD,$20,$3A,$A8,$20,$80,$B3
-.byte $A9,$00,$8D,$01,$20,$8D,$15,$40,$4C,$B8,$C0,$A5,$80,$0A,$05,$6E
-.byte $A8,$B9,$10,$62,$48,$20,$85,$AC,$68,$A8,$BA,$8A,$18,$69,$08,$C9
-.byte $FB,$B0,$0D,$88,$30,$0A,$18,$69,$05,$C9,$FB,$B0,$03,$88,$10,$F6
+; Name	:
+; Marks	:
+	LDA #$80		; A6A5	$A9 $80
+	STA $87			; A6A7	$85 $87
+	LDA $79F0		; A6A9	$AD $F0 $79
+	CLC			; A6AC	$18
+	ADC #$04		; A6AD	$69 $04
+	CMP $79F1		; A6AF	$CD $F1 $79
+	BCS L3A6BC		; A6B2	$B0 $08
+	JSR $A734		; A6B4	$20 $34 $A7
+	JSR $A80E		; A6B7	$20 $0E $A8
+	CLC			; A6BA	$18
+	RTS			; A6BB	$60
+L3A6BC:
+	JSR $A75B		; A6BC	$20 $5B $A7
+	LDA #$00		; A6BF	$A9 $00
+	JSR $A6D0		; A6C1	$20 $D0 $A6
+	LDA #$40		; A6C4	$A9 $40
+	JSR $A6D0		; A6C6	$20 $D0 $A6
+	LDA #$80		; A6C9	$A9 $80
+	JSR $A6D0		; A6CB	$20 $D0 $A6
+	LDA #$C0		; A6CE	$A9 $C0
+	STA $6E			; A6D0	$85 $6E
+	TAX			; A6D2	$AA
+	LDA $6235,X		; A6D3	$BD $35 $62
+	BMI L3A6F2		; A6D6	$30 $1A
+	LDA $6101,X		; A6D8	$BD $01 $61
+	AND $87			; A6DB	$25 $87
+	BEQ L3A6F2		; A6DD	$F0 $13
+	LDA $87			; A6DF	$A5 $87
+	EOR #$FF		; A6E1	$49 $FF
+	AND $6101,X		; A6E3	$3D $01 $61
+	STA $6101,X		; A6E6	$9D $01 $61
+	JSR $A80E		; A6E9	$20 $0E $A8
+	LSR $6109,X		; A6EC	$5E $09 $61
+	ROR $6108,X		; A6EF	$7E $08 $61
+L3A6F2:
+	CLC			; A6F2	$18
+	RTS			; A6F3	$60
+	LDA $08			; A6F4	$A5 $08
+	ASL			; A6F6	$0A
+	ORA $0A			; A6F7	$05 $0A
+	TAX			; A6F9	$AA
+	LDA $6210,X		; A6FA	$BD $10 $62
+	TAX			; A6FD	$AA
+	INX			; A6FE	$E8
+	LDA $79F0		; A6FF	$AD $F0 $79
+	CLC			; A702	$18
+	ADC #$04		; A703	$69 $04
+	CMP $79F1		; A705	$CD $F1 $79
+	BCS L3A715		; A708	$B0 $0B
+	INX			; A70A	$E8
+	LDA $A722,X		; A70B	$BD $22 $A7
+	STA $87			; A70E	$85 $87
+	JSR $A734		; A710	$20 $34 $A7
+	CLC			; A713	$18
+	RTS			; A714	$60
+L3A715:
+	LDA $A722,X		; A715	$BD $22 $A7
+	STA $87			; A718	$85 $87
+	JSR $A75B		; A71A	$20 $5B $A7
+	JSR $A77F		; A71D	$20 $7F $A7
+	CLC			; A720	$18
+	RTS			; A721	$60
+; End of
 
-;; [$AC00 :: 0x3AC00]
+; A722 - data block = ??
+.byte $00,$02,$06,$0E		; A722
+.byte $1E,$3E,$7E		; A726
+.byte $FE,$FE,$FE		; A729
+.byte $FE,$FE,$FE		; A72C
+.byte $FE,$FE,$FE		; A72F
+.byte $FE,$FE			; A732
 
-.byte $AA,$9A,$A9,$37,$20,$B6,$AD,$20,$E9,$AD,$20,$80,$B3,$A9,$00,$8D
-.byte $01,$20,$8D,$15,$40,$60,$20,$6B,$AC,$A9,$38,$20,$01,$A9,$20,$08
-.byte $AE,$B0,$07,$20,$1B,$A6,$90,$2F,$B0,$F4,$20,$78,$AC,$38,$60,$20
-.byte $6B,$AC,$A9,$39,$20,$01,$A9,$20,$08,$AE,$B0,$EE,$20,$A5,$A6,$90
-.byte $16,$B0,$F4,$20,$6B,$AC,$A9,$3A,$20,$01,$A9,$20,$08,$AE,$B0,$DA
-.byte $20,$F4,$A6,$90,$02,$B0,$F4,$20,$78,$AC,$20,$85,$AC,$20,$60,$EE
-.byte $20,$96,$B3,$20,$C6,$AD,$20,$78,$AC,$38,$60,$A5,$80,$85,$08,$A5
-.byte $9E,$85,$09,$A5,$6E,$85,$0A,$60,$A5,$08,$85,$80,$A5,$09,$85,$9E
-.byte $A5,$0A,$85,$6E,$60,$A9,$42,$85,$E0,$A6,$6E,$A5,$80,$0A,$05,$6E
-.byte $A8,$BD,$0C,$61,$18,$F9,$10,$62,$9D,$0C,$61,$BD,$0D,$61,$E9,$00
-.byte $9D,$0D,$61,$B9,$11,$62,$18,$69,$02,$C9,$64,$B0,$04,$99,$11,$62
-.byte $60,$B9,$10,$62,$18,$69,$01,$C9,$10,$B0,$08,$99,$10,$62,$A9,$00
-.byte $99,$11,$62,$60
+; Name	:
+; Marks	:
+	LDX $6E			; A734	$A6 $6E
+	LDA $6101,X		; A736	$BD $01 $61
+	AND $87			; A739	$25 $87
+	BNE L3A744		; A73B	$D0 $07
+	JSR $DE67		; A73D	$20 $67 $DE	play error sound effect
+	PLA			; A740	$68
+	PLA			; A741	$68
+	SEC			; A742	$38
+	RTS			; A743	$60
+L3A744:
+	LDA $87			; A744	$A5 $87
+	AND $6101,X		; A746	$3D $01 $61
+	BPL L3A750		; A749	$10 $05
+	LDA #$01		; A74B	$A9 $01
+	STA $6108,X		; A74D	$9D $08 $61
+L3A750:
+	LDA $87			; A750	$A5 $87
+	EOR #$FF		; A752	$49 $FF
+	AND $6101,X		; A754	$3D $01 $61
+	STA $6101,X		; A757	$9D $01 $61
+	RTS			; A75A	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDA $6101		; A75B	$AD $01 $61
+	ORA $6141		; A75E	$0D $41 $61
+	ORA $6181		; A761	$0D $81 $61
+	LDX $62F5		; A764	$AE $F5 $62
+	BMI L3A76C		; A767	$30 $03
+	ORA $61C1		; A769	$0D $C1 $61
+L3A76C:
+	AND $87			; A76C	$25 $87
+	BNE L3A776		; A76E	$D0 $06
+	JSR $DE67		; A770	$20 $67 DEplay error sound effect
+	PLA			; A773	$68
+	PLA			; A774	$68
+	SEC			; A775	$38
+L3A776:
+	RTS			; A776	$60
+; End of
+
+; Name	:
+; Marks	:
+L3A777:
+	LDA $6101,X		; A777	$BD $01 $61
+	AND $87			; A77A	$25 $87
+	BNE L3A744		; A77C	$D0 $C6
+	RTS			; A77E	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDX #$00		; A77F	$A2 $00
+	JSR $A777		; A781	$20 $77 $A7
+	LDX #$40		; A784	$A2 $40
+	JSR $A777		; A786	$20 $77 $A7
+	LDX #$80		; A789	$A2 $80
+	JSR $A777		; A78B	$20 $77 $A7
+	LDX #$C0		; A78E	$A2 $C0
+	LDA $62F5		; A790	$AD $F5 $62
+	BPL L3A777		; A793	$10 $E2     
+	RTS			; A795	$60
+; End of
+
+; Marks	: A = (0..A)
+	STA $80			; A796	$85 $80
+	JSR $C5AD		; A798	$20 $AD $C5	get random number
+	STA $81			; A79B	$85 $81
+	JSR $A7B3		; A79D	$20 $B3 $A7	multiply (8-bit)
+	LDA $83			; A7A0	$A5 $83
+	RTS			; A7A2	$60
+; End of
+
+; Name	:
+; Marks	: A += (0..A)
+	TAY 			; A7A3	$A8
+	STA $80			; A7A4	$85 $80
+	JSR $C5AD		; A7A6	$20 $AD $C5	get random number
+	STA $81			; A7A9	$85 $81
+	JSR $A7B3		; A7AB	$20 $B3 $A7	multiply (8-bit)
+	TYA			; A7AE	$98
+	CLC			; A7AF	$18
+	ADC $83			; A7B0	$65 $83
+	RTS			; A7B2	$60
+; End of
+
+; Name	:
+; Marks	: multiply (8-bit)
+; +$82 = $80 * $81
+	LDA #$00		; A7B3	$A9 $00
+	STA $82			; A7B5	$85 $82
+	STA $83			; A7B7	$85 $83
+	STA $84			; A7B9	$85 $84
+L3A7BB:
+	LSR $80			; A7BB	$46 $80
+	BCC L3A7CC		; A7BD	$90 $0D
+	LDA $82			; A7BF	$A5 $82
+	CLC			; A7C1	$18
+	ADC $81			; A7C2	$65 $81
+	STA $82			; A7C4	$85 $82
+	LDA $83			; A7C6	$A5 $83
+	ADC $84			; A7C8	$65 $84
+	STA $83			; A7CA	$85 $83
+L3A7CC:
+	ASL $81			; A7CC	$06 $81
+	ROL $84			; A7CE	$26 $84
+	LDA $80			; A7D0	$A5 $80
+	BNE L3A7BB		; A7D2	$D0 $E7
+	RTS			; A7D4	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDA #$00		; A7D5	$A9 $00
+	STA $82			; A7D7	$85 $82
+	STA $83			; A7D9	$85 $83
+	LDA #$00		; A7DB	$A9 $00
+	LDX #$08		; A7DD	$A2 $08
+L3A7DF:
+	ASL $82			; A7DF	$06 $82
+	ROL $83			; A7E1	$26 $83
+	ASL $81			; A7E3	$06 $81
+	ROL			; A7E5	$2A
+	CMP $84			; A7E6	$C5 $84
+	BCC L3A7F2		; A7E8	$90 $08
+	SBC $84			; A7EA	$E5 $84
+	INC $82			; A7EC	$E6 $82
+	BNE L3A7F2		; A7EE	$D0 $02
+	INC $83			; A7F0	$E6 $83
+L3A7F2:
+	DEX			; A7F2	$CA
+	BNE L3A7DF		; A7F3	$D0 $EA
+	LDX #$08		; A7F5	$A2 $08
+L3A7F7:
+	ASL $82			; A7F7	$06 $82
+	ROL $83			; A7F9	$26 $83
+	ASL $80			; A7FB	$06 $80
+	ROL			; A7FD	$2A
+	CMP $84			; A7FE	$C5 $84
+	BCC L3A80A		; A800	$90 $08
+	SBC $84			; A802	$E5 $84
+	INC $82			; A804	$E6 $82
+	BNE L3A80A		; A806	$D0 $02
+	INC $83			; A808	$E6 $83
+L3A80A:
+	DEX			; A80A	$CA
+	BNE L3A7F7		; A80B	$D0 $EA
+	RTS			; A80D	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDX $6E			; A80E	$A6 $6E
+	LDA $08			; A810	$A5 $08
+	ASL			; A812	$0A
+	ORA $0A			; A813	$05 $0A
+	TAY			; A815	$A8
+	LDA $6210,Y		; A816	$B9 $10 $62
+	EOR #$0F		; A819	$49 $0F
+	CLC			; A81B	$18
+	ADC #$01		; A81C	$69 $01
+	STA $84			; A81E	$85 $84
+	LDA $610A,X		; A820	$BD $0A $61
+	STA $80			; A823	$85 $80
+	LDA $610B,X		; A825	$BD $0B $61
+	STA $81			; A828	$85 $81
+	JSR $A7D5		; A82A	$20 $D5 $A7
+	LDX $6E			; A82D	$A6 $6E
+	LDA $82			; A82F	$A5 $82
+	STA $6108,X		; A831	$9D $08 $61
+	LDA $83			; A834	$A5 $83
+	STA $6109,X		; A836	$9D $09 $61
+	RTS			; A839	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDX $6E			; A83A	$A6 $6E
+	LDA $08			; A83C	$A5 $08
+	ASL			; A83E	$0A
+	ORA $0A			; A83F	$05 $0A
+	TAY			; A841	$A8
+	LDA $6210,Y		; A842	$B9 $10 $62
+	EOR #$0F		; A845	$49 $0F
+	CLC			; A847	$18
+	ADC #$01		; A848	$69 $01
+	STA $84			; A84A	$85 $84
+	LDA $6108,X		; A84C	$BD $08 $61
+	STA $80			; A84F	$85 $80
+	LDA $6109,X		; A851	$BD $09 $61
+	STA $81			; A854	$85 $81
+	JSR $A7D5		; A856	$20 $D5 $A7
+	LDA $82			; A859	$A5 $82
+	ORA $83			; A85B	$05 $83
+	BNE L3A861		; A85D	$D0 $02
+	INC $82			; A85F	$E6 $82
+L3A861:
+	LDX $6E			; A861	$A6 $6E
+	LDA $82			; A863	$A5 $82
+	STA $6108,X		; A865	$9D $08 $61
+	LDA $83			; A868	$A5 $83
+	STA $6109,X		; A86A	$9D $09 $61
+	RTS			; A86D	$60
+; End of
+
+; Name	:
+; Marks	:
+	JSR $AAAE		; A86E	$20 $AE $AA
+	LDA $80			; A871	$A5 $80
+	CMP $81			; A873	$C5 $81
+	BEQ L3A8A6		; A875	$F0 $2F
+	LDA $81			; A877	$A5 $81
+	CMP #$20		; A879	$C9 $20
+	BNE L3A892		; A87B	$D0 $15
+	LDX $80			; A87D	$A6 $80
+	LDA $6060,X		; A87F	$BD $60 $60
+	CMP #$10		; A882	$C9 $10
+	BCS L3A88B		; A884	$B0 $05
+L3A886:
+	JSR $DE67		; A886	$20 $67 $DE	play error sound effect
+	CLC			; A889	$18
+	RTS			; A88A	$60
+L3A88B:
+	LDA #$00		; A88B	$A9 $00
+	STA $6060,X		; A88D	$9D $60 $60
+	CLC			; A890	$18
+	RTS			; A891	$60
+L3A892:
+	LDX $80			; A892	$A6 $80
+	LDA $6060,X		; A894	$BD $60 $60
+	PHA			; A897	$48
+	LDY $81			; A898	$A4 $81
+	LDA $6060,Y		; A89A	$B9 $60 $60
+	STA $6060,X		; A89D	$9D $60 $60
+	PLA			; A8A0	$68
+	STA $6060,Y		; A8A1	$99 $60 $60
+	CLC			; A8A4	$18
+	RTS			; A8A5	$60
+L3A8A6:
+	TAX			; A8A6	$AA
+	LDA $6060,X		; A8A7	$BD $60 $60
+	CMP #$10		; A8AA	$C9 $10
+	BCC L3A886		; A8AC	$90 $D8
+	CMP #$1C		; A8AE	$C9 $1C
+	BCC L3A8BD		; A8B0	$90 $0B
+	CMP #$98		; A8B2	$C9 $98
+	BCC L3A886		; A8B4	$90 $D0
+	CMP #$C0		; A8B6	$C9 $C0
+	BCS L3A886		; A8B8	$B0 $CC
+	JMP $AA4F		; A8BA	$4C $4F $AA
+L3A8BD:
+	STX $0A			; A8BD	$86 $0A
+	SEC			; A8BF	$38
+	SBC #$10		; A8C0	$E9 $10
+	STA $08			; A8C2	$85 $08
+	CMP #$0B		; A8C4	$C9 $0B
+	BNE L3A8CD		; A8C6	$D0 $05
+	LDA $2D			; A8C8	$A5 $2D
+	LSR			; A8CA	$4A
+	BCS L3A886		; A8CB	$B0 $B9
+L3A8CD:
+	LDA $08			; A8CD	$A5 $08
+	CLC			; A8CF	$18
+	ADC #$2B		; A8D0	$69 $2B
+	JSR $A901		; A8D2	$20 $01 $A9
+	LDA $08			; A8D5	$A5 $08
+	CMP #$0B		; A8D7	$C9 $0B
+	BEQ L3A8E0		; A8D9	$F0 $05
+L3A8DB:
+	JSR $AE5E		; A8DB	$20 $5E $AE
+	BCS L3A8FF		; A8DE	$B0 $1F
+L3A8E0:
+	JSR $A9AA		; A8E0	$20 $AA $A9
+	BCS L3A8DB		; A8E3	$B0 $F6
+	JSR $B396		; A8E5	$20 $96 $B3
+	LDA $08			; A8E8	$A5 $08
+	CMP #$0B		; A8EA	$C9 $0B
+	BEQ L3A8F1		; A8EC	$F0 $03
+	JSR $EE60		; A8EE	$20 $60 $EE
+L3A8F1:
+	LDA #$42		; A8F1	$A9 $42		play song $02
+	STA $E0			; A8F3	$85 $E0
+	JSR $ADC6		; A8F5	$20 $C6 $AD
+	LDX $0A			; A8F8	$A6 $0A
+	LDA #$00		; A8FA	$A9 $00
+	STA $6060,X		; A8FC	$9D $60 $60
+L3A8FF:
+	SEC			; A8FF	$38
+	RTS			; A900	$60
+	PHA			; A901	$48
+	LDA #$00		; A902	$A9 $00
+	STA $A2			; A904	$85 $A2
+	JSR $B380		; A906	$20 $80 $B3	close menu
+	JSR $B396		; A909	$20 $96 $B3
+	LDX #$10		; A90C	$A2 $10
+	JSR $B486		; A90E	$20 $86 $B4
+	PLA      		; A911	$68
+	JSR $B3DF		; A912	$20 $DF $B3	load menu text
+	LDA #$00		; A915	$A9 $00
+	STA $79F0		; A917	$8D $F0 $79
+	RTS			; A91A	$60
+	LDA #$00		; A91B	$A9 $00
+	STA $81			; A91D	$85 $81
+	LDA $80			; A91F	$A5 $80
+	LDX $6E			; A921	$A6 $6E
+	CLC			; A923	$18
+	ADC $6108,X		; A924	$7D $08 $61
+	STA $6108,X		; A927	$9D $08 $61
+	LDA $6109,X		; A92A	$BD $09 $61
+	ADC $81			; A92D	$65 $81
+	STA $6109,X		; A92F	$9D $09 $61
+	LDA $6109,X		; A932	$BD $09 $61
+	CMP $610B,X		; A935	$DD $0B $61
+	BCC L3A953		; A938	$90 $19
+	BEQ L3A93E		; A93A	$F0 $02
+	BCS L3A946		; A93C	$B0 $08
+L3A93E:
+	LDA $6108,X		; A93E	$BD $08 $61
+	CMP $610A,X		; A941	$DD $0A $61
+	BCC L3A953		; A944	$90 $0D
+L3A946:
+	LDA $610A,X		; A946	$BD $0A $61
+	STA $6108,X		; A949	$9D $08 $61
+	LDA $610B,X		; A94C	$BD $0B $61
+	STA $6109,X		; A94F	$9D $09 $61
+	CLC			; A952	$18
+L3A953:
+	RTS			; A953	$60
+	LDX $6E			; A954	$A6 $6E
+	CLC			; A956	$18
+	ADC $610C,X		; A957	$7D $0C $61
+	STA $610C,X		; A95A	$9D $0C $61
+	LDA $610D,X		; A95D	$BD $0D $61
+	ADC #$00		; A960	$69 $00
+	STA $610D,X		; A962	$9D $0D $61
+	LDA $610D,X		; A965	$BD $0D $61
+	CMP $610F,X		; A968	$DD $0F $61
+	BCC L3A986		; A96B	$90 $19
+	BEQ L3A971		; A96D	$F0 $02
+	BCS L3A979		; A96F	$B0 $08
+L3A971:
+	LDA $610C,X		; A971	$BD $0C $61
+	CMP $610E,X		; A974	$DD $0E $61
+	BCC L3A986		; A977	$90 $0D
+L3A979:
+	LDA $610E,X		; A979	$BD $0E $61
+	STA $610C,X		; A97C	$9D $0C $61
+	LDA $610F,X		; A97F	$BD $0F $61
+	STA $610D,X		; A982	$9D $0D $61
+	CLC			; A985	$18
+L3A986:
+	RTS			; A986	$60
+L3A987:
+	STA $80			; A987	$85 $80
+	AND $6101,X		; A989	$3D $01 $61
+	BNE L3A993		; A98C	$D0 $05
+L3A98E:
+	JSR $DE67		; A98E	$20 $67 $DE	play error sound effect
+	SEC			; A991	$38
+	RTS			; A992	$60
+L3A993:
+	LDA $80			; A993	$A5 $80
+	EOR #$FF		; A995	$49 $FF
+	AND $6101,X		; A997	$3D $01 $61
+	STA $6101,X		; A99A	$9D $01 $61
+	LDA $80			; A99D	$A5 $80
+	AND #$80		; A99F	$29 $80
+	BEQ L3A9A8		; A9A1	$F0 $05
+	LDA #$01		; A9A3	$A9 $01
+	STA $6108,X		; A9A5	$9D $08 $61
+L3A9A8:
+	CLC			; A9A8	$18
+	RTS			; A9A9	$60
+	LDX $6E			; A9AA	$A6 $6E
+	LDA $08			; A9AC	$A5 $08
+	BNE L3A9C1		; A9AE	$D0 $11
+	LDA $6101,X		; A9B0	$BD $01 $61
+	AND #$C0		; A9B3	$29 $C0
+	BNE L3A98E		; A9B5	$D0 $D7
+	LDA #$1E		; A9B7	$A9 $1E
+	JSR $A7A3		; A9B9	$20 $A3 $A7	A += (0..A)
+	STA $80			; A9BC	$85 $80
+	JMP $A91B		; A9BE	$4C $1B $A9
+L3A9C1:
+	CMP #$01		; A9C1	$C9 $01
+	BNE L3A9C9		; A9C3	$D0 $04
+	LDA #$04		; A9C5	$A9 $04
+	BNE L3A987		; A9C7	$D0 $BE
+L3A9C9:
+	CMP #$02		; A9C9	$C9 $02
+	BNE L3A9D1		; A9CB	$D0 $04
+	LDA #$40		; A9CD	$A9 $40
+	BNE L3A987		; A9CF	$D0 $B6
+L3A9D1:
+	CMP #$03		; A9D1	$C9 $03
+	BNE L3A9D9		; A9D3	$D0 $04
+	LDA #$08		; A9D5	$A9 $08
+	BNE L3A987		; A9D7	$D0 $AE
+L3A9D9:
+	CMP #$04		; A9D9	$C9 $04
+	BNE L3A9E1		; A9DB	$D0 $04
+	LDA #$20		; A9DD	$A9 $20
+	BNE L3A987		; A9DF	$D0 $A6
+L3A9E1:
+	CMP #$05		; A9E1	$C9 $05
+	BNE L3A9E9		; A9E3	$D0 $04
+	LDA #$10		; A9E5	$A9 $10
+	BNE L3A987		; A9E7	$D0 $9E
+L3A9E9:
+	CMP #$06		; A9E9	$C9 $06
+	BNE L3A9F1		; A9EB	$D0 $04
+	LDA #$02		; A9ED	$A9 $02
+	BNE L3A987		; A9EF	$D0 $96
+L3A9F1:
+	CMP #$07		; A9F1	$C9 $07
+	BNE L3A9F9		; A9F3	$D0 $04
+	LDA #$80		; A9F5	$A9 $80
+	BNE L3A987		; A9F7	$D0 $8E
+L3A9F9:
+	CMP #$08		; A9F9	$C9 $08
+	BNE L3AA0A		; A9FB	$D0 $0D
+	LDA $6101,X		; A9FD	$BD $01 $61
+	AND #$C0		; AA00	$29 $C0
+	BNE L3AA4A		; AA02	$D0 $46
+	JSR $A979		; AA04	$20 $79 $A9
+	JMP $A946		; AA07	$4C $46 $A9
+L3AA0A:
+	CMP #$09		; AA0A	$C9 $09
+	BNE L3AA1D		; AA0C	$D0 $0F
+	LDA $6101,X		; AA0E	$BD $01 $61
+	AND #$C0		; AA11	$29 $C0
+	BNE L3AA4A		; AA13	$D0 $35
+	LDA #$14		; AA15	$A9 $14
+	JSR $A7A3		; AA17	$20 $A3 $A7	A += (0..A)
+	JMP $A954		; AA1A	$4C $54 $A9
+L3AA1D:
+	CMP #$0A		; AA1D	$C9 $0A
+	BNE L3AA32		; AA1F	$D0 $11
+	LDA $6101,X		; AA21	$BD $01 $61
+	AND #$C0		; AA24	$29 $C0
+	BNE L3AA4A		; AA26	$D0 $22
+	LDA #$64		; AA28	$A9 $64
+	JSR $A7A3		; AA2A	$20 $A3 $A7	A += (0..A)
+	STA $80			; AA2D	$85 $80
+	JMP $A91B		; AA2F	$4C $1B $A9
+L3AA32:
+	LDX #$00		; AA32	$A2 $00
+L3AA34:
+	LDA $6101,X		; AA34	$BD $01 $61
+	AND #$C0		; AA37	$29 $C0
+	BNE L3AA41		; AA39	$D0 $06
+	JSR $A979		; AA3B	$20 $79 $A9
+	JSR $A946		; AA3E	$20 $46 $A9
+L3AA41:
+	TXA			; AA41	$8A
+	CLC			; AA42	$18
+	ADC #$40		; AA43	$69 $40
+	TAX			; AA45	$AA
+	BNE L3AA34		; AA46	$D0 $EC
+	CLC			; AA48	$18
+	RTS			; AA49	$60
+L3AA4A:
+	JSR $DE67		; AA4A	$20 $67 $DE	play error sound effect
+	SEC			; AA4D	$38
+	RTS			; AA4E	$60
+	SEC			; AA4F	$38
+	SBC #$98		; AA50	$E9 $98
+	STA $08			; AA52	$85 $08
+	CLC			; AA54	$18
+	ADC #$C0		; AA55	$69 $C0
+	STA $09			; AA57	$85 $09
+	STX $0A			; AA59	$86 $0A
+	LDA #$3C		; AA5B	$A9 $3C
+	JSR $A901		; AA5D	$20 $01 $A9
+	JSR $AE5E		; AA60	$20 $5E $AE
+	BCS L3AAAC		; AA63	$B0 $47
+	LDX $6E			; AA65	$A6 $6E
+	LDA $6101,X		; AA67	$BD $01 $61
+	AND #$F0		; AA6A	$29 $F0
+	BEQ L3AA73		; AA6C	$F0 $05
+	LDA #$4D		; AA6E	$A9 $4D
+	JMP $AA7C		; AA70	$4C $7C $AA
+L3AA73:
+	LDA $09			; AA73	$A5 $09
+	JSR $AABD		; AA75	$20 $BD $AA
+	BCC L3AA8C		; AA78	$90 $12
+	LDA #$3D		; AA7A	$A9 $3D
+	JSR $ADC3		; AA7C	$20 $C3 $AD
+	LDX #$10		; AA7F	$A2 $10
+	JSR $B486		; AA81	$20 $86 $B4
+	LDA #$3C		; AA84	$A9 $3C
+	JSR $B3DF		; AA86	$20 $DF $B3	load menu text
+	JMP $AA60		; AA89	$4C $60 $AA
+L3AA8C:
+	JSR $AACE		; AA8C	$20 $CE $AA
+	BCC L3AA96		; AA8F	$90 $05
+	LDA #$3E		; AA91	$A9 $3E
+	JMP $AA7C		; AA93	$4C $7C $AA
+L3AA96:
+	LDA #$42		; AA96	$A9 $42		play song $02
+	STA $E0			; AA98	$85 $E0
+	LDA $09			; AA9A	$A5 $09
+	STA $6130,X		; AA9C	$9D $30 $61
+	LDA #$00		; AA9F	$A9 $00
+	LDX $0A			; AAA1	$A6 $0A
+	STA $6060,X		; AAA3	$9D $60 $60
+	JSR $AF4A		; AAA6	$20 $4A $AF
+	JSR $ADE9		; AAA9	$20 $E9 $AD
+L3AAAC:
+	SEC			; AAAC	$38
+	RTS			; AAAD	$60
+	LDA $78F0		; AAAE	$AD $F0 $78
+	LSR			; AAB1	$4A
+	LSR			; AAB2	$4A
+	STA $80			; AAB3	$85 $80
+	LDA $79F0		; AAB5	$AD $F0 $79
+	LSR			; AAB8	$4A
+	LSR			; AAB9	$4A
+	STA $81			; AABA	$85 $81
+	RTS			; AABC	$60
+	LDX $6E			; AABD	$A6 $6E
+	LDY #$10		; AABF	$A0 $10
+L3AAC1:
+	CMP $6130,X		; AAC1	$DD $30 $61
+	BEQ L3AACC		; AAC4	$F0 $06
+	INX			; AAC6	$E8
+	DEY			; AAC7	$88
+	BNE L3AAC1		; AAC8	$D0 $F7
+	CLC			; AACA	$18
+	RTS			; AACB	$60
+L3AACC:
+	SEC			; AACC	$38
+	RTS			; AACD	$60
+	LDX $6E			; AACE	$A6 $6E
+	LDY #$10		; AAD0	$A0 $10
+L3AAD2:
+	LDA $6130,X		; AAD2	$BD $30 $61
+	BEQ L3AADD		; AAD5	$F0 $06
+	INX			; AAD7	$E8
+	DEY			; AAD8	$88
+	BNE L3AAD2		; AAD9	$D0 $F7
+	SEC			; AADB	$38
+	RTS			; AADC	$60
+L3AADD:
+	CLC			; AADD	$18
+	RTS			; AADE	$60
+	JSR $AAAE		; AADF	$20 $AE $AA
+	LDA $80			; AAE2	$A5 $80
+	CMP $81			; AAE4	$C5 $81
+	BEQ L3AB4A		; AAE6	$F0 $62
+	LDA $81			; AAE8	$A5 $81
+	CMP #$10		; AAEA	$C9 $10
+	BCC L3AB08		; AAEC	$90 $1A
+	LDA $6E			; AAEE	$A5 $6E
+	ORA $80			; AAF0	$05 $80
+	TAX			; AAF2	$AA
+	LDA #$00		; AAF3	$A9 $00
+	STA $6130,X		; AAF5	$9D $30 $61
+	LDA $80			; AAF8	$A5 $80
+	ASL			; AAFA	$0A
+	ORA $6E			; AAFB	$05 $6E
+	TAX			; AAFD	$AA
+	LDA #$00		; AAFE	$A9 $00
+	STA $6210,X		; AB00	$9D $10 $62
+	STA $6211,X		; AB03	$9D $11 $62
+	CLC			; AB06	$18
+	RTS			; AB07	$60
+L3AB08:
+	LDA $6E			; AB08	$A5 $6E
+	ORA $80			; AB0A	$05 $80
+	TAX			; AB0C	$AA
+	LDA $6E			; AB0D	$A5 $6E
+	ORA $81			; AB0F	$05 $81
+	TAY			; AB11	$A8
+	LDA $6130,X		; AB12	$BD $30 $61
+	PHA			; AB15	$48
+	LDA $6130,Y		; AB16	$B9 $30 $61
+	STA $6130,X		; AB19	$9D $30 $61
+	PLA			; AB1C	$68
+	STA $6130,Y		; AB1D	$99 $30 $61
+	LDA $80			; AB20	$A5 $80
+	ASL			; AB22	$0A
+	ORA $6E			; AB23	$05 $6E
+	TAX			; AB25	$AA
+	LDA $81			; AB26	$A5 $81
+	ASL			; AB28	$0A
+	ORA $6E			; AB29	$05 $6E
+	TAY			; AB2B	$A8
+	LDA $6210,X		; AB2C	$BD $10 $62
+	PHA			; AB2F	$48
+	LDA $6210,Y		; AB30	$B9 $10 $62
+	STA $6210,X		; AB33	$9D $10 $62
+	PLA			; AB36	$68
+	STA $6210,Y		; AB37	$99 $10 $62
+	LDA $6211,X		; AB3A	$BD $11 $62
+	PHA			; AB3D	$48
+	LDA $6211,Y		; AB3E	$B9 $11 $62
+	STA $6211,X		; AB41	$9D $11 $62
+	PLA			; AB44	$68
+	STA $6211,Y		; AB45	$99 $11 $62
+	CLC			; AB48	$18
+	RTS			; AB49	$60
+L3AB4A:
+	LDA $6E			; AB4A	$A5 $6E
+	ORA $80			; AB4C	$05 $80
+	TAX			; AB4E	$AA
+	LDA $6130,X		; AB4F	$BD $30 $61
+	BEQ L3AB70		; AB52	$F0 $1C
+	STA $82			; AB54	$85 $82
+	LDX $6E			; AB56	$A6 $6E
+	LDA $80			; AB58	$A5 $80
+	ASL			; AB5A	$0A
+	ORA $6E			; AB5B	$05 $6E
+	TAY			; AB5D	$A8
+	LDA $6210,Y		; AB5E	$B9 $10 $62
+	CLC			; AB61	$18
+	ADC #$01		; AB62	$69 $01
+	CMP $610C,X		; AB64	$DD $0C $61
+	BCC L3AB75		; AB67	$90 $0C
+	BEQ L3AB75		; AB69	$F0 $0A
+	LDA $610D,X		; AB6B	$BD $0D $61
+	BNE L3AB75		; AB6E	$D0 $05
+L3AB70:
+	JSR $DE67		; AB70	$20 $67 $DE	play error sound effect
+	CLC			; AB73	$18
+	RTS			; AB74	$60
+L3AB75:
+	LDA $82			; AB75	$A5 $82
+	CMP #$D0		; AB77	$C9 $D0
+	BNE L3AB9A		; AB79	$D0 $1F
+	LDA $2D			; AB7B	$A5 $2D
+	LSR			; AB7D	$4A
+	BCC L3AB70		; AB7E	$90 $F0
+	LDA $19			; AB80	$A5 $19
+	BEQ L3ABDB		; AB82	$F0 $57
+L3AB84:
+	LDA #$47		; AB84	$A9 $47
+	JSR $ADB6		; AB86	$20 $B6 $AD
+	JSR $ADE9		; AB89	$20 $E9 $AD
+	JSR $EE60		; AB8C	$20 $60 $EE
+	LDX #$0B		; AB8F	$A2 $0B
+	JSR $B486		; AB91	$20 $86 $B4
+	LDA #$01		; AB94	$A9 $01
+	STA $A2			; AB96	$85 $A2
+	CLC			; AB98	$18
+	RTS			; AB99	$60
+L3AB9A:
+	CMP #$D4		; AB9A	$C9 $D4
+	BNE L3ABA1		; AB9C	$D0 $03
+	JMP $AC16		; AB9E	$4C $16 $AC
+L3ABA1:
+	CMP #$D5		; ABA1	$C9 $D5
+	BNE L3ABA8		; ABA3	$D0 $03
+	JMP $AC2F		; ABA5	$4C $2F $AC
+L3ABA8:
+	CMP #$D7		; ABA8	$C9 $D7
+	BNE L3ABAF		; ABAA	$D0 $03
+	JMP $AC43		; ABAC	$4C $43 $AC
+L3ABAF:
+	CMP #$E6		; ABAF	$C9 $E6
+	BNE L3AB70		; ABB1	$D0 $BD
+	LDA $2D			; ABB3	$A5 $2D
+	LSR			; ABB5	$4A
+	BCC L3AB70		; ABB6	$90 $B8
+	LDA $19			; ABB8	$A5 $19
+	BNE L3AB84		; ABBA	$D0 $C8
+	JSR $AC6B		; ABBC	$20 $6B $AC
+	JSR $AC85		; ABBF	$20 $85 $AC
+	LDA #$3B		; ABC2	$A9 $3B
+	JSR $ADB6		; ABC4	$20 $B6 $AD
+	JSR $ADE9		; ABC7	$20 $E9 $AD
+	JSR $A83A		; ABCA	$20 $3A $A8
+	JSR $B380		; ABCD	$20 $80 $B3	close menu
+	LDA #$00		; ABD0	$A9 $00
+	STA $2001		; ABD2	$8D $01 $20
+	STA $4015		; ABD5	$8D $15 $40
+	JMP $C0B8		; ABD8	$4C $B8 $C0	world map main
+L3ABDB:
+	LDA $80			; ABDB	$A5 $80
+	ASL			; ABDD	$0A
+	ORA $6E			; ABDE	$05 $6E
+	TAY			; ABE0	$A8
+	LDA $6210,Y		; ABE1	$B9 $10 $62
+	PHA			; ABE4	$48
+	JSR $AC85		; ABE5	$20 $85 $AC
+	PLA			; ABE8	$68
+	TAY			; ABE9	$A8
+	TSX			; ABEA	$BA
+	TXA			; ABEB	$8A
+	CLC			; ABEC	$18
+	ADC #$08		; ABED	$69 $08
+	CMP #$FB		; ABEF	$C9 $FB
+	BCS L3AC00		; ABF1	$B0 $0D
+	DEY			; ABF3	$88
+	BMI L3AC00		; ABF4	$30 $0A
+L3ABF6:
+	CLC			; ABF6	$18
+	ADC #$05		; ABF7	$69 $05
+	CMP #$FB		; ABF9	$C9 $FB
+	BCS L3AC00		; ABFB	$B0 $03
+	DEY			; ABFD	$88
+	BPL L3ABF6		; ABFE	$10 $F6
+L3AC00:
+	TAX			; AC00	$AA
+	TXS			; AC01	$9A
+	LDA #$37		; AC02	$A9 $37
+	JSR $ADB6		; AC04	$20 $B6 $AD
+	JSR $ADE9		; AC07	$20 $E9 $AD
+	JSR $B380		; AC0A	$20 $80 $B3	close menu
+	LDA #$00		; AC0D	$A9 $00
+	STA $2001		; AC0F	$8D $01 $20
+	STA $4015		; AC12	$8D $15 $40
+	RTS			; AC15	$60
+	JSR $AC6B		; AC16	$20 $6B $AC
+	LDA #$38		; AC19	$A9 $38
+	JSR $A901		; AC1B	$20 $01 $A9
+L3AC1E:
+	JSR $AE08		; AC1E	$20 $08 $AE
+	BCS L3AC2A		; AC21	$B0 $07
+	JSR $A61B		; AC23	$20 $1B $A6
+	BCC L3AC57		; AC26	$90 $2F
+	BCS L3AC1E		; AC28	$B0 $F4
+L3AC2A:
+	JSR $AC78		; AC2A	$20 $78 $AC
+	SEC			; AC2D	$38
+	RTS			; AC2E	$60
+	JSR $AC6B		; AC2F	$20 $6B $AC
+	LDA #$39		; AC32	$A9 $39
+	JSR $A901		; AC34	$20 $01 $A9
+L3AC37:
+	JSR $AE08		; AC37	$20 $08 $AE
+	BCS L3AC2A		; AC3A	$B0 $EE
+	JSR $A6A5		; AC3C	$20 $A5 $A6
+	BCC L3AC57		; AC3F	$90 $16
+	BCS L3AC37		; AC41	$B0 $F4
+	JSR $AC6B		; AC43	$20 $6B $AC
+	LDA #$3A		; AC46	$A9 $3A
+	JSR $A901		; AC48	$20 $01 $A9
+L3AC4B:
+	JSR $AE08		; AC4B	$20 $08 $AE
+	BCS L3AC2A		; AC4E	$B0 $DA
+	JSR $A6F4		; AC50	$20 $F4 $A6
+	BCC L3AC57		; AC53	$90 $02
+	BCS L3AC4B		; AC55	$B0 $F4
+L3AC57:
+	JSR $AC78		; AC57	$20 $78 $AC
+	JSR $AC85		; AC5A	$20 $85 $AC
+	JSR $EE60		; AC5D	$20 $60 $EE
+	JSR $B396		; AC60	$20 $96 $B3
+	JSR $ADC6		; AC63	$20 $C6 $AD
+	JSR $AC78		; AC66	$20 $78 $AC
+	SEC			; AC69	$38
+	RTS			; AC6A	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDA $80			; AC6B	$A5 $80
+	STA $08			; AC6D	$85 $08
+	LDA $9E			; AC6F	$A5 $9E
+	STA $09			; AC71	$85 $09
+	LDA $6E			; AC73	$A5 $6E
+	STA $0A			; AC75	$85 $0A
+	RTS			; AC77	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDA $08			; AC78	$A5 $08
+	STA $80			; AC7A	$85 $80
+	LDA $09			; AC7C	$A5 $09
+	STA $9E			; AC7E	$85 $9E
+	LDA $0A			; AC80	$A5 $0A
+	STA $6E			; AC82	$85 $6E
+	RTS			; AC84	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDA #$42		; AC85	$A9 $42		play song $02
+	STA $E0			; AC87	$85 $E0
+	LDX $6E			; AC89	$A6 $6E
+	LDA $80			; AC8B	$A5 $80
+	ASL			; AC8D	$0A
+	ORA $6E			; AC8E	$05 $6E
+	TAY			; AC90	$A8
+	LDA $610C,X		; AC91	$BD $0C $61
+	CLC			; AC94	$18
+	SBC $6210,Y		; AC95	$F9 $10 $62
+	STA $610C,X		; AC98	$9D $0C $61
+	LDA $610D,X		; AC9B	$BD $0D $61
+	SBC #$00		; AC9E	$E9 $00
+	STA $610D,X		; ACA0	$9D $0D $61
+	LDA $6211,Y		; ACA3	$B9 $11 $62
+	CLC			; ACA6	$18
+	ADC #$02		; ACA7	$69 $02
+	CMP #$64		; ACA9	$C9 $64
+	BCS L3ACB1		; ACAB	$B0 $04
+	STA $6211,Y		; ACAD	$99 $11 $62
+	RTS			; ACB0	$60
+L3ACB1:
+	LDA $6210,Y		; ACB1	$B9 $10 $62
+	CLC			; ACB4	$18
+	ADC #$01		; ACB5	$69 $01
+	CMP #$10		; ACB7	$C9 $10
+	BCS L3ACC3		; ACB9	$B0 $08
+	STA $6210,Y		; ACBB	$99 $10 $62
+	LDA #$00		; ACBE	$A9 $00
+	STA $6211,Y		; ACC0	$99 $11 $62
+L3ACC3:
+	RTS			; ACC3	$60
+; End of
+
+
+
+;----------------------------------------------------------------------
+
+
+
 ; Name	:
 ; Marks	:
 	LDA #$00		; ACC4	$A9 $00
