@@ -5235,95 +5235,603 @@ L3ACC3:
 	STA $A3			; AD06	$85 $A3
 	STA $A4			; AD08	$85 $A4
 	JSR $B396		; AD0A	$20 $96 $B3
+	JSR $ADA2		; AD0D	$20 $A2 AD
+	JSR $8EB6		; AD10	$20 $B6 8E	init player input
+	LDA #$01		; AD13	$A9 $01
+	STA $A2			; AD15	$85 $A2
+L3AD17:
+	JSR $B401		; AD17	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $8800		; AD1A	$20 $00 $88	draw portraits
+	LDA #$04		; AD1D	$A9 $04
+	JSR $96C5		; AD1F	$20 $C5 $96	get cursor 1 position
+	LDA $25			; AD22	$A5 $25
+	BNE L3AD8C		; AD24	$D0 $66		branch if B button pressed
+	LDA $24			; AD26	$A5 $24
+	BEQ L3AD17		; AD28	$F0 $ED		branch if A button is not pressed
+	JSR $905E		; AD2A	$20 $5E $90	cursor sound effect (confirm)
+	LDA $78F0		; AD2D	$AD $F0 $78	cursor position
+; item
+	BNE L3AD38		; AD30	$D0 $06
+	JSR $AEC5		; AD32	$20 $C5 $AE	item menu
+	JMP $AD00		; AD35	$4C $00 $AD
+; magic
+L3AD38:
+	CMP #$04		; AD38	$C9 $04
+	BNE L3AD47		; AD3A	$D0 $0B
+	JSR $AE59		; AD3C	$20 $59 $AE	character select
+	BCS L3AD17		; AD3F	$B0 $D6
+	JSR $AF93		; AD41	$20 $93 $AF	magic menu
+	JMP $AD00		; AD44	$4C $00 $AD
+; equip
+L3AD47:
+	CMP #$08		; AD47	$C9 $08
+	BNE L3AD56		; AD49	$D0 $0B
+	JSR $AE59		; AD4B	$20 $59 $AE	character select
+	BCS L3AD17		; AD4E	$B0 $C7
+	JSR $B015		; AD50	$20 $15 $B0	equip menu
+	JMP $AD00		; AD53	$4C $00 $AD
+; stats
+L3AD56:
+	CMP #$0C		; AD56	$C9 $0C
+	BNE L3AD65		; AD58	$D0 $0B
+	JSR $AE59		; AD5A	$20 $59 $AE	character select
+	BCS L3AD17		; AD5D	$B0 $B8
+	JSR $B1B1		; AD5F	$20 $B1 $B1	stats menu
+	JMP $AD00		; AD62	$4C $00 $AD
+; save
+L3AD65:
+	LDA $2D			; AD65	$A5 $2D
+	LSR			; AD67	$4A
+	BCC L3AD79		; AD68	$90 $0F		branch if on the world map
+	LDA #$40		; AD6A	$A9 $40
+	JSR $ADC3		; AD6C	$20 $C3 $AD
+	LDA #$01		; AD6F	$A9 $01
+	STA $A2			; AD71	$85 $A2
+	JSR $ADA2		; AD73	$20 $A2 $AD
+	JMP $AD17		; AD76	$4C $17 $AD
+L3AD79:
+	JSR $B1D7		; AD79	$20 $D7 $B1	save menu
+	JSR $EE60		; AD7C	$20 $60 $EE
+	JSR $8EB6		; AD7F	$20 $B6 $8E	init player input
+	JSR $ADA2		; AD82	$20 $A2 $AD
+	LDA #$01		; AD85	$A9 $01
+	STA $A2			; AD87	$85 $A2
+	JMP $AD17		; AD89	$4C $17 $AD
+; close menu
+L3AD8C:
+	JSR $B380		; AD8C	$20 $80 $B3	close menu
+	LDA #$00		; AD8F	$A9 $00
+	STA $2001		; AD91	$8D $01 $20
+	STA $4015		; AD94	$8D $15 $40
+	STA $24			; AD97	$85 $24
+	STA $25			; AD99	$85 $25
+	STA $22			; AD9B	$85 $22
+	STA $23			; AD9D	$85 $23
+	STA $47			; AD9F	$85 $47
+	RTS			; ADA1	$60
+; End of
 
-;; [$AD00 :: 0x3AD00]
+; Name	:
+; Marks	:
+	LDX #$05		; ADA2	$A2 $05
+	JSR $B486		; ADA4	$20 $86 $B4
+	LDA #$1C		; ADA7	$A9 $1C
+	JSR $B3DF		; ADA9	$20 $DF $B3	load menu text
+	LDX #$04		; ADAC	$A2 $04
+	JSR $B486		; ADAE	$20 $86 $B4
+	LDA #$1B		; ADB1	$A9 $1B
+	JMP $B3DF		; ADB3	$4C $DF $B3	load menu text
+; End of
 
-.byte $20,$A2,$AD
-.byte $20,$B6,$8E,$A9,$01,$85,$A2,$20,$01,$B4,$20,$00,$88,$A9,$04,$20
-.byte $C5,$96,$A5,$25,$D0,$66,$A5,$24,$F0,$ED,$20,$5E,$90,$AD,$F0,$78
-.byte $D0,$06,$20,$C5,$AE,$4C,$00,$AD,$C9,$04,$D0,$0B,$20,$59,$AE,$B0
-.byte $D6,$20,$93,$AF,$4C,$00,$AD,$C9,$08,$D0,$0B,$20,$59,$AE,$B0,$C7
-.byte $20,$15,$B0,$4C,$00,$AD,$C9,$0C,$D0,$0B,$20,$59,$AE,$B0,$B8,$20
-.byte $B1,$B1,$4C,$00,$AD,$A5,$2D,$4A,$90,$0F,$A9,$40,$20,$C3,$AD,$A9
-.byte $01,$85,$A2,$20,$A2,$AD,$4C,$17,$AD,$20,$D7,$B1,$20,$60,$EE,$20
-.byte $B6,$8E,$20,$A2,$AD,$A9,$01,$85,$A2,$4C,$17,$AD,$20,$80,$B3,$A9
-.byte $00,$8D,$01,$20,$8D,$15,$40,$85,$24,$85,$25,$85,$22,$85,$23,$85
-.byte $47,$60,$A2,$05,$20,$86,$B4,$A9,$1C,$20,$DF,$B3,$A2,$04,$20,$86
-.byte $B4,$A9,$1B,$4C,$DF,$B3,$48,$20,$60,$EE,$A2,$10,$20,$86,$B4,$68
-.byte $4C,$DF,$B3,$20,$B6,$AD,$A9,$00,$85,$A2,$85,$A3,$85,$A4,$A9,$00
-.byte $85,$24,$85,$25,$20,$01,$B4,$20,$00,$88,$20,$5C,$DB,$A5,$24,$05
-.byte $25,$F0,$F1,$20,$5E,$90,$4C,$60,$EE,$A9,$00,$85,$A2,$85,$A3,$85
-.byte $A4,$85,$24,$85,$25,$20,$01,$B4,$20,$6A,$B3,$20,$5C,$DB,$A5,$24
+; Name	:
+; Marks	:
+	PHA 			; ADB6	$48
+	JSR $EE60		; ADB7	$20 $60 $EE
+	LDX #$10		; ADBA	$A2 $10
+	JSR $B486		; ADBC	$20 $86 $B4
+	PLA			; ADBF	$68
+	JMP $B3DF		; ADC0	$4C $DF $B3	load menu text
+; End of
 
-;; [$AE00 :: 0x3AE00]
+; Name	:
+; Marks	:
+	JSR $ADB6		; ADC3	$20 $B6 $AD
+	LDA #$00		; ADC6	$A9 $00
+	STA $A2			; ADC8	$85 $A2
+	STA $A3			; ADCA	$85 $A3
+	STA $A4			; ADCC	$85 $A4
+	LDA #$00		; ADCE	$A9 $00
+	STA $24			; ADD0	$85 $24
+	STA $25			; ADD2	$85 $25
+L3ADD4:
+	JSR $B401		; ADD4	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $8800		; ADD7	$20 $00 $88	draw portraits
+	JSR $DB5C		; ADDA	$20 $5C $DB	update joypad input
+	LDA $24			; ADDD	$A5 $24
+	ORA $25			; ADDF	$05 $25
+	BEQ L3ADD4		; ADE1	$F0 $F1
+	JSR $905E		; ADE3	$20 $5E $90	cursor sound effect (confirm)
+	JMP $EE60		; ADE6	$4C $60 $EE
+; End of
 
-.byte $05,$25,$F0,$F1,$20,$5E,$90,$60,$A9,$00,$8D,$F0,$79,$A2,$0F,$BD
-.byte $AA,$AE,$9D,$00,$79,$CA,$10,$F7,$A9,$14,$AE,$F5,$62,$10,$02,$A9
-.byte $10,$8D,$F1,$79,$A9,$01,$85,$A3,$20,$18,$B4,$20,$00,$88,$A9,$08
-.byte $20,$F9,$96,$A5,$25,$D0,$19,$A5,$24,$F0,$ED,$20,$5E,$90,$AD,$F0
-.byte $79,$4A,$4A,$09,$10,$85,$9E,$4A,$6A,$6A,$29,$C0,$85,$6E,$18,$60
-.byte $A9,$00,$85,$A3,$20,$5E,$90,$38,$60,$A9,$00,$8D,$F0,$79,$A2,$0F
-.byte $BD,$AA,$AE,$9D,$00,$79,$CA,$10,$F7,$A9,$10,$AE,$F5,$62,$10,$02
-.byte $A9,$0C,$8D,$F1,$79,$A9,$01,$85,$A3,$20,$01,$B4,$20,$00,$88,$A9
-.byte $08,$20,$F9,$96,$A5,$25,$D0,$19,$A5,$24,$F0,$ED,$20,$5E,$90,$AD
-.byte $F0,$79,$4A,$4A,$09,$10,$85,$9E,$4A,$6A,$6A,$29,$C0,$85,$6E,$18
-.byte $60,$A9,$00,$85,$A3,$20,$5E,$90,$38,$60,$06,$03,$00,$00,$14,$03
-.byte $00,$00,$08,$0D,$00,$00,$16,$0D,$00,$00,$20,$5E,$90,$A9,$00,$8D
-.byte $F0,$78,$4C,$80,$B3,$20,$5E,$90,$20,$80,$B3,$A9,$00,$85,$A3,$85
-.byte $A4,$A9,$01,$85,$A2,$A9,$00,$8D,$F0,$7A,$A2,$07,$20,$86,$B4,$A9
-.byte $25,$20,$DF,$B3,$A2,$06,$20,$86,$B4,$A9,$1F,$20,$DF,$B3,$20,$14
-.byte $B3,$20,$3F,$B3,$20,$01,$B4,$A9,$0C,$20,$C5,$96,$A5,$25,$D0,$BA
+; Name	:
+; Marks	:
+	LDA #$00		; ADE9	$A9 $00
+	STA $A2			; ADEB	$85 $A2
+	STA $A3			; ADED	$85 $A3
+	STA $A4			; ADEF	$85 $A4
+	STA $24			; ADF1	$85 $24
+	STA $25			; ADF3	$85 $25
+L3ADF5:
+	JSR $B401		; ADF5	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $B36A		; ADF8	$20 $6A $B3
+	JSR $DB5C		; ADFB	$20 $5C $DB	update joypad input
+	LDA $24			; ADFE	$A5 $24
+	ORA $25			; AE00	$05 $25
+	BEQ L3ADF5		; AE02	$F0 $F1
+	JSR $905E		; AE04	$20 $5E $90	cursor sound effect (confirm)
+	RTS			; AE07	$60
+	LDA #$00		; AE08	$A9 $00
+	STA $79F0		; AE0A	$8D $F0 $79
+	LDX #$0F		; AE0D	$A2 $0F
+L3AE0F:
+	LDA $AEAA,X		; AE0F	$BD $AA $AE
+	STA $7900,X		; AE12	$9D $00 $79
+	DEX			; AE15	$CA
+	BPL L3AE0F		; AE16	$10 $F7
+	LDA #$14		; AE18	$A9 $14
+	LDX $62F5		; AE1A	$AE $F5 $62
+	BPL L3AE21		; AE1D	$10 $02
+	LDA #$10		; AE1F	$A9 $10
+L3AE21:
+	STA $79F1		; AE21	$8D $F1 $79
+	LDA #$01		; AE24	$A9 $01
+	STA $A3			; AE26	$85 $A3
+L3AE28:
+	JSR $B418		; AE28	$20 $18 $B4
+	JSR $8800		; AE2B	$20 $00 $88	draw portraits
+	LDA #$08		; AE2E	$A9 $08
+	JSR $96F9		; AE30	$20 $F9 $96	update cursor 2 position
+	LDA $25			; AE33	$A5 $25
+	BNE L3AE50		; AE35	$D0 $19
+	LDA $24			; AE37	$A5 $24
+	BEQ L3AE28		; AE39	$F0 $ED
+	JSR $905E		; AE3B	$20 $5E $90	cursor sound effect (confirm)
+	LDA $79F0		; AE3E	$AD $F0 $79
+	LSR			; AE41	$4A
+	LSR			; AE42	$4A
+	ORA #$10		; AE43	$09 $10
+	STA $9E			; AE45	$85 $9E
+	LSR			; AE47	$4A
+	ROR			; AE48	$6A
+	ROR			; AE49	$6A
+	AND #$C0		; AE4A	$29 $C0
+	STA $6E			; AE4C	$85 $6E
+	CLC			; AE4E	$18
+	RTS			; AE4F	$60
+L3AE50:
+	LDA #$00		; AE50	$A9 $00
+	STA $A3			; AE52	$85 $A3
+	JSR $905E		; AE54	$20 $5E $90	cursor sound effect (confirm)
+	SEC			; AE57	$38
+	RTS			; AE58	$60
+; End of
 
-;; [$AF00 :: 0x3AF00]
+; Name	:
+; Marks	: character select (main menu)
+	LDA #$00		; AE59	$A9 $00
+	STA $79F0		; AE5B	$8D $F0 $79
+	LDX #$0F		; AE5E	$A2 $0F
+L3AE60:
+	LDA $AEAA,X		; AE60	$BD $AA $AE
+	STA $7900,X		; AE63	$9D $00 $79
+	DEX			; AE66	$CA
+	BPL L3AE60		; AE67	$10 $F7
+	LDA #$10		; AE69	$A9 $10
+	LDX $62F5		; AE6B	$AE $F5 $62
+	BPL L3AE72		; AE6E	$10 $02
+	LDA #$0C		; AE70	$A9 $0C
+L3AE72:
+	STA $79F1		; AE72	$8D $F1 $79
+	LDA #$01		; AE75	$A9 $01
+	STA $A3			; AE77	$85 $A3
+L3AE79:
+	JSR $B401		; AE79	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $8800		; AE7C	$20 $00 $88	draw portraits
+	LDA #$08		; AE7F	$A9 $08
+	JSR $96F9		; AE81	$20 $F9 $96	update cursor 2 position
+	LDA $25			; AE84	$A5 $25
+	BNE L3AEA1		; AE86	$D0 $19
+	LDA $24			; AE88	$A5 $24
+	BEQ L3AE79		; AE8A	$F0 $ED
+	JSR $905E		; AE8C	$20 $5E $90	cursor sound effect (confirm)
+	LDA $79F0		; AE8F	$AD $F0 $79
+	LSR			; AE92	$4A
+	LSR			; AE93	$4A
+	ORA #$10		; AE94	$09 $10
+	STA $9E			; AE96	$85 $9E
+	LSR			; AE98	$4A
+	ROR			; AE99	$6A
+	ROR			; AE9A	$6A
+	AND #$C0		; AE9B	$29 $C0
+	STA $6E			; AE9D	$85 $6E
+	CLC			; AE9F	$18
+	RTS			; AEA0	$60
+L3AEA1:
+	LDA #$00		; AEA1	$A9 $00
+	STA $A3			; AEA3	$85 $A3
+	JSR $905E		; AEA5	$20 $5E $90	cursor sound effect (confirm)
+	SEC			; AEA8	$38
+	RTS			; AEA9	$60
+; End of
 
-.byte $A5,$24,$F0,$F0,$20,$5E,$90,$A9,$01,$85,$A3,$AD,$F0,$78,$8D,$F0
-.byte $79,$20,$01,$B4,$A9,$0C,$20,$F9,$96,$A5,$25,$F0,$0A,$20,$5E,$90
-.byte $A9,$00,$85,$A3,$4C,$F4,$AE,$A5,$24,$F0,$E6,$20,$5E,$90,$A9,$00
-.byte $85,$A3,$20,$6E,$A8,$B0,$8E,$A2,$07,$20,$51,$B4,$A9,$25,$20,$DF
-.byte $B3,$20,$3F,$B3,$20,$14,$B3,$4C,$F4,$AE,$20,$5E,$90,$20,$80,$B3
-.byte $A9,$00,$85,$A3,$85,$A4,$A9,$01,$85,$A2,$A9,$00,$8D,$F0,$7A,$A2
-.byte $08,$20,$86,$B4,$A9,$20,$20,$CD,$B3,$A2,$09,$20,$86,$B4,$A9,$1D
-.byte $20,$DF,$B3,$A2,$0A,$20,$86,$B4,$A9,$21,$20,$CD,$B3,$A2,$0B,$20
-.byte $86,$B4,$A9,$26,$20,$CD,$B3,$60,$20,$5E,$90,$A9,$04,$8D,$F0,$78
-.byte $4C,$80,$B3,$20,$4A,$AF,$20,$14,$B3,$20,$3F,$B3,$A9,$00,$8D,$F0
-.byte $78,$20,$01,$B4,$20,$6A,$B3,$A9,$08,$20,$C5,$96,$A5,$25,$D0,$D8
-.byte $A5,$24,$F0,$ED,$20,$5E,$90,$A9,$01,$85,$A3,$AD,$F0,$78,$8D,$F0
-.byte $79,$20,$01,$B4,$20,$6A,$B3,$A9,$08,$20,$F9,$96,$A5,$25,$F0,$0A
-.byte $20,$5E,$90,$A9,$00,$85,$A3,$4C,$A1,$AF,$A5,$24,$F0,$E3,$A6,$6E
-.byte $BD,$01,$61,$29,$D0,$F0,$06,$20,$67,$DE,$4C,$D0,$AF,$20,$5E,$90
-.byte $A9,$00,$85,$A3,$20,$DF,$AA,$90,$03,$4C,$93,$AF,$A2,$0B,$20,$51
+; $AEAA - data block =
+.byte $06,$03,$00,$00		; AEAA 
+.byte $14,$03,$00,$00		; AEAE 
+.byte $08,$0D,$00,$00		; AEB2 
+.byte $16,$0D,$00,$00		; AEB6 
 
-;; [$B000 :: 0x3B000]
+; close menu
+L3AEBA:
+	JSR $905E		; AEBA	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$00		; AEBD	$A9 $00
+	STA $78F0		; AEBF	$8D $F0 $78
+	JMP $B380		; AEC2	$4C $80 $B3	close menu
+; Name	:
+; Marks	:
+L3AEC5:
+	JSR $905E		; AEC5	$20 $5E $90	cursor sound effect (confirm)
+	JSR $B380		; AEC8	$20 $80 $B3	close menu
+	LDA #$00		; AECB	$A9 $00
+	STA $A3			; AECD	$85 $A3
+	STA $A4			; AECF	$85 $A4
+	LDA #$01		; AED1	$A9 $01
+	STA $A2			; AED3	$85 $A2
+	LDA #$00		; AED5	$A9 $00
+	STA $7AF0		; AED7	$8D $F0 $7A
+	LDX #$07		; AEDA	$A2 $07
+	JSR $B486		; AEDC	$20 $86 $B4
+	LDA #$25		; AEDF	$A9 $25
+	JSR $B3DF		; AEE1	$20 $DF $B3	load menu text
+	LDX #$06		; AEE4	$A2 $06
+	JSR $B486		; AEE6	$20 $86 $B4
+	LDA #$1F		; AEE9	$A9 $1F
+	JSR $B3DF		; AEEB	$20 $DF $B3	load menu text
+	JSR $B314		; AEEE	$20 $14 $B3
+	JSR $B33F		; AEF1	$20 $3F $B3
+L3AEF4:
+	JSR $B401		; AEF4	$20 $01 $B4	wait for vblank (update cursors)
+	LDA #$0C		; AEF7	$A9 $0C
+	JSR $96C5		; AEF9	$20 $C5 $96	get cursor 1 position
+	LDA $25			; AEFC	$A5 $25
+	BNE L3AEBA		; AEFE	$D0 $BA
+	LDA $24			; AF00	$A5 $24
+	BEQ L3AEF4		; AF02	$F0 $F0
+	JSR $905E		; AF04	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$01		; AF07	$A9 $01
+	STA $A3			; AF09	$85 $A3
+	LDA $78F0		; AF0B	$AD $F0 $78
+	STA $79F0		; AF0E	$8D $F0 $79
+L3AF11:
+	JSR $B401		; AF11	$20 $01 $B4	wait for vblank (update cursors)
+	LDA #$0C		; AF14	$A9 $0C
+	JSR $96F9		; AF16	$20 $F9 $96	update cursor 2 position
+	LDA $25			; AF19	$A5 $25
+	BEQ L3AF27		; AF1B	$F0 $0A
+	JSR $905E		; AF1D	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$00		; AF20	$A9 $00
+	STA $A3			; AF22	$85 $A3
+	JMP $AEF4		; AF24	$4C $F4 $AE
+L3AF27:
+	LDA $24			; AF27	$A5 $24
+	BEQ L3AF11		; AF29	$F0 $E6
+	JSR $905E		; AF2B	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$00		; AF2E	$A9 $00
+	STA $A3			; AF30	$85 $A3
+	JSR $A86E		; AF32	$20 $6E $A8
+	BCS L3AEC5		; AF35	$B0 $8E
+	LDX #$07		; AF37	$A2 $07
+	JSR $B451		; AF39	$20 $51 $B4
+	LDA #$25		; AF3C	$A9 $25
+	JSR $B3DF		; AF3E	$20 $DF $B3	load menu text
+	JSR $B33F		; AF41	$20 $3F $B3
+	JSR $B314		; AF44	$20 $14 $B3
+	JMP $AEF4		; AF47	$4C $F4 $AE
+; End of
 
-.byte $B4,$A9,$26,$20,$CD,$B3,$20,$3F,$B3,$20,$14,$B3,$4C,$A1,$AF,$20
-.byte $5E,$90,$4C,$80,$B3,$20,$5E,$90,$20,$80,$B3,$A9,$00,$85,$A4,$85
-.byte $A2,$A9,$01,$85,$A3,$A9,$00,$8D,$F0,$7A,$8D,$F0,$79,$A2,$08,$20
-.byte $86,$B4,$A9,$22,$20,$CD,$B3,$A2,$09,$20,$86,$B4,$A9,$1D,$20,$DF
-.byte $B3,$A2,$0A,$20,$86,$B4,$A9,$23,$20,$CD,$B3,$A2,$0C,$20,$86,$B4
-.byte $A9,$24,$20,$CD,$B3,$A2,$0D,$20,$86,$B4,$A9,$25,$20,$F0,$B3,$20
-.byte $EB,$94,$20,$01,$B4,$20,$6A,$B3,$A9,$04,$20,$F9,$96,$A5,$25,$D0
-.byte $9E,$A5,$24,$F0,$ED,$20,$5E,$90,$A9,$01,$85,$A4,$20,$01,$B4,$20
-.byte $6A,$B3,$A9,$0C,$20,$2D,$97,$A5,$25,$F0,$0A,$20,$5E,$90,$A9,$00
-.byte $85,$A4,$4C,$62,$B0,$A5,$24,$F0,$E3,$20,$5E,$90,$20,$CB,$B0,$A5
-.byte $9E,$29,$03,$20,$03,$FA,$A2,$0A,$20,$51,$B4,$A9,$23,$20,$CD,$B3
-.byte $A2,$0C,$20,$51,$B4,$A9,$24,$20,$CD,$B3,$20,$23,$95,$A5,$1C,$85
-.byte $3E,$A5,$1D,$85,$3F,$20,$AC,$E7,$4C,$7C,$B0,$AE,$F0,$7A,$BD,$02
-.byte $7A,$C9,$0F,$D0,$2C,$A9,$00,$85,$80,$AD,$F0,$79,$4A,$4A,$AA,$A5
-.byte $6E,$1D,$99,$B1,$AA,$BD,$00,$61,$C9,$10,$B0,$03,$4C,$67,$DE,$AD
-.byte $F0,$79,$4A,$4A,$AA,$A5,$6E,$1D,$99,$B1,$AA,$A5,$80,$9D,$00,$61
+; Name	:
+; Marks	:
+	JSR $905E		; AF4A	$20 $5E $90	cursor sound effect (confirm)
+	JSR $B380		; AF4D	$20 $80 $B3	close menu
+	LDA #$00		; AF50	$A9 $00
+	STA $A3			; AF52	$85 $A3
+	STA $A4			; AF54	$85 $A4
+	LDA #$01		; AF56	$A9 $01
+	STA $A2			; AF58	$85 $A2
+	LDA #$00		; AF5A	$A9 $00
+	STA $7AF0		; AF5C	$8D $F0 $7A
+	LDX #$08		; AF5F	$A2 $08
+	JSR $B486		; AF61	$20 $86 $B4
+	LDA #$20		; AF64	$A9 $20
+	JSR $B3CD		; AF66	$20 $CD $B3
+	LDX #$09		; AF69	$A2 $09
+	JSR $B486		; AF6B	$20 $86 $B4
+	LDA #$1D		; AF6E	$A9 $1D
+	JSR $B3DF		; AF70	$20 $DF $B3	load menu text
+	LDX #$0A		; AF73	$A2 $0A
+	JSR $B486		; AF75	$20 $86 $B4
+	LDA #$21		; AF78	$A9 $21
+	JSR $B3CD		; AF7A	$20 $CD $B3
+	LDX #$0B		; AF7D	$A2 $0B
+	JSR $B486		; AF7F	$20 $86 $B4
+	LDA #$26		; AF82	$A9 $26
+	JSR $B3CD		; AF84	$20 $CD $B3
+	RTS			; AF87	$60
+; End of
 
-;; [$B100 :: 0x3B100]
 
-.byte $60,$BD,$03,$7A,$AA,$85,$82,$BD,$60,$60,$85,$80,$F0,$1E,$AD,$F0
-.byte $79,$4A,$4A,$AA,$C9,$05,$B0,$2E,$A5,$80,$DD,$A1,$B1,$90,$24,$DD
-.byte $A9,$B1,$B0,$1F,$E0,$00,$F0,$38,$E0,$03,$F0,$34,$AD,$F0,$79,$4A
-.byte $4A,$AA,$A5,$6E,$1D,$99,$B1,$AA,$BD,$00,$61,$A6,$82,$9D,$60,$60
-.byte $4C,$EF,$B0,$4C,$67,$DE,$A5,$80,$C9,$0E,$90,$F7,$C9,$30,$90,$DC
-.byte $F0,$F1,$C9,$70,$90,$D6,$C9,$98,$90,$E9,$C9,$C0,$B0,$E5,$90,$CC
-.byte $A4,$6E,$E0,$00,$D0,$0D,$B9,$1C,$61,$85,$10,$B9,$1D,$61,$85,$11
-.byte $4C,$7D,$B1,$B9,$1D,$61,$85,$10,$B9,$1C,$61,$85,$11,$A5,$10,$05
-.byte $11,$F0,$A9,$A5,$11,$F0,$A5,$C9,$68,$B0,$0B,$A5,$80,$C9,$68,$B0
-.byte $05,$4C,$2C,$B1,$A5,$10,$4C,$43,$B1,$1C,$19,$1B,$1D,$1A,$1E,$1F
+; close menu
+L3AF88:
+	JSR $905E		; AF88	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$04		; AF8B	$A9 $04
+	STA $78F0		; AF8D	$8D $F0 $78
+	JMP $B380		; AF90	$4C $80 $B3	close menu
+; Name	:
+; Marks	: magic menu
+; subroutine starts at 0E/AF93
+; starts here
+	JSR $AF4A		; AF93	$20 $4A $AF
+	JSR $B314		; AF96	$20 $14 $B3
+	JSR $B33F		; AF99	$20 $3F $B3
+	LDA #$00		; AF9C	$A9 $00
+	STA $78F0		; AF9E	$8D $F0 $78
+L3AFA1:
+	JSR $B401		; AFA1	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $B36A		; AFA4	$20 $6A $B3
+	LDA #$08		; AFA7	$A9 $08
+	JSR $96C5		; AFA9	$20 $C5 $96	get cursor 1 position
+	LDA $25			; AFAC	$A5 $25
+	BNE L3AF88		; AFAE	$D0 $D8
+	LDA $24			; AFB0	$A5 $24
+	BEQ L3AFA1		; AFB2	$F0 $ED
+	JSR $905E		; AFB4	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$01		; AFB7	$A9 $01
+	STA $A3			; AFB9	$85 $A3
+	LDA $78F0		; AFBB	$AD $F0 $78
+	STA $79F0		; AFBE	$8D $F0 $79
+L3AFC1:
+	JSR $B401		; AFC1	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $B36A		; AFC4	$20 $6A $B3
+	LDA #$08		; AFC7	$A9 $08
+	JSR $96F9		; AFC9	$20 $F9 $96	update cursor 2 position
+	LDA $25			; AFCC	$A5 $25
+	BEQ L3AFDA		; AFCE	$F0 $0A
+	JSR $905E		; AFD0	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$00		; AFD3	$A9 $00
+	STA $A3			; AFD5	$85 $A3
+	JMP $AFA1		; AFD7	$4C $A1 $AF
+L3AFDA:
+	LDA $24			; AFDA	$A5 $24
+	BEQ L3AFC1		; AFDC	$F0 $E3
+	LDX $6E			; AFDE	$A6 $6E
+	LDA $6101,X		; AFE0	$BD $01 $61
+	AND #$D0		; AFE3	$29 $D0
+	BEQ L3AFED		; AFE5	$F0 $06
+	JSR $DE67		; AFE7	$20 $67 $DE	play error sound effect
+	JMP $AFD0		; AFEA	$4C $D0 $AF
+L3AFED:
+	JSR $905E		; AFED	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$00		; AFF0	$A9 $00
+	STA $A3			; AFF2	$85 $A3
+	JSR $AADF		; AFF4	$20 $DF $AA
+	BCC L3AFFC		; AFF7	$90 $03
+	JMP $AF93		; AFF9	$4C $93 $AF
+L3AFFC:
+	LDX #$0B		; AFFC	$A2 $0B
+	JSR $B451		; AFFE	$20 $51 $B4
+	LDA #$26		; B001	$A9 $26
+	JSR $B3CD		; B003	$20 $CD $B3
+	JSR $B33F		; B006	$20 $3F $B3
+	JSR $B314		; B009	$20 $14 $B3
+	JMP $AFA1		; B00C	$4C $A1 $AF
+; End of
+
+L3B00F:
+	JSR $905E		; B00F	$20 $5E $90	cursor sound effect (confirm)
+	JMP $B380		; B012	$4C $80 $B3	close menu
+; Name	:
+; Marks	: equip menu
+; subroutine starts at 0E/B015
+; starts here
+	JSR $905E		; B015	$20 $5E $90	cursor sound effect (confirm)
+	JSR $B380		; B018	$20 $80 $B3	close menu
+	LDA #$00		; B01B	$A9 $00
+	STA $A4			; B01D	$85 $A4
+	STA $A2			; B01F	$85 $A2
+	LDA #$01		; B021	$A9 $01
+	STA $A3			; B023	$85 $A3
+	LDA #$00		; B025	$A9 $00
+	STA $7AF0		; B027	$8D $F0 $7A
+	STA $79F0		; B02A	$8D $F0 $79
+	LDX #$08		; B02D	$A2 $08
+	JSR $B486		; B02F	$20 $86 $B4
+	LDA #$22		; B032	$A9 $22
+	JSR $B3CD		; B034	$20 $CD $B3
+	LDX #$09		; B037	$A2 $09
+	JSR $B486		; B039	$20 $86 $B4
+	LDA #$1D		; B03C	$A9 $1D
+	JSR $B3DF		; B03E	$20 $DF $B3	load menu text
+	LDX #$0A		; B041	$A2 $0A
+	JSR $B486		; B043	$20 $86 $B4
+	LDA #$23		; B046	$A9 $23
+	JSR $B3CD		; B048	$20 $CD $B3
+	LDX #$0C		; B04B	$A2 $0C
+	JSR $B486		; B04D	$20 $86 $B4
+	LDA #$24		; B050	$A9 $24
+	JSR $B3CD		; B052	$20 $CD $B3
+	LDX #$0D		; B055	$A2 $0D
+	JSR $B486		; B057	$20 $86 $B4
+	LDA #$25		; B05A	$A9 $25
+	JSR $B3F0		; B05C	$20 $F0 $B3	load menu text
+	JSR $94EB		; B05F	$20 $EB $94	save dialogue window variables
+L3B062:
+	JSR $B401		; B062	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $B36A		; B065	$20 $6A $B3
+	LDA #$04		; B068	$A9 $04
+	JSR $96F9		; B06A	$20 $F9 $96	update cursor 2 position
+	LDA $25			; B06D	$A5 $25
+	BNE L3B00F		; B06F	$D0 $9E
+	LDA $24			; B071	$A5 $24
+	BEQ L3B062		; B073	$F0 $ED
+	JSR $905E		; B075	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$01		; B078	$A9 $01
+	STA $A4			; B07A	$85 $A4
+L3B07C:
+	JSR $B401		; B07C	$20 $01 $B4	wait for vblank (update cursors)
+	JSR $B36A		; B07F	$20 $6A $B3
+	LDA #$0C		; B082	$A9 $0C
+	JSR $972D		; B084	$20 $2D $97	update cursor 3 position
+	LDA $25			; B087	$A5 $25
+	BEQ L3B095		; B089	$F0 $0A
+	JSR $905E		; B08B	$20 $5E $90	cursor sound effect (confirm)
+	LDA #$00		; B08E	$A9 $00
+	STA $A4			; B090	$85 $A4
+	JMP $B062		; B092	$4C $62 $B0
+L3B095:
+	LDA $24			; B095	$A5 $24
+	BEQ L3B07C		; B097	$F0 $E3
+	JSR $905E		; B099	$20 $5E $90	cursor sound effect (confirm)
+	JSR $B0CB		; B09C	$20 $CB $B0
+	LDA $9E			; B09F	$A5 $9E
+	AND #$03		; B0A1	$29 $03
+	JSR $FA03		; B0A3	$20 $03 $FA	update character equipment
+	LDX #$0A		; B0A6	$A2 $0A
+	JSR $B451		; B0A8	$20 $51 $B4
+	LDA #$23		; B0AB	$A9 $23
+	JSR $B3CD		; B0AD	$20 $CD $B3
+	LDX #$0C		; B0B0	$A2 $0C
+	JSR $B451		; B0B2	$20 $51 $B4
+	LDA #$24		; B0B5	$A9 $24
+	JSR $B3CD		; B0B7	$20 $CD $B3
+	JSR $9523		; B0BA	$20 $23 $95	restore dialogue window variables
+	LDA $1C			; B0BD	$A5 $1C
+	STA $3E			; B0BF	$85 $3E
+	LDA $1D			; B0C1	$A5 $1D
+	STA $3F			; B0C3	$85 $3F
+	JSR $E7AC		; B0C5	$20 $AC $E7
+	JMP $B07C		; B0C8	$4C $7C $B0
+	LDX $7AF0		; B0CB	$AE $F0 $7A
+	LDA $7A02,X		; B0CE	$BD $02 $7A
+	CMP #$0F		; B0D1	$C9 $0F
+	BNE L3B101		; B0D3	$D0 $2C
+	LDA #$00		; B0D5	$A9 $00
+	STA $80			; B0D7	$85 $80
+	LDA $79F0		; B0D9	$AD $F0 $79
+	LSR			; B0DC	$4A
+	LSR			; B0DD	$4A
+	TAX			; B0DE	$AA
+	LDA $6E			; B0DF	$A5 $6E
+	ORA $B199,X		; B0E1	$1D $99 $B1
+	TAX			; B0E4	$AA
+	LDA $6100,X		; B0E5	$BD $00 $61
+	CMP #$10		; B0E8	$C9 $10
+	BCS L3B0EF		; B0EA	$B0 $03
+	JMP $DE67		; B0EC	$4C $67 $DE	play error sound effect
+L3B0EF:
+	LDA $79F0		; B0EF	$AD $F0 $79
+	LSR			; B0F2	$4A
+	LSR			; B0F3	$4A
+	TAX			; B0F4	$AA
+	LDA $6E			; B0F5	$A5 $6E
+	ORA $B199,X		; B0F7	$1D $99 $B1
+	TAX			; B0FA	$AA
+	LDA $80			; B0FB	$A5 $80
+	STA $6100,X		; B0FD	$9D $00 $61
+	RTS			; B100	$60
+L3B101:
+	LDA $7A03,X		; B101	$BD $03 $7A
+	TAX			; B104	$AA
+	STA $82			; B105	$85 $82
+	LDA $6060,X		; B107	$BD $60 $60
+	STA $80			; B10A	$85 $80
+	BEQ L3B12C		; B10C	$F0 $1E
+	LDA $79F0		; B10E	$AD $F0 $79
+	LSR			; B111	$4A
+	LSR			; B112	$4A
+	TAX			; B113	$AA
+	CMP #$05		; B114	$C9 $05
+	BCS L3B146		; B116	$B0 $2E
+	LDA $80			; B118	$A5 $80
+	CMP $B1A1,X		; B11A	$DD $A1 $B1
+	BCC L3B143		; B11D	$90 $24
+	CMP $B1A9,X		; B11F	$DD $A9 $B1
+	BCS L3B143		; B122	$B0 $1F
+	CPX #$00		; B124	$E0 $00
+	BEQ L3B160		; B126	$F0 $38
+	CPX #$03		; B128	$E0 $03
+	BEQ L3B160		; B12A	$F0 $34
+L3B12C:
+	LDA $79F0		; B12C	$AD $F0 $79
+	LSR			; B12F	$4A
+	LSR			; B130	$4A
+	TAX			; B131	$AA
+	LDA $6E			; B132	$A5 $6E
+	ORA $B199,X		; B134	$1D $99 $B1
+	TAX			; B137	$AA
+	LDA $6100,X		; B138	$BD $00 $61
+	LDX $82			; B13B	$A6 $82
+	STA $6060,X		; B13D	$9D $60 $60
+	JMP $B0EF		; B140	$4C $EF $B0
+L3B143:
+	JMP $DE67		; B143	$4C $67 $DE	play error sound effect
+L3B146:
+	LDA $80			; B146	$A5 $80
+	CMP #$0E		; B148	$C9 $0E
+	BCC L3B143		; B14A	$90 $F7
+	CMP #$30		; B14C	$C9 $30
+	BCC L3B12C		; B14E	$90 $DC
+	BEQ L3B143		; B150	$F0 $F1
+	CMP #$70		; B152	$C9 $70
+	BCC L3B12C		; B154	$90 $D6
+	CMP #$98		; B156	$C9 $98
+	BCC L3B143		; B158	$90 $E9
+	CMP #$C0		; B15A	$C9 $C0
+	BCS L3B143		; B15C	$B0 $E5
+	BCC L3B12C		; B15E	$90 $CC
+L3B160:
+	LDY $6E			; B160	$A4 $6E
+	CPX #$00		; B162	$E0 $00
+	BNE L3B173		; B164	$D0 $0D
+	LDA $611C,Y		; B166	$B9 $1C $61
+	STA $10			; B169	$85 $10
+	LDA $611D,Y		; B16B	$B9 $1D $61
+	STA $11			; B16E	$85 $11
+	JMP $B17D		; B170	$4C $7D $B1
+L3B173:
+	LDA $611D,Y		; B173	$B9 $1D $61
+	STA $10			; B176	$85 $10
+	LDA $611C,Y		; B178	$B9 $1C $61
+	STA $11			; B17B	$85 $11
+	LDA $10			; B17D	$A5 $10
+	ORA $11			; B17F	$05 $11
+	BEQ L3B12C		; B181	$F0 $A9
+	LDA $11			; B183	$A5 $11
+	BEQ L3B12C		; B185	$F0 $A5
+	CMP #$68		; B187	$C9 $68
+	BCS L3B196		; B189	$B0 $0B
+	LDA $80			; B18B	$A5 $80
+	CMP #$68		; B18D	$C9 $68
+	BCS L3B196		; B18F	$B0 $05
+	JMP $B12C		; B191	$4C $2C $B1
+	LDA $10			; B194	$A5 $10
+L3B196:
+	JMP $B143		; B196	$4C $43 $B1
+; End of
+
+
+;; [$B199 :: 0x3B199]
+
+.byte $1C,$19,$1B,$1D,$1A,$1E,$1F
 .byte $00,$31,$70,$8E,$31,$7A,$00,$00,$00,$70,$7A,$98,$70,$8E,$00,$00
 .byte $00,$20,$5E,$90,$20,$80,$B3,$A9,$00,$85,$A2,$85,$A3,$20,$6F,$B3
 .byte $20,$01,$B4,$A6,$6E,$20,$3D,$88,$20,$5C,$DB,$A5,$24,$05,$25,$F0

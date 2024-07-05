@@ -147,6 +147,7 @@ entity_counter     = $9E
 
 ; ========== BATTLE VARIABLES ==========
 
+wpn_act_type		= $20
 char_idx_atk		= $26
 target_idx		= $27
 PpuScroll_2nd		= $37

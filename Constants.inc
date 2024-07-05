@@ -11,6 +11,9 @@ BANK_TITLE           = $09
 BANK_MENUTEXT        = $09
 BANK_BATTLESPRITES   = $09
 BANK_PORTRAITS       = $09
+BANK_BATTLE_CHAR_GFX	= $09	; battle character graphics
+BANK_BATTLE_WPN_GFX	= $09	; battle weapon graphics
+BANK_BATTLE_EFT_GFX	= $09	; battle effect graphics
 
 BANK_OVERWORLD_DATA  = $0A
 

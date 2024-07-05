@@ -498,19 +498,18 @@ Sprite_Y_tbl:
 .byte $00,$00,$08,$08,$10,$10
 .byte $08,$08,$08,$10,$10,$10
 .byte $F8,$F8,$00,$00,$08,$08
-;; [$9288 :: 0x2D288] (8 * 6 bytes) (6 * 6 bytes ??) - not accurate
+;; [$9288 :: 0x2D288] (8 * 6 bytes) - character tile index table
 Status_tile_idx_tbl:
 .byte $00,$01,$02,$03,$04,$05
 .byte $00,$01,$02,$03,$06,$07
 .byte $00,$01,$08,$09,$0A,$0B
 .byte $00,$0F,$02,$11,$06,$07
 .byte $0E,$0F,$10,$11,$12,$13
-.byte $00,$01
+.byte $00,$01,$0C,$0D,$06,$07
+.byte $14,$15,$16,$17,$18,$19
+.byte $1A,$1B,$1C,$1D,$1E,$1F
 
-; ========== status info (4 * 15 bytes) ($92A8-$92F3) START ==========
-;; [$92A8 :: 0x2D2A8] (8 * 6 bytes)
-.byte $0C,$0D,$06,$07,$14,$15,$16,$17
-.byte $18,$19,$1A,$1B,$1C,$1D,$1E,$1F
+; ========== status info (4 * 15 bytes) ($92B8-$92F3) START ==========
 ;$92B8 - status priority
 Status_pri:
 .byte $00,$09,$01,$0A,$02,$03,$0C,$04,$0F,$0B,$0E,$0D,$05,$06,$07
@@ -523,7 +522,7 @@ Status_pose:
 ;$92E5 - status graphics
 Status_gfx:
 .byte $FF,$FF,$00,$01,$01,$02,$05,$03,$06,$04,$FF,$FF,$FF,$FF,$FF
-; ========== status info (4 * 15 bytes) ($92A8-$92F3) END ==========
+; ========== status info (4 * 15 bytes) ($92B8-$92F3) END ==========
 
 
 ;; [$92F4-$9305 :: 0x2D2F4] (3 * 6 bytes)
@@ -562,16 +561,29 @@ Char_low_pos:
 ;; [$9350 :: 0x2D350]
 Spell_target:
 .byte $FF,$FF,$01,$E0,$F7
-; $9355 - (?? x 5 byte) OAM INDEX ??
-OAM_INDEX:
-.byte $50,$51,$52,$53,$00,$51,$50,$53,$52,$01,$53
-.byte $50,$50,$50,$00,$50,$51,$51,$50,$00,$51,$50,$50,$51,$02,$52,$53
-.byte $53,$53,$02,$53,$52,$53,$53,$02,$53,$53,$53,$52,$02,$53,$52,$53
-.byte $53,$02,$54,$54,$54,$54,$02,$55,$55,$55,$55,$02,$56,$56,$56,$56
-.byte $02,$57,$57,$57,$57,$02,$54,$00,$55,$00,$00,$56,$57,$00,$00,$00
-; $93A0 - OAM ATTR ??
+; $9355 - (15 x 5 byte) = OAM INDEX + OAM ATTR table (Weapon with character OAM INDEX)
+; index, index, index, index, attribute table id(/4) on $93A0
+OAM_INDEX_wpn:
+.byte $50,$51,$52,$53,$00	; 9355	- 0(sword front)
+.byte $51,$50,$53,$52,$01	; 935A	- 1(sword back)
+.byte $53,$50,$50,$50,$00	; 935F	- 2
+.byte $50,$51,$51,$50,$00	; 9364	- 3
+.byte $51,$50,$50,$51,$02	; 9369	- 4
+.byte $52,$53,$53,$53,$02	; 936E	- 5
+.byte $53,$52,$53,$53,$02	; 9373	- 6
+.byte $53,$53,$53,$52,$02	; 9378	- 7
+.byte $53,$52,$53,$53,$02	; 937D	- 8
+.byte $54,$54,$54,$54,$02	; 9382	- 9
+.byte $55,$55,$55,$55,$02	; 9387	- A
+.byte $56,$56,$56,$56,$02	; 938C	- B
+.byte $57,$57,$57,$57,$02	; 9391	- C
+.byte $54,$00,$55,$00,$00	; 9396	- D
+.byte $56,$57,$00,$00,$00	; 939B	- E(Bow aming)
+; $93A0 - OAM ATTR ?? (?? x 4 byte)
 OAM_ATTR:
-.byte $02,$02,$02,$02,$42,$42,$42,$42,$02,$42,$82,$C2
+.byte $02,$02,$02,$02		; 93A0	- 0
+.byte $42,$42,$42,$42		; 93A4	- 1
+.byte $02,$42,$82,$C2		; 93A8	- 2
 ; $93AC
 OAM_XY:
 .byte $08,$F8,$F0,$00
@@ -580,19 +592,34 @@ Pal_color:	;93B6 - palette color
 .byte $08,$02,$31,$04,$00,$33,$04,$02,$35,$04
 .byte $00,$37,$04,$04,$39,$04,$00,$3B,$04,$05,$3D,$04,$00,$3F,$04,$00
 .byte $08,$00,$00,$08,$52,$53,$00,$51,$50,$53,$52,$01,$53,$50
-; $93DE - weapon type ?? (action type ??)
-Wpn_act_type:
-.byte $00			; 93DE	fist
-.byte $00
-.byte $01,$01,$01,$01,$01
-.byte $03			; 93E5	bow
-; $93E6 - 
+; $93DE - weapon action type from weapon type(property)
+; weapon type	weapon action type
+; 00h(fist)	00h
+; 01h(shield)	00h
+; 02h(knife)	01h
+; .
+; .
+; .
+; 07h(bow)	03h
+; undefined	02h(fist)
+Wpn_act_type_tbl:
+.byte $00			; 93DE	00h - fist
+.byte $00			; 93DF	01h - Shield
+.byte $01			; 93E0	02h - Knife
+.byte $01			; 93E1	03h - Staff
+.byte $01			; 93E2	04h - Spear
+.byte $01			; 93E3	05h - Sword
+.byte $01			; 93E4	06h - Axe
+.byte $03			; 93E5	07h - bow
+; $93E6 - right hand - action pose A / B
 Wpn_prop_A:
 .byte $01,$03,$02,$06,$05
 ; $93EB	-
 Wpn_prop_B:
 .byte $01,$02,$02,$06,$05
-.byte $01,$04,$02,$02,$05,$01,$06,$02,$02,$05
+; Wpn_prop_ left hand
+.byte $01,$04,$02,$02,$05
+.byte $01,$06,$02,$02,$05
 OAM_Y_tbl:			; 93FA
 .byte $00,$00,$08,$08,$10,$10
 
@@ -1862,7 +1889,7 @@ Set_PpuAddr_3F00:
 ; Name	: Copy_tile_ppu
 ; SRC	: $02(ADDR) - tile address
 ; DEST	: $00(ADDR) - PPU address
-; Marks	: Tile copy to PPU $00(ADDR) size is #$100
+; Marks	: Tile copy to PPU $00(ADDR) size is #$7F
 Copy_tile_ppu:
 	LDY #$00		; 9DA2	$A0 $00
 	JSR Set_IRQ_JMP		; 9DA4	$20 $2A $FA	Wait NMI
@@ -1880,8 +1907,8 @@ L2DDB1:
 
 ; Name	: Apply_OAM_tile
 ; X	: Size to copy
-; SRC	: $02(ADDR)
-; DEST	: $00(ADDR)
+; SRC	: $02(ADDR) = $7600
+; DEST	: $00(ADDR) = ppu address
 ; Marks	: Copy buffer to ppu
 Apply_OAM_tile:
 	JSR Set_02_gfxbuf	; 9DBA	$20 $C6 $9D
@@ -1971,7 +1998,7 @@ OAM_char_start:
 ; Name	: Set_OAM_val
 ; A	: value
 ; Y	: offset (increment after)
-; Marks	: Set OAM value
+; Marks	: Set value to OAM buffer
 Set_OAM_val:
 	STA $0200,Y		; 9DF9	$99 $00 $02
 ; Name	: Y_inc4
@@ -1985,11 +2012,13 @@ Y_inc4:
 ; End of Y_inc4
 ; End of Set_OAM_val
 
+target_id_tmp = $27
+
 ; Name	: Target_to_mob_id
 ; Ret	: X = monster target id
 ; Marks	: Get target monster id ??
 Target_to_mob_id:
-	LDX $27			; 9E01	$A6 $27		target id ??
+	LDX target_id_tmp	; 9E01	$A6 $27		target id ??
 ; Name	: X_dec4
 ; Marks	: decrease X
 X_dec4:
@@ -2037,6 +2066,7 @@ Gfx_delay:
 ; Name	: Apply_OAM
 ; Marks	: Have to be called in scanline 241 - 151(before MENU/sprite 0 hit)
 ;	  Use 1 frame
+;	  NMIe -> NMIe
 Apply_OAM:
 	JSR Wait_MENUs_NMI	; 9E2A	$20 $3F $9E
 	JSR Copy_OAM_dma_	; 9E2D	$20 $60 $9E
@@ -2044,7 +2074,7 @@ Apply_OAM:
 ; End of Apply_OAM
 
 ; Name	: Apply_OAM_pal
-; Marks	:
+; Marks	: Wait MENU with sound -> Wait NMI -> Copy OAM -> Copy palette -> NMI end
 Apply_OAM_pal:
 	JSR Wait_MENUs_NMI	; 9E33	$20 $3F $9E
 	JSR Copy_OAM_dma_	; 9E36	$20 $60 $9E
@@ -2383,7 +2413,7 @@ L2E00A:
 	STA $03			; A018	$85 $03
 L2E01A:
 	; Copy tile to PPU as fade in effect(Diagonal)
-	JSR Copy_tile_ppu	; A01A	$20 $A2 $9D	tile copy to PPU
+	JSR Copy_tile_ppu	; A01A	$20 $A2 $9D	copy 8 tile to PPU
 	TYA			; A01D	$98
 	CLC			; A01E	$18
 	ADC $00			; A01F	$65 $00
@@ -2812,15 +2842,15 @@ L2E283:
 	ADC #$80		; A288	$69 $80
 	STA $00			; A28A	85 00
 	LDA #$9D		; A28C	A9 9D
-	STA $01			; A28E	85 01
-	LDX #$50		; A290	A2 50
-	LDY #$10		; A292	A0 10
+	STA $01			; A28E	85 01		BANK 09/9D80 (
+	LDX #$50		; A290	A2 50		start index(7650)
+	LDY #$10		; A292	A0 10		size
 	JSR Copy_char_tile	; A294	20 BA FB	copy sprite graphics to buffer
 	TYA			; A297	98
 	CLC			; A298	18
 	ADC $00			; A299	65 00
 	STA $00			; A29B	85 00
-	LDX #$70		; A29D	A2 70
+	LDX #$70		; A29D	A2 70		start index(7670)
 L2E29F:
 	JSR Copy_char_tile	; A29F	$20 $BA $FB
 L2E2A2:
@@ -2842,34 +2872,39 @@ L2E2A2:
 ; Marks	: +$02 = source address to copy to +$00
 ;	  some tile copy to $0380, $03E0
 ;	  $00(ADDR) = ppu address
+;	  $06 = Weapon properties A(attack pose A)
+;	  $07 = Weapon properties B(attack pose B)
+;	  Set character(attack pose) tile to ppu
 Set_tile_to_ppu:
-	STA $08			; A2BD	$85 $08		weapon action type temp ??
+	STA $08			; A2BD	$85 $08		weapon action type temp
 	LDX char_idx_atk	; A2BF	$A6 $26
-	LDA $06			; A2C1	$A5 $06		weapon properties temp ??
-	JSR Status_char_ppu	; A2C3	$20 $21 $A3
+	LDA $06			; A2C1	$A5 $06		weapon properties temp
+	JSR Status_char_ppu	; A2C3	$20 $21 $A3	character tile
 	JSR And_1F		; A2C6	$20 $E9 $A2
 	LDA #$80		; A2C9	$A9 $80
 	STA $00			; A2CB	$85 $00
 	LDA #$03		; A2CD	$A9 $03
-	STA $01			; A2CF	$85 $01		destination address, +$00 = $0380
-	JSR Wait_MENU_NMI_end_OAM	; A2D1	$20 $AB $A3
+	STA $01			; A2CF	$85 $01		destination ppu address, +$00 = $0380-$03DF
+	JSR Wait_MENUs_OAM_NMIe	; A2D1	$20 $AB $A3
 	LDX char_idx_atk	; A2D4	$A6 $26
-	LDA $07			; A2D6	$A5 $07
-	JSR Status_char_ppu	; A2D8	$20 $21 $A3
+	LDA $07			; A2D6	$A5 $07		weapon properties temp
+	JSR Status_char_ppu	; A2D8	$20 $21 $A3	character tile
 	JSR And_1F		; A2DB	$20 $E9 $A2
 	LDA #$E0		; A2DE	$A9 $E0
 	STA $00			; A2E0	$85 $00
 	LDA #$03		; A2E2	$A9 $03
-	STA $01			; A2E4	$85 $01		destination address, +$00 = $03E0
-	JMP Wait_MENU_NMI_end_OAM	; A2E6	$4C $AB $A3
+	STA $01			; A2E4	$85 $01		destination ppu address, +$00 = $03E0-$043F
+	JMP Wait_MENUs_OAM_NMIe	; A2E6	$4C $AB $A3
 ; End of Set_tile_to_ppu
 
 ; Name	: And_1F
-; Marks	: $08 = ??, $25 = repeat count A, $2D = repeat count B
+; Marks	: $08 = Weapon action type ??
+;	  $25 = repeat count A, $2D = repeat count B
+;	  remove some spot tile(punch ??)
 And_1F:
 	LDA $08			; A2E9	$A5 $08
 	CMP #$02		; A2EB	$C9 $02
-	BEQ L2E2F0		; A2ED	$F0 $01
+	BEQ L2E2F0		; A2ED	$F0 $01		branch if weapon action type is fist
 	RTS			; A2EF	$60
 ; End of
 L2E2F0:
@@ -2908,13 +2943,13 @@ Lower_sprite:
 	LDA $03			; A318	$A5 $03
 	ADC #$02		; A31A	$69 $02
 	STA $01			; A31C	$85 $01
-	JMP Wait_MENU_NMI_end_OAM	; A31E	$4C $AB $A3
+	JMP Wait_MENUs_OAM_NMIe	; A31E	$4C $AB $A3
 ; End of Lower_sprite ??
 
 ; Name	: Status_char_ppu
 ; A	: weapon properties ?? character lower sprite pose ??
 ; X	: character index ??
-; Marks	:
+; Marks	: $04(ADDR) = 
 Status_char_ppu:
 	STA $00			; A321	$85 $00
 	JSR Init_gfx_buf	; A323	$20 $CF $9D
@@ -2932,15 +2967,15 @@ L2E32E:
 	BEQ L2E36F		; A338	$F0 $35
 	DEX			; A33A	$CA
 	LDA #$06		; A33B	$A9 $06
-	JSR Multi		; A33D	$20 $79 $FC
+	JSR Multi		; A33D	$20 $79 $FC	+$02 = result
 	LDA $02			; A340	$A5 $02
 	STA $05			; A342	$85 $05
 	LDA #$00		; A344	$A9 $00
-	STA $03			; A346	$85 $03
+	STA $03			; A346	$85 $03		repeat counter and tile copy start index
 L2E348:
 	LDA #$00		; A348	$A9 $00
 	STA $01			; A34A	$85 $01
-	LDX $05			; A34C	$A6 $05
+	LDX $05			; A34C	$A6 $05		multiples of 6
 	LDA Status_tile_idx_tbl,X	; A34E	$BD $88 $92	not accurate
 	INC $05			; A351	$E6 $05
 	JSR Low_to_high		; A353	$20 $A4 $AD	asl4 Get address ??
@@ -2948,12 +2983,12 @@ L2E348:
 	ADC #$00		; A358	$69 $00
 	STA $00			; A35A	$85 $00
 	LDA $01			; A35C	$A5 $01
-	ADC $04			; A35E	$65 $04
-	STA $01			; A360	$85 $01
-	LDX $03			; A362	$A6 $03
-	LDY #$10		; A364	$A0 $10
+	ADC $04			; A35E	$65 $04		9Eh + 
+	STA $01			; A360	$85 $01		BANK 09/9E00- $00(ADDR) = tile address to be copied
+	LDX $03			; A362	$A6 $03		start index
+	LDY #$10		; A364	$A0 $10		size to copy
 	JSR Copy_char_tile	; A366	$20 $BA $FB
-	STX $03			; A369	$86 $03		X is increase
+	STX $03			; A369	$86 $03		X increases by size to copy(+10h)
 	CPX #$60		; A36B	$E0 $60
 	BNE L2E348		; A36D	$D0 $D9		loop
 L2E36F:
@@ -2962,12 +2997,12 @@ L2E36F:
 L2E370:
 	LDA #$9D		; A370	A9 9D		CASE: mini or toad status
 	STA $01			; A372	85 01
-	LDY $7BA2,X		; A374	BC A2 7B	character graphics type
+	LDY $7BA2,X		; A374	BC A2 7B	character graphics type(1:mini, 2: toad)
 	DEY			; A377	88
 	TYA			; A378	98
 	JSR Low_to_high		; A379	20 A4 AD	asl4
 	STA $02			; A37C	85 02
-	LDY $00			; A37E	A4 00
+	LDY $00			; A37E	A4 00		weapon properties = 2 or 3
 	BEQ L2E386		; A380	F0 04
 	CPY #$08		; A382	C0 08
 	BNE L2E387		; A384	D0 01
@@ -2981,9 +3016,9 @@ L2E387:
 	BPL L2E39A		; A38C	10 0C
 	LDA #$40		; A38E	A9 40
 	ADC $02			; A390	65 02
-	STA $00			; A392	85 00
+	STA $00			; A392	85 00		$00(ADDR)
 	LDA #$88		; A394	A9 88
-	STA $01			; A396	85 01		BANK 09/8840 (tile address) = $00
+	STA $01			; A396	85 01		BANK 09/8840 (tile address - misc)
 	BNE L2E3A4		; A398	D0 0A
 L2E39A:
 	ASL $02			; A39A	06 02
@@ -2992,21 +3027,24 @@ L2E39A:
 	ADC #$80		; A3A0	69 80
 	STA $00			; A3A2	85 00
 L2E3A4:
-	LDX #$50		; A3A4	A2 50
-	LDY #$10		; A3A6	A0 10
+	LDX #$50		; A3A4	A2 50		start index(7650)
+	LDY #$10		; A3A6	A0 10		size
 	JMP Copy_char_tile	; A3A8	4C BA FB	copy sprite graphics to buffer
 ; End of Status_char_ppu ??
 
-; Name	: Wait_MENU_NMI_end_OAM
+; Name	: Wait_MENUs_OAM_NMIe
+; SRC	: $02(ADDR) = $7600
+; DEST	: $00(ADDR) = ppu address
 ; Marks	: Wait MENU with sound, then apply OAM on NMI, finaly NMI end
-Wait_MENU_NMI_end_OAM:
+;	  size = 60h
+Wait_MENUs_OAM_NMIe:
 	JSR Wait_MENU_snd	; A3AB	$20 $5B $FD
 	LDX #$60		; A3AE	$A2 $60
 	JSR Apply_OAM_tile	; A3B0	$20 $BA $9D
 	JMP Wait_NMI_end	; A3B3	$4C $46 $FD
-; End of Wait_MENU_NMI_end_OAM
+; End of Wait_MENUs_OAM_NMIe
 
-;A3B6 - data block ??
+;A3B6 - data block ?? - toad or mini tile index ??
 D_A3B6:
 .byte $00,$10,$C0,$C0,$20,$10,$30
 
@@ -4271,8 +4309,8 @@ L2EAEE:
 	LDX #$06		; AAF2	$A2 $06
 	JSR Play_snd_eft	; AAF4	$20 $72 $9E
 	JSR Init_gfx_buf	; AAF7	$20 $CF $9D
-	LDX #$90		; AAFA	$A2 $90
-	LDY #$70		; AAFC	$A0 $70
+	LDX #$90		; AAFA	$A2 $90		start index(7690)
+	LDY #$70		; AAFC	$A0 $70		size
 	LDA #$80		; AAFE	$A9 $80
 	STA $00			; AB00	$85 $00
 	LDA #$9A		; AB02	$A9 $9A		BANK 09/9A80 (battle animation graphics)
@@ -4374,17 +4412,19 @@ Copy_ppu_to_buf_loop:
 	RTS			; ABA6	$60
 ; End of Copy_ppu_to_buf
 
-;$ABA7 - data block -sound effect table(only 04h, 0Eh)
+;$ABA7 - data block = sound effect table(only 04h, 0Eh)
 Snd_dead_eft_tbl:
 .byte $04,$0E
 
 ; Name	: Set_wpn_tile_ppu
-; A	:
+; A	: Weapon type(property)
+; SRC	: $02 = Result L of Multi, $03 = Result H of Multi
+; DEST	: $00(ADDR) = tile address
 ; Marks	: +$00 = tile address
 Set_wpn_tile_ppu:
 	TAX			; ABA9	$AA
 	CPX #$01		; ABAA	$E0 $01
-	BCC L2EBAF		; ABAC	$90 $01
+	BCC L2EBAF		; ABAC	$90 $01		branch if fist
 	DEX			; ABAE	$CA
 L2EBAF:
 	CPX #$07		; ABAF	$E0 $07
@@ -4393,19 +4433,19 @@ L2EBAF:
 L2EBB4:
 	LDA #$40		; ABB4	$A9 $40
 	JSR Multi		; ABB6	$20 $79 $FC
-	LDA $02			; ABB9	$A5 $02
+	LDA $02			; ABB9	$A5 $02		result(L) of Multi
 	STA $00			; ABBB	$85 $00
 	LDA #$98		; ABBD	$A9 $98
-	ADC $03			; ABBF	$65 $03
+	ADC $03			; ABBF	$65 $03		result(H) of Multi
 	STA $01			; ABC1	$85 $01		BANK 09/9800 (battle animation graphics)
-	LDX #$00		; ABC3	$A2 $00
-	LDY #$80		; ABC5	$A0 $80
+	LDX #$00		; ABC3	$A2 $00		start index(7600)
+	LDY #$80		; ABC5	$A0 $80		size
 	JSR Copy_char_tile	; ABC7	$20 $BA $FB
 	JSR Wait_MENU_snd	; ABCA	$20 $5B $FD
 	LDA #$00		; ABCD	$A9 $00
 	STA $00			; ABCF	$85 $00
 	LDA #$05		; ABD1	$A9 $05
-	STA $01			; ABD3	$85 $01
+	STA $01			; ABD3	$85 $01		ppu address = $0500 (destination to be copied)
 	JSR Set_02_gfxbuf	; ABD5	$20 $C6 $9D
 	JSR Copy_tile_ppu	; ABD8	$20 $A2 $9D
 	JMP Wait_NMI_end	; ABDB	$4C $46 $FD
@@ -4414,16 +4454,16 @@ L2EBB4:
 ; Name	: Load_char_gfx
 ; Marks	: load character graphics
 Load_char_gfx:
-	LDX $27			; ABDE	$A6 $27		target id
+	LDX target_idx		; ABDE	$A6 $27		target id
 	JSR Init_battle_stat	; ABE0	$20 $B4 $9B
-	LDX $27			; ABE3	$A6 $27
+	LDX target_idx		; ABE3	$A6 $27
 	JSR Set_char_low_pos	; ABE5	$20 $FD $AB
 	JSR Lower_sprite	; ABE8	$20 $06 $A3
-	LDX $27			; ABEB	$A6 $27
+	LDX target_idx		; ABEB	$A6 $27
 	JSR Copy_char_gfx_ppu	; ABED	$20 $65 $A2
-	LDY $27			; ABF0	$A4 $27
+	LDY target_idx		; ABF0	$A4 $27
 	JSR Init_char_pal_id	; ABF2	$20 $8F $9B
-	LDX $27			; ABF5	$A6 $27
+	LDX target_idx		; ABF5	$A6 $27
 	JSR Draw_char		; ABF7	$20 $3A $A4
 	JMP Apply_OAM		; ABFA	$4C $2A $9E
 ; End of Load_char_gfx
@@ -4483,9 +4523,13 @@ L2EC23:
 
 ; Name	: Atk_char_w_wpn_ani
 ; A	: attack animation type A/B
-; X	: weapon type ?? animation type ??
-; DEST	: $04 = x, $05 = y
-; Marks	:
+; X	: weapon type ?? animation type ?? (01h = Sword, 05h = Bow
+; DEST	: $04 = character x position(current), $05 = character y position
+; Marks	: $02 = weapon type ??
+;	  $03 = attack animation type A/B ?? motion A/B ?? temp
+;	  $06 = animation type ?? motion A/B temp
+;	  $00(ADDR) = attack subroutine address
+;	  make OAM buffer
 Atk_char_w_wpn_ani:
 	STX $02			; AC4B	$86 $02		weapon type ?? animation type ??
 	STA $03			; AC4D	$85 $03
@@ -4495,7 +4539,7 @@ Atk_char_w_wpn_ani:
 	LDA char_y_pos,X	; AC56	$BD $CE $7B
 	STA $05			; AC59	$85 $05
 	LDX $02			; AC5B	$A6 $02		weapon type ?? animation type ??
-	BNE L2EC60		; AC5D	$D0 $01
+	BNE L2EC60		; AC5D	$D0 $01		branch if possible weapon
 	RTS			; AC5F	$60
 ; End of Atk_char_w_wpn_ani
 L2EC60:
@@ -4511,6 +4555,10 @@ L2EC60:
 	;JMP ($0000)		; AC6E	$6C $00 $00
 ; End of Atk_char_w_wpn_ani
 
+; Marks	: Attack with Sword(Slash A/B) from Atk_char_w_wpn_ani
+;	  $03 = attack animation type A/B
+;	  $06 = inverted attack animation type A/B
+; OAM[34-37], PPU ADDR [ $0500-$053F ]
 SR_AC71:
 	LDA $03			; AC71	$A5 $03		attack animation type A/B ??
 	AND #$01		; AC73	$29 $01
@@ -4521,7 +4569,7 @@ SR_AC71:
 	EOR #$01		; AC7E	$49 $01
 	JSR Set_x_y		; AC80	$20 $3F $AD
 	JMP Atk_char_w_wpn_ani_last	; AC83	$4C $19 $AD
-;
+; End of Atk_char_w_wpn_ani
 
 SR_AC86:
 	LDA $03			; AC86	$A5 $03
@@ -4536,6 +4584,7 @@ SR_AC86:
 	JMP Atk_char_w_wpn_ani_last	; AC98	$4C $19 $AD
 ;
 
+; Fist
 SR_AC9B:
 	LDA $03			; AC9B	$A5 $03
 	AND #$01		; AC9D	$29 $01
@@ -4584,19 +4633,26 @@ L2ECE8:
 	JMP Atk_char_w_wpn_ani_last	; ACEA	$4C $19 $AD
 ; End of
 
+; Marks	: Bow
+;	  OAM[34-39], PPU ADDR $0500-$057F
+;	  $1C = weapon X position temp
+;	  $06(L), $07(R) = weapon X postion temp
+;	  $1D = weapon Y position temp
+;	  $0A, $0B = weapon Y position temp
+;	  from Atk_char_w_wpn_ani
 SR_ACEE:
 	LDA #$0E		; ACEE	$A9 $0E
 	JSR Set_idx_attr	; ACF0	$20 $64 $AD	some OAM calcuration ??
-	LDA $1C			; ACF3	$A5 $1C
-	STA $06			; ACF5	$85 $06		x ??
+	LDA $1C			; ACF3	$A5 $1C		weapon X position temp
+	STA $06			; ACF5	$85 $06
 	CLC			; ACF7	$18
 	ADC #$08		; ACF8	$69 $08
 	STA $07			; ACFA	$85 $07
-	LDA $1D			; ACFC	$A5 $1D
-	STA $0A			; ACFE	$85 $0A		y ??
+	LDA $1D			; ACFC	$A5 $1D		weapon Y position temp
+	STA $0A			; ACFE	$85 $0A
 	STA $0B			; AD00	$85 $0B
-	LDY #$10		; AD02	$A0 $10
-	LDA #$02		; AD04	$A9 $02
+	LDY #$10		; AD02	$A0 $10		OAM offset
+	LDA #$02		; AD04	$A9 $02		repeat count
 	JMP Atk_char_w_wpn_ani_last_	; AD06	$4C $1D $AD
 ;
 
@@ -4613,6 +4669,9 @@ SR_AD09:
 ; Marks	: $00 = repeat count(tile size)
 ;	  $06, $07, $08, $09 = OAM X
 ;	  $0A, $0B, $0C, $0D = OAM Y
+;	  $0E, $0F, $10, $11 = OAM INDEX
+;	  $12, $13, $14, $15 = OAM ATTR
+;	  OAM[34-37] = weapon (with character)
 Atk_char_w_wpn_ani_last:
 	LDY #$00		; AD19	$A0 $00
 	LDA #$04		; AD1B	$A9 $04
@@ -4670,20 +4729,24 @@ Set_x_y:
 	RTS			; AF63	$60
 ; End of Set_x_y
 
+; Marks	: $02 = weapon type ??
+;	  $03 = attack animation type A/B ?? motion A/B ?? temp
+
 ; Name	: Set_idx_attr
-; A	:
+; A	: Attack with weapon animation index ??
 ; Marks	: $0E-$11 = OAM INDEX
 ;	  $12-$15 = OAM ATTR
 ;	  $00(ADDR) = OAM index 9355-
 ;	  $02(ADDR) = OAM attribute 93A0-
+;	  $02, $03 = result of Multi -> $02(ADDR) = OAM attribute table address
 Set_idx_attr:
 	LDX #$05		; AD64	$A2 $05
 	JSR Multi		; AD66	$20 $79 $FC
 	LDA $02			; AD69	$A5 $02
-	ADC #<OAM_INDEX		; AD6B	$69 $55
+	ADC #<OAM_INDEX_wpn	; AD6B	$69 $55
 	STA $00			; AD6D	$85 $00
 	LDA $03			; AD6E	$A5 $03
-	ADC #>OAM_INDEX		; AD71	$69 $93		BANK 0B/9355
+	ADC #>OAM_INDEX_wpn	; AD71	$69 $93		BANK 0B/9355
 	STA $01			; AD73	$85 $01
 	LDY #$04		; AD75	$A0 $04
 	LDA ($00),Y		; AD77	$B1 $00
@@ -4709,11 +4772,11 @@ L2ED87:
 
 ; $AD95 - data block = jump address[6:0-5]
 Atk_w_wpn_sr_tbl:
-.word SR_AC71			; AD95	$71 $AC
+.word SR_AC71			; AD95	$71 $AC		Sword
 .word SR_AC86			; AD97	$86 $AC
 .word SR_AC9B			; AD99	$9B $AC
 .word SR_ACD7			; AD9B	$D7 $AC
-.word SR_ACEE			; AD9D	$EE $AC
+.word SR_ACEE			; AD9D	$EE $AC		Bow
 .word SR_AD09			; AD9F	$09 $AD
 
 .byte $0A
@@ -4787,7 +4850,7 @@ L2EDC8:
 	LDA #$00		; ADC8	$A9 $00
 	STA $7BD6,X		; ADCA	$9D $D6 $7B
 	STA $7BDA,X		; ADCD	$9D $DA $7B
-	LDA $7BAE,X		; ADD0	$BD $AE $7B
+	LDA $7BAE,X		; ADD0	$BD $AE $7B	character pose
 	CMP #$03		; ADD3	$C9 $03
 	BCS L2EDDF		; ADD5	$B0 $08
 	LDA #$05		; ADD7	$A9 $05
@@ -5021,7 +5084,7 @@ L2EF3F:
 	TXA			; AF64	$8A
 	JSR Calc_char_addr	; AF65	$20 $A2 $AD	asl6
 	TAX			; AF68	$AA
-	LDY #$40		; AF69	$A0 $40
+	LDY #$40		; AF69	$A0 $40		size
 	JSR Copy_char_tile	; AF6B	$20 $BA $FB	copy sprite graphics to buffer
 L2EF6E:
 	DEC $04			; AF6E	$C6 $04		next character
@@ -5182,11 +5245,10 @@ Status_conf_ani:
 	RTS			; B070	$60
 ; End of Status_conf_ani
 
-target_id_tmp = $27
-
 ; Name	: Attack
 ; Marks	: show attack animation (very long subroutine)
-;	  $1E,$1F = ??
+;	  $1E = right hand weapon type(property)
+;	  $1F = left hand weapon type(property)
 ;	  $20,$21 = action type on each hand ?? (knife==01h,)
 ;	  $22 = current processing l/r hand ??
 ;	  $2B = ??
@@ -5201,18 +5263,18 @@ L2F07D:
 	BNE L2F0E5		; B07F	$D0 $64
 	LDX char_idx_atk	; B081	$A6 $26
 	JSR Char_mov_act	; B083	$20 $20 $A6
-	JSR Check_lr_wpn	; B086	$20 $69 $B4	Check weapon ??
+	JSR Check_lr_wpn	; B086	$20 $69 $B4	Check weapon and weapon action type
 	LDX #$01		; B089	$A2 $01
 L2F08B:
 	STX $22			; B08B	$86 $22		loop counter ?? l/r hand ??
-	LDA $20,X		; B08D	$B5 $20		weapon action type ??
+	LDA $20,X		; B08D	$B5 $20		weapon action type
 	BEQ L2F0D0		; B08F	$F0 $3F
 	TXA			; B091	$8A
 	BEQ L2F096		; B092	$F0 $02
 	LDA #$0A		; B094	$A9 $0A		left hand ??
 L2F096:
 	CLC			; B096	$18
-	ADC $20,X		; B097	$75 $20
+	ADC $20,X		; B097	$75 $20		weapon action type
 	TAY			; B099	$A8
 	LDA Wpn_prop_A,Y	; B09A	$B9 $E6 $93
 	STA $06			; B09D	$85 $06
@@ -5226,17 +5288,17 @@ L2F096:
 	INX			; B0AF	$E8
 	STX $07			; B0B0	$86 $07
 L2F0B2:
-	LDX $22			; B0B2	$A6 $22		loop counter ?? l/r hand ??
+	LDX $22			; B0B2	$A6 $22		l/r hand
 	LDA $20,X		; B0B4	$B5 $20
 	JSR Set_tile_to_ppu	; B0B6	$20 $BD $A2
 	LDX $22			; B0B9	$A6 $22
 	LDA $1E,X		; B0BB	$B5 $1E
 	LDY $20,X		; B0BD	$B4 $20
 	CPY #$04		; B0BF	$C0 $04
-	BNE L2F0C5		; B0C1	$D0 $02
+	BNE L2F0C5		; B0C1	$D0 $02		branch if attack action type is not magic
 	LDA #$08		; B0C3	$A9 $08
 L2F0C5:
-	JSR Set_wpn_tile_ppu	; B0C5	$20 $A9 $AB
+	JSR Set_wpn_tile_ppu	; B0C5	$20 $A9 $AB	weapon tile in [ $0500-$057F ]
 	LDX $22			; B0C8	$A6 $22		l/r hand ??
 	JSR Apply_wpn_pal	; B0CA	$20 $36 $B4
 	JSR Attack_char_wpn_ani	; B0CD	$20 $B5 $B4	attack animation 0000 - character with weapon - have subroutine by weapon
@@ -5266,12 +5328,14 @@ Attack_chk_target:
 	STA $21			; B0FB	$85 $21
 L2F0FD:
 	JMP Attack_last		; B0FD	$4C $84 $B1
+; End of Attack
 Attack_target_p:
 	BIT $28			; B100	$24 $28
 	BVC L2F12E		; B102	$50 $2A
 	BMI L2F10C		; B104	$30 $06
 	JSR Magic_ani		; B106	$20 $F6 $B5
 	JMP Apply_OAM_		; B109	$4C $96 $B1
+;
 L2F10C:
 	LDX $24			; B10C	$A6 $24		crit flag
 	BNE L2F11B		; B10E	$D0 $0B		branch if normal hit
@@ -5279,6 +5343,7 @@ L2F10C:
 	JSR Play_snd_eft	; B112	$20 $72 $9E
 	JSR Mov_attack_effect	; B115	$20 $31 $B1
 	JMP Apply_OAM_		; B118	$4C $96 $B1
+;
 L2F11B:
 	LDX #$0A		; B11B	$A2 $0A
 	JSR Play_snd_eft	; B11D	$20 $72 $9E
@@ -5314,6 +5379,7 @@ L2F135:
 ; Name	: Attack_effect
 ; Marks	: attack with weapon ?? magic ??
 ;	  $10=move step ??, $11=destination position(X)
+;	  $27 = ??
 Attack_effect:
 	LDX $27			; B14B	$A6 $27		target id ??
 	LDA char_x_cpos,X	; B14D	$BD $CA $7B
@@ -5342,7 +5408,7 @@ L2F165:
 	JMP Apply_OAM		; B181	$4C $2A $9E
 Attack_last:
 	BIT $28			; B184	$24 $28
-	BVC Apply_OAM_J		; B186	$50 $0B
+	BVC Apply_OAM_J		; B186	$50 $0B		bit 6 is hit ?? hit = 1, miss = 0 ??
 	BPL L2F190		; B188	$10 $06
 	JSR Weapon_hit_ani	; B18A	$20 $99 $B1	Weapon animation graphics (weapon with monster)
 	JMP Apply_OAM_J		; B18D	$4C $93 $B1
@@ -5363,6 +5429,9 @@ lr_hand_tmp	= $18
 ;	  OAM[28-31] is weapon hit sprite
 ;	  use BANK 09
 ;	  Copy weapon hit effect tile to ppu
+;	  $00(ADDR) = buffer address to be copied
+;	  $18 = loop counter temp
+;	  $20,$21 = weapon action type ??
 Weapon_hit_ani:
 	LDA #$20		; B199	$A9 $20
 	STA $00			; B19B	$85 $00
@@ -5394,18 +5463,21 @@ L2F1BF:
 ; End of Weapon_hit_ani
 
 ; Name	: Do_wpn_eft_ani
-; A	: 00h = skip(shield ??), 01h = Axe, Staff
+; A	: 00h = skip(shield ??), 01h = Axe, Staff, 02h = , 03h = , 04h = Bow
 ; Marks	: weapon effect animation ??
 ;	  weapon action type 00h is skip animation ??
 ;	  $04 = effect X position temp
 ;	  $06 = effect Y position temp
 ;	  $16 = monster index temp
 ;	  $17 = repeat count
-;	  $0A-$11 = ??
-;	  $1C = ??
-;	  $1D = ??
+;	  $0A-$0D = OAM X
+;	  $0E-$11 = OAM Y
+;	  $19 = mob width ??
+;	  $1C = arrow count ??
+;	  $1D = repeat count ??
 ;	  $24 = ??
 ;	  $28 = ??
+;	  $9C = multi hit count ??
 Do_wpn_eft_ani:
 	TAY			; B1D2	$A8
 	BNE L2F1D6		; B1D3	$D0 $01
@@ -5423,19 +5495,19 @@ L2F1DB:
 L2F1E1:
 	DEY			; B1E1	$88
 	BNE L2F1E7		; B1E2	$D0 $03
-	JMP JB344		; B1E4	$4C $44 $B3
+	JMP JB344		; B1E4	$4C $44 $B3	weapon effect animation - ??
 L2F1E7:
-	JSR Target_to_mob_id	; B1E7	$20 $01 $9E
-	STX $16			; B1EA	$86 $16
+	JSR Target_to_mob_id	; B1E7	$20 $01 $9E	weapon effect animation - Bow
+	STX $16			; B1EA	$86 $16		monster index temp
 	LDX #$07		; B1EC	$A2 $07
-	LDA #$F0		; B1EE	$A9 $F0
+	LDA #$F0		; B1EE	$A9 $F0		set X, Y to invisible
 L2F1F0:
 	STA $0A,X		; B1F0	$95 $0A
 	DEX			; B1F2	$CA
-	BPL L2F1F0		; B1F3	$10 $FB
+	BPL L2F1F0		; B1F3	$10 $FB		loop - $11,$10,$0F,$0E,$0D,$0C,$0B,$0A
 	LDA #$01		; B1F5	$A9 $01
 	STA $1D			; B1F7	$85 $1D
-	LDX $9C			; B1F9	$A6 $9C
+	LDX $9C			; B1F9	$A6 $9C		multi hit count ??
 	CPX #$04		; B1FB	$E0 $04
 	BCC L2F206		; B1FD	$90 $07
 	TXA			; B1FF	$8A
@@ -5476,35 +5548,35 @@ L2F20F:
 	LDX $09			; B238	$A6 $09
 	STA $0E,X		; B23A	$95 $0E
 	DEC $09			; B23C	$C6 $09
-	BPL L2F20F		; B23E	$10 $CF
+	BPL L2F20F		; B23E	$10 $CF		loop
 	JSR Apply_OAM		; B240	$20 $2A $9E	wait for vblank (menu & oam update)
-	LDX $16			; B243	$A6 $16
+	LDX $16			; B243	$A6 $16		monster index temp
 	LDA mob_widths,X	; B245	$BD $8A $7B
 	LSR			; B248	$4A
 	STA $19			; B249	$85 $19
 	JSR Set_32_39_OAM	; B24B	$20 $D7 $B3
-	LDY #$84		; B24E	$A0 $84
-	LDA #$F0		; B250	$A9 $F0
-L2F252:
-	JSR Set_OAM_val		; B252	$20 $F9 $9D	set oam value
-	JSR Y_inc4		; B255	$20 $FC $9D
+	LDY #$84		; B24E	$A0 $84		offset OAM[33] Y [ $0284- ] hide arrow tail routine
+	LDA #$F0		; B250	$A9 $F0		hide effect
+Do_wpn_eft_ani_Bow_b_rm:
+	JSR Set_OAM_val		; B252	$20 $F9 $9D	set OAM Y value on OAM[33,35,37,39]
+	JSR Y_inc4		; B255	$20 $FC $9D	$028C
 	CPY #$A4		; B258	$C0 $A4
-	BNE L2F252		; B25A	$D0 $F6
+	BNE Do_wpn_eft_ani_Bow_b_rm	; B25A	$D0 $F6		loop
 	LDX #$09		; B25C	$A2 $09
 	JSR Play_snd_eft	; B25E	$20 $72 $9E
-L2F261:
+Do_wpn_eft_ani_Bow_mv:
 	JSR Apply_OAM		; B261	$20 $2A $9E	wait for vblank (menu & oam update)
-	JSR Check_Y_ov		; B264	$20 $25 $B4
-	JSR Set_32_39_OAM	; B267	$20 $D7 $B3
+	JSR Arrow_mv		; B264	$20 $25 $B4
+	JSR Set_32_39_OAM	; B267	$20 $D7 $B3	show arrow tail
 	DEC $19			; B26A	$C6 $19
-	BNE L2F261		; B26C	$D0 $F3
-	LDY #$80		; B26E	$A0 $80
-	LDA #$F0		; B270	$A9 $F0
+	BNE Do_wpn_eft_ani_Bow_mv	; B26C	$D0 $F3		loop
+	LDY #$80		; B26E	$A0 $80		offset OAM[32] Y [ $0280- ] hide arrow head
+	LDA #$F0		; B270	$A9 $F0		hide effect
 L2F272:
-	JSR Set_OAM_val		; B272	$20 $F9 $9D	set oam value
+	JSR Set_OAM_val		; B272	$20 $F9 $9D	set OAM Y value on OAM[32,34,36,38]
 	JSR Y_inc4		; B275	$20 $FC $9D
 	CPY #$A0		; B278	$C0 $A0
-	BNE L2F272		; B27A	$D0 $F6
+	BNE L2F272		; B27A	$D0 $F6		loop
 	JSR Apply_OAM		; B27C	$20 $2A $9E	wait for vblank (menu & oam update)
 	LDA #$08		; B27F	$A9 $08
 	JSR Gfx_delay		; B281	$20 $1F $9E	wait 8 frames
@@ -5604,7 +5676,7 @@ L2F324:
 	LDY $07			; B32E	$A4 $07
 	CPY #$80		; B330	$C0 $80
 	BNE L2F324		; B332	$D0 $F0		loop - hide in order
-	LDA $24			; B334	$A5 $24
+	LDA $24			; B334	$A5 $24		crit flag ??
 	BEQ L2F343		; B336	$F0 $0B
 	LDA $02			; B338	$A5 $02
 	EOR #$40		; B33A	$49 $40
@@ -5699,9 +5771,9 @@ L2F385:
 Set_32_39_OAM:
 	LDY #$48		; B3D7	$A0 $48
 	LDA #$02		; B3D9	$A9 $02
-	LDX $27			; B3DB	$A6 $27
+	LDX target_idx		; B3DB	$A6 $27
 	CPX #$04		; B3DD	$E0 $04
-	BCS L2F3EA		; B3DF	$B0 $09
+	BCS L2F3EA		; B3DF	$B0 $09		branch if target is a monster
 	ORA #$40		; B3E1	$09 $40
 	STY $03			; B3E3	$84 $03
 	INY			; B3E5	$C8
@@ -5741,22 +5813,23 @@ L2F3F5:
 	RTS			; B424	$60
 ; End of Set_32_39_OAM
 
-; Name	: Check_Y_ov
-; Marks	: ???
-Check_Y_ov:
+; Name	: Arrow_mv
+; Marks	: $0A,$0B,$0C,$0D = arrow OAM X buffer
+;	  Arrow move calcurate to OAM X buffer
+Arrow_mv:
 	LDX #$03		; B425	$A2 $03
-L2F427:
-	LDA $0A,X		; B427	$B5 $0A		Y ??
+Arrow_mv_loop:
+	LDA $0A,X		; B427	$B5 $0A
 	CMP #$F0		; B429	$C9 $F0
-	BEQ L2F432		; B42B	$F0 $05
+	BEQ Arrow_mv_skip	; B42B	$F0 $05
 	SEC			; B42D	$38
 	SBC #$08		; B42E	$E9 $08
 	STA $0A,X		; B430	$95 $0A
-L2F432:
+Arrow_mv_skip:
 	DEX			; B432	$CA
-	BPL L2F427		; B433	$10 $F2
+	BPL Arrow_mv_loop	; B433	$10 $F2
 	RTS			; B435	$60
-; End of Check_Y_ov
+; End of Arrow_mv
 
 ; Name	: Apply_wpn_pal
 ; X	: 00h = right hand, 01h = left hand
@@ -5792,6 +5865,7 @@ Get_rnd_pos:
 	JMP Multi8		; B45E	$4C $A5 $AD	asl3
 ; End of Get_rnd_pos
 
+; Weapon hit effect sprite
 ;B461 - data block = OAM index
 Oam_index_B461:
 .byte $45,$44,$44,$45
@@ -5800,8 +5874,13 @@ Oam_attr_B465:
 .byte $02,$02,$02,$C2
 
 ; Name	: Check_lr_wpn
-; DEST	: $20, $21
+; DEST	: $20 = right weapon action type
+;	  $21 = left weapon action type
+;	  $1E = right hand weapon type(property)
+;	  $1F = left hand weapon type(property)
+;	  $25
 ; Marks	: Check left/right hand for weapon
+;	  and weapon action type each weapon
 Check_lr_wpn:
 	LDA char_idx_atk	; B469	$A5 $26
 	JSR Calc_char_addr	; B46B	$20 $A2 $AD
@@ -5831,17 +5910,17 @@ L2F495:
 	LDX #$01		; B498	$A2 $01		left hand ??
 L2F49A:
 	LDY $1E,X		; B49A	$B4 $1E
-	LDA Wpn_act_type,Y	; B49C	$B9 $DE $93	weapon action type ??
+	LDA Wpn_act_type_tbl,Y	; B49C	$B9 $DE $93
 	STA $20,X		; B49F	$95 $20
 	DEX			; B4A1	$CA
 	BPL L2F49A		; B4A2	$10 $F6		loop
-	LDA $1E			; B4A4	$A5 $1E		right hand weapon type temp ??
-	ORA $1F			; B4A6	$05 $1F		left hand weapon type temp ??
+	LDA $1E			; B4A4	$A5 $1E		right hand weapon type(property)
+	ORA $1F			; B4A6	$05 $1F		left hand weapon type(property)
 	CMP #$02		; B4A8	$C9 $02
-	BCS L2F4B4		; B4AA	$B0 $08
+	BCS L2F4B4		; B4AA	$B0 $08		branch if weapon type is not fist or shield
 	LDX #$02		; B4AC	$A2 $02		equipped with a shield or fist
 	LDY #$00		; B4AE	$A0 $00
-	STX $20			; B4B0	$86 $20
+	STX $20			; B4B0	$86 $20		weapon action type 02 is fist
 	STY $21			; B4B2	$84 $21
 L2F4B4:
 	RTS			; B4B4	$60
@@ -5863,7 +5942,7 @@ Attack_char_wpn_ani:
 	LDX $22			; B4C3	$A6 $22		l/r hand(r=0,l=1)
 	TXA			; B4C5	$8A
 	BEQ L2F4CA		; B4C6	$F0 $02		branch if right hand
-	LDA #$05		; B4C8	$A9 $05
+	LDA #$05		; B4C8	$A9 $05		attack motion offset(for left hand)
 L2F4CA:
 	CLC			; B4CA	$18
 	ADC $20,X		; B4CB	$75 $20		weapon action type temp ??
@@ -5946,12 +6025,12 @@ L2F521:
 	ADC #$04		; B532	$69 $04
 	STA $1D			; B534	$85 $1D		weapon y ??
 	LDA #$01		; B536	$A9 $01
-	STA $16			; B538	$85 $16		animation A/B ??
+	STA atk_ani_AB_tmp	; B538	$85 $16
 	LDX #$05		; B53A	$A2 $05
 	JSR Atk_char_w_wpn_ani	; B53C	$20 $4B $AC	Set OAM buffer
 	JSR Atk_pose		; B53F	$20 $AE $B5	character attack pose ready A with weapon ??
 	LDA #$00		; B542	$A9 $00
-	STA $16			; B544	$85 $16		animation A/B ??
+	STA atk_ani_AB_tmp	; B544	$85 $16
 	LDA #$08		; B546	$A9 $08
 	STA $17			; B548	$85 $17
 	LDA $1C			; B54A	$A5 $1C		weapon x ??
@@ -5969,7 +6048,7 @@ L2F562:
 	LDX #$05		; B562	$A2 $05
 	JSR Atk_char_w_wpn_ani	; B564	$20 $4B $AC	Set OAM buffer
 	JSR Atk_pose		; B567	$20 $AE $B5	character attack pose ready C with weapon ??
-	INC $16			; B56A	$E6 $16		animation A/B ??
+	INC atk_ani_AB_tmp	; B56A	$E6 $16
 	LDA $1C			; B56C	$A5 $1C		weapon x ??
 	SEC			; B56E	$38
 	SBC #$08		; B56F	$E9 $08
@@ -6038,7 +6117,7 @@ L2F5BA:
 	LDA atk_ani_AB_tmp	; B5C7	$A5 $16
 	JSR Atk_char_w_wpn_ani	; B5C9	$20 $4B $AC
 L2F5CC:
-	JSR Apply_OAM_pal	; B5CC	$20 $33 $9E
+	JSR Apply_OAM_pal	; B5CC	$20 $33 $9E	MENU(sound) -> Wait NMI -> Copy OAM -> Copy palette -> NMI end
 	LDA gfx_delay_cnt	; B5CF	$A5 $17		motion delay count
 	JMP Gfx_delay		; B5D1	$4C $1F $9E	attack pose motion delay
 ; End of Atk_pose
@@ -6052,7 +6131,7 @@ Atk_motion_sr:
 .word SR_Bow			; B5DA	$13 $B5
 .word SR_Mag_rdy		; B5DC	$78 $B5
 
-;B5DE - data block - weapon action type ??
+;B5DE - data block = weapon action type - 00h-04h = right hand, 05h-09h = left hand
 Atk_motion_tbl:
 .byte $00,$01,$03,$04,$05,$00,$02,$03,$04,$05
 ;B5E8
@@ -6082,8 +6161,8 @@ Magic_ani_:
 	STA $00			; B60B	$85 $00
 	LDA Mag_ani_p+1,X	; B60D	$BD $63 $B6	BANK 09/ (magic animation tile)
 	STA $01			; B610	$85 $01
-	LDX #$00		; B612	$A2 $00		load 12 tiles
-	LDY #$C0 		; B614	$A0 $C0
+	LDX #$00		; B612	$A2 $00		start index(7600)
+	LDY #$C0 		; B614	$A0 $C0		size to copy(load 12 tiles)
 	JSR Copy_char_tile	; B616	$20 $BA $FB	copy sprite graphics to buffer
 	LDA #$40		; B619	$A9 $40
 	STA $00			; B61B	$85 $00
@@ -6124,7 +6203,7 @@ L2F63F:
 ; End of Magic_ani_
 
 ;$B662 - data block = pointers to magic animation graphics
-; BANK 09/8800-9D80
+; BANK 09/8860-9D80
 Mag_ani_p:
 .byte $00,$97
 .byte $C0,$97

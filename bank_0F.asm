@@ -9262,6 +9262,7 @@ Load_text_gfx_loop:
 	JMP Swap_ret_bank	; FBAB  $4C $84 $FA
 ; End of Load_text_gfx
 
+; Marks	: Used on BANK 0B
 L3FBAE:
     JSR Swap_bank_09                ; FBAE  $20 $75 $FA
     JSR Set_IRQ_JMP		; JSR L3FA2A               ; FBB1  $20 $2A $FA
@@ -9274,7 +9275,7 @@ L3FBAE:
 ; Y	: Size to copy
 ; SRC	: $00(ADDR) = tile address
 ; Marks	: Copy character tiles to graphics buffer($7600-), not only character tile but also battle graphics
-;	  Use on BANK 0B, BANK 0F
+;	  Used on BANK 0B
 ;	  ** It's not for character tile only **
 ;; sub start ;;
 Copy_char_tile:
@@ -9709,6 +9710,10 @@ L3FDC1:
 ; End of
 
 ; Name	: Weapon_type
+; SRC	: $D0 = right hand weapon
+;	  $D1 = left hand weapon
+; DEST	: $1E = right hand weapon type(property)
+;	  $1F = left hand weapon type(property)
 ; Marks	: Set right/left weapon type
 ;	  Weapon properties is in bank_0C
 ;	  Used on BANK 0B
