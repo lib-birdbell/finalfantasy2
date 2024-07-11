@@ -1287,6 +1287,7 @@
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 ;.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
+; ========== minimap code ($BA00-$BDD0) START ==========
 ;; this might be code here?
 
 ;; [$BA00 :: 0x27A00]
@@ -1432,29 +1433,29 @@ L27D05:
 	ADC #$10		; BD12	$69 $10
 	STA $80			; BD14	$85 $80
 	LDA $81			; BD16	$A5 $81
-	ADC #$00		; BF18	$69 $00
-	STA $81			; BF1A	$85 $81
-	INX			; BF1C	$E8
-	CPX #$1F		; BF1D	$E0 $1F
-	BCC L27CE8		; BF1F	$90 $C7		loop
-	LDX #$0F		; BF21	$A2 $0F
+	ADC #$00		; BD18	$69 $00
+	STA $81			; BD1A	$85 $81
+	INX			; BD1C	$E8
+	CPX #$1F		; BD1D	$E0 $1F
+	BCC L27CE8		; BD1F	$90 $C7		loop
+	LDX #$0F		; BD21	$A2 $0F
 L27D23:
-	LDA $BF50,X		; BF23	$BD $50 $BF	minimap palette data ??
-	STA palette_UBGC,X	; BF26	$9D $C0 $03	palettes buffer
-	DEX			; BF29	$CA
-	BPL L27D23		; BF2A	$10 $F7
-	LDA palette_UBGC	; BF2C	$AD $C0 $03
-	STA palette_UOAM	; BF2F	$8D $D0 $03
-	LDA #$0F		; BF32	$A9 $0F
-	STA palette_OAM00	; BF34	$8D $D1 $03
-	STA palette_OAM01	; BF37	$8D $D2 $03
-	JSR Wait_NMI		; BF3A	$20 $00 $FE
-	LDA #$02		; BF3D	$A9 $02
-	STA SpriteDma_4014	; BF3F	$8D $14 $40
-	;JSR Palette_copy	; BF42	$20 $0F $C0
-	JSR $C00F		; BF42	$20 $0F $C0
-	LDA ppu_con_c		; BF45	$A5 $FF
-	STA PpuControl_2000	; BF47	$8D $00 $20
+	LDA $BF50,X		; BD23	$BD $50 $BF	minimap palette data ??
+	STA palette_UBGC,X	; BD26	$9D $C0 $03	palettes buffer
+	DEX			; BD29	$CA
+	BPL L27D23		; BD2A	$10 $F7
+	LDA palette_UBGC	; BD2C	$AD $C0 $03
+	STA palette_UOAM	; BD2F	$8D $D0 $03
+	LDA #$0F		; BD32	$A9 $0F
+	STA palette_OAM00	; BD34	$8D $D1 $03
+	STA palette_OAM01	; BD37	$8D $D2 $03
+	JSR Wait_NMI		; BD3A	$20 $00 $FE
+	LDA #$02		; BD3D	$A9 $02
+	STA SpriteDma_4014	; BD3F	$8D $14 $40
+	;JSR Palette_copy	; BD42	$20 $0F $C0
+	JSR $C00F		; BD42	$20 $0F $C0
+	LDA ppu_con_c		; BD45	$A5 $FF
+	STA PpuControl_2000	; BD47	$8D $00 $20
 .byte $A9,$0A,$8D,$01,$20,$A9
 .byte $00,$8D,$05,$20,$8D,$05,$20,$60
 ;; [$BD58-
@@ -1466,7 +1467,13 @@ L27D23:
 .byte $2A,$2B,$2C,$2D,$2E,$2F,$30,$30,$31,$32,$33,$33,$34,$35,$36,$37
 .byte $37,$38,$38,$39,$39,$3A,$3A,$3A,$3B,$3B,$3C,$3C,$3C,$3C,$3D,$3D
 .byte $3D,$3D,$3E,$3E,$3E,$3E,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F,$3F
-.byte $3F,$7B,$FD,$59,$F8,$A5,$75,$27,$A5,$D5,$2F,$84,$BB,$38,$75,$F6
+.byte $3F
+; ========== minimap code ($BA00-$BDD0) END ==========
+
+
+; ========== stale data ($BDD1-$BEFF) START ==========
+; $BDD1
+.byte $7B,$FD,$59,$F8,$A5,$75,$27,$A5,$D5,$2F,$84,$BB,$38,$75,$F6
 .byte $00,$00,$00,$00,$00,$00,$00,$08,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$08,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
@@ -1488,6 +1495,7 @@ L27D23:
 .byte $F7,$D9,$F7,$88,$CC,$B2,$3D,$B7,$FE,$86,$DC,$AA,$74,$A0,$C9,$CA
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+; ========== stale data ($BDD1-$BEFF) END ==========
 
 ;; [$BF00 :: 0x27F00]
 

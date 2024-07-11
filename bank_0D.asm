@@ -470,6 +470,8 @@
 ; stale data ?? ($97F5-$97FF)
 
 
+
+; ========== Music code ($9800-$9E0C) START ==========
 ;; [$9800 :: 0x35800] Music code
 ; Name	:
 ; Marks	: Sound ?? loop - ready for sound process
@@ -1258,6 +1260,9 @@ VOL_TBL:
 .byte $00,$00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E
 .byte $00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F
 ; song data ?? volume table ??
+; ========== Music code ($9800-$9E0C) END ==========
+
+
 
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) START ==========
 ;; [$9E0D :: 0x35E0D]

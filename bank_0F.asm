@@ -9111,13 +9111,13 @@ Exec_battle_gfx_bank:
 ; End of and to FA88
 
 ; Name	:
-; Marks	:
+; Marks	: Used on BANK 0C, BANK 0F
 ;; sub start ;;
 Do_009880:
 	PHA			; FAFB  $48
 	JSR Swap_bank_00	; FAFC  $20 $65 $FA
 	PLA			; FAFF  $68
-	JSR Update_char_equip	; FB00  $20 $80 $98	bank 00 - BANK 0C needed
+	JSR Update_char_equip	; FB00  $20 $80 $98	bank 00 - used on BANK 0C
 	JMP Swap_ret_bank	; FB03  $4C $84 $FA
 ; End of
 
@@ -9308,8 +9308,11 @@ Copy_char_tile:
 ; Name	: Get_data_BANK_0C
 ; X	: Start index
 ; Y	: Size of copy data.
+; SRC	: $00(ADDR) = tile address(not only tile but also prop)
+; DEST	: SRAM $7600-
 ; Marks	: Get data from BANK 0C
 ;	  and return to BANK 00
+;	  Used on BANK 00
 ;; sub start ;;
 Get_data_BANK_0C:
 	LDA #BANK_BATTLE	; FBE6  $A9 $0C

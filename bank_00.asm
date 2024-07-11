@@ -13,6 +13,10 @@
 
 .import Wait_NMI_end		;FD46
 
+.import	Armor_prop		;8000 - BANK_0C
+.import	Weapon_prop		;80F6 - BANK_0C
+
+
 .segment "BANK_00"
 
 ; Commented out due to  compilation order change.
@@ -603,410 +607,424 @@ Leon_properties:
 ; Name	: Update_char_equip
 ; A	: character index(0,1,2,3)
 ; Marks	: update character equipment
-;	  need BANK 0C
-;	  $7A(ADDR) = ??
+;	  Used on BANK 0C, BANK 0F(Do_009880)
+;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
 Update_char_equip:
-	BPL L01887		; 9880	10 05		branch if called by menu ???
-	AND #$7F		; 9882	29 7F
-	JMP Update_equip	; 9884	4C A2 98	update character equipment
-L01887:
-	JSR Update_equip	; 9887	20 A2 98
-	LDY #$1C		; 988A	A0 1C
-	LDA ($7A),Y		; 988C	B1 7A
-	CMP #$30		; 988E	C9 30
-	BNE L01896		; 9890	D0 04
-	LDA #$00		; 9892	A9 00
-	STA ($7A),Y		; 9894	91 7A
-L01896:
-	INY			; 9896	C8
-	LDA ($7A),Y		; 9897	B1 7A
-	CMP #$30		; 9899	C9 30
-	BNE L018A1		; 989B	D0 04
-	LDA #$00		; 989D	A9 00
-	STA ($7A),Y		; 989F	91 7A
-L018A1:
-	RTS			; 98A1	60
+	BPL Update_char_equip_wp	; 9880	$10 $05		branch if called by menu ???
+	AND #$7F		; 9882	$29 $7F
+	JMP Update_equip	; 9884	$4C $A2 $98	update character equipment
+Update_char_equip_wp:
+	JSR Update_equip	; 9887	$20 $A2 $98
+	LDY #$1C		; 988A	$A0 $1C
+	LDA ($7A),Y		; 988C	$B1 $7A
+	CMP #$30		; 988E	$C9 $30
+	BNE Updata_char_equip_lwp	; 9890	$D0 $04
+	LDA #$00		; 9892	$A9 $00
+	STA ($7A),Y		; 9894	$91 $7A
+Updata_char_equip_lwp:
+	INY			; 9896	$C8
+	LDA ($7A),Y		; 9897	$B1 $7A
+	CMP #$30		; 9899	$C9 $30
+	BNE Update_char_equip_end	; 989B	$D0 $04
+	LDA #$00		; 989D	$A9 $00
+	STA ($7A),Y		; 989F	$91 $7A
+Update_char_equip_end:
+	RTS			; 98A1	$60
 ; End of Update_char_equip
+
+equip_empty_slot	= $5E
+equip_d_size_tmp	= $5F
+equip_num_tmp		= $6D
+mod_str_tmp		= $6E
+mod_agi_tmp		= $6F
+mod_sta_tmp		= $70
+mod_mag_tmp		= $71
+
 
 ; Name	: Update_equip
 ; A	: Character index(0,1,2,3)
 ; Marks	: update character equipment
 ;	  $5E = empty equipment slot id ($30 or $70)
-;	  $64(ADDR) = Weapon properties address BANK 0C
+;	  $64(ADDR) = Weapon properties address on BANK 0C
 ;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
 ;	  $7E(ADDR) = character properties 2($6200,$6240,$6280,$62C0)
 ;	  $80(ADDR) = battle stats($7D7A,$7DAA,$7DDA,$7E0A)
+;	  $6E = mod. strength
+;	  $6F = mod. agility
+;	  $70 = mod. stamina
+;	  $71 = mod. magic power
 Update_equip:
-	STA cur_char_idx	; 98A2	85 9E
-	JSR Update_char_pointers	; 98A4	20 48 9B	update character pointers
-	LDA #$00		; 98A7	A9 00
-	LDY #$26		; 98A9	A0 26		off hand attack mult
+	STA cur_char_idx	; 98A2	$85 $9E
+	JSR Update_char_pointers	; 98A4	$20 $48 $9B	update character pointers
+	LDA #$00		; 98A7	$A9 $00
+	LDY #$26		; 98A9	$A0 $26		off hand attack mult
 L018AB:
-	STA ($7A),Y		; 98AB	91 7A		clear off-hand properties
-	INY			; 98AD	C8
-	CPY #$29		; 98AE	C0 29
-	BNE L018AB		; 98B0	D0 F9		loop
-	LDY #$1E		; 98B2	A0 1E		off hand hit mult
+	STA ($7A),Y		; 98AB	$91 $7A		clear off-hand properties
+	INY			; 98AD	$C8
+	CPY #$29		; 98AE	$C0 $29
+	BNE L018AB		; 98B0	$D0 $F9		loop
+	LDY #$1E		; 98B2	$A0 $1E		off hand hit mult
 L018B4:
-	STA ($80),Y		; 98B4	91 80
-	INY			; 98B6	C8
-	CPY #$24		; 98B7	C0 24
-	BNE L018B4		; 98B9	D0 F9		loop
-	JSR Load_armor_prop	; 98BB	20 C0 BE	load armor properties
-	JSR $BEE8		; 98BE	20 E8 BE	update mod. stats
-	LDY #$20		; 98C1	A0 20
-	LDA ($7A),Y		; 98C3	B1 7A		save mod. strength
-	STA $6E			; 98C5	85 6E
-	INY			; 98C7	C8
-	LDA ($7A),Y		; 98C8	B1 7A		save mod. agility
-	STA $6F			; 98CA	85 6F
-	INY			; 98CC	C8
-	LDA ($7A),Y		; 98CD	B1 7A		save mod. stamina
-	STA $70			; 98CF	85 70
-	LDY #$25		; 98D1	A0 25
-	LDA ($7A),Y		; 98D3	B1 7A		save mod. magic power
-	STA $71			; 98D5	85 71
-	LDA #$F6		; 98D7	A9 F6		BANK 0C/80F6 (weapon properties)
-	STA $64			; 98D9	85 64
-	LDA #$80		; 98DB	A9 80
-	STA $65			; 98DD	85 65
-	LDA #$30		; 98DF	A9 30		empty weapon slot	$30
-	STA $5E			; 98E1	85 5E
-	LDA #$09		; 98E3	A9 09		9 bytes each
-	STA $5F			; 98E5	85 5F
-	LDA #$FE		; 98E7	A9 FE
-	STA $4C			; 98E9	85 4C
-	LDY #$1C		; 98EB	A0 1C
-	LDA ($7A),Y		; 98ED	B1 7A		right hand
-	JSR Get_equip_prop	; 98EF	20 2C BF	load equipment properties
-	LDA $6D			; 98F2	A5 6D
-	STA $6C			; 98F4	85 6C
-	INY			; 98F6	C8
-	LDA ($7A),Y		; 98F7	B1 7A		left hand
-	JSR Get_equip_prop	; 98F9	20 2C BF	load equipment properties
-	LDY #$00		; 98FC	A0 00
-	LDA ($7A),Y		; 98FE	B1 7A
-	BPL L01905		; 9900	10 03		branch if right-handed
-	JSR Swap_hands		; 9902	20 8B 9B	swap hands
+	STA ($80),Y		; 98B4	$91 $80
+	INY			; 98B6	$C8
+	CPY #$24		; 98B7	$C0 $24
+	BNE L018B4		; 98B9	$D0 $F9		loop
+	JSR Load_armor_prop	; 98BB	$20 $C0 $BE	load armor properties
+	JSR Update_mod		; 98BE	$20 $E8 $BE	update mod. stats
+	LDY #$20		; 98C1	$A0 $20
+	LDA ($7A),Y		; 98C3	$B1 $7A		save mod. strength
+	STA $6E			; 98C5	$85 $6E
+	INY			; 98C7	$C8
+	LDA ($7A),Y		; 98C8	$B1 $7A		save mod. agility
+	STA $6F			; 98CA	$85 $6F
+	INY			; 98CC	$C8
+	LDA ($7A),Y		; 98CD	$B1 $7A		save mod. stamina
+	STA $70			; 98CF	$85 $70
+	LDY #$25		; 98D1	$A0 $25
+	LDA ($7A),Y		; 98D3	$B1 $7A		save mod. magic power
+	STA $71			; 98D5	$85 $71
+	LDA #<Weapon_prop	; 98D7	$A9 $F6		BANK 0C/80F6 (weapon properties)
+	STA $64			; 98D9	$85 $64
+	LDA #>Weapon_prop	; 98DB	$A9 $80
+	STA $65			; 98DD	$85 $65
+	LDA #$30		; 98DF	$A9 $30		empty weapon slot is $30
+	STA equip_empty_slot	; 98E1	$85 $5E
+	LDA #$09		; 98E3	$A9 $09		9 bytes each(weapon properties data size)
+	STA equip_d_size_tmp	; 98E5	$85 $5F
+	LDA #$FE		; 98E7	$A9 $FE
+	STA $4C			; 98E9	$85 $4C
+	LDY #$1C		; 98EB	$A0 $1C		right hand
+	LDA ($7A),Y		; 98ED	$B1 $7A
+	JSR Get_equip_prop	; 98EF	$20 $2C $BF	load equipment properties
+	LDA equip_num_tmp	; 98F2	$A5 $6D
+	STA $6C			; 98F4	$85 $6C
+	INY			; 98F6	$C8
+	LDA ($7A),Y		; 98F7	$B1 $7A		left hand(1Dh)
+	JSR Get_equip_prop	; 98F9	$20 $2C $BF	load equipment properties
+	LDY #$00		; 98FC	$A0 $00
+	LDA ($7A),Y		; 98FE	$B1 $7A
+	BPL L01905		; 9900	$10 $03		branch if right-handed
+	JSR Swap_hands		; 9902	$20 $8B $9B	swap hands
 L01905:
-	LDA $6C			; 9905	A5 6C
-	BNE L0190C		; 9907	D0 03
-	JSR Swap_hands		; 9909	20 8B 9B	swap hands
+	LDA $6C			; 9905	$A5 $6C
+	BNE L0190C		; 9907	$D0 $03
+	JSR Swap_hands		; 9909	$20 $8B $9B	swap hands
 L0190C:
-	LDX #$00		; 990C	A2 00
-	LDY #$00		; 990E	A0 00
-	JSR Get_weapon_prop_	; 9910	20 BA BF
-	LDY #$2E		; 9913	A0 2E
-	LDA $4A			; 9915	A5 4A
-	STA ($80),Y		; 9917	91 80		main hand weapon type
-	LDX #$02		; 9919	A2 02
-	LDY #$01		; 991B	A0 01
-	JSR Get_weapon_prop_	; 991D	20 BA BF
-	LDY #$2F		; 9920	A0 2F
-	LDA $4B			; 9922	A5 4B
-	STA ($80),Y		; 9924	91 80		off hand weapon type
-	LDX #$00		; 9926	A2 00
-	JSR Get_wpn_lv		; 9928	20 D2 BF
-	LDY #$16		; 992B	A0 16
-	STA ($7A),Y		; 992D	91 7A
-	LDY #$18		; 992F	A0 18
-	STA ($80),Y		; 9931	91 80
-	LDA $6D			; 9933	A5 6D
-	BEQ L01944		; 9935	F0 0D
-	LDX #$01		; 9937	A2 01
-	JSR Get_wpn_lv		; 9939	20 D2 BF
-	LDY #$26		; 993C	A0 26
-	STA ($7A),Y		; 993E	91 7A
-	LDY #$1E		; 9940	A0 1E
-	STA ($80),Y		; 9942	91 80		off hand hit mult.
+	LDX #$00		; 990C	$A2 $00
+	LDY #$00		; 990E	$A0 $00
+	JSR Get_weapon_prop_	; 9910	$20 $BA $BF
+	LDY #$2E		; 9913	$A0 $2E
+	LDA $4A			; 9915	$A5 $4A
+	STA ($80),Y		; 9917	$91 $80		main hand weapon type
+	LDX #$02		; 9919	$A2 $02
+	LDY #$01		; 991B	$A0 $01
+	JSR Get_weapon_prop_	; 991D	$20 $BA $BF
+	LDY #$2F		; 9920	$A0 $2F
+	LDA $4B			; 9922	$A5 $4B
+	STA ($80),Y		; 9924	$91 $80		off hand weapon type
+	LDX #$00		; 9926	$A2 $00
+	JSR Get_wpn_lv		; 9928	$20 $D2 $BF
+	LDY #$16		; 992B	$A0 $16		main hand hit mult.(character properties 1)
+	STA ($7A),Y		; 992D	$91 $7A
+	LDY #$18		; 992F	$A0 $18		main hand hit mult.(battle stats)
+	STA ($80),Y		; 9931	$91 $80
+	LDA equip_num_tmp	; 9933	$A5 $6D
+	BEQ L01944		; 9935	$F0 $0D		branch if off hand is empty
+	LDX #$01		; 9937	$A2 $01
+	JSR Get_wpn_lv		; 9939	$20 $D2 $BF
+	LDY #$26		; 993C	$A0 $26		off hand attack mult.(character properties 1)
+	STA ($7A),Y		; 993E	$91 $7A
+	LDY #$1E		; 9940	$A0 $1E		off hand hit mult.(battle stats)
+	STA ($80),Y		; 9942	$91 $80
 L01944:
-	LDA $6E			; 9944	A5 6E		mod. strength
-	CLC			; 9946	18
-	ADC $4C			; 9947	65 4C
-	JSR Max99		; 9949	20 84 9B	max 99
-	LDY #$17		; 994C	A0 17
-	STA ($7A),Y		; 994E	91 7A
-	LDY #$19		; 9950	A0 19
-	STA ($80),Y		; 9952	91 80
-	LDA $6D			; 9954	A5 6D
-	BEQ L01969		; 9956	F0 11
-	LDA $6E			; 9958	A5 6E
-	LSR			; 995A	4A
-	CLC			; 995B	18
-	ADC $4D			; 995C	65 4D
-	JSR Max99		; 995E	20 84 9B	max 99
-	LDY #$27		; 9961	A0 27
-	STA ($7A),Y		; 9963	91 7A
-	LDY #$1F		; 9965	A0 1F
-	STA ($80),Y		; 9967	91 80
+	LDA mod_str_tmp		; 9944	$A5 $6E		mod. strength
+	CLC			; 9946	$18
+	ADC $4C			; 9947	$65 $4C		accuracy(main hand weapon)
+	JSR Max99		; 9949	$20 $84 $9B	max 99
+	LDY #$17		; 994C	$A0 $17		main hand hit %
+	STA ($7A),Y		; 994E	$91 $7A
+	LDY #$19		; 9950	$A0 $19		main hand hit %
+	STA ($80),Y		; 9952	$91 $80
+	LDA equip_num_tmp	; 9954	$A5 $6D
+	BEQ L01969		; 9956	$F0 $11		branch if off hand is empty
+	LDA mod_str_tmp		; 9958	$A5 $6E
+	LSR			; 995A	$4A
+	CLC			; 995B	$18
+	ADC $4D			; 995C	$65 $4D		accuracy(off hand weapon)
+	JSR Max99		; 995E	$20 $84 $9B	max 99
+	LDY #$27		; 9961	$A0 $27		off hand hit %(character properties 1)
+	STA ($7A),Y		; 9963	$91 $7A
+	LDY #$1F		; 9965	$A0 $1F		off hand hit %(battle stats)
+	STA ($80),Y		; 9967	$91 $80
 L01969:
-	LDA $6D			; 9969	A5 6D
-	ORA $6C			; 996B	05 6C
-	BEQ L019A4		; 996D	F0 35
-	LDA $6D			; 996F	A5 6D
-	BEQ L01994		; 9971	F0 21
-	LDA $6E			; 9973	A5 6E
-	LSR			; 9975	4A
-	LSR			; 9976	4A
-	CLC			; 9977	18
-	ADC $4E			; 9978	65 4E
-	LDY #$18		; 997A	A0 18
-	STA ($7A),Y		; 997C	91 7A
-	LDY #$1A		; 997E	A0 1A
-	STA ($80),Y		; 9980	91 80
-	LDA $6E			; 9982	A5 6E
-	LSR			; 9984	4A
-	LSR			; 9985	4A
-	LSR			; 9986	4A
-	CLC			; 9987	18
-	ADC $4F			; 9988	65 4F
-	LDY #$28		; 998A	A0 28
-	STA ($7A),Y		; 998C	91 7A
-	LDY #$20		; 998E	A0 20
-	STA ($80),Y		; 9990	91 80
-	BNE L019BB		; 9992	D0 27
-L01994:
-	LDA $6E			; 9994	A5 6E
-	LSR			; 9996	4A
-	CLC			; 9997	18
-	ADC $4E			; 9998	65 4E
-	LDY #$18		; 999A	A0 18
-	STA ($7A),Y		; 999C	91 7A
-	LDY #$1A		; 999E	A0 1A
-	STA ($80),Y		; 99A0	91 80
-	BNE L019BB		; 99A2	D0 17
-L019A4:
-	LDY #$00		; 99A4	A0 00
-	LDA ($7E),Y		; 99A6	B1 7E
-	ASL			; 99A8	0A
-	ASL			; 99A9	0A
-	ASL			; 99AA	0A
-	STA $48			; 99AB	85 48
-	LDA $6E			; 99AD	A5 6E
-	LSR			; 99AF	4A
-	CLC			; 99B0	18
-	ADC $48			; 99B1	65 48
-	LDY #$18		; 99B3	A0 18
-	STA ($7A),Y		; 99B5	91 7A
-	LDY #$1A		; 99B7	A0 1A
-	STA ($80),Y		; 99B9	91 80
-L019BB:
-	LDX #$00		; 99BB	A2 00
-	LDY #$1B		; 99BD	A0 1B		main hand element
-	JSR Set_wpn_element	; 99BF	20 DD BF
-	LDA $6D			; 99C2	A5 6D
-	BEQ L019CD		; 99C4	F0 07
-	LDX #$01		; 99C6	A2 01
-	LDY #$21		; 99C8	A0 21
-	JSR Set_wpn_element	; 99CA	20 DD BF	off hand element
-L019CD:
-	LDA $6C			; 99CD	A5 6C
-	PHA			; 99CF	48
-	LDA $6D			; 99D0	A5 6D
-	PHA			; 99D2	48
-	JSR Load_armor_prop	; 99D3	20 C0 BE	load armor properties
-	PLA			; 99D6	68
-	STA $6D			; 99D7	85 6D
-	PLA			; 99D9	68
-	STA $6C			; 99DA	85 6C
-	LDY #$00		; 99DC	A0 00
-	CLC			; 99DE	18
-	LDA ($44),Y		; 99DF	B1 44
-	ADC ($46),Y		; 99E1	71 46
-	ADC ($48),Y		; 99E3	71 48
-	LDY #$29		; 99E5	A0 29
-	STA ($7A),Y		; 99E7	91 7A
-	LDY #$02		; 99E9	A0 02
-	STA ($80),Y		; 99EB	91 80
-	LDY #$30		; 99ED	A0 30
-	LDA ($7E),Y		; 99EF	B1 7E
-	TAX			; 99F1	AA
-	INX			; 99F2	E8
-	TXA			; 99F3	8A
-	LDY #$2A		; 99F4	A0 2A
-	STA ($7A),Y		; 99F6	91 7A
-	LDY #$00		; 99F8	A0 00
-	STA ($80),Y		; 99FA	91 80
-	LDA $50			; 99FC	A5 50
-	STA $00			; 99FE	85 00
-	LDA $5C			; 9A00	A5 5C
-	STA $02			; 9A02	85 02
-	INC $02			; 9A04	E6 02
-	LDA #$00		; 9A06	A9 00
-	STA $01			; 9A08	85 01
-	STA $03			; 9A0A	85 03
-	JSR Multi16		; 9A0C	20 98 FC	multiply (16-bit)
-	LDA $04			; 9A0F	A5 04
-	STA $56			; 9A11	85 56
-	LDA $05			; 9A13	A5 05
-	STA $57			; 9A15	85 57
-	LDA $6D			; 9A17	A5 6D
-	BEQ L01A3B		; 9A19	F0 20
-	LDA $51			; 9A1B	A5 51
-	STA $00			; 9A1D	85 00
-	LDA $5D			; 9A1F	A5 5D
-	STA $02			; 9A21	85 02
-	INC $02			; 9A23	E6 02
-	LDA #$00		; 9A25	A9 00
-	STA $01			; 9A27	85 01
-	STA $03			; 9A29	85 03
-	JSR Multi16		; 9A2B	20 98 FC	multiply (16-bit)
-	CLC			; 9A2E	18
-	LDA $56			; 9A2F	A5 56
-	ADC $04			; 9A31	65 04
-	STA $56			; 9A33	85 56
-	LDA $57			; 9A35	A5 57
-	ADC $05			; 9A37	65 05
-	STA $57			; 9A39	85 57
+	LDA equip_num_tmp	; 9969	$A5 $6D
+	ORA $6C			; 996B	$05 $6C
+	BEQ Update_equip_fist	; 996D	$F0 $35		branch if no weapon(fist)
+	LDA equip_num_tmp	; 996F	$A5 $6D
+	BEQ Update_equip_1wp	; 9971	$F0 $21
+	LDA mod_str_tmp		; 9973	$A5 $6E		strength / 4
+	LSR			; 9975	$4A
+	LSR			; 9976	$4A
+	CLC			; 9977	$18
+	ADC $4E			; 9978	$65 $4E		attack power(main hand weapon)
+	LDY #$18		; 997A	$A0 $18		main hand attack power(charater properties 1)
+	STA ($7A),Y		; 997C	$91 $7A
+	LDY #$1A		; 997E	$A0 $1A		main hand attack power(battle stats)
+	STA ($80),Y		; 9980	$91 $80
+	LDA mod_str_tmp		; 9982	$A5 $6E		strength / 8
+	LSR			; 9984	$4A
+	LSR			; 9985	$4A
+	LSR			; 9986	$4A
+	CLC			; 9987	$18
+	ADC $4F			; 9988	$65 $4F		attack power(off hand)
+	LDY #$28		; 998A	$A0 $28		off hand attack power(character properties 1)
+	STA ($7A),Y		; 998C	$91 $7A
+	LDY #$20		; 998E	$A0 $20		off hand attack power(battle stats)
+	STA ($80),Y		; 9990	$91 $80
+	BNE Update_equip_el	; 9992	$D0 $27
+Update_equip_1wp:
+	LDA mod_str_tmp		; 9994	$A5 $6E		strength / 2
+	LSR			; 9996	$4A
+	CLC			; 9997	$18
+	ADC $4E			; 9998	$65 $4E		attack power(main hand weapon)
+	LDY #$18		; 999A	$A0 $18		main hand attack power(character properties 1)
+	STA ($7A),Y		; 999C	$91 $7A
+	LDY #$1A		; 999E	$A0 $1A		main hand attack power(battle stats)
+	STA ($80),Y		; 99A0	$91 $80
+	BNE Update_equip_el	; 99A2	$D0 $17
+Update_equip_fist:
+	LDY #$00		; 99A4	$A0 $00		equipment(fist) levels(character properties 1)
+	LDA ($7E),Y		; 99A6	$B1 $7E		level x 8
+	ASL			; 99A8	$0A
+	ASL			; 99A9	$0A
+	ASL			; 99AA	$0A
+	STA $48			; 99AB	$85 $48
+	LDA mod_str_tmp		; 99AD	$A5 $6E		strength / 2
+	LSR			; 99AF	$4A
+	CLC			; 99B0	$18
+	ADC $48			; 99B1	$65 $48
+	LDY #$18		; 99B3	$A0 $18		main hand attack power(character properties 1)
+	STA ($7A),Y		; 99B5	$91 $7A
+	LDY #$1A		; 99B7	$A0 $1A		main hand attack power(battle stats)
+	STA ($80),Y		; 99B9	$91 $80
+Update_equip_el:
+	LDX #$00		; 99BB	$A2 $00
+	LDY #$1B		; 99BD	$A0 $1B		main hand element, monster type bonus, weapon special
+	JSR Set_wpn_element	; 99BF	$20 $DD $BF
+	LDA equip_num_tmp	; 99C2	$A5 $6D
+	BEQ Update_equip_def	; 99C4	$F0 $07
+	LDX #$01		; 99C6	$A2 $01
+	LDY #$21		; 99C8	$A0 $21
+	JSR Set_wpn_element	; 99CA	$20 $DD $BF	off hand element, monster type bonus, weapon special
+Update_equip_def:
+	LDA $6C			; 99CD	$A5 $6C
+	PHA			; 99CF	$48
+	LDA equip_num_tmp	; 99D0	$A5 $6D
+	PHA			; 99D2	$48
+	JSR Load_armor_prop	; 99D3	$20 $C0 $BE	load armor properties
+	PLA			; 99D6	$68
+	STA equip_num_tmp	; 99D7	$85 $6D
+	PLA			; 99D9	$68
+	STA $6C			; 99DA	$85 $6C
+	LDY #$00		; 99DC	$A0 $00
+	CLC			; 99DE	$18
+	LDA ($44),Y		; 99DF	$B1 $44		helmet defense
+	ADC ($46),Y		; 99E1	$71 $46		armor defense
+	ADC ($48),Y		; 99E3	$71 $48		glove defense
+	LDY #$29		; 99E5	$A0 $29		defense(character properties 1)
+	STA ($7A),Y		; 99E7	$91 $7A
+	LDY #$02		; 99E9	$A0 $02		defense(battle stats)
+	STA ($80),Y		; 99EB	$91 $80
+	LDY #$30		; 99ED	$A0 $30		evade level(character properties 2)
+	LDA ($7E),Y		; 99EF	$B1 $7E
+	TAX			; 99F1	$AA		level +1
+	INX			; 99F2	$E8
+	TXA			; 99F3	$8A
+	LDY #$2A		; 99F4	$A0 $2A		evade mult.(character properties 1)
+	STA ($7A),Y		; 99F6	$91 $7A
+	LDY #$00		; 99F8	$A0 $00		evade mult.(character stats)
+	STA ($80),Y		; 99FA	$91 $80
+	LDA $50			; 99FC	$A5 $50		weapon properties evade(main hand)
+	STA $00			; 99FE	$85 $00
+	LDA $5C			; 9A00	$A5 $5C		characters weapon level
+	STA $02			; 9A02	$85 $02
+	INC $02			; 9A04	$E6 $02		weapon level +1
+	LDA #$00		; 9A06	$A9 $00
+	STA $01			; 9A08	$85 $01
+	STA $03			; 9A0A	$85 $03
+	JSR Multi16		; 9A0C	$20 $98 $FC	multiply (16-bit)
+	LDA $04			; 9A0F	$A5 $04
+	STA $56			; 9A11	$85 $56
+	LDA $05			; 9A13	$A5 $05
+	STA $57			; 9A15	$85 $57
+	LDA equip_num_tmp	; 9A17	$A5 $6D
+	BEQ L01A3B		; 9A19	$F0 $20		branch if no weapon
+	LDA $51			; 9A1B	$A5 $51
+	STA $00			; 9A1D	$85 $00
+	LDA $5D			; 9A1F	$A5 $5D
+	STA $02			; 9A21	$85 $02
+	INC $02			; 9A23	$E6 $02
+	LDA #$00		; 9A25	$A9 $00
+	STA $01			; 9A27	$85 $01
+	STA $03			; 9A29	$85 $03
+	JSR Multi16		; 9A2B	$20 $98 $FC	multiply (16-bit)
+	CLC			; 9A2E	$18
+	LDA $56			; 9A2F	$A5 $56		weapon properties evade(off hand)
+	ADC $04			; 9A31	$65 $04
+	STA $56			; 9A33	$85 $56		weapon evade(L)
+	LDA $57			; 9A35	$A5 $57
+	ADC $05			; 9A37	$65 $05		weapon evade(H)
+	STA $57			; 9A39	$85 $57
 L01A3B:
-	CLC			; 9A3B	18
-	LDA $56			; 9A3C	A5 56
-	ADC $6F			; 9A3E	65 6F
-	STA $56			; 9A40	85 56
-	LDA $57			; 9A42	A5 57
-	ADC #$00		; 9A44	69 00
-	STA $57			; 9A46	85 57
-	LDY #$01		; 9A48	A0 01
-	CLC			; 9A4A	18
-	LDA ($44),Y		; 9A4B	B1 44
-	ADC ($46),Y		; 9A4D	71 46
-	ADC ($48),Y		; 9A4F	71 48
-	STA $58			; 9A51	85 58
-	LDA #$00		; 9A53	A9 00
-	ADC #$00		; 9A55	69 00
-	STA $59			; 9A57	85 59
-	SEC			; 9A59	38
-	LDA $56			; 9A5A	A5 56
-	SBC $58			; 9A5C	E5 58
-	STA $56			; 9A5E	85 56
-	LDA $57			; 9A60	A5 57
-	SBC $59			; 9A62	E5 59
-	STA $57			; 9A64	85 57
-	BCS L01A6C		; 9A66	B0 04
-	LDA #$00		; 9A68	A9 00
-	STA $56			; 9A6A	85 56
+	CLC			; 9A3B	$18
+	LDA $56			; 9A3C	$A5 $56
+	ADC mod_agi_tmp		; 9A3E	$65 $6F
+	STA $56			; 9A40	$85 $56		weapon evade(L)
+	LDA $57			; 9A42	$A5 $57
+	ADC #$00		; 9A44	$69 $00
+	STA $57			; 9A46	$85 $57		weapon evade(H)
+	LDY #$01		; 9A48	$A0 $01
+	CLC			; 9A4A	$18
+	LDA ($44),Y		; 9A4B	$B1 $44		helmet evade penalty
+	ADC ($46),Y		; 9A4D	$71 $46		armor evade penalty
+	ADC ($48),Y		; 9A4F	$71 $48		glove evade penalty
+	STA $58			; 9A51	$85 $58		evade penalty(L)
+	LDA #$00		; 9A53	$A9 $00
+	ADC #$00		; 9A55	$69 $00
+	STA $59			; 9A57	$85 $59		evade penalty(H)
+	SEC			; 9A59	$38
+	LDA $56			; 9A5A	$A5 $56
+	SBC $58			; 9A5C	$E5 $58
+	STA $56			; 9A5E	$85 $56		evade(L)
+	LDA $57			; 9A60	$A5 $57
+	SBC $59			; 9A62	$E5 $59
+	STA $57			; 9A64	$85 $57		evade(H)
+	BCS L01A6C		; 9A66	$B0 $04		branch if result is plus(greater than or equal 0)
+	LDA #$00		; 9A68	$A9 $00
+	STA $56			; 9A6A	$85 $56
 L01A6C:
-	LDY #$2B		; 9A6C	A0 2B
-	LDA $56			; 9A6E	A5 56
-	JSR Max99		; 9A70	20 84 9B	max 99
-	STA ($7A),Y		; 9A73	91 7A
-	LDY #$01		; 9A75	A0 01
-	STA ($80),Y		; 9A77	91 80
-	LDY #$32		; 9A79	A0 32
-	LDA ($7E),Y		; 9A7B	B1 7E
-	TAX			; 9A7D	AA
-	INX			; 9A7E	E8
-	TXA			; 9A7F	8A
-	LDY #$2C		; 9A80	A0 2C
-	STA ($7A),Y		; 9A82	91 7A
-	LDY #$03		; 9A84	A0 03
-	STA ($80),Y		; 9A86	91 80
-	LDA #$00		; 9A88	A9 00
-	STA $4D			; 9A8A	85 4D
-	CLC			; 9A8C	18
-	LDA $70			; 9A8D	A5 70
-	ADC $71			; 9A8F	65 71
-	STA $4C			; 9A91	85 4C
-	LSR $4D			; 9A93	46 4D
-	LSR $4C			; 9A95	46 4C
-	CLC			; 9A97	18
-	LDY #$05		; 9A98	A0 05
-	LDA ($44),Y		; 9A9A	B1 44
-	ADC ($46),Y		; 9A9C	71 46
-	ADC ($48),Y		; 9A9E	71 48
-	STA $4E			; 9AA0	85 4E
-	LDA #$00		; 9AA2	A9 00
-	ADC #$00		; 9AA4	69 00
-	STA $4F			; 9AA6	85 4F
-	CLC			; 9AA8	18
-	LDA $4C			; 9AA9	A5 4C
-	ADC $4E			; 9AAB	65 4E
-	STA $4C			; 9AAD	85 4C
-	LDA $4D			; 9AAF	A5 4D
-	ADC $4F			; 9AB1	65 4F
-	STA $4D			; 9AB3	85 4D
-	LDA $4D			; 9AB5	A5 4D
-	BEQ L01ABD		; 9AB7	F0 04
-	LDA #$63		; 9AB9	A9 63
-	STA $4C			; 9ABB	85 4C
+	LDY #$2B		; 9A6C	$A0 $2B		evade %(character properties 1)
+	LDA $56			; 9A6E	$A5 $56
+	JSR Max99		; 9A70	$20 $84 $9B	max 99
+	STA ($7A),Y		; 9A73	$91 $7A
+	LDY #$01		; 9A75	$A0 $01		evade %(battle stats)
+	STA ($80),Y		; 9A77	$91 $80
+	LDY #$32		; 9A79	$A0 $32		m.evade level(character properties 2)
+	LDA ($7E),Y		; 9A7B	$B1 $7E
+	TAX			; 9A7D	$AA		level +1
+	INX			; 9A7E	$E8
+	TXA			; 9A7F	$8A
+	LDY #$2C		; 9A80	$A0 $2C		m.evade mult.(character properties 1)
+	STA ($7A),Y		; 9A82	$91 $7A
+	LDY #$03		; 9A84	$A0 $03		m.evade mult.(battle stats)
+	STA ($80),Y		; 9A86	$91 $80
+	LDA #$00		; 9A88	$A9 $00
+	STA $4D			; 9A8A	$85 $4D
+	CLC			; 9A8C	$18
+	LDA $70			; 9A8D	$A5 $70		mod. stamina
+	ADC $71			; 9A8F	$65 $71		mod. magic power
+	STA $4C			; 9A91	$85 $4C
+	LSR $4D			; 9A93	$46 $4D		??? always 0
+	LSR $4C			; 9A95	$46 $4C
+	CLC			; 9A97	$18
+	LDY #$05		; 9A98	$A0 $05
+	LDA ($44),Y		; 9A9A	$B1 $44		helmet magic defense
+	ADC ($46),Y		; 9A9C	$71 $46		armor magic defense
+	ADC ($48),Y		; 9A9E	$71 $48		glove magic defense
+	STA $4E			; 9AA0	$85 $4E		sum of magic defense(L)
+	LDA #$00		; 9AA2	$A9 $00
+	ADC #$00		; 9AA4	$69 $00
+	STA $4F			; 9AA6	$85 $4F		sum of magic defense(H)
+	CLC			; 9AA8	$18
+	LDA $4C			; 9AA9	$A5 $4C
+	ADC $4E			; 9AAB	$65 $4E
+	STA $4C			; 9AAD	$85 $4C
+	LDA $4D			; 9AAF	$A5 $4D
+	ADC $4F			; 9AB1	$65 $4F
+	STA $4D			; 9AB3	$85 $4D
+	LDA $4D			; 9AB5	$A5 $4D
+	BEQ L01ABD		; 9AB7	$F0 $04		branch if sum of magic defense is less than 256
+	LDA #$63		; 9AB9	$A9 $63		set max 99
+	STA $4C			; 9ABB	$85 $4C
 L01ABD:
-	LDY #$2D		; 9ABD	A0 2D
-	LDA $4C			; 9ABF	A5 4C
-	JSR Max99		; 9AC1	20 84 9B	max 99
-	STA ($7A),Y		; 9AC4	91 7A
-	LDY #$04		; 9AC6	A0 04
-	STA ($80),Y		; 9AC8	91 80
-	LDY #$03		; 9ACA	A0 03
-	LDA ($44),Y		; 9ACC	B1 44
-	ORA ($46),Y		; 9ACE	11 46
-	ORA ($48),Y		; 9AD0	11 48
-	STA $4C			; 9AD2	85 4C
-	LDA $6C			; 9AD4	A5 6C
-	BEQ L01AE2		; 9AD6	F0 0A
-	CMP #$0A		; 9AD8	C9 0A
-	BCS L01AE2		; 9ADA	B0 06
-	LDA $4C			; 9ADC	A5 4C
-	ORA $54			; 9ADE	05 54
-	STA $4C			; 9AE0	85 4C
+	LDY #$2D		; 9ABD	$A0 $2D		m.evade %(character properties 1)
+	LDA $4C			; 9ABF	$A5 $4C
+	JSR Max99		; 9AC1	$20 $84 $9B	max 99
+	STA ($7A),Y		; 9AC4	$91 $7A
+	LDY #$04		; 9AC6	$A0 $04		m.evade %(battle stats)
+	STA ($80),Y		; 9AC8	$91 $80
+	LDY #$03		; 9ACA	$A0 $03
+	LDA ($44),Y		; 9ACC	$B1 $44		helmet elemental defense
+	ORA ($46),Y		; 9ACE	$11 $46		armor elemental defense
+	ORA ($48),Y		; 9AD0	$11 $48		glove elemental defense
+	STA $4C			; 9AD2	$85 $4C		elemental defense
+	LDA $6C			; 9AD4	$A5 $6C
+	BEQ L01AE2		; 9AD6	$F0 $0A
+	CMP #$0A		; 9AD8	$C9 $0A
+	BCS L01AE2		; 9ADA	$B0 $06		branch if main hand is weapon(check shield)
+	LDA $4C			; 9ADC	$A5 $4C
+	ORA $54			; 9ADE	$05 $54		main hand elemental properties
+	STA $4C			; 9AE0	$85 $4C		elemental defense
 L01AE2:
-	LDA $6D			; 9AE2	A5 6D
-	BEQ L01AF0		; 9AE4	F0 0A
-	CMP #$0A		; 9AE6	C9 0A
-	BCS L01AF0		; 9AE8	B0 06
-	LDA $4C			; 9AEA	A5 4C
-	ORA $55			; 9AEC	05 55
-	STA $4C			; 9AEE	85 4C
+	LDA equip_num_tmp	; 9AE2	$A5 $6D
+	BEQ L01AF0		; 9AE4	$F0 $0A		branch if weapon is not exist
+	CMP #$0A		; 9AE6	$C9 $0A
+	BCS L01AF0		; 9AE8	$B0 $06		branch if off hand is weapon(check shield)
+	LDA $4C			; 9AEA	$A5 $4C
+	ORA $55			; 9AEC	$05 $55		off hand elemental properties
+	STA $4C			; 9AEE	$85 $4C
 L01AF0:
-	LDY #$2E		; 9AF0	A0 2E
-	LDA $4C			; 9AF2	A5 4C
-	STA ($7A),Y		; 9AF4	91 7A
-	LDY #$05		; 9AF6	A0 05
-	STA ($80),Y		; 9AF8	91 80
-	LDY #$02		; 9AFA	A0 02
-	CLC			; 9AFC	18
-	LDA ($44),Y		; 9AFD	B1 44
-	ADC ($46),Y		; 9AFF	71 46
-	ADC ($48),Y		; 9B01	71 48
-	STA $4C			; 9B03	85 4C
-	LDA #$00		; 9B05	A9 00
-	ADC #$00		; 9B07	69 00
-	STA $4D			; 9B09	85 4D
-	CLC			; 9B0B	18
-	LDA $52			; 9B0C	A5 52
-	ADC $53			; 9B0E	65 53
-	STA $4E			; 9B10	85 4E
-	LDA #$00		; 9B12	A9 00
-	ADC #$00		; 9B14	69 00
-	STA $4F			; 9B16	85 4F
-	CLC			; 9B18	18
-	LDA $4C			; 9B19	A5 4C
-	ADC $4E			; 9B1B	65 4E
-	STA $4C			; 9B1D	85 4C
-	LDA $4D			; 9B1F	A5 4D
-	ADC $4F			; 9B21	65 4F
-	STA $4D			; 9B23	85 4D
-	LDA $4D			; 9B25	A5 4D
-	BEQ L01B2D		; 9B27	F0 04
-	LDA #$FF		; 9B29	A9 FF
-	STA $4C			; 9B2B	85 4C
+	LDY #$2E		; 9AF0	$A0 $2E		strong elements(character properites 1)
+	LDA $4C			; 9AF2	$A5 $4C
+	STA ($7A),Y		; 9AF4	$91 $7A
+	LDY #$05		; 9AF6	$A0 $05		strong elements(battle stats)
+	STA ($80),Y		; 9AF8	$91 $80
+	LDY #$02		; 9AFA	$A0 $02
+	CLC			; 9AFC	$18
+	LDA ($44),Y		; 9AFD	$B1 $44		helmet spell penalty
+	ADC ($46),Y		; 9AFF	$71 $46		armor spell penalty
+	ADC ($48),Y		; 9B01	$71 $48		glove spell penalty
+	STA $4C			; 9B03	$85 $4C		spell penalty(L)
+	LDA #$00		; 9B05	$A9 $00
+	ADC #$00		; 9B07	$69 $00
+	STA $4D			; 9B09	$85 $4D		spell penalty(H)
+	CLC			; 9B0B	$18
+	LDA $52			; 9B0C	$A5 $52		main hand spell penalty
+	ADC $53			; 9B0E	$65 $53		off hand spell penalty
+	STA $4E			; 9B10	$85 $4E		weapon spell panalty(L)
+	LDA #$00		; 9B12	$A9 $00
+	ADC #$00		; 9B14	$69 $00
+	STA $4F			; 9B16	$85 $4F		weapon spell penalty(H)
+	CLC			; 9B18	$18
+	LDA $4C			; 9B19	$A5 $4C
+	ADC $4E			; 9B1B	$65 $4E
+	STA $4C			; 9B1D	$85 $4C
+	LDA $4D			; 9B1F	$A5 $4D
+	ADC $4F			; 9B21	$65 $4F
+	STA $4D			; 9B23	$85 $4D		sum of spell penalty
+	LDA $4D			; 9B25	$A5 $4D
+	BEQ L01B2D		; 9B27	$F0 $04		branch if spell penalty is less than 256
+	LDA #$FF		; 9B29	$A9 $FF
+	STA $4C			; 9B2B	$85 $4C
 L01B2D:
-	LDY #$2F		; 9B2D	A0 2F		spell % penalty ??
-	LDA $4C			; 9B2F	A5 4C
-	STA ($7A),Y		; 9B31	91 7A
-	LDY #$24		; 9B33	A0 24		spell % penalty
-	STA ($80),Y		; 9B35	91 80
-	LDY #$23		; 9B37	A0 23		mod. intellect
-	LDA ($7A),Y		; 9B39	B1 7A
-	LDY #$12		; 9B3B	A0 12		intellect
-	STA ($80),Y		; 9B3D	91 80
-	LDY #$24		; 9B3F	A0 24		mod. spirit
-	LDA ($7A),Y		; 9B41	B1 7A
-	LDY #$13		; 9B43	A0 13		spirit
-	STA ($80),Y		; 9B45	91 80
-	RTS			; 9B47	60
+	LDY #$2F		; 9B2D	$A0 $2F		spell % penalty ??
+	LDA $4C			; 9B2F	$A5 $4C
+	STA ($7A),Y		; 9B31	$91 $7A
+	LDY #$24		; 9B33	$A0 $24		spell % penalty(battle stats)
+	STA ($80),Y		; 9B35	$91 $80
+	LDY #$23		; 9B37	$A0 $23		mod. intellect
+	LDA ($7A),Y		; 9B39	$B1 $7A
+	LDY #$12		; 9B3B	$A0 $12		intellect(battle stats)
+	STA ($80),Y		; 9B3D	$91 $80
+	LDY #$24		; 9B3F	$A0 $24		mod. spirit
+	LDA ($7A),Y		; 9B41	$B1 $7A
+	LDY #$13		; 9B43	$A0 $13		spirit(battle stats)
+	STA ($80),Y		; 9B45	$91 $80
+	RTS			; 9B47	$60
 ; End of Update_equip
 
 ; Name	: Update_char_pointers
+; SRC	: $9E = current character index
 ; Marks	: update character pointers
 ;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
 ;	  $7E(ADDR) = character properties 2($6200,$6240,$6280,$62C0)
@@ -2309,76 +2327,83 @@ wmap_ent_id:
 
 .import	Get_data_BANK_0C	;FBE6
 
-.import	Armor_prop		;8000 - BANK_0C
-
 ; Name	: Load_armor_prop
 ; Marks	: load armor properties
 ;	  $5F = size of equipment data
-;	  $64(ADDR) = armor properties address BANK 0C
+;	  $64(ADDR) = armor properties address on BANK 0C
 ;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
 Load_armor_prop:
-	LDA #<Armor_prop	; BEC0	A9 00
-	;LDA #$00		; BEC0	A9 00
-	STA $64			; BEC2	85 64
-	LDA #>Armor_prop
-	;LDA #$80		; BEC4	A9 80
-	STA $65			; BEC6	85 65		BANK 0C/8000 (armor properties)
-	LDA #$70		; BEC8	A9 70		empty armor slot	$70
-	STA $5E			; BECA	85 5E
-	LDA #$06		; BECC	A9 06		6 bytes each
-	STA $5F			; BECE	85 5F
-	LDA #$FE		; BED0	A9 FE
-	STA $4C			; BED2	85 4C
-	LDY #$19		; BED4	A0 19
-	LDA ($7A),Y		; BED6	B1 7A		helmet
-	JSR Get_equip_prop	; BED8	20 2C BF	load equipment properties
-	INY			; BEDB	C8
-	LDA ($7A),Y		; BEDC	B1 7A		armor
-	JSR Get_equip_prop	; BEDE	20 2C BF	loadd equipment properties
-	INY			; BEE1	C8
-	LDA ($7A),Y		; BEE2	B1 7A		gloves
-	JSR Get_equip_prop	; BEE4	20 2C BF	load equipment properties
-	RTS			; BEE7	60
+	LDA #<Armor_prop	; BEC0	$A9 $00
+	STA $64			; BEC2	$85 $64
+	LDA #>Armor_prop	; BEC4	$A9 $80
+	STA $65			; BEC6	$85 $65		BANK 0C/8000 (armor properties)
+	LDA #$70		; BEC8	$A9 $70		empty armor slot	$70
+	STA equip_empty_slot	; BECA	$85 $5E
+	LDA #$06		; BECC	$A9 $06		6 bytes each(armor properties data size)
+	STA equip_d_size_tmp	; BECE	$85 $5F
+	LDA #$FE		; BED0	$A9 $FE
+	STA $4C			; BED2	$85 $4C
+	LDY #$19		; BED4	$A0 $19
+	LDA ($7A),Y		; BED6	$B1 $7A		helmet
+	JSR Get_equip_prop	; BED8	$20 $2C $BF	load equipment properties
+	INY			; BEDB	$C8
+	LDA ($7A),Y		; BEDC	$B1 $7A		armor
+	JSR Get_equip_prop	; BEDE	$20 $2C $BF	loadd equipment properties
+	INY			; BEE1	$C8
+	LDA ($7A),Y		; BEE2	$B1 $7A		gloves
+	JSR Get_equip_prop	; BEE4	$20 $2C $BF	load equipment properties
+	RTS			; BEE7	$60
 ; End of Load_armor_prop
 
-; Name	:
+; Name	: Update_mod
 ; Marks	: update mod. stats
-	LDY #$10		; BEE8	A0 10
-L03EEA:
-	LDA ($7A),Y		; BEEA	B1 7A		base stat
-	PHA			; BEEC	48
-	TYA			; BEED	98
-	CLC			; BEEE	18
-	ADC #$10		; BEEF	69 10
-	TAY			; BEF1	A8
-	PLA			; BEF2	68
-	STA ($7A),Y		; BEF3	91 7A		set mod. stat
-	INY			; BEF5	C8
-	TYA			; BEF6	98
-	SEC			; BEF7	38
-	SBC #$10		; BEF8	E9 10		next stat
-	TAY			; BEFA	A8
-	CPY #$15		; BEFB	C0 15
-	BNE L03EEA		; BEFD	D0 EB
-	LDX #$00		; BEFF	A2 00
-L03F01:
-	LDA $44,X		; BF01	B5 44		pointer to equipment properties buffer
-	STA $5E			; BF03	85 5E
-	LDA $45,X		; BF05	B5 45
-	STA $5F			; BF07	85 5F
-	JSR $BF13		; BF09	20 13 BF	apply armor stat boost
-	INX			; BF0C	E8
-	INX			; BF0D	E8
-	CPX #$06		; BF0E	E0 06
-	BNE L03F01		; BF10	D0 EF
-	RTS			; BF12	60
-; End of
+;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
+;	  $44(ADDR) = ??
+Update_mod:
+	LDY #$10		; BEE8	$A0 $10		base stat ($61xx + $10)
+Update_mod_init:
+	LDA ($7A),Y		; BEEA	$B1 $7A		base stat(strength,agility,stamina,intellect,spirit)
+	PHA			; BEEC	$48
+	TYA			; BEED	$98
+	CLC			; BEEE	$18
+	ADC #$10		; BEEF	$69 $10
+	TAY			; BEF1	$A8
+	PLA			; BEF2	$68
+	STA ($7A),Y		; BEF3	$91 $7A		set mod. stat ($61xx + $20) - init
+	INY			; BEF5	$C8
+	TYA			; BEF6	$98
+	SEC			; BEF7	$38
+	SBC #$10		; BEF8	$E9 $10		next stat
+	TAY			; BEFA	$A8
+	CPY #$15		; BEFB	$C0 $15
+	BNE Update_mod_init	; BEFD	$D0 $EB		loop
+	LDX #$00		; BEFF	$A2 $00
+Update_mod_apply:
+	LDA $44,X		; BF01	$B5 $44		pointer to equipment properties buffer
+	STA $5E			; BF03	$85 $5E
+	LDA $45,X		; BF05	$B5 $45
+	STA $5F			; BF07	$85 $5F
+	JSR Apply_stat		; BF09	$20 $13 $BF	apply armor stat boost
+	INX			; BF0C	$E8
+	INX			; BF0D	$E8
+	CPX #$06		; BF0E	$E0 $06
+	BNE Update_mod_apply	; BF10	$D0 $EF
+	RTS			; BF12	$60
+; End of Update_mod
 
-; Name	:
+; Name	: Apply_stat
 ; Marks	: apply armor stat boost
+;	  $5E(ADDR) = pointer to equipment properties buffer
+;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
+;	  Stat boost ->	00: strength +10
+;			01: agility +10
+;			02: stamina +10
+;			03: intelligence +10
+;			04: soul +10
+Apply_stat:
 	LDY #$04		; BF13	A0 04
 	LDA ($5E),Y		; BF15	B1 5E		star to boost
-	BMI L03F2B		; BF17	30 12		branch if no boost
+	BMI Apply_stat_none	; BF17	30 12		branch if no boost
 	CLC			; BF19	18
 	ADC #$10		; BF1A	69 10
 	TAY			; BF1C	A8
@@ -2392,72 +2417,73 @@ L03F01:
 	TAY			; BF27	A8
 	PLA			; BF28	68
 	STA ($7A),Y		; BF29	91 7A
-L03F2B:
+Apply_stat_none:
 	RTS			; BF2B	60
-; End of
+; End of Apply_stat
 
 ; Name	: Get_equip_prop
-; A	: equipment number
-; Y	:
+; A	: equipment number(weapon, helmet, armor, gloves)
+; Y	: character properties offset(19h-1Dh = helmet, armor, gloves, weapon R, weapon L)
 ; Marks	: load equipment properties
 ;	  +$44: pointers to data buffer slots at $7610
 ;	   $4C: data buffer slot id (increment by 2 each item)
-;	  +$64: equipment properties offset (bank 0C)
+;	  +$64: equipment properties offset/address (bank 0C)
 ;	   $5E: empty equipment slot id ($30 or $70)
 ;	   $5F: size of equipment data
 ;	  $7A(ADDR) = character properties 1($6100,$6140,$6180,$61C0)
+;	  $00(ADDR) = weapon/armor properties address
 Get_equip_prop:
-	BNE L03F3C		; BF2C	D0 0E
-	CLC			; BF2E	18
-	ADC $5E			; BF2F	65 5E
-	CMP #$70		; BF31	C9 70
-	BNE L03F3A		; BF33	D0 05
-	SEC			; BF35	38
-	SBC #$01		; BF36	E9 01
-	BNE L03F3C		; BF38	D0 02
-L03F3A:
-	STA ($7A),Y		; BF3A	91 7A
-L03F3C:
-	STA $6D			; BF3C	85 6D
-	LDA $5E			; BF3E	A5 5E
-	CMP #$30		; BF40	C9 30
-	BEQ L03F4B		; BF42	F0 07
-	CLC			; BF44	18
-	LDA $6D			; BF45	A5 6D
-	ADC #$01		; BF47	69 01
-	STA $6D			; BF49	85 6D
-L03F4B:
-	LDA $6D			; BF4B	A5 6D
-	SEC			; BF4D	38
-	SBC $5E			; BF4E	E5 5E
-	STA $6D			; BF50	85 6D
-	STA $00			; BF52	85 00
-	LDA $5F			; BF54	A5 5F
-	STA $02			; BF56	85 02
-	LDA #$00		; BF58	A9 00
-	STA $01			; BF5A	85 01
-	STA $03			; BF5C	85 03
-	JSR Multi16		; BF5E	20 98 FC	multiply (16-bit) size of equipment data x ??
-	TYA			; BF61	98
-	PHA			; BF62	48
-	CLC			; BF63	18
-	LDA $04			; BF64	A5 04
+	BNE Get_equip_prop_eq	; BF2C	$D0 $0E		branch if equipment is exist
+	CLC			; BF2E	$18
+	ADC equip_empty_slot	; BF2F	$65 $5E
+	CMP #$70		; BF31	$C9 $70
+	BNE Get_equip_prop_ewp	; BF33	$D0 $05		branch if equipment is empty weapon slot(may be 30h)
+	SEC			; BF35	$38
+	SBC #$01		; BF36	$E9 $01
+	BNE Get_equip_prop_eq	; BF38	$D0 $02
+Get_equip_prop_ewp:
+	STA ($7A),Y		; BF3A	$91 $7A
+Get_equip_prop_eq:
+	STA equip_num_tmp	; BF3C	$85 $6D
+	LDA equip_empty_slot	; BF3E	$A5 $5E
+	CMP #$30		; BF40	$C9 $30
+	BEQ Get_equip_prop_wp	; BF42	$F0 $07		branch if equipment is weapon
+	CLC			; BF44	$18
+	LDA equip_num_tmp	; BF45	$A5 $6D
+	ADC #$01		; BF47	$69 $01
+	STA equip_num_tmp	; BF49	$85 $6D
+Get_equip_prop_wp:
+	LDA equip_num_tmp	; BF4B	$A5 $6D
+	SEC			; BF4D	$38
+	SBC equip_empty_slot	; BF4E	$E5 $5E
+	STA equip_num_tmp	; BF50	$85 $6D		converted weapon number is 00h-3Fh
+	STA $00			; BF52	$85 $00
+	LDA equip_d_size_tmp	; BF54	$A5 $5F		9 or 6 bytes
+	STA $02			; BF56	$85 $02
+	LDA #$00		; BF58	$A9 $00
+	STA $01			; BF5A	$85 $01
+	STA $03			; BF5C	$85 $03
+	JSR Multi16		; BF5E	$20 $98 $FC	multiply (16-bit) -> equipment number x size of equipment data
+	TYA			; BF61	$98
+	PHA			; BF62	$48
+	CLC			; BF63	$18
+	LDA $04			; BF64	$A5 $04
 	.byte $6D,$64,$00
-	;ADC $0064		; BF66	6D 64 00
+	;ADC $0064		; BF66	6D 64 00	weapon/armor properties address
 	STA $00			; BF69	85 00
 	LDA $05			; BF6B	A5 05
 	.byte $6D,$65,$00
 	;ADC $0065		; BF6D	6D 65 00
 	STA 01			; BF70	85 01
-	LDA $5E			; BF72	A5 5E
+	LDA equip_empty_slot	; BF72	A5 5E
 	CMP #$70		; BF74	C9 70
-	BNE L03F7C		; BF76	D0 04
+	BNE Get_equip_prop_nam	; BF76	D0 04
 	LDY #$06		; BF78	A0 06		size of armor properties data
-	BNE L03F7E		; BF7A	D0 02
-L03F7C:
+	BNE Get_equip_prop_am	; BF7A	D0 02
+Get_equip_prop_nam:
 	LDY #$0A		; BF7C	A0 0A		size of weapon properties data ?? not 09h but 0Ah ??
-L03F7E:
-	JSR Get_data_BANK_0C	; BF7E	20 E6 FB
+Get_equip_prop_am:
+	JSR Get_data_BANK_0C	; BF7E	20 E6 FB	BANK 0C/8000 or 80F6 (weapon/armor properties)
 	LDX $4C			; BF81	A6 4C
 	INX			; BF83	E8
 	INX			; BF84	E8
@@ -2479,12 +2505,12 @@ L03F7E:
 	ADC #$76		; BF9D	69 76
 	STA $05			; BF9F	85 05
 	LDY #$00		; BFA1	A0 00
-L03FA3:
+Get_equip_prop_cp:
 	LDA $7600,Y		; BFA3	B9 00 76	copy 16 bytes to buffer
 	STA ($04),Y		; BFA6	91 04
 	INY			; BFA8	C8
 	CPY #$10		; BFA9	C0 10
-	BNE L03FA3		; BFAB	D0 F6
+	BNE Get_equip_prop_cp	; BFAB	D0 F6
 	LDA $04			; BFAD	A5 04
 	STA $44,X		; BFAF	95 44
 	LDA $05			; BFB1	A5 05
@@ -2523,17 +2549,18 @@ L03FC6:
 ; End of Get_weapon_prop_
 
 ; Name	: Get_wpn_lv
-; X	:
+; X	: main or off hand
 ; Marks	: $5C = characters weapon level
 ;	  $7E(ADDR) = character properties 2($6200,$6240,$6280,$62C0)
+;	  Get weapon level
 Get_wpn_lv:
-	LDA $4A,X		; BFD2	B5 4A		weapon type
-	ASL                     ; BFD4	0A
-	TAY                     ; BFD5	A8
-	LDA ($7E),Y             ; BFD6	B1 7E
-	ADC #$01                ; BFD8	69 01
-	STA $5C,X               ; BFDA	95 5C
-	RTS                     ; BFDC	60
+	LDA $4A,X		; BFD2	$B5 $4A		weapon type
+	ASL			; BFD4	$0A
+	TAY			; BFD5	$A8
+	LDA ($7E),Y		; BFD6	$B1 $7E
+	ADC #$01		; BFD8	$69 $01
+	STA $5C,X		; BFDA	$95 $5C
+	RTS			; BFDC	$60
 ; End of Get_wpn_lv
 
 ; Name	: Set_wpn_element
