@@ -5878,7 +5878,7 @@ Oam_attr_B465:
 ;	  $21 = left weapon action type
 ;	  $1E = right hand weapon type(property)
 ;	  $1F = left hand weapon type(property)
-;	  $25
+;	  $25 = left/right handed(0=right-handed, 1=left-handed)
 ; Marks	: Check left/right hand for weapon
 ;	  and weapon action type each weapon
 Check_lr_wpn:

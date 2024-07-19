@@ -57,46 +57,46 @@
 ;	  03: intelligence +10, 04: soul +10
 Armor_prop:
 .byte $00,$00,$00,$00,$FF,$05	; 8000
-.byte $01,$02,$02,$00,$FF,$05	; 8006
-.byte $02,$05,$08,$00,$FF,$05	; 800C
-.byte $04,$05,$08,$00,$FF,$0A	; 8012
-.byte $06,$0D,$18,$00,$00,$0A	; 8018
-.byte $0D,$0E,$1A,$80,$FF,$0A	; 801E
-.byte $11,$12,$22,$08,$FF,$0A	; 8024
-.byte $1E,$1F,$3C,$01,$FF,$0F	; 802A
-.byte $0C,$02,$02,$04,$00,$0A	; 8030
-.byte $0B,$02,$00,$08,$01,$0F	; 8036
-.byte $0A,$00,$00,$FF,$FF,$1A	; 803C
-.byte $01,$05,$02,$00,$FF,$05	; 8042
-.byte $02,$06,$04,$00,$FF,$05	; 8048
-.byte $05,$0E,$14,$00,$FF,$05	; 804E
-.byte $0A,$0E,$14,$00,$FF,$0A	; 8054
-.byte $0F,$13,$1E,$20,$FF,$0A	; 805A
-.byte $16,$1A,$2C,$00,$FF,$0A	; 8060
-.byte $1D,$21,$3A,$02,$FF,$0A	; 8066
-.byte $24,$28,$48,$80,$FF,$0A	; 806C
-.byte $2B,$2F,$56,$08,$FF,$0A	; 8072
-.byte $32,$36,$32,$AA,$FF,$0A	; 8078
-.byte $4B,$4F,$64,$10,$FF,$0F	; 807E
-.byte $05,$05,$01,$00,$FF,$0A	; 8084
-.byte $0A,$05,$01,$00,$FF,$0A	; 808A
-.byte $0F,$05,$01,$00,$FF,$0A	; 8090
-.byte $16,$05,$01,$00,$FF,$0A	; 8096
-.byte $2B,$05,$01,$00,$FF,$0A	; 809C
-.byte $1E,$05,$00,$55,$04,$1A	; 80A2
-.byte $23,$05,$00,$AA,$03,$1A	; 80A8
-.byte $19,$05,$01,$40,$00,$0A	; 80AE
-.byte $28,$00,$01,$01,$01,$0A	; 80B4
-.byte $01,$03,$04,$00,$FF,$05	; 80BA
-.byte $03,$08,$18,$00,$FF,$05	; 80C0
-.byte $06,$08,$18,$00,$FF,$0A	; 80C6
-.byte $0F,$03,$28,$00,$01,$0A	; 80CC
-.byte $0F,$11,$3C,$00,$00,$0A	; 80D2
-.byte $14,$16,$50,$02,$FF,$0A	; 80D8
-.byte $19,$1B,$64,$08,$FF,$0A	; 80DE
-.byte $2D,$2F,$64,$04,$FF,$0F	; 80E4
-.byte $12,$03,$00,$10,$FF,$1A	; 80EA
-.byte $13,$03,$02,$20,$00,$0A	; 80F0
+.byte $01,$02,$02,$00,$FF,$05	; 8006	- 70h: Leather Helmet
+.byte $02,$05,$08,$00,$FF,$05	; 800C	- 71h: Bronze Helmet
+.byte $04,$05,$08,$00,$FF,$0A	; 8012	- 72h: Mithril Helmet
+.byte $06,$0D,$18,$00,$00,$0A	; 8018	- 73h: Giant Helmet
+.byte $0D,$0E,$1A,$80,$FF,$0A	; 801E	- 74h: Flame Helmet
+.byte $11,$12,$22,$08,$FF,$0A	; 8024	- 75h: Diamond Helmet
+.byte $1E,$1F,$3C,$01,$FF,$0F	; 802A	- 76h: Genji Helmet
+.byte $0C,$02,$02,$04,$00,$0A	; 8030	- 77h: Spiral Helmet
+.byte $0B,$02,$00,$08,$01,$0F	; 8036	- 78h: Goldpin Helmet
+.byte $0A,$00,$00,$FF,$FF,$1A	; 803C	- 79h: Ribbon
+.byte $01,$05,$02,$00,$FF,$05	; 8042	- 7Ah: Clothes
+.byte $02,$06,$04,$00,$FF,$05	; 8048	- 7Bh: Leather Armor
+.byte $05,$0E,$14,$00,$FF,$05	; 804E	- 7Ch: Bronze Armor
+.byte $0A,$0E,$14,$00,$FF,$0A	; 8054	- 7Dh: Mithril Armor
+.byte $0F,$13,$1E,$20,$FF,$0A	; 805A	- 7Eh: Gold Armor
+.byte $16,$1A,$2C,$00,$FF,$0A	; 8060	- 7Fh: Knight Armor
+.byte $1D,$21,$3A,$02,$FF,$0A	; 8066	- 80h: Flame Armor
+.byte $24,$28,$48,$80,$FF,$0A	; 806C	- 81h: Ice Armor
+.byte $2B,$2F,$56,$08,$FF,$0A	; 8072	- 82h: Diamond Armor
+.byte $32,$36,$32,$AA,$FF,$0A	; 8078	- 83h: Dragon Armor
+.byte $4B,$4F,$64,$10,$FF,$0F	; 807E	- 84h: Genji Armor
+.byte $05,$05,$01,$00,$FF,$0A	; 8084	- 85h: Copper Armor
+.byte $0A,$05,$01,$00,$FF,$0A	; 808A	- 86h: Silver Armor
+.byte $0F,$05,$01,$00,$FF,$0A	; 8090	- 87h: Ruby Armor
+.byte $16,$05,$01,$00,$FF,$0A	; 8096	- 88h: Quartz Armor
+.byte $2B,$05,$01,$00,$FF,$0A	; 809C	- 89h: Diamond Armor
+.byte $1E,$05,$00,$55,$04,$1A	; 80A2	- 8Ah: White Robe
+.byte $23,$05,$00,$AA,$03,$1A	; 80A8	- 8Bh: Black Robe
+.byte $19,$05,$01,$40,$00,$0A	; 80AE	- 8Ch: Power Armor
+.byte $28,$00,$01,$01,$01,$0A	; 80B4	- 8Dh: Black Armor
+.byte $01,$03,$04,$00,$FF,$05	; 80BA	- 8Eh: Leather Gloves
+.byte $03,$08,$18,$00,$FF,$05	; 80C0	- 8Fh: Bronze Gloves
+.byte $06,$08,$18,$00,$FF,$0A	; 80C6	- 90h: Mithril Gloves
+.byte $0F,$03,$28,$00,$01,$0A	; 80CC	- 91h: Thief Gloves
+.byte $0F,$11,$3C,$00,$00,$0A	; 80D2	- 92h: Giant Gloves
+.byte $14,$16,$50,$02,$FF,$0A	; 80D8	- 93h: Ice Gloves
+.byte $19,$1B,$64,$08,$FF,$0A	; 80DE	- 94h: Diamond Gloves
+.byte $2D,$2F,$64,$04,$FF,$0F	; 80E4	- 95h: Genji Gloves
+.byte $12,$03,$00,$10,$FF,$1A	; 80EA	- 96h: Defender Gloves
+.byte $13,$03,$02,$20,$00,$0A	; 80F0	- 97h: Power Gloves
 ; ========== armor properties (41 * 6 bytes) ($8000-$80F5) END ==========
 
 
