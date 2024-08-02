@@ -1726,7 +1726,7 @@ L16092:
 ; End of
 
 ;;----------------;;
-	JSR Wait_NMI_end		; A0AA	$20 $46 $FD
+	JSR Wait_NMI_end	; A0AA	$20 $46 $FD
 	LDA #$78		; A0AD	$A9 $78
 	STA $A9			; A0AF	$85 $A9
 	LDA #$58		; A0B1	$A9 $58
@@ -1765,7 +1765,7 @@ A0EC:
 	BPL A0EC		; A0F2	$10 $F8
 	JSR Wait_MENU_snd	; A0F4	$20 $5B $FD
 	JMP $FB1F		; A0F7	$4C $1F $FB
-	JSR Wait_NMI_end		; A0FA	$20 $46 $FD
+	JSR Wait_NMI_end	; A0FA	$20 $46 $FD
 	LDA #$76		; A0FD	$A9 $76
 	STA $A9			; A0FF	$85 $A9
 	LDA #$00		; A101	$A9 $00
@@ -1877,7 +1877,7 @@ A1A3:
 	JSR $FB2F		; A1CD	$20 $2F $FB
 A1D0:
 	JSR $A18A		; A1D0	$20 $8A $A1
-	JSR Wait_NMI_end		; A1D3	$20 $46 $FD
+	JSR Wait_NMI_end	; A1D3	$20 $46 $FD
 	JSR $FC34		; A1D6	$20 $34 $FC
 ;	LDA $0034		; A1D9	$AD $34 $00
 .byte $AD,$34,$00
@@ -2250,7 +2250,7 @@ A408:
 .byte $A8, $D0
 
 L1645E:
-	JSR Wait_NMI_end		; A45E	$20 $46 $FD
+	JSR Wait_NMI_end	; A45E	$20 $46 $FD
 	JMP Wait_MENU_snd	; A461	$4C $5B $FD
 ; End of
 
@@ -2258,7 +2258,7 @@ L1645E:
 ; Marks	:
 ;; sub start ;;
 	JSR Wait_MENU_snd	; A464	$20 $5B $FD
- 	JMP Wait_NMI_end		; A467	$4C $46 $FD
+ 	JMP Wait_NMI_end	; A467	$4C $46 $FD
 	JSR L1645E		; A46A	$20 $5E $A4
  	JMP L3FA2A		; A46D	$4C $2A $FA
 ; End of
@@ -2275,7 +2275,7 @@ L1645E:
 ;; sub start ;;
 
 CheckSomeStatStuff:
-	JSR Wait_NMI_end		; A47B	$20 $46 $FD - Waits for a sprite 0 hit to do battle message stuff.
+	JSR Wait_NMI_end	; A47B	$20 $46 $FD - Waits for a sprite 0 hit to do battle message stuff.
 A47F:
 	LDX #$00		; A47F	$A2 $00 - Set X to 0 and clear these variables
 	STX entity_counter	; A481	$86 $9E
@@ -2286,33 +2286,33 @@ A47F:
 	LDX #$08		; A48B	$A2 $08 - check the byte AFTER 8 $FFs
     
 @Loop:
-    LDA statup_confirmation,X ; not totally sure... its 3, 2, 2, 2, 2, 2, 2, 2 after just wailing on some hornets.
+	LDA statup_confirmation,X ; not totally sure... its 3, 2, 2, 2, 2, 2, 2, 2 after just wailing on some hornets.
 				; A48D	$BD $62 $7B
-    CMP #$FF                  ; if it equals, jump to incementing X...
+	CMP #$FF		; if it equals, jump to incementing X...
 				; A490	$C9 $FF
-    BEQ :+			; A492	$F0 $13
-    AND #$7F			; A494	$29 $7F - otherwise, cut off the high bit
-    TAY				; A496	$A8 - and transfer to Y
-    LDA $B700,Y			; A497	$B9 $00 $B7 - get the resulting byte from this LUT in ROM
-    CLC				; A49A	$18
-    ADC tmp			; A49B	$65 $00 - add tmp and save
-    STA tmp			; A49D	$85 $00
-    LDA tmp+1			; A49F	$A5 $01
-    ADC #$00			; A4A1	$69 $00 - add carry to tmp+1
-    STA tmp+1			; A4A3	$85 $01
-    INC tmp+2			; A4A5	$E6 $02 - tmp+2 must be a counter, add 1 here
-  : INX				; A4A7	$E8 - add 1 to X (started at 8)
-    CPX #$10			; A4A8	$E0 $10 - so only do 8 iterations of this loop
-    BNE @Loop			; A4AA	$D0 $E1
+	BEQ :+			; A492	$F0 $13
+	AND #$7F		; A494	$29 $7F - otherwise, cut off the high bit
+	TAY			; A496	$A8 - and transfer to Y
+	LDA $B700,Y		; A497	$B9 $00 $B7 - get the resulting byte from this LUT in ROM
+	CLC			; A49A	$18
+	ADC tmp			; A49B	$65 $00 - add tmp and save
+	STA tmp			; A49D	$85 $00
+	LDA tmp+1		; A49F	$A5 $01
+	ADC #$00		; A4A1	$69 $00 - add carry to tmp+1
+	STA tmp+1		; A4A3	$85 $01
+	INC tmp+2		; A4A5	$E6 $02 - tmp+2 must be a counter, add 1 here
+  :	INX			; A4A7	$E8 - add 1 to X (started at 8)
+	CPX #$10		; A4A8	$E0 $10 - so only do 8 iterations of this loop
+	BNE @Loop		; A4AA	$D0 $E1
     
 ;; after all that, tmp and tmp+1 is a 16-bit digit, made up of numbers from $B700, added up
 ;; this next routine divides tmp and tmp+1 by tmp+2 and tmp+3.
     
-    JSR DoDivision		; A4AC	$20 $C3 $FC - Scary division routine in Bank F
-    LDA tmp+4			; A4AF	$A5 $04 - tmp+4 is the low byte result 
-    STA division_result		; A4B1	$85 $22 - back it up here
-    LDX #$08			; A4B3	$A2 $08
-    STX tmp+$C			; A4B5	$86 $0C - set another counter... X is gonna get clobbered
+	JSR DoDivision		; A4AC	$20 $C3 $FC - Scary division routine in Bank F
+	LDA tmp+4		; A4AF	$A5 $04 - tmp+4 is the low byte result 
+	STA division_result	; A4B1	$85 $22 - back it up here
+	LDX #$08		; A4B3	$A2 $08
+	STX tmp+$C		; A4B5	$86 $0C - set another counter... X is gonna get clobbered
 
 ;; Go through the list again...
     
@@ -2410,76 +2410,76 @@ L1655C:
 	JSR $A95C		; A57A	$20 $5C $A9
 	JMP L1658E		; A57D	$4C $8E $A5
 L16580:
-    LDA $44
-    BEQ L16587
-    JSR $A95C
+	LDA $44			; A580	$A5 $44
+	BEQ L16587		; A582	$F0 $03
+	JSR $A95C		; A584	$20 $5C $A9
 L16587:
-    LDA $45
-    BEQ L1658E
-    JSR $A95C
+	LDA $45			; A587	$A5 $45
+	BEQ L1658E		; A589	$F0 $03
+	JSR $A95C		; A58B	$20 $5C $A9
 L1658E:
-    LDA $9E
-    ASL A
-    ASL A
-    ASL A
-    ASL A
-    STA $44
-    CLC
-    LDA $22
-    ADC $AC36
-    STA $52
-    LDX #$00
-    STX $00
+	LDA $9E			; A58E	$A5 $9E
+	ASL A			; A590	$0A
+	ASL A			; A591	$0A
+	ASL A			; A592	$0A
+	ASL A			; A593	$0A
+	STA $44			; A594	$85 $44
+	CLC			; A596	$18
+	LDA $22			; A597	$A5 $22
+	ADC $AC36		; A599	$6D $36 $AC
+	STA $52			; A59C	$85 $52
+	LDX #$00		; A59E	$A2 $00
+	STX $00			; A5A0	$86 $00
 L165A2:
-    LDX $44
-    LDA $7CF7,X
-    BEQ L165F1
-    CLC
-    ADC $52
-    STA $53
-    LDA $00
-    ASL A
-    CLC
-    ADC #$10
-    TAY
-    LDA ($7E),Y
-    CLC
-    ADC #$0A
-    STA $54
-    SEC
-    LDA $53
-    SBC $54
-    INY
-    BCC L165F1
-    CLC
-    ADC ($7E),Y
-    CMP #$64
-    BCC A5EF
-    DEY
-    LDA ($7E),Y
-    TAX
-    INX
-    JSR $A86D
-    TXA
-    STA ($7E),Y
-    INY
-    TYA
-    PHA
-    LDX $AD
-    CLC
-    LDA $00
-    ADC #$30
-    TAY
-    LDA ($7A),Y
-    SEC
-    SBC #$C0
-    STA $7FBA,X
-    INC $AD
-    PLA
-    TAY
-    LDA #$00
+	LDX $44			; A5A2	$A6 $44
+	LDA $7CF7,X		; A5A4	$BD $F7 $7C
+	BEQ L165F1		; A5A7	$F0 $48
+	CLC			; A5A9	$18
+	ADC $52			; A5AA	$65 $52
+	STA $53			; A5AC	$85 $53
+	LDA $00			; A5AE	$A5 $00
+	ASL A			; A5B0	$0A
+	CLC			; A5B1	$18
+	ADC #$10		; A5B2	$69 $10
+	TAY			; A5B4	$A8
+	LDA ($7E),Y		; A5B5	$B1 $7E
+	CLC			; A5B7	$18
+	ADC #$0A		; A5B8	$69 $0A
+	STA $54			; A5BA	$85 $54
+	SEC			; A5BC	$38
+	LDA $53			; A5BD	$A5 $53
+	SBC $54			; A5BF	$E5 $54
+	INY			; A5C1	$C8
+	BCC L165F1		; A5C2	$90 $2D
+	CLC			; A5C4	$18
+	ADC ($7E),Y		; A5C5	$71 $7E
+	CMP #$64		; A5C7	$C9 $64
+	BCC A5EF		; A5C9	$90 $24
+	DEY			; A5CB	$88
+	LDA ($7E),Y		; A5CC	$B1 $7E
+	TAX			; A5CE	$AA
+	INX			; A5CF	$E8
+	JSR $A86D		; A5D0	$20 $6D $A8
+	TXA			; A5D3	$8A
+	STA ($7E),Y		; A5D4	$91 $7E
+	INY			; A5D6	$C8
+	TYA			; A5D7	$98
+	PHA			; A5D8	$48
+	LDX $AD			; A5D9	$A6 $AD
+	CLC			; A5DB	$18
+	LDA $00			; A5DC	$A5 $00
+	ADC #$30		; A5DE	$69 $30
+	TAY			; A5E0	$A8
+	LDA ($7A),Y		; A5E1	$B1 $7A
+	SEC			; A5E3	$38
+	SBC #$C0		; A5E4	$E9 $C0
+	STA $7FBA,X		; A5E6	$9D $BA $7F
+	INC $AD			; A5E9	$E6 $AD
+	PLA			; A5EB	$68
+	TAY			; A5EC	$A8
+	LDA #$00		; A5ED	$A9 $00
 A5EF:
-    STA ($7E),Y
+	STA ($7E),Y		; A5EF	$91 $7E
 L165F1:
 	INC $44			; A5F1	$E6 $44
 	INC $00			; A5F3	$E6 $00

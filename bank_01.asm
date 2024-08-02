@@ -1225,10 +1225,61 @@
 .byte $FF,$FF,$F9,$3F,$CD,$F2,$F3,$EA,$6E,$A0,$0B,$0B,$58,$42,$E0,$76
 .byte $E4,$E8,$CE,$1C,$3E,$37,$7E,$62,$F7,$47,$7F,$55,$4F,$B5,$CF,$FC
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.byte $A5,$41,$0A,$AA,$90,$0D,$BD,$00,$81,$85,$80,$BD,$01,$81,$85,$81
-.byte $4C,$CD,$BF,$BD,$00,$80,$85,$80,$BD,$01,$80,$85,$81,$A0,$00,$A2
-.byte $00,$B1,$80,$10,$1D,$C9,$FF,$F0,$26,$29,$7F,$85,$82,$E6,$80,$D0
-.byte $02,$E6,$81,$B1,$80,$A8,$88,$A5,$82,$9D,$00,$06,$E8,$88,$D0,$F9
-.byte $A0,$00,$9D,$00,$06,$E8,$E6,$80,$D0,$D7,$E6,$81,$4C,$D1,$BF,$60
 
+; --------------------------------------------------------------------------
 
+;========== decompress world tilemap code ($BFB0-$BFFF) START ==========
+
+; Name	:
+; Marks	: decompress world tilemap (minimap)
+	LDA $41			; BFB0	$A5 $41		map row
+	ASL			; BFB2	$0A
+	TAX			; BFB3	$AA
+	BCC L07FC3		; BFB4	$90 $0D
+	LDA $8100,X		; BFB6	$BD $00 $81
+	STA $80			; BFB9	$85 $80
+	LDA $8101,X		; BFBB	$BD $01 $81
+	STA $81			; BFBE	$85 $81
+	JMP L07FCD		; BFC0	$4C $CD $BF
+L07FC3:
+	LDA $8000,X		; BFC3	$BD $00 $80
+	STA $80			; BFC6	$85 $80
+	LDA $8001,X		; BFC8	$BD $01 $80
+	STA $81			; BFCB	$85 $81
+L07FCD:
+	LDY #$00		; BFCD	$A0 $00
+	LDX #$00		; BFCF	$A2 $00
+; start of loop
+L07FD1:
+	LDA ($80),Y		; BFD1	$B1 $80
+	BPL L07FF2		; BFD3	$10 $1D
+	CMP #$FF		; BFD5	$C9 $FF
+	BEQ L07FFF		; BFD7	$F0 $26		terminator
+	AND #$7F		; BFD9	$29 $7F
+	STA $82			; BFDB	$85 $82		tile index
+	INC $80			; BFDD	$E6 $80
+	BNE L07FE3		; BFDF	$D0 $02
+	INC $81			; BFE1	$E6 $81
+L07FE3:
+	LDA ($80),Y		; BFE3	$B1 $80		run length
+	TAY			; BFE5	$A8
+	DEY			; BFE6	$88
+	LDA $82			; BFE7	$A5 $82
+L07FE9:
+	STA $0600,X		; BFE9	$9D $00 $06
+	INX			; BFEC	$E8
+	DEY			; BFED	$88
+	BNE L07FE9		; BFEE	$D0 $F9
+	LDY #$00		; BFF0	$A0 $00
+L07FF2:
+	STA $0600,X		; BFF2	$9D $00 $06	single tile
+	INX			; BFF5	$E8
+	INC $80			; BFF6	$E6 $80
+	BNE L07FD1		; BFF8	$D0 $D7
+	INC $81			; BFFA	$E6 $81
+	JMP L07FD1		; BFFC	$4C $D1 $BF
+L07FFF:
+	RTS			; BFFF	$60
+; End of
+
+;========== decompress world tilemap code ($BFB0-$BFFF) END ==========

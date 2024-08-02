@@ -3,6 +3,7 @@
 
 .segment "BANK_03"
 
+;========== common map bg graphics (2 * 576 bytes) ($8000-$847F) START ==========
 ;; [$8000 :: 0x0C010]
 
 .byte $FF,$FF,$FF,$C3,$B1,$B1,$81,$B1,$FF,$FF,$FF,$C3,$85,$85,$81,$85
@@ -89,6 +90,11 @@
 .byte $E2,$22,$22,$22,$24,$29,$F3,$0F,$EA,$2A,$AA,$AA,$A4,$28,$F0,$00
 .byte $1F,$20,$75,$00,$20,$10,$20,$40,$1F,$38,$75,$00,$20,$10,$20,$40
 .byte $F8,$0C,$F4,$0A,$06,$06,$0A,$12,$F8,$CC,$F4,$0A,$06,$06,$0A,$12
+;========== common map bg graphics (2 * 576 bytes) ($8000-$847F) END ==========
+
+
+
+;========== small map bg graphics (10 * 192 bytes) ($8480-$8BFF) START ==========
 .byte $93,$93,$AF,$AF,$B4,$87,$78,$00,$9F,$9F,$8F,$8F,$87,$87,$78,$00
 .byte $D4,$CA,$F2,$CA,$3A,$82,$7C,$00,$C4,$CA,$F2,$C2,$82,$82,$7C,$00
 .byte $7F,$80,$BF,$A7,$A7,$A7,$A6,$A4,$7F,$80,$BF,$BB,$BB,$BB,$BA,$B8
@@ -230,7 +236,11 @@
 .byte $71,$CF,$AB,$FE,$7F,$C3,$B4,$EE,$FF,$F1,$FF,$FF,$FF,$FF,$CB,$FD
 .byte $F8,$75,$AA,$FD,$CF,$F6,$FF,$BF,$FF,$FA,$FF,$FF,$FF,$8F,$FF,$FD
 .byte $7F,$7A,$8F,$FA,$8F,$F1,$DD,$FB,$FF,$BF,$F7,$FF,$FF,$FF,$FF,$FF
+;========== small map bg graphics (10 * 192 bytes) ($8480-$8BFF) END ==========
 
+
+
+;========== large map bg graphics (4 * 960 bytes) ($8C00-$9EBF) START ==========
 ;; [$8C00 :: 0x0CC10]
 
 .byte $EC,$EA,$F6,$EE,$D6,$BA,$7C,$80,$88,$8A,$86,$8E,$96,$BA,$00,$80
@@ -497,7 +507,7 @@
 .byte $81,$81,$01,$01,$01,$01,$83,$E0,$05,$05,$15,$35,$35,$1D,$0B,$00
 .byte $00,$00,$02,$02,$02,$02,$C1,$00,$86,$A6,$B6,$D6,$D6,$F6,$F3,$0C
 
-;; [$9a00 :: 0x0DA00]
+;; [$9A00 :: 0x0DA00]
 
 .byte $08,$04,$04,$84,$C1,$49,$12,$10,$10,$08,$88,$48,$18,$10,$21,$61
 .byte $44,$84,$84,$03,$04,$08,$12,$21,$32,$62,$43,$C4,$88,$93,$A1,$80
@@ -516,7 +526,7 @@
 .byte $88,$08,$08,$92,$92,$B0,$A4,$2D,$12,$12,$32,$24,$24,$04,$41,$40
 .byte $C8,$90,$92,$10,$60,$04,$90,$31,$01,$22,$24,$64,$8C,$99,$21,$42
 
-;; [$9b00 :: 0x0DB00]
+;; [$9B00 :: 0x0DB00]
 
 .byte $00,$48,$40,$20,$B0,$80,$80,$05,$00,$47,$60,$36,$37,$07,$11,$14
 .byte $00,$30,$04,$68,$68,$E0,$0A,$A8,$00,$C2,$06,$6C,$EC,$E0,$8A,$A8
@@ -535,7 +545,7 @@
 .byte $FF,$F4,$E7,$FF,$7F,$7F,$73,$6B,$FF,$74,$67,$FF,$7F,$25,$08,$94
 .byte $FF,$97,$57,$FF,$FF,$FF,$C7,$E7,$FF,$96,$56,$FC,$FC,$4E,$28,$18
 
-;; [$9c00 :: 0x0DC00]
+;; [$9C00 :: 0x0DC00]
 
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$E7,$F7,$F7,$F7,$F7,$FF
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$E7,$F7,$F7,$F7,$F7,$FF
@@ -554,7 +564,7 @@
 .byte $50,$45,$45,$45,$05,$00,$0F,$00,$00,$15,$15,$15,$05,$70,$0F,$00
 .byte $0A,$AA,$AA,$AA,$A0,$0E,$F0,$00,$02,$AA,$AA,$AA,$A0,$0E,$F0,$07
 
-;; [$9d00 :: 0x0DD00]
+;; [$9D00 :: 0x0DD00]
 
 .byte $F9,$F0,$CF,$DC,$DC,$01,$7B,$F7,$01,$00,$0F,$1C,$1C,$01,$7B,$F7
 .byte $8C,$00,$39,$71,$39,$C1,$83,$01,$8C,$00,$38,$70,$38,$C0,$90,$28
@@ -573,7 +583,7 @@
 .byte $E8,$DC,$8D,$0D,$0C,$7E,$FF,$C3,$28,$4C,$85,$05,$04,$02,$39,$C0
 .byte $80,$C1,$43,$67,$76,$38,$1C,$AF,$00,$00,$00,$01,$46,$20,$10,$A8
 
-;; [$9e00 :: 0x0DE00]
+;; [$9E00 :: 0x0DE00]
 
 .byte $00,$46,$4E,$5A,$12,$62,$62,$68,$00,$76,$6E,$56,$0E,$46,$52,$58
 .byte $80,$47,$33,$23,$22,$A5,$5B,$E1,$80,$CF,$F7,$F9,$7E,$BD,$D9,$E7
@@ -587,12 +597,17 @@
 .byte $47,$4E,$DC,$B1,$86,$7B,$E6,$4C,$44,$48,$90,$20,$04,$62,$C4,$08
 .byte $9A,$1A,$3A,$B6,$B6,$B4,$E5,$6D,$12,$12,$32,$24,$24,$04,$41,$40
 .byte $C9,$B2,$B6,$74,$EC,$9D,$B1,$73,$01,$22,$24,$64,$8C,$99,$21,$42
+;========== large map bg graphics (4 * 960 bytes) ($8C00-$9EBF) END ==========
+
+
+
+;========== map fill tile graphics (10 * 32 bytes) ($9EC0-$9FFF) START ==========
 .byte $FF,$FF,$9F,$FF,$FF,$F3,$FF,$FF,$00,$00,$60,$00,$00,$0C,$00,$00
 .byte $FF,$FF,$3F,$FF,$FF,$F9,$FF,$FF,$00,$00,$C0,$00,$00,$06,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-;; [$9f00 :: 0x0DF00]
+;; [$9F00 :: 0x0DF00]
 
 .byte $7F,$00,$7F,$7F,$7F,$7F,$7F,$7F,$FF,$FF,$FF,$FF,$FF,$FF,$EB,$FF
 .byte $7F,$7F,$7F,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$1F,$FF,$1F
@@ -610,17 +625,51 @@
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+;========== map fill tile graphics (10 * 32 bytes) ($9EC0-$9FFF) END ==========
+
+
 
 ;; [$A000 :: 0x0E000]
-; Event code ($A000-$B99F) start
+;========== Event code ($A000-$B99F) START ==========
 
-.byte $4C,$06,$A0
+; Marks	:
+	JMP $A006		; A000	$4C $06 $A0	execute event command
+; End of
+
+; Name	:
+; Marks	:
 ; X	: event number
-	JMP $A035		; A003	$4C $35 $A0
-.byte $A5,$6C,$38,$E9,$01,$0A,$AA,$BD,$27,$A0
-.byte $85,$80,$BD,$28,$A0,$85,$81,$A9,$00,$85,$24,$85,$25,$85,$23,$85
-.byte $22,$85,$20,$6C,$80,$00,$60,$6C,$A0,$F5,$A4,$6B,$A4,$E3,$A0,$1B
-.byte $A7,$2F,$A6,$59,$A0
+	JMP $A035		; A003	$4C $35 $A0	execute object command
+; End of
+
+; Marks	: execute event command
+	LDA $6C			; A006	$A5 $6C
+	SEC			; A008	$38
+	SBC #$01		; A009	$E9 $01
+	ASL			; A00B	$0A
+	TAX			; A00C	$AA
+	LDA $A027,X		; A00D	$BD $27 $A0
+	STA $80			; A010	$85 $80
+	LDA $A028,X		; A012	$BD $28 $A0
+	STA $81			; A015	$85 $81
+	LDA #$00		; A017	$A9 $00
+	STA $24			; A019	$85 $24
+	STA $25			; A01B	$85 $25
+	STA $23			; A01D	$85 $23
+	STA $22			; A01F	$85 $22
+	STA $20			; A021	$85 $20
+	JMP ($0080)		; A023	$6C $80 $00
+;
+
+; unused object command
+	RTS 			; A026	$60
+; End of unused
+
+; event jump table (starts at type 1)
+;A06C A4F5 A46B A0E3 A71B A62F A059
+.byte $6C,$A0,$F5,$A4,$6B,$A4,$E3,$A0,$1B	; A027
+.byte $A7,$2F,$A6,$59,$A0			; A030
+
 ; $80(ADDR) = event code subroutine address
 	TXA			; A035	$8A
 	ASL A			; A036	$0A
@@ -633,26 +682,174 @@
 ; End of
 
 ; Some address - event code subroutine address (?? * 2 byte)
-A045:
-.byte $7D,$A2,$11,$A1,$B3,$A7,$26,$A0,$D8,$A6,$26
-.byte $A0,$4A,$AF,$6F,$B2,$79,$AF,$B8,$A5,$A9,$00,$85,$6C,$AD,$BF,$62
-.byte $85,$45,$A9,$80,$85,$44,$A2,$00,$20,$03,$A0,$60,$A5,$70,$C9,$C0
-.byte $B0,$03,$4C,$48,$AD,$C9,$D0,$B0,$03,$4C,$7F,$A0,$4C,$F7,$B4,$A5
-.byte $17,$F0,$05,$C6,$17,$4C,$95,$A0,$A5,$72,$18,$69,$01,$85,$72,$A5
-.byte $73,$69,$00,$85,$73,$A5,$70,$29,$0F,$C9,$04,$B0,$07,$AA,$BD,$DF
-.byte $A0,$85,$20,$60,$C9,$08,$B0,$09,$29,$03,$AA,$BD,$DF,$A0,$85,$33
-.byte $60,$C9,$08,$D0,$03,$E6,$24,$60,$C9,$09,$D0,$03,$E6,$25,$60,$C9
-.byte $0A,$D0,$03,$E6,$23,$60,$C9,$0B,$D0,$03,$E6,$22,$60,$C9,$0C,$D0
-.byte $00,$C9,$0D,$D0,$00,$C9,$0E,$D0,$01,$60,$A9,$00,$85,$20,$60,$01
-.byte $02,$04,$08,$A2,$01,$A5,$27,$18,$69,$07,$CD,$FC,$62,$D0,$15,$A2
-.byte $08,$A5,$28,$18,$69,$07,$CD,$FD,$62,$D0,$10,$A9,$00,$85,$6C,$A9
+; object command jump table
+; A27D A111 A7B3 A026 A6D8 A026 AF4A B26F
+; AF79 A5B8
+.byte $7D,$A2,$11,$A1,$B3,$A7,$26,$A0,$D8,$A6,$26	; A045
+.byte $A0,$4A,$AF,$6F,$B2
+.byte $79,$AF,$B8,$A5					; A055
 
-;; [$A100 :: 0x0E100]
+; Marks	: event type 7:
+	LDA #$00		; A059	$A9 $00		no event
+	STA $6C			; A05B	$85 $6C
+	LDA $62BF		; A05D	$AD $BF $62
+	STA $45			; A060	$85 $45
+	LDA #$80		; A062	$A9 $80
+	STA $44			; A064	$85 $44
+	LDX #$00		; A066	$A2 $00
+	JSR $A003		; A068	$20 $03 $A0
+	RTS			; A06B	$60
+; End of
 
-.byte $01,$85,$24,$60,$90,$02,$A2,$02,$86,$20,$60,$B0,$FB,$A2,$04,$D0
-.byte $F7,$AD,$09,$60,$18,$69,$02,$8D,$09,$60,$C9,$F8,$90,$01,$60,$85
-.byte $40,$29,$08,$85,$80,$A9,$70,$85,$82,$A5,$F0,$10,$04,$A9,$01,$D0
-.byte $02,$A9,$FF,$18,$6D,$0A,$60,$8D,$0A,$60,$85,$41,$18,$60
+; Marks	: event type 1: event script
+	LDA $70			; A06C	$A5 $70
+	CMP #$C0		; A06E	$C9 $C0
+	BCS L0E075		; A070	$B0 $03
+	JMP $AD48		; A072	$4C $48 $AD
+L0E075:
+	CMP #$D0		; A075	$C9 $D0
+	BCS L0E07C		; A077	$B0 $03
+	JMP $A07F		; A079	$4C $7F $A0
+L0E07C:
+	JMP $B4F7		; A07C	$4C $F7 $B4
+; $C0-$CF: player commands
+	LDA $17			; A07F	$A5 $17
+	BEQ L0E088		; A081	$F0 $05
+	DEC $17			; A083	$C6 $17
+	JMP $A095		; A085	$4C $95 $A0
+L0E088:
+	LDA $72			; A088	$A5 $72
+	CLC			; A08A	$18
+	ADC #$01		; A08B	$69 $01
+	STA $72			; A08D	$85 $72
+	LDA $73			; A08F	$A5 $73
+	ADC #$00		; A091	$69 $00
+	STA $73			; A093	$85 $73
+	LDA $70			; A095	$A5 $70
+	AND #$0F		; A097	$29 $0F
+	CMP #$04		; A099	$C9 $04
+	BCS L0E0A4		; A09B	$B0 $07
+; $C0-$C3: press direction button
+	TAX			; A09D	$AA
+	LDA $A0DF,X		; A09E	$BD $DF $A0	press button
+	STA $20			; A0A1	$85 $20
+	RTS			; A0A3	$60
+; $C4-$C7: change facing direction
+L0E0A4:
+	CMP #$08		; A0A4	$C9 $08
+	BCS L0E0B1		; A0A6	$B0 $09
+	AND #$03		; A0A8	$29 $03
+	TAX			; A0AA	$AA
+	LDA $A0DF,X		; A0AB	$BD $DF $A0
+	STA $33			; A0AE	$85 $33
+	RTS			; A0B0	$60
+; $C8: press A button
+L0E0B1:
+	CMP #$08		; A0B1	$C9 $08
+	BNE L0E0B8		; A0B3	$D0 $03
+	INC $24			; A0B5	$E6 $24
+	RTS			; A0B7	$60
+; $C9: press B button
+L0E0B8:
+	CMP #$09		; A0B8	$C9 $09
+	BNE L0E0BF		; A0BA	$D0 $03
+	INC $25			; A0BC	$E6 $25
+	RTS			; A0BE	$60
+; $CA: press start button
+L0E0BF:
+	CMP #$0A		; A0BF	$C9 $0A
+	BNE L0E0C6		; A0C1	$D0 $03
+	INC $23			; A0C3	$E6 $23
+	RTS			; A0C5	$60
+; $CB: press select button
+L0E0C6:
+	CMP #$0B		; A0C6	$C9 $0B
+	BNE L0E0CD		; A0C8	$D0 $03
+	INC $22			; A0CA	$E6 $22
+	RTS			; A0CC	$60
+; $CC: no effect
+L0E0CD:
+	CMP #$0C		; A0CD	$C9 $0C
+	BNE L0E0D1		; A0CF	$D0 $00
+; $CD: no effect
+L0E0D1:
+	CMP #$0D		; A0D1	$C9 $0D
+	BNE L0E0D5		; A0D3	$D0 $00
+; $CE: no effect
+L0E0D5:
+	CMP #$0E		; A0D5	$C9 $0E
+	BNE L0E0DA		; A0D7	$D0 $01
+	RTS			; A0D9	$60
+; $CF: stop moving
+L0E0DA:
+	LDA #$00		; A0DA	$A9 $00		clear buttons pressed
+	STA $20			; A0DC	$85 $20
+	RTS			; A0DE	$60
+; End of
+
+; directions (right, left, down, up)
+.byte $01,$02,$04,$08		; A0DF	$01 $02 $04 $08
+
+; Marks	: event type 4: update ferry movement
+; move left and then down to get to ferry destination
+	LDX #$01		; A0E3	$A2 $01		right
+	LDA $27			; A0E5	$A5 $27		world map left position
+	CLC			; A0E7	$18
+	ADC #$07		; A0E8	$69 $07
+	CMP $62FC		; A0EA	$CD $FC $62	ferry destination x position
+	BNE L0E104		; A0ED	$D0 $15		branch if not at destination x position
+	LDX #$08		; A0EF	$A2 $08		up
+	LDA $28			; A0F1	$A5 $28		world map top position
+	CLC			; A0F3	$18
+	ADC #$07		; A0F4	$69 $07
+	CMP $62FD		; A0F6	$CD $FD $62	ferry destination y position
+	BNE L0E10B		; A0F9	$D0 $10		branch if not at destination y position
+	LDA #$00		; A0FB	$A9 $00		no event
+	STA $6C			; A0FD	$85 $6C
+	LDA #$01		; A0FF	$A9 $01		A button pressed
+	STA $24			; A101	$85 $24
+	RTS			; A103	$60
+L0E104:
+	BCC L0E108		; A104	$90 $02
+	LDX #$02		; A106	$A2 $02		left
+L0E108:
+	STX $20			; A108	$86 $20		buttons pressed
+	RTS			; A10A	$60
+L0E10B:
+	BCS L0E108		; A10B	$B0 $FB
+	LDX #$04		; A10D	$A2 $04		down
+	BNE L0E108		; A10F	$D0 $F7
+
+; Marks	: object command 1: update chocobo position
+; return carry set if chocobo ran offscreen
+	LDA $6009		; A111	$AD $09 $60	chocobo x position
+	CLC			; A114	$18
+	ADC #$02		; A115	$69 $02
+	STA $6009		; A117	$8D $09 $60
+	CMP #$F8		; A11A	$C9 $F8
+	BCC L0E11F		; A11C	$90 $01		branch if not offscreen
+	RTS			; A11E	$60
+L0E11F:
+	STA $40			; A11F	$85 $40
+	AND #$08		; A121	$29 $08
+	STA $80			; A123	$85 $80
+	LDA #$70		; A125	$A9 $70
+	STA $82			; A127	$85 $82
+	LDA $F0			; A129	$A5 $F0
+	BPL L0E131		; A12B	$10 $04		change direction every 128 frames
+	LDA #$01		; A12D	$A9 $01		move up
+	BNE L0E133		; A12F	$D0 $02
+L0E131:
+	LDA #$FF		; A131	$A9 $FF		move down
+L0E133:
+	CLC			; A133	$18
+	ADC $600A		; A134	$6D $0A $60
+	STA $600A		; A137	$8D $0A $60
+	STA $41			; A13A	$85 $41
+	CLC			; A13C	$18
+	RTS			; A13D	$60
+; End of
+
 ; Name	:
 ; Ret	: Carry flag(Set: , Reset: )
 ; Marks	: airship flyover
@@ -704,7 +901,7 @@ L0E173:
 ; End of
 L0E18C:
 	LDX airship_flyover	; A18C	$AE $07 $60
-	LDA $F900,X		; A18F	$BD $00 $F9
+	LDA $F900,X		; A18F	$BD $00 $F9	random number table
 	BMI L0E1A4		; A192	$30 $10
 	LDA airship_y		; A194	$AD $06 $60
 	CLC			; A197	$18
@@ -714,8 +911,12 @@ L0E18C:
 	INC airship_flyover	; A19E	$EE $07 $60
 	JMP L0E1B5		; A1A1	$4C $B5 $A1
 L0E1A4:
-.byte $AD,$06,$60,$38,$E9,$01,$10,$06,$EE,$07,$60,$4C
-.byte $B5,$A1
+	LDA $6006		; A1A4	$AD $06 $60
+	SEC			; A1A7	$38
+	SBC #$01		; A1A8	$E9 $01
+	BPL L0E1B2		; A1AA	$10 $06
+	INC $6007		; A1AC	$EE $07 $60
+	JMP $A1B5		; A1AF	$4C $B5 $A1
 L0E1B2:
 	STA airship_y		; A1B2	$8D $06 $60
 L0E1B5:
@@ -733,27 +934,149 @@ L0E1B5:
 	SEC			; A1CC	$38
 	RTS			; A1CD	$60
 ; End of
-.byte $A5,$F0
-.byte $29,$01,$D0,$0D,$AD,$06,$60,$C9,$4F,$F0,$12,$38,$E9,$01,$8D,$06
-.byte $60,$A9,$3F,$8D,$0C,$40,$A9,$0E,$8D,$0E,$40,$18,$60,$A2,$0F,$A9
-.byte $F8,$9D,$00,$02,$CA,$10,$FA,$AD,$05,$60,$38,$E9,$01,$C9,$71,$8D
 
-;; [$A200 :: 0x0E200]
+; Name	:
+; Marks	:
+	LDA $F0			; A1CE	$A5 $F0
+	AND #$01		; A1D0	$29 $01
+	BNE L0E1E1		; A1D2	$D0 $0D
+	LDA $6006		; A1D4	$AD $06 $60	airship y position
+	CMP #$4F		; A1D7	$C9 $4F
+	BEQ L0E1ED		; A1D9	$F0 $12
+	SEC			; A1DB	$38
+	SBC #$01		; A1DC	$E9 $01
+	STA $6006		; A1DE	$8D $06 $60
+L0E1E1:
+	LDA #$3F		; A1E1	$A9 $3F
+	STA $400C		; A1E3	$8D $0C $40
+	LDA #$0E		; A1E6	$A9 $0E
+	STA $400E		; A1E8	$8D $0E $40
+	CLC			; A1EB	$18
+	RTS			; A1EC	$60
+L0E1ED:
+	LDX #$0F		; A1ED	$A2 $0F
+	LDA #$F8		; A1EF	$A9 $F8
+L0E1F1:
+	STA $0200,X		; A1F1	$9D $00 $02
+	DEX			; A1F4	$CA
+	BPL L0E1F1		; A1F5	$10 $FA
+	LDA $6005		; A1F7	$AD $05 $60
+	SEC			; A1FA	$38
+	SBC #$01		; A1FB	$E9 $01
+	CMP #$71		; A1FD	$C9 $71
+	STA $6005		; A1FF	$8D $05 $60
+	BCS L0E22B		; A202	$B0 $27
+	LDA #$08		; A204	$A9 $08
+	STA $42			; A206	$85 $42
+	STA $46			; A208	$85 $46
+	LDA #$02		; A20A	$A9 $02
+	STA $6004		; A20C	$8D $04 $60
+	LDA #$04		; A20F	$A9 $04
+	STA $6C			; A211	$85 $6C
+	LDA $6238		; A213	$AD $38 $62	set ferry destination position to altair
+	STA $62FC		; A216	$8D $FC $62
+	LDA $6239		; A219	$AD $39 $62
+	STA $62FD		; A21C	$8D $FD $62
+	LDA #$00		; A21F	$A9 $00
+	STA $400C		; A221	$8D $0C $40
+	LDA #$00		; A224	$A9 $00
+	STA $6014		; A226	$8D $14 $60
+	SEC			; A229	$38
+	RTS			; A22A	$60
+L0E22B:
+	LDX #$00		; A22B	$A2 $00
+	LDY #$00		; A22D	$A0 $00
+L0E22F:
+	LDA $0230,X		; A22F	$BD $30 $02
+	CLC			; A232	$18
+	ADC $A25D,Y		; A233	$79 $5D $A2
+	STA $0230,X		; A236	$9D $30 $02
+	INY			; A239	$C8
+	LDA $0233,X		; A23A	$BD $33 $02
+	CLC			; A23D	$18
+	ADC $A25D,Y		; A23E	$79 $5D $A2
+	STA $0233,X		; A241	$9D $33 $02
+	INY			; A244	$C8
+	INX			; A245	$E8
+	INX			; A246	$E8
+	INX			; A247	$E8
+	INX			; A248	$E8
+	CPX #$40		; A249	$E0 $40
+	BCC L0E22F		; A24B	$90 $E2
+	LDA #$3F		; A24D	$A9 $3F
+	STA $400C		; A24F	$8D $0C $40
+	LDA $F0			; A252	$A5 $F0
+	AND #$03		; A254	$29 $03
+	ORA #$0C		; A256	$09 $0C
+	STA $400E		; A258	$8D $0E $40
+	CLC			; A25B	$18
+	RTS			; A25C	$60
+; End of
 
-.byte $05,$60,$B0,$27,$A9,$08,$85,$42,$85,$46,$A9,$02,$8D,$04,$60,$A9
-.byte $04,$85,$6C,$AD,$38,$62,$8D,$FC,$62,$AD,$39,$62,$8D,$FD,$62,$A9
-.byte $00,$8D,$0C,$40,$A9,$00,$8D,$14,$60,$38,$60,$A2,$00,$A0,$00,$BD
-.byte $30,$02,$18,$79,$5D,$A2,$9D,$30,$02,$C8,$BD,$33,$02,$18,$79,$5D
-.byte $A2,$9D,$33,$02,$C8,$E8,$E8,$E8,$E8,$E0,$40,$90,$E2,$A9,$3F,$8D
-.byte $0C,$40,$A5,$F0,$29,$03,$09,$0C,$8D,$0E,$40,$18,$60,$FE,$FE,$FE
-.byte $FF,$FE,$01,$FE,$02,$FE,$FF,$FF,$FF,$FF,$01,$FE,$01,$FF,$FF,$FF
-.byte $00,$01,$00,$FF,$01,$01,$FF,$00,$FF,$01,$01,$01,$02,$20,$83,$A2
-.byte $20,$83,$A2,$20,$00,$A3,$A9,$00,$85,$61,$85,$62,$85,$63,$85,$64
-.byte $85,$65,$20,$00,$FE,$A9,$02,$8D,$14,$40,$E6,$F0,$A2,$1E,$A5,$65
-.byte $C9,$58,$90,$08,$A5,$F0,$29,$03,$D0,$02,$A2,$1F,$8E,$01,$20,$20
-.byte $42,$A3,$20,$BB,$A3,$A5,$65,$C9,$48,$90,$03,$20,$D7,$A2,$A5,$65
-.byte $4A,$4A,$4A,$8D,$0E,$40,$A5,$65,$18,$69,$01,$85,$65,$C9,$80,$90
-.byte $C1,$A9,$00,$8D,$15,$40,$60,$A5,$F0,$29,$02,$09,$70,$8D,$03,$02
+; ??? xy offsets
+;FE FE FE FF FE 01 FE 02
+;FE FF FF FF FF 01 FE 01
+;FF FF FF 00 01 00 FF 01
+;01 FF 00 FF 01 01 01 02
+.byte $FE,$FE,$FE,$FF,$FE,$01,$FE,$02	; A25D
+.byte $FE,$FF,$FF,$FF,$FF,$01,$FE,$01	; A265
+.byte $FF,$FF,$FF,$00,$01,$00,$FF,$01	; A26D
+.byte $01,$FF,$00,$FF,$01,$01,$01,$02	; A275
+
+; Marks	: object command 0: leviathan waves animation
+	JSR $A283		; A27D	$20 $83 $A2
+	JSR $A283               ; A280	$20 $83 $A2
+; fallthrough
+; Name	:
+; Marks	: leviathan waves animation
+	JSR $A300		; A283	$20 $00 $A3
+	LDA #$00                ; A286	$A9 $00
+	STA $61                 ; A288	$85 $61
+	STA $62                 ; A28A	$85 $62
+	STA $63                 ; A28C	$85 $63
+	STA $64                 ; A28E	$85 $64
+	STA $65                 ; A290	$85 $65
+; start of frame loop
+L0E292:
+	JSR $FE00		; A292	$20 $00 $FE	wait for vblank
+	LDA #$02		; A295	$A9 $02
+	STA $4014		; A297	$8D $14 $40	copy oam data to ppu
+	INC $F0			; A29A	$E6 $F0
+	LDX #$1E		; A29C	$A2 $1E
+	LDA $65			; A29E	$A5 $65
+	CMP #$58		; A2A0	$C9 $58
+	BCC L0E2AC		; A2A2	$90 $08
+	LDA $F0			; A2A4	$A5 $F0
+	AND #$03		; A2A6	$29 $03
+	BNE L0E2AC		; A2A8	$D0 $02
+	LDX #$1F		; A2AA	$A2 $1F
+L0E2AC:
+	STX $2001		; A2AC	$8E $01 $20
+	JSR $A342		; A2AF	$20 $42 $A3
+	JSR $A3BB		; A2B2	$20 $BB $A3
+	LDA $65			; A2B5	$A5 $65
+	CMP #$48		; A2B7	$C9 $48
+	BCC L0E2BE		; A2B9	$90 $03
+	JSR $A2D7		; A2BB	$20 $D7 $A2
+L0E2BE:
+	LDA $65			; A2BE	$A5 $65
+	LSR			; A2C0	$4A
+	LSR			; A2C1	$4A
+	LSR			; A2C2	$4A
+	STA $400E		; A2C3	$8D $0E $40
+	LDA $65			; A2C6	$A5 $65
+	CLC			; A2C8	$18
+	ADC #$01		; A2C9	$69 $01
+	STA $65			; A2CB	$85 $65
+	CMP #$80		; A2CD	$C9 $80
+	BCC L0E292		; A2CF	$90 $C1
+	LDA #$00		; A2D1	$A9 $00
+	STA $4015		; A2D3	$8D $15 $40
+	RTS			; A2D6	$60
+; End of
+
+;A2D7
+.byte $A5,$F0,$29,$02,$09,$70,$8D,$03,$02
 .byte $8D,$07,$02,$09,$08,$8D,$0B,$02,$8D,$0F,$02,$A5,$F0,$29,$01,$49
 .byte $6F,$8D,$00,$02,$8D,$08,$02,$49,$18,$8D,$04,$02,$8D,$0C,$02,$60
 
@@ -1684,64 +2007,553 @@ L0F2A1:
 .byte $09,$09,$0A,$0A,$2C,$02,$20,$A5,$62,$8D,$06,$20,$A5,$61,$8D,$06
 .byte $20,$B9,$00,$05,$8D,$07,$20,$B9,$80,$05,$8D,$07,$20,$A5,$62,$8D
 .byte $06,$20,$A5,$61,$09,$20,$8D,$06,$20,$B9,$00,$06,$8D,$07,$20,$B9
-.byte $80,$06,$8D,$07,$20,$60,$A5,$2F,$18,$65,$39,$C9,$0F,$90,$02,$E9
-.byte $0F,$AA,$BD,$E8,$B4,$85,$62,$BD,$D9,$B4,$85,$61,$A5,$27,$18,$65
-.byte $38,$29,$1F,$0A,$C9,$20,$B0,$05,$05,$61,$85,$61,$60,$29,$1F,$05
-.byte $61,$85,$61,$A5,$62,$09,$04,$85,$62,$60,$A9,$F0,$85,$26,$A9,$58
-.byte $85,$40,$A9,$90,$85,$41,$4C,$53,$A4,$00,$40,$80,$C0,$00,$40,$80
-.byte $C0,$00,$40,$80,$C0,$00,$40,$80,$20,$20,$20,$20,$21,$21,$21,$21
-.byte $22,$22,$22,$22,$23,$23,$23,$C9,$E0,$B0,$1F,$A5,$72,$18,$69,$01
+.byte $80,$06,$8D,$07,$20,$60
 
-;; [$B500 :: 0x0F500]
+; Name	:
+; Marks	:
+	LDA $2F			; B496	$A5 $2F
+	CLC			; B498	$18
+	ADC $39			; B499	$65 $39
+	CMP #$0F		; B49B	$C9 $0F
+	BCC L0F4A1		; B49D	$90 $02
+	SBC #$0F		; B49F	$E9 $0F
+L0F4A1:
+	TAX			; B4A1	$AA
+	LDA $B4E8,X		; B4A2	$BD $E8 $B4
+	STA $62			; B4A5	$85 $62
+	LDA $B4D9,X		; B4A7	$BD $D9 $B4
+	STA $61			; B4AA	$85 $61
+	LDA $27			; B4AC	$A5 $27
+	CLC			; B4AE	$18
+	ADC $38			; B4AF	$65 $38
+	AND #$1F		; B4B1	$29 $1F
+	ASL			; B4B3	$0A
+	CMP #$20		; B4B4	$C9 $20
+	BCS L0F4BD		; B4B6	$B0 $05
+	ORA $61			; B4B8	$05 $61
+	STA $61			; B4BA	$85 $61
+	RTS			; B4BC	$60
+L0F4BD:
+	AND #$1F		; B4BD	$29 $1F
+	ORA $61			; B4BF	$05 $61
+	STA $61			; B4C1	$85 $61
+	LDA $62			; B4C3	$A5 $62
+	ORA #$04		; B4C5	$09 $04
+	STA $62			; B4C7	$85 $62
+	RTS			; B4C9	$60
+	LDA #$F0		; B4CA	$A9 $F0
+	STA $26			; B4CC	$85 $26
+	LDA #$58		; B4CE	$A9 $58
+	STA $40			; B4D0	$85 $40
+	LDA #$90		; B4D2	$A9 $90
+	STA $41			; B4D4	$85 $41
+	JMP $A453		; B4D6	$4C $53 $A4
+; End of
 
-.byte $85,$72,$A5,$73,$69,$00,$85,$73,$A5,$70,$29,$0F,$A8,$B9,$95,$B7
-.byte $BE,$95,$B8,$5D,$12,$60,$9D,$12,$60,$60,$C9,$F0,$90,$27,$A2,$02
-.byte $C9,$FD,$90,$02,$A2,$01,$8A,$18,$65,$72,$85,$72,$A5,$73,$69,$00
-.byte $85,$73,$A5,$70,$29,$0F,$0A,$AA,$BD,$D0,$B5,$85,$80,$BD,$D1,$B5
-.byte $85,$81,$6C,$80,$00,$A5,$72,$18,$69,$01,$85,$72,$A5,$73,$69,$00
-.byte $85,$73,$A5,$70,$29,$0F,$0A,$AA,$BD,$65,$B5,$85,$80,$BD,$66,$B5
-.byte $85,$81,$6C,$80,$00,$85,$B5,$88,$B5,$91,$B5,$9A,$B5,$9E,$B5,$A1
-.byte $B5,$A4,$B5,$A7,$B5,$AA,$B5,$AE,$B5,$B3,$B5,$B3,$B5,$B3,$B5,$B6
-.byte $B5,$C0,$B5,$C7,$B5,$4C,$91,$B6,$A9,$00,$85,$6C,$A2,$09,$4C,$03
-.byte $A0,$A9,$40,$85,$44,$A9,$05,$85,$6C,$60,$18,$4C,$03,$C0,$4C,$28
-.byte $AD,$4C,$98,$B3,$4C,$69,$B6,$4C,$06,$C0,$38,$4C,$03,$C0,$A2,$00
-.byte $4C,$03,$A0,$4C,$17,$B7,$20,$F5,$B6,$A9,$07,$85,$61,$4C,$EF,$B6
-.byte $A9,$09,$85,$61,$4C,$EF,$B6,$A9,$80,$8D,$F5,$62,$4C,$F2,$B6,$60
-.byte $F0,$B5,$F5,$B5,$FE,$B5,$07,$B6,$10,$B6,$19,$B6,$1E,$B6,$23,$B6
-.byte $28,$B6,$50,$B6,$50,$B6,$50,$B6,$50,$B6,$51,$B6,$56,$B6,$64,$B6
-.byte $A5,$71,$85,$76,$60,$A5,$71,$85,$45,$A9,$C0,$85,$44,$60,$A5,$71
+; B4D9 - data block =
+.byte $00,$40,$80,$C0,$00,$40,$80
+.byte $C0,$00,$40,$80,$C0,$00,$40,$80
+; B4E8 - data block =
+.byte $20,$20,$20,$20,$21,$21,$21,$21
+.byte $22,$22,$22,$22,$23,$23,$23
 
-;; [$B600 :: 0x0F600]
+; --------------------------------------------------------------------------
 
-.byte $85,$45,$A9,$80,$85,$44,$60,$A5,$71,$85,$6A,$A9,$20,$85,$44,$60
-.byte $A5,$71,$85,$45,$A9,$80,$85,$44,$60,$A5,$71,$85,$E0,$60,$A4,$71
-.byte $4C,$59,$B7,$A4,$71,$4C,$7D,$B7,$A5,$75,$30,$08,$A9,$80,$85,$75
-.byte $A5,$71,$85,$74,$A5,$74,$38,$E9,$01,$85,$74,$B0,$05,$A9,$00,$85
-.byte $75,$60,$A5,$72,$38,$E9,$02,$85,$72,$A5,$73,$E9,$00,$85,$73,$60
-.byte $60,$A9,$40,$85,$44,$60,$A5,$72,$38,$E9,$01,$85,$72,$A5,$73,$E9
-.byte $00,$85,$73,$60,$A9,$00,$85,$6C,$60,$A9,$00,$48,$20,$78,$B6,$68
-.byte $18,$69,$01,$C9,$11,$90,$F4,$60,$4A,$29,$01,$85,$80,$20,$00,$FE
-.byte $A5,$80,$09,$1E,$8D,$01,$20,$A9,$00,$85,$80,$20,$BD,$B6,$4C,$E8
-.byte $B6,$A9,$00,$48,$20,$A0,$B6,$68,$18,$69,$01,$C9,$11,$90,$F4,$60
-.byte $29,$02,$85,$80,$20,$00,$FE,$20,$BD,$B6,$20,$E8,$B6,$A9,$08,$8D
-.byte $0C,$40,$A9,$0E,$8D,$0E,$40,$A9,$00,$8D,$0F,$40,$60,$2C,$02,$20
-.byte $A5,$FD,$85,$FF,$8D,$00,$20,$A6,$27,$A5,$2D,$4A,$90,$02,$A6,$29
-.byte $8A,$0A,$0A,$0A,$0A,$05,$35,$45,$80,$8D,$05,$20,$A5,$2F,$0A,$0A
-.byte $0A,$0A,$05,$36,$8D,$05,$20,$60,$A9,$03,$85,$57,$4C,$09,$C0,$4C
-.byte $12,$C0,$4C,$15,$C0,$A2,$3F,$BD,$C0,$61,$9D,$90,$60,$CA,$10,$F7
+; Marks	: event commands $D0-$FF
+; $D0-$DF: 
+	CMP #$E0		; B4F7	$C9 $E0
+	BCS L0F51A		; B4F9	$B0 $1F
+	LDA $72			; B4FB	$A5 $72		increment event script pointer
+	CLC			; B4FD	$18
+	ADC #$01		; B4FE	$69 $01
+	STA $72			; B500	$85 $72
+	LDA $73			; B502	$A5 $73
+	ADC #$00		; B504	$69 $00
+	STA $73			; B506	$85 $73
+	LDA $70			; B508	$A5 $70
+	AND #$0F		; B50A	$29 $0F		low nybble of event opcode
+	TAY			; B50C	$A8
+	LDA $B795,Y		; B50D	$B9 $95 $B7	bit mask
+	LDX $B895,Y		; B510	$BE $95 $B8	byte offset (either 0 or 1)
+	EOR $6012,X		; B513	$5D $12 $60	toggle ??? bit
+	STA $6012,X		; B516	$9D $12 $60
+	RTS			; B519	$60
+; End of
+; $F0-$FF: 
+L0F51A:
+	CMP #$F0		; B51A	$C9 $F0
+	BCC L0F545		; B51C	$90 $27
+	LDX #$02		; B51E	$A2 $02		$F0-$FC have a 1-byte parameter
+	CMP #$FD		; B520	$C9 $FD
+	BCC L0F526		; B522	$90 $02
+	LDX #$01		; B524	$A2 $01
+L0F526:
+	TXA			; B526	$8A
+	CLC			; B527	$18
+	ADC $72			; B528	$65 $72		increment event script pointer
+	STA $72			; B52A	$85 $72
+	LDA $73			; B52C	$A5 $73
+	ADC #$00		; B52E	$69 $00
+	STA $73			; B530	$85 $73
+	LDA $70			; B532	$A5 $70
+	AND #$0F		; B534	$29 $0F
+	ASL			; B536	$0A
+	TAX			; B537	$AA
+	LDA $B5D0,X		; B538	$BD $D0 $B5
+	STA $80			; B53B	$85 $80
+	LDA $B5D1,X		; B53D	$BD $D1 $B5
+	STA $81			; B540	$85 $81
+	JMP ($0080)		; B542	$6C $80 $00
+; $E0-$EF: 
+L0F545:
+	LDA $72			; B545	$A5 $72		increment event script pointer
+	CLC                     ; B547	$18
+	ADC #$01                ; B548	$69 $01
+	STA $72                 ; B54A	$85 $72
+	LDA $73                 ; B54C	$A5 $73
+	ADC #$00                ; B54E	$69 $00
+	STA $73                 ; B550	$85 $73
+	LDA $70                 ; B552	$A5 $70
+	AND #$0F                ; B554	$29 $0F
+	ASL                     ; B556	$0A
+	TAX                     ; B557	$AA
+	LDA $B565,X             ; B558	$BD $65 $B5
+	STA $80                 ; B55B	$85 $80
+	LDA $B566,X             ; B55D	$BD $66 $B5
+	STA $81                 ; B560	$85 $81
+	JMP ($0080)             ; B562	$6C $80 $00
+; End of
 
-;; [$B700 :: 0x0F700]
+; jump table for event command $E0-$EF
+.byte $85,$B5,$88,$B5,$91,$B5,$9A,$B5,$9E,$B5,$A1
+.byte $B5,$A4,$B5,$A7,$B5	; B565	$B585 B588 B591 B59A B59E B5A1 B5A4 B5A7
 
-.byte $A2,$2F,$BD,$C0,$62,$9D,$D0,$60,$CA,$10,$F7,$A2,$05,$BD,$F0,$62
-.byte $9D,$F6,$62,$CA,$10,$F7,$60,$A2,$3F,$BD,$C0,$61,$48,$BD,$90,$60
-.byte $9D,$C0,$61,$68,$9D,$90,$60,$CA,$10,$EF,$A2,$2F,$BD,$C0,$62,$48
-.byte $BD,$D0,$60,$9D,$C0,$62,$68,$9D,$D0,$60,$CA,$10,$EF,$A2,$05,$BD
-.byte $F0,$62,$48,$BD,$F6,$62,$9D,$F0,$62,$68,$9D,$F6,$62,$CA,$10,$EF
-.byte $A9,$00,$8D,$F5,$62,$8D,$C1,$61,$60,$84,$80,$B9,$95,$B7,$85,$81
-.byte $B9,$95,$B8,$A8,$B9,$40,$60,$05,$81,$99,$40,$60,$A4,$80,$60,$85
-.byte $6A,$A9,$20,$85,$44,$60,$85,$45,$A9,$80,$85,$44,$60,$84,$80,$B9
-.byte $95,$B7,$85,$81,$B9,$95,$B8,$A8,$A5,$81,$49,$FF,$39,$40,$60,$99
-.byte $40,$60,$A4,$80,$60,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
+.byte $AA,$B5,$AE,$B5,$B3,$B5,$B3,$B5,$B3,$B5,$B6
+.byte $B5,$C0,$B5,$C7,$B5	; B575	$B5AA B5AE B5B3 B5B3 B5B3 B5B6 B5C0 B5C7
+
+; Marks	:
+; $E0: shake screen
+	JMP $B691		; B585	$4C $91 $B6  
+; End of
+
+; Marks	:
+; $E1: dreadnought launch animation
+	LDA #$00		; B588	$A9 $00
+	STA $6C			; B58A	$85 $6C
+	LDX #$09		; B58C	$A2 $09
+	JMP $A003		; B58E	$4C $03 $A0
+; End of
+
+; Marks	:
+; $E2: dreadnought explosion animation
+	LDA #$40		; B591	$A9 $40		exit (to previous map)
+	STA $44			; B593	$85 $44
+	LDA #$05		; B595	$A9 $05		event type 5 (dreadnought explosion animation)
+	STA $6C			; B597	$85 $6C
+	RTS			; B599	$60
+; End of
+
+; Marks	:
+; $E3: filter map bg palette (red)
+	CLC 			; B59A	$18
+	JMP $C003		; B59B	$4C $03 $C0	filter map bg palette
+; End of
+
+; Marks	:
+; $E4: npc dance
+	JMP $AD28		; B59E	$4C $28 $AD
+; End of
+
+; Marks	:
+; $E5: pandaemonium castle animation
+	JMP $B398		; B5A1	$4C $98 $B3  
+; End of
+
+; Marks	:
+; $E6: flash screen
+	JMP $B669		; B5A4	4C $69 $B6
+; End of
+
+; Marks	:
+; $E7: end credits
+	JMP $C006		; B5A7	$4C $06 $C0
+; End of
+
+; Marks	:
+; $E8: filter map bg palette (blue)
+	SEC 			; B5AA	$38
+	JMP $C003		; B5AB	$4C $03 $C0	filter map bg palette
+; End of
+
+; Marks	:
+; $E9: leviathan waves animation
+	LDX #$00		; B5AE	$A2 $00
+	JMP $A003               ; B5B0	$4C $03 $A0
+; End of
+
+; Marks	:
+; $EA-$EC
+	JMP $B717		; B5B3	$4C $17 $B7	restore saved guest character properties
+; End of
+
+; Marks	:
+; $ED: add leila to party
+	JSR $B6F5		; B5B6	$20 $F5 $B6	save guest character properties
+	LDA #$07		; B5B9	$A9 $07
+	STA $61			; B5BB	$85 $61
+	JMP $B6EF		; B5BD	$4C $EF $B6	load guest character properties
+; End of
+
+; Marks	:
+; $EE: add leon to party
+	LDA #$09		; B5C0	$A9 $09
+	STA $61			; B5C2	$85 $61
+	JMP $B6EF		; B5C4	$4C $EF $B6	load guest character properties
+; End of
+
+; Marks	:
+; $EF: remove guest character
+	LDA #$80		; B5C7	$A9 $80
+	STA $62F5		; B5C9	$8D $F5 $62
+	JMP $B6F2		; B5CC	$4C $F2 $B6	validate character rows
+; End of
+
+; Marks	:
+; unused
+	RTS 			; B5CF	$60
+; End of unused
+
+; jump table for event command $F0-$FF
+.byte $F0,$B5,$F5,$B5,$FE,$B5,$07,$B6,$10,$B6,$19,$B6,$1E,$B6,$23,$B6	; B5D0
+;B5F0 B5F5 B5FE B607 B610 B619 B61E B623
+.byte $28,$B6,$50,$B6,$50,$B6,$50,$B6,$50,$B6,$51,$B6,$56,$B6,$64,$B6	; B5E0
+;B628 B650 B650 B650 B650 B651 B656 B664
+
+; Marks	:
+; $F0: event dialogue
+	LDA $71			; B5F0	$A5 $71
+	STA $76			; B5F2	$85 $76
+	RTS			; B5F4	$60
+; End of
+
+; Marks	:
+; $F1: exit (to world map)
+	LDA $71			; B5F5	$A5 $71
+	STA $45			; B5F7	$85 $45
+	LDA #$C0		; B5F9	$A9 $C0
+	STA $44			; B5FB	$85 $44
+	RTS			; B5FD	$60
+; End of
+
+; Marks	:
+; $F2: entrance
+	LDA $71			; B5FE	$A5 $71
+	STA $45			; B600	$85 $45
+	LDA #$80		; B602	$A9 $80
+	STA $44			; B604	$85 $44
+	RTS			; B606	$60
+; End of
+
+; Marks	:
+; $F3: battle
+	LDA $71			; B607	$A5 $71
+	STA $6A			; B609	$85 $6A
+	LDA #$20		; B60B	$A9 $20
+	STA $44			; B60D	$85 $44
+	RTS			; B60F	$60
+; End of
+
+; Marks	:
+; $F4: entrance
+	LDA $71			; B610	$A5 $71
+	STA $45			; B612	$85 $45
+	LDA #$80		; B614	$A9 $80
+	STA $44			; B616	$85 $44
+	RTS			; B618	$60
+; End of
+
+; $F5: play song
+	LDA $71			; B619	$A5 $71
+	STA $E0			; B61B	$85 $E0		play song
+	RTS			; B61D	$60
+; End of
+
+; Marks	:
+; $F6: set event switch
+	LDY $71			; B61E	$A4 $71
+	JMP $B759		; B620	$4C $59 $B7
+; End of
+
+; Marks	:
+; $F7: toggle event switch
+	LDY $71			; B623	$A4 $71
+	JMP $B77D		; B625	$4C $7D $B7
+; End of
+
+; Marks	:
+; $F8: wait
+	LDA $75			; B628	$A5 $75
+	BMI L0F634		; B62A	$30 $08		branch if already waiting
+	LDA #$80		; B62C	$A9 $80
+	STA $75			; B62E	$85 $75
+	LDA $71			; B630	$A5 $71
+	STA $74			; B632	$85 $74		set wait counter
+L0F634:
+	LDA $74			; B634	$A5 $74
+	SEC			; B636	$38
+	SBC #$01		; B637	$E9 $01
+	STA $74			; B639	$85 $74
+	BCS L0F642		; B63B	$B0 $05
+	LDA #$00		; B63D	$A9 $00
+	STA $75			; B63F	$85 $75
+	RTS			; B641	$60
+;
+L0F642:
+	LDA $72			; B642	$A5 $72
+	SEC			; B644	$38
+	SBC #$02		; B645	$E9 $02
+	STA $72			; B647	$85 $72
+	LDA $73			; B649	$A5 $73
+	SBC #$00		; B64B	$E9 $00
+	STA $73			; B64D	$85 $73
+	RTS			; B64F	$60
+; End of
+
+; Marks	:
+; $F9-FC: no effect
+	RTS 			; B650	$60
+; End of
+
+; Marks	:
+; $FD: exit (to previous map)
+	LDA #$40		; B651	$A9 $40
+	STA $44			; B653	$85 $44
+	RTS			; B655	$60
+; End of
+
+; Marks	:
+; $FE: repeat forever ??? (unused)
+	LDA $72			; B656	$A5 $72		decrement event script pointer
+	SEC			; B658	$38
+	SBC #$01		; B659	$E9 $01
+	STA $72			; B65B	$85 $72
+	LDA $73			; B65D	$A5 $73
+	SBC #$00		; B65F	$E9 $00
+	STA $73			; B661	$85 $73
+	RTS			; B663	$60
+; End of
+
+; Marks	:
+; $FF: end of script
+	LDA #$00		; B664	$A9 $00
+	STA $6C			; B666	$85 $6C
+	RTS			; B668	$60
+; End of
+
+; Marks	: event command $E6: flash screen
+	LDA #$00		; B669	$A9 $00
+L0F66B:
+	PHA			; B66B	$48
+	JSR $B678		; B66C	$20 $78 $B6	update flash screen
+	PLA			; B66F	$68
+	CLC			; B670	$18
+	ADC #$01		; B671	$69 $01
+	CMP #$11		; B673	$C9 $11
+	BCC L0F66B		; B675	$90 $F4
+	RTS			; B677	$60
+; End of
+
+; Name	:
+; Marks	: update flash screen
+	LSR 			; B678	$4A
+	AND #$01		; B679	$29 $01
+	STA $80			; B67B	$85 $80
+	JSR $FE00		; B67D	$20 $00 $FE	wait for vblank
+	LDA $80			; B680	$A5 $80
+	ORA #$1E		; B682	$09 $1E
+	STA $2001		; B684	$8D $01 $20
+	LDA #$00		; B687	$A9 $00
+	STA $80			; B689	$85 $80
+	JSR $B6BD		; B68B	$20 $BD $B6
+	JMP $B6E8		; B68E	$4C $E8 $B6
+
+; Marks	: event command $E0: shake screen
+	LDA #$00		; B691	$A9 $00
+L0F693:
+	PHA			; B693	$48
+	JSR $B6A0		; B694	$20 $A0 $B6	update shake screen
+	PLA			; B697	$68
+	CLC			; B698	$18
+	ADC #$01		; B699	$69 $01
+	CMP #$11		; B69B	$C9 $11
+	BCC L0F693		; B69D	$90 $F4
+	RTS			; B69F	$60
+; End of
+
+; Name	:
+; Marks	: update shake screen
+	AND #$02		; B6A0	$29 $02
+	STA $80			; B6A2	$85 $80
+	JSR $FE00		; B6A4	$20 $00 $FE	wait for vblank
+	JSR $B6BD		; B6A7	$20 $BD $B6  
+	JSR $B6E8		; B6AA	$20 $E8 $B6  
+	LDA #$08		; B6AD	$A9 $08
+	STA $400C		; B6AF	$8D $0C $40  
+	LDA #$0E		; B6B2	$A9 $0E
+	STA $400E		; B6B4	$8D $0E $40  
+	LDA #$00		; B6B7	$A9 $00
+	STA $400F		; B6B9	$8D $0F $40  
+	RTS			; B6BC	$60
+; End of
+
+; Name	:
+; Marks	:
+	BIT $2002		; B6BD	$2C $02 $20
+	LDA $FD			; B6C0	$A5 $FD
+	STA $FF			; B6C2	$85 $FF
+	STA $2000		; B6C4	$8D $00 $20
+	LDX $27			; B6C7	$A6 $27
+	LDA $2D			; B6C9	$A5 $2D
+	LSR			; B6CB	$4A
+	BCC L0F6D0		; B6CC	$90 $02
+	LDX $29			; B6CE	$A6 $29
+L0F6D0:
+	TXA			; B6D0	$8A
+	ASL			; B6D1	$0A
+	ASL			; B6D2	$0A
+	ASL			; B6D3	$0A
+	ASL			; B6D4	$0A
+	ORA $35			; B6D5	$05 $35
+	EOR $80			; B6D7	$45 $80
+	STA $2005		; B6D9	$8D $05 $20
+	LDA $2F			; B6DC	$A5 $2F
+	ASL			; B6DE	$0A
+	ASL			; B6DF	$0A
+	ASL			; B6E0	$0A
+	ASL			; B6E1	$0A
+	ORA $36			; B6E2	$05 $36
+	STA $2005		; B6E4	$8D $05 $20
+	RTS			; B6E7	$60
+; End of
+
+; Name	:
+; Marks	:
+	LDA #$03		; B6E8	$A9 $03
+	STA $57			; B6EA	$85 $57
+	JMP $C009		; B6EC	$4C $09 $C0	update sound
+; End of
+
+	JMP $C012		; B6EF	$4C 12 $C0	load guest character properties
+;
+	JMP $C015		; B6F2	$4C 15 $C0	validate character rows
+;
+
+
+; Name	:
+; Marks	: save guest character properties
+	LDX #$3F		; B6F5	$A2 $3F
+L0F6F7:
+	LDA $61C0,X		; B6F7	$BD $C0 $61
+	STA $6090,X		; B6FA	$9D $90 $60
+	DEX        		; B6FD	$CA
+	BPL L0F6F7  		; B6FE	$10 $F7
+	LDX #$2F		; B700	$A2 $2F
+L0F702:
+	LDA $62C0,X		; B702	$BD $C0 $62
+	STA $60D0,X		; B705	$9D $D0 $60
+	DEX			; B708	$CA
+	BPL L0F702		; B709	$10 $F7
+	LDX #$05		; B70B	$A2 $05
+L0F70D:
+	LDA $62F0,X		; B70D	$BD $F0 $62
+	STA $62F6,X		; B710	$9D $F6 $62
+	DEX			; B713	$CA
+	BPL L0F70D		; B714	$10 $F7
+	RTS			; B716	$60
+; End of
+
+; Marks	: event command $EA-$EC: restore saved guest character properties
+	LDX #$3F		; B717	$A2 $3F
+L0F719:
+	LDA $61C0,X		; B719	$BD $C0 $61
+	PHA			; B71C	$48
+	LDA $6090,X		; B71D	$BD $90 $60
+	STA $61C0,X		; B720	$9D $C0 $61
+	PLA			; B723	$68
+	STA $6090,X		; B724	$9D $90 $60
+	DEX			; B727	$CA
+	BPL L0F719		; B728	$10 $EF
+	LDX #$2F		; B72A	$A2 $2F
+L0F72C:
+	LDA $62C0,X		; B72C	$BD $C0 $62
+	PHA			; B72F	$48
+	LDA $60D0,X		; B730	$BD $D0 $60
+	STA $62C0,X		; B733	$9D $C0 $62
+	PLA			; B736	$68
+	STA $60D0,X		; B737	$9D $D0 $60
+	DEX			; B73A	$CA
+	BPL L0F72C		; B73B	$10 $EF
+	LDX #$05		; B73D	$A2 $05
+L0F73F:
+	LDA $62F0,X		; B73F	$BD $F0 $62
+	PHA			; B742	$48
+	LDA $62F6,X		; B743	$BD $F6 $62
+	STA $62F0,X		; B746	$9D $F0 $62
+	PLA			; B749	$68
+	STA $62F6,X		; B74A	$9D $F6 $62
+	DEX			; B74D	$CA
+	BPL L0F73F		; B74E	$10 $EF
+	LDA #$00		; B750	$A9 $00
+	STA $62F5		; B752	$8D $F5 $62
+	STA $61C1		; B755	$8D $C1 $61
+	RTS			; B758	$60
+; End of
+
+; Marks	: set event switch
+	STY $80			; B759	$84 $80
+	LDA $B795,Y		; B75B	$B9 $95 $B7
+	STA $81			; B75E	$85 $81
+	LDA $B895,Y		; B760	$B9 $95 $B8
+	TAY			; B763	$A8
+	LDA $6040,Y		; B764	$B9 $40 $60
+	ORA $81			; B767	$05 $81
+	STA $6040,Y		; B769	$99 $40 $60
+	LDY $80			; B76C	$A4 $80
+	RTS			; B76E	$60
+; End of
+
+; Marks	: battle
+;	  unused
+	STA $6A			; B76F	$85 $6A
+	LDA #$20		; B771	$A9 $20
+	STA $44			; B773	$85 $44
+	RTS			; B775	$60
+; End of unused
+
+; Marks	: entrance
+;	  unused
+	STA $45			; B776	$85 $45
+	LDA #$80		; B778	$A9 $80
+	STA $44			; B77A	$85 $44
+	RTS			; B77C	$60
+; End of unused
+
+; Marks	: toggle event switch
+	STY $80			; B77D	$84 $80
+	LDA $B795,Y		; B77F	$B9 $95 $B7	bit mask
+	STA $81			; B782	$85 $81
+	LDA $B895,Y		; B784	$B9 $95 $B8	byte offset
+	TAY			; B787	$A8
+	LDA $81			; B788	$A5 $81
+	EOR #$FF		; B78A	$49 $FF
+	AND $6040,Y		; B78C	$39 $40 $60
+	STA $6040,Y		; B78F	$99 $40 $60
+	LDY $80			; B792	$A4 $80
+	RTS			; B794	$60
+; End of
+
+;B795 - data block = bit masks
+.byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
@@ -1760,7 +2572,10 @@ L0F2A1:
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
-.byte $08,$10,$20,$40,$80,$00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01
+.byte $08,$10,$20,$40,$80
+
+;B895 - data block = byte offsets
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01
 .byte $01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$02,$02,$03,$03,$03
 .byte $03,$03,$03,$03,$03,$04,$04,$04,$04,$04,$04,$04,$04,$05,$05,$05
 .byte $05,$05,$05,$05,$05,$06,$06,$06,$06,$06,$06,$06,$06,$07,$07,$07
@@ -1769,7 +2584,6 @@ L0F2A1:
 .byte $0B,$0B,$0B,$0B,$0B,$0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C,$0D,$0D,$0D
 
 ;; [$B900 :: 0x0F900]
-; Event code ($A000-$B99F) end
 
 .byte $0D,$0D,$0D,$0D,$0D,$0E,$0E,$0E,$0E,$0E,$0E,$0E,$0E,$0F,$0F,$0F
 .byte $0F,$0F,$0F,$0F,$0F,$10,$10,$10,$10,$10,$10,$10,$10,$11,$11,$11
@@ -1781,6 +2595,9 @@ L0F2A1:
 .byte $1B,$1B,$1B,$1B,$1B,$1C,$1C,$1C,$1C,$1C,$1C,$1C,$1C,$1D,$1D,$1D
 .byte $1D,$1D,$1D,$1D,$1D,$1E,$1E,$1E,$1E,$1E,$1E,$1E,$1E,$1F,$1F,$1F
 .byte $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F,$FF,$FF,$FF
+; Event code ($A000-$B99F) end
+;========== Event code ($A000-$B99F) END ==========
+
 .byte $00,$00,$00,$00,$00,$00,$00,$90,$00,$10,$00,$00,$02,$01,$20,$10
 .byte $00,$20,$00,$00,$00,$00,$00,$00,$10,$00,$84,$05,$40,$0C,$00,$00
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -1807,7 +2624,7 @@ L0F2A1:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$00,$00,$00,$01
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$80,$00,$00,$80,$18,$01,$40,$00
 
-;; [$bb00 :: 0x0FB00]
+;; [$BB00 :: 0x0FB00]
 
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -1826,7 +2643,7 @@ L0F2A1:
 .byte $00,$00,$00,$00,$00,$00,$80,$04,$00,$00,$24,$00,$00,$00,$00,$00
 .byte $08,$08,$00,$00,$00,$00,$01,$00,$00,$00,$08,$40,$00,$00,$11,$20
 
-;; [$bc00 :: 0x0FC00]
+;; [$BC00 :: 0x0FC00]
 
 .byte $FF,$EF,$DF,$F5,$FF,$FA,$DF,$FF,$BC,$3F,$F7,$DF,$F6,$EF,$FD,$DF
 .byte $BF,$FF,$F6,$7E,$FF,$FF,$FD,$FF,$FD,$3F,$DD,$C6,$37,$7D,$75,$FD
@@ -1845,7 +2662,7 @@ L0F2A1:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-;; [$bd00 :: 0x0FD00]
+;; [$BD00 :: 0x0FD00]
 
 .byte $FF,$EF,$FE,$FF,$FD,$FF,$FF,$FF,$DF,$6F,$D7,$DA,$5D,$59,$ED,$3A
 .byte $FB,$FF,$FF,$DF,$FB,$FE,$7B,$FF,$D4,$DB,$BF,$6B,$FF,$6C,$56,$66
@@ -1864,7 +2681,7 @@ L0F2A1:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-;; [$be00 :: 0x0FE00]
+;; [$BE00 :: 0x0FE00]
 
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
