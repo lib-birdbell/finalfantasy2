@@ -50,6 +50,10 @@
 .export	Mob_AI
 ;.export	Sp_atk_rest_prob
 
+target_tmp	= $A6
+
+cmd_mag_ing	= $7CBA
+
 ; ========== armor properties (41 * 6 bytes) ($8000-$80F5) START ==========
 ; 00: Defense, 01: Evade penalty, 02: Int/Soul penalty
 ; 03: Elemental defense, 04: Stat boost, 05: Magic defense
@@ -1086,7 +1090,7 @@ Get_cmd_input:
 	;LDA #$C5		; 91B4	$A9 $C5
 	STA $66			; 91B6	$85 $66		pointer to cursor position data ??
 	LDA #$04		; 91B8	$A9 $04
-	STA $5C			; 91BA	$85 $5C		number of cusor options ?? - battle command
+	STA $5C			; 91BA	$85 $5C		number of cursor options ?? - battle command
 	LDA #$00		; 91BC	$A9 $00
 	STA $5D			; 91BE	$85 $5D
 	STA $50			; 91C0	$85 $50
@@ -1553,7 +1557,7 @@ Cmd_attack_proc:
 	DEC cur_char_idx	; 9481	$C6 $9E
 L31483:
 	JMP Wait_MENU_snd	; 9483	$4C $5B $FD
-;
+; End of Cmd_attack_proc
 
 Cmd_flee_proc:
 ; Marks	: target select 1: flee
@@ -1562,7 +1566,7 @@ Cmd_flee_proc:
 	LDA #$FE		; 948B	$A9 $FE
 	STA ($80),Y		; 948D	$91 $80
 	RTS			; 948F	$60
-; End of
+; End of Cmd_flee_proc
 
 ; Name	: Init_gfx_buf
 ; Marks	: Clear text buffer
@@ -2710,7 +2714,7 @@ Sub_ppu_addr_OV:
 ; Name	: Get_cmd
 ; Marks	: Cursor ??
 ;	  $64(ADDR) = OAM address(cursor ??)
-;	  $66(ADDR) = ??
+;	  $66(ADDR) = Cursor command position
 ;	  OAM ??
 ;	  battle command ??
 ;	  get battle command input
@@ -2721,23 +2725,23 @@ Get_cmd:
 	STA $53			; 9BAF	$85 $53
 	STA $54			; 9BB1	$85 $54
 	LDY #$00		; 9BB3	$A0 $00
-	LDA ($66),Y		; 9BB5	$B1 $66		ex> $BFC5
-	STA $0247		; 9BB7	$8D $47 $02	OAM_X[11]
-	STA $56			; 9BBA	$85 $56		cursor 1 sprite x position(RT)
+	LDA ($66),Y		; 9BB5	$B1 $66
+	STA $0247		; 9BB7	$8D $47 $02	OAM[17] X
+	STA $56			; 9BBA	$85 $56		cursor 1 sprite X position(RT)
 	INY			; 9BBC	$C8
 	LDA ($66),Y		; 9BBD	$B1 $66
-	STA $0244		; 9BBF	$8D $44 $02	OAM_Y[11]
-	STA $55			; 9BC2	$85 $55		cursor 1 sprite y position(RT)
+	STA $0244		; 9BBF	$8D $44 $02	OAM[17] Y
+	STA $55			; 9BC2	$85 $55		cursor 1 sprite Y position(RT)
 	LDA #$40		; 9BC4	$A9 $40
 	STA $64			; 9BC6	$85 $64
 	LDA #$02		; 9BC8	$A9 $02
-	STA $65			; 9BCA	$85 $65		$64(ADDR) $0240 is cursor LT
-	JSR Move_OAM_XY		; 9BCC	$20 $02 $9D	set cursor OAM x,y position
+	STA $65			; 9BCA	$85 $65		$64(ADDR) $0240 is cursor LT(OAM[16])
+	JSR Move_OAM_XY		; 9BCC	$20 $02 $9D	set cursor OAM X, Y position
 L31BCF:
 	JSR SR_Battle_status_ani; 9BCF	$20 $E4 $FA
-	LDA $7CBA		; 9BD2	$AD $BA $7C
+	LDA cmd_mag_ing		; 9BD2	$AD $BA $7C
 	BEQ L31BDA		; 9BD5	$F0 $03
-	JSR Show_magic		; 9BD7	$20 $F5 $9E
+	JSR Draw_mag_lv		; 9BD7	$20 $F5 $9E
 L31BDA:
 Get_cmd_begin:
 	JSR Wait_NMI_end	; 9BDA	$20 $46 $FD
@@ -2859,21 +2863,21 @@ L31C7C:
 	STA $69			; 9C93	$85 $69
 	LDY #$00		; 9C95	$A0 $00
 	LDA ($68),Y		; 9C97	$B1 $68
-	STA $0247		; 9C99	$8D $47 $02	OAM_X[17] cursor TR
+	STA $0247		; 9C99	$8D $47 $02	OAM[17] X cursor TR
 	STA $56			; 9C9C	$85 $56
 	INY			; 9C9E	$C8
 	LDA ($68),Y		; 9C9F	$B1 $68
-	STA $0244		; 9CA1	$8D $44 $02	OAM_Y[17] cursor TR
+	STA $0244		; 9CA1	$8D $44 $02	OAM[17] Y cursor TR
 	STA $55			; 9CA4	$85 $55
 	LDA #$40		; 9CA6	$A9 $40
 	STA $64			; 9CA8	$85 $64
 	LDA #$02		; 9CAA	$A9 $02
 	STA $65			; 9CAC	$85 $65		$0240 OAM[16]
-	JSR Move_OAM_XY		; 9CAE	$20 $02 $9D	set cursor OAM X,Y position
+	JSR Move_OAM_XY		; 9CAE	$20 $02 $9D	set cursor OAM X, Y position
 	JSR SR_Battle_status_ani; 9CB1	$20 $E4 $FA
-	LDA $7CBA		; 9CB4	$AD $BA $7C
+	LDA cmd_mag_ing		; 9CB4	$AD $BA $7C
 	BEQ L31CBC		; 9CB7	$F0 $03
-	JSR Show_magic		; 9CB9	$20 $F5 $9E
+	JSR Draw_mag_lv		; 9CB9	$20 $F5 $9E
 L31CBC:
 	JMP Get_cmd_begin	; 9CBC	$4C $DA $9B
 ; End of Get_cmd
@@ -2972,7 +2976,7 @@ Cmd_magic_proc:
 	STA $7601		; 9D4C	$8D $01 $76
 	LDA #$C9		; 9D4F	$A9 $C9
 	STA $7602		; 9D51	$8D $02 $76
-	LDY #$0C		; 9D54	$A0 $0C
+	LDY #$0C		; 9D54	$A0 $0C		current MP
 	LDA ($80),Y		; 9D56	$B1 $80
 	STA $62			; 9D58	$85 $62
 	INY			; 9D5A	$C8
@@ -2980,15 +2984,15 @@ Cmd_magic_proc:
 	STA $63			; 9D5D	$85 $63
 	JSR HtoD		; 9D5F	$20 $49 $97	convert hex to decimal
 	LDX #$07		; 9D62	$A2 $07
-	LDA $66			; 9D64	$A5 $66
-	STA $7600,X		; 9D66	$9D $00 $76
+	LDA $66			; 9D64	$A5 $66		"digit of 100"
+	STA $7600,X		; 9D66	$9D $00 $76	7607
 	INX			; 9D69	$E8
-	LDA $67			; 9D6A	$A5 $67
-	STA $7600,X		; 9D6C	$9D $00 $76
+	LDA $67			; 9D6A	$A5 $67		"digit of 10"
+	STA $7600,X		; 9D6C	$9D $00 $76	7608
 	INX			; 9D6F	$E8
-	LDA $68			; 9D70	$A5 $68
-	STA $7600,X		; 9D72	$9D $00 $76
-	LDY #$10		; 9D75	$A0 $10
+	LDA $68			; 9D70	$A5 $68		"digit of 1"
+	STA $7600,X		; 9D72	$9D $00 $76	7609
+	LDY #$10		; 9D75	$A0 $10		max MP
 	LDA ($80),Y		; 9D77	$B1 $80
 	STA $62			; 9D79	$85 $62
 	INY			; 9D7B	$C8
@@ -2996,16 +3000,16 @@ Cmd_magic_proc:
 	STA $63			; 9D7E	$85 $63
 	JSR HtoD		; 9D80	$20 $49 $97	convert hex to decimal
 	LDX #$0B		; 9D83	$A2 $0B
-	LDA $66			; 9D85	$A5 $66
-	STA $7600,X		; 9D87	$9D $00 $76
+	LDA $66			; 9D85	$A5 $66		"digit of 100"
+	STA $7600,X		; 9D87	$9D $00 $76	760B
 	INX			; 9D8A	$E8
-	LDA $67			; 9D8B	$A5 $67
-	STA $7600,X		; 9D8D	$9D $00 $76
+	LDA $67			; 9D8B	$A5 $67		"digit of 10"
+	STA $7600,X		; 9D8D	$9D $00 $76	760C
 	INX			; 9D90	$E8
-	LDA $68			; 9D91	$A5 $68
-	STA $7600,X		; 9D93	$9D $00 $76
+	LDA $68			; 9D91	$A5 $68		"digit of 1"
+	STA $7600,X		; 9D93	$9D $00 $76	760D
 	LDX #$0A		; 9D96	$A2 $0A
-	LDA #$7A		; 9D98	$A9 $7A
+	LDA #$7A		; 9D98	$A9 $7A		"/" ?? maybe
 	STA $7600,X		; 9D9A	$9D $00 $76
 	LDA #$07		; 9D9D	$A9 $07		$07: "MP Cost"
 	STA $66			; 9D9F	$85 $66
@@ -3024,7 +3028,7 @@ L31DAA:
 	LDY #$30		; 9DBB	$A0 $30
 	LDX #$00		; 9DBD	$A2 $00
 	STX $76			; 9DBF	$86 $76
-L31DC1:
+Cmd_magic_proc_chk:
 	LDA ($7A),Y		; 9DC1	$B1 $7A
 	INY			; 9DC3	$C8
 	STA $7CE3,X		; 9DC4	$9D $E3 $7C
@@ -3032,9 +3036,9 @@ L31DC1:
 	STA $76			; 9DC9	$85 $76
 	INX			; 9DCB	$E8
 	CPX #$10		; 9DCC	$E0 $10
-	BNE L31DC1		; 9DCE	$D0 $F1
+	BNE Cmd_magic_proc_chk	; 9DCE	$D0 $F1
 	JSR Init_gfx_buf	; 9DD0	$20 $90 $94	clear text buffer
-	JSR Show_item		; 9DD3	$20 $85 $9E
+	JSR Show_magic		; 9DD3	$20 $85 $9E
 	LDX #$03		; 9DD6	$A2 $03
 L31DD8:
 	LDA Mag_list_win_pos,X	; 9DD8	$BD $74 $9F	magic list window position data
@@ -3068,7 +3072,7 @@ L31E02:
 	LDA #$04		; 9E0E	$A9 $04
 	STA $5D			; 9E10	$85 $5D
 	LDA #$01		; 9E12	$A9 $01
-	STA $7CBA		; 9E14	$8D $BA $7C
+	STA cmd_mag_ing		; 9E14	$8D $BA $7C	command magic process enter
 	JSR Get_cmd		; 9E17	$20 $A8 $9B	battle command input
 .byte $AD,$34,$00
 	;LDA $0034		; 9E1A	$AD $34 $00	key - rlduseba
@@ -3129,24 +3133,24 @@ L31E76:
 	JSR Scroll_menu_ret_cmd	; 9E79	$20 $4A $98
 	JSR Remove_tile		; 9E7C	$20 $3E $9B
 	LDA #$00		; 9E7F	$A9 $00
-	STA $7CBA		; 9E81	$8D $BA $7C
+	STA cmd_mag_ing		; 9E81	$8D $BA $7C	command magic process exit
 	RTS			; 9E84	$60
-; End of
+; End of Cmd_magic_proc
 
-; Name	: Show_item
+; Name	: Show_magic
 ; Marks	:
-Show_item:
+Show_magic:
 	JSR Get_status1_80h	; 9E85	$20 $6C $AF	get status 1
-	AND #$30		; 9E88	$29 $30
-	BNE L31E97		; 9E8A	$D0 $0B
+	AND #$30		; 9E88	$29 $30		toad / amnesia
+	BNE L31E97		; 9E8A	$D0 $0B		branch if status1 is toad or amnesia
 	INY			; 9E8C	$C8
 	LDA ($80),Y		; 9E8D	$B1 $80
-	AND #$10		; 9E8F	$29 $10
-	BNE L31E97		; 9E91	$D0 $04
+	AND #$10		; 9E8F	$29 $10		mute
+	BNE L31E97		; 9E91	$D0 $04		branch if status2 is mute
 	LDA $76			; 9E93	$A5 $76
 	BNE L31E9A		; 9E95	$D0 $03
 L31E97:
-	JMP Show_item_end	; 9E97	$4C $E2 $9E
+	JMP Show_magic_end	; 9E97	$4C $E2 $9E
 ; End of
 L31E9A:
 	LDA #$82		; 9E9A	$A9 $82		string offset $0100 (item names)
@@ -3193,7 +3197,7 @@ L31EB2:
 	PLA			; 9EE0	$68
 	RTS			; 9EE1	$60
 ; End of
-Show_item_end:
+Show_magic_end:
 	LDA #$00		; 9EE2	$A9 $00
 	STA $76			; 9EE4	$85 $76
 	LDA #$15		; 9EE6	$A9 $15
@@ -3203,14 +3207,14 @@ Show_item_end:
 	LDA #$58		; 9EEE	$A9 $58
 	STA $67			; 9EF0	$85 $67
 	JMP Load_battle_text	; 9EF2	$4C $2F $97	load battle text
-; End of Show_item
+; End of Show_magic
 
-; Name	: Show_magic
+; Name	: Draw_mag_lv
 ; Marks	: $7E(ADDR) = ?? pointer to character properties 2
 ;	  $7A(ADDR) = ?? pointer to character properties 1
 ;	  $80(ADDR) = ?? pointer to character/monster battle stats
 ;	  Show magic list ??
-Show_magic:
+Draw_mag_lv:
 	LDA $62			; 9EF5	$A5 $62
 	PHA			; 9EF7	$48
 	LDA $63			; 9EF8	$A5 $63
@@ -3283,7 +3287,7 @@ Show_magic:
 	PLA			; 9F6C	$68
 	STA $62			; 9F6D	$85 $62
 	RTS			; 9F6F	$60
-; End of Show_magic
+; End of Draw_mag_lv
 
 ;; [$9F70 :: 0x31F70]
 ;9F70 - data block = mp window position data
@@ -4500,7 +4504,7 @@ Do_action:
 	STX turn_order_cnt	; A743	$8E $BB $7C	counter for turn order
 Do_act_start:
 	LDX #$00		; A746	$A2 $00		LOOP START turn order ==========
-	STX $A6			; A748	$86 $A6
+	STX target_tmp		; A748	$86 $A6
 	STX $2B			; A74A	$86 $2B
 	STX $7CB7		; A74C	$8E $B7 $7C	monster ran away
 Do_act_begin:
@@ -4635,7 +4639,7 @@ L3284A:
 L3284F:
 	JSR No_dmg_msg		; A84F	$20 $7E $BE
 	LDX #$00		; A852	$A2 $00
-	STX $A6			; A854	$86 $A6
+	STX target_tmp		; A854	$86 $A6
 	JMP Do_action_NMI	; A856	$4C $8C $A9
 L32859:
 	JSR Set_msg_nothing	; A859	$20 $93 $AC	do nothing this round - init ?? - dead or stone
@@ -4686,7 +4690,7 @@ L32892:
 	STA ($9F),Y		; A8B5	$91 $9F
 Do_act_atk:
 L328B7:
-	LDA $A6			; A8B7	$A5 $A6		do attack
+	LDA target_tmp		; A8B7	$A5 $A6		do attack
 	BNE L328D4		; A8B9	$D0 $19
 	LDY #$2B		; A8BB	$A0 $2B
 	LDA ($9F),Y		; A8BD	$B1 $9F		target m???aiii ??
@@ -4699,7 +4703,7 @@ L328B7:
 	SBC #$04		; A8C9	$E9 $04
 L328CB:
 	AND #$7F		; A8CB	$29 $7F
-	STA $A6			; A8CD	$85 $A6
+	STA target_tmp		; A8CD	$85 $A6
 	PLA			; A8CF	$68
 	AND #$80		; A8D0	$29 $80
 	STA ($9F),Y		; A8D2	$91 $9F
@@ -4752,7 +4756,7 @@ L32922:
 	JSR Get_target_status1	; A922	$20 $76 $AF
 	AND #$C0		; A925	$29 $C0		dead / stone
 	BEQ L32936		; A927	$F0 $0D
-	LDA $A6			; A929	$A5 $A6
+	LDA target_tmp		; A929	$A5 $A6
 	BEQ L32933		; A92B	$F0 $06
 	JSR Set_msg_nothing	; A92D	$20 $93 $AC	do nothing this round
 	JMP Do_action_NMI	; A930	$4C $8C $A9
@@ -5112,9 +5116,9 @@ L32BB7:
 	JMP $FB3C		; ABEC	$4C $3C $FB	battle victory
 Do_act_chk_tar:
 L32BEF:
-	LDA $A6			; ABEF	$A5 $A6
+	LDA target_tmp		; ABEF	$A5 $A6
 	BEQ L32C03		; ABF1	$F0 $10
-	DEC $A6			; ABF3	$C6 $A6
+	DEC target_tmp			; ABF3	$C6 $A6
 	BEQ L32C03		; ABF5	$F0 $0C
 	LDY #$2B		; ABF7	$A0 $2B		target
 	LDA ($9F),Y		; ABF9	$B1 $9F
@@ -6508,7 +6512,7 @@ L33487:
 	BEQ L3349B		; B496	$F0 $03
 	JMP Magic_ineft		; B498	$4C $73 $BE	magic ineffective
 L3349B:
-	LDA $A6			; B49B	$A5 $A6
+	LDA target_tmp		; B49B	$A5 $A6
 	BEQ L334B1		; B49D	$F0 $12
 	LDY #$26		; B49F	$A0 $26
 	LDA ($9F),Y		; B4A1	$B1 $9F		save attacker mod. spell %

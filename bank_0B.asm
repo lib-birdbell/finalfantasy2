@@ -4559,7 +4559,7 @@ L2EC60:
 ;	  $03 = attack animation type A/B
 ;	  $06 = inverted attack animation type A/B
 ; OAM[34-37], PPU ADDR [ $0500-$053F ]
-SR_AC71:
+SR_pose_normal:
 	LDA $03			; AC71	$A5 $03		attack animation type A/B ??
 	AND #$01		; AC73	$29 $01
 	EOR #$01		; AC75	$49 $01
@@ -4584,23 +4584,26 @@ SR_AC86:
 	JMP Atk_char_w_wpn_ani_last	; AC98	$4C $19 $AD
 ;
 
-; Fist
-SR_AC9B:
+; Marks	: Fist
+;	  $03 = attack animation type A/B
+;	  $04 = char_x_cpos
+;	  $05 = char_y_pos
+SR_pose_fist:
 	LDA $03			; AC9B	$A5 $03
 	AND #$01		; AC9D	$29 $01
 	BNE L2ECA7		; AC9F	$D0 $06
 	LDA #$F0		; ACA1	$A9 $F0
-	STA $0288		; ACA3	$8D $88 $02
+	STA $0288		; ACA3	$8D $88 $02	OAM[34] Y - hide
 	RTS			; ACA6	$60
 L2ECA7:
 	LDA $04			; ACA7	$A5 $04
 	SEC			; ACA9	$38
 	SBC #$05		; ACAA	$E9 $05
-	STA $06			; ACAC	$85 $06
+	STA $06			; ACAC	$85 $06		character X temp
 	LDA $05			; ACAE	$A5 $05
 	CLC			; ACB0	$18
 	ADC #$09		; ACB1	$69 $09
-	STA $07			; ACB3	$85 $07
+	STA $07			; ACB3	$85 $07		character Y temp
 	LDA $03			; ACB5	$A5 $03
 	AND #$02		; ACB7	$29 $02
 	BEQ L2ECBF		; ACB9	$F0 $04
@@ -4612,7 +4615,7 @@ L2ECBF:
 	LDA #$53		; ACC4	$A9 $53
 	STA $0289		; ACC6	$8D $89 $02	OAM[34] INDEX
 	LDX char_idx_atk	; ACC9	$A6 $26
-	LDA $7BB6,X		; ACCB	$BD $B6 $7B
+	LDA $7BB6,X		; ACCB	$BD $B6 $7B	character palette id
 	STA $028A		; ACCE	$8D $8A $02	OAM[34] ATTR
 	LDA $06			; ACD1	$A5 $06
 	STA $028B		; ACD3	$8D $8B $02	OAM[34] X
@@ -4640,7 +4643,7 @@ L2ECE8:
 ;	  $1D = weapon Y position temp
 ;	  $0A, $0B = weapon Y position temp
 ;	  from Atk_char_w_wpn_ani
-SR_ACEE:
+SR_pose_bow:
 	LDA #$0E		; ACEE	$A9 $0E
 	JSR Set_idx_attr	; ACF0	$20 $64 $AD	some OAM calcuration ??
 	LDA $1C			; ACF3	$A5 $1C		weapon X position temp
@@ -4770,13 +4773,13 @@ L2ED87:
 	RTS			; AD94	$60
 ; End of Set_idx_attr
 
-; $AD95 - data block = jump address[6:0-5]
+; $AD95 - data block = jump address[6:0-5] - buffer settings pose with weapon
 Atk_w_wpn_sr_tbl:
-.word SR_AC71			; AD95	$71 $AC		Sword
+.word SR_pose_normal		; AD95	$71 $AC		Sword
 .word SR_AC86			; AD97	$86 $AC
-.word SR_AC9B			; AD99	$9B $AC
+.word SR_pose_fist		; AD99	$9B $AC
 .word SR_ACD7			; AD9B	$D7 $AC
-.word SR_ACEE			; AD9D	$EE $AC		Bow
+.word SR_pose_bow		; AD9D	$EE $AC		Bow
 .word SR_AD09			; AD9F	$09 $AD
 
 .byte $0A
@@ -5719,14 +5722,14 @@ L2F360:
 	LDA $17			; B37D	$A5 $17
 	AND #$01		; B37F	$29 $01
 	BEQ L2F385		; B381	$F0 $02
-	LDX #$F0		; B383	$A2 $F0
+	LDX #$F0		; B383	$A2 $F0		OAM Y hide
 L2F385:
 	TXA			; B385	$8A
-	STA $0A			; B386	$85 $0A
-	STA $0B			; B388	$85 $0B
+	STA $0A			; B386	$85 $0A		OAM[34] (LT) Y
+	STA $0B			; B388	$85 $0B		OAM[35] (RT) Y
 	CLC			; B38A	$18
-	ADC #$08		; B38B	$69 $08
-	STA $0C			; B38D	$85 $0C
+	ADC #$08		; B38B	$69 $08		OAM[36] (LB) Y
+	STA $0C			; B38D	$85 $0C		OAM[37] (RB) Y
 	STA $0D			; B38F	$85 $0D
 	LDX $16			; B391	$A6 $16
 	LDA mob_widths,X	; B393	$BD $8A $7B	monster widths
@@ -5738,24 +5741,24 @@ L2F385:
 	ASL			; B3A1	$0A
 	ASL			; B3A2	$0A
 	ADC $00			; B3A3	$65 $00
-	STA $06			; B3A5	$85 $06
-	STA $08			; B3A7	$85 $08
+	STA $06			; B3A5	$85 $06		OAM[34] (LT) X
+	STA $08			; B3A7	$85 $08		OAM[36] (LB) X
 	CLC			; B3A9	$18
 	ADC #$08		; B3AA	$69 $08
-	STA $07			; B3AC	$85 $07
-	STA $09			; B3AE	$85 $09
-	LDX #$46		; B3B0	$A2 $46
-	STX $0E			; B3B2	$86 $0E
-	STX $10			; B3B4	$86 $10
+	STA $07			; B3AC	$85 $07		OAM[35] (RT) X
+	STA $09			; B3AE	$85 $09		OAM[37] (RB) X
+	LDX #$46		; B3B0	$A2 $46		Set tile to OAM[34-37] INDEX
+	STX $0E			; B3B2	$86 $0E		OAM[34] (LT) INDEX
+	STX $10			; B3B4	$86 $10		OAM[36] (LB) INDEX
 	INX			; B3B6	$E8
-	STX $0F			; B3B7	$86 $0F
-	STX $11			; B3B9	$86 $11
+	STX $0F			; B3B7	$86 $0F		OAM[35] (RT) INDEX
+	STX $11			; B3B9	$86 $11		OAM[37] (RB) INDEX
 	LDA #$02		; B3BB	$A9 $02
-	STA $12			; B3BD	$85 $12
-	STA $13			; B3BF	$85 $13
+	STA $12			; B3BD	$85 $12		OAM[34] (LT) ATTR
+	STA $13			; B3BF	$85 $13		OAM[35] (RT) ATTR
 	LDA #$82		; B3C1	$A9 $82
-	STA $14			; B3C3	$85 $14
-	STA $15			; B3C5	$85 $15
+	STA $14			; B3C3	$85 $14		OAM[36] (LB) ATTR
+	STA $15			; B3C5	$85 $15		OAM[37] (RB) ATTR
 	JSR Atk_char_w_wpn_ani_last	; B3C7	$20 $19 $AD
 	JSR Apply_OAM_pal	; B3CA	$20 $33 $9E	wait for vblank (menu, oam & color update)
 	LDA #$02		; B3CD	$A9 $02
@@ -6094,6 +6097,7 @@ L2F592:
 
 ; Name	; Atk_pose_snd
 ; SRC	: $26 = character index, $16 = atk_ani_AB_tmp
+;	  $19 = 
 ; X	: Sound effect index
 ; Marks	: attack pose with weapon and sound effect process
 Atk_pose_snd:
