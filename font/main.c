@@ -62,6 +62,9 @@ int main(int argc, char** argv){
 
 	if(argc < 2){
 		printf("How to use.\n");
+		printf(" -c font check mode");
+		printf(" -u unicode mode");
+		printf(" -o output mode");
 		return 0;
 	}
 
@@ -424,6 +427,39 @@ int font_check_mode(char *font_value){
 		}
 		printf("\n");
 	}
+
+	for(i=0;i<8;i++){
+		unsigned char byte1;
+	
+		div = (nXpos * 18) / 8;
+		mod = (nXpos * 18) % 8;
+		tmp[0] = pChar[CALC + div];
+		tmp[1] = pChar[CALC + div +1];
+		//printf("pos=%d, mod=%d, %02xh%02xh\n", (nLine*height - (nLine*(i+1+2)) -(nLine*nYpos*18)) + div, mod, tmp[0], tmp[1]);
+		tmp16 = (tmp[0] << 8) | (tmp[1]);
+	
+		byte1 = 0;
+		count8=8;
+		for(j=15;j>=0;j--){
+			if(mod+2){
+				mod--;
+				continue;
+			}
+
+			byte1 = byte1 << 1;
+			if((tmp16 >> j) & 0x01){
+				;
+			}else{
+				byte1 |= 0x01;
+			}
+			count8--;
+			if(count8 == 0){
+				break;
+			}
+		}
+		printf("$%02x,", byte1);
+	}
+	printf("\n");
 
 	free(pBuf);
 	close(fd);

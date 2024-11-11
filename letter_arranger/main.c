@@ -17,7 +17,7 @@
 // 32 characters per Line
 #define	FONT_X_OFFSET	18
 
-#define VERSION		"1.01"
+#define VERSION		"1.02"
 
 #pragma pack(push,1)
 struct bmp_header {
@@ -182,7 +182,7 @@ int UNICODEtoInt(char *ch){
 // 4K bytes letters counter
 #define	MAX_LETTERS_SIZE	(4*1024*4)
 int Table_mode(char *input_file, char *output_file){
-	int fd;
+	FILE *fd;
 	struct stat st;
 	int nFileSize = 0;
 	unsigned char *pBuf;
@@ -254,21 +254,21 @@ int Table_mode(char *input_file, char *output_file){
 	nFileSize = st.st_size;
 
 	// Open
-	fd = open(input_file_path, O_RDWR);
+	fd = fopen(input_file_path, "rb");
 	free(input_file_path);
-	if(fd < 0){
-		printf("File open failed %d\n", fd);
-		return fd;
+	if(fd == NULL){
+		printf("File open failed!\n");
+		return -EINVAL;
 	}
 	pBuf = (unsigned char*)malloc(sizeof(unsigned char) * nFileSize);
 	if(pBuf == NULL){
 		printf("Memory allocation failed.\n");
-		close(fd);
+		fclose(fd);
 		return -ENOMEM;
 	}
 
 	// Read
-	read(fd, pBuf, nFileSize);
+	fread(pBuf, 1, nFileSize, fd);
 
 	// Check letters - Only hangul is valid
 	nLetters = 0;
@@ -419,7 +419,7 @@ int Table_mode(char *input_file, char *output_file){
 	free(unicodes);
 	free(letters);
 	free(pBuf);
-	close(fd);
+	fclose(fd);
 
 	return ret;
 }
@@ -427,7 +427,7 @@ int Table_mode(char *input_file, char *output_file){
 
 
 int Anal_mode(char *input_file, char *output_file){
-	int fd;
+	FILE *fd;
 	struct stat st;
 	int nFileSize = 0;
 	unsigned char *pBuf;
@@ -499,21 +499,24 @@ int Anal_mode(char *input_file, char *output_file){
 	nFileSize = st.st_size;
 
 	// Open
-	fd = open(input_file_path, O_RDWR);
+	fd = fopen(input_file_path, "rb");
 	free(input_file_path);
-	if(fd < 0){
-		printf("File open failed %d\n", fd);
-		return fd;
+	if(fd == NULL){
+		printf("File open failed!\n");
+		return -EINVAL;
 	}
 	pBuf = (unsigned char*)malloc(sizeof(unsigned char) * nFileSize);
 	if(pBuf == NULL){
 		printf("Memory allocation failed.\n");
-		close(fd);
+		fclose(fd);
 		return -ENOMEM;
 	}
 
+	fseek(fd, 0, SEEK_SET);
+	memset(pBuf, 0x00, sizeof(unsigned char) * nFileSize);
+
 	// Read
-	read(fd, pBuf, nFileSize);
+	fread(pBuf, 1, nFileSize, fd);
 
 	// Check letters
 	nLetters = 0;
@@ -539,6 +542,7 @@ int Anal_mode(char *input_file, char *output_file){
 					oneLetter[1] = pBuf[i+1];
 					oneLetter[2] = pBuf[i+2];
 					oneLetter[3] = '\0';
+
 					i+=2;
 					ret = Check_duplicate(oneLetter, letters, nLetters, MAX_LETTERS_SIZE);
 					if(ret){	// Duplicated
@@ -592,7 +596,7 @@ int Anal_mode(char *input_file, char *output_file){
 
 	// Sort by upper
 	for(i=0;i<nLetters;i+=4){
-		for(j=4;j<nLetters-i;j+=4){
+		for(j=4;j<nLetters;j+=4){
 			// Swap
 			if(repeatCnt[(j/4) -1] > repeatCnt[j/4]){
 				// Swap count
@@ -640,12 +644,13 @@ int Anal_mode(char *input_file, char *output_file){
 			fprintf(fp, "\n");
 			continue;
 		}
+
 		fprintf(fp, "%c", letters[i+0]);
 		if(letters[i+1] != '\0'){
 			fprintf(fp, "%c", letters[i+1]);
 		}
 		if(letters[i+2] != '\0'){
-			fprintf(fp, "%c", letters[i+2]);
+			fprintf(fp, "%c", letters[i+2]);	
 		}
 		if(letters[i+3] != '\0'){
 			fprintf(fp, "%c", letters[i+3]);
@@ -672,7 +677,7 @@ int Anal_mode(char *input_file, char *output_file){
 	free(repeatCnt);
 	free(letters);
 	free(pBuf);
-	close(fd);
+	fclose(fd);
 
 	return 0;
 }

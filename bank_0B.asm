@@ -2513,7 +2513,7 @@ L2E0A2:
 L2E0AF:
 	STA $7BC2,X		; A0AF	$9D $C2 $7B	character lower sprite pose ??
 	STA $7BC6,X		; A0B2	$9D $C6 $7B	init character base x positions
-	JSR Get_char_x		; A0B5	$20 $02 $A1
+	JSR Init_char_x		; A0B5	$20 $02 $A1
 	LDX $10			; A0B8	$A6 $10
 	JSR Draw_char		; A0BA	$20 $3A $A4
 	LDX $10			; A0BD	$A6 $10
@@ -2555,11 +2555,11 @@ L2E0F2:
 	JMP Apply_OAM_pal	; A0FF	$4C $33 $9E
 ; End of Char_entry
 
-; Name	: Get_char_x
+; Name	: Init_char_x
 ; X	: Character index(00h-03h)
 ; Marks	: Character back/front row to character x position (base)
-;	  init character base x position
-Get_char_x:
+;	  Initialize character base x position to back/front row value
+Init_char_x:
 	LDA #$D0		; A102	$A9 $D0		x = 208, front row
 	LDY $7BBE,X		; A104	$BC $BE $7B
 	BEQ L2E10B		; A107	$F0 $02		branch if in front row
@@ -2567,7 +2567,7 @@ Get_char_x:
 L2E10B:
 	STA char_x_bpos,X	; A10B	$9D $D2 $7B
 	RTS			; A10E	$60
-; End of Get_char_x
+; End of Init_char_x
 
 ; Name	: Calc_attr_tbl
 ; A	: repeat count($03) - monster height
@@ -3394,16 +3394,16 @@ L2E5B9:
 Char_pose:
 	JSR Init_char_spritep	; A5BA	$20 $8B $9C	Check back/front row, set pointers to char sprite
 	LDX #$03		; A5BD	$A2 $03
-	STX $10			; A5BF	$86 $10		temp char idx ??
+	STX $10			; A5BF	$86 $10		temp character index
 L2E5C1:
-	JSR Get_char_x		; A5C1	$20 $02 $A1
+	JSR Init_char_x		; A5C1	$20 $02 $A1
 	LDA char_x_cpos,X	; A5C4	$BD $CA $7B
 	CMP char_x_bpos,X	; A5C7	$DD $D2 $7B
-	BEQ L2E5CF		; A5CA	$F0 $03
+	BEQ L2E5CF		; A5CA	$F0 $03		branch if character current-base X is same
 	JSR Draw_pose_buf_x	; A5CC	$20 $80 $A6	set OAM buffer
 L2E5CF:
-	DEC $10			; A5CF	$C6 $10		temp char idx ??
-	LDX $10			; A5D1	$A6 $10		temp char idx ??
+	DEC $10			; A5CF	$C6 $10		temp character index
+	LDX $10			; A5D1	$A6 $10		temp character index
 	BPL L2E5C1		; A5D3	$10 $EC		loop
 	JSR Show_char_pos	; A5D5	$20 $95 $A6	Show character status move graphic
 	LDX #$03		; A5D8	$A2 $03
@@ -3411,8 +3411,8 @@ L2E5CF:
 L2E5DC:
 	LDA char_x_bpos,X	; A5DC	$BD $D2 $7B
 	CMP char_x_cpos,X	; A5DF	$DD $CA $7B
-	BEQ L2E5EF		; A5E2	$F0 $0B
-	BCC L2E5EC		; A5E4	$90 $06
+	BEQ L2E5EF		; A5E2	$F0 $0B		branch if character current-base X is same
+	BCC L2E5EC		; A5E4	$90 $06		branch if character x base < current
 	JSR Char_mov_base	; A5E6	$20 $33 $A6
 	JMP L2E5EF		; A5E9	$4C $EF $A5
 L2E5EC:
