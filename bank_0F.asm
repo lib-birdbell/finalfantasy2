@@ -2,96 +2,96 @@
 .include "variables.inc"
 
 .export L3FD8C
-.export L3FA2A			;FA2A
-.export Set_IRQ_JMP		;FA2A
-.export	Do_009880		;FAFB
-.export Init_Page2		;C46E
+.export L3FA2A				;FA2A
+.export Set_IRQ_JMP			;FA2A
+.export	Do_009880			;FAFB
+.export Init_Page2			;C46E
 ;C74F
-.export Check_savefile		;DAC1
-.export SndE_cur_sel		;DB2E
-.export SndE_cur_mov		;DB45
-.export Get_key			;DBA9
-.export Palette_copy		;DC30
-.export	Set_cursor		;DEA1
-.export Init_CHR_RAM		;E491		
-.export Clear_Nametable0	;F321
-.export	Ret_to_map		;FA0F
-.export	SR_Battle_pose		;FABC
-.export	SR_Battle_target	;FAC0
-.export	SR_Battle_front		;FAC4
-.export	SR_Battle_mob_dead	;FAC8
-.export	SR_Battle_attack	;FACC
-.export	SR_Battle_cursor	;FAD0
-.export	SR_Battle_char		;FAD4
-.export	SR_Battle_win		;FAD8
-.export	SR_Battle_fadeout	;FADC
-.export	SR_Battle_set_status	;FAE0
-.export SR_Battle_status_ani	;FAE4
-.export	SR_Battle_runaway	;FAE8
-.export	SR_battle_defeat	;FAEC
-.export	SR_BattleMain		;FB06
-.export	SR_SortVal		;FB0C
-.export	SR_Init_battle_stats	;FB17
-.export	Set_mob_gfx		;FB62
-.export	Load_text_gfx		;FB84
-.export	Copy_char_tile		;FBBA
-.export	Get_data_BANK_0C	;FBE6
-.export	Set_wpn_pal		;FC03
-.export	Multi			;FC79
-.export	Multi16			;FC98
-.export DoDivision		;FCC3
-.export	Get_nybble		;FD07
-.export Random			;FD11
-.export	Ctrl_Scroll		;FD4B
-.export	Weapon_type		;FDC7
-.export Wait_NMI_end		;FD46
-.export	Wait_MENU_snd		;FD5B
-.export	Set_buf_to_Ppu		;FD6F
-.export	Set_PpuAddr_00		;FD7E
-.export Wait_NMI		;FE00
-.export Swap_PRG_		;FE03
-.export	OnReset			;FE2E
-.export	Init_variables		;FFB0
+.export Check_savefile			;DAC1
+.export SndE_cur_sel			;DB2E
+.export SndE_cur_mov			;DB45
+.export Get_key				;DBA9
+.export Palette_copy			;DC30
+.export	Set_cursor			;DEA1
+.export Init_CHR_RAM			;E491		
+.export Clear_Nametable0		;F321
+.export	Ret_to_map			;FA0F
+.export	SR_Battle_pose			;FABC
+.export	SR_Battle_target		;FAC0
+.export	SR_Battle_front			;FAC4
+.export	SR_Battle_mob_dead		;FAC8
+.export	SR_Battle_attack		;FACC
+.export	SR_Battle_cursor		;FAD0
+.export	SR_Battle_char			;FAD4
+.export	SR_Battle_win			;FAD8
+.export	SR_Battle_fadeout		;FADC
+.export	SR_Battle_set_status		;FAE0
+.export SR_Battle_status_ani		;FAE4
+.export	SR_Battle_runaway		;FAE8
+.export	SR_battle_defeat		;FAEC
+.export	SR_BattleMain			;FB06
+.export	SR_SortVal			;FB0C
+.export	SR_Init_battle_stats		;FB17
+.export	Set_mob_gfx			;FB62
+.export	Load_text_gfx			;FB84
+.export	Copy_char_tile			;FBBA
+.export	Get_data_BANK_0C		;FBE6
+.export	Set_wpn_pal			;FC03
+.export	Multi				;FC79
+.export	Multi16				;FC98
+.export DoDivision			;FCC3
+.export	Get_nybble			;FD07
+.export Random				;FD11
+.export	Ctrl_Scroll			;FD4B
+.export	Weapon_type			;FDC7
+.export Wait_NMI_end			;FD46
+.export	Wait_MENU_snd			;FD5B
+.export	Set_buf_to_Ppu			;FD6F
+.export	Set_PpuAddr_00			;FD7E
+.export Wait_NMI			;FE00
+.export Swap_PRG_			;FE03
+.export	OnReset				;FE2E
+.export	Init_variables			;FFB0
 
-.import	Update_char_equip 	;9880 - bank_00
-.import	Init_map		;9C00 - bank_00
-.import	Init_wmap		;9C03 - bank_00
-.import	Set_wmap_palettes	;9C06 - bank_00
-.import	Init_var		;9C09 - bank_00
-.import	Load_guest_char_prop	;9C0C - bank_00
-.import bg_tilemap_id		;B200 - bank_00
-.import wmap_ent_x		;B400 - bank_00
-.import wmap_ent_y		;B440 - bank_00
-.import wmap_ent_id		;B480 - bank_00
+.import	Update_char_equip 		;9880 - bank_00
+.import	Init_map			;9C00 - bank_00
+.import	Init_wmap			;9C03 - bank_00
+.import	Set_wmap_palettes		;9C06 - bank_00
+.import	Init_var			;9C09 - bank_00
+.import	Load_guest_char_prop		;9C0C - bank_00
+.import bg_tilemap_id			;B200 - bank_00
+.import wmap_ent_x			;B400 - bank_00
+.import wmap_ent_y			;B440 - bank_00
+.import wmap_ent_id			;B480 - bank_00
 
-.import	Map_rnd_battle_rate	;8000 - bank_0B
-.import	Nmap_battle_grp		;8100 - bank_0B
-.import	Wmap_battle_grp		;8200 - bank_0B
-.import	Rnd_battle_grp		;8280 - bank_0B
-.import	Char_pose_0B		;9612 = bank_0B
-.import	Chk_mag_target_0B	;9615 = bank_0B
-.import	Set_front_0B		;9618 - bank_0B
-.import	Mob_dead_ani_0B		;961B - bank_0B
-.import	Attack_0B		;961E - bank_0B
-.import	Copy_cursor_0B		;9621 - bank_0B
-.import	Load_char_0B		;9624 - bank_0B
-.import	Win_celemony_0B		;9627 - bank_0B
-.import	Fade_out_0B		;962A - bank_0B
-.import	Set_status_gfx_0B	;962D - bank_0B
-.import	Status_ani_0B		;9630 - bank_0B
-.import	Run_away_0B		;9633 - bank_0B
-.import	Battle_defeat_0B	;9636 - bank_0B
-.import	Init_battle		;9639 - bank_0B
+.import	Map_rnd_battle_rate		;8000 - bank_0B
+.import	Nmap_battle_grp			;8100 - bank_0B
+.import	Wmap_battle_grp			;8200 - bank_0B
+.import	Rnd_battle_grp			;8280 - bank_0B
+.import	Char_pose_0B			;9612 = bank_0B
+.import	Chk_mag_target_0B		;9615 = bank_0B
+.import	Set_front_0B			;9618 - bank_0B
+.import	Mob_dead_ani_0B			;961B - bank_0B
+.import	Attack_0B			;961E - bank_0B
+.import	Copy_cursor_0B			;9621 - bank_0B
+.import	Load_char_0B			;9624 - bank_0B
+.import	Win_celemony_0B			;9627 - bank_0B
+.import	Fade_out_0B			;962A - bank_0B
+.import	Set_status_gfx_0B		;962D - bank_0B
+.import	Status_ani_0B			;9630 - bank_0B
+.import	Run_away_0B			;9633 - bank_0B
+.import	Battle_defeat_0B		;9636 - bank_0B
+.import	Init_battle			;9639 - bank_0B
 
-.import	BattleMain_bank0C	;8F43 - bank_0C
-.import SortVal_bank0C		;8F46 - bank_0C
-.import Init_battle_stats_bank0C	;8F49 - bank_0C
-.import Copy_txt_buf_bank0C	;8F4C - bank_0C
-.import Open_win_bank0C		;8F4F - bank_0C
-.import Update_addr_bank0C	;8F52 - bank_0C
-.import HtoD_bank0C		;8F55 - bank_0C
-.import Get_win_pos_datap_bank0C	;8F58 - bank_0C
-.import Move_OAM_XY_bank0C	;8F5B - bank_0C
+.import	BattleMain_bank0C		;8F43 - bank_0C
+.import SortVal_bank0C			;8F46 - bank_0C
+.import Init_battle_stats_bank0C		;8F49 - bank_0C
+.import Copy_txt_buf_bank0C		;8F4C - bank_0C
+.import Open_win_bank0C			;8F4F - bank_0C
+.import Update_addr_bank0C		;8F52 - bank_0C
+.import HtoD_bank0C			;8F55 - bank_0C
+.import Get_win_pos_datap_bank0C		;8F58 - bank_0C
+.import Move_OAM_XY_bank0C		;8F5B - bank_0C
 
 
 .segment "BANK_FIXED"
@@ -101,14 +101,14 @@
 
 ; Name	:
 ; Marks	: Some init code
-	JMP BOOT0		; C000  $4C $25 $C0	program start
+	JMP BOOT0			; C000  $4C $25 $C0	program start
 L3C003:
     JMP L3DCE3               ; C003  $4C $E3 $DC	filter map bg palette
     JMP $F34D                ; C006  $4C $4D $F3	end credits
 L3C009:
     JMP L3C74F               ; C009  $4C $4F $C7	update sound
-	JMP Key_process		; C00C  $4C $A2 $DB	update joypad input
-    JMP Palette_copy		; JMP $DC30                ; C00F  $4C $30 $DC
+	JMP Key_process			; C00C  $4C $A2 $DB	update joypad input
+    JMP Palette_copy			; JMP $DC30                ; C00F  $4C $30 $DC
     JMP $C018                ; C012  $4C $18 $C0	load guest character properties
     JMP $F2C8                ; C015  $4C $C8 $F2	validata character rows
 
@@ -116,149 +116,149 @@ L3C009:
 ; Marks	: load guest character properties
 ;	  use BANK 03, BANK 0E
 Load_guest_char:
-	LDA #$00		; C018  $A9 $00
-	JSR Swap_PRG_		; C01A  $20 $03 $FE
-	JSR Load_guest_char_prop	; C01D  $20 $0C $9C
-	LDA #$0E		; C020  $A9 $0E
-	JMP Swap_PRG_		; C022  $4C $03 $FE
+	LDA #$00			; C018  $A9 $00
+	JSR Swap_PRG_			; C01A  $20 $03 $FE
+	JSR Load_guest_char_prop		; C01D  $20 $0C $9C
+	LDA #$0E			; C020  $A9 $0E
+	JMP Swap_PRG_			; C022  $4C $03 $FE
 ; End of Load_guest_char
 
 ; program start
 BOOT0:
-	LDA #$00		; C025  $A9 $00
-	STA PpuMask_2001	; C027  $8D $01 $20	PPU disable
-	STA ppu_mask		; C02A  $85 $FE
-	LDA #$88		; C02C  $A9 $88
-	STA ppu_con_c		; C02E  $85 $FF
-	STA ppu_con_p		; C030  $85 $FD
-	; Set PPU
-	; 7bit NMI on
-	; 6bit ?
-	; 5bit Sprite size = 8x8 
-	; 4bit Background pattern table = $0000
-	; 3bit Sprite pattern table address for 8x8 = $1000
-	; 2bit VRAM address increment per CPU read/write of PPUDATA = add 1, going across
-	; 0-1bits Base nametable address = $2000
-	STA PpuControl_2000	; C032  $8D $00 $20
-	LDX #$FF		; C035  $A2 $FF	current BGM ID
-	STX current_BGM_ID	; C037  $8E $25 $6F
-	TXS			; C03A  $9A
-	LDA #$00		; C03B  $A9 $00
-	JSR APU_init		; C03D  $20 $A0 $C4
-	; RAM init $00 - $EF = #$00, $3C0 - $3DF = #$0F
-	JSR RAM_init		; C040  $20 $86 $C4
-	; RAM init $200 - $2FF = #$F0
-	JSR Init_Page2		; C043  $20 $6E $C4
-	; Set NMI
-	JSR Wait_NMI		; C046  $20 $00 $FE
-	LDA #$02		; C049  $A9 $02		copy OAM buffer(200h) to PPU
-	STA SpriteDma_4014	; C04B  $8D $14 $40
-	JSR Palette_copy	; C04E  $20 $30 $DC
-	; #$77 is intro skip flag in $FA
-	LDA skip_intro		; C051  $A5 $FA
-	CMP #$77		; C053  $C9 $77
-	BEQ SAVEFILE_SEL	; C055  $F0 $0F		branch if not a hard reset
-	LDA #$77		; C057  $A9 $77
-	STA skip_intro		; C059  $85 $FA
-	JSR Show_title_screen	; C05B  $20 $76 $F4	splash screen
-	LDA #$0E		; C05E  $A9 $0E
-	JSR Swap_PRG_		; C060  $20 $03 $FE
-	JSR $B890		; C063  $20 $90 $B8	Show title story - BANK 0E/B890 (prophecy)
+	LDA #$00			; C025  $A9 $00
+	STA PpuMask_2001		; C027  $8D $01 $20	PPU disable
+	STA ppu_mask			; C02A  $85 $FE
+	LDA #$88			; C02C  $A9 $88
+	STA ppu_con_c			; C02E  $85 $FF
+	STA ppu_con_p			; C030  $85 $FD
+		; Set PPU
+		; 7bit NMI on
+		; 6bit ?
+		; 5bit Sprite size = 8x8 
+		; 4bit Background pattern table = $0000
+		; 3bit Sprite pattern table address for 8x8 = $1000
+		; 2bit VRAM address increment per CPU read/write of PPUDATA = add 1, going across
+		; 0-1bits Base nametable address = $2000
+	STA PpuControl_2000		; C032  $8D $00 $20
+	LDX #$FF			; C035  $A2 $FF	current BGM ID
+	STX current_BGM_ID		; C037  $8E $25 $6F
+	TXS				; C03A  $9A
+	LDA #$00			; C03B  $A9 $00
+	JSR APU_init			; C03D  $20 $A0 $C4
+		; RAM init $00 - $EF = #$00, $3C0 - $3DF = #$0F
+	JSR RAM_init			; C040  $20 $86 $C4
+		; RAM init $200 - $2FF = #$F0
+	JSR Init_Page2			; C043  $20 $6E $C4
+		; Set NMI
+	JSR Wait_NMI			; C046  $20 $00 $FE
+	LDA #$02			; C049  $A9 $02		copy OAM buffer(200h) to PPU
+	STA SpriteDma_4014		; C04B  $8D $14 $40
+	JSR Palette_copy		; C04E  $20 $30 $DC
+		; #$77 is intro skip flag in $FA
+	LDA skip_intro			; C051  $A5 $FA
+	CMP #$77			; C053  $C9 $77
+	BEQ SAVEFILE_SEL		; C055  $F0 $0F		branch if not a hard reset
+	LDA #$77			; C057  $A9 $77
+	STA skip_intro			; C059  $85 $FA
+	JSR Show_title_screen		; C05B  $20 $76 $F4	splash screen
+	LDA #$0E			; C05E  $A9 $0E
+	JSR Swap_PRG_			; C060  $20 $03 $FE
+	JSR $B890			; C063  $20 $90 $B8	Show title story - BANK 0E/B890 (prophecy)
 SAVEFILE_SEL:
-	LDA #$0E		; C066  $A9 $0E
-	JSR Swap_PRG_		; C068  $20 $03 $FE
-	JSR $B642		; C06B  $20 $42 $B6	select save file or new game - BANK 0E/B642 (game load menu)
-	PHP			; C06E  $08
-	JSR RAM_init		; C06F  $20 $86 $C4
-	LDA ow_save_pos_x	; C072  $AD $10 $60
-	STA ow_x_pos		; C075  $85 $27
-	LDA ow_save_pos_y	; C077  $AD $11 $60
-	STA ow_y_pos		; C07A  $85 $28
-	LDA $6018		; C07C  $AD $18 $60	current vehicle ID
-	STA p_map2		; C07F  $85 $46		prvious vehicle id ??
-	STA vehicle_ID		; C081  $85 $42
-	PLP			; C083  $28
-	BCS L3C0B8		; C084  $B0 $32		branch if not a new game - select savefile
-	LDA #$08		; C086  $A9 $08		ch_stats_4 character is Leon - NEW GAME
-	STA ch_stats_4		; C088  $8D $C0 $61
-	LDX #$00		; C08B  $A2 $00
-	LDA #$7F		; C08D  $A9 $7F
-	JSR Battle_start	; C08F  $20 $00 $FA	battle code - story ??
-	LDA #$80		; C092  $A9 $80
-	STA $62F5		; C094  $8D $F5 $62	trigger id ?? (event??)
-	LDX #$00		; C097  $A2 $00
-	LDA #$00		; C099  $A9 $00
-	JSR Swap_PRG_		; C09B  $20 $03 $FE
-	LDA $B400,X		; C09E  $BD $00 $B4
-	SEC			; C0A1  $38
-	SBC #$07		; C0A2  $E9 $07
-	AND #$3F		; C0A4  $29 $3F
-	STA $29			; C0A6  $85 $29		x position
-	LDA $B440,X		; C0A8  $BD $40 $B4
-	SEC			; C0AB  $38
-	SBC #$07		; C0AC  $E9 $07
-	STA $2A			; C0AE  $85 $2A		y position
-	LDA $B480,X		; C0B0  $BD $80 $B4
-	STA $48			; C0B3  $85 $48		map id
-	JSR L3CA41		; C0B5  $20 $41 $CA	map main
+	LDA #$0E			; C066  $A9 $0E
+	JSR Swap_PRG_			; C068  $20 $03 $FE
+	JSR $B642			; C06B  $20 $42 $B6	select save file or new game - BANK 0E/B642 (game load menu)
+	PHP				; C06E  $08
+	JSR RAM_init			; C06F  $20 $86 $C4
+	LDA ow_save_pos_x		; C072  $AD $10 $60
+	STA ow_x_pos			; C075  $85 $27
+	LDA ow_save_pos_y		; C077  $AD $11 $60
+	STA ow_y_pos			; C07A  $85 $28
+	LDA $6018			; C07C  $AD $18 $60	current vehicle ID
+	STA p_map2			; C07F  $85 $46		prvious vehicle id ??
+	STA vehicle_ID			; C081  $85 $42
+	PLP				; C083  $28
+	BCS L3C0B8			; C084  $B0 $32		branch if not a new game - select savefile
+	LDA #$08			; C086  $A9 $08		ch_stats_4 character is Leon - NEW GAME
+	STA ch_stats_4			; C088  $8D $C0 $61
+	LDX #$00			; C08B  $A2 $00
+	LDA #$7F			; C08D  $A9 $7F
+	JSR Battle_start		; C08F  $20 $00 $FA	battle code - story ??
+	LDA #$80			; C092  $A9 $80
+	STA $62F5			; C094  $8D $F5 $62	trigger id ?? (event??)
+	LDX #$00			; C097  $A2 $00
+	LDA #$00			; C099  $A9 $00
+	JSR Swap_PRG_			; C09B  $20 $03 $FE
+	LDA $B400,X			; C09E  $BD $00 $B4
+	SEC				; C0A1  $38
+	SBC #$07			; C0A2  $E9 $07
+	AND #$3F			; C0A4  $29 $3F
+	STA $29				; C0A6  $85 $29		x position
+	LDA $B440,X			; C0A8  $BD $40 $B4
+	SEC				; C0AB  $38
+	SBC #$07			; C0AC  $E9 $07
+	STA $2A				; C0AE  $85 $2A		y position
+	LDA $B480,X			; C0B0  $BD $80 $B4
+	STA $48				; C0B3  $85 $48		map id
+	JSR L3CA41			; C0B5  $20 $41 $CA	map main
 ; world map main
 L3C0B8:
-	LDA #$00		; C0B8  $A9 $00
-	STA ApuStatus_4015	; C0BA  $8D $15 $40
-	JSR $C832		; C0BD  $20 $32 $C8	variables init - load world map
-	JSR $D7F0		; C0C0  $20 $F0 $D7	Show world map using slate in effect - screen wipe in
+	LDA #$00			; C0B8  $A9 $00
+	STA ApuStatus_4015		; C0BA  $8D $15 $40
+	JSR $C832			; C0BD  $20 $32 $C8	variables init - load world map
+	JSR $D7F0			; C0C0  $20 $F0 $D7	Show world map using slate in effect - screen wipe in
 L3C0C3:
-	LDX #$FF		; C0C3  $A2 $FF		Stack pointer reset
-	TXS			; C0C5  $9A
-	JSR Get_bat_bg		; C0C6  $20 $5C $C7
+	LDX #$FF			; C0C3  $A2 $FF		Stack pointer reset
+	TXS				; C0C5  $9A
+	JSR Get_bat_bg			; C0C6  $20 $5C $C7
 WM_LOOP:
-	JSR Wait_NMI		; C0C9  $20 $00 $FE
-	LDA #$02		; C0CC  $A9 $02
-	STA SpriteDma_4014	; C0CE  $8D $14 $40
-	JSR Map_water_flow	; C0D1  $20 $F3 $C2
-	JSR $C36F		; C0D4  $20 $6F $C3	Character_movement ?? - update scrolling
-	LDA frame_cnt_L		; C0D7  $A5 $F0		Increase frame counter
-	CLC			; C0D9  $18
-	ADC #$01		; C0DA  $69 $01
-	STA frame_cnt_L		; C0DC  $85 $F0
-	LDA frame_cnt_H		; C0DE  $A5 $F1
-	ADC #$00		; C0E0  $69 $00
-	STA frame_cnt_H		; C0E2  $85 $F1
-	JSR L3C746		; C0E4  $20 $46 $C7	sound process ??
-	LDA $46			; C0E7  $A5 $46		previous vehicle id ??
-	CMP #$01		; C0E9  $C9 $01
-	BNE L3C0FB		; C0EB  $D0 $0E
-	LDA ver_stile_pos	; C0ED  $A5 $36
-	ORA hor_stile_pos	; C0EF  $05 $35
-	CMP #$08		; C0F1  $C9 $08
-	BNE L3C0FB		; C0F3  $D0 $06		if A != 08h
-	LDA tile_prop		; C0F5  $A5 $44		tile property ??
-	AND #$10		; C0F7  $29 $10
-	STA $43			; C0F9  $85 $43		check entrance ??
+	JSR Wait_NMI			; C0C9  $20 $00 $FE
+	LDA #$02			; C0CC  $A9 $02
+	STA SpriteDma_4014		; C0CE  $8D $14 $40
+	JSR Map_water_flow		; C0D1  $20 $F3 $C2
+	JSR $C36F			; C0D4  $20 $6F $C3	Character_movement ?? - update scrolling
+	LDA frame_cnt_L			; C0D7  $A5 $F0		Increase frame counter
+	CLC				; C0D9  $18
+	ADC #$01			; C0DA  $69 $01
+	STA frame_cnt_L			; C0DC  $85 $F0
+	LDA frame_cnt_H			; C0DE  $A5 $F1
+	ADC #$00			; C0E0  $69 $00
+	STA frame_cnt_H			; C0E2  $85 $F1
+	JSR L3C746			; C0E4  $20 $46 $C7	sound process ??
+	LDA $46				; C0E7  $A5 $46		previous vehicle id ??
+	CMP #$01			; C0E9  $C9 $01
+	BNE L3C0FB			; C0EB  $D0 $0E
+	LDA ver_stile_pos		; C0ED  $A5 $36
+	ORA hor_stile_pos		; C0EF  $05 $35
+	CMP #$08			; C0F1  $C9 $08
+	BNE L3C0FB			; C0F3  $D0 $06		if A != 08h
+	LDA tile_prop			; C0F5  $A5 $44		tile property ??
+	AND #$10			; C0F7  $29 $10
+	STA $43				; C0F9  $85 $43		check entrance ??
 L3C0FB:
-	LDA mov_spd		; C0FB  $A5 $34
-	BNE L3C109		; C0FD  $D0 $0A
-	LDA $46			; C0FF  $A5 $46		previous vehicle id ?? next vehicle id ??
-	STA vehicle_ID		; C101  $85 $42
-	JSR $C159		; C103  $20 $59 $C1	check tile properties and pressed key ?? - check triggers/menu
-	JSR $C266		; C106  $20 $66 $C2	check event/key by timer/vehicle??/cannot move?? - check player input
+	LDA mov_spd			; C0FB  $A5 $34
+	BNE L3C109			; C0FD  $D0 $0A
+	LDA $46				; C0FF  $A5 $46		previous vehicle id ?? next vehicle id ??
+	STA vehicle_ID			; C101  $85 $42
+	JSR $C159			; C103  $20 $59 $C1	check tile properties and pressed key ?? - check triggers/menu
+	JSR $C266			; C106  $20 $66 $C2	check event/key by timer/vehicle??/cannot move?? - check player input
 L3C109:
-	JSR Init_Page2		; C109  $20 $6E $C4
-	JSR $E009		; C10C  $20 $09 $E0	sprite ?? check vehicle ?? - update sprites
-	LDA airship_flag	; C10F  $AD $04 $60
-	ORA $6C			; C112  $05 $6C
-	BNE L3C126		; C114  $D0 $10
-	LDA $6013		; C116  $AD $13 $60
-	ASL A			; C119  $0A
-	BCS L3C126		; C11A  $B0 $0A
-	LDA #$03		; C11C  $A9 $03
-	JSR Swap_PRG_		; C11E  $20 $03 $FE
-	LDX #$02		; C121  $A2 $02		event code value = 02h
-	JSR $A003		; C123  $20 $03 $A0	BANK 03/A003 event code - check airship ??
+	JSR Init_Page2			; C109  $20 $6E $C4
+	JSR $E009			; C10C  $20 $09 $E0	sprite ?? check vehicle ?? - update sprites
+	LDA airship_flag		; C10F  $AD $04 $60
+	ORA $6C				; C112  $05 $6C
+	BNE L3C126			; C114  $D0 $10
+	LDA $6013			; C116  $AD $13 $60
+	ASL A				; C119  $0A
+	BCS L3C126			; C11A  $B0 $0A
+	LDA #$03			; C11C  $A9 $03
+	JSR Swap_PRG_			; C11E  $20 $03 $FE
+	LDX #$02			; C121  $A2 $02		event code value = 02h
+	JSR $A003			; C123  $20 $03 $A0	BANK 03/A003 event code - check airship ??
 L3C126:
-	LDA vehicle_ID		; C126  $A5 $42
-	AND #$0C		; C128  $29 $0C		Airship / Ship
-	BEQ WM_LOOP		; C12A  $F0 $9D		LOOP - WORLD MAP
+	LDA vehicle_ID			; C126  $A5 $42
+	AND #$0C			; C128  $29 $0C		Airship / Ship
+	BEQ WM_LOOP			; C12A  $F0 $9D		LOOP - WORLD MAP
 ; update airship noise
     CMP #$08                 ; C12C  $C9 $08
     BNE C13D                 ; C12E  $D0 $0D
@@ -284,7 +284,7 @@ C143:
     STA NoisePeriod_400E     ; C14E  $8D $0E $40
     LDA #$00                 ; C151  $A9 $00
     STA NoiseLength_400F     ; C153  $8D $0F $40
-	JMP WM_LOOP		; C156  $4C $C9 $C0	LOOP - WORLD MAP
+	JMP WM_LOOP			; C156  $4C $C9 $C0	LOOP - WORLD MAP
 ; Loop
 
 ; Name	:
@@ -293,40 +293,40 @@ C143:
 ;	  to battle
 ;	  check triggers/menu (world map)
    ;; sub start ;;
-	LDA tile_prop		; C159  $A5 $44		map tile property ??
-	BMI L3C1C7		; C15B  $30 $6A		branch if an entrance(bit7 is setenter)
-	AND #$20		; C15D  $29 $20
-	BNE L3C1B1		; C15F  $D0 $50		branch if battle/encounter
-	LDA s_pressing		; C161  $A5 $23
-	BEQ L3C181		; C163  $F0 $1C		if start key not pressing
-	LDA #$00		; C165  $A9 $00
-	STA s_pressing		; C167  $85 $23
-	LDA #$30		; C169  $A9 $30
-	STA NoiseVolume_400C	; C16B  $8D $0C $40
-	JSR L3DDA4		; C16E  $20 $A4 $DD	fade in/out
-	LDA #$0E		; C171  $A9 $0E
-	JSR Swap_PRG_		; C173  $20 $03 $FE
-	JSR $ACC4		; C176  $20 $C4 $AC	BANK 0E/ACC4 (main menu)
-	LDA #$00		; C179  $A9 $00
-	STA ApuStatus_4015	; C17B  $8D $15 $40
-	JMP L3C8BC		; C17E  $4C $BC $C8	reload world map
+	LDA tile_prop			; C159  $A5 $44		map tile property ??
+	BMI L3C1C7			; C15B  $30 $6A		branch if an entrance(bit7 is setenter)
+	AND #$20			; C15D  $29 $20
+	BNE L3C1B1			; C15F  $D0 $50		branch if battle/encounter
+	LDA s_pressing			; C161  $A5 $23
+	BEQ L3C181			; C163  $F0 $1C		if start key not pressing
+	LDA #$00			; C165  $A9 $00
+	STA s_pressing			; C167  $85 $23
+	LDA #$30			; C169  $A9 $30
+	STA NoiseVolume_400C		; C16B  $8D $0C $40
+	JSR L3DDA4			; C16E  $20 $A4 $DD	fade in/out
+	LDA #$0E			; C171  $A9 $0E
+	JSR Swap_PRG_			; C173  $20 $03 $FE
+	JSR $ACC4			; C176  $20 $C4 $AC	BANK 0E/ACC4 (main menu)
+	LDA #$00			; C179  $A9 $00
+	STA ApuStatus_4015		; C17B  $8D $15 $40
+	JMP L3C8BC			; C17E  $4C $BC $C8	reload world map
 ; row menu or minimap
 L3C181:
-	LDA e_pressing		; C181  $A5 $22
-	BEQ L3C1B0		; C183  $F0 $2B		if select key not pressing
-	LDA #$30		; C185  $A9 $30
-	STA NoiseVolume_400C	; C187  $8D $0C $40
-	JSR L3DDA4		; C18A  $20 $A4 $DD	some effect ?? - fade in/out
-	LDA key1p		; C18D  $A5 $20
-	AND #$40		; C18F  $29 $40
-	BEQ C1A5		; C191  $F0 $12		if b key not pressing
-	LDA key_items		; C193  $AD $1A $60
-	AND #$02		; C196  $29 $02		bit1: ring
-	BEQ C1A5		; C198  $F0 $0B		branch if no ring
-	LDA #$09		; C19A  $A9 $09
-	JSR Swap_PRG_		; C19C  $20 $03 $FE
-	JSR $BA00		; C19F  $20 $00 $BA	BANK 09/BA00 show minimap
-	JMP L3C8BC		; C1A2  $4C $BC $C8	relead world map
+	LDA e_pressing			; C181  $A5 $22
+	BEQ L3C1B0			; C183  $F0 $2B		if select key not pressing
+	LDA #$30			; C185  $A9 $30
+	STA NoiseVolume_400C		; C187  $8D $0C $40
+	JSR L3DDA4			; C18A  $20 $A4 $DD	some effect ?? - fade in/out
+	LDA key1p			; C18D  $A5 $20
+	AND #$40			; C18F  $29 $40
+	BEQ C1A5			; C191  $F0 $12		if b key not pressing
+	LDA key_items			; C193  $AD $1A $60
+	AND #$02			; C196  $29 $02		bit1: ring
+	BEQ C1A5			; C198  $F0 $0B		branch if no ring
+	LDA #$09			; C19A  $A9 $09
+	JSR Swap_PRG_			; C19C  $20 $03 $FE
+	JSR $BA00			; C19F  $20 $00 $BA	BANK 09/BA00 show minimap
+	JMP L3C8BC			; C1A2  $4C $BC $C8	relead world map
 C1A5:
     LDA #$0E                 ; C1A5  $A9 $0E
     JSR Swap_PRG_               ; C1A7  $20 $03 $FE
@@ -337,37 +337,37 @@ L3C1B0:
 ; End of check tile properties and key ??
 ; $20: battle
 L3C1B1:
-	JSR $DC6A		; C1B1  $20 $6A $DC	battle encount graphic/sound effect - do battle flash and sound effect
-	LDA #$00		; C1B4  $A9 $00		hide sprite/background
-	STA PpuMask_2001	; C1B6  $8D $01 $20
-	STA ApuStatus_4015	; C1B9  $8D $15 $40
-	JSR Get_bat_bg		; C1BC  $20 $5C $C7
-	LDA $6A			; C1BF  $A5 $6A
-	JSR Battle_start	; C1C1  $20 $00 $FA	excute battle code
-	JMP L3C8BC		; C1C4  $4C $BC $C8	reload world map
+	JSR $DC6A			; C1B1  $20 $6A $DC	battle encount graphic/sound effect - do battle flash and sound effect
+	LDA #$00			; C1B4  $A9 $00		hide sprite/background
+	STA PpuMask_2001		; C1B6  $8D $01 $20
+	STA ApuStatus_4015		; C1B9  $8D $15 $40
+	JSR Get_bat_bg			; C1BC  $20 $5C $C7
+	LDA $6A				; C1BF  $A5 $6A
+	JSR Battle_start		; C1C1  $20 $00 $FA	excute battle code
+	JMP L3C8BC			; C1C4  $4C $BC $C8	reload world map
 ; $80: entrance
 L3C1C7:
-	LDA #$30		; C1C7  $A9 $30
-	STA NoiseVolume_400C	; C1C9  $8D $0C $40
-	JSR $D7CB		; C1CC  $20 $CB $D7	slate out effect - screen wipe out
-	LDA #$00		; C1CF  $A9 $00
-	JSR Swap_PRG_		; C1D1  $20 $03 $FE
-	LDA $45			; C1D4  $A5 $45		p_map1 ??
-	TAX			; C1D6  $AA
-	LDA wmap_ent_x,X	; C1D7  $BD $00 $B4
-	SEC			; C1DA  $38
-	SBC #$07		; C1DB  $E9 $07
-	AND #$3F		; C1DD  $29 $3F
-	STA in_x_pos		; C1DF  $85 $29
-	LDA wmap_ent_y,X	; C1E1  $BD $40 $B4
-	SEC			; C1E4  $38
-	SBC #$07		; C1E5  $E9 $07
-	AND #$3F		; C1E7  $29 $3F
-	STA in_y_pos		; C1E9  $85 $2A
-	LDA wmap_ent_id,X	; C1EB  $BD $80 $B4
-	STA $48			; C1EE  $85 $48		world map entrance ID ??
-	JSR L3CA41		; C1F0  $20 $41 $CA	map main
-	JMP L3C0B8		; C1F3  $4C $B8 $C0	world map main
+	LDA #$30			; C1C7  $A9 $30
+	STA NoiseVolume_400C		; C1C9  $8D $0C $40
+	JSR $D7CB			; C1CC  $20 $CB $D7	slate out effect - screen wipe out
+	LDA #$00			; C1CF  $A9 $00
+	JSR Swap_PRG_			; C1D1  $20 $03 $FE
+	LDA $45				; C1D4  $A5 $45		p_map1 ??
+	TAX				; C1D6  $AA
+	LDA wmap_ent_x,X		; C1D7  $BD $00 $B4
+	SEC				; C1DA  $38
+	SBC #$07			; C1DB  $E9 $07
+	AND #$3F			; C1DD  $29 $3F
+	STA in_x_pos			; C1DF  $85 $29
+	LDA wmap_ent_y,X		; C1E1  $BD $40 $B4
+	SEC				; C1E4  $38
+	SBC #$07			; C1E5  $E9 $07
+	AND #$3F			; C1E7  $29 $3F
+	STA in_y_pos			; C1E9  $85 $2A
+	LDA wmap_ent_id,X		; C1EB  $BD $80 $B4
+	STA $48				; C1EE  $85 $48		world map entrance ID ??
+	JSR L3CA41			; C1F0  $20 $41 $CA	map main
+	JMP L3C0B8			; C1F3  $4C $B8 $C0	world map main
 ; End of
 
 ; Marks	: check player input (world map)
@@ -437,65 +437,65 @@ C265:
 ; Name	:
 ; Marks	: subroutine starts here
 ;; sub start ;;
-	LDA player_mv_timer	; C266  $A5 $47
-	BEQ L3C270		; C268  $F0 $06
-	SEC			; C26A  $38
-	SBC #$01		; C26B  $E9 $01
-	STA player_mv_timer	; C26D  $85 $47
-	RTS			; C26F  $60
+	LDA player_mv_timer		; C266  $A5 $47
+	BEQ L3C270			; C268  $F0 $06
+	SEC				; C26A  $38
+	SBC #$01			; C26B  $E9 $01
+	STA player_mv_timer		; C26D  $85 $47
+	RTS				; C26F  $60
 ; End of
 ; Name	:
 ; Marks	:
 L3C270:
-	JSR $DB5C		; C270  $20 $5C $DB	event, key processing - execute event script / update joypad input
-	LDA key1p		; C273  $A5 $20
-	AND #$0F		; C275  $29 $0F
-	BNE L3C290		; C277  $D0 $17		branch if any direction buttons are pressed
-	LDA #$00		; C279  $A9 $00
-	STA $4E			; C27B  $85 $4E
-	LDA a_pressing		; C27D  $A5 $24
-	BEQ L3C28F		; C27F  $F0 $0E		if a button not pressing
-	LDA #$00		; C281  $A9 $00
-	STA a_pressing		; C283  $85 $24
-	LDA vehicle_ID		; C285  $A5 $42
-	CMP #$08		; C287  $C9 $08
-	BEQ C2C9		; C289  $F0 $3E		branch if in airship
-	CMP #$01		; C28B  $C9 $01
-	BEQ C21F		; C28D  $F0 $90
+	JSR $DB5C			; C270  $20 $5C $DB	event, key processing - execute event script / update joypad input
+	LDA key1p			; C273  $A5 $20
+	AND #$0F			; C275  $29 $0F
+	BNE L3C290			; C277  $D0 $17		branch if any direction buttons are pressed
+	LDA #$00			; C279  $A9 $00
+	STA $4E				; C27B  $85 $4E
+	LDA a_pressing			; C27D  $A5 $24
+	BEQ L3C28F			; C27F  $F0 $0E		if a button not pressing
+	LDA #$00			; C281  $A9 $00
+	STA a_pressing			; C283  $85 $24
+	LDA vehicle_ID			; C285  $A5 $42
+	CMP #$08			; C287  $C9 $08
+	BEQ C2C9			; C289  $F0 $3E		branch if in airship
+	CMP #$01			; C28B  $C9 $01
+	BEQ C21F			; C28D  $F0 $90
 L3C28F:
-	RTS			; C28F  $60
+	RTS				; C28F  $60
 ; End of
 ; A	: pressed key
 ; Check vehicle or walk
 L3C290:
-	LDX vehicle_ID		; C290  $A6 $42
-	CPX #$08		; C292  $E0 $08
-	BEQ L3C2C0		; C294  $F0 $2A		airship can move anywhere
-	CPX #$04		; C296  $E0 $04
-	BEQ L3C2CC		; C298  $F0 $32
-	CPX #$02		; C29A  $E0 $02
-	BEQ L3C2E2		; C29C  $F0 $44
-	JSR $C4B4		; C29E  $20 $B4 $C4	check destination tile - random battle check??cannot move check?? direction ??
-	BCS L3C2AA		; C2A1  $B0 $07		branch if not passable
-	JSR $C70E		; C2A3  $20 $0E $C7	dreadnaught ??, chocobo ??
-	BCS L3C2DB		; C2A6  $B0 $33
-	BCC L3C2C0		; C2A8  $90 $16
+	LDX vehicle_ID			; C290  $A6 $42
+	CPX #$08			; C292  $E0 $08
+	BEQ L3C2C0			; C294  $F0 $2A		airship can move anywhere
+	CPX #$04			; C296  $E0 $04
+	BEQ L3C2CC			; C298  $F0 $32
+	CPX #$02			; C29A  $E0 $02
+	BEQ L3C2E2			; C29C  $F0 $44
+	JSR $C4B4			; C29E  $20 $B4 $C4	check destination tile - random battle check??cannot move check?? direction ??
+	BCS L3C2AA			; C2A1  $B0 $07		branch if not passable
+	JSR $C70E			; C2A3  $20 $0E $C7	dreadnaught ??, chocobo ??
+	BCS L3C2DB			; C2A6  $B0 $33
+	BCC L3C2C0			; C2A8  $90 $16
 L3C2AA:
-	LDA chocobo_stat	; C2AA  $AD $08 $60
-	CMP #$02		; C2AD  $C9 $02
-	BEQ L3C2DB		; C2AF  $F0 $2A
-	JSR Check_snow_river	; C2B1  $20 $54 $C6	check if passable in canoe/snowcraft
-	BCC L3C2C0		; C2B4  $90 $0A
-	JSR $C68B		; C2B6  $20 $8B $C6	check pirate ship ??
-	BCC L3C2C0		; C2B9  $90 $05
-	JSR $C6C7		; C2BB  $20 $C7 $C6	Check ship ??
-	BCS L3C2DB		; C2BE  $B0 $1B
+	LDA chocobo_stat		; C2AA  $AD $08 $60
+	CMP #$02			; C2AD  $C9 $02
+	BEQ L3C2DB			; C2AF  $F0 $2A
+	JSR Check_snow_river		; C2B1  $20 $54 $C6	check if passable in canoe/snowcraft
+	BCC L3C2C0			; C2B4  $90 $0A
+	JSR $C68B			; C2B6  $20 $8B $C6	check pirate ship ??
+	BCC L3C2C0			; C2B9  $90 $05
+	JSR $C6C7			; C2BB  $20 $C7 $C6	Check ship ??
+	BCS L3C2DB			; C2BE  $B0 $1B
 ; allow movement
 L3C2C0:
-	LDA key1p		; C2C0  $A5 $20
-	AND #$0F		; C2C2  $29 $0F
-	STA player_dir		; C2C4  $85 $33		set movement direction
-	JMP L3D209		; C2C6  $4C $09 $D2	init player movement
+	LDA key1p			; C2C0  $A5 $20
+	AND #$0F			; C2C2  $29 $0F
+	STA player_dir			; C2C4  $85 $33		set movement direction
+	JMP L3D209			; C2C6  $4C $09 $D2	init player movement
 ; End of
 C2C9:
     JMP $C785                ; C2C9  $4C $85 $C7	land airship
@@ -509,10 +509,10 @@ L3C2CC:
     BCC L3C2C0               ; C2D9  $90 $E5
 L3C2DB:
 ; don't allow movement
-	LDA $43			; C2DB  $A5 $43
-	STA tile_prop		; C2DD  $85 $44
-	STA $4E			; C2DF  $85 $4E
-	RTS			; C2E1  $60
+	LDA $43				; C2DB  $A5 $43
+	STA tile_prop			; C2DD  $85 $44
+	STA $4E				; C2DF  $85 $4E
+	RTS				; C2E1  $60
 ; End of
 ; canoe/snowcraft
 L3C2E2:
@@ -529,45 +529,45 @@ L3C2E2:
 ;	  $80, $81 is temp variables
    ;; sub start ;;
 Map_water_flow:
-	LDA map_water_cnt	; C2F3  $A5 $6D
-	CLC			; C2F5  $18
-	ADC #$03		; C2F6  $69 $03
-	STA map_water_cnt	; C2F8  $85 $6D
-	AND #$0F		; C2FA  $29 $0F
-	ASL A			; C2FC  $0A
-	TAX			; C2FD  $AA
-	LDA PpuStatus_2002	; C2FE  $AD $02 $20
-	LDA #$03		; C301  $A9 $03
-	STA PpuAddr_2006	; C303  $8D $06 $20
-	LDA $C34F,X		; C306  $BD $4F $C3
-	STA PpuAddr_2006	; C309  $8D $06 $20
-	LDA PpuData_2007	; C30C  $AD $07 $20
-	LDA PpuData_2007	; C30F  $AD $07 $20
-	STA $80			; C312  $85 $80
-	LDA #$03		; C314  $A9 $03
-	STA PpuAddr_2006	; C316  $8D $06 $20
-	LDA $C350,X		; C319  $BD $50 $C3
-	STA PpuAddr_2006	; C31C  $8D $06 $20
-	LDA PpuData_2007	; C31F  $AD $07 $20
-	LDA PpuData_2007	; C322  $AD $07 $20
-	STA $81			; C325  $85 $81
-	LDA $80			; C327  $A5 $80
-	ASL A			; C329  $0A
-	ROL $81			; C32A  $26 $81
-	ROL $80			; C32C  $26 $80
-	LDA #$03		; C32E  $A9 $03
-	STA PpuAddr_2006	; C330  $8D $06 $20
-	LDA $C34F,X		; C333  $BD $4F $C3
-	STA PpuAddr_2006	; C336  $8D $06 $20
-	LDA $80			; C339  $A5 $80
-	STA PpuData_2007	; C33B  $8D $07 $20
-	LDA #$03		; C33E  $A9 $03
-	STA PpuAddr_2006	; C340  $8D $06 $20
-	LDA $C350,X		; C343  $BD $50 $C3
-	STA PpuAddr_2006	; C346  $8D $06 $20
-	LDA $81			; C349  $A5 $81
-	STA PpuData_2007	; C34B  $8D $07 $20
-	RTS			; C34E  $60
+	LDA map_water_cnt		; C2F3  $A5 $6D
+	CLC				; C2F5  $18
+	ADC #$03			; C2F6  $69 $03
+	STA map_water_cnt		; C2F8  $85 $6D
+	AND #$0F			; C2FA  $29 $0F
+	ASL A				; C2FC  $0A
+	TAX				; C2FD  $AA
+	LDA PpuStatus_2002		; C2FE  $AD $02 $20
+	LDA #$03			; C301  $A9 $03
+	STA PpuAddr_2006		; C303  $8D $06 $20
+	LDA $C34F,X			; C306  $BD $4F $C3
+	STA PpuAddr_2006		; C309  $8D $06 $20
+	LDA PpuData_2007		; C30C  $AD $07 $20
+	LDA PpuData_2007		; C30F  $AD $07 $20
+	STA $80				; C312  $85 $80
+	LDA #$03			; C314  $A9 $03
+	STA PpuAddr_2006		; C316  $8D $06 $20
+	LDA $C350,X			; C319  $BD $50 $C3
+	STA PpuAddr_2006		; C31C  $8D $06 $20
+	LDA PpuData_2007		; C31F  $AD $07 $20
+	LDA PpuData_2007		; C322  $AD $07 $20
+	STA $81				; C325  $85 $81
+	LDA $80				; C327  $A5 $80
+	ASL A				; C329  $0A
+	ROL $81				; C32A  $26 $81
+	ROL $80				; C32C  $26 $80
+	LDA #$03			; C32E  $A9 $03
+	STA PpuAddr_2006		; C330  $8D $06 $20
+	LDA $C34F,X			; C333  $BD $4F $C3
+	STA PpuAddr_2006		; C336  $8D $06 $20
+	LDA $80				; C339  $A5 $80
+	STA PpuData_2007		; C33B  $8D $07 $20
+	LDA #$03			; C33E  $A9 $03
+	STA PpuAddr_2006		; C340  $8D $06 $20
+	LDA $C350,X			; C343  $BD $50 $C3
+	STA PpuAddr_2006		; C346  $8D $06 $20
+	LDA $81				; C349  $A5 $81
+	STA PpuData_2007		; C34B  $8D $07 $20
+	RTS				; C34E  $60
 ; End of Map_water_flow
 
 ; $C34F - data block = low byte of ppu address for water animation (16 * 2 bytes)
@@ -580,53 +580,53 @@ Map_water_flow:
 ; Marks	: Character_movement ?? Scroll(Map) ??
 ;	  update scrolling (world map)
 ;; sub start ;;
-	LDA mov_spd		; C36F  $A5 $34
-	BEQ Scroll_map		; C371  $F0 $0D		if not move, scroll
-	JSR Move_pos		; C373  $20 $FE $C3
-	LDA vehicle_ID		; C376  $A5 $42
-	CMP #$01		; C378  $C9 $01
-	BNE L3C37F		; C37A  $D0 $03
-	JMP L3C8E7		; C37C  $4C $E7 $C8	check character field sprite ??(dead/stone/venom) - do venom step damage
+	LDA mov_spd			; C36F  $A5 $34
+	BEQ Scroll_map			; C371  $F0 $0D		if not move, scroll
+	JSR Move_pos			; C373  $20 $FE $C3
+	LDA vehicle_ID			; C376  $A5 $42
+	CMP #$01			; C378  $C9 $01
+	BNE L3C37F			; C37A  $D0 $03
+	JMP L3C8E7			; C37C  $4C $E7 $C8	check character field sprite ??(dead/stone/venom) - do venom step damage
 L3C37F:
-	RTS			; C37F  $60
+	RTS				; C37F  $60
 ; End of Character_movement ??
 
 ; Name	: Scroll_map
 ; Marks	: PpuScroll world map
 ;	  update ppu register (world map)
 Scroll_map:
-	LDA #$1E		; C380  $A9 $1E
-	STA PpuMask_2001	; C382  $8D $01 $20
-	LDA ppu_con_p		; C385  $A5 $FD
-	STA ppu_con_c		; C387  $85 $FF
-	STA PpuControl_2000	; C389  $8D $00 $20
-	LDA PpuStatus_2002	; C38C  $AD $02 $20
-	LDA ow_x_pos		; C38F  $A5 $27
-	ASL A			; C391  $0A
-	ASL A			; C392  $0A
-	ASL A			; C393  $0A
-	ASL A			; C394  $0A
-	ORA hor_stile_pos	; C395  $05 $35
-	STA PpuScroll_2005	; C397  $8D $05 $20
-	LDA nt_y_pos		; C39A  $A5 $2F
-	ASL A			; C39C  $0A
-	ASL A			; C39D  $0A
-	ASL A			; C39E  $0A
-	ASL A			; C39F  $0A
-	ORA ver_stile_pos	; C3A0  $05 $36
-	STA PpuScroll_2005	; C3A2  $8D $05 $20
-	RTS			; C3A5  $60
+	LDA #$1E			; C380  $A9 $1E
+	STA PpuMask_2001		; C382  $8D $01 $20
+	LDA ppu_con_p			; C385  $A5 $FD
+	STA ppu_con_c			; C387  $85 $FF
+	STA PpuControl_2000		; C389  $8D $00 $20
+	LDA PpuStatus_2002		; C38C  $AD $02 $20
+	LDA ow_x_pos			; C38F  $A5 $27
+	ASL A				; C391  $0A
+	ASL A				; C392  $0A
+	ASL A				; C393  $0A
+	ASL A				; C394  $0A
+	ORA hor_stile_pos		; C395  $05 $35
+	STA PpuScroll_2005		; C397  $8D $05 $20
+	LDA nt_y_pos			; C39A  $A5 $2F
+	ASL A				; C39C  $0A
+	ASL A				; C39D  $0A
+	ASL A				; C39E  $0A
+	ASL A				; C39F  $0A
+	ORA ver_stile_pos		; C3A0  $05 $36
+	STA PpuScroll_2005		; C3A2  $8D $05 $20
+	RTS				; C3A5  $60
 ; End of Scroll_map
 
 ; Marks	: update player movement (world map)
 ;	  subroutine starts at 0F/C3FE
 ; right
 L3C3A6:
-	LDA map_update		; C3A6  $A5 $32		RIGHT
-	BEQ L3C3AD		; C3A8  $F0 $03
-	JSR Map_update		; C3AA  $20 $1B $D2
+	LDA map_update			; C3A6  $A5 $32		RIGHT
+	BEQ L3C3AD			; C3A8  $F0 $03
+	JSR Map_update			; C3AA  $20 $1B $D2
 L3C3AD:
-	JSR Scroll_map		; C3AD  $20 $80 $C3
+	JSR Scroll_map			; C3AD  $20 $80 $C3
     LDA $35                  ; C3B0  $A5 $35
     CLC                      ; C3B2  $18
     ADC $34                  ; C3B3  $65 $34
@@ -649,11 +649,11 @@ L3C3BC:
     RTS                      ; C3CF  $60
 ; End of Move_pos
 MOVE_POS_LEFT:
-	LDA map_update		; C3D0  $A5 $32		LEFT
-	BEQ L3C3D7		; C3D2  $F0 $03
-	JSR Map_update		; C3D4  $20 $1B $D2
+	LDA map_update			; C3D0  $A5 $32		LEFT
+	BEQ L3C3D7			; C3D2  $F0 $03
+	JSR Map_update			; C3D4  $20 $1B $D2
 L3C3D7:
-	JSR Scroll_map		; C3D7  $20 $80 $C3
+	JSR Scroll_map			; C3D7  $20 $80 $C3
     LDA $35                  ; C3DA  $A5 $35
     BNE L3C3EF               ; C3DC  $D0 $11
     LDA $27                  ; C3DE  $A5 $27
@@ -686,80 +686,80 @@ L3C3F9:
 ;	  field
 ;; sub start ;;
 Move_pos:
-	LDA player_dir		; C3FE  $A5 $33
-	LSR A			; C400  $4A
-	BCS L3C3A6		; C401  $B0 $A3		if right
-	LSR A			; C403  $4A
-	BCS MOVE_POS_LEFT	; C404  $B0 $CA		if left
-	LSR A			; C406  $4A
-	BCS MOVE_POS_DOWN	; C407  $B0 $03		if down
-	JMP MOVE_POS_UP		; C409  $4C $3C $C4
+	LDA player_dir			; C3FE  $A5 $33
+	LSR A				; C400  $4A
+	BCS L3C3A6			; C401  $B0 $A3		if right
+	LSR A				; C403  $4A
+	BCS MOVE_POS_LEFT		; C404  $B0 $CA		if left
+	LSR A				; C406  $4A
+	BCS MOVE_POS_DOWN		; C407  $B0 $03		if down
+	JMP MOVE_POS_UP			; C409  $4C $3C $C4
 MOVE_POS_DOWN:
-	LDA map_update		; C40C  $A5 $32		DOWN
-	BEQ L3C419		; C40E  $F0 $09
-	LDA ver_stile_pos	; C410  $A5 $36
-	CMP #$08		; C412  $C9 $08
-	BCC L3C419		; C414  $90 $03
-	JSR Map_update		; C416  $20 $1B $D2
+	LDA map_update			; C40C  $A5 $32		DOWN
+	BEQ L3C419			; C40E  $F0 $09
+	LDA ver_stile_pos		; C410  $A5 $36
+	CMP #$08			; C412  $C9 $08
+	BCC L3C419			; C414  $90 $03
+	JSR Map_update			; C416  $20 $1B $D2
 L3C419:
-	JSR Scroll_map		; C419  $20 $80 $C3
-	LDA ver_stile_pos	; C41C  $A5 $36
-	CLC			; C41E  $18
-	ADC mov_spd		; C41F  $65 $34		move animation effect(down) by sub tile position
-	AND #$0F		; C421  $29 $0F
-	BEQ MOVE_POS_D_FIN	; C423  $F0 $03
-	STA ver_stile_pos	; C425  $85 $36
-	RTS			; C427  $60
+	JSR Scroll_map			; C419  $20 $80 $C3
+	LDA ver_stile_pos		; C41C  $A5 $36
+	CLC				; C41E  $18
+	ADC mov_spd			; C41F  $65 $34		move animation effect(down) by sub tile position
+	AND #$0F			; C421  $29 $0F
+	BEQ MOVE_POS_D_FIN		; C423  $F0 $03
+	STA ver_stile_pos		; C425  $85 $36
+	RTS				; C427  $60
 ; End of Move_pos
 
 MOVE_POS_D_FIN:
-	STA mov_spd		; C428  $85 $34		stop movenent
-	STA ver_stile_pos	; C42A  $85 $36		clear vertical subtile position
-	INC ow_y_pos		; C42C  $E6 $28
-	LDA nt_y_pos		; C42E  $A5 $2F
-	CLC			; C430  $18
-	ADC #$01		; C431  $69 $01
-	CMP #$0F		; C433  $C9 $0F
-	BCC L3C439		; C435  $90 $02
-	SBC #$0F		; C437  $E9 $0F
+	STA mov_spd			; C428  $85 $34		stop movenent
+	STA ver_stile_pos		; C42A  $85 $36		clear vertical subtile position
+	INC ow_y_pos			; C42C  $E6 $28
+	LDA nt_y_pos			; C42E  $A5 $2F
+	CLC				; C430  $18
+	ADC #$01			; C431  $69 $01
+	CMP #$0F			; C433  $C9 $0F
+	BCC L3C439			; C435  $90 $02
+	SBC #$0F			; C437  $E9 $0F
 L3C439:
-	STA nt_y_pos		; C439  $85 $2F
-	RTS			; C43B  $60
+	STA nt_y_pos			; C439  $85 $2F
+	RTS				; C43B  $60
 ; End of Move_pos
 
 MOVE_POS_UP:
-	LDA map_update		; C43C  $A5 $32		UP
-	BEQ L3C449		; C43E  $F0 $09
-	LDA ver_stile_pos	; C440  $A5 $36
-	CMP #$08		; C442  $C9 $08
-	BNE L3C449		; C444  $D0 $03
-	JSR Map_update		; C446  $20 $1B $D2
+	LDA map_update			; C43C  $A5 $32		UP
+	BEQ L3C449			; C43E  $F0 $09
+	LDA ver_stile_pos		; C440  $A5 $36
+	CMP #$08			; C442  $C9 $08
+	BNE L3C449			; C444  $D0 $03
+	JSR Map_update			; C446  $20 $1B $D2
 L3C449:
-	JSR Scroll_map		; C449  $20 $80 $C3
-	LDA ver_stile_pos	; C44C  $A5 $36
-	BNE L3C45F		; C44E  $D0 $0F
-	DEC ow_y_pos		; C450  $C6 $28
-	LDA nt_y_pos		; C452  $A5 $2F
-	SEC			; C454  $38
-	SBC #$01		; C455  $E9 $01		move animation effect(up) by sub tile position
-	BCS L3C45B		; C457  $B0 $02
-	ADC #$0F		; C459  $69 $0F
+	JSR Scroll_map			; C449  $20 $80 $C3
+	LDA ver_stile_pos		; C44C  $A5 $36
+	BNE L3C45F			; C44E  $D0 $0F
+	DEC ow_y_pos			; C450  $C6 $28
+	LDA nt_y_pos			; C452  $A5 $2F
+	SEC				; C454  $38
+	SBC #$01			; C455  $E9 $01		move animation effect(up) by sub tile position
+	BCS L3C45B			; C457  $B0 $02
+	ADC #$0F			; C459  $69 $0F
 L3C45B:
-	STA nt_y_pos		; C45B  $85 $2F
-	LDA ver_stile_pos	; C45D  $A5 $36
+	STA nt_y_pos			; C45B  $85 $2F
+	LDA ver_stile_pos		; C45D  $A5 $36
 L3C45F:
-	SEC			; C45F  $38
-	SBC mov_spd		; C460  $E5 $34
-	AND #$0F		; C462  $29 $0F
-	BEQ L3C469		; C464  $F0 $03
-	STA ver_stile_pos	; C466  $85 $36
-	RTS			; C468  $60
+	SEC				; C45F  $38
+	SBC mov_spd			; C460  $E5 $34
+	AND #$0F			; C462  $29 $0F
+	BEQ L3C469			; C464  $F0 $03
+	STA ver_stile_pos		; C466  $85 $36
+	RTS				; C468  $60
 ; End of Move_pos
 
 L3C469:
-	STA mov_spd		; C469  $85 $34		stop movement
-	STA ver_stile_pos	; C46B  $85 $36		clear vertical subtile position
-	RTS			; C46D  $60
+	STA mov_spd			; C469  $85 $34		stop movement
+	STA ver_stile_pos		; C46B  $85 $36		clear vertical subtile position
+	RTS				; C46D  $60
 ; End of Move_pos
 
 ; Name	: Init_Page2
@@ -806,14 +806,14 @@ C499:
 ; Name	: APU_init
 ; Marks	: APU initialization
 APU_init:
-	LDA #$30		; C4A0  $A9 $30
-	STA Sq0Duty_4000	; C4A2  $8D $00 $40
-	STA Sq1Duty_4004	; C4A5  $8D $04 $40
-	STA TrgLinear_4008	; C4A8  $8D $08 $40
-	STA NoiseVolume_400C	; C4AB  $8D $0C $40
-	LDA #$00		; C4AE  $A9 $00
-	STA ApuStatus_4015	; C4B0  $8D $15 $40
-	RTS			; C4B3  $60
+	LDA #$30			; C4A0  $A9 $30
+	STA Sq0Duty_4000		; C4A2  $8D $00 $40
+	STA Sq1Duty_4004		; C4A5  $8D $04 $40
+	STA TrgLinear_4008		; C4A8  $8D $08 $40
+	STA NoiseVolume_400C		; C4AB  $8D $0C $40
+	LDA #$00			; C4AE  $A9 $00
+	STA ApuStatus_4015		; C4B0  $8D $15 $40
+	RTS				; C4B3  $60
 ; End of APU_init
 
 ; Name	:
@@ -834,15 +834,15 @@ APU_init:
 ;	  check destination tile (world map)
 ;	  use BANK 0B
 ;; sub start ;;
-	LSR A			; C4B4  $4A
-	BCS L3C4CB		; C4B5  $B0 $14		right
-	LSR A			; C4B7  $4A
-	BCS L3C4D2		; C4B8  $B0 $18		left
-	LSR A			; C4BA  $4A
-	BCS L3C4C4		; C4BB  $B0 $07		down
-	LDX #$07		; C4BD  $A2 $07
-	LDY #$06		; C4BF  $A0 $06
-	JMP L3C4D6		; C4C1  $4C $D6 $C4	up
+	LSR A				; C4B4  $4A
+	BCS L3C4CB			; C4B5  $B0 $14		right
+	LSR A				; C4B7  $4A
+	BCS L3C4D2			; C4B8  $B0 $18		left
+	LSR A				; C4BA  $4A
+	BCS L3C4C4			; C4BB  $B0 $07		down
+	LDX #$07			; C4BD  $A2 $07
+	LDY #$06			; C4BF  $A0 $06
+	JMP L3C4D6			; C4C1  $4C $D6 $C4	up
 L3C4C4:
     LDX #$07                 ; C4C4  $A2 $07
     LDY #$08                 ; C4C6  $A0 $08
@@ -855,131 +855,131 @@ L3C4D2:
     LDX #$06                 ; C4D2  $A2 $06
     LDY #$07                 ; C4D4  $A0 $07
 L3C4D6:
-	TXA			; C4D6  $8A
-	CLC			; C4D7  $18
-	ADC ow_x_pos		; C4D8  $65 $27
-	STA $80			; C4DA  $85 $80		X(ADDR)
-	STA $82			; C4DC  $85 $82
-	TYA			; C4DE  $98
-	CLC			; C4DF  $18
-	ADC ow_y_pos		; C4E0  $65 $28
-	STA $83			; C4E2  $85 $83
-	AND #$0F		; C4E4  $29 $0F
-	ORA #$70		; C4E6  $09 $70
-	STA $81			; C4E8  $85 $81		Y(ADDR)
-	LDY #$00		; C4EA  $A0 $00
-	LDA ($80),Y		; C4EC  $B1 $80
-	ASL A			; C4EE  $0A
-	TAX			; C4EF  $AA
-	LDA $0400,X		; C4F0  $BD $00 $04	tile properties
-	STA tile_prop		; C4F3  $85 $44
-	LDA $0401,X		; C4F5  $BD $01 $04
-	STA $45			; C4F8  $85 $45
-	LDA tile_prop		; C4FA  $A5 $44
-	AND vehicle_ID		; C4FC  $25 $42
-	BEQ L3C502		; C4FE  $F0 $02		branch if passable in current vehicle
-	SEC			; C500  $38
-	RTS			; C501  $60
+	TXA				; C4D6  $8A
+	CLC				; C4D7  $18
+	ADC ow_x_pos			; C4D8  $65 $27
+	STA $80				; C4DA  $85 $80		X(ADDR)
+	STA $82				; C4DC  $85 $82
+	TYA				; C4DE  $98
+	CLC				; C4DF  $18
+	ADC ow_y_pos			; C4E0  $65 $28
+	STA $83				; C4E2  $85 $83
+	AND #$0F			; C4E4  $29 $0F
+	ORA #$70			; C4E6  $09 $70
+	STA $81				; C4E8  $85 $81		Y(ADDR)
+	LDY #$00			; C4EA  $A0 $00
+	LDA ($80),Y			; C4EC  $B1 $80
+	ASL A				; C4EE  $0A
+	TAX				; C4EF  $AA
+	LDA $0400,X			; C4F0  $BD $00 $04	tile properties
+	STA tile_prop			; C4F3  $85 $44
+	LDA $0401,X			; C4F5  $BD $01 $04
+	STA $45				; C4F8  $85 $45
+	LDA tile_prop			; C4FA  $A5 $44
+	AND vehicle_ID			; C4FC  $25 $42
+	BEQ L3C502			; C4FE  $F0 $02		branch if passable in current vehicle
+	SEC				; C500  $38
+	RTS				; C501  $60
 ; End of
 
 L3C502:
-	BIT tile_prop		; C502  $24 $44
-	BVC L3C509		; C504  $50 $03
+	BIT tile_prop			; C502  $24 $44
+	BVC L3C509			; C504  $50 $03
     JMP $C995                ; C506  $4C $95 $C9
 L3C509:
-	BMI L3C543		; C509  $30 $38		entrance ??
-	LDA event		; C50B  $A5 $6C
-	BNE L3C543		; C50D  $D0 $34
-	LDX vehicle_ID		; C50F  $A6 $42
-	CPX #$08		; C511  $E0 $08
-	BEQ L3C543		; C513  $F0 $2E		branch if on airship
-	LDA $62B9		; C515  $AD $B9 $62	ship random battle rate (2)
-	CPX #$04		; C518  $E0 $04
-	BEQ L3C53A		; C51A  $F0 $1E
-	CPX #$02		; C51C  $E0 $02
-	BNE L3C52D		; C51E  $D0 $0D
+	BMI L3C543			; C509  $30 $38		entrance ??
+	LDA event			; C50B  $A5 $6C
+	BNE L3C543			; C50D  $D0 $34
+	LDX vehicle_ID			; C50F  $A6 $42
+	CPX #$08			; C511  $E0 $08
+	BEQ L3C543			; C513  $F0 $2E		branch if on airship
+	LDA $62B9			; C515  $AD $B9 $62	ship random battle rate (2)
+	CPX #$04			; C518  $E0 $04
+	BEQ L3C53A			; C51A  $F0 $1E
+	CPX #$02			; C51C  $E0 $02
+	BNE L3C52D			; C51E  $D0 $0D
     LDA $6019                ; C520  $AD $19 $60
     CMP #$40                 ; C523  $C9 $40
     BEQ L3C543               ; C525  $F0 $1C
     LDA $62B8                ; C527  $AD $B8 $62
     JMP L3C53A               ; C52A  $4C $3A $C5
 L3C52D:
-	LDA $62B7		; C52D  $AD $B7 $62	chocobo random baattle rate (0)
-	LDX chocobo_stat	; C530  $AE $08 $60
-	CPX #$02		; C533  $E0 $02
-	BEQ L3C53A		; C535  $F0 $03
-	LDA $62B6		; C537  $AD $B6 $62	world map random battle rate (11)
+	LDA $62B7			; C52D  $AD $B7 $62	chocobo random baattle rate (0)
+	LDX chocobo_stat		; C530  $AE $08 $60
+	CPX #$02			; C533  $E0 $02
+	BEQ L3C53A			; C535  $F0 $03
+	LDA $62B6			; C537  $AD $B6 $62	world map random battle rate (11)
 L3C53A:
-	STA $80			; C53A  $85 $80
-	JSR Get_rndnum		; C53C  $20 $AD $C5
-	CMP $80			; C53F  $C5 $80
-	BCC L3C545		; C541  $90 $02		event occur - battle ??
+	STA $80				; C53A  $85 $80
+	JSR Get_rndnum			; C53C  $20 $AD $C5
+	CMP $80				; C53F  $C5 $80
+	BCC L3C545			; C541  $90 $02		event occur - battle ??
 L3C543:
-	CLC			; C543  $18
-	RTS			; C544  $60
+	CLC				; C543  $18
+	RTS				; C544  $60
 ; End of
 
 L3C545:
-	LDA vehicle_ID		; C545  $A5 $42
-	CMP #$04		; C547  $C9 $04
-	BNE L3C54F		; C549  $D0 $04		branch if on ship
-	LDA #$01		; C54B  $A9 $01
-	BNE C567		; C54D  $D0 $18
+	LDA vehicle_ID			; C545  $A5 $42
+	CMP #$04			; C547  $C9 $04
+	BNE L3C54F			; C549  $D0 $04		branch if on ship
+	LDA #$01			; C54B  $A9 $01
+	BNE C567			; C54D  $D0 $18
 L3C54F:
-	LDA ow_x_pos		; C54F  $A5 $27
-	CLC			; C551  $18
-	ADC #$07		; C552  $69 $07
-	ROL A			; C554  $2A
-	ROL A			; C555  $2A
-	ROL A			; C556  $2A
-	ROL A			; C557  $2A
-	AND #$07		; C558  $29 $07
-	STA $80			; C55A  $85 $80
-	LDA ow_y_pos		; C55C  $A5 $28
-	CLC			; C55E  $18
-	ADC #$07		; C55F  $69 $07
-	LSR A			; C561  $4A
-	LSR A			; C562  $4A
-	AND #$38		; C563  $29 $38
-	ORA $80			; C565  $05 $80
+	LDA ow_x_pos			; C54F  $A5 $27
+	CLC				; C551  $18
+	ADC #$07			; C552  $69 $07
+	ROL A				; C554  $2A
+	ROL A				; C555  $2A
+	ROL A				; C556  $2A
+	ROL A				; C557  $2A
+	AND #$07			; C558  $29 $07
+	STA $80				; C55A  $85 $80
+	LDA ow_y_pos			; C55C  $A5 $28
+	CLC				; C55E  $18
+	ADC #$07			; C55F  $69 $07
+	LSR A				; C561  $4A
+	LSR A				; C562  $4A
+	AND #$38			; C563  $29 $38
+	ORA $80				; C565  $05 $80
 C567:
-	STA $80			; C567  $85 $80
-	LDA $6012		; C569  $AD $12 $60	mapcheckything ?? -> bit7 is after tornado
-	AND #$40		; C56C  $29 $40
-	ORA $80			; C56E  $05 $80
-	TAX			; C570  $AA
-	LDA #BANK_RATE_GRP	; C571  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
-	JSR Swap_PRG_		; C573  $20 $03 $FE
-	LDA Wmap_battle_grp,X	; C576  $BD $00 $82	BANK 0B/8200 (world map battle groups)
+	STA $80				; C567  $85 $80
+	LDA $6012			; C569  $AD $12 $60	mapcheckything ?? -> bit7 is after tornado
+	AND #$40			; C56C  $29 $40
+	ORA $80				; C56E  $05 $80
+	TAX				; C570  $AA
+	LDA #BANK_RATE_GRP		; C571  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
+	JSR Swap_PRG_			; C573  $20 $03 $FE
+	LDA Wmap_battle_grp,X		; C576  $BD $00 $82	BANK 0B/8200 (world map battle groups)
 ; Marks	: choose from battle group
-	LDY #$00		; C579  $A0 $00
-	STY $81			; C57B  $84 $81
-	ASL A			; C57D  $0A
-	ROL $81			; C57E  $26 $81
-	ASL A			; C580  $0A
-	ROL $81			; C581  $26 $81
-	ASL A			; C583  $0A
-	ROL $81			; C584  $26 $81
-	CLC			; C586  $18
-	ADC #<Rnd_battle_grp	; C587  $69 $80		BANK 0B/8280 (random battle groups)
-	STA $80			; C589  $85 $80
-	LDA $81			; C58B  $A5 $81
-	ADC #>Rnd_battle_grp	; C58D  $69 $82
-	STA $81			; C58F  $85 $81
-	LDA #BANK_RATE_GRP	; C591  $A9 $0B
-	JSR Swap_PRG_		; C593  $20 $03 $FE
-	INC rng_cnt_bat		; C596  $E6 $F7
-	LDX rng_cnt_bat		; C598  $A6 $F7
-	LDA rnum_tbl,X		; C59A  $BD $00 $F9
-	AND #$3F		; C59D  $29 $3F
-	TAX			; C59F  $AA
-	LDY $C5C8,X		; C5A0  $BC $C8 $C5	battle probabilities
-	LDA ($80),Y		; C5A3  $B1 $80
-	STA $6A			; C5A5  $85 $6A		set battle - battle group ??
-	LDA #$20		; C5A7  $A9 $20		trigger battle
-	STA tile_prop		; C5A9  $85 $44
-	CLC			; C5AB  $18
-	RTS			; C5AC  $60
+	LDY #$00			; C579  $A0 $00
+	STY $81				; C57B  $84 $81
+	ASL A				; C57D  $0A
+	ROL $81				; C57E  $26 $81
+	ASL A				; C580  $0A
+	ROL $81				; C581  $26 $81
+	ASL A				; C583  $0A
+	ROL $81				; C584  $26 $81
+	CLC				; C586  $18
+	ADC #<Rnd_battle_grp		; C587  $69 $80		BANK 0B/8280 (random battle groups)
+	STA $80				; C589  $85 $80
+	LDA $81				; C58B  $A5 $81
+	ADC #>Rnd_battle_grp		; C58D  $69 $82
+	STA $81				; C58F  $85 $81
+	LDA #BANK_RATE_GRP		; C591  $A9 $0B
+	JSR Swap_PRG_			; C593  $20 $03 $FE
+	INC rng_cnt_bat			; C596  $E6 $F7
+	LDX rng_cnt_bat			; C598  $A6 $F7
+	LDA rnum_tbl,X			; C59A  $BD $00 $F9
+	AND #$3F			; C59D  $29 $3F
+	TAX				; C59F  $AA
+	LDY $C5C8,X			; C5A0  $BC $C8 $C5	battle probabilities
+	LDA ($80),Y			; C5A3  $B1 $80
+	STA $6A				; C5A5  $85 $6A		set battle - battle group ??
+	LDA #$20			; C5A7  $A9 $20		trigger battle
+	STA tile_prop			; C5A9  $85 $44
+	CLC				; C5AB  $18
+	RTS				; C5AC  $60
 ; End of battle check ??
 
 ; Name	: Get_rndnum
@@ -991,23 +991,23 @@ C567:
 ;	  indicates traversing the rng table in the negative direction
 ;; sub start ;;
 Get_rndnum:
-	BIT rng_tbl_dir		; C5AD  $24 $F6
-	BMI L3C5B7		; C5AF  $30 $06
-	INC rng_cnt		; C5B1  $E6 $F5
-	BNE L3C5C2		; C5B3  $D0 $0D
-	BEQ L3C5BB		; C5B5  $F0 $04
+	BIT rng_tbl_dir			; C5AD  $24 $F6
+	BMI L3C5B7			; C5AF  $30 $06
+	INC rng_cnt			; C5B1  $E6 $F5
+	BNE L3C5C2			; C5B3  $D0 $0D
+	BEQ L3C5BB			; C5B5  $F0 $04
 L3C5B7:
-	DEC rng_cnt		; C5B7  $C6 $F5
-	BNE L3C5C2		; C5B9  $D0 $07
+	DEC rng_cnt			; C5B7  $C6 $F5
+	BNE L3C5C2			; C5B9  $D0 $07
 L3C5BB:
-	LDA rng_tbl_dir		; C5BB  $A5 $F6
-	CLC			; C5BD  $18
-	ADC #$A0		; C5BE  $69 $A0
-	STA rng_tbl_dir		; C5C0  $85 $F6
+	LDA rng_tbl_dir			; C5BB  $A5 $F6
+	CLC				; C5BD  $18
+	ADC #$A0			; C5BE  $69 $A0
+	STA rng_tbl_dir			; C5C0  $85 $F6
 L3C5C2:
-	LDX rng_cnt		; C5C2  $A6 $F5
-	LDA rnum_tbl,X		; C5C4  $BD $00 $F9
-	RTS			; C5C7  $60
+	LDX rng_cnt			; C5C2  $A6 $F5
+	LDA rnum_tbl,X			; C5C4  $BD $00 $F9
+	RTS				; C5C7  $60
 ; End of Get_rndnum
 
 ; $C5C8 - data block = battle probabilities
@@ -1080,19 +1080,19 @@ C650:
 ;	  check if passable in canoe/snowcraft
 ;; sub start ;;
 Check_snow_river:
-	LDA tile_prop		; C654  $A5 $44
-	AND #$02		; C656  $29 $02
-	BNE L3C689		; C658  $D0 $2F		branch if not a river/snow tile
-	CPX #$4C		; C65A  $E0 $4C
-	BNE C669		; C65C  $D0 $0B		branch if not a snow tile (tile $26)
-	LDA key_items		; C65E  $AD $1A $60
-	AND #$20		; C661  $29 $20		snowcraft
-	BEQ L3C689		; C663  $F0 $24		branch if no snowcraft
-	LDA #$58		; C665  $A9 $58
-	BNE C672		; C667  $D0 $09
+	LDA tile_prop			; C654  $A5 $44
+	AND #$02			; C656  $29 $02
+	BNE L3C689			; C658  $D0 $2F		branch if not a river/snow tile
+	CPX #$4C			; C65A  $E0 $4C
+	BNE C669			; C65C  $D0 $0B		branch if not a snow tile (tile $26)
+	LDA key_items			; C65E  $AD $1A $60
+	AND #$20			; C661  $29 $20		snowcraft
+	BEQ L3C689			; C663  $F0 $24		branch if no snowcraft
+	LDA #$58			; C665  $A9 $58
+	BNE C672			; C667  $D0 $09
 C669:
-	LDA key_items		; C669  $AD $1A $60
-	AND #$04		; C66C  $29 $04		canoe
+	LDA key_items			; C669  $AD $1A $60
+	AND #$04			; C66C  $29 $04		canoe
     BEQ L3C689               ; C66E  $F0 $19	branch if no canoe
     LDA #$40                 ; C670  $A9 $40
 C672:
@@ -1110,8 +1110,8 @@ C672:
     RTS                      ; C688  $60
 ; End of
 L3C689:
-	SEC			; C689  $38
-	RTS			; C68A  $60
+	SEC				; C689  $38
+	RTS				; C68A  $60
 ; End of Check_snow_river/check pirate ship??/check ship ??
 
 ; Name	:
@@ -1119,8 +1119,8 @@ L3C689:
 ; Marks	: check pirate ship ??
 ;	  try to board ship ???
 ;; sub start ;;
-	LDA pirateship_flag	; C68B  $AD $00 $60
-	BEQ L3C689		; C68E  $F0 $F9
+	LDA pirateship_flag		; C68B  $AD $00 $60
+	BEQ L3C689			; C68E  $F0 $F9
     LDA $6001                ; C690  $AD $01 $60
     CMP $82                  ; C693  $C5 $82
     BNE L3C689               ; C695  $D0 $F2
@@ -1154,9 +1154,9 @@ C6B9:
 ; Marks	: Check ship ??
 ;	  try to board ferry ??
 ;; sub start ;;
-	LDA ship_flag		; C6C7  $AD $0C $60
-	CMP #$02		; C6CA  $C9 $02
-	BCC L3C689		; C6CC  $90 $BB		branch if fare not paid ??
+	LDA ship_flag			; C6C7  $AD $0C $60
+	CMP #$02			; C6CA  $C9 $02
+	BCC L3C689			; C6CC  $90 $BB		branch if fare not paid ??
     LDA $600D                ; C6CE  $AD $0D $60	compare with ferry position
     CMP $82                  ; C6D1  $C5 $82
     BNE L3C689               ; C6D3  $D0 $B4
@@ -1197,15 +1197,15 @@ L3C6F4:
 ; Ret	: Carry flag(Set: , Reset: )
 ; Marks	: $82
 ;; sub start ;;
-	LDA dreadnaught_flag	; C70E  $AD $14 $60
-	BEQ L3C733		; C711  $F0 $20		branch if dreadnought isn't visible
-	LDA $82			; C713  $A5 $82
-	CMP dreadnaught_x	; C715  $CD $15 $60
-	BEQ L3C722		; C718  $F0 $08
-	CLC			; C71A  $18
-	ADC #$01		; C71B  $69 $01
-	CMP dreadnaught_x	; C71D  $CD $15 $60
-	BNE L3C733		; C720  $D0 $11
+	LDA dreadnaught_flag		; C70E  $AD $14 $60
+	BEQ L3C733			; C711  $F0 $20		branch if dreadnought isn't visible
+	LDA $82				; C713  $A5 $82
+	CMP dreadnaught_x		; C715  $CD $15 $60
+	BEQ L3C722			; C718  $F0 $08
+	CLC				; C71A  $18
+	ADC #$01			; C71B  $69 $01
+	CMP dreadnaught_x		; C71D  $CD $15 $60
+	BNE L3C733			; C720  $D0 $11
 L3C722:
     LDA $83                  ; C722  $A5 $83
     CMP $6016                ; C724  $CD $16 $60
@@ -1219,30 +1219,30 @@ C731:
     RTS                      ; C732  $60
 
 L3C733:
-	LDA vehicle_ID		; C733  $A5 $42
-	CMP #$01		; C735  $C9 $01
-	BNE L3C744		; C737  $D0 $0B
-	LDA chocobo_stat	; C739  $AD $08 $60
-	CMP #$02		; C73C  $C9 $02
-	BNE L3C744		; C73E  $D0 $04
-	LDA tile_prop		; C740  $A5 $44
-	BMI C731		; C742  $30 $ED
+	LDA vehicle_ID			; C733  $A5 $42
+	CMP #$01			; C735  $C9 $01
+	BNE L3C744			; C737  $D0 $0B
+	LDA chocobo_stat		; C739  $AD $08 $60
+	CMP #$02			; C73C  $C9 $02
+	BNE L3C744			; C73E  $D0 $04
+	LDA tile_prop			; C740  $A5 $44
+	BMI C731			; C742  $30 $ED
 L3C744:
-	CLC			; C744  $18
-	RTS			; C745  $60
+	CLC				; C744  $18
+	RTS				; C745  $60
 ; End of
 
 ; Name	:
 ; Marks	: Sound process ??
 ;	  update sound
 L3C746:
-	LDA #$0D		; C746  $A9 $0D
-	JSR Swap_PRG_		; C748  $20 $03 $FE
-	JMP $9800		; C74B  $4C $00 $98	BANK 0D/9800 update music
+	LDA #$0D			; C746  $A9 $0D
+	JSR Swap_PRG_			; C748  $20 $03 $FE
+	JMP $9800			; C74B  $4C $00 $98	BANK 0D/9800 update music
 ; End of
 
 ; C74E - UNUSED
-	RTS			; C74E  $60
+	RTS				; C74E  $60
 ; End of
 
 ; Name	:
@@ -1262,28 +1262,28 @@ L3C74F:
 ;	  get world map battle background
    ;; sub start ;;
 Get_bat_bg:
-	LDA ow_x_pos		; C75C  $A5 $27
-	CLC			; C75E  $18
-	ADC #$07		; C75F  $69 $07
-	STA $80			; C761  $85 $80
-	LDA ow_y_pos		; C763  $A5 $28
-	CLC			; C765  $18
-	ADC #$07		; C766  $69 $07
-	AND #$0F		; C768  $29 $0F
-	ORA #$70		; C76A  $09 $70
-	STA $81			; C76C  $85 $81
-	LDY #$00		; C76E  $A0 $00
-	LDA ($80),Y		; C770  $B1 $80		tile
-	TAY			; C772  $A8
-	ASL A			; C773  $0A
-	TAX			; C774  $AA
-	LDA $0400,X		; C775  $BD $00 $04	tile properties
-	AND #$10		; C778  $29 $10
-	STA $43			; C77A  $85 $43
-	LDA #$00		; C77C  $A9 $00
-	JSR Swap_PRG_		; C77E  $20 $03 $FE
-	LDX $9500,Y		; C781  $BE $00 $95	battle bg for each world map tile - BANK 00 ??
-	RTS			; C784  $60
+	LDA ow_x_pos			; C75C  $A5 $27
+	CLC				; C75E  $18
+	ADC #$07			; C75F  $69 $07
+	STA $80				; C761  $85 $80
+	LDA ow_y_pos			; C763  $A5 $28
+	CLC				; C765  $18
+	ADC #$07			; C766  $69 $07
+	AND #$0F			; C768  $29 $0F
+	ORA #$70			; C76A  $09 $70
+	STA $81				; C76C  $85 $81
+	LDY #$00			; C76E  $A0 $00
+	LDA ($80),Y			; C770  $B1 $80		tile
+	TAY				; C772  $A8
+	ASL A				; C773  $0A
+	TAX				; C774  $AA
+	LDA $0400,X			; C775  $BD $00 $04	tile properties
+	AND #$10			; C778  $29 $10
+	STA $43				; C77A  $85 $43
+	LDA #$00			; C77C  $A9 $00
+	JSR Swap_PRG_			; C77E  $20 $03 $FE
+	LDX $9500,Y			; C781  $BE $00 $95	battle bg for each world map tile - BANK 00 ??
+	RTS				; C784  $60
 ; End of Get_bat_bg
 
 ; Marks	: land airship
@@ -1384,59 +1384,59 @@ C817:
 ; Marks	: Variables init
 ;	  load world map
 ;; sub start ;;
-	LDA $FF			; C832  $A5 $FF
-	STA PpuControl_2000	; C834  $8D $00 $20
-	LDA #$00		; C837  $A9 $00
-	STA PpuMask_2001	; C839  $8D $01 $20
-	STA $43			; C83C  $85 $43
-	STA $4E			; C83E  $85 $4E
-	STA $6007		; C840  $8D $07 $60
-	STA $2F			; C843  $85 $2F
-	STA tile_prop		; C845  $85 $44
-	STA $45			; C847  $85 $45
-	STA $0D			; C849  $85 $0D
-	STA $50			; C84B  $85 $50
-	STA player_dir		; C84D  $85 $33
-	STA a_pressing		; C84F  $85 $24
-	STA b_pressing		; C851  $85 $25
-	STA s_pressing		; C853  $85 $23
-	STA e_pressing		; C855  $85 $22
-	STA scroll_dir_map	; C857  $85 $2D
-	JSR $E4A5		; C859  $20 $A5 $E4	copy tile(world bg/sprites graphics) to Ppu
-	LDA #$00		; C85C  $A9 $00
-	JSR Swap_PRG_		; C85E  $20 $03 $FE
-	JSR Init_wmap		; C861  $20 $03 $9C	BANK 00/9C03 (init world map)
-	JSR Set_wmap_palettes	; C864  $20 $06 $9C	BANK 00/9C06 (load map palette)
-	JSR $D9A3		; C867  $20 $A3 $D9	Set world map settings according to event situation
-	JSR $D1D3		; C86A  $20 $D3 $D1	map processing ??
-	LDA ow_x_pos		; C86D  $A5 $27
-	AND #$10		; C86F  $29 $10
-	CMP #$10		; C871  $C9 $10
-	ROL A			; C873  $2A
-	AND #$01		; C874  $29 $01
-	ORA #$88		; C876  $09 $88
-	STA $FD			; C878  $85 $FD		ppu_con_p
-	STA $FF			; C87A  $85 $FF		ppu_con_c
-	JSR Wait_NMI		; C87C  $20 $00 $FE
-	JSR Palette_copy	; C87F  $20 $30 $DC
-	JSR Scroll_map		; C882  $20 $80 $C3
-	LDA #$00		; C885  $A9 $00
-	STA PpuMask_2001	; C887  $8D $01 $20
-	LDA #BGM_feild		; C88A  $A9 $44
-	LDX vehicle_ID		; C88C  $A6 $42
-	CPX #$01		; C88E  $E0 $01
-	BNE L3C89B		; C890  $D0 $09		if riding
-	LDX chocobo_stat	; C892  $AE $08 $60
-	CPX #$02		; C895  $E0 $02
-	BNE L3C89B		; C897  $D0 $02
-	LDA #BGM_chocobo	; C899  $A9 $43		play song $03
+	LDA $FF				; C832  $A5 $FF
+	STA PpuControl_2000		; C834  $8D $00 $20
+	LDA #$00			; C837  $A9 $00
+	STA PpuMask_2001		; C839  $8D $01 $20
+	STA $43				; C83C  $85 $43
+	STA $4E				; C83E  $85 $4E
+	STA $6007			; C840  $8D $07 $60
+	STA $2F				; C843  $85 $2F
+	STA tile_prop			; C845  $85 $44
+	STA $45				; C847  $85 $45
+	STA $0D				; C849  $85 $0D
+	STA $50				; C84B  $85 $50
+	STA player_dir			; C84D  $85 $33
+	STA a_pressing			; C84F  $85 $24
+	STA b_pressing			; C851  $85 $25
+	STA s_pressing			; C853  $85 $23
+	STA e_pressing			; C855  $85 $22
+	STA scroll_dir_map		; C857  $85 $2D
+	JSR $E4A5			; C859  $20 $A5 $E4	copy tile(world bg/sprites graphics) to Ppu
+	LDA #$00			; C85C  $A9 $00
+	JSR Swap_PRG_			; C85E  $20 $03 $FE
+	JSR Init_wmap			; C861  $20 $03 $9C	BANK 00/9C03 (init world map)
+	JSR Set_wmap_palettes		; C864  $20 $06 $9C	BANK 00/9C06 (load map palette)
+	JSR $D9A3			; C867  $20 $A3 $D9	Set world map settings according to event situation
+	JSR $D1D3			; C86A  $20 $D3 $D1	map processing ??
+	LDA ow_x_pos			; C86D  $A5 $27
+	AND #$10			; C86F  $29 $10
+	CMP #$10			; C871  $C9 $10
+	ROL A				; C873  $2A
+	AND #$01			; C874  $29 $01
+	ORA #$88			; C876  $09 $88
+	STA $FD				; C878  $85 $FD		ppu_con_p
+	STA $FF				; C87A  $85 $FF		ppu_con_c
+	JSR Wait_NMI			; C87C  $20 $00 $FE
+	JSR Palette_copy		; C87F  $20 $30 $DC
+	JSR Scroll_map			; C882  $20 $80 $C3
+	LDA #$00			; C885  $A9 $00
+	STA PpuMask_2001		; C887  $8D $01 $20
+	LDA #BGM_feild			; C88A  $A9 $44
+	LDX vehicle_ID			; C88C  $A6 $42
+	CPX #$01			; C88E  $E0 $01
+	BNE L3C89B			; C890  $D0 $09		if riding
+	LDX chocobo_stat		; C892  $AE $08 $60
+	CPX #$02			; C895  $E0 $02
+	BNE L3C89B			; C897  $D0 $02
+	LDA #BGM_chocobo		; C899  $A9 $43		play song $03
 L3C89B:
-	STA current_song_ID	; C89B  $85 $E0
-	LDA chocobo_stat	; C89D  $AD $08 $60
-	AND #$7F		; C8A0  $29 $7F
-	STA chocobo_stat	; C8A2  $8D $08 $60
-	LDA airship_flag	; C8A5  $AD $04 $60
-	BPL L3C8BB		; C8A8  $10 $11
+	STA current_song_ID		; C89B  $85 $E0
+	LDA chocobo_stat		; C89D  $AD $08 $60
+	AND #$7F			; C8A0  $29 $7F
+	STA chocobo_stat		; C8A2  $8D $08 $60
+	LDA airship_flag		; C8A5  $AD $04 $60
+	BPL L3C8BB			; C8A8  $10 $11
     LDA #$01                 ; C8AA  $A9 $01
     STA $6004                ; C8AC  $8D $04 $60
     LDA $623C                ; C8AF  $AD $3C $62
@@ -1444,7 +1444,7 @@ L3C89B:
     LDA $623D                ; C8B5  $AD $3D $62
     STA $6006                ; C8B8  $8D $06 $60
 L3C8BB:
-	RTS			; C8BB  $60
+	RTS				; C8BB  $60
 ; End of
 
 ; Marks	: reload world map
@@ -1476,41 +1476,41 @@ C8E6:
 ; Marks	: check status
 ;	  do venom step damage
 L3C8E7:
-	LDA ch_status		; C8E7  $AD $01 $61
-	ASL A			; C8EA  $0A
-	BCS L3C8F4		; C8EB  $B0 $07		skip if dead
-	ASL A			; C8ED  $0A
-	BCS L3C8F4		; C8EE  $B0 $04		skip if stone
-	AND #$10		; C8F0  $29 $10
-	BNE L3C921		; C8F2  $D0 $2D		branch if has venom status
+	LDA ch_status			; C8E7  $AD $01 $61
+	ASL A				; C8EA  $0A
+	BCS L3C8F4			; C8EB  $B0 $07		skip if dead
+	ASL A				; C8ED  $0A
+	BCS L3C8F4			; C8EE  $B0 $04		skip if stone
+	AND #$10			; C8F0  $29 $10
+	BNE L3C921			; C8F2  $D0 $2D		branch if has venom status
 L3C8F4:
-	LDA $6141		; C8F4  $AD $41 $61	2nd character
-	ASL A			; C8F7  $0A
-	BCS L3C901		; C8F8  $B0 $07
-	ASL A			; C8FA  $0A
-	BCS L3C901		; C8FB  $B0 $04
-	AND #$10		; C8FD  $29 $10
-	BNE L3C921		; C8FF  $D0 $20
+	LDA $6141			; C8F4  $AD $41 $61	2nd character
+	ASL A				; C8F7  $0A
+	BCS L3C901			; C8F8  $B0 $07
+	ASL A				; C8FA  $0A
+	BCS L3C901			; C8FB  $B0 $04
+	AND #$10			; C8FD  $29 $10
+	BNE L3C921			; C8FF  $D0 $20
 L3C901:
-	LDA $6181		; C901  $AD $81 $61	3rd character
-	ASL A			; C904  $0A
-	BCS L3C90E		; C905  $B0 $07
-	ASL A			; C907  $0A
-	BCS L3C90E		; C908  $B0 $04
-	AND #$10		; C90A  $29 $10
-	BNE L3C921		; C90C  $D0 $13
+	LDA $6181			; C901  $AD $81 $61	3rd character
+	ASL A				; C904  $0A
+	BCS L3C90E			; C905  $B0 $07
+	ASL A				; C907  $0A
+	BCS L3C90E			; C908  $B0 $04
+	AND #$10			; C90A  $29 $10
+	BNE L3C921			; C90C  $D0 $13
 L3C90E:
-	LDA $62F5		; C90E  $AD $F5 $62	4th character exist ??(absent = $80 ??)
-	BMI L3C920		; C911  $30 $0D
-	LDA $61C1		; C913  $AD $C1 $61	4th character
-	ASL A			; C916  $0A
-	BCS L3C920		; C917  $B0 $07
-	ASL A			; C919  $0A
-	BCS L3C920		; C91A  $B0 $04
-	AND #$10		; C91C  $29 $10
-	BNE L3C921		; C91E  $D0 $01
+	LDA $62F5			; C90E  $AD $F5 $62	4th character exist ??(absent = $80 ??)
+	BMI L3C920			; C911  $30 $0D
+	LDA $61C1			; C913  $AD $C1 $61	4th character
+	ASL A				; C916  $0A
+	BCS L3C920			; C917  $B0 $07
+	ASL A				; C919  $0A
+	BCS L3C920			; C91A  $B0 $04
+	AND #$10			; C91C  $29 $10
+	BNE L3C921			; C91E  $D0 $01
 L3C920:
-	RTS			; C920  $60
+	RTS				; C920  $60
 ; End of Character_movement ??
 
 L3C921:
@@ -1682,181 +1682,181 @@ C9E8:
 ; Marks	: Normal map process
 ;	  map main
 L3CA41:
-	JSR $D06F		; CA41  $20 $6F $D0	eye open effect / sound ?? - load map
+	JSR $D06F			; CA41  $20 $6F $D0	eye open effect / sound ?? - load map
 NM_LOOP:
-	JSR Wait_NMI		; CA44  $20 $00 $FE
-	LDA #$02		; CA47  $A9 $02
-	STA SpriteDma_4014	; CA49  $8D $14 $40
-	JSR $CDD0		; CA4C  $20 $D0 $CD	update scrolling
-	LDA frame_cnt_L		; CA4F  $A5 $F0
-	CLC			; CA51  $18
-	ADC #$01		; CA52  $69 $01
-	STA frame_cnt_L		; CA54  $85 $F0
-	LDA frame_cnt_H		; CA56  $A5 $F1
-	ADC #$00		; CA58  $69 $00
-	STA frame_cnt_H		; CA5A  $85 $F1
-	JSR L3C746		; CA5C  $20 $46 $C7	sound process ??
-	LDA ver_stile_pos	; CA5F  $A5 $36
-	ORA hor_stile_pos	; CA61  $05 $35
-	CMP #$08		; CA63  $C9 $08
-	BNE L3CA6D		; CA65  $D0 $06		if A != 08h
+	JSR Wait_NMI			; CA44  $20 $00 $FE
+	LDA #$02			; CA47  $A9 $02
+	STA SpriteDma_4014		; CA49  $8D $14 $40
+	JSR $CDD0			; CA4C  $20 $D0 $CD	update scrolling
+	LDA frame_cnt_L			; CA4F  $A5 $F0
+	CLC				; CA51  $18
+	ADC #$01			; CA52  $69 $01
+	STA frame_cnt_L			; CA54  $85 $F0
+	LDA frame_cnt_H			; CA56  $A5 $F1
+	ADC #$00			; CA58  $69 $00
+	STA frame_cnt_H			; CA5A  $85 $F1
+	JSR L3C746			; CA5C  $20 $46 $C7	sound process ??
+	LDA ver_stile_pos		; CA5F  $A5 $36
+	ORA hor_stile_pos		; CA61  $05 $35
+	CMP #$08			; CA63  $C9 $08
+	BNE L3CA6D			; CA65  $D0 $06		if A != 08h
     LDA tile_prop                  ; CA67  $A5 $44
     AND #$06                 ; CA69  $29 $06
     STA $43                  ; CA6B  $85 $43
 L3CA6D:
-	LDA mov_spd		; CA6D  $A5 $34
-	BNE L3CA7D		; CA6F  $D0 $0C		if A != 00h(moving)
-	LDA tile_prop		; CA71  $A5 $44
-	AND #$E0		; CA73  $29 $E0
-	BEQ L3CA7A		; CA75  $F0 $03		if A == 00h(nothing) - branch if no trigger
-	JMP L3CA8D		; CA77  $4C $8D $CA	enter/battle
+	LDA mov_spd			; CA6D  $A5 $34
+	BNE L3CA7D			; CA6F  $D0 $0C		if A != 00h(moving)
+	LDA tile_prop			; CA71  $A5 $44
+	AND #$E0			; CA73  $29 $E0
+	BEQ L3CA7A			; CA75  $F0 $03		if A == 00h(nothing) - branch if no trigger
+	JMP L3CA8D			; CA77  $4C $8D $CA	enter/battle
 L3CA7A:
-	JSR L3CB20		; CA7A  $20 $20 $CB	key processing / event ?? - check player input
+	JSR L3CB20			; CA7A  $20 $20 $CB	key processing / event ?? - check player input
 L3CA7D:
-	LDA $76			; CA7D  $A5 $76		pending event dialogue
-	BEQ L3CA84		; CA7F  $F0 $03		if A == 00h - branch if no event dialogue
-	JSR $E8AA		; CA81  $20 $AA $E8	display event dialogue
+	LDA $76				; CA7D  $A5 $76		pending event dialogue
+	BEQ L3CA84			; CA7F  $F0 $03		if A == 00h - branch if no event dialogue
+	JSR $E8AA			; CA81  $20 $AA $E8	display event dialogue
 L3CA84:
-	JSR Init_Page2		; CA84  $20 $6E $C4
-	JSR $E30C		; CA87  $20 $0C $E3	update sprites - event ?? npc process ??
-	JMP NM_LOOP		; CA8A  $4C $44 $CA	LOOP - NORMAL MAP
+	JSR Init_Page2			; CA84  $20 $6E $C4
+	JSR $E30C			; CA87  $20 $0C $E3	update sprites - event ?? npc process ??
+	JMP NM_LOOP			; CA8A  $4C $44 $CA	LOOP - NORMAL MAP
 ; Marks	: execute trigger event
 L3CA8D:
-	CMP #$40		; CA8D  $C9 $40
-	BCS L3CAB6		; CA8F  $B0 $25		enter another space
+	CMP #$40			; CA8D  $C9 $40
+	BCS L3CAB6			; CA8F  $B0 $25		enter another space
 ; $20: battle
-	LDA #$00		; CA91  $A9 $00
-	STA tile_prop		; CA93  $85 $44
-	JSR $DC6A		; CA95  $20 $6A $DC	battle encount graphic/sound effect
-	LDA #$00		; CA98  $A9 $00
-	STA PpuMask_2001	; CA9A  $8D $01 $20
-	STA ApuStatus_4015	; CA9D  $8D $15 $40
-	LDA #$00		; CAA0  $A9 $00
-	JSR Swap_PRG_		; CAA2  $20 $03 $FE
-	LDX $48			; CAA5  $A6 $48		world map entrance ID ??
-	LDA $9400,X		; CAA7  $BD $00 $94	BANK 00 - battle bg for each map
-	TAX			; CAAA  $AA
-	LDA $6A			; CAAB  $A5 $6A		battle group ??
-	JSR Battle_start	; CAAD  $20 $00 $FA	battle code
-	JSR L3D07B		; CAB0  $20 $7B $D0	reload map - battle end
-	JMP NM_LOOP		; CAB3  $4C $44 $CA	LOOP - NORMAL MAP
+	LDA #$00			; CA91  $A9 $00
+	STA tile_prop			; CA93  $85 $44
+	JSR $DC6A			; CA95  $20 $6A $DC	battle encount graphic/sound effect
+	LDA #$00			; CA98  $A9 $00
+	STA PpuMask_2001		; CA9A  $8D $01 $20
+	STA ApuStatus_4015		; CA9D  $8D $15 $40
+	LDA #$00			; CAA0  $A9 $00
+	JSR Swap_PRG_			; CAA2  $20 $03 $FE
+	LDX $48				; CAA5  $A6 $48		world map entrance ID ??
+	LDA $9400,X			; CAA7  $BD $00 $94	BANK 00 - battle bg for each map
+	TAX				; CAAA  $AA
+	LDA $6A				; CAAB  $A5 $6A		battle group ??
+	JSR Battle_start		; CAAD  $20 $00 $FA	battle code
+	JSR L3D07B			; CAB0  $20 $7B $D0	reload map - battle end
+	JMP NM_LOOP			; CAB3  $4C $44 $CA	LOOP - NORMAL MAP
 ; $40: exit (to previous map)
 L3CAB6:
-	BNE L3CABC		; CAB6  $D0 $04
-	JSR $D8EE		; CAB8  $20 $EE $D8	screen wipe out
-	RTS			; CABB  $60
+	BNE L3CABC			; CAB6  $D0 $04
+	JSR $D8EE			; CAB8  $20 $EE $D8	screen wipe out
+	RTS				; CABB  $60
 ; $80: entrance
 L3CABC:
-	CMP #$80		; CABC  $C9 $80		to 
-	BNE L3CAFF		; CABE  $D0 $3F
-	TSX			; CAC0  $BA
-	CPX #$20		; CAC1  $E0 $20		check too deep by stack pointer
-	BCC L3CA7A		; CAC3  $90 $B5		to LOOP in NORMAL MAP
-	LDA in_x_pos		; CAC5  $A5 $29
-	PHA			; CAC7  $48
-	LDA in_y_pos		; CAC8  $A5 $2A
-	PHA			; CACA  $48
-	LDA $48			; CACB  $A5 $48		world map entrance ID ??
-	PHA			; CACD  $48
-	JSR $D8EE		; CACE  $20 $EE $D8	eye close effect - screen wipe out
-	LDA #$00		; CAD1  $A9 $00
-	JSR Swap_PRG_		; CAD3  $20 $03 $FE
-	LDX $45			; CAD6  $A6 $45
-	LDA $B000,X		; CAD8  $BD $00 $B0	BANK 00/B000 - map initial x positions and fill tile
-	AND #$1F		; CADB  $29 $1F
-	SEC			; CADD  $38
-	SBC #$07		; CADE  $E9 $07
-	AND #$3F		; CAE0  $29 $3F
-	STA in_x_pos		; CAE2  $85 $29
-	LDA $B100,X		; CAE4  $BD $00 $B1	BANK 00/B100 - map initial y positions and fill tile
-	SEC			; CAE7  $38
-	SBC #$07		; CAE8  $E9 $07
-	AND #$3F		; CAEA  $29 $3F
-	STA in_y_pos		; CAEC  $85 $2A
-	STX $48			; CAEE  $86 $48		world map entrance ID ??
-	JSR L3CA41		; CAF0  $20 $41 $CA	map main
-	PLA			; CAF3  $68
-	STA $48			; CAF4  $85 $48		world map entrance ID ??
-	PLA			; CAF6  $68
-	STA in_y_pos		; CAF7  $85 $2A
-	PLA			; CAF9  $68
-	STA in_x_pos		; CAFA  $85 $29
-	JMP L3CA41		; CAFC  $4C $41 $CA	map main - to normal map process
+	CMP #$80			; CABC  $C9 $80		to 
+	BNE L3CAFF			; CABE  $D0 $3F
+	TSX				; CAC0  $BA
+	CPX #$20			; CAC1  $E0 $20		check too deep by stack pointer
+	BCC L3CA7A			; CAC3  $90 $B5		to LOOP in NORMAL MAP
+	LDA in_x_pos			; CAC5  $A5 $29
+	PHA				; CAC7  $48
+	LDA in_y_pos			; CAC8  $A5 $2A
+	PHA				; CACA  $48
+	LDA $48				; CACB  $A5 $48		world map entrance ID ??
+	PHA				; CACD  $48
+	JSR $D8EE			; CACE  $20 $EE $D8	eye close effect - screen wipe out
+	LDA #$00			; CAD1  $A9 $00
+	JSR Swap_PRG_			; CAD3  $20 $03 $FE
+	LDX $45				; CAD6  $A6 $45
+	LDA $B000,X			; CAD8  $BD $00 $B0	BANK 00/B000 - map initial x positions and fill tile
+	AND #$1F			; CADB  $29 $1F
+	SEC				; CADD  $38
+	SBC #$07			; CADE  $E9 $07
+	AND #$3F			; CAE0  $29 $3F
+	STA in_x_pos			; CAE2  $85 $29
+	LDA $B100,X			; CAE4  $BD $00 $B1	BANK 00/B100 - map initial y positions and fill tile
+	SEC				; CAE7  $38
+	SBC #$07			; CAE8  $E9 $07
+	AND #$3F			; CAEA  $29 $3F
+	STA in_y_pos			; CAEC  $85 $2A
+	STX $48				; CAEE  $86 $48		world map entrance ID ??
+	JSR L3CA41			; CAF0  $20 $41 $CA	map main
+	PLA				; CAF3  $68
+	STA $48				; CAF4  $85 $48		world map entrance ID ??
+	PLA				; CAF6  $68
+	STA in_y_pos			; CAF7  $85 $2A
+	PLA				; CAF9  $68
+	STA in_x_pos			; CAFA  $85 $29
+	JMP L3CA41			; CAFC  $4C $41 $CA	map main - to normal map process
 ; $C0: exit (to world map)
 L3CAFF:
-	CMP #$C0		; CAFF  $C9 $C0
-	BNE L3CB20		; CB01  $D0 $1D		other values branch to subroutine ???
-	JSR $D8EE		; CB03  $20 $EE $D8	screen wipe out - eye close effect(to world map)
-	LDA #$00		; CB06  $A9 $00
-	JSR Swap_PRG_		; CB08  $20 $03 $FE
-	LDX $45			; CB0B  $A6 $45
-	LDA $B4C0,X		; CB0D  $BD $C0 $B4	map exit x position
-	SEC			; CB10  $38
-	SBC #$07		; CB11  $E9 $07
-	STA ow_x_pos		; CB13  $85 $27
-	LDA $B4E0,X		; CB15  $BD $E0 $B4	map exit y position
-	SEC			; CB18  $38
-	SBC #$07		; CB19  $E9 $07
-	STA ow_y_pos		; CB1B  $85 $28
-	JMP L3C0B8		; CB1D  $4C $B8 $C0	world map main
+	CMP #$C0			; CAFF  $C9 $C0
+	BNE L3CB20			; CB01  $D0 $1D		other values branch to subroutine ???
+	JSR $D8EE			; CB03  $20 $EE $D8	screen wipe out - eye close effect(to world map)
+	LDA #$00			; CB06  $A9 $00
+	JSR Swap_PRG_			; CB08  $20 $03 $FE
+	LDX $45				; CB0B  $A6 $45
+	LDA $B4C0,X			; CB0D  $BD $C0 $B4	map exit x position
+	SEC				; CB10  $38
+	SBC #$07			; CB11  $E9 $07
+	STA ow_x_pos			; CB13  $85 $27
+	LDA $B4E0,X			; CB15  $BD $E0 $B4	map exit y position
+	SEC				; CB18  $38
+	SBC #$07			; CB19  $E9 $07
+	STA ow_y_pos			; CB1B  $85 $28
+	JMP L3C0B8			; CB1D  $4C $B8 $C0	world map main
 ; End of
 
 ; Name	:
 ; Marks	: Key processing / event ??
 ;	  check player input
 L3CB20:
-	LDA a_pressing		; CB20  $A5 $24
-	BEQ L3CB83		; CB22  $F0 $5F		if A == 00h(a not pressed)
-	LDA #$00		; CB24  $A9 $00
-	STA a_pressing		; CB26  $85 $24
-	JSR Wait_NMI		; CB28  $20 $00 $FE
-	JSR L3C746		; CB2B  $20 $46 $C7	sound process ??
-	LDA player_dir		; CB2E  $A5 $33
-	JSR Player_front_pos	; CB30  $20 $21 $CD
-	JSR $CCDE		; CB33  $20 $DE $CC	check npcs for activation ??
-	STX $67			; CB36  $86 $67		npc number ??
-	PHP			; CB38  $08		A == interacted with player/touched by player
-	LDX #$08		; CB39  $A2 $08		event code value = 08h
-	LDA #$03		; CB3B  $A9 $03
-	JSR Swap_PRG_		; CB3D  $20 $03 $FE
-	JSR $A003		; CB40  $20 $03 $A0	BANK 03/A003 - event code - npc direction facing each other??
-	PLP			; CB43  $28
-	LDX $67			; CB44  $A6 $67		npc number ??
-	BCC L3CB4B		; CB46  $90 $03		branch if no npc
-	JMP L3CBC7		; CB48  $4C $C7 $CB	execute npc event
+	LDA a_pressing			; CB20  $A5 $24
+	BEQ L3CB83			; CB22  $F0 $5F		if A == 00h(a not pressed)
+	LDA #$00			; CB24  $A9 $00
+	STA a_pressing			; CB26  $85 $24
+	JSR Wait_NMI			; CB28  $20 $00 $FE
+	JSR L3C746			; CB2B  $20 $46 $C7	sound process ??
+	LDA player_dir			; CB2E  $A5 $33
+	JSR Player_front_pos		; CB30  $20 $21 $CD
+	JSR $CCDE			; CB33  $20 $DE $CC	check npcs for activation ??
+	STX $67				; CB36  $86 $67		npc number ??
+	PHP				; CB38  $08		A == interacted with player/touched by player
+	LDX #$08			; CB39  $A2 $08		event code value = 08h
+	LDA #$03			; CB3B  $A9 $03
+	JSR Swap_PRG_			; CB3D  $20 $03 $FE
+	JSR $A003			; CB40  $20 $03 $A0	BANK 03/A003 - event code - npc direction facing each other??
+	PLP				; CB43  $28
+	LDX $67				; CB44  $A6 $67		npc number ??
+	BCC L3CB4B			; CB46  $90 $03		branch if no npc
+	JMP L3CBC7			; CB48  $4C $C7 $CB	execute npc event
 L3CB4B:
-	JSR Check_tileprop	; CB4B  $20 $85 $CD	check treasures and locked doors
-	STA text_ID		; CB4E  $85 $92
-	LDA tile_prop		; CB50  $A5 $44
-	AND #$20		; CB52  $29 $20
-	ORA $43			; CB54  $05 $43
-	STA tile_prop		; CB56  $85 $44
-	LDA #$00		; CB58  $A9 $00
-	STA text_offset		; CB5A  $85 $94
-	LDA #$84		; CB5C  $A9 $84		text offset $0200
-	STA $95			; CB5E  $85 $95
-	LDA #$0A		; CB60  $A9 $0A		BANK 0A
-	STA bank_tmp		; CB62  $85 $93
+	JSR Check_tileprop		; CB4B  $20 $85 $CD	check treasures and locked doors
+	STA text_ID			; CB4E  $85 $92
+	LDA tile_prop			; CB50  $A5 $44
+	AND #$20			; CB52  $29 $20
+	ORA $43				; CB54  $05 $43
+	STA tile_prop			; CB56  $85 $44
+	LDA #$00			; CB58  $A9 $00
+	STA text_offset			; CB5A  $85 $94
+	LDA #$84			; CB5C  $A9 $84		text offset $0200
+	STA $95				; CB5E  $85 $95
+	LDA #$0A			; CB60  $A9 $0A		BANK 0A
+	STA bank_tmp			; CB62  $85 $93
 ; npc dialogue jumps here
 L3CB64:
-	JSR Wait_key		; CB64  $20 $D8 $E8
-	JSR Wait_NMI		; CB67  $20 $00 $FE
-	LDA #$02		; CB6A  $A9 $02
-	STA SpriteDma_4014	; CB6C  $8D $14 $40
-	JSR Scroll_normal	; CB6F  $20 $F5 $CD
-	LDA #$1E		; CB72  $A9 $1E		show sprite/backgnd
-	STA PpuMask_2001	; CB74  $8D $01 $20
-	JSR L3C746		; CB77  $20 $46 $C7	sound process ??
-	LDA #$00		; CB7A  $A9 $00
-	STA a_pressing		; CB7C  $85 $24
-	STA s_pressing		; CB7E  $85 $23
-	STA e_pressing		; CB80  $85 $22
-	RTS			; CB82  $60
+	JSR Wait_key			; CB64  $20 $D8 $E8
+	JSR Wait_NMI			; CB67  $20 $00 $FE
+	LDA #$02			; CB6A  $A9 $02
+	STA SpriteDma_4014		; CB6C  $8D $14 $40
+	JSR Scroll_normal		; CB6F  $20 $F5 $CD
+	LDA #$1E			; CB72  $A9 $1E		show sprite/backgnd
+	STA PpuMask_2001		; CB74  $8D $01 $20
+	JSR L3C746			; CB77  $20 $46 $C7	sound process ??
+	LDA #$00			; CB7A  $A9 $00
+	STA a_pressing			; CB7C  $85 $24
+	STA s_pressing			; CB7E  $85 $23
+	STA e_pressing			; CB80  $85 $22
+	RTS				; CB82  $60
 ; End of Key processing ?? / event ??
 
 L3CB83:
-	LDA s_pressing		; CB83  $A5 $23
-	BEQ L3CB9B		; CB85  $F0 $14		if A == 00h(start not pressed)
+	LDA s_pressing			; CB83  $A5 $23
+	BEQ L3CB9B			; CB85  $F0 $14		if A == 00h(start not pressed)
     LDA #$00                 ; CB87  $A9 $00
     STA s_pressing                  ; CB89  $85 $23
     LDA #$02                 ; CB8B  $A9 $02
@@ -1866,8 +1866,8 @@ L3CB83:
     JSR $ACC4                ; CB95  $20 $C4 $AC	BANK 0E/ACC4 (main menu)
     JMP L3D07B               ; CB98  $4C $7B $D0	reload map
 L3CB9B:
-	LDA e_pressing		; CB9B  $A5 $22
-	BEQ L3CBB3		; CB9D  $F0 $14		if A == 00h(select not pressed)
+	LDA e_pressing			; CB9B  $A5 $22
+	BEQ L3CBB3			; CB9D  $F0 $14		if A == 00h(select not pressed)
     LDA #$00                 ; CB9F  $A9 $00
     STA e_pressing                  ; CBA1  $85 $22
     LDA #$02                 ; CBA3  $A9 $02
@@ -1877,12 +1877,12 @@ L3CB9B:
     JSR $F0E2                ; CBAD  $20 $E2 $F0	row menu
     JMP L3D07B               ; CBB0  $4C $7B $D0	reload map
 L3CBB3:
-	JSR $DB5C		; CBB3  $20 $5C $DB	event, key processing - update joypad input
-	LDA key1p		; CBB6  $A5 $20
-	AND #$0F		; CBB8  $29 $0F		check key udlr
-	BNE L3CBBD		; CBBA  $D0 $01		if A != 00h(+pad pressed)
+	JSR $DB5C			; CBB3  $20 $5C $DB	event, key processing - update joypad input
+	LDA key1p			; CBB6  $A5 $20
+	AND #$0F			; CBB8  $29 $0F		check key udlr
+	BNE L3CBBD			; CBBA  $D0 $01		if A != 00h(+pad pressed)
 L3CBBC:
-	RTS			; CBBC  $60
+	RTS				; CBBC  $60
 ; End of Key processing / event ??
 
 L3CBBD:
@@ -1895,34 +1895,34 @@ L3CBBD:
 ; X	: npc id ??
 ; Marks	: execute npc event
 L3CBC7:
-	LDA $43			; CBC7  $A5 $43
-	STA tile_prop		; CBC9  $85 $44
-	LDA #$0E		; CBCB  $A9 $0E
-	JSR Swap_PRG_		; CBCD  $20 $03 $FE
-	JSR $9794		; CBD0  $20 $94 $97	BANK 0E/9794 (check npc script) - get text ID, chocobo ??
-	STA text_ID		; CBD3  $85 $92		set dialogue id
-	LDA $A0			; CBD5  $A5 $A0		npc id temp ??
-	CMP #$60		; CBD7  $C9 $60
-	BCC L3CBDF		; CBD9  $90 $04
+	LDA $43				; CBC7  $A5 $43
+	STA tile_prop			; CBC9  $85 $44
+	LDA #$0E			; CBCB  $A9 $0E
+	JSR Swap_PRG_			; CBCD  $20 $03 $FE
+	JSR $9794			; CBD0  $20 $94 $97	BANK 0E/9794 (check npc script) - get text ID, chocobo ??
+	STA text_ID			; CBD3  $85 $92		set dialogue id
+	LDA $A0				; CBD5  $A5 $A0		npc id temp ??
+	CMP #$60			; CBD7  $C9 $60
+	BCC L3CBDF			; CBD9  $90 $04
     CMP #$C0                 ; CBDB  $C9 $C0
     BCC L3CBEE               ; CBDD  $90 $0F	npc $60-$BF are text only
 L3CBDF:
     LDA $44                  ; CBDF  $A5 $44		tile property ??
     AND #$E0                 ; CBE1  $29 $E0
-	ORA event		; CBE3  $05 $6C
-	BEQ L3CBF1		; CBE5  $F0 $0A		if A == 00h
-	LDA event		; CBE7  $A5 $6C
+	ORA event			; CBE3  $05 $6C
+	BEQ L3CBF1			; CBE5  $F0 $0A		if A == 00h
+	LDA event			; CBE7  $A5 $6C
     BEQ L3CBEE               ; CBE9  $F0 $03	branch if no event
     JSR L3C6F4               ; CBEB  $20 $F4 $C6	init event
 L3CBEE:
-	JMP L3CB64		; CBEE  $4C $64 $CB	display map dialogue
+	JMP L3CB64			; CBEE  $4C $64 $CB	display map dialogue
 L3CBF1:
     JSR $9145                ; CBF1  $20 $45 $91	BANK 0E/9145 (npc dialogue)
-	LDA event		; CBF4  $A5 $6C
-	BEQ L3CBFB		; CBF6  $F0 $03		if A == 00h, return if no event
-	JMP L3C6F4		; CBF8  $4C $F4 $C6	init event
+	LDA event			; CBF4  $A5 $6C
+	BEQ L3CBFB			; CBF6  $F0 $03		if A == 00h, return if no event
+	JMP L3C6F4			; CBF8  $4C $F4 $C6	init event
 L3CBFB:
-	RTS			; CBFB  $60
+	RTS				; CBFB  $60
 ; End of
 
 ; Name	:
@@ -1930,11 +1930,11 @@ L3CBFB:
 ; Marks	: check tile passability
 ;	  return carry clear if passable
 ;; sub start ;;
-	JSR Player_front_pos	; CBFC  $20 $21 $CD
+	JSR Player_front_pos		; CBFC  $20 $21 $CD
     JSR $CC5B                ; CBFF  $20 $5B $CC
     BCS L3CC51               ; CC02  $B0 $4D
-	JSR Get_tileprop	; CC04  $20 $54 $CD
-	LDA tile_prop		; CC07  $A5 $44
+	JSR Get_tileprop		; CC04  $20 $54 $CD
+	LDA tile_prop			; CC07  $A5 $44
     CMP #$40                 ; CC09  $C9 $40
     BCC L3CC0F               ; CC0B  $90 $02
     CLC                      ; CC0D  $18
@@ -2078,44 +2078,44 @@ L3CCD3:
 ;	  check npcs
 ;	  return carry set if there is an npc
 ;; sub start ;;
-	LDX #$00		; CCDE  $A2 $00
+	LDX #$00			; CCDE  $A2 $00
 L3CCE0:
-	LDA npc_id,X		; CCE0  $BD $00 $75
-	BEQ L3CD16		; CCE3  $F0 $31		if A == 00h, next id
-	LDA npc_x_stile_pos,X	; CCE5  $BD $06 $75
-	CMP #$08		; CCE8  $C9 $08
-	LDA npc_x,X		; CCEA  $BD $04 $75
-	ADC #$00		; CCED  $69 $00
-	AND #$3F		; CCEF  $29 $3F
-	CMP $84			; CCF1  $C5 $84		x
-	BNE L3CD16		; CCF3  $D0 $21
-	LDA npc_y_stile_pos,X	; CCF5  $BD $07 $75
-	CMP #$08		; CCF8  $C9 $08
-	LDA npc_y,X		; CCFA  $BD $05 $75
-	ADC #$00		; CCFD  $69 $00
-	AND #$3F		; CCFF  $29 $3F
-	CMP $85			; CD01  $C5 $85		y
-	BNE L3CD16		; CD03  $D0 $11
-	LDA $7501,X		; CD05  $BD $01 $75
-	AND #$20		; CD08  $29 $20		sa?- ----
-	BNE L3CD14		; CD0A  $D0 $08
-	LDA $750D,X		; CD0C  $BD $0D $75	a--- ---t
-	ORA #$80		; CD0F  $09 $80		set interacted with player (A button)
-	STA $750D,X		; CD11  $9D $0D $75
+	LDA npc_id,X			; CCE0  $BD $00 $75
+	BEQ L3CD16			; CCE3  $F0 $31		if A == 00h, next id
+	LDA npc_x_stile_pos,X		; CCE5  $BD $06 $75
+	CMP #$08			; CCE8  $C9 $08
+	LDA npc_x,X			; CCEA  $BD $04 $75
+	ADC #$00			; CCED  $69 $00
+	AND #$3F			; CCEF  $29 $3F
+	CMP $84				; CCF1  $C5 $84		x
+	BNE L3CD16			; CCF3  $D0 $21
+	LDA npc_y_stile_pos,X		; CCF5  $BD $07 $75
+	CMP #$08			; CCF8  $C9 $08
+	LDA npc_y,X			; CCFA  $BD $05 $75
+	ADC #$00			; CCFD  $69 $00
+	AND #$3F			; CCFF  $29 $3F
+	CMP $85				; CD01  $C5 $85		y
+	BNE L3CD16			; CD03  $D0 $11
+	LDA $7501,X			; CD05  $BD $01 $75
+	AND #$20			; CD08  $29 $20		sa?- ----
+	BNE L3CD14			; CD0A  $D0 $08
+	LDA $750D,X			; CD0C  $BD $0D $75	a--- ---t
+	ORA #$80			; CD0F  $09 $80		set interacted with player (A button)
+	STA $750D,X			; CD11  $9D $0D $75
 L3CD14:
-	SEC			; CD14  $38
-	RTS			; CD15  $60
+	SEC				; CD14  $38
+	RTS				; CD15  $60
 ; End of
 
 L3CD16:
-	TXA			; CD16  $8A
-	CLC			; CD17  $18
-	ADC #$10		; CD18  $69 $10
-	TAX			; CD1A  $AA
-	CMP #$C0		; CD1B  $C9 $C0		npc max is 12
-	BCC L3CCE0		; CD1D  $90 $C1		loop - if A < C0h
-	CLC			; CD1F  $18
-	RTS			; CD20  $60
+	TXA				; CD16  $8A
+	CLC				; CD17  $18
+	ADC #$10			; CD18  $69 $10
+	TAX				; CD1A  $AA
+	CMP #$C0			; CD1B  $C9 $C0		npc max is 12
+	BCC L3CCE0			; CD1D  $90 $C1		loop - if A < C0h
+	CLC				; CD1F  $18
+	RTS				; CD20  $60
 ; End of
 
 ; Name	: Player_front_pos
@@ -2125,41 +2125,41 @@ L3CD16:
 ;	  get tile in facing direction
 ;; sub start ;;
 Player_front_pos:
-	LSR A			; CD21  $4A
-	BCS L3CD38		; CD22  $B0 $14		when character is facing right
-	LSR A			; CD24  $4A
-	BCS L3CD3F		; CD25  $B0 $18		when character is facing left
-	LSR A			; CD27  $4A
-	BCS L3CD31		; CD28  $B0 $07		when character is facing down
-	LDX #$07		; CD2A  $A2 $07		Up
-	LDY #$06		; CD2C  $A0 $06
-	JMP L3CD43		; CD2E  $4C $43 $CD
+	LSR A				; CD21  $4A
+	BCS L3CD38			; CD22  $B0 $14		when character is facing right
+	LSR A				; CD24  $4A
+	BCS L3CD3F			; CD25  $B0 $18		when character is facing left
+	LSR A				; CD27  $4A
+	BCS L3CD31			; CD28  $B0 $07		when character is facing down
+	LDX #$07			; CD2A  $A2 $07		Up
+	LDY #$06			; CD2C  $A0 $06
+	JMP L3CD43			; CD2E  $4C $43 $CD
 L3CD31:
-	LDX #$07		; CD31  $A2 $07		Down
-	LDY #$08		; CD33  $A0 $08
-	JMP L3CD43		; CD35  $4C $43 $CD
+	LDX #$07			; CD31  $A2 $07		Down
+	LDY #$08			; CD33  $A0 $08
+	JMP L3CD43			; CD35  $4C $43 $CD
 L3CD38:
-	LDX #$08		; CD38  $A2 $08		Right
-	LDY #$07		; CD3A  $A0 $07
-	JMP L3CD43		; CD3C  $4C $43 $CD
+	LDX #$08			; CD38  $A2 $08		Right
+	LDY #$07			; CD3A  $A0 $07
+	JMP L3CD43			; CD3C  $4C $43 $CD
 L3CD3F:
-	LDX #$06		; CD3F  $A2 $06		Left
-	LDY #$07		; CD41  $A0 $07
+	LDX #$06			; CD3F  $A2 $06		Left
+	LDY #$07			; CD41  $A0 $07
 ; X	:
 ; Y	:
 ; Marks	: $84 = x, $85 = y <- calcurated position ??
 L3CD43:
-	TXA			; CD43  $8A
-	CLC			; CD44  $18
-	ADC in_x_pos		; CD45  $65 $29
-	AND #$3F		; CD47  $29 $3F
+	TXA				; CD43  $8A
+	CLC				; CD44  $18
+	ADC in_x_pos			; CD45  $65 $29
+	AND #$3F			; CD47  $29 $3F
 	STA $84                  ; CD49  $85 $84	x ??
-	TYA			; CD4B  $98
-	CLC			; CD4C  $18
-	ADC in_y_pos		; CD4D  $65 $2A
-	AND #$3F		; CD4F  $29 $3F
+	TYA				; CD4B  $98
+	CLC				; CD4C  $18
+	ADC in_y_pos			; CD4D  $65 $2A
+	AND #$3F			; CD4F  $29 $3F
 	STA $85                  ; CD51  $85 $85	y ??
-	RTS			; CD53  $60
+	RTS				; CD53  $60
 ; End of Player_front_pos
 
 ; Name	: Get_tileprop
@@ -2168,36 +2168,36 @@ L3CD43:
 ;	  Set tile_prop($44), $45 = tile_prop_H ??
 ;; sub start ;;
 Get_tileprop:
-	LDY #$70		; CD54  $A0 $70
-	LDA $84			; CD56  $A5 $84
-	ORA $85			; CD58  $05 $85
-	AND #$20		; CD5A  $29 $20
-	BNE L3CD7A		; CD5C  $D0 $1C
-	LDA $85			; CD5E  $A5 $85
-	AND #$1F		; CD60  $29 $1F
-	LSR A			; CD62  $4A
-	LSR A			; CD63  $4A
-	LSR A			; CD64  $4A
-	ORA #$70		; CD65  $09 $70
-	STA $81			; CD67  $85 $81
-	LDA $85			; CD69  $A5 $85
-	ASL A			; CD6B  $0A
-	ASL A			; CD6C  $0A
-	ASL A			; CD6D  $0A
-	ASL A			; CD6E  $0A
-	ASL A			; CD6F  $0A
-	ORA $84			; CD70  $05 $84
-	STA $80			; CD72  $85 $80
-	LDY #$00		; CD74  $A0 $00
-	LDA ($80),Y		; CD76  $B1 $80		map tileset attribute table ?? map bg tilemap ??
-	ASL A			; CD78  $0A
-	TAY			; CD79  $A8
+	LDY #$70			; CD54  $A0 $70
+	LDA $84				; CD56  $A5 $84
+	ORA $85				; CD58  $05 $85
+	AND #$20			; CD5A  $29 $20
+	BNE L3CD7A			; CD5C  $D0 $1C
+	LDA $85				; CD5E  $A5 $85
+	AND #$1F			; CD60  $29 $1F
+	LSR A				; CD62  $4A
+	LSR A				; CD63  $4A
+	LSR A				; CD64  $4A
+	ORA #$70			; CD65  $09 $70
+	STA $81				; CD67  $85 $81
+	LDA $85				; CD69  $A5 $85
+	ASL A				; CD6B  $0A
+	ASL A				; CD6C  $0A
+	ASL A				; CD6D  $0A
+	ASL A				; CD6E  $0A
+	ASL A				; CD6F  $0A
+	ORA $84				; CD70  $05 $84
+	STA $80				; CD72  $85 $80
+	LDY #$00			; CD74  $A0 $00
+	LDA ($80),Y			; CD76  $B1 $80		map tileset attribute table ?? map bg tilemap ??
+	ASL A				; CD78  $0A
+	TAY				; CD79  $A8
 L3CD7A:
-	LDA $0400,Y		; CD7A  $B9 $00 $04	tile propeties
-	STA tile_prop		; CD7D  $85 $44
-	LDA $0401,Y		; CD7F  $B9 $01 $04
-	STA $45			; CD82  $85 $45
-	RTS			; CD84  $60
+	LDA $0400,Y			; CD7A  $B9 $00 $04	tile propeties
+	STA tile_prop			; CD7D  $85 $44
+	LDA $0401,Y			; CD7F  $B9 $01 $04
+	STA $45				; CD82  $85 $45
+	RTS				; CD84  $60
 ; End of Get_tileprop
 
 ; Name	: Check_tileprop
@@ -2205,25 +2205,25 @@ L3CD7A:
 ; Marks	: Check treasures and locked doors
 ;; sub start ;;
 Check_tileprop:
-	JSR Get_tileprop	; CD85  $20 $54 $CD
-	LDA tile_prop		; CD88  $A5 $44
-	AND #$30		; CD8A  $29 $30
-	BEQ L3CD9D		; CD8C  $F0 $0F
-	CMP #$10		; CD8E  $C9 $10
-	BEQ L3CDA2		; CD90  $F0 $10
-	CMP #$30		; CD92  $C9 $30
-	BNE L3CD9D		; CD94  $D0 $07
+	JSR Get_tileprop		; CD85  $20 $54 $CD
+	LDA tile_prop			; CD88  $A5 $44
+	AND #$30			; CD8A  $29 $30
+	BEQ L3CD9D			; CD8C  $F0 $0F
+	CMP #$10			; CD8E  $C9 $10
+	BEQ L3CDA2			; CD90  $F0 $10
+	CMP #$30			; CD92  $C9 $30
+	BNE L3CD9D			; CD94  $D0 $07
 ; $30
-	LDA #$00		; CD96  $A9 $00
-	STA tile_prop		; CD98  $85 $44
-	LDA #$04		; CD9A  $A9 $04		$0204: "You need a key."
-	RTS			; CD9C  $60
+	LDA #$00			; CD96  $A9 $00
+	STA tile_prop			; CD98  $85 $44
+	LDA #$04			; CD9A  $A9 $04		$0204: "You need a key."
+	RTS				; CD9C  $60
 ; End of Check_tileprop
 ; $00, $20
 L3CD9D:
-	LDA #$00		; CD9D  $A9 $00
-	STA tile_prop		; CD9F  $85 $44
-	RTS			; CDA1  $60
+	LDA #$00			; CD9D  $A9 $00
+	STA tile_prop			; CD9F  $85 $44
+	RTS				; CDA1  $60
 ; End of Check_tileprop
 ; $10
 L3CDA2:
@@ -2260,12 +2260,12 @@ L3CDBF:
 ; Name	:
 ; Marks	: update scrolling (normal mal)
 ;; sub start ;;
-	LDA #$1E		; CDD0  $A9 $1E 	Display enable
-	STA PpuMask_2001	; CDD2  $8D $01 $20
-	JSR $D02B		; CDD5  $20 $2B $D0 	draw open door/treasure chest - Check item?? door??
-	LDA PpuStatus_2002	; CDD8  $AD $02 $20	latch ppu
-	LDA mov_spd		; CDDB  $A5 $34
-	BEQ Scroll_normal	; CDDD  $F0 $16		if A == 00h, branch if player is not moving
+	LDA #$1E			; CDD0  $A9 $1E 	Display enable
+	STA PpuMask_2001		; CDD2  $8D $01 $20
+	JSR $D02B			; CDD5  $20 $2B $D0 	draw open door/treasure chest - Check item?? door??
+	LDA PpuStatus_2002		; CDD8  $AD $02 $20	latch ppu
+	LDA mov_spd			; CDDB  $A5 $34
+	BEQ Scroll_normal		; CDDD  $F0 $16		if A == 00h, branch if player is not moving
     JSR $CE6F                ; CDDF  $20 $6F $CE	update player movement
     JSR L3C8E7               ; CDE2  $20 $E7 $C8	do venom step damage
     LDA $44                  ; CDE5  $A5 $44
@@ -2283,24 +2283,24 @@ L3CDF4:
 ; Marks	: PpuScroll normal
 ;	  update ppu register (normal map)
 Scroll_normal:
-	LDA ppu_con_p		; CDF5  $A5 $FD		ppu_control(pending)
-	STA ppu_con_c		; CDF7  $85 $FF		ppu_control(current)
-	STA PpuControl_2000	; CDF9  $8D $00 $20
-	LDA in_x_pos		; CDFC  $A5 $29
-	ASL A			; CDFE  $0A
-	ASL A			; CDFF  $0A
-	ASL A			; CE00  $0A
-	ASL A			; CE01  $0A
-	ORA hor_stile_pos	; CE02  $05 $35
-	STA PpuScroll_2005	; CE04  $8D $05 $20
-	LDA nt_y_pos		; CE07  $A5 $2F
-	ASL A			; CE09  $0A
-	ASL A			; CE0A  $0A
-	ASL A			; CE0B  $0A
-	ASL A			; CE0C  $0A
-	ORA ver_stile_pos	; CE0D  $05 $36
-	STA PpuScroll_2005	; CE0F  $8D $05 $20
-	RTS			; CE12  $60
+	LDA ppu_con_p			; CDF5  $A5 $FD		ppu_control(pending)
+	STA ppu_con_c			; CDF7  $85 $FF		ppu_control(current)
+	STA PpuControl_2000		; CDF9  $8D $00 $20
+	LDA in_x_pos			; CDFC  $A5 $29
+	ASL A				; CDFE  $0A
+	ASL A				; CDFF  $0A
+	ASL A				; CE00  $0A
+	ASL A				; CE01  $0A
+	ORA hor_stile_pos		; CE02  $05 $35
+	STA PpuScroll_2005		; CE04  $8D $05 $20
+	LDA nt_y_pos			; CE07  $A5 $2F
+	ASL A				; CE09  $0A
+	ASL A				; CE0A  $0A
+	ASL A				; CE0B  $0A
+	ASL A				; CE0C  $0A
+	ORA ver_stile_pos		; CE0D  $05 $36
+	STA PpuScroll_2005		; CE0F  $8D $05 $20
+	RTS				; CE12  $60
 ; End of Scroll_normal
 
 ; Marks	: update player movement (normal map)
@@ -2308,9 +2308,9 @@ Scroll_normal:
 L3CE13:
     LDA $32                  ; CE13  $A5 $32
     BEQ L3CE1A               ; CE15  $F0 $03
-	JSR Map_update		; CE17  $20 $1B $D2
+	JSR Map_update			; CE17  $20 $1B $D2
 L3CE1A:
-	JSR Scroll_normal	; CE1A  $20 $F5 $CD
+	JSR Scroll_normal		; CE1A  $20 $F5 $CD
     LDA $35                  ; CE1D  $A5 $35
     CLC                      ; CE1F  $18
     ADC $34                  ; CE20  $65 $34
@@ -2336,9 +2336,9 @@ L3CE29:
 L3CE3F:
     LDA $32                  ; CE3F  $A5 $32
     BEQ L3CE46               ; CE41  $F0 $03
-	JSR Map_update		; CE43  $20 $1B $D2
+	JSR Map_update			; CE43  $20 $1B $D2
 L3CE46:
-	JSR Scroll_normal	; CE46  $20 $F5 $CD
+	JSR Scroll_normal		; CE46  $20 $F5 $CD
     LDA $35                  ; CE49  $A5 $35
     BNE L3CE60               ; CE4B  $D0 $13
     LDA $29                  ; CE4D  $A5 $29
@@ -2379,9 +2379,9 @@ L3CE7D:
     LDA $36                  ; CE81  $A5 $36
     CMP #$08                 ; CE83  $C9 $08
     BNE L3CE8A               ; CE85  $D0 $03
-	JSR Map_update		; CE87  $20 $1B $D2
+	JSR Map_update			; CE87  $20 $1B $D2
 L3CE8A:
-	JSR Scroll_normal	; CE8A  $20 $F5 $CD
+	JSR Scroll_normal		; CE8A  $20 $F5 $CD
     LDA $36                  ; CE8D  $A5 $36
     CLC                      ; CE8F  $18
     ADC $34                  ; CE90  $65 $34
@@ -2414,9 +2414,9 @@ L3CEB4:
     LDA $36                  ; CEB8  $A5 $36
     CMP #$08                 ; CEBA  $C9 $08
     BNE L3CEC1               ; CEBC  $D0 $03
-	JSR Map_update		; CEBE  $20 $1B $D2
+	JSR Map_update			; CEBE  $20 $1B $D2
 L3CEC1:
-	JSR Scroll_normal	; CEC1  $20 $F5 $CD
+	JSR Scroll_normal		; CEC1  $20 $F5 $CD
     LDA $36                  ; CEC4  $A5 $36
     BNE L3CEDE               ; CEC6  $D0 $16
     LDA $2A                  ; CEC8  $A5 $2A
@@ -2514,13 +2514,13 @@ L3CF57:
     CMP #$50                 ; CF67  $C9 $50
     BCC L3CF85               ; CF69  $90 $1A
 L3CF6B:
-	JSR Get_rndnum		; CF6B  $20 $AD $C5
+	JSR Get_rndnum			; CF6B  $20 $AD $C5
     CMP $F8                  ; CF6E  $C5 $F8
     BCS L3CF85               ; CF70  $B0 $13
-	LDA #BANK_RATE_GRP	; CF72  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
+	LDA #BANK_RATE_GRP		; CF72  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
     JSR Swap_PRG_               ; CF74  $20 $03 $FE
     LDX $48                  ; CF77  $A6 $48
-	LDA Nmap_battle_grp,X	; CF79  $BD $00 $81	BANK 0B/8100 (normal map battle group)
+	LDA Nmap_battle_grp,X		; CF79  $BD $00 $81	BANK 0B/8100 (normal map battle group)
     JSR $C579                ; CF7C  $20 $79 $C5	choose from battle group
     LDA $43                  ; CF7F  $A5 $43
     ORA #$20                 ; CF81  $09 $20
@@ -2634,8 +2634,8 @@ L3D02A:
 ; Marks	: Check box? door?
 ;	  starts here
 ;; sub start ;;
-	LDA open_tile_ID	; D02B  $A5 $0D
-	BEQ L3D02A		; D02D  $F0 $FB		if A == 00h
+	LDA open_tile_ID		; D02B  $A5 $0D
+	BEQ L3D02A			; D02D  $F0 $FB		if A == 00h
     LDA $34                  ; D02F  $A5 $34
     BEQ L3D03D               ; D031  $F0 $0A	branch if not moving
     LDA $33                  ; D033  $A5 $33
@@ -2680,10 +2680,10 @@ L3D05A:
 ; Name	:
 ; Marks	: load map
 ;; sub start ;;
-	JSR $D083		; D06F  $20 $83 $D0	load map
-	JSR $D09A		; D072  $20 $9A $D0	init map - battle rate ?? battle bg ??
-	JSR $D13C		; D075  $20 $3C $D1	no effect - ?? dummy code ??
-	JMP L3D8C9		; D078  $4C $C9 $D8	screen wipe in
+	JSR $D083			; D06F  $20 $83 $D0	load map
+	JSR $D09A			; D072  $20 $9A $D0	init map - battle rate ?? battle bg ??
+	JSR $D13C			; D075  $20 $3C $D1	no effect - ?? dummy code ??
+	JMP L3D8C9			; D078  $4C $C9 $D8	screen wipe in
 ; End of
 
 ; Marks	: reload map
@@ -2697,16 +2697,16 @@ L3D07B:
 ; Name	:
 ; Marks	: load map
    ;; sub start ;;
-	LDA #$01		; D083  $A9 $01
-	STA scroll_dir_map	; D085  $85 $2D		Set to normal map
-	LDA #$00		; D087  $A9 $00		sprites/background hide
-	STA PpuMask_2001	; D089  $8D $01 $20
-	JSR $D341		; D08C  $20 $41 $D3	load map data - init ??
-	LDX #$07		; D08F  $A2 $07		load npcs - event code value = 07h
-	LDA #$03		; D091  $A9 $03
-	JSR Swap_PRG_		; D093  $20 $03 $FE
-	JSR $A003		; D096  $20 $03 $A0	BANK 03/A003 (object command) - event code - init ??
-	RTS			; D099  $60
+	LDA #$01			; D083  $A9 $01
+	STA scroll_dir_map		; D085  $85 $2D		Set to normal map
+	LDA #$00			; D087  $A9 $00		sprites/background hide
+	STA PpuMask_2001		; D089  $8D $01 $20
+	JSR $D341			; D08C  $20 $41 $D3	load map data - init ??
+	LDX #$07			; D08F  $A2 $07		load npcs - event code value = 07h
+	LDA #$03			; D091  $A9 $03
+	JSR Swap_PRG_			; D093  $20 $03 $FE
+	JSR $A003			; D096  $20 $03 $A0	BANK 03/A003 (object command) - event code - init ??
+	RTS				; D099  $60
 ; End of
 
 ; Name	:
@@ -2715,92 +2715,92 @@ L3D07B:
 ;	  init map
 ;	  use BANK 00, BANK 0B
 ;; sub start ;;
-	LDA #$00		; D09A  $A9 $00
-	STA text_win_mode	; D09C  $85 $37
-	STA PpuMask_2001	; D09E  $8D $01 $20
-	STA NoiseVolume_400C	; D0A1  $8D $0C $40
-	STA e_pressing		; D0A4  $85 $22
-	STA s_pressing		; D0A6  $85 $23
-	STA a_pressing		; D0A8  $85 $24
-	STA b_pressing		; D0AA  $85 $25
-	JSR $E497		; D0AC  $20 $97 $E4	graphics(sprite) copy ??
-	LDA #$00		; D0AF  $A9 $00
-	JSR Swap_PRG_		; D0B1  $20 $03 $FE
-	JSR Set_wmap_palettes	; D0B4  $20 $06 $9C	BANK 00/9C06 (load map palette)
-	LDA $48			; D0B7  $A5 $48		world map entrance ID ??
-	LSR A			; D0B9  $4A
-	LSR A			; D0BA  $4A
-	LSR A			; D0BB  $4A
-	LSR A			; D0BC  $4A
-	ORA #$A0		; D0BD  $09 $A0		BANK 00/A000 (map properties)
-	STA $81			; D0BF  $85 $81
-	LDA $48			; D0C1  $A5 $48		world map entrance ID ??
-	ASL A			; D0C3  $0A
-	ASL A			; D0C4  $0A
-	ASL A			; D0C5  $0A
-	ASL A			; D0C6  $0A
-	STA $80			; D0C7  $85 $80
-	LDY #$0F		; D0C9  $A0 $0F
-	LDA ($80),Y		; D0CB  $B1 $80		get byte 15 only - map properties ?? (ex> $A050)
-	ORA #$40		; D0CD  $09 $40
-	STA current_song_ID	; D0CF  $85 $E0		play song
-	JSR $D1D3		; D0D1  $20 $D3 $D1	draw sub-map - map processing ??
-	LDA in_x_pos		; D0D4  $A5 $29
-	AND #$10		; D0D6  $29 $10
-	CMP #$10		; D0D8  $C9 $10
-	ROL A			; D0DA  $2A
-	AND #$01		; D0DB  $29 $01
-	ORA #$88		; D0DD  $09 $88
-	STA ppu_con_p		; D0DF  $85 $FD
-	STA ppu_con_c		; D0E1  $85 $FF
-	JSR Wait_NMI		; D0E3  $20 $00 $FE
-	JSR Palette_copy	; D0E6  $20 $30 $DC
-	JSR Scroll_normal	; D0E9  $20 $F5 $CD
-	LDA #$00		; D0EC  $A9 $00
-	STA PpuMask_2001	; D0EE  $8D $01 $20	sprite/background hide
-	LDA #$04		; D0F1  $A9 $04		facing down
-	STA player_dir		; D0F3  $85 $33		Set the player in a downward direction
-	LDA in_x_pos		; D0F5  $A5 $29
-	CLC			; D0F7  $18
-	ADC #$07		; D0F8  $69 $07
-	AND #$3F		; D0FA  $29 $3F
-	STA $68			; D0FC  $85 $68
-	STA $84			; D0FE  $85 $84
-	LDA in_y_pos		; D100  $A5 $2A
-	CLC			; D102  $18
-	ADC #$07		; D103  $69 $07
-	AND #$3F		; D105  $29 $3F
-	STA $85			; D107  $85 $85
-	STA $69			; D109  $85 $69
-	JSR Get_tileprop	; D10B  $20 $54 $CD
-	LDA tile_prop		; D10E  $A5 $44
-	AND #$06		; D110  $29 $06
-	STA $43			; D112  $85 $43
-	LDA tile_prop		; D114  $A5 $44
-	AND #$08		; D116  $29 $08
-	BEQ L3D11D		; D118  $F0 $03
-	JSR L3CC30		; D11A  $20 $30 $CC
+	LDA #$00			; D09A  $A9 $00
+	STA text_win_mode		; D09C  $85 $37
+	STA PpuMask_2001		; D09E  $8D $01 $20
+	STA NoiseVolume_400C		; D0A1  $8D $0C $40
+	STA e_pressing			; D0A4  $85 $22
+	STA s_pressing			; D0A6  $85 $23
+	STA a_pressing			; D0A8  $85 $24
+	STA b_pressing			; D0AA  $85 $25
+	JSR $E497			; D0AC  $20 $97 $E4	graphics(sprite) copy ??
+	LDA #$00			; D0AF  $A9 $00
+	JSR Swap_PRG_			; D0B1  $20 $03 $FE
+	JSR Set_wmap_palettes		; D0B4  $20 $06 $9C	BANK 00/9C06 (load map palette)
+	LDA $48				; D0B7  $A5 $48		world map entrance ID ??
+	LSR A				; D0B9  $4A
+	LSR A				; D0BA  $4A
+	LSR A				; D0BB  $4A
+	LSR A				; D0BC  $4A
+	ORA #$A0			; D0BD  $09 $A0		BANK 00/A000 (map properties)
+	STA $81				; D0BF  $85 $81
+	LDA $48				; D0C1  $A5 $48		world map entrance ID ??
+	ASL A				; D0C3  $0A
+	ASL A				; D0C4  $0A
+	ASL A				; D0C5  $0A
+	ASL A				; D0C6  $0A
+	STA $80				; D0C7  $85 $80
+	LDY #$0F			; D0C9  $A0 $0F
+	LDA ($80),Y			; D0CB  $B1 $80		get byte 15 only - map properties ?? (ex> $A050)
+	ORA #$40			; D0CD  $09 $40
+	STA current_song_ID		; D0CF  $85 $E0		play song
+	JSR $D1D3			; D0D1  $20 $D3 $D1	draw sub-map - map processing ??
+	LDA in_x_pos			; D0D4  $A5 $29
+	AND #$10			; D0D6  $29 $10
+	CMP #$10			; D0D8  $C9 $10
+	ROL A				; D0DA  $2A
+	AND #$01			; D0DB  $29 $01
+	ORA #$88			; D0DD  $09 $88
+	STA ppu_con_p			; D0DF  $85 $FD
+	STA ppu_con_c			; D0E1  $85 $FF
+	JSR Wait_NMI			; D0E3  $20 $00 $FE
+	JSR Palette_copy		; D0E6  $20 $30 $DC
+	JSR Scroll_normal		; D0E9  $20 $F5 $CD
+	LDA #$00			; D0EC  $A9 $00
+	STA PpuMask_2001		; D0EE  $8D $01 $20	sprite/background hide
+	LDA #$04			; D0F1  $A9 $04		facing down
+	STA player_dir			; D0F3  $85 $33		Set the player in a downward direction
+	LDA in_x_pos			; D0F5  $A5 $29
+	CLC				; D0F7  $18
+	ADC #$07			; D0F8  $69 $07
+	AND #$3F			; D0FA  $29 $3F
+	STA $68				; D0FC  $85 $68
+	STA $84				; D0FE  $85 $84
+	LDA in_y_pos			; D100  $A5 $2A
+	CLC				; D102  $18
+	ADC #$07			; D103  $69 $07
+	AND #$3F			; D105  $29 $3F
+	STA $85				; D107  $85 $85
+	STA $69				; D109  $85 $69
+	JSR Get_tileprop		; D10B  $20 $54 $CD
+	LDA tile_prop			; D10E  $A5 $44
+	AND #$06			; D110  $29 $06
+	STA $43				; D112  $85 $43
+	LDA tile_prop			; D114  $A5 $44
+	AND #$08			; D116  $29 $08
+	BEQ L3D11D			; D118  $F0 $03
+	JSR L3CC30			; D11A  $20 $30 $CC
 L3D11D:
-	LDA #$00		; D11D  $A9 $00
-	STA tile_prop		; D11F  $85 $44
-	STA $45			; D121  $85 $45
-	LDA #BANK_RATE_GRP	; D123  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
-	JSR Swap_PRG_		; D125  $20 $03 $FE
-	LDX $48			; D128  $A6 $48		world map entrance ID - map id
-	LDA Map_rnd_battle_rate,X	; D12A  $BD $00 $80	BANK 0B/8000 (map random battle rates)
-	STA $F8			; D12D  $85 $F8		set random battle rate
-	LDA #$00		; D12F  $A9 $00
-	JSR Swap_PRG_		; D131  $20 $03 $FE
-	LDA $9400,X		; D134  $BD $00 $94	BANK 00/9400 - battle bg for each map ??
-	AND #$80		; D137  $29 $80
-	STA $19			; D139  $85 $19		battle bg ??
-	RTS			; D13B  $60
+	LDA #$00			; D11D  $A9 $00
+	STA tile_prop			; D11F  $85 $44
+	STA $45				; D121  $85 $45
+	LDA #BANK_RATE_GRP		; D123  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
+	JSR Swap_PRG_			; D125  $20 $03 $FE
+	LDX $48				; D128  $A6 $48		world map entrance ID - map id
+	LDA Map_rnd_battle_rate,X		; D12A  $BD $00 $80	BANK 0B/8000 (map random battle rates)
+	STA $F8				; D12D  $85 $F8		set random battle rate
+	LDA #$00			; D12F  $A9 $00
+	JSR Swap_PRG_			; D131  $20 $03 $FE
+	LDA $9400,X			; D134  $BD $00 $94	BANK 00/9400 - battle bg for each map ??
+	AND #$80			; D137  $29 $80
+	STA $19				; D139  $85 $19		battle bg ??
+	RTS				; D13B  $60
 ; End of
 
 ; Name	:
 ; Marks	: no effect, but used on load map($D06F)
 ;; sub start ;;
-	RTS			; D13C  $60
+	RTS				; D13C  $60
 ; End of
 
 ;--------------------------------------------------------
@@ -2827,7 +2827,7 @@ L3D11D:
 ; Name	:
 ; Marks	: if menu mode(01h), return
    ;; sub start ;;
-	LDA text_win_mode	; D157  $A5 $37
+	LDA text_win_mode		; D157  $A5 $37
     BNE L3D163               ; D159  $D0 $08	return if in menu
     LDA $3C                  ; D15B  $A5 $3C
     LSR A                    ; D15D  $4A
@@ -2842,11 +2842,11 @@ L3D163:
 ; Marks	: close text window
 ;	  dialogue window
 L3D164:
-	JSR Hide_oam_in_msgbox	; D164  $20 $37 $E8	show sprites behind text window
-	LDA #$05		; D167  $A9 $05
-	STA $66			; D169  $85 $66		pointer to cursor position data ??
-	LDX #$06		; D16B  $A2 $06
-	BNE L3D178		; D16D  $D0 $09
+	JSR Hide_oam_in_msgbox		; D164  $20 $37 $E8	show sprites behind text window
+	LDA #$05			; D167  $A9 $05
+	STA $66				; D169  $85 $66		pointer to cursor position data ??
+	LDX #$06			; D16B  $A2 $06
+	BNE L3D178			; D16D  $D0 $09
 ; Name	:
 ; Marks	: keyword/item select window
    ;; sub start ;;
@@ -2855,92 +2855,92 @@ L3D164:
     STA $66                  ; D174  $85 $66
     LDX #$0E                 ; D176  $A2 $0E
 L3D178:
-	LDA nt_y_pos		; D178  $A5 $2F
-	STA $67			; D17A  $85 $67		Y ??
-	TXA			; D17C  $8A
-	CLC			; D17D  $18
-	ADC nt_y_pos		; D17E  $65 $2F
-	CMP #$0F		; D180  $C9 $0F
-	BCC L3D186		; D182  $90 $02
-	SBC #$0F		; D184  $E9 $0F
+	LDA nt_y_pos			; D178  $A5 $2F
+	STA $67				; D17A  $85 $67		Y ??
+	TXA				; D17C  $8A
+	CLC				; D17D  $18
+	ADC nt_y_pos			; D17E  $65 $2F
+	CMP #$0F			; D180  $C9 $0F
+	BCC L3D186			; D182  $90 $02
+	SBC #$0F			; D184  $E9 $0F
 L3D186:
-	STA nt_y_pos		; D186  $85 $2F
-	LDA $69			; D188  $A5 $69
-	PHA			; D18A  $48
-	LDA in_y_pos		; D18B  $A5 $2A
-	PHA			; D18D  $48
-	TXA			; D18E  $8A
-	CLC			; D18F  $18
-	ADC in_y_pos		; D190  $65 $2A
-	AND #$3F		; D192  $29 $3F
-	STA in_y_pos		; D194  $85 $2A
-	LDA player_dir		; D196  $A5 $33
-	PHA			; D198  $48
-	LDA #$08		; D199  $A9 $08		move player up
-	STA player_dir		; D19B  $85 $33		not player_dir but temp buffer
+	STA nt_y_pos			; D186  $85 $2F
+	LDA $69				; D188  $A5 $69
+	PHA				; D18A  $48
+	LDA in_y_pos			; D18B  $A5 $2A
+	PHA				; D18D  $48
+	TXA				; D18E  $8A
+	CLC				; D18F  $18
+	ADC in_y_pos			; D190  $65 $2A
+	AND #$3F			; D192  $29 $3F
+	STA in_y_pos			; D194  $85 $2A
+	LDA player_dir			; D196  $A5 $33
+	PHA				; D198  $48
+	LDA #$08			; D199  $A9 $08		move player up
+	STA player_dir			; D19B  $85 $33		not player_dir but temp buffer
 L3D19D:
-	JSR L3D209		; D19D  $20 $09 $D2	init player movement
-	JSR Wait_NMI		; D1A0  $20 $00 $FE
-	JSR Map_update		; D1A3  $20 $1B $D2
-	LDA nt_y_pos		; D1A6  $A5 $2F
-	PHA			; D1A8  $48
-	LDA $67			; D1A9  $A5 $67
-	STA $2F			; D1AB  $85 $2F
-	JSR Scroll_normal	; D1AD  $20 $F5 $CD
-	PLA			; D1B0  $68
-	STA $2F			; D1B1  $85 $2F
-	JSR L3C746		; D1B3  $20 $46 $C7	sound process ??
-	JSR $D226		; D1B6  $20 $26 $D2	y --(miunus) ??
-	DEC $66			; D1B9  $C6 $66		repeat count ??
-	BNE L3D19D		; D1BB  $D0 $E0		loop -> remove message box ??
-	LDA $67			; D1BD  $A5 $67
-	STA $2F			; D1BF  $85 $2F
-	PLA			; D1C1  $68
-	STA player_dir		; D1C2  $85 $33
-	PLA			; D1C4  $68
-	STA in_y_pos		; D1C5  $85 $2A
-	PLA			; D1C7  $68
-	STA $69			; D1C8  $85 $69
-	LDA #$00		; D1CA  $A9 $00
-	STA mov_spd		; D1CC  $85 $34		clear movement speed
-	LDA bank		; D1CE  $A5 $57
-	JMP Swap_PRG_		; D1D0  $4C $03 $FE
+	JSR L3D209			; D19D  $20 $09 $D2	init player movement
+	JSR Wait_NMI			; D1A0  $20 $00 $FE
+	JSR Map_update			; D1A3  $20 $1B $D2
+	LDA nt_y_pos			; D1A6  $A5 $2F
+	PHA				; D1A8  $48
+	LDA $67				; D1A9  $A5 $67
+	STA $2F				; D1AB  $85 $2F
+	JSR Scroll_normal		; D1AD  $20 $F5 $CD
+	PLA				; D1B0  $68
+	STA $2F				; D1B1  $85 $2F
+	JSR L3C746			; D1B3  $20 $46 $C7	sound process ??
+	JSR $D226			; D1B6  $20 $26 $D2	y --(miunus) ??
+	DEC $66				; D1B9  $C6 $66		repeat count ??
+	BNE L3D19D			; D1BB  $D0 $E0		loop -> remove message box ??
+	LDA $67				; D1BD  $A5 $67
+	STA $2F				; D1BF  $85 $2F
+	PLA				; D1C1  $68
+	STA player_dir			; D1C2  $85 $33
+	PLA				; D1C4  $68
+	STA in_y_pos			; D1C5  $85 $2A
+	PLA				; D1C7  $68
+	STA $69				; D1C8  $85 $69
+	LDA #$00			; D1CA  $A9 $00
+	STA mov_spd			; D1CC  $85 $34		clear movement speed
+	LDA bank			; D1CE  $A5 $57
+	JMP Swap_PRG_			; D1D0  $4C $03 $FE
 ; End of
 
 ; Name	:
 ; Marks	: map processing ??
 ;	  draw sub-map
    ;; sub start ;;
-	LDA #$00		; D1D3  $A9 $00
-	STA nt_y_pos		; D1D5  $85 $2F
-	LDA scroll_dir_map	; D1D7  $A5 $2D
-	LSR A			; D1D9  $4A
-	BCS L3D1E6		; D1DA  $B0 $0A		if normal map
-	LDA ow_y_pos		; D1DC  $A5 $28
-	CLC			; D1DE  $18
-	ADC #$0F		; D1DF  $69 $0F
-	STA ow_y_pos		; D1E1  $85 $28
-	JMP L3D1EF		; D1E3  $4C $EF $D1
+	LDA #$00			; D1D3  $A9 $00
+	STA nt_y_pos			; D1D5  $85 $2F
+	LDA scroll_dir_map		; D1D7  $A5 $2D
+	LSR A				; D1D9  $4A
+	BCS L3D1E6			; D1DA  $B0 $0A		if normal map
+	LDA ow_y_pos			; D1DC  $A5 $28
+	CLC				; D1DE  $18
+	ADC #$0F			; D1DF  $69 $0F
+	STA ow_y_pos			; D1E1  $85 $28
+	JMP L3D1EF			; D1E3  $4C $EF $D1
 L3D1E6:
-	LDA in_y_pos		; D1E6  $A5 $2A
-	CLC			; D1E8  $18
-	ADC #$0F		; D1E9  $69 $0F
-	AND #$3F		; D1EB  $29 $3F
-	STA in_y_pos		; D1ED  $85 $2A
+	LDA in_y_pos			; D1E6  $A5 $2A
+	CLC				; D1E8  $18
+	ADC #$0F			; D1E9  $69 $0F
+	AND #$3F			; D1EB  $29 $3F
+	STA in_y_pos			; D1ED  $85 $2A
 L3D1EF:
-	LDA #$08		; D1EF  $A9 $08		move player up
-	STA player_dir		; D1F1  $85 $33
+	LDA #$08			; D1EF  $A9 $08		move player up
+	STA player_dir			; D1F1  $85 $33
 L3D1F3:
-	JSR L3D209		; D1F3  $20 $09 $D2	init player movement - map process ?? (tile copy to RAM ??)
-	JSR Map_update		; D1F6  $20 $1B $D2
-	JSR $D226		; D1F9  $20 $26 $D2	calc x, y ??
-	LDA nt_y_pos		; D1FC  $A5 $2F
-	BNE L3D1F3		; D1FE  $D0 $F3		loop
-	LDA #$00		; D200  $A9 $00
-	STA player_dir		; D202  $85 $33		clear movement speed
-	STA map_update		; D204  $85 $32
-	STA mov_spd		; D206  $85 $34
-	RTS			; D208  $60
+	JSR L3D209			; D1F3  $20 $09 $D2	init player movement - map process ?? (tile copy to RAM ??)
+	JSR Map_update			; D1F6  $20 $1B $D2
+	JSR $D226			; D1F9  $20 $26 $D2	calc x, y ??
+	LDA nt_y_pos			; D1FC  $A5 $2F
+	BNE L3D1F3			; D1FE  $D0 $F3		loop
+	LDA #$00			; D200  $A9 $00
+	STA player_dir			; D202  $85 $33		clear movement speed
+	STA map_update			; D204  $85 $32
+	STA mov_spd			; D206  $85 $34
+	RTS				; D208  $60
 ; End of
 
 ; Name	:
@@ -2948,16 +2948,16 @@ L3D1F3:
 ;	  $33 = player dir ?? or calcurated player dir ??
 ;	  init player movement
 L3D209:
-	LDA scroll_dir_map	; D209  $A5 $2D
-	LSR A			; D20B  $4A
-	BCC L3D214		; D20C  $90 $06		branch if on world map
-	JSR $D4AD		; D20E  $20 $AD $D4	init player movement (normal map) - check update ??
-	JMP L3D217		; D211  $4C $17 $D2
+	LDA scroll_dir_map		; D209  $A5 $2D
+	LSR A				; D20B  $4A
+	BCC L3D214			; D20C  $90 $06		branch if on world map
+	JSR $D4AD			; D20E  $20 $AD $D4	init player movement (normal map) - check update ??
+	JMP L3D217			; D211  $4C $17 $D2
 L3D214:
-	JSR $D3E2		; D214  $20 $E2 $D3	init player movement (world map) - world map tile set, vehicle check, etc...
+	JSR $D3E2			; D214  $20 $E2 $D3	init player movement (world map) - world map tile set, vehicle check, etc...
 L3D217:
-	JSR $D24A		; D217  $20 $4A $D2	text window attributes ?? copy to RAM buffer ?? init ?
-	RTS			; D21A  $60
+	JSR $D24A			; D217  $20 $4A $D2	text window attributes ?? copy to RAM buffer ?? init ?
+	RTS				; D21A  $60
 ; End of
 
 ; Name	: Map_update
@@ -2966,39 +2966,39 @@ L3D217:
 ;	  update map background
 ;; sub start ;;
 Map_update:
-	JSR $D66A		; D21B  $20 $6A $D6	copy from tile to PPU
-	JSR $D2FE		; D21E  $20 $FE $D2	copy from attribute table to PPU
-	LDA #$00		; D221  $A9 $00
-	STA map_update		; D223  $85 $32		map background needs update -> update done
-	RTS			; D225  $60
+	JSR $D66A			; D21B  $20 $6A $D6	copy from tile to PPU
+	JSR $D2FE			; D21E  $20 $FE $D2	copy from attribute table to PPU
+	LDA #$00			; D221  $A9 $00
+	STA map_update			; D223  $85 $32		map background needs update -> update done
+	RTS				; D225  $60
 ; End of Map_update
 
 ; Name	:
 ; Marks	:
 ;; sub start ;;
-	LDA scroll_dir_map	; D226  $A5 $2D
-	LSR A			; D228  $4A
-	BCC L3D237		; D229  $90 $0C		branch if on world map
-	LDA in_y_pos		; D22B  $A5 $2A
-	SEC			; D22D  $38
-	SBC #$01		; D22E  $E9 $01
-	AND #$3F		; D230  $29 $3F
-	STA in_y_pos		; D232  $85 $2A
-	JMP L3D23E		; D234  $4C $3E $D2
+	LDA scroll_dir_map		; D226  $A5 $2D
+	LSR A				; D228  $4A
+	BCC L3D237			; D229  $90 $0C		branch if on world map
+	LDA in_y_pos			; D22B  $A5 $2A
+	SEC				; D22D  $38
+	SBC #$01			; D22E  $E9 $01
+	AND #$3F			; D230  $29 $3F
+	STA in_y_pos			; D232  $85 $2A
+	JMP L3D23E			; D234  $4C $3E $D2
 L3D237:
-	LDA ow_y_pos		; D237  $A5 $28
-	SEC			; D239  $38
-	SBC #$01		; D23A  $E9 $01
-	STA ow_y_pos		; D23C  $85 $28
+	LDA ow_y_pos			; D237  $A5 $28
+	SEC				; D239  $38
+	SBC #$01			; D23A  $E9 $01
+	STA ow_y_pos			; D23C  $85 $28
 L3D23E:
-	LDA nt_y_pos		; D23E  $A5 $2F
-	SEC			; D240  $38
-	SBC #$01		; D241  $E9 $01
-	BCS L3D247		; D243  $B0 $02
-	ADC #$0F		; D245  $69 $0F
+	LDA nt_y_pos			; D23E  $A5 $2F
+	SEC				; D240  $38
+	SBC #$01			; D241  $E9 $01
+	BCS L3D247			; D243  $B0 $02
+	ADC #$0F			; D245  $69 $0F
 L3D247:
-	STA nt_y_pos		; D247  $85 $2F
-	RTS			; D249  $60
+	STA nt_y_pos			; D247  $85 $2F
+	RTS				; D249  $60
 ; End of
 
 ; Name	:
@@ -3009,63 +3009,63 @@ L3D247:
 ;	  $07D0-, $07E0-, $07F0-
 ;	  update text window tilemap for scrolling ??
 ;; sub start ;;
-	LDA #$10		; D24A  $A9 $10
-	STA $86			; D24C  $85 $86
+	LDA #$10			; D24A  $A9 $10
+	STA $86				; D24C  $85 $86
 L3D24E:
-	LDA $31			; D24E  $A5 $31
-	PHA			; D250  $48
-	LDA $30			; D251  $A5 $30
-	PHA			; D253  $48
-	LDY #$00		; D254  $A0 $00
+	LDA $31				; D24E  $A5 $31
+	PHA				; D250  $48
+	LDA $30				; D251  $A5 $30
+	PHA				; D253  $48
+	LDY #$00			; D254  $A0 $00
 L3D256:
-	LDA $30			; D256  $A5 $30
-	LDX #$0F		; D258  $A2 $0F
-	LSR A			; D25A  $4A
-	BCC L3D25F		; D25B  $90 $02		if A.bit0 == 0
-	LDX #$F0		; D25D  $A2 $F0
+	LDA $30				; D256  $A5 $30
+	LDX #$0F			; D258  $A2 $0F
+	LSR A				; D25A  $4A
+	BCC L3D25F			; D25B  $90 $02		if A.bit0 == 0
+	LDX #$F0			; D25D  $A2 $F0
 L3D25F:
-	ASL A			; D25F  $0A
-	ASL A			; D260  $0A
-	ASL A			; D261  $0A
-	STA $80			; D262  $85 $80
-	STX $81			; D264  $86 $81
-	LDA $31			; D266  $A5 $31
-	LDX #$23		; D268  $A2 $23
-	CMP #$10		; D26A  $C9 $10
-	BCC L3D272		; D26C  $90 $04
-	AND #$0F		; D26E  $29 $0F
-	LDX #$27		; D270  $A2 $27
+	ASL A				; D25F  $0A
+	ASL A				; D260  $0A
+	ASL A				; D261  $0A
+	STA $80				; D262  $85 $80
+	STX $81				; D264  $86 $81
+	LDA $31				; D266  $A5 $31
+	LDX #$23			; D268  $A2 $23
+	CMP #$10			; D26A  $C9 $10
+	BCC L3D272			; D26C  $90 $04
+	AND #$0F			; D26E  $29 $0F
+	LDX #$27			; D270  $A2 $27
 L3D272:
-	STX $82			; D272  $86 $82
-	LDX #$33		; D274  $A2 $33
-	LSR A			; D276  $4A
-	BCC L3D27B		; D277  $90 $02
-	LDX #$CC		; D279  $A2 $CC
+	STX $82				; D272  $86 $82
+	LDX #$33			; D274  $A2 $33
+	LSR A				; D276  $4A
+	BCC L3D27B			; D277  $90 $02
+	LDX #$CC			; D279  $A2 $CC
 L3D27B:
-	ORA $80			; D27B  $05 $80
-	STA $80			; D27D  $85 $80
-	TXA			; D27F  $8A
-	AND $81			; D280  $25 $81
-	STA $81			; D282  $85 $81
-	LDA $82			; D284  $A5 $82
-	STA ppu_addr_H,Y	; D286  $99 $D0 $07
-	LDA $80			; D289  $A5 $80
-	ORA #$C0		; D28B  $09 $C0
-	STA ppu_addr_L,Y	; D28D  $99 $E0 $07
-	LDA $81			; D290  $A5 $81
-	STA textwin_attr,Y	; D292  $99 $F0 $07
-	LDA scroll_dir_map	; D295  $A5 $2D
-	AND #$02		; D297  $29 $02
-	BNE L3D2AC		; D299  $D0 $11		if horizontal scroll
-	LDA $31			; D29B  $A5 $31
-	CLC			; D29D  $18
-	ADC #$01		; D29E  $69 $01
-	AND #$1F		; D2A0  $29 $1F
-	STA $31			; D2A2  $85 $31
-	INY			; D2A4  $C8
-	CPY $86			; D2A5  $C4 $86
-	BCS L3D2C1		; D2A7  $B0 $18		if Y >= $86, loop end
-	JMP L3D256		; D2A9  $4C $56 $D2	loop
+	ORA $80				; D27B  $05 $80
+	STA $80				; D27D  $85 $80
+	TXA				; D27F  $8A
+	AND $81				; D280  $25 $81
+	STA $81				; D282  $85 $81
+	LDA $82				; D284  $A5 $82
+	STA ppu_addr_H,Y		; D286  $99 $D0 $07
+	LDA $80				; D289  $A5 $80
+	ORA #$C0			; D28B  $09 $C0
+	STA ppu_addr_L,Y		; D28D  $99 $E0 $07
+	LDA $81				; D290  $A5 $81
+	STA textwin_attr,Y		; D292  $99 $F0 $07
+	LDA scroll_dir_map		; D295  $A5 $2D
+	AND #$02			; D297  $29 $02
+	BNE L3D2AC			; D299  $D0 $11		if horizontal scroll
+	LDA $31				; D29B  $A5 $31
+	CLC				; D29D  $18
+	ADC #$01			; D29E  $69 $01
+	AND #$1F			; D2A0  $29 $1F
+	STA $31				; D2A2  $85 $31
+	INY				; D2A4  $C8
+	CPY $86				; D2A5  $C4 $86
+	BCS L3D2C1			; D2A7  $B0 $18		if Y >= $86, loop end
+	JMP L3D256			; D2A9  $4C $56 $D2	loop
 ; Horizontal scroll ??
 L3D2AC:
     LDA $30                  ; D2AC  $A5 $30
@@ -3082,61 +3082,61 @@ L3D2B7:
     JMP L3D256               ; D2BE  $4C $56 $D2
 ; Loop
 L3D2C1:
-	PLA			; D2C1  $68
-	STA $30			; D2C2  $85 $30
-	PLA			; D2C4  $68
-	STA $31			; D2C5  $85 $31
-	LDX $86			; D2C7  $A6 $86		repeat count ??
-	DEX			; D2C9  $CA
-	LDA scroll_dir_map	; D2CA  $A5 $2D
-	AND #$02		; D2CC  $29 $02
-	BEQ L3D2D1		; D2CE  $F0 $01		if vertical direction
-	DEX			; D2D0  $CA
+	PLA				; D2C1  $68
+	STA $30				; D2C2  $85 $30
+	PLA				; D2C4  $68
+	STA $31				; D2C5  $85 $31
+	LDX $86				; D2C7  $A6 $86		repeat count ??
+	DEX				; D2C9  $CA
+	LDA scroll_dir_map		; D2CA  $A5 $2D
+	AND #$02			; D2CC  $29 $02
+	BEQ L3D2D1			; D2CE  $F0 $01		if vertical direction
+	DEX				; D2D0  $CA
 L3D2D1:
-	LDA ppu_addr_H,X	; D2D1  $BD $D0 $07
-	AND #$04		; D2D4  $29 $04
-	BNE L3D2E0		; D2D6  $D0 $08
-	LDA ppu_addr_L,X	; D2D8  $BD $E0 $07
-	AND #$3F		; D2DB  $29 $3F
+	LDA ppu_addr_H,X		; D2D1  $BD $D0 $07
+	AND #$04			; D2D4  $29 $04
+	BNE L3D2E0			; D2D6  $D0 $08
+	LDA ppu_addr_L,X		; D2D8  $BD $E0 $07
+	AND #$3F			; D2DB  $29 $3F
     JMP L3D2E7               ; D2DD  $4C $E7 $D2
 L3D2E0:
-	LDA ppu_addr_L,X	; D2E0  $BD $E0 $07
-	AND #$3F		; D2E3  $29 $3F
-	ORA #$40		; D2E5  $09 $40
+	LDA ppu_addr_L,X		; D2E0  $BD $E0 $07
+	AND #$3F			; D2E3  $29 $3F
+	ORA #$40			; D2E5  $09 $40
 L3D2E7:
-	TAY			; D2E7  $A8
-	LDA $0300,Y		; D2E8  $B9 $00 $03	attribute table
-	EOR $07C0,X		; D2EB  $5D $C0 $07
-	AND textwin_attr,X	; D2EE  $3D $F0 $07
-	EOR $0300,Y		; D2F1  $59 $00 $03
-	STA $0300,Y		; D2F4  $99 $00 $03
-	STA textwin_attr,X	; D2F7  $9D $F0 $07
-	DEX			; D2FA  $CA
-	BPL L3D2D1		; D2FB  $10 $D4		loop
-	RTS			; D2FD  $60
+	TAY				; D2E7  $A8
+	LDA $0300,Y			; D2E8  $B9 $00 $03	attribute table
+	EOR $07C0,X			; D2EB  $5D $C0 $07
+	AND textwin_attr,X		; D2EE  $3D $F0 $07
+	EOR $0300,Y			; D2F1  $59 $00 $03
+	STA $0300,Y			; D2F4  $99 $00 $03
+	STA textwin_attr,X		; D2F7  $9D $F0 $07
+	DEX				; D2FA  $CA
+	BPL L3D2D1			; D2FB  $10 $D4		loop
+	RTS				; D2FD  $60
 ; End of
 
 ; Name	:
 ; Marks	: copy to PPU
 ;	  update dialog window attributes
 ;; sub start ;;
-	LDA scroll_dir_map	; D2FE  $A5 $2D
-	LDX #$0F		; D300  $A2 $0F
-	AND #$02		; D302  $29 $02
-	BEQ L3D308		; D304  $F0 $02		branch if moving vertically (vertical direction)
-	LDX #$0E		; D306  $A2 $0E
+	LDA scroll_dir_map		; D2FE  $A5 $2D
+	LDX #$0F			; D300  $A2 $0F
+	AND #$02			; D302  $29 $02
+	BEQ L3D308			; D304  $F0 $02		branch if moving vertically (vertical direction)
+	LDX #$0E			; D306  $A2 $0E
 L3D308:
-	LDA PpuStatus_2002	; D308  $AD $02 $20
+	LDA PpuStatus_2002		; D308  $AD $02 $20
 L3D30B:
-	LDA ppu_addr_H,X	; D30B  $BD $D0 $07
-	STA PpuAddr_2006	; D30E  $8D $06 $20
-	LDA ppu_addr_L,X	; D311  $BD $E0 $07
-	STA PpuAddr_2006	; D314  $8D $06 $20
-	LDA textwin_attr,X	; D317  $BD $F0 $07
-	STA PpuData_2007	; D31A  $8D $07 $20
-	DEX			; D31D  $CA
-	BPL L3D30B		; D31E  $10 $EB
-	RTS			; D320  $60
+	LDA ppu_addr_H,X		; D30B  $BD $D0 $07
+	STA PpuAddr_2006		; D30E  $8D $06 $20
+	LDA ppu_addr_L,X		; D311  $BD $E0 $07
+	STA PpuAddr_2006		; D314  $8D $06 $20
+	LDA textwin_attr,X		; D317  $BD $F0 $07
+	STA PpuData_2007		; D31A  $8D $07 $20
+	DEX				; D31D  $CA
+	BPL L3D30B			; D31E  $10 $EB
+	RTS				; D320  $60
 ; End of
 
 ; $D321 - data block---
@@ -3155,31 +3155,31 @@ L3D30B:
 ;	  $82(ADDR) = normal map tile buffer($7400-??)
 ;	  load map data
 ;; sub start ;;
-	LDA #$00		; D341  $A9 $00
-	JSR Swap_PRG_		; D343  $20 $03 $FE
-	LDX $48			; D346  $A6 $48		world map entrance ID
-	LDA bg_tilemap_id,X	; D348  $BD $00 $B2	BANK 00/B200 (tilemap id for each map)
-	PHA			; D34B  $48
-	ASL A			; D34C  $0A
-	ROL A			; D34D  $2A
-	AND #$01		; D34E  $29 $01		BANK 04 or 05
-	ORA #$04		; D350  $09 $04
-	JSR Swap_PRG_		; D352  $20 $03 $FE
-	PLA			; D355  $68
-	ASL A			; D356  $0A
-	TAX			; D357  $AA
-	LDA $8000,X		; D358  $BD $00 $80	pointers to map bg tilemaps(Low)
-	STA $80			; D35B  $85 $80
-	LDA $8001,X		; D35D  $BD $01 $80	pointers to map bg tilemaps(High)
-	STA $81			; D360  $85 $81		BANK 04/8000 or 05/8000
-	LDA #$00		; D362  $A9 $00		$7400 (buffer for tilemap)
-	STA $82			; D364  $85 $82
-	LDA #$74		; D366  $A9 $74
-	STA $83			; D368  $85 $83
-	JSR L3D39F		; D36A  $20 $9F $D3	decompress tilemap
-	LDA #$00		; D36D  $A9 $00
-	JSR Swap_PRG_		; D36F  $20 $03 $FE
-	JMP $9C00		; D372  $4C $00 $9C	BANK 00/9C00 (init map)
+	LDA #$00			; D341  $A9 $00
+	JSR Swap_PRG_			; D343  $20 $03 $FE
+	LDX $48				; D346  $A6 $48		world map entrance ID
+	LDA bg_tilemap_id,X		; D348  $BD $00 $B2	BANK 00/B200 (tilemap id for each map)
+	PHA				; D34B  $48
+	ASL A				; D34C  $0A
+	ROL A				; D34D  $2A
+	AND #$01			; D34E  $29 $01		BANK 04 or 05
+	ORA #$04			; D350  $09 $04
+	JSR Swap_PRG_			; D352  $20 $03 $FE
+	PLA				; D355  $68
+	ASL A				; D356  $0A
+	TAX				; D357  $AA
+	LDA $8000,X			; D358  $BD $00 $80	pointers to map bg tilemaps(Low)
+	STA $80				; D35B  $85 $80
+	LDA $8001,X			; D35D  $BD $01 $80	pointers to map bg tilemaps(High)
+	STA $81				; D360  $85 $81		BANK 04/8000 or 05/8000
+	LDA #$00			; D362  $A9 $00		$7400 (buffer for tilemap)
+	STA $82				; D364  $85 $82
+	LDA #$74			; D366  $A9 $74
+	STA $83				; D368  $85 $83
+	JSR L3D39F			; D36A  $20 $9F $D3	decompress tilemap
+	LDA #$00			; D36D  $A9 $00
+	JSR Swap_PRG_			; D36F  $20 $03 $FE
+	JMP $9C00			; D372  $4C $00 $9C	BANK 00/9C00 (init map)
 ; End of
 
 ; Name	: Set_wmap_tile
@@ -3195,96 +3195,96 @@ L3D30B:
 ;	  load world tilemap
    ;; sub start ;;
 Set_wmap_tile:
-	LDA #$01		; D375  $A9 $01		world map bank
-	JSR Swap_PRG_		; D377  $20 $03 $FE
-	LDA #$80		; D37A  $A9 $80		BANK 01/8000 (pointers to world tilemaps)
-	STA $87			; D37C  $85 $87
-	LDA #$00		; D37E  $A9 $00
-	STA $86			; D380  $85 $86
-	LDA $2C			; D382  $A5 $2C		next overworld y position ??
-	TAX			; D384  $AA
-	ASL A			; D385  $0A
-	BCC L3D38A		; D386  $90 $02
-	INC $87			; D388  $E6 $87
+	LDA #$01			; D375  $A9 $01		world map bank
+	JSR Swap_PRG_			; D377  $20 $03 $FE
+	LDA #$80			; D37A  $A9 $80		BANK 01/8000 (pointers to world tilemaps)
+	STA $87				; D37C  $85 $87
+	LDA #$00			; D37E  $A9 $00
+	STA $86				; D380  $85 $86
+	LDA $2C				; D382  $A5 $2C		next overworld y position ??
+	TAX				; D384  $AA
+	ASL A				; D385  $0A
+	BCC L3D38A			; D386  $90 $02
+	INC $87				; D388  $E6 $87
 L3D38A:
-	TAY			; D38A  $A8
-	LDA ($86),Y		; D38B  $B1 $86		pointers to world tilemaps
-	STA $80			; D38D  $85 $80
-	INY			; D38F  $C8
-	LDA ($86),Y		; D390  $B1 $86
-	STA $81			; D392  $85 $81
-	TXA			; D394  $8A
-	AND #$0F		; D395  $29 $0F
-	ORA #$70		; D397  $09 $70		$7000
-	STA $83			; D399  $85 $83
-	LDA #$00		; D39B  $A9 $00
-	STA $82			; D39D  $85 $82
+	TAY				; D38A  $A8
+	LDA ($86),Y			; D38B  $B1 $86		pointers to world tilemaps
+	STA $80				; D38D  $85 $80
+	INY				; D38F  $C8
+	LDA ($86),Y			; D390  $B1 $86
+	STA $81				; D392  $85 $81
+	TXA				; D394  $8A
+	AND #$0F			; D395  $29 $0F
+	ORA #$70			; D397  $09 $70		$7000
+	STA $83				; D399  $85 $83
+	LDA #$00			; D39B  $A9 $00
+	STA $82				; D39D  $85 $82
 ; Name	:
 ; Marks	: Set_nmap_tile
 ;	  decompress tilemap
 L3D39F:
-	LDY #$00		; D39F  $A0 $00
-	LDA ($80),Y		; D3A1  $B1 $80		world/normal tilemaps
-	BPL L3D3D0		; D3A3  $10 $2B		bit7 means it has the tilemap counts
-	CMP #$FF		; D3A5  $C9 $FF
-	BEQ L3D3E1		; D3A7  $F0 $38		if tilemap == FFh(end of tilemap = terminator)
+	LDY #$00			; D39F  $A0 $00
+	LDA ($80),Y			; D3A1  $B1 $80		world/normal tilemaps
+	BPL L3D3D0			; D3A3  $10 $2B		bit7 means it has the tilemap counts
+	CMP #$FF			; D3A5  $C9 $FF
+	BEQ L3D3E1			; D3A7  $F0 $38		if tilemap == FFh(end of tilemap = terminator)
 ; rle
-	AND #$7F		; D3A9  $29 $7F
-	STA $84			; D3AB  $85 $84		tilemap - byte value
-	INC $80			; D3AD  $E6 $80
-	BNE L3D3B3		; D3AF  $D0 $02
-	INC $81			; D3B1  $E6 $81
+	AND #$7F			; D3A9  $29 $7F
+	STA $84				; D3AB  $85 $84		tilemap - byte value
+	INC $80				; D3AD  $E6 $80
+	BNE L3D3B3			; D3AF  $D0 $02
+	INC $81				; D3B1  $E6 $81
 L3D3B3:
-	LDA ($80),Y		; D3B3  $B1 $80		world/normal tilemap count - run length
-	TAX			; D3B5  $AA
-	LDA $84			; D3B6  $A5 $84
+	LDA ($80),Y			; D3B3  $B1 $80		world/normal tilemap count - run length
+	TAX				; D3B5  $AA
+	LDA $84				; D3B6  $A5 $84
 L3D3B8:
-	STA ($82),Y		; D3B8  $91 $82		general buffer: RAM($7000-$7FFF): world map bg buf
-	INY			; D3BA  $C8
-	BEQ L3D3C8		; D3BB  $F0 $0B
-	DEX			; D3BD  $CA
-	BNE L3D3B8		; D3BE  $D0 $F8		loop
-	TYA			; D3C0  $98
-	CLC			; D3C1  $18
-	ADC $82			; D3C2  $65 $82
-	STA $82			; D3C4  $85 $82		current copied tilemap x position
-	BCC L3D3CA		; D3C6  $90 $02
+	STA ($82),Y			; D3B8  $91 $82		general buffer: RAM($7000-$7FFF): world map bg buf
+	INY				; D3BA  $C8
+	BEQ L3D3C8			; D3BB  $F0 $0B
+	DEX				; D3BD  $CA
+	BNE L3D3B8			; D3BE  $D0 $F8		loop
+	TYA				; D3C0  $98
+	CLC				; D3C1  $18
+	ADC $82				; D3C2  $65 $82
+	STA $82				; D3C4  $85 $82		current copied tilemap x position
+	BCC L3D3CA			; D3C6  $90 $02
 L3D3C8:
-	INC $83			; D3C8  $E6 $83
+	INC $83				; D3C8  $E6 $83
 L3D3CA:
-	INC $80			; D3CA  $E6 $80
-	BNE L3D39F		; D3CC  $D0 $D1		loop
+	INC $80				; D3CA  $E6 $80
+	BNE L3D39F			; D3CC  $D0 $D1		loop
     BEQ L3D3DC               ; D3CE  $F0 $0C
 ; uncompressed byte
 L3D3D0:
-	STA ($82),Y		; D3D0  $91 $82
-	INC $82			; D3D2  $E6 $82
-	BNE L3D3D8		; D3D4  $D0 $02
-	INC $83			; D3D6  $E6 $83
+	STA ($82),Y			; D3D0  $91 $82
+	INC $82				; D3D2  $E6 $82
+	BNE L3D3D8			; D3D4  $D0 $02
+	INC $83				; D3D6  $E6 $83
 L3D3D8:
-	INC $80			; D3D8  $E6 $80
-	BNE L3D39F		; D3DA  $D0 $C3		loop
+	INC $80				; D3D8  $E6 $80
+	BNE L3D39F			; D3DA  $D0 $C3		loop
 L3D3DC:
-	INC $81			; D3DC  $E6 $81
-	JMP L3D39F		; D3DE  $4C $9F $D3	loop
+	INC $81				; D3DC  $E6 $81
+	JMP L3D39F			; D3DE  $4C $9F $D3	loop
 L3D3E1:
-	RTS			; D3E1  $60
+	RTS				; D3E1  $60
 ; End of Set_wmap_tile
 
 ; Name	:
 ; Marks	: Player direction process
 ;	  init player movement (world map)
 ;; sub start ;;
-	LDA player_dir		; D3E2  $A5 $33
-	LSR A			; D3E4  $4A
-	BCS L3D3F1		; D3E5  $B0 $0A		if right direction
-	LSR A			; D3E7  $4A
-	BCS L3D416		; D3E8  $B0 $2C		if left direction
-	LSR A			; D3EA  $4A
-	BCS L3D41E		; D3EB  $B0 $31		if down direction
-	LSR A			; D3ED  $4A
-	BCS L3D433		; D3EE  $B0 $43		if up direction
-	RTS			; D3F0  $60
+	LDA player_dir			; D3E2  $A5 $33
+	LSR A				; D3E4  $4A
+	BCS L3D3F1			; D3E5  $B0 $0A		if right direction
+	LSR A				; D3E7  $4A
+	BCS L3D416			; D3E8  $B0 $2C		if left direction
+	LSR A				; D3EA  $4A
+	BCS L3D41E			; D3EB  $B0 $31		if down direction
+	LSR A				; D3ED  $4A
+	BCS L3D433			; D3EE  $B0 $43		if up direction
+	RTS				; D3F0  $60
 ; End of
 ; right
 L3D3F1:
@@ -3304,10 +3304,10 @@ L3D3F6:
     STA $2D                  ; D408  $85 $2D
     JSR Copy_map_tileset                ; D40A  $20 $47 $D5
 L3D40D:
-	LDA #$01		; D40D  $A9 $01
-	STA map_update		; D40F  $85 $32
-	STA mov_spd		; D411  $85 $34
-	JMP L3D45D		; D413  $4C $5D $D4	update world map movement speed
+	LDA #$01			; D40D  $A9 $01
+	STA map_update			; D40F  $85 $32
+	STA mov_spd			; D411  $85 $34
+	JMP L3D45D			; D413  $4C $5D $D4	update world map movement speed
 ; left
 L3D416:
     LDA $27                  ; D416  $A5 $27
@@ -3316,62 +3316,62 @@ L3D416:
     JMP L3D3F6               ; D41B  $4C $F6 $D3
 ; down
 L3D41E:
-	LDA ow_y_pos		; D41E  $A5 $28
-	CLC			; D420  $18
-	ADC #$0F		; D421  $69 $0F
-	STA $2C			; D423  $85 $2C
-	LDA nt_y_pos		; D425  $A5 $2F
-	CLC			; D427  $18
-	ADC #$0F		; D428  $69 $0F
-	CMP #$0F		; D42A  $C9 $0F
-	BCC L3D444		; D42C  $90 $16
-	SEC			; D42E  $38
-	SBC #$0F		; D42F  $E9 $0F
-	BCS L3D444		; D431  $B0 $11
+	LDA ow_y_pos			; D41E  $A5 $28
+	CLC				; D420  $18
+	ADC #$0F			; D421  $69 $0F
+	STA $2C				; D423  $85 $2C
+	LDA nt_y_pos			; D425  $A5 $2F
+	CLC				; D427  $18
+	ADC #$0F			; D428  $69 $0F
+	CMP #$0F			; D42A  $C9 $0F
+	BCC L3D444			; D42C  $90 $16
+	SEC				; D42E  $38
+	SBC #$0F			; D42F  $E9 $0F
+	BCS L3D444			; D431  $B0 $11
 ; up
 L3D433:
-	LDA ow_y_pos		; D433  $A5 $28
-	SEC			; D435  $38
-	SBC #$01		; D436  $E9 $01
-	STA $2C			; D438  $85 $2C		next overworld y position ??
-	LDA nt_y_pos		; D43A  $A5 $2F
-	SEC			; D43C  $38
-	SBC #$01		; D43D  $E9 $01
-	BCS L3D444		; D43F  $B0 $03
-	CLC			; D441  $18
-	ADC #$0F		; D442  $69 $0F
+	LDA ow_y_pos			; D433  $A5 $28
+	SEC				; D435  $38
+	SBC #$01			; D436  $E9 $01
+	STA $2C				; D438  $85 $2C		next overworld y position ??
+	LDA nt_y_pos			; D43A  $A5 $2F
+	SEC				; D43C  $38
+	SBC #$01			; D43D  $E9 $01
+	BCS L3D444			; D43F  $B0 $03
+	CLC				; D441  $18
+	ADC #$0F			; D442  $69 $0F
 L3D444:
-	STA $30			; D444  $85 $30		next overworld nametable y position ??
-	LDA ow_x_pos		; D446  $A5 $27
-	STA $2B			; D448  $85 $2B
-	AND #$1F		; D44A  $29 $1F
-	STA $31			; D44C  $85 $31
-	LDA scroll_dir_map	; D44E  $A5 $2D
-	AND #$FD		; D450  $29 $FD
-	STA scroll_dir_map	; D452  $85 $2D		set scroll direction to vertical
-	JSR Set_wmap_tile	; D454  $20 $75 $D3
-	JSR Copy_map_tileset	; D457  $20 $47 $D5
-	JMP L3D40D		; D45A  $4C $0D $D4
+	STA $30				; D444  $85 $30		next overworld nametable y position ??
+	LDA ow_x_pos			; D446  $A5 $27
+	STA $2B				; D448  $85 $2B
+	AND #$1F			; D44A  $29 $1F
+	STA $31				; D44C  $85 $31
+	LDA scroll_dir_map		; D44E  $A5 $2D
+	AND #$FD			; D450  $29 $FD
+	STA scroll_dir_map		; D452  $85 $2D		set scroll direction to vertical
+	JSR Set_wmap_tile		; D454  $20 $75 $D3
+	JSR Copy_map_tileset		; D457  $20 $47 $D5
+	JMP L3D40D			; D45A  $4C $0D $D4
 ; End of
 
 ; Marks	: update world map movement speed
 L3D45D:
-	LDA vehicle_ID		; D45D  $A5 $42
-	CMP #$08		; D45F  $C9 $08
-	BEQ L3D47D		; D461  $F0 $1A		if airship
-	CMP #$04		; D463  $C9 $04
-	BEQ L3D479		; D465  $F0 $12		if ship
-	CMP #$02		; D467  $C9 $02
-	BEQ L3D474		; D469  $F0 $09		if canoe/snowcraft
-	LDA chocobo_stat	; D46B  $AD $08 $60
-	AND #$02		; D46E  $29 $02
-	BEQ L3D474		; D470  $F0 $02		if no chocobo riding
+	LDA vehicle_ID			; D45D  $A5 $42
+	CMP #$08			; D45F  $C9 $08
+	BEQ L3D47D			; D461  $F0 $1A		if airship
+	CMP #$04			; D463  $C9 $04
+	BEQ L3D479			; D465  $F0 $12		if ship
+	CMP #$02			; D467  $C9 $02
+	BEQ L3D474			; D469  $F0 $09		if canoe/snowcraft
+	LDA chocobo_stat		; D46B  $AD $08 $60
+	AND #$02			; D46E  $29 $02
+	BEQ L3D474			; D470  $F0 $02		if no chocobo riding
 D472:
-	STA mov_spd		; D472  $85 $34
+	STA mov_spd			; D472  $85 $34
 L3D474:
-	LDA #$00		; D474  $A9 $00
-	STA $4E			; D476  $85 $4E
-	RTS			; D478  $60
+	LDA #$00			; D474  $A9 $00
+	STA $4E				; D476  $85 $4E
+	RTS				; D478  $60
 ; End of
 L3D479:
     LDA #$02                 ; D479  $A9 $02
@@ -3415,16 +3415,16 @@ D4AA:
 ;	  in_x_pos, in_y_pos are also polluted.
 ;	  init player movement (normal map)
 ;; sub start ;;
-	LDA player_dir		; D4AD  $A5 $33
-	LSR A			; D4AF  $4A
-	BCS L3D4BC		; D4B0  $B0 $0A
-	LSR A			; D4B2  $4A
-	BCS L3D4E8		; D4B3  $B0 $33
-	LSR A			; D4B5  $4A
-	BCS L3D4F9		; D4B6  $B0 $41
-	LSR A			; D4B8  $4A
-	BCS L3D517		; D4B9  $B0 $5C
-	RTS			; D4BB  $60
+	LDA player_dir			; D4AD  $A5 $33
+	LSR A				; D4AF  $4A
+	BCS L3D4BC			; D4B0  $B0 $0A
+	LSR A				; D4B2  $4A
+	BCS L3D4E8			; D4B3  $B0 $33
+	LSR A				; D4B5  $4A
+	BCS L3D4F9			; D4B6  $B0 $41
+	LSR A				; D4B8  $4A
+	BCS L3D517			; D4B9  $B0 $5C
+	RTS				; D4BB  $60
 ; End of
 ; right
 ; $33 = 01h
@@ -3445,15 +3445,15 @@ L3D4CA:
     STA $30                  ; D4D2  $85 $30
     LDA $2A                  ; D4D4  $A5 $2A
     STA $2C                  ; D4D6  $85 $2C
-	LDA scroll_dir_map	; D4D8  $A5 $2D
-	ORA #$02		; D4DA  $09 $02		scroll direction = 02h(horizontal)
-	STA scroll_dir_map	; D4DC  $85 $2D
-	JSR $D5BA		; D4DE  $20 $BA $D5
+	LDA scroll_dir_map		; D4D8  $A5 $2D
+	ORA #$02			; D4DA  $09 $02		scroll direction = 02h(horizontal)
+	STA scroll_dir_map		; D4DC  $85 $2D
+	JSR $D5BA			; D4DE  $20 $BA $D5
 L3D4E1:
-	LDA #$01		; D4E1  $A9 $01
-	JSR Dash		; D4E3  $20 $50 $F7	newly added code for dash
-	NOP			; D4E6  $EA
-	RTS			; D4E7  $60
+	LDA #$01			; D4E1  $A9 $01
+	JSR Dash			; D4E3  $20 $50 $F7	newly added code for dash
+	NOP				; D4E6  $EA
+	RTS				; D4E7  $60
 ; End of
 ; left
 ; $33 = 02h
@@ -3491,32 +3491,32 @@ L3D4F9:
 ; up
 ; $33 = 08h	down ??
 L3D517:
-	LDA in_y_pos		; D517  $A5 $2A
-	CLC			; D519  $18
-	ADC #$06		; D51A  $69 $06
-	AND #$3F		; D51C  $29 $3F
-	STA $69			; D51E  $85 $69		temp(calcurated) y ??
-	SEC			; D520  $38
-	SBC #$07		; D521  $E9 $07
-	AND #$3F		; D523  $29 $3F
-	STA $2C			; D525  $85 $2C		map row to load for vertical scrolling ??
-	LDA nt_y_pos		; D527  $A5 $2F
-	SEC			; D529  $38
-	SBC #$01		; D52A  $E9 $01
-	BCS L3D531		; D52C  $B0 $03
-	CLC			; D52E  $18
-	ADC #$0F		; D52F  $69 $0F
+	LDA in_y_pos			; D517  $A5 $2A
+	CLC				; D519  $18
+	ADC #$06			; D51A  $69 $06
+	AND #$3F			; D51C  $29 $3F
+	STA $69				; D51E  $85 $69		temp(calcurated) y ??
+	SEC				; D520  $38
+	SBC #$07			; D521  $E9 $07
+	AND #$3F			; D523  $29 $3F
+	STA $2C				; D525  $85 $2C		map row to load for vertical scrolling ??
+	LDA nt_y_pos			; D527  $A5 $2F
+	SEC				; D529  $38
+	SBC #$01			; D52A  $E9 $01
+	BCS L3D531			; D52C  $B0 $03
+	CLC				; D52E  $18
+	ADC #$0F			; D52F  $69 $0F
 L3D531:
-	STA $30			; D531  $85 $30		calcurated y ??
-	LDA in_x_pos		; D533  $A5 $29
-	STA $2B			; D535  $85 $2B		map column to load for horizontal scrolling ??
-	AND #$1F		; D537  $29 $1F
-	STA $31			; D539  $85 $31		calcurated x ??
-	LDA scroll_dir_map	; D53B  $A5 $2D		scroll_dir_map ??
-	AND #$FD		; D53D  $29 $FD		set to vertical scroll direction
-	STA scroll_dir_map	; D53F  $85 $2D
-	JSR $D5BA		; D541  $20 $BA $D5	copy tile
-	JMP L3D4E1		; D544  $4C $E1 $D4
+	STA $30				; D531  $85 $30		calcurated y ??
+	LDA in_x_pos			; D533  $A5 $29
+	STA $2B				; D535  $85 $2B		map column to load for horizontal scrolling ??
+	AND #$1F			; D537  $29 $1F
+	STA $31				; D539  $85 $31		calcurated x ??
+	LDA scroll_dir_map		; D53B  $A5 $2D		scroll_dir_map ??
+	AND #$FD			; D53D  $29 $FD		set to vertical scroll direction
+	STA scroll_dir_map		; D53F  $85 $2D
+	JSR $D5BA			; D541  $20 $BA $D5	copy tile
+	JMP L3D4E1			; D544  $4C $E1 $D4
 ; End of
 
 ; Name	: Copy_map_tileset
@@ -3530,36 +3530,36 @@ L3D531:
 ;	  load tiles for scrolling (world map)
    ;; sub start ;;
 Copy_map_tileset:
-	LDX #$00		; D547  $A2 $00
-	LDA $2C			; D549  $A5 $2C		next overworld y position ??
-	AND #$0F		; D54B  $29 $0F
-	ORA #$70		; D54D  $09 $70
-	STA $81			; D54F  $85 $81
-	LDA $2B			; D551  $A5 $2B		temp address Low
-	STA $80			; D553  $85 $80
-	LDA scroll_dir_map	; D555  $A5 $2D
-	AND #$02		; D557  $29 $02
-	BNE L3D586		; D559  $D0 $2B		if horizontal direction
+	LDX #$00			; D547  $A2 $00
+	LDA $2C				; D549  $A5 $2C		next overworld y position ??
+	AND #$0F			; D54B  $29 $0F
+	ORA #$70			; D54D  $09 $70
+	STA $81				; D54F  $85 $81
+	LDA $2B				; D551  $A5 $2B		temp address Low
+	STA $80				; D553  $85 $80
+	LDA scroll_dir_map		; D555  $A5 $2D
+	AND #$02			; D557  $29 $02
+	BNE L3D586			; D559  $D0 $2B		if horizontal direction
 ; horizontal
 L3D55B:
-	LDY #$00		; D55B  $A0 $00
-	LDA ($80),Y		; D55D  $B1 $80
-	TAY			; D55F  $A8
-	LDA $0500,Y		; D560  $B9 $00 $05	map tileset (TL) ??
-	STA $0780,X		; D563  $9D $80 $07
-	LDA $0580,Y		; D566  $B9 $80 $05	map tileset (TR) ??
-	STA $0790,X		; D569  $9D $90 $07
-	LDA $0600,Y		; D56C  $B9 $00 $06	map tileset (BL) ??
-	STA $07A0,X		; D56F  $9D $A0 $07
-	LDA $0680,Y		; D572  $B9 $80 $06	map tileset (BR) ??
-	STA $07B0,X		; D575  $9D $B0 $07
-	LDA $0700,Y		; D578  $B9 $00 $07	map tileset attribute table
-	STA $07C0,X		; D57B  $9D $C0 $07
-	INC $80			; D57E  $E6 $80
-	INX			; D580  $E8
-	CPX #$10		; D581  $E0 $10
-	BCC L3D55B		; D583  $90 $D6		loop
-	RTS			; D585  $60
+	LDY #$00			; D55B  $A0 $00
+	LDA ($80),Y			; D55D  $B1 $80
+	TAY				; D55F  $A8
+	LDA $0500,Y			; D560  $B9 $00 $05	map tileset (TL) ??
+	STA $0780,X			; D563  $9D $80 $07
+	LDA $0580,Y			; D566  $B9 $80 $05	map tileset (TR) ??
+	STA $0790,X			; D569  $9D $90 $07
+	LDA $0600,Y			; D56C  $B9 $00 $06	map tileset (BL) ??
+	STA $07A0,X			; D56F  $9D $A0 $07
+	LDA $0680,Y			; D572  $B9 $80 $06	map tileset (BR) ??
+	STA $07B0,X			; D575  $9D $B0 $07
+	LDA $0700,Y			; D578  $B9 $00 $07	map tileset attribute table
+	STA $07C0,X			; D57B  $9D $C0 $07
+	INC $80				; D57E  $E6 $80
+	INX				; D580  $E8
+	CPX #$10			; D581  $E0 $10
+	BCC L3D55B			; D583  $90 $D6		loop
+	RTS				; D585  $60
 ; End of Copy_map_tileset
 ;vertical
 L3D586:
@@ -3595,62 +3595,62 @@ L3D586:
 ;	  $07C0 is attribute
 ;	  load tiles for scrolling (normal map)
 ;; sub start ;;
-	LDX #$00		; D5BA  $A2 $00
-	LDA $2C			; D5BC  $A5 $2C		map row to load for vertical scrolling ??
-	AND #$1F		; D5BE  $29 $1F
-	LSR A			; D5C0  $4A
-	LSR A			; D5C1  $4A
-	LSR A			; D5C2  $4A
-	ORA #$70		; D5C3  $09 $70
-	STA $81			; D5C5  $85 $81
-	LDA $2C			; D5C7  $A5 $2C
-	ASL A			; D5C9  $0A
-	ASL A			; D5CA  $0A
-	ASL A			; D5CB  $0A
-	ASL A			; D5CC  $0A
-	ASL A			; D5CD  $0A
-	STA $82			; D5CE  $85 $82
-	LDA $2B			; D5D0  $A5 $2B		map column to load for horizontal scrolling ??
-	AND #$1F		; D5D2  $29 $1F
-	ORA $82			; D5D4  $05 $82
-	STA $80			; D5D6  $85 $80
-	LDA scroll_dir_map	; D5D8  $A5 $2D
-	AND #$02		; D5DA  $29 $02
-	BNE L3D621		; D5DC  $D0 $43		if horizontal scroll direction
-	; vertical scrolling
+	LDX #$00			; D5BA  $A2 $00
+	LDA $2C				; D5BC  $A5 $2C		map row to load for vertical scrolling ??
+	AND #$1F			; D5BE  $29 $1F
+	LSR A				; D5C0  $4A
+	LSR A				; D5C1  $4A
+	LSR A				; D5C2  $4A
+	ORA #$70			; D5C3  $09 $70
+	STA $81				; D5C5  $85 $81
+	LDA $2C				; D5C7  $A5 $2C
+	ASL A				; D5C9  $0A
+	ASL A				; D5CA  $0A
+	ASL A				; D5CB  $0A
+	ASL A				; D5CC  $0A
+	ASL A				; D5CD  $0A
+	STA $82				; D5CE  $85 $82
+	LDA $2B				; D5D0  $A5 $2B		map column to load for horizontal scrolling ??
+	AND #$1F			; D5D2  $29 $1F
+	ORA $82				; D5D4  $05 $82
+	STA $80				; D5D6  $85 $80
+	LDA scroll_dir_map		; D5D8  $A5 $2D
+	AND #$02			; D5DA  $29 $02
+	BNE L3D621			; D5DC  $D0 $43		if horizontal scroll direction
+		; vertical scrolling
 L3D5DE:
-	LDY #$00		; D5DE  $A0 $00		copy map tileset ??
-	LDA $2B			; D5E0  $A5 $2B
-	ORA $2C			; D5E2  $05 $2C
-	AND #$20		; D5E4  $29 $20
-	BEQ L3D5ED		; D5E6  $F0 $05
-	LDY #$38		; D5E8  $A0 $38		fill tile
-	JMP L3D5F0		; D5EA  $4C $F0 $D5
+	LDY #$00			; D5DE  $A0 $00		copy map tileset ??
+	LDA $2B				; D5E0  $A5 $2B
+	ORA $2C				; D5E2  $05 $2C
+	AND #$20			; D5E4  $29 $20
+	BEQ L3D5ED			; D5E6  $F0 $05
+	LDY #$38			; D5E8  $A0 $38		fill tile
+	JMP L3D5F0			; D5EA  $4C $F0 $D5
 L3D5ED:
-	LDA ($80),Y		; D5ED  $B1 $80		tile id - load from wram ?? ex> $7230, may be map bg tilemap (32x32)
-	TAY			; D5EF  $A8		A is offset ??
+	LDA ($80),Y			; D5ED  $B1 $80		tile id - load from wram ?? ex> $7230, may be map bg tilemap (32x32)
+	TAY				; D5EF  $A8		A is offset ??
 L3D5F0:
-	LDA $0500,Y		; D5F0  $B9 $00 $05	map tileset (TL)
-	STA $0780,X		; D5F3  $9D $80 $07
-	LDA $0580,Y		; D5F6  $B9 $80 $05	map tileset (TR)
-	STA $0790,X		; D5F9  $9D $90 $07
-	LDA $0600,Y		; D5FC  $B9 $00 $06	map tileset (BL)
-	STA $07A0,X		; D5FF  $9D $A0 $07
-	LDA $0680,Y		; D602  $B9 $80 $06	map tileset (BR)
-	STA $07B0,X		; D605  $9D $B0 $07
-	LDA $0700,Y		; D608  $B9 $00 $07	map tileset attribute table
-	STA $07C0,X		; D60B  $9D $C0 $07
-	LDA $80			; D60E  $A5 $80
-	CLC			; D610  $18
-	ADC #$01		; D611  $69 $01
-	AND #$1F		; D613  $29 $1F
-	ORA $82			; D615  $05 $82
-	STA $80			; D617  $85 $80
-	INC $2B			; D619  $E6 $2B		map column to load for horizontal scrolling ??
-	INX			; D61B  $E8
-	CPX #$10		; D61C  $E0 $10
-	BCC L3D5DE		; D61E  $90 $BE
-	RTS			; D620  $60
+	LDA $0500,Y			; D5F0  $B9 $00 $05	map tileset (TL)
+	STA $0780,X			; D5F3  $9D $80 $07
+	LDA $0580,Y			; D5F6  $B9 $80 $05	map tileset (TR)
+	STA $0790,X			; D5F9  $9D $90 $07
+	LDA $0600,Y			; D5FC  $B9 $00 $06	map tileset (BL)
+	STA $07A0,X			; D5FF  $9D $A0 $07
+	LDA $0680,Y			; D602  $B9 $80 $06	map tileset (BR)
+	STA $07B0,X			; D605  $9D $B0 $07
+	LDA $0700,Y			; D608  $B9 $00 $07	map tileset attribute table
+	STA $07C0,X			; D60B  $9D $C0 $07
+	LDA $80				; D60E  $A5 $80
+	CLC				; D610  $18
+	ADC #$01			; D611  $69 $01
+	AND #$1F			; D613  $29 $1F
+	ORA $82				; D615  $05 $82
+	STA $80				; D617  $85 $80
+	INC $2B				; D619  $E6 $2B		map column to load for horizontal scrolling ??
+	INX				; D61B  $E8
+	CPX #$10			; D61C  $E0 $10
+	BCC L3D5DE			; D61E  $90 $BE
+	RTS				; D620  $60
 ; End of
 ; horizontal
 L3D621:
@@ -3695,19 +3695,19 @@ L3D633:
 ;	  Fill 1 line as bg tile at once
 ;	  update map background tilemap
 ;; sub start ;;
-	LDX $30			; D66A  $A6 $30
-	LDA $D321,X		; D66C  $BD $21 $D3	ppu address
-	STA $80			; D66F  $85 $80
-	LDA $D331,X		; D671  $BD $31 $D3
-	STA $81			; D674  $85 $81
-	LDA $31			; D676  $A5 $31
-	CMP #$10		; D678  $C9 $10
-	BCS L3D685		; D67A  $B0 $09		if A($31) >= 10h
-	TAX			; D67C  $AA
-	ASL A			; D67D  $0A
-	ORA $80			; D67E  $05 $80
-	STA $80			; D680  $85 $80
-	JMP L3D694		; D682  $4C $94 $D6
+	LDX $30				; D66A  $A6 $30
+	LDA $D321,X			; D66C  $BD $21 $D3	ppu address
+	STA $80				; D66F  $85 $80
+	LDA $D331,X			; D671  $BD $31 $D3
+	STA $81				; D674  $85 $81
+	LDA $31				; D676  $A5 $31
+	CMP #$10			; D678  $C9 $10
+	BCS L3D685			; D67A  $B0 $09		if A($31) >= 10h
+	TAX				; D67C  $AA
+	ASL A				; D67D  $0A
+	ORA $80				; D67E  $05 $80
+	STA $80				; D680  $85 $80
+	JMP L3D694			; D682  $4C $94 $D6
 
 L3D685:
     AND #$0F                 ; D685  $29 $0F
@@ -3720,17 +3720,17 @@ L3D685:
     ADC #$04                 ; D690  $69 $04
     STA $81                  ; D692  $85 $81
 L3D694:
-	LDA scroll_dir_map	; D694  $A5 $2D
-	AND #$02		; D696  $29 $02
-	BEQ L3D69D		; D698  $F0 $03		branch if moving vertically (vertical direction)
-	JMP L3D730		; D69A  $4C $30 $D7
+	LDA scroll_dir_map		; D694  $A5 $2D
+	AND #$02			; D696  $29 $02
+	BEQ L3D69D			; D698  $F0 $03		branch if moving vertically (vertical direction)
+	JMP L3D730			; D69A  $4C $30 $D7
 ; vertical
 L3D69D:
-	TXA			; D69D  $8A		$31 ??
-	EOR #$0F		; D69E  $49 $0F
-	CLC			; D6A0  $18
-	ADC #$01		; D6A1  $69 $01
-	STA $82			; D6A3  $85 $82
+	TXA				; D69D  $8A		$31 ??
+	EOR #$0F			; D69E  $49 $0F
+	CLC				; D6A0  $18
+	ADC #$01			; D6A1  $69 $01
+	STA $82				; D6A3  $85 $82
 	LDY #$00                 ; D6A5  $A0 $00
 	LDA PpuStatus_2002       ; D6A7  $AD $02 $20
 	LDA $81                  ; D6AA  $A5 $81
@@ -3738,65 +3738,65 @@ L3D69D:
 	LDA $80                  ; D6AF  $A5 $80
 	STA PpuAddr_2006         ; D6B1  $8D $06 $20
 L3D6B4:
-	LDA $0780,Y		; D6B4  $B9 $80 $07
-	STA PpuData_2007	; D6B7  $8D $07 $20
-	LDA $0790,Y		; D6BA  $B9 $90 $07
-	STA PpuData_2007	; D6BD  $8D $07 $20
-	INY			; D6C0  $C8
-	CPY $82			; D6C1  $C4 $82		repeat count ??
-	BCC L3D6B4		; D6C3  $90 $EF		loop
-	CPY #$10		; D6C5  $C0 $10
-	BCS L3D6E8		; D6C7  $B0 $1F		if fit NT0(no left tile) -> remaining tiles
-	LDA $81			; D6C9  $A5 $81		Address High -> horizontal mirroring
-	EOR #$04		; D6CB  $49 $04		NT0 -> NT1
-	STA PpuAddr_2006	; D6CD  $8D $06 $20
-	LDA $80			; D6D0  $A5 $80
-	AND #$E0		; D6D2  $29 $E0		to (0, x)
-	STA PpuAddr_2006	; D6D4  $8D $06 $20
+	LDA $0780,Y			; D6B4  $B9 $80 $07
+	STA PpuData_2007		; D6B7  $8D $07 $20
+	LDA $0790,Y			; D6BA  $B9 $90 $07
+	STA PpuData_2007		; D6BD  $8D $07 $20
+	INY				; D6C0  $C8
+	CPY $82				; D6C1  $C4 $82		repeat count ??
+	BCC L3D6B4			; D6C3  $90 $EF		loop
+	CPY #$10			; D6C5  $C0 $10
+	BCS L3D6E8			; D6C7  $B0 $1F		if fit NT0(no left tile) -> remaining tiles
+	LDA $81				; D6C9  $A5 $81		Address High -> horizontal mirroring
+	EOR #$04			; D6CB  $49 $04		NT0 -> NT1
+	STA PpuAddr_2006		; D6CD  $8D $06 $20
+	LDA $80				; D6D0  $A5 $80
+	AND #$E0			; D6D2  $29 $E0		to (0, x)
+	STA PpuAddr_2006		; D6D4  $8D $06 $20
 L3D6D7:
-	LDA $0780,Y		; D6D7  $B9 $80 $07
-	STA PpuData_2007	; D6DA  $8D $07 $20
-	LDA $0790,Y		; D6DD  $B9 $90 $07
-	STA PpuData_2007	; D6E0  $8D $07 $20
-	INY			; D6E3  $C8
-	CPY #$10		; D6E4  $C0 $10
-	BCC L3D6D7		; D6E6  $90 $EF		loop
+	LDA $0780,Y			; D6D7  $B9 $80 $07
+	STA PpuData_2007		; D6DA  $8D $07 $20
+	LDA $0790,Y			; D6DD  $B9 $90 $07
+	STA PpuData_2007		; D6E0  $8D $07 $20
+	INY				; D6E3  $C8
+	CPY #$10			; D6E4  $C0 $10
+	BCC L3D6D7			; D6E6  $90 $EF		loop
 L3D6E8:
-	LDA $80			; D6E8  $A5 $80
-	CLC			; D6EA  $18
-	ADC #$20		; D6EB  $69 $20		next line
-	STA $80			; D6ED  $85 $80
-	LDA $81			; D6EF  $A5 $81
-	STA PpuAddr_2006	; D6F1  $8D $06 $20
-	LDA $80			; D6F4  $A5 $80
-	STA PpuAddr_2006	; D6F6  $8D $06 $20
-	LDY #$00		; D6F9  $A0 $00
+	LDA $80				; D6E8  $A5 $80
+	CLC				; D6EA  $18
+	ADC #$20			; D6EB  $69 $20		next line
+	STA $80				; D6ED  $85 $80
+	LDA $81				; D6EF  $A5 $81
+	STA PpuAddr_2006		; D6F1  $8D $06 $20
+	LDA $80				; D6F4  $A5 $80
+	STA PpuAddr_2006		; D6F6  $8D $06 $20
+	LDY #$00			; D6F9  $A0 $00
 L3D6FB:
-	LDA $07A0,Y		; D6FB  $B9 $A0 $07
-	STA PpuData_2007	; D6FE  $8D $07 $20
-	LDA $07B0,Y		; D701  $B9 $B0 $07
-	STA PpuData_2007	; D704  $8D $07 $20
-	INY			; D707  $C8
-	CPY $82			; D708  $C4 $82
-	BCC L3D6FB		; D70A  $90 $EF		loop
-	CPY #$10		; D70C  $C0 $10
-	BCS L3D72F		; D70E  $B0 $1F		if there is no remaining tiles
-	LDA $81			; D710  $A5 $81
-	EOR #$04		; D712  $49 $04		NT0 -> NT1
-	STA PpuAddr_2006	; D714  $8D $06 $20
-	LDA $80			; D717  $A5 $80
-	AND #$E0		; D719  $29 $E0
-	STA PpuAddr_2006	; D71B  $8D $06 $20
+	LDA $07A0,Y			; D6FB  $B9 $A0 $07
+	STA PpuData_2007		; D6FE  $8D $07 $20
+	LDA $07B0,Y			; D701  $B9 $B0 $07
+	STA PpuData_2007		; D704  $8D $07 $20
+	INY				; D707  $C8
+	CPY $82				; D708  $C4 $82
+	BCC L3D6FB			; D70A  $90 $EF		loop
+	CPY #$10			; D70C  $C0 $10
+	BCS L3D72F			; D70E  $B0 $1F		if there is no remaining tiles
+	LDA $81				; D710  $A5 $81
+	EOR #$04			; D712  $49 $04		NT0 -> NT1
+	STA PpuAddr_2006		; D714  $8D $06 $20
+	LDA $80				; D717  $A5 $80
+	AND #$E0			; D719  $29 $E0
+	STA PpuAddr_2006		; D71B  $8D $06 $20
 L3D71E:
-	LDA $07A0,Y		; D71E  $B9 $A0 $07
-	STA PpuData_2007	; D721  $8D $07 $20
-	LDA $07B0,Y		; D724  $B9 $B0 $07
-	STA PpuData_2007	; D727  $8D $07 $20
-	INY			; D72A  $C8
-	CPY #$10		; D72B  $C0 $10
-	BCC L3D71E		; D72D  $90 $EF		loop
+	LDA $07A0,Y			; D71E  $B9 $A0 $07
+	STA PpuData_2007		; D721  $8D $07 $20
+	LDA $07B0,Y			; D724  $B9 $B0 $07
+	STA PpuData_2007		; D727  $8D $07 $20
+	INY				; D72A  $C8
+	CPY #$10			; D72B  $C0 $10
+	BCC L3D71E			; D72D  $90 $EF		loop
 L3D72F:
-	RTS			; D72F  $60
+	RTS				; D72F  $60
 ; End of
 ; horizontal
 L3D730:
@@ -3881,25 +3881,25 @@ L3D7C5:
 ;	  slate out effect
 ;	  screen wipe out (world map)
 ;; sub start ;;
-	JSR $D990		; D7CB  $20 $90 $D9	Init sprites(hide) / make sound ??
-	LDA #$70		; D7CE  $A9 $70
-	STA $84			; D7D0  $85 $84
-	LDA #$01		; D7D2  $A9 $01
-	STA $85			; D7D4  $85 $85
+	JSR $D990			; D7CB  $20 $90 $D9	Init sprites(hide) / make sound ??
+	LDA #$70			; D7CE  $A9 $70
+	STA $84				; D7D0  $85 $84
+	LDA #$01			; D7D2  $A9 $01
+	STA $85				; D7D4  $85 $85
 L3D7D6:
-	JSR Slate_effect	; D7D6  $20 $1E $D8
-	LDA $85			; D7D9  $A5 $85
-	CLC			; D7DB  $18
-	ADC #$06		; D7DC  $69 $06
-	STA $85			; D7DE  $85 $85
-	LDA $84			; D7E0  $A5 $84
-	SEC			; D7E2  $38
-	SBC #$03		; D7E3  $E9 $03
-	STA $84			; D7E5  $85 $84
-	CMP #$04		; D7E7  $C9 $04
-	BCS L3D7D6		; D7E9  $B0 $EB		LOOP - 
-	LDA #$00		; D7EB  $A9 $00
-	JMP L3D812		; D7ED  $4C $12 $D8
+	JSR Slate_effect		; D7D6  $20 $1E $D8
+	LDA $85				; D7D9  $A5 $85
+	CLC				; D7DB  $18
+	ADC #$06			; D7DC  $69 $06
+	STA $85				; D7DE  $85 $85
+	LDA $84				; D7E0  $A5 $84
+	SEC				; D7E2  $38
+	SBC #$03			; D7E3  $E9 $03
+	STA $84				; D7E5  $85 $84
+	CMP #$04			; D7E7  $C9 $04
+	BCS L3D7D6			; D7E9  $B0 $EB		LOOP - 
+	LDA #$00			; D7EB  $A9 $00
+	JMP L3D812			; D7ED  $4C $12 $D8
 ; End of
 
 ; Name	:
@@ -3908,30 +3908,30 @@ L3D7D6:
 ;	  slate in effect
 ;	  screen wipe in (world map)
    ;; sub start ;;
-	JSR $D990		; D7F0  $20 $90 $D9	Init sprites(hide) / make sound ??
-	LDA #$01		; D7F3  $A9 $01
-	STA $84			; D7F5  $85 $84
-	LDA #$DF		; D7F7  $A9 $DF
-	STA $85			; D7F9  $85 $85
+	JSR $D990			; D7F0  $20 $90 $D9	Init sprites(hide) / make sound ??
+	LDA #$01			; D7F3  $A9 $01
+	STA $84				; D7F5  $85 $84
+	LDA #$DF			; D7F7  $A9 $DF
+	STA $85				; D7F9  $85 $85
 L3D7FB:
-	JSR Slate_effect	; D7FB  $20 $1E $D8
-	LDA $85			; D7FE  $A5 $85
-	SEC			; D800  $38
-	SBC #$06		; D801  $E9 $06
-	STA $85			; D803  $85 $85
-	LDA $84			; D805  $A5 $84
-	CLC			; D807  $18
-	ADC #$03		; D808  $69 $03
-	STA $84			; D80A  $85 $84
-	CMP #$70		; D80C  $C9 $70
-	BCC L3D7FB		; D80E  $90 $EB		LOOP - Show world map using slate in effect
-	LDA #$0A		; D810  $A9 $0A
+	JSR Slate_effect		; D7FB  $20 $1E $D8
+	LDA $85				; D7FE  $A5 $85
+	SEC				; D800  $38
+	SBC #$06			; D801  $E9 $06
+	STA $85				; D803  $85 $85
+	LDA $84				; D805  $A5 $84
+	CLC				; D807  $18
+	ADC #$03			; D808  $69 $03
+	STA $84				; D80A  $85 $84
+	CMP #$70			; D80C  $C9 $70
+	BCC L3D7FB			; D80E  $90 $EB		LOOP - Show world map using slate in effect
+	LDA #$0A			; D810  $A9 $0A
 L3D812:
-	STA PpuMask_2001	; D812  $8D $01 $20
-	LDA #$30		; D815  $A9 $30
-	STA Sq0Duty_4000	; D817  $8D $00 $40
-	STA Sq0Sweep_4001	; D81A  $8D $01 $40
-	RTS			; D81D  $60
+	STA PpuMask_2001		; D812  $8D $01 $20
+	LDA #$30			; D815  $A9 $30
+	STA Sq0Duty_4000		; D817  $8D $00 $40
+	STA Sq0Sweep_4001		; D81A  $8D $01 $40
+	RTS				; D81D  $60
 ; End of
 
 ; Name	: Slate_effect
@@ -3941,40 +3941,40 @@ L3D812:
 ;	  update screen wipe (world map)
 ;; sub start ;;
 Slate_effect:
-	JSR Wait_NMI		; D81E  $20 $00 $FE
-	LDA #$0A		; D821  $A9 $0A
-	STA PpuMask_2001	; D823  $8D $01 $20	Ppu enable show background
-	JSR Palette_copy	; D826  $20 $30 $DC
-	JSR Scroll_slate	; D829  $20 $89 $D8
-	JSR $D8BA		; D82C  $20 $BA $D8	Delay ?? - wait for vblank to end
-	LDX $84			; D82F  $A6 $84
+	JSR Wait_NMI			; D81E  $20 $00 $FE
+	LDA #$0A			; D821  $A9 $0A
+	STA PpuMask_2001		; D823  $8D $01 $20	Ppu enable show background
+	JSR Palette_copy		; D826  $20 $30 $DC
+	JSR Scroll_slate		; D829  $20 $89 $D8
+	JSR $D8BA			; D82C  $20 $BA $D8	Delay ?? - wait for vblank to end
+	LDX $84				; D82F  $A6 $84
 L3D831:
-	JSR $D962		; D831  $20 $62 $D9	Another delay ?? - wait one scanline
-	DEX			; D834  $CA
-	BNE L3D831		; D835  $D0 $FA		loop
-	LDA #$00		; D837  $A9 $00		sprite/background hide
-	STA PpuMask_2001	; D839  $8D $01 $20
-	LDX $85			; D83C  $A6 $85
+	JSR $D962			; D831  $20 $62 $D9	Another delay ?? - wait one scanline
+	DEX				; D834  $CA
+	BNE L3D831			; D835  $D0 $FA		loop
+	LDA #$00			; D837  $A9 $00		sprite/background hide
+	STA PpuMask_2001		; D839  $8D $01 $20
+	LDX $85				; D83C  $A6 $85
 L3D83E:
-	JSR $D962		; D83E  $20 $62 $D9	Another delay ?? - wait one scanline
-	DEX			; D841  $CA
-	BNE L3D83E		; D842  $D0 $FA		loop
-	LDA PpuStatus_2002	; D844  $AD $02 $20	latch ppu
-	LDX nt_y_pos		; D847  $A6 $2F
-	LDA $D87A,X		; D849  $BD $7A $D8	PPU address from nametable y - change ppu address on the fly
-	STA PpuAddr_2006	; D84C  $8D $06 $20
-	LDA $D86A,X		; D84F  $BD $6A $D8
-	STA PpuAddr_2006	; D852  $8D $06 $20
-	JSR Scroll_slate	; D855  $20 $89 $D8
-	LDA #$0A		; D858  $A9 $0A
-	STA PpuMask_2001	; D85A  $8D $01 $20	Ppu enable show background
-	LDA $85			; D85D  $A5 $85
-	ASL A			; D85F  $0A
-	STA Sq0Timer_4002	; D860  $8D $02 $40	update sound effect
-	ROL A			; D863  $2A
-	AND #$01		; D864  $29 $01
-	STA Sq0Length_4003	; D866  $8D $03 $40
-	RTS			; D869  $60
+	JSR $D962			; D83E  $20 $62 $D9	Another delay ?? - wait one scanline
+	DEX				; D841  $CA
+	BNE L3D83E			; D842  $D0 $FA		loop
+	LDA PpuStatus_2002		; D844  $AD $02 $20	latch ppu
+	LDX nt_y_pos			; D847  $A6 $2F
+	LDA $D87A,X			; D849  $BD $7A $D8	PPU address from nametable y - change ppu address on the fly
+	STA PpuAddr_2006		; D84C  $8D $06 $20
+	LDA $D86A,X			; D84F  $BD $6A $D8
+	STA PpuAddr_2006		; D852  $8D $06 $20
+	JSR Scroll_slate		; D855  $20 $89 $D8
+	LDA #$0A			; D858  $A9 $0A
+	STA PpuMask_2001		; D85A  $8D $01 $20	Ppu enable show background
+	LDA $85				; D85D  $A5 $85
+	ASL A				; D85F  $0A
+	STA Sq0Timer_4002		; D860  $8D $02 $40	update sound effect
+	ROL A				; D863  $2A
+	AND #$01			; D864  $29 $01
+	STA Sq0Length_4003		; D866  $8D $03 $40
+	RTS				; D869  $60
 ; End of Slate_effect
 
 ; $D86A - data block = ppu address for bottom half of screen wipe
@@ -3991,36 +3991,36 @@ L3D83E:
 ;	  update ppu scroll for screen wipe
  ;; sub start ;;
 Scroll_slate:
-	LDA #$70		; D889  $A9 $70
-	SEC			; D88B  $38
-	SBC $84			; D88C  $E5 $84
-	AND #$7F		; D88E  $29 $7F
-	STA $80			; D890  $85 $80
-	LDA ppu_con_p		; D892  $A5 $FD
-	STA ppu_con_c		; D894  $85 $FF
-	STA PpuControl_2000	; D896  $8D $00 $20
-	LDA PpuStatus_2002	; D899  $AD $02 $20
-	LDA ow_x_pos		; D89C  $A5 $27
-	ASL A			; D89E  $0A
-	ASL A			; D89F  $0A
-	ASL A			; D8A0  $0A
-	ASL A			; D8A1  $0A
-	STA PpuScroll_2005	; D8A2  $8D $05 $20
-	LDA nt_y_pos		; D8A5  $A5 $2F
-	ASL A			; D8A7  $0A
-	ASL A			; D8A8  $0A
-	ASL A			; D8A9  $0A
-	ASL A			; D8AA  $0A
-	CLC			; D8AB  $18
-	ADC $80			; D8AC  $65 $80
-	BCS L3D8B4		; D8AE  $B0 $04
-	CMP #$F0		; D8B0  $C9 $F0
-	BCC L3D8B6		; D8B2  $90 $02
+	LDA #$70			; D889  $A9 $70
+	SEC				; D88B  $38
+	SBC $84				; D88C  $E5 $84
+	AND #$7F			; D88E  $29 $7F
+	STA $80				; D890  $85 $80
+	LDA ppu_con_p			; D892  $A5 $FD
+	STA ppu_con_c			; D894  $85 $FF
+	STA PpuControl_2000		; D896  $8D $00 $20
+	LDA PpuStatus_2002		; D899  $AD $02 $20
+	LDA ow_x_pos			; D89C  $A5 $27
+	ASL A				; D89E  $0A
+	ASL A				; D89F  $0A
+	ASL A				; D8A0  $0A
+	ASL A				; D8A1  $0A
+	STA PpuScroll_2005		; D8A2  $8D $05 $20
+	LDA nt_y_pos			; D8A5  $A5 $2F
+	ASL A				; D8A7  $0A
+	ASL A				; D8A8  $0A
+	ASL A				; D8A9  $0A
+	ASL A				; D8AA  $0A
+	CLC				; D8AB  $18
+	ADC $80				; D8AC  $65 $80
+	BCS L3D8B4			; D8AE  $B0 $04
+	CMP #$F0			; D8B0  $C9 $F0
+	BCC L3D8B6			; D8B2  $90 $02
 L3D8B4:
-	ADC #$0F		; D8B4  $69 $0F
+	ADC #$0F			; D8B4  $69 $0F
 L3D8B6:
-	STA PpuScroll_2005	; D8B6  $8D $05 $20
-	RTS			; D8B9  $60
+	STA PpuScroll_2005		; D8B6  $8D $05 $20
+	RTS				; D8B9  $60
 ; End of Scroll_slate
 
 ; Name	:
@@ -4028,9 +4028,9 @@ L3D8B6:
 ;	  wait for vblank to end
 ;	  2608 cycles total ~ 23 scanlines
 ;; sub start ;;
-	LDX #$90		; D8BA  $A2 $90
+	LDX #$90			; D8BA  $A2 $90
 L3D8BC:
-	LDY #$03		; D8BC  $A0 $03
+	LDY #$03			; D8BC  $A0 $03
 L3D8BE:
 	DEY                      ; D8BE  $88
 	BNE L3D8BE               ; D8BF  $D0 $FD
@@ -4045,72 +4045,72 @@ L3D8BE:
 
 ; Marks	: screen wipe in (normal map)
 L3D8C9:
-	JSR $D977		; D8C9  $20 $77 $D9	init sprite(hide) / sound process ??
-	LDA #$85		; D8CC  $A9 $85
-	STA $84			; D8CE  $85 $84
-	LDA #$01		; D8D0  $A9 $01
-	STA $85			; D8D2  $85 $85
+	JSR $D977			; D8C9  $20 $77 $D9	init sprite(hide) / sound process ??
+	LDA #$85			; D8CC  $A9 $85
+	STA $84				; D8CE  $85 $84
+	LDA #$01			; D8D0  $A9 $01
+	STA $85				; D8D2  $85 $85
 L3D8D4:
-	JSR $D935		; D8D4  $20 $35 $D9	eye open effect ??
-	LDA $84			; D8D7  $A5 $84
-	SEC			; D8D9  $38
-	SBC #$03		; D8DA  $E9 $03
-	STA $84			; D8DC  $85 $84
-	LDA $85			; D8DE  $A5 $85
-	CLC			; D8E0  $18
-	ADC #$06		; D8E1  $69 $06
-	STA $85			; D8E3  $85 $85
-	CMP #$C8		; D8E5  $C9 $C8
-	BCC L3D8D4		; D8E7  $90 $EB		loop - eye open effect ??
-	LDA #$1E		; D8E9  $A9 $1E
-	JMP L3D910		; D8EB  $4C $10 $D9
+	JSR $D935			; D8D4  $20 $35 $D9	eye open effect ??
+	LDA $84				; D8D7  $A5 $84
+	SEC				; D8D9  $38
+	SBC #$03			; D8DA  $E9 $03
+	STA $84				; D8DC  $85 $84
+	LDA $85				; D8DE  $A5 $85
+	CLC				; D8E0  $18
+	ADC #$06			; D8E1  $69 $06
+	STA $85				; D8E3  $85 $85
+	CMP #$C8			; D8E5  $C9 $C8
+	BCC L3D8D4			; D8E7  $90 $EB		loop - eye open effect ??
+	LDA #$1E			; D8E9  $A9 $1E
+	JMP L3D910			; D8EB  $4C $10 $D9
 ; End of
 
 ; Name	:
 ; Marks	: $84 = blank screen size, $85 = show screen size
 ;	  screen wipe out (normal map)
    ;; sub start ;;
-	JSR $D977		; D8EE  $20 $77 $D9	init sprites(hide) ??
-	LDA #$21		; D8F1  $A9 $21
-	STA $84			; D8F3  $85 $84
-	LDA #$C5		; D8F5  $A9 $C5
-	STA $85			; D8F7  $85 $85
+	JSR $D977			; D8EE  $20 $77 $D9	init sprites(hide) ??
+	LDA #$21			; D8F1  $A9 $21
+	STA $84				; D8F3  $85 $84
+	LDA #$C5			; D8F5  $A9 $C5
+	STA $85				; D8F7  $85 $85
 L3D8F9:
-	JSR $D935		; D8F9  $20 $35 $D9	eye close effect ??
-	LDA $84			; D8FC  $A5 $84
-	CLC			; D8FE  $18
-	ADC #$03		; D8FF  $69 $03
-	STA $84			; D901  $85 $84
-	LDA $85			; D903  $A5 $85
-	SEC			; D905  $38
-	SBC #$06		; D906  $E9 $06
-	STA $85			; D908  $85 $85
-	CMP #$06		; D90A  $C9 $06
-	BCS L3D8F9		; D90C  $B0 $EB		loop
-	LDA #$00		; D90E  $A9 $00
+	JSR $D935			; D8F9  $20 $35 $D9	eye close effect ??
+	LDA $84				; D8FC  $A5 $84
+	CLC				; D8FE  $18
+	ADC #$03			; D8FF  $69 $03
+	STA $84				; D901  $85 $84
+	LDA $85				; D903  $A5 $85
+	SEC				; D905  $38
+	SBC #$06			; D906  $E9 $06
+	STA $85				; D908  $85 $85
+	CMP #$06			; D90A  $C9 $06
+	BCS L3D8F9			; D90C  $B0 $EB		loop
+	LDA #$00			; D90E  $A9 $00
 L3D910:
-	STA PpuMask_2001	; D910  $8D $01 $20	hide sprites/background
-	LDA #$30		; D913  $A9 $30
-	STA Sq0Duty_4000	; D915  $8D $00 $40
-	STA Sq1Duty_4004	; D918  $8D $04 $40
-	STA TrgLinear_4008	; D91B  $8D $08 $40
-	STA NoiseVolume_400C	; D91E  $8D $0C $40
-	RTS			; D921  $60
+	STA PpuMask_2001		; D910  $8D $01 $20	hide sprites/background
+	LDA #$30			; D913  $A9 $30
+	STA Sq0Duty_4000		; D915  $8D $00 $40
+	STA Sq1Duty_4004		; D918  $8D $04 $40
+	STA TrgLinear_4008		; D91B  $8D $08 $40
+	STA NoiseVolume_400C		; D91E  $8D $0C $40
+	RTS				; D921  $60
 ; End of
 
 ; Name	:
 ; Marks	:
 ;	  update ppu (screen wipe)
 ;; sub start ;;
-	LDA #$02		; D922  $A9 $02
-	STA SpriteDma_4014	; D924  $8D $14 $40
-	JSR Palette_copy	; D927  $20 $30 $DC
-	LDA scroll_dir_map	; D92A  $A5 $2D
-	LSR A			; D92C  $4A
-	BCS L3D932		; D92D  $B0 $03		if normal map
-	JMP $C385		; D92F  $4C $85 $C3
+	LDA #$02			; D922  $A9 $02
+	STA SpriteDma_4014		; D924  $8D $14 $40
+	JSR Palette_copy		; D927  $20 $30 $DC
+	LDA scroll_dir_map		; D92A  $A5 $2D
+	LSR A				; D92C  $4A
+	BCS L3D932			; D92D  $B0 $03		if normal map
+	JMP $C385			; D92F  $4C $85 $C3
 L3D932:
-	JMP Scroll_normal	; D932  $4C $F5 $CD
+	JMP Scroll_normal		; D932  $4C $F5 $CD
 ; End of
 
 ; Name	:
@@ -4118,29 +4118,29 @@ L3D932:
 ;	  $84 = blank screen size, $85 = show screen size
 ;	  update screen wipe (normal map)
    ;; sub start ;;
-	JSR Wait_NMI		; D935  $20 $00 $FE
-	JSR $D922		; D938  $20 $22 $D9	copy NT, palette, scroll - update ppu
-	LDX #$0A		; D93B  $A2 $0A
+	JSR Wait_NMI			; D935  $20 $00 $FE
+	JSR $D922			; D938  $20 $22 $D9	copy NT, palette, scroll - update ppu
+	LDX #$0A			; D93B  $A2 $0A
 L3D93D:
-	DEX			; D93D  $CA
-	BNE L3D93D		; D93E  $D0 $FD		delay ?? - wait a few cycles
-	LDA #$10		; D940  $A9 $10		show sprite only
-	STA PpuMask_2001	; D942  $8D $01 $20
-	LDX $84			; D945  $A6 $84
+	DEX				; D93D  $CA
+	BNE L3D93D			; D93E  $D0 $FD		delay ?? - wait a few cycles
+	LDA #$10			; D940  $A9 $10		show sprite only
+	STA PpuMask_2001		; D942  $8D $01 $20
+	LDX $84				; D945  $A6 $84
 L3D947:
-	JSR $D962		; D947  $20 $62 $D9	Another delay ?? - wait one scanline
-	DEX			; D94A  $CA
-	BNE L3D947		; D94B  $D0 $FA
-	LDA #$1E		; D94D  $A9 $1E		show sprite/background
-	STA PpuMask_2001	; D94F  $8D $01 $20
-	LDX $85			; D952  $A6 $85
+	JSR $D962			; D947  $20 $62 $D9	Another delay ?? - wait one scanline
+	DEX				; D94A  $CA
+	BNE L3D947			; D94B  $D0 $FA
+	LDA #$1E			; D94D  $A9 $1E		show sprite/background
+	STA PpuMask_2001		; D94F  $8D $01 $20
+	LDX $85				; D952  $A6 $85
 L3D954:
-	JSR $D962		; D954  $20 $62 $D9	Another delay ?? - wait one scanline
-	DEX			; D957  $CA
-	BNE L3D954		; D958  $D0 $FA
-	LDA #$10		; D95A  $A9 $10		show sprite only
-	STA PpuMask_2001	; D95C  $8D $01 $20
-	JMP L3C746		; D95F  $4C $46 $C7	sound process ??
+	JSR $D962			; D954  $20 $62 $D9	Another delay ?? - wait one scanline
+	DEX				; D957  $CA
+	BNE L3D954			; D958  $D0 $FA
+	LDA #$10			; D95A  $A9 $10		show sprite only
+	STA PpuMask_2001		; D95C  $8D $01 $20
+	JMP L3C746			; D95F  $4C $46 $C7	sound process ??
 ; End of
 
 ; Name	:
@@ -4148,28 +4148,28 @@ L3D954:
 ;	  Delay by $82 ??
 ;	  wait one scanline
    ;; sub start ;;
-	LDY #$10		; D962  $A0 $10		wait a few cycles
+	LDY #$10			; D962  $A0 $10		wait a few cycles
 L3D964:
-	DEY			; D964  $88
-	BNE L3D964		; D965  $D0 $FD
-	LDA $82			; D967  $A5 $82
-	DEC $82			; D969  $C6 $82
-	BNE L3D972		; D96B  $D0 $05
-	LDA #$03		; D96D  $A9 $03
-	STA $82			; D96F  $85 $82
-	RTS			; D971  $60
+	DEY				; D964  $88
+	BNE L3D964			; D965  $D0 $FD
+	LDA $82				; D967  $A5 $82
+	DEC $82				; D969  $C6 $82
+	BNE L3D972			; D96B  $D0 $05
+	LDA #$03			; D96D  $A9 $03
+	STA $82				; D96F  $85 $82
+	RTS				; D971  $60
 ; End of
 L3D972:
-	LDA #$00		; D972  $A9 $00
-	LDA $82			; D974  $A5 $82
-	RTS			; D976  $60
+	LDA #$00			; D972  $A9 $00
+	LDA $82				; D974  $A5 $82
+	RTS				; D976  $60
 ; End of
 
 ; Name	:
 ; Marks	: hide all sprites
 ;; sub start ;;
-	JSR Init_sprites	; D977  $20 $7D $D9	hide all sprites
-	JMP L3C746		; D97A  $4C $46 $C7	sound process ??
+	JSR Init_sprites		; D977  $20 $7D $D9	hide all sprites
+	JMP L3C746			; D97A  $4C $46 $C7	sound process ??
 ; End of
 
 ; Name	: Init_sprites
@@ -4177,30 +4177,30 @@ L3D972:
 ;	  hide all sprites
    ;; sub start ;;
 Init_sprites:
-	LDA #$F0		; D97D  $A9 $F0
-	LDX #$00		; D97F  $A2 $00
+	LDA #$F0			; D97D  $A9 $F0
+	LDX #$00			; D97F  $A2 $00
 L3D981:
-	STA $0200,X		; D981  $9D $00 $02	reset sprite data
-	INX			; D984  $E8
-	BNE L3D981		; D985  $D0 $FA		loop
-	JSR Wait_NMI		; D987  $20 $00 $FE
-	LDA #$02		; D98A  $A9 $02
-	STA SpriteDma_4014	; D98C  $8D $14 $40
-	RTS			; D98F  $60
+	STA $0200,X			; D981  $9D $00 $02	reset sprite data
+	INX				; D984  $E8
+	BNE L3D981			; D985  $D0 $FA		loop
+	JSR Wait_NMI			; D987  $20 $00 $FE
+	LDA #$02			; D98A  $A9 $02
+	STA SpriteDma_4014		; D98C  $8D $14 $40
+	RTS				; D98F  $60
 ; End of Init_sprites
 
 ; Name	:
 ; Marks	: Init sprites / make sound ??
 ;	  hide all sprites, wipe sound effect
 ;; sub start ;;
-	JSR Init_sprites	; D990  $20 $7D $D9	hide all sprites
-	LDA #$01		; D993  $A9 $01
-	STA ApuStatus_4015	; D995  $8D $15 $40	enable square 1 only
-	LDA #$38		; D998  $A9 $38
-	STA Sq0Duty_4000	; D99A  $8D $00 $40
-	LDA #$8B		; D99D  $A9 $8B
-	STA Sq0Sweep_4001	; D99F  $8D $01 $40	use sweep unit
-	RTS			; D9A2  $60
+	JSR Init_sprites		; D990  $20 $7D $D9	hide all sprites
+	LDA #$01			; D993  $A9 $01
+	STA ApuStatus_4015		; D995  $8D $15 $40	enable square 1 only
+	LDA #$38			; D998  $A9 $38
+	STA Sq0Duty_4000		; D99A  $8D $00 $40
+	LDA #$8B			; D99D  $A9 $8B
+	STA Sq0Sweep_4001		; D99F  $8D $01 $40	use sweep unit
+	RTS				; D9A2  $60
 ; End of
 
 ;----------------------------------------------------------
@@ -4208,61 +4208,61 @@ L3D981:
 ; Name	:
 ; Marks	:
 ;; sub start ;;
-	LDA $6012		; D9A3  $AD $12 $60	event flag ??
-	AND #$02		; D9A6  $29 $02		bit 1
-	BEQ L3D9B4		; D9A8  $F0 $0A
-	LDX #$EA		; D9AA  $A2 $EA
-	JSR Set_wmap_normal	; D9AC  $20 $52 $DA
-	LDX #$EC		; D9AF  $A2 $EC
-	JSR Set_wmap_normal	; D9B1  $20 $52 $DA
+	LDA $6012			; D9A3  $AD $12 $60	event flag ??
+	AND #$02			; D9A6  $29 $02		bit 1
+	BEQ L3D9B4			; D9A8  $F0 $0A
+	LDX #$EA			; D9AA  $A2 $EA
+	JSR Set_wmap_normal		; D9AC  $20 $52 $DA
+	LDX #$EC			; D9AF  $A2 $EC
+	JSR Set_wmap_normal		; D9B1  $20 $52 $DA
 L3D9B4:
-	LDA $6012		; D9B4  $AD $12 $60
-	AND #$04		; D9B7  $29 $04		bit 2
-	BEQ L3D9C0		; D9B9  $F0 $05
-	LDX #$64		; D9BB  $A2 $64
-	JSR Set_wmap_eventA	; D9BD  $20 $5C $DA
+	LDA $6012			; D9B4  $AD $12 $60
+	AND #$04			; D9B7  $29 $04		bit 2
+	BEQ L3D9C0			; D9B9  $F0 $05
+	LDX #$64			; D9BB  $A2 $64
+	JSR Set_wmap_eventA		; D9BD  $20 $5C $DA
 L3D9C0:
-	LDA $6012		; D9C0  $AD $12 $60
-	AND #$10		; D9C3  $29 $10		bit 4
+	LDA $6012			; D9C0  $AD $12 $60
+	AND #$10			; D9C3  $29 $10		bit 4
     BEQ L3D9CC               ; D9C5  $F0 $05
     LDX #$7A                 ; D9C7  $A2 $7A	
-	JSR Set_wmap_eventA	; D9C9  $20 $5C $DA
+	JSR Set_wmap_eventA		; D9C9  $20 $5C $DA
 L3D9CC:
     LDA $6012                ; D9CC  $AD $12 $60
     AND #$20                 ; D9CF  $29 $20
     BEQ L3D9D8               ; D9D1  $F0 $05
     LDX #$72                 ; D9D3  $A2 $72
-	JSR Set_wmap_eventA	; D9D5  $20 $5C $DA
+	JSR Set_wmap_eventA		; D9D5  $20 $5C $DA
 L3D9D8:
     LDA $6012                ; D9D8  $AD $12 $60
     AND #$40                 ; D9DB  $29 $40
     BEQ L3D9E4               ; D9DD  $F0 $05
     LDX #$7C                 ; D9DF  $A2 $7C
-	JSR Set_wmap_eventB	; D9E1  $20 $58 $DA
+	JSR Set_wmap_eventB		; D9E1  $20 $58 $DA
 L3D9E4:
     LDA $6012                ; D9E4  $AD $12 $60
     AND #$80                 ; D9E7  $29 $80
     BEQ L3D9F0               ; D9E9  $F0 $05
     LDX #$7D                 ; D9EB  $A2 $7D
-	JSR Set_wmap_eventB	; D9ED  $20 $58 $DA
+	JSR Set_wmap_eventB		; D9ED  $20 $58 $DA
 L3D9F0:
     LDA $6013                ; D9F0  $AD $13 $60
     AND #$01                 ; D9F3  $29 $01
     BEQ L3D9FC               ; D9F5  $F0 $05
     LDX #$7E                 ; D9F7  $A2 $7E
-	JSR Set_wmap_eventB	; D9F9  $20 $58 $DA
+	JSR Set_wmap_eventB		; D9F9  $20 $58 $DA
 L3D9FC:
     LDA $6013                ; D9FC  $AD $13 $60
     AND #$02                 ; D9FF  $29 $02
     BEQ L3DA08               ; DA01  $F0 $05
     LDX #$7F                 ; DA03  $A2 $7F
-	JSR Set_wmap_eventB	; DA05  $20 $58 $DA
+	JSR Set_wmap_eventB		; DA05  $20 $58 $DA
 L3DA08:
     LDA $6013                ; DA08  $AD $13 $60
     AND #$10                 ; DA0B  $29 $10
     BEQ L3DA14               ; DA0D  $F0 $05
     LDX #$79                 ; DA0F  $A2 $79
-	JSR Set_wmap_eventA	; DA11  $20 $5C $DA
+	JSR Set_wmap_eventA		; DA11  $20 $5C $DA
 L3DA14:
     LDA $6013                ; DA14  $AD $13 $60
     AND #$20                 ; DA17  $29 $20
@@ -4310,9 +4310,9 @@ L3DA51:
 ;	  n: passable on foot
 ;; sub start ;;
 Set_wmap_normal:
-	LDA #$0F		; DA52  $A9 $0F
-	STA $0400,X		; DA54  $9D $00 $04
-	RTS			; DA57  $60
+	LDA #$0F			; DA52  $A9 $0F
+	STA $0400,X			; DA54  $9D $00 $04
+	RTS				; DA57  $60
 ; End of Set_wmap_normal
 
 ; Name	: Set_wmap_eventB
@@ -4330,29 +4330,29 @@ Set_wmap_eventB:
 ;	  Attributes too
 ;; sub start ;;
 Set_wmap_eventA:
-	LDY #$34		; DA5C  $A0 $34
+	LDY #$34			; DA5C  $A0 $34
 DA5E:
-	LDA $0500,Y		; DA5E  $B9 $00 $05
-	STA $0500,X		; DA61  $9D $00 $05
-	LDA $0580,Y		; DA64  $B9 $80 $05
-	STA $0580,X		; DA67  $9D $80 $05
-	LDA $0600,Y		; DA6A  $B9 $00 $06
-	STA $0600,X		; DA6D  $9D $00 $06
-	LDA $0680,Y		; DA70  $B9 $80 $06
-	STA $0680,X		; DA73  $9D $80 $06
-	LDA $0700,Y		; DA76  $B9 $00 $07	attribute
-	STA $0700,X		; DA79  $9D $00 $07
-	TYA			; DA7C  $98
-	ASL A			; DA7D  $0A
-	TAY			; DA7E  $A8
-	TXA			; DA7F  $8A
-	ASL A			; DA80  $0A
-	TAX			; DA81  $AA
-	LDA $0400,Y		; DA82  $B9 $00 $04	properties
-	STA $0400,X		; DA85  $9D $00 $04
-	LDA $0401,Y		; DA88  $B9 $01 $04
- 	STA $0401,X		; DA8B  $9D $01 $04
-	RTS			; DA8E  $60
+	LDA $0500,Y			; DA5E  $B9 $00 $05
+	STA $0500,X			; DA61  $9D $00 $05
+	LDA $0580,Y			; DA64  $B9 $80 $05
+	STA $0580,X			; DA67  $9D $80 $05
+	LDA $0600,Y			; DA6A  $B9 $00 $06
+	STA $0600,X			; DA6D  $9D $00 $06
+	LDA $0680,Y			; DA70  $B9 $80 $06
+	STA $0680,X			; DA73  $9D $80 $06
+	LDA $0700,Y			; DA76  $B9 $00 $07	attribute
+	STA $0700,X			; DA79  $9D $00 $07
+	TYA				; DA7C  $98
+	ASL A				; DA7D  $0A
+	TAY				; DA7E  $A8
+	TXA				; DA7F  $8A
+	ASL A				; DA80  $0A
+	TAX				; DA81  $AA
+	LDA $0400,Y			; DA82  $B9 $00 $04	properties
+	STA $0400,X			; DA85  $9D $00 $04
+	LDA $0401,Y			; DA88  $B9 $01 $04
+ 	STA $0401,X			; DA8B  $9D $01 $04
+	RTS				; DA8E  $60
 ; End of Set_wmap_event
 
 ;----------------------------------------------
@@ -4414,7 +4414,7 @@ L3DAD4:
     LDY #$FE                 ; DAE6  $A0 $FE
     DEC $81                  ; DAE8  $C6 $81
     LDA ($80),Y              ; DAEA  $B1 $80
-	EOR #SLOT_VALID		; DAEC  $49 $5A
+	EOR #SLOT_VALID			; DAEC  $49 $5A
     CMP #$01                 ; DAEE  $C9 $01
 L3DAF0:
     RTS                      ; DAF0  $60
@@ -4428,25 +4428,25 @@ L3DAF0:
 ;	  Check text ??
 ;	  load menu text ???
 ;; sub start ;;
-	PHA			; DAF1  $48
-	LDA #$0A		; DAF2  $A9 $0A		text 2 bank
-	JSR Swap_PRG_		; DAF4  $20 $03 $FE
-	PLA			; DAF7  $68
-	ASL A			; DAF8  $0A
-	TAY			; DAF9  $A8
-	LDA $8400,Y		; DAFA  $B9 $00 $84	BANK 0A/8400 get text pointer
-	STA $80			; DAFD  $85 $80
-	LDA $8401,Y		; DAFF  $B9 $01 $84
-	STA $81			; DB02  $85 $81
-	LDY #$00		; DB04  $A0 $00
+	PHA				; DAF1  $48
+	LDA #$0A			; DAF2  $A9 $0A		text 2 bank
+	JSR Swap_PRG_			; DAF4  $20 $03 $FE
+	PLA				; DAF7  $68
+	ASL A				; DAF8  $0A
+	TAY				; DAF9  $A8
+	LDA $8400,Y			; DAFA  $B9 $00 $84	BANK 0A/8400 get text pointer
+	STA $80				; DAFD  $85 $80
+	LDA $8401,Y			; DAFF  $B9 $01 $84
+	STA $81				; DB02  $85 $81
+	LDY #$00			; DB04  $A0 $00
 L3DB06:
-	LDA ($80),Y		; DB06  $B1 $80
-	CMP #$30		; DB08  $C9 $30
-	BCS L3DB21		; DB0A  $B0 $15
-	CMP #$10		; DB0C  $C9 $10
-	BCC L3DB21		; DB0E  $90 $11
-	BNE L3DB14		; DB10  $D0 $02
-	LDA $9E			; DB12  $A5 $9E
+	LDA ($80),Y			; DB06  $B1 $80
+	CMP #$30			; DB08  $C9 $30
+	BCS L3DB21			; DB0A  $B0 $15
+	CMP #$10			; DB0C  $C9 $10
+	BCC L3DB21			; DB0E  $90 $11
+	BNE L3DB14			; DB10  $D0 $02
+	LDA $9E				; DB12  $A5 $9E
 L3DB14:
     STA $7B00,Y              ; DB14  $99 $00 $7B
     INY                      ; DB17  $C8
@@ -4455,28 +4455,28 @@ L3DB14:
     INY                      ; DB1D  $C8
     JMP L3DB06               ; DB1E  $4C $06 $DB
 L3DB21:
-	STA $7B00,Y		; DB21  $99 $00 $7B
-	INY			; DB24  $C8
-	CMP #$00		; DB25  $C9 $00
-	BNE L3DB06		; DB27  $D0 $DD		loop
-	LDA #$0E		; DB29  $A9 $0E
-	JMP Swap_PRG_		; DB2B  $4C $03 $FE
+	STA $7B00,Y			; DB21  $99 $00 $7B
+	INY				; DB24  $C8
+	CMP #$00			; DB25  $C9 $00
+	BNE L3DB06			; DB27  $D0 $DD		loop
+	LDA #$0E			; DB29  $A9 $0E
+	JMP Swap_PRG_			; DB2B  $4C $03 $FE
 ; End of
 
 ; Name	: SndE_cur_sel
 ; Marks	: Cursor click sound effect
 ;	  cursor sound effect (confirm)
 SndE_cur_sel:
-	LDA #$7D		; DB2E  $A9 $7D
-	STA Sq1Duty_4004	; DB30  $8D $04 $40
-	LDA #$BA		; DB33  $A9 $BA
-	STA Sq1Sweep_4005	; DB35  $8D $05 $40
-	LDA #$40		; DB38  $A9 $40
-	STA Sq1Timer_4006	; DB3A  $8D $06 $40
-	LDA #$10		; DB3D  $A9 $10
-	STA Sq1Length_4007	; DB3F  $8D $07 $40
-	STA $E5			; DB42  $85 $E5		sound effect counter ?? (mute square 2 music channel)
-	RTS			; DB44  $60
+	LDA #$7D			; DB2E  $A9 $7D
+	STA Sq1Duty_4004		; DB30  $8D $04 $40
+	LDA #$BA			; DB33  $A9 $BA
+	STA Sq1Sweep_4005		; DB35  $8D $05 $40
+	LDA #$40			; DB38  $A9 $40
+	STA Sq1Timer_4006		; DB3A  $8D $06 $40
+	LDA #$10			; DB3D  $A9 $10
+	STA Sq1Length_4007		; DB3F  $8D $07 $40
+	STA $E5				; DB42  $85 $E5		sound effect counter ?? (mute square 2 music channel)
+	RTS				; DB44  $60
 ; End of SndE_cur_sel
 
 ; Name	: SndE_cur_mov
@@ -4484,24 +4484,24 @@ SndE_cur_sel:
 ;	  cursor sound effect (move)
 ;; sub start ;;
 SndE_cur_mov:
-	LDA #$7C		; DB45  $A9 $7C
-	STA Sq1Duty_4004	; DB47  $8D $04 $40
-	LDA #$BA		; DB4A  $A9 $BA
-	STA Sq1Sweep_4005	; DB4C  $8D $05 $40
-	LDA #$20		; DB4F  $A9 $20
-	STA Sq1Timer_4006	; DB51  $8D $06 $40
-	STA Sq1Length_4007	; DB54  $8D $07 $40
-	LDA #$0C		; DB57  $A9 $0C
-	STA $E5			; DB59  $85 $E5
-	RTS			; DB5B  $60
+	LDA #$7C			; DB45  $A9 $7C
+	STA Sq1Duty_4004		; DB47  $8D $04 $40
+	LDA #$BA			; DB4A  $A9 $BA
+	STA Sq1Sweep_4005		; DB4C  $8D $05 $40
+	LDA #$20			; DB4F  $A9 $20
+	STA Sq1Timer_4006		; DB51  $8D $06 $40
+	STA Sq1Length_4007		; DB54  $8D $07 $40
+	LDA #$0C			; DB57  $A9 $0C
+	STA $E5				; DB59  $85 $E5
+	RTS				; DB5B  $60
 ; End of SndE_cur_mov
 
 ; Name	:
 ; Marks	: event ?? if no event, check key
 ;	  execute event script / update joypad input
 ;; sub start ;;
-	LDA event		; DB5C  $A5 $6C
-	BEQ Key_process		; DB5E  $F0 $42		if A == 00h(no event)
+	LDA event			; DB5C  $A5 $6C
+	BEQ Key_process			; DB5E  $F0 $42		if A == 00h(no event)
     CMP #$01                 ; DB60  $C9 $01
     BNE L3DB95               ; DB62  $D0 $31
     LDA $17                  ; DB64  $A5 $17	check event repeat count
@@ -4545,9 +4545,9 @@ L3DB95:
 ;	  $22 = e_pressing, $23 = s_pressing, $24 = a_pressing, $25 = b_pressing
 ;	  update joypad input
 Key_process:
-	JSR Get_key		; DBA2  $20 $A9 $DB	read joypad registers
-	JSR Key_check		; DBA5  $20 $C2 $DB	update button data
-	RTS			; DBA8  $60
+	JSR Get_key			; DBA2  $20 $A9 $DB	read joypad registers
+	JSR Key_check			; DBA5  $20 $C2 $DB	update button data
+	RTS				; DBA8  $60
 ; End of Key_process
 
 ; Name	: Get_Key
@@ -4556,19 +4556,19 @@ Key_process:
 ;	  read joypad registers
 Get_key:
 ;; sub start ;;
-	LDA #$01		; DBA9  $A9 $01
-	STA Ctrl1_4016		; DBAB  $8D $16 $40
-	LDA #$00		; DBAE  $A9 $00
-	STA Ctrl1_4016		; DBB0  $8D $16 $40
-	LDX #$08		; DBB3  $A2 $08
+	LDA #$01			; DBA9  $A9 $01
+	STA Ctrl1_4016			; DBAB  $8D $16 $40
+	LDA #$00			; DBAE  $A9 $00
+	STA Ctrl1_4016			; DBB0  $8D $16 $40
+	LDX #$08			; DBB3  $A2 $08
 L3DBB5:
-	LDA Ctrl1_4016		; DBB5  $AD $16 $40
-	AND #$03		; DBB8  $29 $03		support expansion controllers
-	CMP #$01		; DBBA  $C9 $01
-	ROL key1p		; DBBC  $26 $20
-	DEX			; DBBE  $CA
-	BNE L3DBB5		; DBBF  $D0 $F4
-	RTS			; DBC1  $60
+	LDA Ctrl1_4016			; DBB5  $AD $16 $40
+	AND #$03			; DBB8  $29 $03		support expansion controllers
+	CMP #$01			; DBBA  $C9 $01
+	ROL key1p			; DBBC  $26 $20
+	DEX				; DBBE  $CA
+	BNE L3DBB5			; DBBF  $D0 $F4
+	RTS				; DBC1  $60
 ; End of
 
 ; Name	: Key_check
@@ -4579,74 +4579,74 @@ L3DBB5:
 ;; sub start ;;
 tmp_pad = $81
 Key_check:
-	LDA key1p		; DBC2  $A5 $20
-	AND #$03		; DBC4  $29 $03
-	BEQ L3DBCA		; DBC6  $F0 $02		if left,right not pressing
-	LDX #$03		; DBC8  $A2 $03
+	LDA key1p			; DBC2  $A5 $20
+	AND #$03			; DBC4  $29 $03
+	BEQ L3DBCA			; DBC6  $F0 $02		if left,right not pressing
+	LDX #$03			; DBC8  $A2 $03
 L3DBCA:
-	STX tmp_pad		; DBCA  $86 $81
-	LDA key1p		; DBCC  $A5 $20
-	AND #$0C		; DBCE  $29 $0C
-	BEQ L3DBD7		; DBD0  $F0 $05		if up,down not pressing
-	TXA			; DBD2  $8A
-	ORA #$0C		; DBD3  $09 $0C
-	STA tmp_pad		; DBD5  $85 $81
+	STX tmp_pad			; DBCA  $86 $81
+	LDA key1p			; DBCC  $A5 $20
+	AND #$0C			; DBCE  $29 $0C
+	BEQ L3DBD7			; DBD0  $F0 $05		if up,down not pressing
+	TXA				; DBD2  $8A
+	ORA #$0C			; DBD3  $09 $0C
+	STA tmp_pad			; DBD5  $85 $81
 L3DBD7:
-	LDA key1p		; DBD7  $A5 $20
-	EOR $21			; DBD9  $45 $21		before pressed key ??
-	AND tmp_pad		; DBDB  $25 $81
-	EOR $21			; DBDD  $45 $21
-	STA $21			; DBDF  $85 $21
-	EOR key1p		; DBE1  $45 $20
-	TAX			; DBE3  $AA		only the changed key remains ??
-	AND #$10		; DBE4  $29 $10
-	BEQ L3DBF6		; DBE6  $F0 $0E		if START not changed
-	LDA key1p		; DBE8  $A5 $20
-	AND #$10		; DBEA  $29 $10
-	BEQ L3DBF0		; DBEC  $F0 $02		if START not pressed
-	INC s_pressing		; DBEE  $E6 $23
+	LDA key1p			; DBD7  $A5 $20
+	EOR $21				; DBD9  $45 $21		before pressed key ??
+	AND tmp_pad			; DBDB  $25 $81
+	EOR $21				; DBDD  $45 $21
+	STA $21				; DBDF  $85 $21
+	EOR key1p			; DBE1  $45 $20
+	TAX				; DBE3  $AA		only the changed key remains ??
+	AND #$10			; DBE4  $29 $10
+	BEQ L3DBF6			; DBE6  $F0 $0E		if START not changed
+	LDA key1p			; DBE8  $A5 $20
+	AND #$10			; DBEA  $29 $10
+	BEQ L3DBF0			; DBEC  $F0 $02		if START not pressed
+	INC s_pressing			; DBEE  $E6 $23
 L3DBF0:
-	LDA $21			; DBF0  $A5 $21
-	EOR #$10		; DBF2  $49 $10		invert START key
-	STA $21			; DBF4  $85 $21
+	LDA $21				; DBF0  $A5 $21
+	EOR #$10			; DBF2  $49 $10		invert START key
+	STA $21				; DBF4  $85 $21
 L3DBF6:
-	TXA			; DBF6  $8A
-	AND #$20		; DBF7  $29 $20
-	BEQ L3DC09		; DBF9  $F0 $0E		if SELECT not changed
-	LDA key1p		; DBFB  $A5 $20
-	AND #$20		; DBFD  $29 $20
-	BEQ DC03		; DBFF  $F0 $02		if SELECT not pressed
-	INC e_pressing		; DC01  $E6 $22
+	TXA				; DBF6  $8A
+	AND #$20			; DBF7  $29 $20
+	BEQ L3DC09			; DBF9  $F0 $0E		if SELECT not changed
+	LDA key1p			; DBFB  $A5 $20
+	AND #$20			; DBFD  $29 $20
+	BEQ DC03			; DBFF  $F0 $02		if SELECT not pressed
+	INC e_pressing			; DC01  $E6 $22
 DC03:
-	LDA $21			; DC03  $A5 $21
-	EOR #$20		; DC05  $49 $20		invert SELECT key
-	STA $21			; DC07  $85 $21
+	LDA $21				; DC03  $A5 $21
+	EOR #$20			; DC05  $49 $20		invert SELECT key
+	STA $21				; DC07  $85 $21
 L3DC09:
-	TXA			; DC09  $8A
-	AND #$40		; DC0A  $29 $40
-	BEQ L3DC1C		; DC0C  $F0 $0E		if B not changed
-	LDA key1p		; DC0E  $A5 $20
-	AND #$40		; DC10  $29 $40
-	BEQ L3DC16		; DC12  $F0 $02		if B not pressed
-	INC b_pressing		; DC14  $E6 $25
+	TXA				; DC09  $8A
+	AND #$40			; DC0A  $29 $40
+	BEQ L3DC1C			; DC0C  $F0 $0E		if B not changed
+	LDA key1p			; DC0E  $A5 $20
+	AND #$40			; DC10  $29 $40
+	BEQ L3DC16			; DC12  $F0 $02		if B not pressed
+	INC b_pressing			; DC14  $E6 $25
 L3DC16:
-	LDA $21			; DC16  $A5 $21
-	EOR #$40		; DC18  $49 $40		invert B key
-	STA $21			; DC1A  $85 $21
+	LDA $21				; DC16  $A5 $21
+	EOR #$40			; DC18  $49 $40		invert B key
+	STA $21				; DC1A  $85 $21
 L3DC1C:
-	TXA			; DC1C  $8A
-	AND #$80		; DC1D  $29 $80
-	BEQ L3DC2F		; DC1F  $F0 $0E		if A not changed
-	LDA key1p		; DC21  $A5 $20
-	AND #$80		; DC23  $29 $80
-	BEQ L3DC29		; DC25  $F0 $02		if A not pressed
-	INC a_pressing		; DC27  $E6 $24
+	TXA				; DC1C  $8A
+	AND #$80			; DC1D  $29 $80
+	BEQ L3DC2F			; DC1F  $F0 $0E		if A not changed
+	LDA key1p			; DC21  $A5 $20
+	AND #$80			; DC23  $29 $80
+	BEQ L3DC29			; DC25  $F0 $02		if A not pressed
+	INC a_pressing			; DC27  $E6 $24
 L3DC29:
-	LDA new_btn		; DC29  $A5 $21		??
-	EOR #$80		; DC2B  $49 $80		invert A key
-	STA new_btn		; DC2D  $85 $21		??
+	LDA new_btn			; DC29  $A5 $21		??
+	EOR #$80			; DC2B  $49 $80		invert A key
+	STA new_btn			; DC2D  $85 $21		??
 L3DC2F:
-	RTS			; DC2F  $60
+	RTS				; DC2F  $60
 ; End of Key_check
 
 ; Name	: Palette_copy
@@ -4682,11 +4682,11 @@ L3DC3F:
 ; Marks	: Sprite reflesh ??
 ;	  hide all sprites
 L3DC5E:
-	JSR Init_Page2		; DC5E  $20 $6E $C4
-	JSR Wait_NMI		; DC61  $20 $00 $FE
-	LDA #$02		; DC64  $A9 $02
-	STA SpriteDma_4014	; DC66  $8D $14 $40
-	RTS			; DC69  $60
+	JSR Init_Page2			; DC5E  $20 $6E $C4
+	JSR Wait_NMI			; DC61  $20 $00 $FE
+	LDA #$02			; DC64  $A9 $02
+	STA SpriteDma_4014		; DC66  $8D $14 $40
+	RTS				; DC69  $60
 ; End of
 
 ; Name	:
@@ -4694,55 +4694,55 @@ L3DC5E:
 ;	  battle effect(graphic/sound)
 ;	  do battle flash and sound effect
 ;; sub start ;;
-	LDA #$08		; DC6A  $A9 $08		noise channel enable
-	STA ApuStatus_4015	; DC6C  $8D $15 $40
-	LDA #$00		; DC6F  $A9 $00
-	STA $8C			; DC71  $85 $8C
+	LDA #$08			; DC6A  $A9 $08		noise channel enable
+	STA ApuStatus_4015		; DC6C  $8D $15 $40
+	LDA #$00			; DC6F  $A9 $00
+	STA $8C				; DC71  $85 $8C
 ; start of frame loop
 L3DC73:
-	JSR Wait_NMI		; DC73  $20 $00 $FE
-	LDA scroll_dir_map	; DC76  $A5 $2D
-	LSR A			; DC78  $4A
-	BCC L3DC81		; DC79  $90 $06		branch if on world map
-	JSR Scroll_normal	; DC7B  $20 $F5 $CD
-	JMP $DC84		; DC7E  $4C $84 $DC
+	JSR Wait_NMI			; DC73  $20 $00 $FE
+	LDA scroll_dir_map		; DC76  $A5 $2D
+	LSR A				; DC78  $4A
+	BCC L3DC81			; DC79  $90 $06		branch if on world map
+	JSR Scroll_normal		; DC7B  $20 $F5 $CD
+	JMP $DC84			; DC7E  $4C $84 $DC
 L3DC81:
-	JSR Scroll_map		; DC81  $20 $80 $C3
-	LDA $8C			; DC84  $A5 $8C
-	ASL A			; DC86  $0A
-	ASL A			; DC87  $0A
-	ASL A			; DC88  $0A
-	AND #$E0		; DC89  $29 $E0		Emphasize red/green/blue
-	ORA #$0A		; DC8B  $09 $0A		show background
-	STA PpuMask_2001	; DC8D  $8D $01 $20
-	LDA #$0F		; DC90  $A9 $0F
-	STA NoiseVolume_400C	; DC92  $8D $0C $40
-	LDA $8C			; DC95  $A5 $8C
-	LSR A			; DC97  $4A
-	ORA #$03		; DC98  $09 $03
-	STA NoisePeriod_400E	; DC9A  $8D $0E $40
-	LDA #$00		; DC9D  $A9 $00
-	STA NoiseLength_400F	; DC9F  $8D $0F $40
-	INC $8C			; DCA2  $E6 $8C
-	LDA $8C			; DCA4  $A5 $8C
-	CMP #$41		; DCA6  $C9 $41		loop for 65 frames
-	BCC L3DC73		; DCA8  $90 $C9		loop - battle encount graphic/sound effect
-	LDA #$00		; DCAA  $A9 $00		hide sprite/background
-	STA PpuMask_2001	; DCAC  $8D $01 $20
-	STA ApuStatus_4015	; DCAF  $8D $15 $40
-	JMP L3DC5E		; DCB2  $4C $5E $DC	sprite reflesh ?? - hide all sprites
+	JSR Scroll_map			; DC81  $20 $80 $C3
+	LDA $8C				; DC84  $A5 $8C
+	ASL A				; DC86  $0A
+	ASL A				; DC87  $0A
+	ASL A				; DC88  $0A
+	AND #$E0			; DC89  $29 $E0		Emphasize red/green/blue
+	ORA #$0A			; DC8B  $09 $0A		show background
+	STA PpuMask_2001		; DC8D  $8D $01 $20
+	LDA #$0F			; DC90  $A9 $0F
+	STA NoiseVolume_400C		; DC92  $8D $0C $40
+	LDA $8C				; DC95  $A5 $8C
+	LSR A				; DC97  $4A
+	ORA #$03			; DC98  $09 $03
+	STA NoisePeriod_400E		; DC9A  $8D $0E $40
+	LDA #$00			; DC9D  $A9 $00
+	STA NoiseLength_400F		; DC9F  $8D $0F $40
+	INC $8C				; DCA2  $E6 $8C
+	LDA $8C				; DCA4  $A5 $8C
+	CMP #$41			; DCA6  $C9 $41		loop for 65 frames
+	BCC L3DC73			; DCA8  $90 $C9		loop - battle encount graphic/sound effect
+	LDA #$00			; DCAA  $A9 $00		hide sprite/background
+	STA PpuMask_2001		; DCAC  $8D $01 $20
+	STA ApuStatus_4015		; DCAF  $8D $15 $40
+	JMP L3DC5E			; DCB2  $4C $5E $DC	sprite reflesh ?? - hide all sprites
 ; End of
 
 ; Name	:
 ; Marks	: attribute table ?? init ??
 ;	  copy color palettes to ppu
 ;; sub start ;;
-	LDA PpuStatus_2002	; DCB5  $AD $02 $20	latch ppu
-	LDX #$00		; DCB8  $A2 $00
-	LDA #$3F		; DCBA  $A9 $3F		$3F00: palette_RAM_idx
-	STA PpuAddr_2006	; DCBC  $8D $06 $20
-	LDA #$00		; DCBF  $A9 $00
-	STA PpuAddr_2006	; DCC1  $8D $06 $20
+	LDA PpuStatus_2002		; DCB5  $AD $02 $20	latch ppu
+	LDX #$00			; DCB8  $A2 $00
+	LDA #$3F			; DCBA  $A9 $3F		$3F00: palette_RAM_idx
+	STA PpuAddr_2006		; DCBC  $8D $06 $20
+	LDA #$00			; DCBF  $A9 $00
+	STA PpuAddr_2006		; DCC1  $8D $06 $20
 L3DCC4:
 	LDA $03F0,X              ; DCC4  $BD $F0 $03	attribute table ??
 	STA PpuData_2007         ; DCC7  $8D $07 $20
@@ -4789,9 +4789,9 @@ L3DD06:
     CPY #$00                 ; DD0E  $C0 $00
     BEQ L3DD25               ; DD10  $F0 $13
 L3DD12:
-    JSR Wait_NMI		; JSR $FE00                ; DD12  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; DD12  $20 $00 $FE
     JSR $DCB5                ; DD15  $20 $B5 $DC	copy color palettes to ppu
-	JSR Scroll_normal	; DD18  $20 $F5 $CD
+	JSR Scroll_normal		; DD18  $20 $F5 $CD
     JSR L3C746               ; DD1B  $20 $46 $C7	sound process ??
     PLA                      ; DD1E  $68
     CLC                      ; DD1F  $18
@@ -4805,19 +4805,19 @@ L3DD27:
     LDA #$02                 ; DD27  $A9 $02	blue filter
     STA $61                  ; DD29  $85 $61
     JSR L3DCEC               ; DD2B  $20 $EC $DC
-    JSR Get_key			; JSR $DBA9                ; DD2E  $20 $A9 $DB
-    LDA key1p			; LDA $20                  ; DD31  $A5 $20
+    JSR Get_key				; JSR $DBA9                ; DD2E  $20 $A9 $DB
+    LDA key1p				; LDA $20                  ; DD31  $A5 $20
     STA $82                  ; DD33  $85 $82
 L3DD35:
-    JSR Wait_NMI		; JSR $FE00                ; DD35  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; DD35  $20 $00 $FE
     JSR L3C746               ; DD38  $20 $46 $C7	sound process ??
-    JSR Get_key			; JSR $DBA9                ; DD3B  $20 $A9 $DB
-    LDA key1p			; LDA $20                  ; DD3E  $A5 $20
+    JSR Get_key				; JSR $DBA9                ; DD3B  $20 $A9 $DB
+    LDA key1p				; LDA $20                  ; DD3E  $A5 $20
     CMP $82                  ; DD40  $C5 $82
     BEQ L3DD35               ; DD42  $F0 $F1
-    JSR Wait_NMI		; JSR $FE00                ; DD44  $20 $00 $FE
-    JSR Palette_copy		; JSR $DC30                ; DD47  $20 $30 $DC
-	JSR Scroll_normal	; DD4A  $20 $F5 $CD
+    JSR Wait_NMI			; JSR $FE00                ; DD44  $20 $00 $FE
+    JSR Palette_copy			; JSR $DC30                ; DD47  $20 $30 $DC
+	JSR Scroll_normal		; DD4A  $20 $F5 $CD
     LDA $57                  ; DD4D  $A5 $57
     JMP Swap_PRG_               ; DD4F  $4C $03 $FE
 ; End of
@@ -4831,7 +4831,7 @@ L3DD35:
     STA $0208                ; DD61  $8D $08 $02
     LDA $DD76,X              ; DD64  $BD $76 $DD
     STA $020C                ; DD67  $8D $0C $02
-    JSR Wait_NMI		; JSR $FE00                ; DD6A  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; DD6A  $20 $00 $FE
     LDA #$02                 ; DD6D  $A9 $02
     STA SpriteDma_4014       ; DD6F  $8D $14 $40
     RTS                      ; DD72  $60
@@ -4878,66 +4878,66 @@ L3DDA0:
 ;      a: 0 = world map, 1 = normal map
 ;      b: 0 = fade out, 1 = fade in
 L3DDA4:
-	STA $8C			; DDA4  $85 $8C
-	JSR L3DC5E		; DDA6  $20 $5E $DC	sprite reflesh ?? - hide all sprites
-	JSR Copy_attr		; DDA9  $20 $0E $DE	copy palette ??
-	LDA #$01		; DDAC  $A9 $01
+	STA $8C				; DDA4  $85 $8C
+	JSR L3DC5E			; DDA6  $20 $5E $DC	sprite reflesh ?? - hide all sprites
+	JSR Copy_attr			; DDA9  $20 $0E $DE	copy palette ??
+	LDA #$01			; DDAC  $A9 $01
 L3DDAE:
-	PHA			; DDAE  $48
-	AND #$03		; DDAF  $29 $03
-	BNE L3DDBA		; DDB1  $D0 $07
-	JSR $DE31		; DDB3  $20 $31 $DE	attribute table check ??
-	CPY #$00		; DDB6  $C0 $00
-	BEQ L3DDCD		; DDB8  $F0 $13
+	PHA				; DDAE  $48
+	AND #$03			; DDAF  $29 $03
+	BNE L3DDBA			; DDB1  $D0 $07
+	JSR $DE31			; DDB3  $20 $31 $DE	attribute table check ??
+	CPY #$00			; DDB6  $C0 $00
+	BEQ L3DDCD			; DDB8  $F0 $13
 L3DDBA:
-	JSR Wait_NMI		; DDBA  $20 $00 $FE
-	JSR $DCB5		; DDBD  $20 $B5 $DC	attribute table init ?? - copy color palettes to ppu
-	JSR $DDDD		; DDC0  $20 $DD $DD	scroll ??
-	JSR L3C746		; DDC3  $20 $46 $C7	sound process ??
-	PLA			; DDC6  $68
-	CLC			; DDC7  $18
-	ADC #$01		; DDC8  $69 $01
-	JMP L3DDAE		; DDCA  $4C $AE $DD	loop
+	JSR Wait_NMI			; DDBA  $20 $00 $FE
+	JSR $DCB5			; DDBD  $20 $B5 $DC	attribute table init ?? - copy color palettes to ppu
+	JSR $DDDD			; DDC0  $20 $DD $DD	scroll ??
+	JSR L3C746			; DDC3  $20 $46 $C7	sound process ??
+	PLA				; DDC6  $68
+	CLC				; DDC7  $18
+	ADC #$01			; DDC8  $69 $01
+	JMP L3DDAE			; DDCA  $4C $AE $DD	loop
 L3DDCD:
-	PLA			; DDCD  $68
-	LDA $8C			; DDCE  $A5 $8C
-	LSR A			; DDD0  $4A
-	BCS L3DDD8		; DDD1  $B0 $05
-	LDA #$00		; DDD3  $A9 $00
-	STA PpuMask_2001	; DDD5  $8D $01 $20	ppu disable
+	PLA				; DDCD  $68
+	LDA $8C				; DDCE  $A5 $8C
+	LSR A				; DDD0  $4A
+	BCS L3DDD8			; DDD1  $B0 $05
+	LDA #$00			; DDD3  $A9 $00
+	STA PpuMask_2001		; DDD5  $8D $01 $20	ppu disable
 L3DDD8:
-	LDA #$0E		; DDD8  $A9 $0E
-	JMP Swap_PRG_		; DDDA  $4C $03 $FE
+	LDA #$0E			; DDD8  $A9 $0E
+	JMP Swap_PRG_			; DDDA  $4C $03 $FE
 ; End of
 
 ; Name	:
 ; Marks	:
 ;; sub start ;;
-	LDA $8C			; DDDD  $A5 $8C
-	AND #$04		; DDDF  $29 $04
-	BEQ L3DDF6		; DDE1  $F0 $13
-	LDA $FF			; DDE3  $A5 $FF
-	STA PpuControl_2000	; DDE5  $8D $00 $20
-	LDA #$0A		; DDE8  $A9 $0A
-	STA PpuMask_2001	; DDEA  $8D $01 $20
-	LDA #$00		; DDED  $A9 $00
-	STA PpuScroll_2005	; DDEF  $8D $05 $20
-	STA PpuScroll_2005	; DDF2  $8D $05 $20
-	RTS			; DDF5  $60
+	LDA $8C				; DDDD  $A5 $8C
+	AND #$04			; DDDF  $29 $04
+	BEQ L3DDF6			; DDE1  $F0 $13
+	LDA $FF				; DDE3  $A5 $FF
+	STA PpuControl_2000		; DDE5  $8D $00 $20
+	LDA #$0A			; DDE8  $A9 $0A
+	STA PpuMask_2001		; DDEA  $8D $01 $20
+	LDA #$00			; DDED  $A9 $00
+	STA PpuScroll_2005		; DDEF  $8D $05 $20
+	STA PpuScroll_2005		; DDF2  $8D $05 $20
+	RTS				; DDF5  $60
 ; End of
 
 L3DDF6:
-	LDA $8C			; DDF6  $A5 $8C
-	AND #$02		; DDF8  $29 $02
-	BNE L3DE05		; DDFA  $D0 $09
-	JSR Scroll_map		; DDFC  $20 $80 $C3
-	LDA #$0A		; DDFF  $A9 $0A		show background
-	STA PpuMask_2001	; DE01  $8D $01 $20
-	RTS			; DE04  $60
+	LDA $8C				; DDF6  $A5 $8C
+	AND #$02			; DDF8  $29 $02
+	BNE L3DE05			; DDFA  $D0 $09
+	JSR Scroll_map			; DDFC  $20 $80 $C3
+	LDA #$0A			; DDFF  $A9 $0A		show background
+	STA PpuMask_2001		; DE01  $8D $01 $20
+	RTS				; DE04  $60
 ; End of
 
 L3DE05:
-	JSR Scroll_normal	; DE05  $20 $F5 $CD
+	JSR Scroll_normal		; DE05  $20 $F5 $CD
     LDA #$0A                 ; DE08  $A9 $0A
     STA PpuMask_2001         ; DE0A  $8D $01 $20
     RTS                      ; DE0D  $60
@@ -4947,31 +4947,31 @@ L3DE05:
 ; Marks	: $8C
 ;; sub start ;;
 Copy_attr:
-	LDX #$00		; DE0E  $A2 $00
-	LDA $8C			; DE10  $A5 $8C
-	LSR A			; DE12  $4A
-	BCC Copy_bg_palettes	; DE13  $90 $10		branch if fading out
-	JSR Copy_bg_palettes	; DE15  $20 $25 $DE
-	DEX			; DE18  $CA
+	LDX #$00			; DE0E  $A2 $00
+	LDA $8C				; DE10  $A5 $8C
+	LSR A				; DE12  $4A
+	BCC Copy_bg_palettes		; DE13  $90 $10		branch if fading out
+	JSR Copy_bg_palettes		; DE15  $20 $25 $DE
+	DEX				; DE18  $CA
 L3DE19:
-	LDA $03F0,X		; DE19  $BD $F0 $03	attribute table ?? check ?? - if fading in, start with darkest colors
-	AND #$0F		; DE1C  $29 $0F
-	STA $03F0,X		; DE1E  $9D $F0 $03
-	DEX			; DE21  $CA
-	BPL L3DE19		; DE22  $10 $F5
-	RTS			; DE24  $60
+	LDA $03F0,X			; DE19  $BD $F0 $03	attribute table ?? check ?? - if fading in, start with darkest colors
+	AND #$0F			; DE1C  $29 $0F
+	STA $03F0,X			; DE1E  $9D $F0 $03
+	DEX				; DE21  $CA
+	BPL L3DE19			; DE22  $10 $F5
+	RTS				; DE24  $60
 ; End of Copy_attr
 
 ; Name	: Copy_bg_palettes
 ; X	: INDEX
 ; Marks	: Copy background palettes to ($03F0-$03FF)
 Copy_bg_palettes:
-	LDA $03C0,X		; DE25  $BD $C0 $03	background palettes
-	STA $03F0,X		; DE28  $9D $F0 $03
-	INX			; DE2B  $E8
-	CPX #$10		; DE2C  $E0 $10
-	BCC Copy_bg_palettes	; DE2E  $90 $F5
-	RTS			; DE30  $60
+	LDA $03C0,X			; DE25  $BD $C0 $03	background palettes
+	STA $03F0,X			; DE28  $9D $F0 $03
+	INX				; DE2B  $E8
+	CPX #$10			; DE2C  $E0 $10
+	BCC Copy_bg_palettes		; DE2E  $90 $F5
+	RTS				; DE30  $60
 ; End of Copy_bg_palettes
 
 ; Name	:
@@ -4982,27 +4982,27 @@ Copy_bg_palettes:
 ;	  attr - 10h <= 0: 0Fh
 ;	  update colors for fade
 ;; sub start ;;
-	LDY #$00		; DE31  $A0 $00
-	LDX #$00		; DE33  $A2 $00
-	LDA $8C			; DE35  $A5 $8C
-	LSR A			; DE37  $4A
-	BCS L3DE52		; DE38  $B0 $18
+	LDY #$00			; DE31  $A0 $00
+	LDX #$00			; DE33  $A2 $00
+	LDA $8C				; DE35  $A5 $8C
+	LSR A				; DE37  $4A
+	BCS L3DE52			; DE38  $B0 $18
 L3DE3A:
-	LDA $03F0,X		; DE3A  $BD $F0 $03	attribute table ?? - decrease brightness
-	CMP #$0F		; DE3D  $C9 $0F
-	BEQ L3DE4C		; DE3F  $F0 $0B
-	SEC			; DE41  $38
-	SBC #$10		; DE42  $E9 $10
-	BCS L3DE48		; DE44  $B0 $02
-	LDA #$0F		; DE46  $A9 $0F
+	LDA $03F0,X			; DE3A  $BD $F0 $03	attribute table ?? - decrease brightness
+	CMP #$0F			; DE3D  $C9 $0F
+	BEQ L3DE4C			; DE3F  $F0 $0B
+	SEC				; DE41  $38
+	SBC #$10			; DE42  $E9 $10
+	BCS L3DE48			; DE44  $B0 $02
+	LDA #$0F			; DE46  $A9 $0F
 L3DE48:
-	STA $03F0,X		; DE48  $9D $F0 $03	attribute table ??
-	INY			; DE4B  $C8
+	STA $03F0,X			; DE48  $9D $F0 $03	attribute table ??
+	INY				; DE4B  $C8
 L3DE4C:
-	INX			; DE4C  $E8
-	CPX #$10		; DE4D  $E0 $10
-	BNE L3DE3A		; DE4F  $D0 $E9
-	RTS			; DE51  $60
+	INX				; DE4C  $E8
+	CPX #$10			; DE4D  $E0 $10
+	BNE L3DE3A			; DE4F  $D0 $E9
+	RTS				; DE51  $60
 L3DE52:
     LDA $03F0,X              ; DE52  $BD $F0 $03	increase brightness
     CMP $03C0,X              ; DE55  $DD $C0 $03
@@ -5022,29 +5022,29 @@ L3DE61:
 ; Marks	: Sound effect ?? - caution
 ;	  play error sound effect
 L3DE67:
-	LDA #$01		; DE67  $A9 $01
-	STA $E5			; DE69  $85 $E5
-	LDA #$30		; DE6B  $A9 $30
-	STA Sq0Duty_4000	; DE6D  $8D $00 $40
-	STA TrgLinear_4008	; DE70  $8D $08 $40
-	STA NoiseVolume_400C	; DE73  $8D $0C $40
-	LDY #$0F		; DE76  $A0 $0F
+	LDA #$01			; DE67  $A9 $01
+	STA $E5				; DE69  $85 $E5
+	LDA #$30			; DE6B  $A9 $30
+	STA Sq0Duty_4000		; DE6D  $8D $00 $40
+	STA TrgLinear_4008		; DE70  $8D $08 $40
+	STA NoiseVolume_400C		; DE73  $8D $0C $40
+	LDY #$0F			; DE76  $A0 $0F
 L3DE78:
-	JSR $DE89		; DE78  $20 $89 $DE	update ??? sound effect
-	DEY			; DE7B  $88
-	BPL L3DE78		; DE7C  $10 $FA
-	LDA #$30		; DE7E  $A9 $30
-	STA Sq1Duty_4004	; DE80  $8D $04 $40
-	LDA #$00		; DE83  $A9 $00
-	STA Sq1Timer_4006	; DE85  $8D $06 $40
-	RTS			; DE88  $60
+	JSR $DE89			; DE78  $20 $89 $DE	update ??? sound effect
+	DEY				; DE7B  $88
+	BPL L3DE78			; DE7C  $10 $FA
+	LDA #$30			; DE7E  $A9 $30
+	STA Sq1Duty_4004		; DE80  $8D $04 $40
+	LDA #$00			; DE83  $A9 $00
+	STA Sq1Timer_4006		; DE85  $8D $06 $40
+	RTS				; DE88  $60
 ; End of
 
 ; Name	:
 ; Marks	:
 ;	  update error sound effect
 ;; sub start ;;
-	JSR Wait_NMI		; DE89  $20 $00 $FE
+	JSR Wait_NMI			; DE89  $20 $00 $FE
 	LDA #$7C                 ; DE8C  $A9 $7C
 	STA Sq1Duty_4004         ; DE8E  $8D $04 $40
 	LDA #$89                 ; DE91  $A9 $89
@@ -5065,22 +5065,22 @@ L3DE78:
 ;	  draw cursor sprite
 L3DEA1:
 Set_cursor:
-	LDA #$E3		; DEA1  $A9 $E3
-	STA cur_oam_tbl_H	; DEA3  $85 $81
-	LDA #$B7		; DEA5  $A9 $B7
-	STA cur_oam_tbl_L	; DEA7  $85 $80
-	LDA #$FC		; DEA9  $A9 $FC
-	STA cur_idx_base	; DEAB  $85 $82
-	JMP Set_cur_data	; DEAD  $4C $02 $E1	Set OAM(2x2 tile)
+	LDA #$E3			; DEA1  $A9 $E3
+	STA cur_oam_tbl_H		; DEA3  $85 $81
+	LDA #$B7			; DEA5  $A9 $B7
+	STA cur_oam_tbl_L		; DEA7  $85 $80
+	LDA #$FC			; DEA9  $A9 $FC
+	STA cur_idx_base		; DEAB  $85 $82
+	JMP Set_cur_data		; DEAD  $4C $02 $E1	Set OAM(2x2 tile)
 ; End of
 
 ; Marks	: update dreadnought sprites
 L3DEB0:
-	JSR $E238		; DEB0  $20 $38 $E2	check if dreadnought is onscreen
-	BCS L3DEB8		; DEB3  $B0 $03
-	JMP $DEE0		; DEB5  $4C $E0 $DE
+	JSR $E238			; DEB0  $20 $38 $E2	check if dreadnought is onscreen
+	BCS L3DEB8			; DEB3  $B0 $03
+	JMP $DEE0			; DEB5  $4C $E0 $DE
 L3DEB8:
-	RTS			; DEB8  $60
+	RTS				; DEB8  $60
 ; End of
 
     LDA $6015                ; DEB9  $AD $15 $60
@@ -5105,28 +5105,28 @@ DEDF:
 ; End of
 
 ;
-	LDA #$E2		; DEE0  $A9 $E2		BANK 0F/E279
-	STA $55			; DEE2  $85 $55
-	LDA #$79		; DEE4  $A9 $79
-	STA $54			; DEE6  $85 $54
-	JMP $DF1E		; DEE8  $4C $1E $DF
+	LDA #$E2			; DEE0  $A9 $E2		BANK 0F/E279
+	STA $55				; DEE2  $85 $55
+	LDA #$79			; DEE4  $A9 $79
+	STA $54				; DEE6  $85 $54
+	JMP $DF1E			; DEE8  $4C $1E $DF
 ; End of
 
 ;
-	LDA #$E2		; DEEB  $A9 $E2		BANK 0F/E2BA
-	STA $55			; DEED  $85 $55
-	LDA #$BA		; DEEF  $A9 $BA
-	STA $54			; DEF1  $85 $54
-	JMP $DF1E		; DEF3  $4C $1E $DF
+	LDA #$E2			; DEEB  $A9 $E2		BANK 0F/E2BA
+	STA $55				; DEED  $85 $55
+	LDA #$BA			; DEEF  $A9 $BA
+	STA $54				; DEF1  $85 $54
+	JMP $DF1E			; DEF3  $4C $1E $DF
 ; End of
 
 ; Name	:
 ; Marks	: draw dreadnought shadow
-	LDA #$E2		; DEF6  $A9 $E2		BANK 0F/E2FB
-	STA $55			; DEF8  $85 $55
-	LDA #$FB		; DEFA  $A9 $FB
-	STA $54			; DEFC  $85 $54
-	JMP $DF1E		; DEFE  $4C $1E $DF
+	LDA #$E2			; DEF6  $A9 $E2		BANK 0F/E2FB
+	STA $55				; DEF8  $85 $55
+	LDA #$FB			; DEFA  $A9 $FB
+	STA $54				; DEFC  $85 $54
+	JMP $DF1E			; DEFE  $4C $1E $DF
 ; End of
 
 ;
@@ -5205,7 +5205,7 @@ DF74:
     STA $54                  ; DF79  $85 $54
     BCC DF20                 ; DF7B  $90 $A3
     INC $55                  ; DF7D  $E6 $55
-	JMP $DF20		; DF7F  $4C $20 $DF	loop
+	JMP $DF20			; DF7F  $4C $20 $DF	loop
 ; End of
 
 ;
@@ -5245,15 +5245,15 @@ DFA0:
 ; End of
 
 ;
-    JSR Wait_NMI		; JSR $FE00                ; DFBB  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; DFBB  $20 $00 $FE
     LDA #$02                 ; DFBE  $A9 $02
     STA SpriteDma_4014       ; DFC0  $8D $14 $40
     LDA $F0                  ; DFC3  $A5 $F0
     CLC                      ; DFC5  $18
     ADC #$01                 ; DFC6  $69 $01
     STA $F0                  ; DFC8  $85 $F0
-	JSR Scroll_map		; DFCA  $20 $80 $C3
-	JSR Init_Page2		; DFCD  $20 $6E $C4
+	JSR Scroll_map			; DFCA  $20 $80 $C3
+	JSR Init_Page2			; DFCD  $20 $6E $C4
     JSR L3C746               ; DFD0  $20 $46 $C7	sound process ??
     LDA #$70                 ; DFD3  $A9 $70
     STA $40                  ; DFD5  $85 $40
@@ -5285,13 +5285,13 @@ L3E003:
 ; Marks	: check vehicle ??
 ;	  update sprites (world map)
 ;; sub start ;;
-	LDY vehicle_ID		; E009  $A4 $42
-	CPY #$08		; E00B  $C0 $08		airship
-	BEQ L3E05B		; E00D  $F0 $4C
-	CPY #$04		; E00F  $C0 $04		ship
-	BEQ L3E061		; E011  $F0 $4E
-	CPY #$02		; E013  $C0 $02		canoe/snowcraft
-	BEQ L3E06D		; E015  $F0 $56
+	LDY vehicle_ID			; E009  $A4 $42
+	CPY #$08			; E00B  $C0 $08		airship
+	BEQ L3E05B			; E00D  $F0 $4C
+	CPY #$04			; E00F  $C0 $04		ship
+	BEQ L3E061			; E011  $F0 $4E
+	CPY #$02			; E013  $C0 $02		canoe/snowcraft
+	BEQ L3E06D			; E015  $F0 $56
 ; Name	:
 ; X	: INDEX = oam[3+X] ??
 ; Y	: vehicle
@@ -5299,20 +5299,20 @@ L3E003:
 ; Marks	: ATTR bit5 set
 ;	  update player sprite
 ;; sub start ;;
-	JSR $E073		; E017  $20 $73 $E0	moving OAM - draw player sprite
-	LDA $43			; E01A  $A5 $43		what is this ?? check entrance ??
-	AND #$12		; E01C  $29 $12
-	BEQ L3E030		; E01E  $F0 $10		if A == 00h
-	LDA $0206		; E020  $AD $06 $02	oam[1] ATTR
-	EOR #$20		; E023  $49 $20
-	STA $0206		; E025  $8D $06 $02	oam[1] ATTR
-	LDA $020E		; E028  $AD $0E $02	oam[3] ATTR
-	EOR #$20		; E02B  $49 $20
-	STA $020E,X		; E02D  $9D $0E $02	oam[3] ATTR
+	JSR $E073			; E017  $20 $73 $E0	moving OAM - draw player sprite
+	LDA $43				; E01A  $A5 $43		what is this ?? check entrance ??
+	AND #$12			; E01C  $29 $12
+	BEQ L3E030			; E01E  $F0 $10		if A == 00h
+	LDA $0206			; E020  $AD $06 $02	oam[1] ATTR
+	EOR #$20			; E023  $49 $20
+	STA $0206			; E025  $8D $06 $02	oam[1] ATTR
+	LDA $020E			; E028  $AD $0E $02	oam[3] ATTR
+	EOR #$20			; E02B  $49 $20
+	STA $020E,X			; E02D  $9D $0E $02	oam[3] ATTR
 L3E030:
-	LDA $43			; E030  $A5 $43
-	AND #$04		; E032  $29 $04
-	BEQ L3E046		; E034  $F0 $10		if A == 00h
+	LDA $43				; E030  $A5 $43
+	AND #$04			; E032  $29 $04
+	BEQ L3E046			; E034  $F0 $10		if A == 00h
     LDA $0202                ; E036  $AD $02 $02
     EOR #$20                 ; E039  $49 $20
     STA $0202                ; E03B  $8D $02 $02
@@ -5320,18 +5320,18 @@ L3E030:
     EOR #$20                 ; E041  $49 $20
     STA $020A                ; E043  $8D $0A $02
 L3E046:
-	LDA scroll_dir_map	; E046  $A5 $2D
-	LSR A			; E048  $4A
-	BCC L3E04C		; E049  $90 $01		branch if on the world map
-	RTS			; E04B  $60
+	LDA scroll_dir_map		; E046  $A5 $2D
+	LSR A				; E048  $4A
+	BCC L3E04C			; E049  $90 $01		branch if on the world map
+	RTS				; E04B  $60
 ; End of
 ; no vehicle
 L3E04C:
-	JSR $E1E0		; E04C  $20 $E0 $E1	Check vehicle ?? airship ??
-	JSR $E17B		; E04F  $20 $7B $E1	Check airship ??
-	JSR $E194		; E052  $20 $94 $E1	Check ship ??
-	JSR $E1A8		; E055  $20 $A8 $E1	Check chocobo ?? vehicle ?? - update chocobo sprite
-	JMP L3E1FB		; E058  $4C $FB $E1	Check dreadnaught ??
+	JSR $E1E0			; E04C  $20 $E0 $E1	Check vehicle ?? airship ??
+	JSR $E17B			; E04F  $20 $7B $E1	Check airship ??
+	JSR $E194			; E052  $20 $94 $E1	Check ship ??
+	JSR $E1A8			; E055  $20 $A8 $E1	Check chocobo ?? vehicle ?? - update chocobo sprite
+	JMP L3E1FB			; E058  $4C $FB $E1	Check dreadnaught ??
 ; airship
 L3E05B:
     JSR $E073                ; E05B  $20 $73 $E0	moving OAM - draw player sprite
@@ -5354,33 +5354,33 @@ L3E06D:
 ;	  set player moving OAM
 ;	  draw player sprite
 ;; sub start ;;
-	LDA #$70		; E073  $A9 $70		x position always $70
-	STA oam_x		; E075  $85 $40
-	LDA $E16B,Y		; E077  $B9 $6B $E1	y position for vehicle
-	CPY #$08		; E07A  $C0 $08		airship ??
-	BNE L3E086		; E07C  $D0 $08		if Y != 08h, branch if not in airship
-	STA oam_y		; E07E  $85 $41		airship ??
-	LDA frame_cnt_L		; E080  $A5 $F0
-	ASL A			; E082  $0A
-	JMP L3E08E		; E083  $4C $8E $E0
+	LDA #$70			; E073  $A9 $70		x position always $70
+	STA oam_x			; E075  $85 $40
+	LDA $E16B,Y			; E077  $B9 $6B $E1	y position for vehicle
+	CPY #$08			; E07A  $C0 $08		airship ??
+	BNE L3E086			; E07C  $D0 $08		if Y != 08h, branch if not in airship
+	STA oam_y			; E07E  $85 $41		airship ??
+	LDA frame_cnt_L			; E080  $A5 $F0
+	ASL A				; E082  $0A
+	JMP L3E08E			; E083  $4C $8E $E0
 L3E086:
-	STA oam_y		; E086  $85 $41
-	LDA hor_stile_pos	; E088  $A5 $35
-	BNE L3E08E		; E08A  $D0 $02		if A != 00h
-	LDA ver_stile_pos	; E08C  $A5 $36
+	STA oam_y			; E086  $85 $41
+	LDA hor_stile_pos		; E088  $A5 $35
+	BNE L3E08E			; E08A  $D0 $02		if A != 00h
+	LDA ver_stile_pos		; E08C  $A5 $36
 L3E08E:
-	AND #$08		; E08E  $29 $08
-	LDX player_dir		; E090  $A6 $33
-	ORA $E31F,X		; E092  $1D $1F $E3	player direction/move OAM table
-	STA $80			; E095  $85 $80
-	CPY #$01		; E097  $C0 $01
-	BEQ L3E0E1		; E099  $F0 $46		if Y == 01h
-	CPY #$02		; E09B  $C0 $02
-	BEQ E0CC		; E09D  $F0 $2D		if Y == 02h
-	CPY #$04		; E09F  $C0 $04
-	BEQ E0C7		; E0A1  $F0 $24		if Y == 04h
+	AND #$08			; E08E  $29 $08
+	LDX player_dir			; E090  $A6 $33
+	ORA $E31F,X			; E092  $1D $1F $E3	player direction/move OAM table
+	STA $80				; E095  $85 $80
+	CPY #$01			; E097  $C0 $01
+	BEQ L3E0E1			; E099  $F0 $46		if Y == 01h
+	CPY #$02			; E09B  $C0 $02
+	BEQ E0CC			; E09D  $F0 $2D		if Y == 02h
+	CPY #$04			; E09F  $C0 $04
+	BEQ E0C7			; E0A1  $F0 $24		if Y == 04h
 ; airship
-	LDA #$28		; E0A3  $A9 $28	deaw airship
+	LDA #$28			; E0A3  $A9 $28	deaw airship
     STA $82                  ; E0A5  $85 $82
     JSR $E0D1                ; E0A7  $20 $D1 $E0
     LDA $F0                  ; E0AA  $A5 $F0
@@ -5396,7 +5396,7 @@ L3E08E:
     STA $80                  ; E0BD  $85 $80
     LDA #$E3                 ; E0BF  $A9 $E3
     STA $81                  ; E0C1  $85 $81
-	JMP Set_cur_data	; E0C3  $4C $02 $E1
+	JMP Set_cur_data		; E0C3  $4C $02 $E1
 E0C6:
     RTS                      ; E0C6  $60
 ; ship
@@ -5415,26 +5415,26 @@ E0CF:
     LDA #$E3                 ; E0D8  $A9 $E3
     ADC #$00                 ; E0DA  $69 $00
     STA $81                  ; E0DC  $85 $81
-	JMP Set_cur_data	; E0DE  $4C $02 $E1
+	JMP Set_cur_data		; E0DE  $4C $02 $E1
 L3E0E1:
-	LDA scroll_dir_map	; E0E1  $A5 $2D
-	AND #$01		; E0E3  $29 $01
-	LSR A			; E0E5  $4A
-	BCS L3E0F3		; E0E6  $B0 $0B		branch if on normal map
-	LDA chocobo_stat	; E0E8  $AD $08 $60	case : world map
-	AND #$02		; E0EB  $29 $02
-	BEQ L3E0F3		; E0ED  $F0 $04
+	LDA scroll_dir_map		; E0E1  $A5 $2D
+	AND #$01			; E0E3  $29 $01
+	LSR A				; E0E5  $4A
+	BCS L3E0F3			; E0E6  $B0 $0B		branch if on normal map
+	LDA chocobo_stat		; E0E8  $AD $08 $60	case : world map
+	AND #$02			; E0EB  $29 $02
+	BEQ L3E0F3			; E0ED  $F0 $04
     LDA #$70                 ; E0EF  $A9 $70
     BNE E0CF                 ; E0F1  $D0 $DC
 L3E0F3:
-	STA $82			; E0F3  $85 $82		vertical = 00h, horizontal = 01h (scroll direction)??
-	LDA #$2F		; E0F5  $A9 $2F		BANK 0F/E32F (map character sprite data)
-	CLC			; E0F7  $18
-	ADC $80			; E0F8  $65 $80
-	STA $80			; E0FA  $85 $80
-	LDA #$E3		; E0FC  $A9 $E3
-	ADC #$00		; E0FE  $69 $00
-	STA $81			; E100  $85 $81
+	STA $82				; E0F3  $85 $82		vertical = 00h, horizontal = 01h (scroll direction)??
+	LDA #$2F			; E0F5  $A9 $2F		BANK 0F/E32F (map character sprite data)
+	CLC				; E0F7  $18
+	ADC $80				; E0F8  $65 $80
+	STA $80				; E0FA  $85 $80
+	LDA #$E3			; E0FC  $A9 $E3
+	ADC #$00			; E0FE  $69 $00
+	STA $81				; E100  $85 $81
 ; Marks	: $80(ADDR) = Index(offset), Attributes address
 ;	  $40 X position
 ;	  $41 Y position
@@ -5443,58 +5443,58 @@ L3E0F3:
 ;	  not only cursor, but also sprite ??
 ;	  same code exist on bank_03($A902)
 Set_cur_data:
-	LDY #$00		; E102  $A0 $00
-	LDX $26			; E104  $A6 $26		point to next available sprite ??
-	LDA oam_y		; E106  $A5 $41
-	STA $0200,X		; E108  $9D $00 $02	Y(LT) ??
-	STA $0208,X		; E10B  $9D $08 $02	Y(RT) ??
-	CLC			; E10E  $18
-	ADC #$08		; E10F  $69 $08
-	STA $0204,X		; E111  $9D $04 $02	Y(LB) ??
-	STA $020C,X		; E114  $9D $0C $02	Y(RB) ??
-	LDA oam_x		; E117  $A5 $40
-	STA $0203,X		; E119  $9D $03 $02	X(LT) ??
-	STA $0207,X		; E11C  $9D $07 $02	X(LB) ??
-	CLC			; E11F  $18
-	ADC #$08		; E120  $69 $08
-	STA $020B,X		; E122  $9D $0B $02	X(RT) ??
-	STA $020F,X		; E125  $9D $0F $02	X(RB) ??
-	LDA (cur_oam_tbl),Y	; E128  $B1 $80
-	INY			; E12A  $C8
-	CLC			; E12B  $18
-	ADC cur_idx_base	; E12C  $65 $82
-	STA $0201,X		; E12E  $9D $01 $02	INDEX(LT)
-	LDA (cur_oam_tbl),Y	; E131  $B1 $80
-	INY			; E133  $C8
-	STA $0202,X		; E134  $9D $02 $02	ATTR(LT)
-	LDA (cur_oam_tbl),Y	; E137  $B1 $80
-	INY			; E139  $C8
-	CLC			; E13A  $18
-	ADC cur_idx_base	; E13B  $65 $82
-	STA $0205,X		; E13D  $9D $05 $02	INDEX(LB)
-	LDA (cur_oam_tbl),Y	; E140  $B1 $80
-	INY			; E142  $C8
-	STA $0206,X		; E143  $9D $06 $02	ATTR(LB)
-	LDA (cur_oam_tbl),Y	; E146  $B1 $80
-	INY			; E148  $C8
-	CLC			; E149  $18
-	ADC cur_idx_base	; E14A  $65 $82
-	STA $0209,X		; E14C  $9D $09 $02	INDEX(RT)
-	LDA (cur_oam_tbl),Y	; E14F  $B1 $80
-	INY			; E151  $C8
-	STA $020A,X		; E152  $9D $0A $02	ATTR(RT)
-	LDA (cur_oam_tbl),Y	; E155  $B1 $80
-	INY			; E157  $C8
-	CLC			; E158  $18
-	ADC cur_idx_base	; E159  $65 $82
-	STA $020D,X		; E15B  $9D $0D $02	INDEX(RB)
-	LDA (cur_oam_tbl),Y	; E15E  $B1 $80
-	STA $020E,X		; E160  $9D $0E $02	ATTR(RB)
-	LDA $26			; E163  $A5 $26		point to next available sprites ??
-	CLC			; E165  $18
-	ADC #$10		; E166  $69 $10
-	STA $26			; E168  $85 $26		point to next available sprites ??
-	RTS			; E16A  $60
+	LDY #$00			; E102  $A0 $00
+	LDX $26				; E104  $A6 $26		point to next available sprite ??
+	LDA oam_y			; E106  $A5 $41
+	STA $0200,X			; E108  $9D $00 $02	Y(LT) ??
+	STA $0208,X			; E10B  $9D $08 $02	Y(RT) ??
+	CLC				; E10E  $18
+	ADC #$08			; E10F  $69 $08
+	STA $0204,X			; E111  $9D $04 $02	Y(LB) ??
+	STA $020C,X			; E114  $9D $0C $02	Y(RB) ??
+	LDA oam_x			; E117  $A5 $40
+	STA $0203,X			; E119  $9D $03 $02	X(LT) ??
+	STA $0207,X			; E11C  $9D $07 $02	X(LB) ??
+	CLC				; E11F  $18
+	ADC #$08			; E120  $69 $08
+	STA $020B,X			; E122  $9D $0B $02	X(RT) ??
+	STA $020F,X			; E125  $9D $0F $02	X(RB) ??
+	LDA (cur_oam_tbl),Y		; E128  $B1 $80
+	INY				; E12A  $C8
+	CLC				; E12B  $18
+	ADC cur_idx_base		; E12C  $65 $82
+	STA $0201,X			; E12E  $9D $01 $02	INDEX(LT)
+	LDA (cur_oam_tbl),Y		; E131  $B1 $80
+	INY				; E133  $C8
+	STA $0202,X			; E134  $9D $02 $02	ATTR(LT)
+	LDA (cur_oam_tbl),Y		; E137  $B1 $80
+	INY				; E139  $C8
+	CLC				; E13A  $18
+	ADC cur_idx_base		; E13B  $65 $82
+	STA $0205,X			; E13D  $9D $05 $02	INDEX(LB)
+	LDA (cur_oam_tbl),Y		; E140  $B1 $80
+	INY				; E142  $C8
+	STA $0206,X			; E143  $9D $06 $02	ATTR(LB)
+	LDA (cur_oam_tbl),Y		; E146  $B1 $80
+	INY				; E148  $C8
+	CLC				; E149  $18
+	ADC cur_idx_base		; E14A  $65 $82
+	STA $0209,X			; E14C  $9D $09 $02	INDEX(RT)
+	LDA (cur_oam_tbl),Y		; E14F  $B1 $80
+	INY				; E151  $C8
+	STA $020A,X			; E152  $9D $0A $02	ATTR(RT)
+	LDA (cur_oam_tbl),Y		; E155  $B1 $80
+	INY				; E157  $C8
+	CLC				; E158  $18
+	ADC cur_idx_base		; E159  $65 $82
+	STA $020D,X			; E15B  $9D $0D $02	INDEX(RB)
+	LDA (cur_oam_tbl),Y		; E15E  $B1 $80
+	STA $020E,X			; E160  $9D $0E $02	ATTR(RB)
+	LDA $26				; E163  $A5 $26		point to next available sprites ??
+	CLC				; E165  $18
+	ADC #$10			; E166  $69 $10
+	STA $26				; E168  $85 $26		point to next available sprites ??
+	RTS				; E16A  $60
 ; End of Set_cur_data
 
 ; $E16B - data block = player sprite y position for each vehicle
@@ -5504,18 +5504,18 @@ Set_cur_data:
 .byte $6F,$6F,$6F,$4F
 
 ;
-	LDA $6003		; E174	$AD $03 $60
+	LDA $6003			; E174	$AD $03 $60
     CMP #$10                 ; E177  $C9 $10
     BEQ E194                 ; E179  $F0 $19
 ; Name	:
 ; Marks	:
 ;; sub start ;;
-	LDA $6000		; E17B  $AD $00 $60	Ship status ??
-	BEQ L3E1C7		; E17E  $F0 $47
-	LDX $6001		; E180  $AE $01 $60	Ship x position ??
-	LDY $6002		; E183  $AC $02 $60	Ship y position ??
-	JSR Ship_visible	; E186  $20 $08 $E2	check if coordinates are onscreen
-	BCS L3E1C7		; E189  $B0 $3C		if Ship is not visible(far from here)
+	LDA $6000			; E17B  $AD $00 $60	Ship status ??
+	BEQ L3E1C7			; E17E  $F0 $47
+	LDX $6001			; E180  $AE $01 $60	Ship x position ??
+	LDY $6002			; E183  $AC $02 $60	Ship y position ??
+	JSR Ship_visible		; E186  $20 $08 $E2	check if coordinates are onscreen
+	BCS L3E1C7			; E189  $B0 $3C		if Ship is not visible(far from here)
 	LDA #$00                 ; E18B  $A9 $00
 	STA $80                  ; E18D  $85 $80
 	LDA #$10                 ; E18F  $A9 $10
@@ -5525,9 +5525,9 @@ Set_cur_data:
 ; Marks	:
 ;; sub start ;;
 E194:
-	LDX ship_x		; E194  $AE $0D $60
-	LDY ship_y		; E197  $AC $0E $60
-	JSR Ship_visible	; E19A  $20 $08 $E2	check if coordinates are onscreen
+	LDX ship_x			; E194  $AE $0D $60
+	LDY ship_y			; E197  $AC $0E $60
+	JSR Ship_visible		; E19A  $20 $08 $E2	check if coordinates are onscreen
 	BCS L3E1C7               ; E19D  $B0 $28
 	LDA #$00                 ; E19F  $A9 $00
 	STA $80                  ; E1A1  $85 $80
@@ -5539,21 +5539,21 @@ E194:
 ; Marks	:
 ;	  update chocobo sprite
 ;; sub start ;;
-	LDA chocobo_stat	; E1A8  $AD $08 $60
-	BMI L3E1D0		; E1AB  $30 $23		branch if chocobo is running away
-	BEQ L3E1C7		; E1AD  $F0 $18		branch if chocobo is hidden
-	CMP #$02		; E1AF  $C9 $02
-	BEQ L3E1C7		; E1B1  $F0 $14		return if player is riding chocobo ??
-	LDX chocobo_x		; E1B3  $AE $09 $60
-	LDY chocobo_y		; E1B6  $AC $0A $60
-	JSR Ship_visible	; E1B9  $20 $08 $E2	check if coordinates are onscreen
-	BCS L3E1C7		; E1BC  $B0 $09		if Ship is not visible(far from here)
+	LDA chocobo_stat		; E1A8  $AD $08 $60
+	BMI L3E1D0			; E1AB  $30 $23		branch if chocobo is running away
+	BEQ L3E1C7			; E1AD  $F0 $18		branch if chocobo is hidden
+	CMP #$02			; E1AF  $C9 $02
+	BEQ L3E1C7			; E1B1  $F0 $14		return if player is riding chocobo ??
+	LDX chocobo_x			; E1B3  $AE $09 $60
+	LDY chocobo_y			; E1B6  $AC $0A $60
+	JSR Ship_visible		; E1B9  $20 $08 $E2	check if coordinates are onscreen
+	BCS L3E1C7			; E1BC  $B0 $09		if Ship is not visible(far from here)
     LDA #$00                 ; E1BE  $A9 $00
     STA $80                  ; E1C0  $85 $80
     LDA #$70                 ; E1C2  $A9 $70
     JMP $E0CF                ; E1C4  $4C $CF $E0
 L3E1C7:
-	RTS			; E1C7  $60
+	RTS				; E1C7  $60
 ; End of Check airship ?? / Ship_visible
 
 ; Marks	: execute object command
@@ -5577,12 +5577,12 @@ E1DA:
 ; Name	:
 ; Marks	: Check airship ??
 ;; sub start ;;
-	LDA airship_flag	; E1E0  $AD $04 $60
-	BMI L3E203		; E1E3  $30 $1E
-	BEQ L3E1C7		; E1E5  $F0 $E0
+	LDA airship_flag		; E1E0  $AD $04 $60
+	BMI L3E203			; E1E3  $30 $1E
+	BEQ L3E1C7			; E1E5  $F0 $E0
     LDX $6005                ; E1E7  $AE $05 $60	airship xy position
     LDY $6006                ; E1EA  $AC $06 $60
-	JSR Ship_visible	; E1ED  $20 $08 $E2	check if coordinates are onscreen
+	JSR Ship_visible		; E1ED  $20 $08 $E2	check if coordinates are onscreen
     BCS L3E1C7               ; E1F0  $B0 $D5
     LDA #$10                 ; E1F2  $A9 $10
     STA $80                  ; E1F4  $85 $80
@@ -5592,9 +5592,9 @@ E1DA:
 
 ; Marks	: update dreadnought
 L3E1FB:
-	LDA dreadnaught_flag	; E1FB  $AD $14 $60
-	BEQ L3E1C7		; E1FE  $F0 $C7		return if dreadnought is not visible
-	JMP L3DEB0		; E200  $4C $B0 $DE	update dreadnought sprites
+	LDA dreadnaught_flag		; E1FB  $AD $14 $60
+	BEQ L3E1C7			; E1FE  $F0 $C7		return if dreadnought is not visible
+	JMP L3DEB0			; E200  $4C $B0 $DE	update dreadnought sprites
 ; End of
 
 ;
@@ -5611,70 +5611,70 @@ L3E203:
 ;	  check if coordinates are onscreen
 ;; sub start ;;
 Ship_visible:
-	TYA			; E208  $98
-	SEC			; E209  $38
-	SBC ow_y_pos		; E20A  $E5 $28
-	CMP #$10		; E20C  $C9 $10
-	BCS L3E236		; E20E  $B0 $26
-	ASL A			; E210  $0A
-	ASL A			; E211  $0A
-	ASL A			; E212  $0A
-	ASL A			; E213  $0A
-	CLC			; E214  $18		*** bug *** (should be SEC)
-	SBC ver_stile_pos	; E215  $E5 $36
-	CMP #$EC		; E217  $C9 $EC
-	BCS L3E236		; E219  $B0 $1B
-	STA oam_y		; E21B  $85 $41
-	TXA			; E21D  $8A
-	SEC			; E21E  $38
-	SBC ow_x_pos		; E21F  $E5 $27
-	CMP #$10		; E221  $C9 $10
-	BCS L3E236		; E223  $B0 $11
-	ASL A			; E225  $0A
-	ASL A			; E226  $0A
-	ASL A			; E227  $0A
-	ASL A			; E228  $0A
-	SEC			; E229  $38
-	SBC hor_stile_pos	; E22A  $E5 $35
-	BCC L3E236		; E22C  $90 $08
-	CMP #$F8		; E22E  $C9 $F8
-	BCS L3E236		; E230  $B0 $04
-	STA oam_x		; E232  $85 $40
-	CLC			; E234  $18
-	RTS			; E235  $60
+	TYA				; E208  $98
+	SEC				; E209  $38
+	SBC ow_y_pos			; E20A  $E5 $28
+	CMP #$10			; E20C  $C9 $10
+	BCS L3E236			; E20E  $B0 $26
+	ASL A				; E210  $0A
+	ASL A				; E211  $0A
+	ASL A				; E212  $0A
+	ASL A				; E213  $0A
+	CLC				; E214  $18		*** bug *** (should be SEC)
+	SBC ver_stile_pos		; E215  $E5 $36
+	CMP #$EC			; E217  $C9 $EC
+	BCS L3E236			; E219  $B0 $1B
+	STA oam_y			; E21B  $85 $41
+	TXA				; E21D  $8A
+	SEC				; E21E  $38
+	SBC ow_x_pos			; E21F  $E5 $27
+	CMP #$10			; E221  $C9 $10
+	BCS L3E236			; E223  $B0 $11
+	ASL A				; E225  $0A
+	ASL A				; E226  $0A
+	ASL A				; E227  $0A
+	ASL A				; E228  $0A
+	SEC				; E229  $38
+	SBC hor_stile_pos		; E22A  $E5 $35
+	BCC L3E236			; E22C  $90 $08
+	CMP #$F8			; E22E  $C9 $F8
+	BCS L3E236			; E230  $B0 $04
+	STA oam_x			; E232  $85 $40
+	CLC				; E234  $18
+	RTS				; E235  $60
 ; End of Ship_visible
 L3E236:
-	SEC			; E236  $38
-	RTS			; E237  $60
+	SEC				; E236  $38
+	RTS				; E237  $60
 ; End of Ship_visible
 
 ; Name	:
 ; Ret	: Carry flag(Set: skip ??, Reset: )
 ; Marks	: check if dreadnought is onscreen
 ;; sub start ;;
-	LDA dreadnaught_y	; E238  $AD $16 $60
-	SEC			; E23B  $38
-	SBC ow_y_pos		; E23C  $E5 $28
-	CMP #$10		; E23E  $C9 $10
-	BCS L3E236		; E240  $B0 $F4
-	ASL A			; E242  $0A
-	ASL A			; E243  $0A
-	ASL A			; E244  $0A
-	ASL A			; E245  $0A
-	SEC			; E246  $38
-	SBC ver_stile_pos	; E247  $E5 $36
-	BCC L3E236		; E249  $90 $EB
-	SBC #$10		; E24B  $E9 $10
-	STA oam_y		; E24D  $85 $41
-	LDA dreadnaught_x	; E24F  $AD $15 $60
-	SEC			; E252  $38
-	SBC ow_x_pos		; E253  $E5 $27
-	CMP #$11		; E255  $C9 $11
-	BCS L3E236		; E257  $B0 $DD
-	LDX #$00		; E259  $A2 $00
-	CMP #$10		; E25B  $C9 $10
-	BCC E261		; E25D  $90 $02
-	LDX #$01		; E25F  $A2 $01
+	LDA dreadnaught_y		; E238  $AD $16 $60
+	SEC				; E23B  $38
+	SBC ow_y_pos			; E23C  $E5 $28
+	CMP #$10			; E23E  $C9 $10
+	BCS L3E236			; E240  $B0 $F4
+	ASL A				; E242  $0A
+	ASL A				; E243  $0A
+	ASL A				; E244  $0A
+	ASL A				; E245  $0A
+	SEC				; E246  $38
+	SBC ver_stile_pos		; E247  $E5 $36
+	BCC L3E236			; E249  $90 $EB
+	SBC #$10			; E24B  $E9 $10
+	STA oam_y			; E24D  $85 $41
+	LDA dreadnaught_x		; E24F  $AD $15 $60
+	SEC				; E252  $38
+	SBC ow_x_pos			; E253  $E5 $27
+	CMP #$11			; E255  $C9 $11
+	BCS L3E236			; E257  $B0 $DD
+	LDX #$00			; E259  $A2 $00
+	CMP #$10			; E25B  $C9 $10
+	BCC E261			; E25D  $90 $02
+	LDX #$01			; E25F  $A2 $01
 E261:
     ASL A                    ; E261  $0A
     ASL A                    ; E262  $0A
@@ -5719,14 +5719,14 @@ E275:
 ; Marks	: event ??
 ;	  update sprites (normal map)
 ;; sub start ;;
-	LDY #$01		; E30C  $A0 $01		sprite index ?? vehicle(no airship, ship, chocobo) ??
-	JSR $E017		; E30E  $20 $17 $E0	copy sprite to buffer($0200-) - update player sprite
-	LDA #$40		; E311  $A9 $40		start at sprite 16
-	STA $26			; E313  $85 $26		pointer to next available sprite
-	LDX #$06		; E315  $A2 $06		event number value = 06h
-	LDA #$03		; E317  $A9 $03
-	JSR Swap_PRG_		; E319  $20 $03 $FE	bank_03 swap
-	JMP $A003		; E31C  $4C $03 $A0	event code - npc process ??
+	LDY #$01			; E30C  $A0 $01		sprite index ?? vehicle(no airship, ship, chocobo) ??
+	JSR $E017			; E30E  $20 $17 $E0	copy sprite to buffer($0200-) - update player sprite
+	LDA #$40			; E311  $A9 $40		start at sprite 16
+	STA $26				; E313  $85 $26		pointer to next available sprite
+	LDX #$06			; E315  $A2 $06		event number value = 06h
+	LDA #$03			; E317  $A9 $03
+	JSR Swap_PRG_			; E319  $20 $03 $FE	bank_03 swap
+	JMP $A003			; E31C  $4C $03 $A0	event code - npc process ??
 ; End of
 
 ;$E31F - data block = player sprite offset for each facing direction
@@ -5742,22 +5742,22 @@ E275:
 ; up E327
 .byte $20,$00,$10,$00,$30,$00,$10,$00
 ; $E32F -OAM(2x2 tile??): Index offset, Attribute = player sprite tile index and flags (no vehicle)
-.byte $09,$40,$0B,$41,$08,$40,$0A,$41	; right direction($E32F)
+.byte $09,$40,$0B,$41,$08,$40,$0A,$41		; right direction($E32F)
 .byte $0D,$40,$0F,$41,$0C,$40,$0E,$41
-.byte $08,$00,$0A,$01,$09,$00,$0B,$01	; left direction($E33F)
+.byte $08,$00,$0A,$01,$09,$00,$0B,$01		; left direction($E33F)
 .byte $0C,$00,$0E,$01,$0D,$00,$0F,$01
-.byte $04,$00,$06,$01,$05,$00,$07,$01	; upward($E34F)
+.byte $04,$00,$06,$01,$05,$00,$07,$01		; upward($E34F)
 .byte $04,$00,$07,$41,$05,$00,$06,$41
-.byte $00,$00,$02,$01,$01,$00,$03,$01	; downward($E35F)
+.byte $00,$00,$02,$01,$01,$00,$03,$01		; downward($E35F)
 .byte $00,$00,$03,$41,$01,$00,$02,$41
 ; $E36F
-.byte $11,$42,$13,$42,$10,$42,$12,$42	; right - player sprite tile index and flags (vehicle)
+.byte $11,$42,$13,$42,$10,$42,$12,$42		; right - player sprite tile index and flags (vehicle)
 .byte $15,$42,$17,$42,$14,$42,$16,$42
-.byte $10,$02,$12,$02,$11,$02,$13,$02	; left
+.byte $10,$02,$12,$02,$11,$02,$13,$02		; left
 .byte $14,$02,$16,$02,$15,$02,$17,$02
-.byte $00,$02,$02,$02,$01,$02,$03,$02	; down
+.byte $00,$02,$02,$02,$01,$02,$03,$02		; down
 .byte $04,$02,$06,$02,$05,$02,$07,$02
-.byte $08,$02,$0A,$02,$09,$02,$0B,$02	; up
+.byte $08,$02,$0A,$02,$09,$02,$0B,$02		; up
 .byte $0C,$02,$0E,$02,$0D,$02,$0F,$02
 ; $E3AF - airship shadow tile index and flags
 .byte $00
@@ -5872,19 +5872,19 @@ E3E0:
     LDA #$09                 ; E471  $A9 $09
     JSR Swap_PRG_               ; E473  $20 $03 $FE
     LDA #$00                 ; E476  $A9 $00	ppu $0000
-    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E478  $20 $03 $E5	copy large data to ppu
+    JSR Set_PpuAddrData_XPage		; JSR L3E503               ; E478  $20 $03 $E5	copy large data to ppu
     LDA #$80                 ; E47B  $A9 $80	BANK 09/8000 (portait graphics)
     STA $81                  ; E47D  $85 $81
     LDX #$0A                 ; E47F  $A2 $0A	size: $0A00 bytes
     LDA #$10                 ; E481  $A9 $10	ppu $1000
-    JSR Set_PpuAddrData_XPage	; JSR L3E503               ; E483  $20 $03 $E5
+    JSR Set_PpuAddrData_XPage		; JSR L3E503               ; E483  $20 $03 $E5
     LDA #$0E                 ; E486  $A9 $0E
     JMP Swap_PRG_               ; E488  $4C $03 $FE
 ; End of
 
 ; Marks	: load menu graphics - UNUSED
-	JSR Init_icon_tiles	; E48B  $20 $E1 $E6
-	JMP Init_char_tile	; E48E  $4C $FA $E6
+	JSR Init_icon_tiles		; E48B  $20 $E1 $E6
+	JMP Init_char_tile		; E48E  $4C $FA $E6
 ; End of
 
 ; Name	: Init_CHR_RAM
@@ -5892,72 +5892,72 @@ E3E0:
 ;	  load menu graphics
 ;; sub start ;;
 Init_CHR_RAM:
-	JSR Init_icon_tiles	; E491  $20 $E1 $E6
-	JMP Init_char_tile	; E494  $4C $FA $E6
+	JSR Init_icon_tiles		; E491  $20 $E1 $E6
+	JMP Init_char_tile		; E494  $4C $FA $E6
 ; End of Init_CHR_RAM
 
 ; Name	:
 ; Marks	: load normal map graphics
 ;; sub start ;;
-	LDA #$02		; E497  $A9 $02
-	JSR Swap_PRG_		; E499  $20 $03 $FE
-	JSR $E4B3		; E49C  $20 $B3 $E4	copy character potrait
-	JSR $E528		; E49F  $20 $28 $E5	set Ppu_data (sprites??/background??) - load map bg graphics
-	JMP L3E607		; E4A2  $4C $07 $E6	load npc graphics
+	LDA #$02			; E497  $A9 $02
+	JSR Swap_PRG_			; E499  $20 $03 $FE
+	JSR $E4B3			; E49C  $20 $B3 $E4	copy character potrait
+	JSR $E528			; E49F  $20 $28 $E5	set Ppu_data (sprites??/background??) - load map bg graphics
+	JMP L3E607			; E4A2  $4C $07 $E6	load npc graphics
 ; End of
 
 ; Name	:
 ; Marks	: Copy Ppu(world bg/sprite graphics)
 ;	  load world map graphics
 ;; sub start ;;
-	LDA #$02		; E4A5  $A9 $02
-	JSR Swap_PRG_		; E4A7  $20 $03 $FE
-	JSR Set_PpuData_4K	; E4AA  $20 $F7 $E4	copy world bg graphics
-	JSR $E4B3		; E4AD  $20 $B3 $E4	copy character potrait
-	JMP L3E4D8		; E4B0  $4C $D8 $E4	copy world sprite graphics
+	LDA #$02			; E4A5  $A9 $02
+	JSR Swap_PRG_			; E4A7  $20 $03 $FE
+	JSR Set_PpuData_4K		; E4AA  $20 $F7 $E4	copy world bg graphics
+	JSR $E4B3			; E4AD  $20 $B3 $E4	copy character potrait
+	JMP L3E4D8			; E4B0  $4C $D8 $E4	copy world sprite graphics
 
 ; Name	:
 ; Marks	: Copy character potrait
 ;; sub start ;;
-	LDA #$00		; E4B3  $A9 $00
-	STA $80			; E4B5  $85 $80
-	LDX #$00		; E4B7  $A2 $00
+	LDA #$00			; E4B3  $A9 $00
+	STA $80				; E4B5  $85 $80
+	LDX #$00			; E4B7  $A2 $00
 E4B9:
-	LDA ch_status,X		; E4B9  $BD $01 $61
-	AND #$E0		; E4BC  $29 $E0
-	BEQ L3E4C7		; E4BE  $F0 $07		branch if not dead, stone, or toad
-	TXA			; E4C0  $8A
+	LDA ch_status,X			; E4B9  $BD $01 $61
+	AND #$E0			; E4BC  $29 $E0
+	BEQ L3E4C7			; E4BE  $F0 $07		branch if not dead, stone, or toad
+	TXA				; E4C0  $8A
     CLC                      ; E4C1  $18
     ADC #$40                 ; E4C2  $69 $40
     TAX                      ; E4C4  $AA
     BNE E4B9                 ; E4C5  $D0 $F2
 L3E4C7:
-	LDA ch_id,X		; E4C7  $BD $00 $61
-	AND #$0F		; E4CA  $29 $0F
-	CLC			; E4CC  $18
-	ADC #$9B		; E4CD  $69 $9B		BANK 02/9B00 (map character graphics)
-	STA $81			; E4CF  $85 $81
-	LDX #$01		; E4D1  $A2 $01		size: $0100 bytes
-	LDA #$10		; E4D3  $A9 $10		ppy $1000
-	JMP Set_PpuAddrData_XPage	; E4D5  $4C $03 $E5
+	LDA ch_id,X			; E4C7  $BD $00 $61
+	AND #$0F			; E4CA  $29 $0F
+	CLC				; E4CC  $18
+	ADC #$9B			; E4CD  $69 $9B		BANK 02/9B00 (map character graphics)
+	STA $81				; E4CF  $85 $81
+	LDX #$01			; E4D1  $A2 $01		size: $0100 bytes
+	LDA #$10			; E4D3  $A9 $10		ppy $1000
+	JMP Set_PpuAddrData_XPage		; E4D5  $4C $03 $E5
 ; End of
 
 ; Marks	: load world map sprite graphics
 L3E4D8:
-	LDA #$90		; E4D8  $A9 $90		BANK 02/9000
-	STA $81			; E4DA  $85 $81
-	LDX #$0B		; E4DC  $A2 $0B		size: $0B00 bytes
-	LDA #$11		; E4DE  $A9 $11		ppu $1100
-	JSR Set_PpuAddrData_XPage	; E4E0  $20 $03 $E5	chocobo ??
-	LDA #$80		; E4E3  $A9 $80
-	STA $80			; E4E5  $85 $80
-	LDA #$95		; E4E7  $A9 $95		BANK 00/9580 (ship graphics)
-	STA $81			; E4E9  $85 $81
-	LDA #$00		; E4EB  $A9 $00
-	JSR Swap_PRG_		; E4ED  $20 $03 $FE
-	LDA #$1C		; E4F0  $A9 $1C		ppu $1C00
-	LDX #$02		; E4F2  $A2 $02		size: $0200 bytes
-	JMP Set_PpuAddrData_XPage	; E4F4  $4C $03 $E5	Ship ??
+	LDA #$90			; E4D8  $A9 $90		BANK 02/9000
+	STA $81				; E4DA  $85 $81
+	LDX #$0B			; E4DC  $A2 $0B		size: $0B00 bytes
+	LDA #$11			; E4DE  $A9 $11		ppu $1100
+	JSR Set_PpuAddrData_XPage		; E4E0  $20 $03 $E5	chocobo ??
+	LDA #$80			; E4E3  $A9 $80
+	STA $80				; E4E5  $85 $80
+	LDA #$95			; E4E7  $A9 $95		BANK 00/9580 (ship graphics)
+	STA $81				; E4E9  $85 $81
+	LDA #$00			; E4EB  $A9 $00
+	JSR Swap_PRG_			; E4ED  $20 $03 $FE
+	LDA #$1C			; E4F0  $A9 $1C		ppu $1C00
+	LDX #$02			; E4F2  $A2 $02		size: $0200 bytes
+	JMP Set_PpuAddrData_XPage		; E4F4  $4C $03 $E5	Ship ??
 ; End of
 
 ; Name	: Set_PpuData_4K
@@ -5966,12 +5966,12 @@ L3E4D8:
 ;	  load world map bg graphics
 ;; sub start ;;
 Set_PpuData_4K:
-	LDA #$00		; E4F7  $A9 $00		BANK 02/8000 (world map bg graphics)
-	STA $80			; E4F9  $85 $80
-	LDA #$80		; E4FB  $A9 $80
-	STA $81			; E4FD  $85 $81
-	LDX #$10		; E4FF  $A2 $10		size: $1000 bytes
-	LDA #$00		; E501  $A9 $00		ppu $0000
+	LDA #$00			; E4F7  $A9 $00		BANK 02/8000 (world map bg graphics)
+	STA $80				; E4F9  $85 $80
+	LDA #$80			; E4FB  $A9 $80
+	STA $81				; E4FD  $85 $81
+	LDX #$10			; E4FF  $A2 $10		size: $1000 bytes
+	LDA #$00			; E501  $A9 $00		ppu $0000
 
 ; Name	: Set_PpuAddrData_XPage
 ; A	: PpuAddr(H)
@@ -5980,10 +5980,10 @@ Set_PpuData_4K:
 ; Marks	: Set PpuAddr and copy to PPU
 Set_PpuAddrData_XPage:
 L3E503:
-	LDY PpuStatus_2002	; E503  $AC $02 $20
-	STA PpuAddr_2006	; E506  $8D $06 $20
-	LDA #$00		; E509  $A9 $00
-	STA PpuAddr_2006	; E50B  $8D $06 $20
+	LDY PpuStatus_2002		; E503  $AC $02 $20
+	STA PpuAddr_2006		; E506  $8D $06 $20
+	LDA #$00			; E509  $A9 $00
+	STA PpuAddr_2006		; E50B  $8D $06 $20
 
 ; Name	: Set_PpuData_XPage
 ; X	: Count of copied data(1 unit is #$100)
@@ -5993,16 +5993,16 @@ L3E503:
 ;	  jump here to use current ppu address
 Set_PpuData_XPage:
 L3E50E:
-	LDY #$00		; E50E  $A0 $00
+	LDY #$00			; E50E  $A0 $00
 L3E510:
-	LDA ($80),Y		; E510  $B1 $80
-	STA PpuData_2007	; E512  $8D $07 $20
-	INY			; E515  $C8
-	BNE L3E510		; E516  $D0 $F8
-	INC $81			; E518  $E6 $81
-	DEX			; E51A  $CA
-	BNE L3E510		; E51B  $D0 $F3
-	RTS			; E51D  $60
+	LDA ($80),Y			; E510  $B1 $80
+	STA PpuData_2007		; E512  $8D $07 $20
+	INY				; E515  $C8
+	BNE L3E510			; E516  $D0 $F8
+	INC $81				; E518  $E6 $81
+	DEX				; E51A  $CA
+	BNE L3E510			; E51B  $D0 $F3
+	RTS				; E51D  $60
 ; End of Set_PpuData_XPage
 ; End of Set_PpuAddrData_XPage
 ; End of
@@ -6015,12 +6015,12 @@ L3E510:
 ;	  $80(ADDR) = data address(tile ??)
 Set_PpuData:
 L3E51E:
-	LDA ($80),Y		; E51E  $B1 $80
-	STA PpuData_2007	; E520  $8D $07 $20
-	INY			; E523  $C8
-	DEX			; E524  $CA
-	BNE L3E51E		; E525  $D0 $F7
-	RTS			; E527  $60
+	LDA ($80),Y			; E51E  $B1 $80
+	STA PpuData_2007		; E520  $8D $07 $20
+	INY				; E523  $C8
+	DEX				; E524  $CA
+	BNE L3E51E			; E525  $D0 $F7
+	RTS				; E527  $60
 ; End of Set_PpuData
 
 ; Name	:
@@ -6033,92 +6033,92 @@ L3E51E:
 ;   s: small bg graphics
 ;   t: tileset (0 = exterior, 1 = interior)
 ;; sub start ;;
-	LDA #$00		; E528  $A9 $00
-	JSR Swap_PRG_		; E52A  $20 $03 $FE
-	LDX $48			; E52D  $A6 $48		world map entrance ID ??
-	LDA $B300,X		; E52F  $BD $00 $B3	tileset id for each map
-	STA $67			; E532  $85 $67
-	LDA $B000,X		; E534  $BD $00 $B0	BANK 00/B000 - map initial x positions and fill tile
-	AND #$E0		; E537  $29 $E0
-	CLC			; E539  $18
-	ADC #$C0		; E53A  $69 $C0		BANK 03/9EC0 (fill tile graphics)
-	STA $80			; E53C  $85 $80
-	LDA #$9E		; E53E  $A9 $9E
-	ADC #$00		; E540  $69 $00
-	STA $81			; E542  $85 $81
-	LDA #$03		; E544  $A9 $03
-	JSR Swap_PRG_		; E546  $20 $03 $FE
-	BIT PpuStatus_2002	; E549  $2C $02 $20
-	LDA #$00		; E54C  $A9 $00		ppu $0000
-	STA PpuAddr_2006	; E54E  $8D $06 $20
-	STA PpuAddr_2006	; E551  $8D $06 $20
-	LDY #$00		; E554  $A0 $00
-	LDX #$20		; E556  $A2 $20
-	JSR Set_PpuData		; E558  $20 $1E $E5
-	LDX #$80		; E55B  $A2 $80		BANK 03/8240 (common interior graphics)
-	LDA $67			; E55D  $A5 $67
-	LSR A			; E55F  $4A
-	LDA #$00		; E560  $A9 $00
-	BCC L3E568		; E562  $90 $04
-	LDA #$40		; E564  $A9 $40
-	LDX #$82		; E566  $A2 $82
+	LDA #$00			; E528  $A9 $00
+	JSR Swap_PRG_			; E52A  $20 $03 $FE
+	LDX $48				; E52D  $A6 $48		world map entrance ID ??
+	LDA $B300,X			; E52F  $BD $00 $B3	tileset id for each map
+	STA $67				; E532  $85 $67
+	LDA $B000,X			; E534  $BD $00 $B0	BANK 00/B000 - map initial x positions and fill tile
+	AND #$E0			; E537  $29 $E0
+	CLC				; E539  $18
+	ADC #$C0			; E53A  $69 $C0		BANK 03/9EC0 (fill tile graphics)
+	STA $80				; E53C  $85 $80
+	LDA #$9E			; E53E  $A9 $9E
+	ADC #$00			; E540  $69 $00
+	STA $81				; E542  $85 $81
+	LDA #$03			; E544  $A9 $03
+	JSR Swap_PRG_			; E546  $20 $03 $FE
+	BIT PpuStatus_2002		; E549  $2C $02 $20
+	LDA #$00			; E54C  $A9 $00		ppu $0000
+	STA PpuAddr_2006		; E54E  $8D $06 $20
+	STA PpuAddr_2006		; E551  $8D $06 $20
+	LDY #$00			; E554  $A0 $00
+	LDX #$20			; E556  $A2 $20
+	JSR Set_PpuData			; E558  $20 $1E $E5
+	LDX #$80			; E55B  $A2 $80		BANK 03/8240 (common interior graphics)
+	LDA $67				; E55D  $A5 $67
+	LSR A				; E55F  $4A
+	LDA #$00			; E560  $A9 $00
+	BCC L3E568			; E562  $90 $04
+	LDA #$40			; E564  $A9 $40
+	LDX #$82			; E566  $A2 $82
 L3E568:
-	STA $80			; E568  $85 $80
-	STX $81			; E56A  $86 $81
-	LDX #$02		; E56C  $A2 $02
-	JSR Set_PpuData_XPage	; E56E  $20 $0E $E5
-	LDX #$40		; E571  $A2 $40
-	JSR Set_PpuData		; E573  $20 $1E $E5
-	LDA #$00		; E576  $A9 $00
-	STA $81			; E578  $85 $81
-	LDA $67			; E57A  $A5 $67
-	LSR A			; E57C  $4A
-	AND #$0F		; E57D  $29 $0F
-	TAX			; E57F  $AA
-	LDA $E5F8,X		; E580  $BD $F8 $E5	pointers to small map bg graphics
-	ASL A			; E583  $0A
-	ROL $81			; E584  $26 $81
-	ASL A			; E586  $0A
-	ROL $81			; E587  $26 $81
-	ASL A			; E589  $0A
-	ROL $81			; E58A  $26 $81
-	ASL A			; E58C  $0A
-	ROL $81			; E58D  $26 $81
-	ADC #$80		; E58F  $69 $80		BANK 03/8480 (small map bg graphics)
-	STA $80			; E591  $85 $80
-	LDA $81			; E593  $A5 $81
-	ADC #$84		; E595  $69 $84
-	STA $81			; E597  $85 $81
-	LDY #$00		; E599  $A0 $00
-	LDX #$C0		; E59B  $A2 $C0
-	JSR Set_PpuData		; E59D  $20 $1E $E5
-	LDA #$00		; E5A0  $A9 $00
-	STA $81			; E5A2  $85 $81
-	LDA $67			; E5A4  $A5 $67
-	LSR A			; E5A6  $4A
-	LSR A			; E5A7  $4A
-	LSR A			; E5A8  $4A
-	LSR A			; E5A9  $4A
-	LSR A			; E5AA  $4A
-	TAX			; E5AB  $AA
-	LDA $E602,X		; E5AC  $BD $02 $E6	pointers to large map bg graphics
-	ASL A			; E5AF  $0A
-	ROL $81			; E5B0  $26 $81
-	ASL A			; E5B2  $0A
-	ROL $81			; E5B3  $26 $81
-	ASL A			; E5B5  $0A
-	ROL $81			; E5B6  $26 $81
-	ASL A			; E5B8  $0A
-	ROL $81			; E5B9  $26 $81
-	STA $80			; E5BB  $85 $80
-	LDA $81			; E5BD  $A5 $81
-	CLC			; E5BF  $18
-	ADC #$8C		; E5C0  $69 $8C		BANK 03/8C00 (large map bg graphics)
-	STA $81			; E5C2  $85 $81
-	LDX #$03		; E5C4  $A2 $03
-	JSR Set_PpuData_XPage	; E5C6  $20 $0E $E5
-	LDX #$C0		; E5C9  $A2 $C0
-	JSR Set_PpuData		; E5CB  $20 $1E $E5
+	STA $80				; E568  $85 $80
+	STX $81				; E56A  $86 $81
+	LDX #$02			; E56C  $A2 $02
+	JSR Set_PpuData_XPage		; E56E  $20 $0E $E5
+	LDX #$40			; E571  $A2 $40
+	JSR Set_PpuData			; E573  $20 $1E $E5
+	LDA #$00			; E576  $A9 $00
+	STA $81				; E578  $85 $81
+	LDA $67				; E57A  $A5 $67
+	LSR A				; E57C  $4A
+	AND #$0F			; E57D  $29 $0F
+	TAX				; E57F  $AA
+	LDA $E5F8,X			; E580  $BD $F8 $E5	pointers to small map bg graphics
+	ASL A				; E583  $0A
+	ROL $81				; E584  $26 $81
+	ASL A				; E586  $0A
+	ROL $81				; E587  $26 $81
+	ASL A				; E589  $0A
+	ROL $81				; E58A  $26 $81
+	ASL A				; E58C  $0A
+	ROL $81				; E58D  $26 $81
+	ADC #$80			; E58F  $69 $80		BANK 03/8480 (small map bg graphics)
+	STA $80				; E591  $85 $80
+	LDA $81				; E593  $A5 $81
+	ADC #$84			; E595  $69 $84
+	STA $81				; E597  $85 $81
+	LDY #$00			; E599  $A0 $00
+	LDX #$C0			; E59B  $A2 $C0
+	JSR Set_PpuData			; E59D  $20 $1E $E5
+	LDA #$00			; E5A0  $A9 $00
+	STA $81				; E5A2  $85 $81
+	LDA $67				; E5A4  $A5 $67
+	LSR A				; E5A6  $4A
+	LSR A				; E5A7  $4A
+	LSR A				; E5A8  $4A
+	LSR A				; E5A9  $4A
+	LSR A				; E5AA  $4A
+	TAX				; E5AB  $AA
+	LDA $E602,X			; E5AC  $BD $02 $E6	pointers to large map bg graphics
+	ASL A				; E5AF  $0A
+	ROL $81				; E5B0  $26 $81
+	ASL A				; E5B2  $0A
+	ROL $81				; E5B3  $26 $81
+	ASL A				; E5B5  $0A
+	ROL $81				; E5B6  $26 $81
+	ASL A				; E5B8  $0A
+	ROL $81				; E5B9  $26 $81
+	STA $80				; E5BB  $85 $80
+	LDA $81				; E5BD  $A5 $81
+	CLC				; E5BF  $18
+	ADC #$8C			; E5C0  $69 $8C		BANK 03/8C00 (large map bg graphics)
+	STA $81				; E5C2  $85 $81
+	LDX #$03			; E5C4  $A2 $03
+	JSR Set_PpuData_XPage		; E5C6  $20 $0E $E5
+	LDX #$C0			; E5C9  $A2 $C0
+	JSR Set_PpuData			; E5CB  $20 $1E $E5
 
 ; Name	: Init_tile
 ; Marks	: Copy $80(ADDR) = ($8A00-$931F:$920,tile image) to PPU CHR RAM ($06E0-$0FFF)
@@ -6127,25 +6127,25 @@ L3E568:
 ;	  load window/text graphics
 ;; sub start ;;
 Init_tile:
-	LDA #$09		; E5CE  $A9 $09
-	JSR Swap_PRG_		; E5D0  $20 $03 $FE
-	LDA #$00		; E5D3  $A9 $00		ROM($8A00-$8A20)
-	STA $80			; E5D5  $85 $80
-	LDA #$8A		; E5D7  $A9 $8A		BANK 09/8A00
-	STA $81			; E5D9  $85 $81
-	BIT PpuStatus_2002	; E5DB  $2C $02 $20
-	LDA #$06		; E5DE  $A9 $06		PPU CHR RAM($06E0-$06FF)
-	STA PpuAddr_2006	; E5E0  $8D $06 $20
-	LDA #$E0		; E5E3  $A9 $E0
-	STA PpuAddr_2006	; E5E5  $8D $06 $20
-	LDY #$00		; E5E8  $A0 $00
-	LDX #$20		; E5EA  $A2 $20
-	JSR Set_PpuData		; E5EC  $20 $1E $E5	ROM to PPU (2 icon tiles=20h) from $24A00
-	LDA #$20		; E5EF  $A9 $20
-	STA $80			; E5F1  $85 $80
-	; $80(ADDR) to PPU (ROM 0x24A20 : $8A20-$9320 to PPU $0700-$0FF0) = Copy rest 16*9 icons(2304 bytes)
-	LDX #$09		; E5F3  $A2 $09
-	JMP Set_PpuData_XPage	; E5F5  $4C $0E $E5
+	LDA #$09			; E5CE  $A9 $09
+	JSR Swap_PRG_			; E5D0  $20 $03 $FE
+	LDA #$00			; E5D3  $A9 $00		ROM($8A00-$8A20)
+	STA $80				; E5D5  $85 $80
+	LDA #$8A			; E5D7  $A9 $8A		BANK 09/8A00
+	STA $81				; E5D9  $85 $81
+	BIT PpuStatus_2002		; E5DB  $2C $02 $20
+	LDA #$06			; E5DE  $A9 $06		PPU CHR RAM($06E0-$06FF)
+	STA PpuAddr_2006		; E5E0  $8D $06 $20
+	LDA #$E0			; E5E3  $A9 $E0
+	STA PpuAddr_2006		; E5E5  $8D $06 $20
+	LDY #$00			; E5E8  $A0 $00
+	LDX #$20			; E5EA  $A2 $20
+	JSR Set_PpuData			; E5EC  $20 $1E $E5	ROM to PPU (2 icon tiles=20h) from $24A00
+	LDA #$20			; E5EF  $A9 $20
+	STA $80				; E5F1  $85 $80
+		; $80(ADDR) to PPU (ROM 0x24A20 : $8A20-$9320 to PPU $0700-$0FF0) = Copy rest 16*9 icons(2304 bytes)
+	LDX #$09			; E5F3  $A2 $09
+	JMP Set_PpuData_XPage		; E5F5  $4C $0E $E5
 ; End of Init_tile
 
 ;$E5F8 - data block = pointers to small map bg graphics
@@ -6157,102 +6157,102 @@ Init_tile:
 ; Marks	: $61 = repeat count ??, $84(ADDR) = ??
 ;	  load npc graphics
 L3E607:
-	LDA #$00		; E607  $A9 $00
-	JSR Swap_PRG_		; E609  $20 $03 $FE
-	LDA PpuStatus_2002	; E60C  $AD $02 $20	latch ppu
-	LDA #$11		; E60F  $A9 $11		Ppu_Addr = $1100 (npc graphics)
-	STA PpuAddr_2006	; E611  $8D $06 $20
-	LDA #$00		; E614  $A9 $00
-	STA PpuAddr_2006	; E616  $8D $06 $20
-	LDA $48			; E619  $A5 $48		world map entrance ID ??
-	LSR A			; E61B  $4A
-	LSR A			; E61C  $4A
-	LSR A			; E61D  $4A
-	LSR A			; E61E  $4A
-	ORA #$A0		; E61F  $09 $A0		BANK 00/A000 (map properties)
-	STA $81			; E621  $85 $81
-	LDA $48			; E623  $A5 $48		world map entrance ID ??
-	ASL A			; E625  $0A
-	ASL A			; E626  $0A
-	ASL A			; E627  $0A
-	ASL A			; E628  $0A
-	STA $80			; E629  $85 $80
-	LDY #$00		; E62B  $A0 $00
-	LDA ($80),Y		; E62D  $B1 $80		map properties byte 0 - (ex> $A050)
-	AND #$7F		; E62F  $29 $7F
-	CMP #$40		; E631  $C9 $40
-	BCC L3E64A		; E633  $90 $15
-	AND #$3F		; E635  $29 $3F
-	STA $84			; E637  $85 $84		multiply by 3
-	ASL A			; E639  $0A
-	CLC			; E63A  $18
-	ADC $84			; E63B  $65 $84
-	STA $84			; E63D  $85 $84
-	LDA #$BE		; E63F  $A9 $BE		BANK 00/BE00 (single npc properties)
-	STA $85			; E641  $85 $85
-	LDA #$01		; E643  $A9 $01		1 npc
-	STA $61			; E645  $85 $61
-	JMP L3E669		; E647  $4C $69 $E6
+	LDA #$00			; E607  $A9 $00
+	JSR Swap_PRG_			; E609  $20 $03 $FE
+	LDA PpuStatus_2002		; E60C  $AD $02 $20	latch ppu
+	LDA #$11			; E60F  $A9 $11		Ppu_Addr = $1100 (npc graphics)
+	STA PpuAddr_2006		; E611  $8D $06 $20
+	LDA #$00			; E614  $A9 $00
+	STA PpuAddr_2006		; E616  $8D $06 $20
+	LDA $48				; E619  $A5 $48		world map entrance ID ??
+	LSR A				; E61B  $4A
+	LSR A				; E61C  $4A
+	LSR A				; E61D  $4A
+	LSR A				; E61E  $4A
+	ORA #$A0			; E61F  $09 $A0		BANK 00/A000 (map properties)
+	STA $81				; E621  $85 $81
+	LDA $48				; E623  $A5 $48		world map entrance ID ??
+	ASL A				; E625  $0A
+	ASL A				; E626  $0A
+	ASL A				; E627  $0A
+	ASL A				; E628  $0A
+	STA $80				; E629  $85 $80
+	LDY #$00			; E62B  $A0 $00
+	LDA ($80),Y			; E62D  $B1 $80		map properties byte 0 - (ex> $A050)
+	AND #$7F			; E62F  $29 $7F
+	CMP #$40			; E631  $C9 $40
+	BCC L3E64A			; E633  $90 $15
+	AND #$3F			; E635  $29 $3F
+	STA $84				; E637  $85 $84		multiply by 3
+	ASL A				; E639  $0A
+	CLC				; E63A  $18
+	ADC $84				; E63B  $65 $84
+	STA $84				; E63D  $85 $84
+	LDA #$BE			; E63F  $A9 $BE		BANK 00/BE00 (single npc properties)
+	STA $85				; E641  $85 $85
+	LDA #$01			; E643  $A9 $01		1 npc
+	STA $61				; E645  $85 $61
+	JMP L3E669			; E647  $4C $69 $E6
 L3E64A:
-	ASL A			; E64A  $0A		multiply by 36
-	ASL A			; E64B  $0A
-	STA $84			; E64C  $85 $84
-	LDX #$00		; E64E  $A2 $00
-	STX $85			; E650  $86 $85
-	ASL A			; E652  $0A
-	ROL $85			; E653  $26 $85
-	ASL A			; E655  $0A
-	ROL $85			; E656  $26 $85
-	ASL A			; E658  $0A
-	ROL $85			; E659  $26 $85
-	ADC $84			; E65B  $65 $84
-	STA $84			; E65D  $85 $84
-	LDA $85			; E65F  $A5 $85
-	ADC #$B5		; E661  $69 $B5		BANK 00/B500 (multi-npc properties)
-	STA $85			; E663  $85 $85
-	LDA #$0C		; E665  $A9 $0C		loop over 12 npcs
-	STA $61			; E667  $85 $61
+	ASL A				; E64A  $0A		multiply by 36
+	ASL A				; E64B  $0A
+	STA $84				; E64C  $85 $84
+	LDX #$00			; E64E  $A2 $00
+	STX $85				; E650  $86 $85
+	ASL A				; E652  $0A
+	ROL $85				; E653  $26 $85
+	ASL A				; E655  $0A
+	ROL $85				; E656  $26 $85
+	ASL A				; E658  $0A
+	ROL $85				; E659  $26 $85
+	ADC $84				; E65B  $65 $84
+	STA $84				; E65D  $85 $84
+	LDA $85				; E65F  $A5 $85
+	ADC #$B5			; E661  $69 $B5		BANK 00/B500 (multi-npc properties)
+	STA $85				; E663  $85 $85
+	LDA #$0C			; E665  $A9 $0C		loop over 12 npcs
+	STA $61				; E667  $85 $61
 L3E669:
-	LDA #$00		; E669  $A9 $00
-	JSR Swap_PRG_		; E66B  $20 $03 $FE
-	LDA ($84),Y		; E66E  $B1 $84		multi npc properties ??
-	TAX			; E670  $AA
-	LDA $8D00,X		; E671  $BD $00 $8D	graphics id for each npc
-	CMP #$20		; E674  $C9 $20
-	BCC L3E68C		; E676  $90 $14
-	SBC #$20		; E678  $E9 $20
-	ASL A			; E67A  $0A
-	TAX			; E67B  $AA
-	LDA $E6C3,X		; E67C  $BD $C3 $E6	pointers to misc. map sprite graphics
-	STA $80			; E67F  $85 $80
-	LDA $E6C4,X		; E681  $BD $C4 $E6
-	CLC			; E684  $18
-	ADC #$BB		; E685  $69 $BB		BANK 02/BB00 (misc. map sprite graphics)
-	STA $81			; E687  $85 $81
-	JMP L3E695		; E689  $4C $95 $E6
+	LDA #$00			; E669  $A9 $00
+	JSR Swap_PRG_			; E66B  $20 $03 $FE
+	LDA ($84),Y			; E66E  $B1 $84		multi npc properties ??
+	TAX				; E670  $AA
+	LDA $8D00,X			; E671  $BD $00 $8D	graphics id for each npc
+	CMP #$20			; E674  $C9 $20
+	BCC L3E68C			; E676  $90 $14
+	SBC #$20			; E678  $E9 $20
+	ASL A				; E67A  $0A
+	TAX				; E67B  $AA
+	LDA $E6C3,X			; E67C  $BD $C3 $E6	pointers to misc. map sprite graphics
+	STA $80				; E67F  $85 $80
+	LDA $E6C4,X			; E681  $BD $C4 $E6
+	CLC				; E684  $18
+	ADC #$BB			; E685  $69 $BB		BANK 02/BB00 (misc. map sprite graphics)
+	STA $81				; E687  $85 $81
+	JMP L3E695			; E689  $4C $95 $E6
 L3E68C:
-	CLC			; E68C  $18
-	ADC #$9B		; E68D  $69 $9B		BANK 02/9B00 (map character graphics)
-	STA $81			; E68F  $85 $81
-	LDA #$00		; E691  $A9 $00
-	STA $80			; E693  $85 $80
+	CLC				; E68C  $18
+	ADC #$9B			; E68D  $69 $9B		BANK 02/9B00 (map character graphics)
+	STA $81				; E68F  $85 $81
+	LDA #$00			; E691  $A9 $00
+	STA $80				; E693  $85 $80
 L3E695:
-	LDA #$02		; E695  $A9 $02
-	JSR Swap_PRG_		; E697  $20 $03 $FE
-	TYA			; E69A  $98
-	PHA			; E69B  $48
-	LDY #$00		; E69C  $A0 $00
+	LDA #$02			; E695  $A9 $02
+	JSR Swap_PRG_			; E697  $20 $03 $FE
+	TYA				; E69A  $98
+	PHA				; E69B  $48
+	LDY #$00			; E69C  $A0 $00
 L3E69E:
-	LDA ($80),Y		; E69E  $B1 $80		map sprite graphics
-	STA PpuData_2007	; E6A0  $8D $07 $20
-	INY			; E6A3  $C8
-	BNE L3E69E		; E6A4  $D0 $F8		loop
-	PLA			; E6A6  $68		next npc
-	CLC			; E6A7  $18
-	ADC #$03		; E6A8  $69 $03
-	TAY			; E6AA  $A8
-	DEC $61			; E6AB  $C6 $61
-	BNE L3E669		; E6AD  $D0 $BA
+	LDA ($80),Y			; E69E  $B1 $80		map sprite graphics
+	STA PpuData_2007		; E6A0  $8D $07 $20
+	INY				; E6A3  $C8
+	BNE L3E69E			; E6A4  $D0 $F8		loop
+	PLA				; E6A6  $68		next npc
+	CLC				; E6A7  $18
+	ADC #$03			; E6A8  $69 $03
+	TAY				; E6AA  $A8
+	DEC $61				; E6AB  $C6 $61
+	BNE L3E669			; E6AD  $D0 $BA
 
 ; Name	: Set_spritesA
 ; DEST	: $80(ADDR) sprite tile address
@@ -6264,15 +6264,15 @@ L3E69E:
 ;	  includes cursor
 ;; sub start ;;
 Set_spritesA:
-	LDA #$00		; E6AF  $A9 $00		BANK 02/BD00 (more misc. map sprite graphics)
-	STA $80			; E6B1  $85 $80
-	LDA #$BD		; E6B3  $A9 $BD
-	STA $81			; E6B5  $85 $81
-	LDA #$02		; E6B7  $A9 $02
-	JSR Swap_PRG_		; E6B9  $20 $03 $FE
-	LDX #$03		; E6BC  $A2 $03
-	LDA #$1D		; E6BE  $A9 $1D
-	JMP Set_PpuAddrData_XPage	; E6C0  $4C $03 $E5
+	LDA #$00			; E6AF  $A9 $00		BANK 02/BD00 (more misc. map sprite graphics)
+	STA $80				; E6B1  $85 $80
+	LDA #$BD			; E6B3  $A9 $BD
+	STA $81				; E6B5  $85 $81
+	LDA #$02			; E6B7  $A9 $02
+	JSR Swap_PRG_			; E6B9  $20 $03 $FE
+	LDX #$03			; E6BC  $A2 $03
+	LDA #$1D			; E6BE  $A9 $1D
+	JMP Set_PpuAddrData_XPage		; E6C0  $4C $03 $E5
 ; End of  Set_spritesA
 
 ;$E6C3 - data block = pointers to misc. map sprite graphics
@@ -6288,53 +6288,53 @@ Set_spritesA:
 ;	  load menu bg graphics
 ;; sub start ;;
 Init_icon_tiles:
-	JSR Init_tile		; E6E1  $20 $CE $E5	CHR tile copy to PPU
-	BIT PpuStatus_2002	; E6E4  $2C $02 $20
-	LDA #$00		; E6E7  $A9 $00		Tile 0 set blank
-	STA PpuAddr_2006	; E6E9  $8D $06 $20
-	STA PpuAddr_2006	; E6EC  $8D $06 $20
-	LDX #$10		; E6EF  $A2 $10
+	JSR Init_tile			; E6E1  $20 $CE $E5	CHR tile copy to PPU
+	BIT PpuStatus_2002		; E6E4  $2C $02 $20
+	LDA #$00			; E6E7  $A9 $00		Tile 0 set blank
+	STA PpuAddr_2006		; E6E9  $8D $06 $20
+	STA PpuAddr_2006		; E6EC  $8D $06 $20
+	LDX #$10			; E6EF  $A2 $10
 L3E6F1:
-	STA PpuData_2007	; E6F1  $8D $07 $20
-	DEX			; E6F4  $CA
-	BNE L3E6F1		; E6F5  $D0 $FA
-	JMP Set_palette_BG3_buf	; E6F7  $4C $76 $E7	load menu bg palette
+	STA PpuData_2007		; E6F1  $8D $07 $20
+	DEX				; E6F4  $CA
+	BNE L3E6F1			; E6F5  $D0 $FA
+	JMP Set_palette_BG3_buf		; E6F7  $4C $76 $E7	load menu bg palette
 ; End of Init_icon_tiles
 
 ; Marks	: Set character potraits to PPU($1000)
 ;	  load menu sprite graphics
 Init_char_tile:
 L3E6FA:
-	LDA #$09		; E6FA  $A9 $09
-	JSR Swap_PRG_		; E6FC  $20 $03 $FE
-	LDA PpuStatus_2002	; E6FF  $AD $02 $20
-	LDA #$10		; E702  $A9 $10		PPU CHR RAM $1000
-	STA PpuAddr_2006	; E704  $8D $06 $20
-	LDA #$00		; E707  $A9 $00
-	STA PpuAddr_2006	; E709  $8D $06 $20
-	STA $80			; E70C  $85 $80
-	LDA ch_stats_1		; E70E  $AD $00 $61
-	JSR Load_char_tile	; E711  $20 $45 $E7
-	LDA ch_stats_2		; E714  $AD $40 $61
-	JSR Load_char_tile	; E717  $20 $45 $E7
-	LDA ch_stats_3		; E71A  $AD $80 $61
-	JSR Load_char_tile	; E71D  $20 $45 $E7
-	LDA ch_stats_4		; E720  $AD $C0 $61
-	JSR Load_char_tile	; E723  $20 $45 $E7
-	LDA #$0A		; E726  $A9 $0A
-	JSR Load_char_tile	; E728  $20 $45 $E7
-	LDA #$09		; E72B  $A9 $09
-	JSR Load_char_tile	; E72D  $20 $45 $E7
-	LDX #$10		; E730  $A2 $10		Last fill blank(#$FF) to PPU($1480-$148F)
-	LDA #$FF		; E732  $A9 $FF
+	LDA #$09			; E6FA  $A9 $09
+	JSR Swap_PRG_			; E6FC  $20 $03 $FE
+	LDA PpuStatus_2002		; E6FF  $AD $02 $20
+	LDA #$10			; E702  $A9 $10		PPU CHR RAM $1000
+	STA PpuAddr_2006		; E704  $8D $06 $20
+	LDA #$00			; E707  $A9 $00
+	STA PpuAddr_2006		; E709  $8D $06 $20
+	STA $80				; E70C  $85 $80
+	LDA ch_stats_1			; E70E  $AD $00 $61
+	JSR Load_char_tile		; E711  $20 $45 $E7
+	LDA ch_stats_2			; E714  $AD $40 $61
+	JSR Load_char_tile		; E717  $20 $45 $E7
+	LDA ch_stats_3			; E71A  $AD $80 $61
+	JSR Load_char_tile		; E71D  $20 $45 $E7
+	LDA ch_stats_4			; E720  $AD $C0 $61
+	JSR Load_char_tile		; E723  $20 $45 $E7
+	LDA #$0A			; E726  $A9 $0A
+	JSR Load_char_tile		; E728  $20 $45 $E7
+	LDA #$09			; E72B  $A9 $09
+	JSR Load_char_tile		; E72D  $20 $45 $E7
+	LDX #$10			; E730  $A2 $10		Last fill blank(#$FF) to PPU($1480-$148F)
+	LDA #$FF			; E732  $A9 $FF
 L3E734:
-	STA PpuData_2007	; E734  $8D $07 $20
-	DEX			; E737  $CA
-	BNE L3E734		; E738  $D0 $FA		loop
-	JSR Set_spritesA	; E73A  $20 $AF $E6	load misc.sprite graphics
-	JSR Init_OAM_palettes	; E73D  $20 $86 $E7	load menu sprite palettes
-	LDA #$0E		; E740  $A9 $0E
-	JMP Swap_PRG_		; E742  $4C $03 $FE
+	STA PpuData_2007		; E734  $8D $07 $20
+	DEX				; E737  $CA
+	BNE L3E734			; E738  $D0 $FA		loop
+	JSR Set_spritesA		; E73A  $20 $AF $E6	load misc.sprite graphics
+	JSR Init_OAM_palettes		; E73D  $20 $86 $E7	load menu sprite palettes
+	LDA #$0E			; E740  $A9 $0E
+	JMP Swap_PRG_			; E742  $4C $03 $FE
 ; End of
 
 ; Name	: Load_char_tile
@@ -6349,7 +6349,7 @@ Load_char_tile:
     TAX                      ; E747  $AA
     LDA #$00                 ; E748  $A9 $00
     STA $81                  ; E74A  $85 $81
-    LDA CHR_TILE_ADDR,X		; LDA $E76A,X              ; E74C  $BD $6A $E7
+    LDA CHR_TILE_ADDR,X			; LDA $E76A,X              ; E74C  $BD $6A $E7
     ASL A                    ; E74F  $0A
     ROL $81                  ; E750  $26 $81
     ASL A                    ; E752  $0A
@@ -6364,8 +6364,8 @@ Load_char_tile:
     STA $81                  ; E761  $85 $81
     LDX #$C0                 ; E763  $A2 $C0
     LDY #$00                 ; E765  $A0 $00
-	; PRG $24xxx -> PPU $06E0 (#$C0)
-	JMP Set_PpuData		; E767  $4C $1E $E5
+		; PRG $24xxx -> PPU $06E0 (#$C0)
+	JMP Set_PpuData			; E767  $4C $1E $E5
 ; End of Load_char_tile
 
 ;$E76A - data block = pointers to character portrait graphics
@@ -6388,13 +6388,13 @@ CHR_TILE_ADDR:
 ;	  Background palette 3 buffers
 ;	  load menu bg palette
 Set_palette_BG3_buf:
-	LDA #$00		; E776  $A9 $00
-	STA palette_BG30	; E778  $8D $CD $03
-	LDA #$02		; E77B  $A9 $02
-	STA palette_BG31	; E77D  $8D $CE $03
-	LDA #$30		; E780  $A9 $30
-	STA palette_BG32	; E782  $8D $CF $03
-	RTS			; E785  $60
+	LDA #$00			; E776  $A9 $00
+	STA palette_BG30		; E778  $8D $CD $03
+	LDA #$02			; E77B  $A9 $02
+	STA palette_BG31		; E77D  $8D $CE $03
+	LDA #$30			; E780  $A9 $30
+	STA palette_BG32		; E782  $8D $CF $03
+	RTS				; E785  $60
 ; End of Set_palette_BG3_buf
 
 ; Name	: Init_OAM_palettes
@@ -6406,10 +6406,10 @@ Init_OAM_palettes:
     LDA #$00                 ; E786  $A9 $00
     JSR Swap_PRG_               ; E788  $20 $03 $FE
     LDX #$0F                 ; E78B  $A2 $0F
-	; Copy OAM palette to buffer
+		; Copy OAM palette to buffer
 L3E78D:
     LDA $83B2,X              ; E78D  $BD $B2 $83
-    STA palette_UOAM,X		; STA $03D0,X              ; E790  $9D $D0 $03
+    STA palette_UOAM,X			; STA $03D0,X              ; E790  $9D $D0 $03
     DEX                      ; E793  $CA
     BNE L3E78D               ; E794  $D0 $F7
     RTS                      ; E796  $60
@@ -6434,11 +6434,11 @@ E7A2:
 E7A9:
     JSR $E7D4                ; E7A9  $20 $D4 $E7	load next line of text
 L3E7AC:
-	JSR $EAAC		; E7AC  $20 $AC $EA
-	LDA bank		; E7AF  $A5 $57
-	JSR Swap_PRG_		; E7B1  $20 $03 $FE
-	CLC			; E7B4  $18
-	RTS			; E7B5  $60
+	JSR $EAAC			; E7AC  $20 $AC $EA
+	LDA bank			; E7AF  $A5 $57
+	JSR Swap_PRG_			; E7B1  $20 $03 $FE
+	CLC				; E7B4  $18
+	RTS				; E7B5  $60
 ; End of
 
 ; Marks	: scroll menu up
@@ -6527,15 +6527,15 @@ E829:
 ;	  show sprites (dialogue)
 ;; sub start ;;
 Hide_oam_in_msgbox:
-	LDX #$04		; E837  $A2 $04
-	LDA #$01		; E839  $A9 $01
-	BNE Hide_oam_		; E83B  $D0 $08
+	LDX #$04			; E837  $A2 $04
+	LDA #$01			; E839  $A9 $01
+	BNE Hide_oam_			; E83B  $D0 $08
 ; Name	: Hide_oam_??
 ; Marks	: show sprites (keyword/item select)
 ;; sub start ;;
-	LDX #$05		; E83D  $A2 $05
-	LDA #$01		; E83F  $A9 $01
-	BNE Hide_oam_		; E841  $D0 $02
+	LDX #$05			; E83D  $A2 $05
+	LDA #$01			; E83F  $A9 $01
+	BNE Hide_oam_			; E841  $D0 $02
 ; Name	: Hide_oam
 ; A	: START INDEX
 ; X	: INDEX(text window limit ??)
@@ -6545,46 +6545,46 @@ Hide_oam_in_msgbox:
 ;	  hide sprite
 ;; sub start ;;
 Hide_oam:
-	LDA #$00		; E843  $A9 $00
+	LDA #$00			; E843  $A9 $00
 Hide_oam_:
-	STA $84			; E845  $85 $84
-	LDA $E892,X		; E847  $BD $92 $E8
-	STA $80			; E84A  $85 $80		left limit ??
-	LDA $E898,X		; E84C  $BD $98 $E8
-	STA $81			; E84F  $85 $81		right limit ??
-	LDA $E89E,X		; E851  $BD $9E $E8
-	STA $82			; E854  $85 $82		top limit ??
-	LDA $E8A4,X		; E856  $BD $A4 $E8
-	STA $83			; E859  $85 $83		bottom limit ??
-	LDY #$40		; E85B  $A0 $40
+	STA $84				; E845  $85 $84
+	LDA $E892,X			; E847  $BD $92 $E8
+	STA $80				; E84A  $85 $80		left limit ??
+	LDA $E898,X			; E84C  $BD $98 $E8
+	STA $81				; E84F  $85 $81		right limit ??
+	LDA $E89E,X			; E851  $BD $9E $E8
+	STA $82				; E854  $85 $82		top limit ??
+	LDA $E8A4,X			; E856  $BD $A4 $E8
+	STA $83				; E859  $85 $83		bottom limit ??
+	LDY #$40			; E85B  $A0 $40
 L3E85D:
-	LDA $0203,Y		; E85D  $B9 $03 $02	X
-	CMP $80			; E860  $C5 $80		if A < left limit
-	BCC L3E88A		; E862  $90 $26
-	CMP $81			; E864  $C5 $81
-	BCS L3E88A		; E866  $B0 $22		if A > right limit
-	LDA $0200,Y		; E868  $B9 $00 $02	Y
-	CMP $82			; E86B  $C5 $82
-	BCC L3E88A		; E86D  $90 $1B		if A < top limit
-	CMP $83			; E86F  $C5 $83
-	BCS L3E88A		; E871  $B0 $17		if A > bottom limit
-	LDA $84			; E873  $A5 $84
-	BNE L3E882		; E875  $D0 $0B
-	LDA $0202,Y		; E877  $B9 $02 $02	ATTR
-	ORA #$20		; E87A  $09 $20		bit5 set: behind background
-	STA $0202,Y		; E87C  $99 $02 $02	ATTR
-	JMP L3E88A		; E87F  $4C $8A $E8
+	LDA $0203,Y			; E85D  $B9 $03 $02	X
+	CMP $80				; E860  $C5 $80		if A < left limit
+	BCC L3E88A			; E862  $90 $26
+	CMP $81				; E864  $C5 $81
+	BCS L3E88A			; E866  $B0 $22		if A > right limit
+	LDA $0200,Y			; E868  $B9 $00 $02	Y
+	CMP $82				; E86B  $C5 $82
+	BCC L3E88A			; E86D  $90 $1B		if A < top limit
+	CMP $83				; E86F  $C5 $83
+	BCS L3E88A			; E871  $B0 $17		if A > bottom limit
+	LDA $84				; E873  $A5 $84
+	BNE L3E882			; E875  $D0 $0B
+	LDA $0202,Y			; E877  $B9 $02 $02	ATTR
+	ORA #$20			; E87A  $09 $20		bit5 set: behind background
+	STA $0202,Y			; E87C  $99 $02 $02	ATTR
+	JMP L3E88A			; E87F  $4C $8A $E8
 L3E882:
-	LDA $0202,Y		; E882  $B9 $02 $02	ATTR
-	AND #$DF		; E885  $29 $DF		bit5 clear: in front of background
-	STA $0202,Y		; E887  $99 $02 $02	ATTR
+	LDA $0202,Y			; E882  $B9 $02 $02	ATTR
+	AND #$DF			; E885  $29 $DF		bit5 clear: in front of background
+	STA $0202,Y			; E887  $99 $02 $02	ATTR
 L3E88A:
-	TYA			; E88A  $98		NEXT OAM INDEX
-	CLC			; E88B  $18
-	ADC #$04		; E88C  $69 $04
-	TAY			; E88E  $A8
-	BCC L3E85D		; E88F  $90 $CC		loop - if A not exceed FFh(check all OAM)
-	RTS			; E891  $60
+	TYA				; E88A  $98		NEXT OAM INDEX
+	CLC				; E88B  $18
+	ADC #$04			; E88C  $69 $04
+	TAY				; E88E  $A8
+	BCC L3E85D			; E88F  $90 $CC		loop - if A not exceed FFh(check all OAM)
+	RTS				; E891  $60
 ; End of Hide_oam##
 
 ;$E892 - data block = text window regions for covering sprites
@@ -6621,9 +6621,9 @@ L3E88A:
 ;	  open npc dialogue window
 ;; sub start ;;
 	LDA #$00                 ; E8CA  $A9 $00
-	STA win_type		; E8CC  $85 $96
-	STA a_pressing		; E8CE  $85 $24
-	STA b_pressing		; E8D0  $85 $25
+	STA win_type			; E8CC  $85 $96
+	STA a_pressing			; E8CE  $85 $24
+	STA b_pressing			; E8D0  $85 $25
 	JSR L3E91E               ; E8D2  $20 $1E $E9	open window
 	JMP L3EA54               ; E8D5  $4C $54 $EA	load text (multi-page)
 ; End of Init_win_type
@@ -6633,17 +6633,17 @@ L3E88A:
 ;	  display map dialogue
 ;; sub start ;;
 Wait_key:
-	LDA #$00		; E8D8  $A9 $00
-	STA win_type		; E8DA  $85 $96		dialogue - 28x19 at (2,2)
-	LDA #$00		; E8DC  $A9 $00
-	STA a_pressing		; E8DE  $85 $24
-	STA b_pressing		; E8E0  $85 $25
-	JSR L3E91E		; E8E2  $20 $1E $E9	draw win / text - open window
+	LDA #$00			; E8D8  $A9 $00
+	STA win_type			; E8DA  $85 $96		dialogue - 28x19 at (2,2)
+	LDA #$00			; E8DC  $A9 $00
+	STA a_pressing			; E8DE  $85 $24
+	STA b_pressing			; E8E0  $85 $25
+	JSR L3E91E			; E8E2  $20 $1E $E9	draw win / text - open window
 L3E8E5:
-	JSR L3EA54		; E8E5  $20 $54 $EA	load text (multi-page)
-	JSR Key_for_next	; E8E8  $20 $F1 $E8
-	JSR Key_for_next	; E8EB  $20 $F1 $E8
-	JMP L3D164		; E8EE  $4C $64 $D1	close text window (dialogue)
+	JSR L3EA54			; E8E5  $20 $54 $EA	load text (multi-page)
+	JSR Key_for_next		; E8E8  $20 $F1 $E8
+	JSR Key_for_next		; E8EB  $20 $F1 $E8
+	JMP L3D164			; E8EE  $4C $64 $D1	close text window (dialogue)
 ; End of Wait_key
 
 tmp_key = $86
@@ -6656,30 +6656,30 @@ tmp_key = $86
 ;	  wait for keypress
 ;; sub start ;;
 Key_for_next:
-	JSR Get_key		; E8F1  $20 $A9 $DB
-	LDA key1p		; E8F4  $A5 $20
-	STA tmp_key		; E8F6  $85 $86
+	JSR Get_key			; E8F1  $20 $A9 $DB
+	LDA key1p			; E8F4  $A5 $20
+	STA tmp_key			; E8F6  $85 $86
 L3E8F8:
-	JSR Get_key		; E8F8  $20 $A9 $DB
-	LDA key1p		; E8FB  $A5 $20
-	CMP tmp_key		; E8FD  $C5 $86
-	BNE L3E90C		; E8FF  $D0 $0B		key differ 1st, 2nd
-	JSR Wait_NMI		; E901  $20 $00 $FE
-	INC frame_cnt_L		; E904  $E6 $F0
-	JSR L3C746		; E906  $20 $46 $C7	sound process ??
-	JMP L3E8F8		; E909  $4C $F8 $E8	loop
+	JSR Get_key			; E8F8  $20 $A9 $DB
+	LDA key1p			; E8FB  $A5 $20
+	CMP tmp_key			; E8FD  $C5 $86
+	BNE L3E90C			; E8FF  $D0 $0B		key differ 1st, 2nd
+	JSR Wait_NMI			; E901  $20 $00 $FE
+	INC frame_cnt_L			; E904  $E6 $F0
+	JSR L3C746			; E906  $20 $46 $C7	sound process ??
+	JMP L3E8F8			; E909  $4C $F8 $E8	loop
 L3E90C:
-	LDA bank_tmp		; E90C  $A5 $93
-	JMP Swap_PRG_		; E90E  $4C $03 $FE
+	LDA bank_tmp			; E90C  $A5 $93
+	JMP Swap_PRG_			; E90E  $4C $03 $FE
 ; End of Key_for_next
 
 ; Name	:
 ; Marks	:
 ;; sub start ;;
-    JSR Wait_NMI		; JSR $FE00                ; E911  $20 $00 $FE
-	INC frame_cnt_L		; E914  $E6 $F0
+    JSR Wait_NMI			; JSR $FE00                ; E911  $20 $00 $FE
+	INC frame_cnt_L			; E914  $E6 $F0
     JSR L3C746               ; E916  $20 $46 $C7	sound process ??
-	LDA bank_tmp		; E919  $A5 $93
+	LDA bank_tmp			; E919  $A5 $93
     JMP Swap_PRG_               ; E91B  $4C $03 $FE
 ; End of
 
@@ -6692,49 +6692,49 @@ L3E90C:
 ;        2: keyword/item select
 ;        3: gil
 L3E91E:
-	LDX win_type		; E91E  $A6 $96
-	JSR Set_map_win_size	; E920  $20 $6E $E9
-	LDA text_win_T		; E923  $A5 $39
-	STA text_y		; E925  $85 $3B
-	JSR Text_buf_init	; E927  $20 $31 $F0	reset text buffer
-	LDX #$0F		; E92A  $A2 $0F
-	LDA #$FF		; E92C  $A9 $FF
+	LDX win_type			; E91E  $A6 $96
+	JSR Set_map_win_size		; E920  $20 $6E $E9
+	LDA text_win_T			; E923  $A5 $39
+	STA text_y			; E925  $85 $3B
+	JSR Text_buf_init		; E927  $20 $31 $F0	reset text buffer
+	LDX #$0F			; E92A  $A2 $0F
+	LDA #$FF			; E92C  $A9 $FF
 L3E92E:
-	STA $07C0,X		; E92E  $9D $C0 $07
-	DEX			; E931  $CA
-	BPL L3E92E		; E932  $10 $FA
-	LDA menu_win_H		; E934  $A5 $3D
-	LSR A			; E936  $4A
-	PHA			; E937  $48
-	JSR Draw_win_top	; E938  $20 $E5 $E9	draw top of text window
-	JSR $E9BA		; E93B  $20 $BA $E9	copy text window to ppu
-	PLA			; E93E  $68
-	SEC			; E93F  $38
-	SBC #$02		; E940  $E9 $02
-	BEQ L3E951		; E942  $F0 $0D
+	STA $07C0,X			; E92E  $9D $C0 $07
+	DEX				; E931  $CA
+	BPL L3E92E			; E932  $10 $FA
+	LDA menu_win_H			; E934  $A5 $3D
+	LSR A				; E936  $4A
+	PHA				; E937  $48
+	JSR Draw_win_top		; E938  $20 $E5 $E9	draw top of text window
+	JSR $E9BA			; E93B  $20 $BA $E9	copy text window to ppu
+	PLA				; E93E  $68
+	SEC				; E93F  $38
+	SBC #$02			; E940  $E9 $02
+	BEQ L3E951			; E942  $F0 $0D
 L3E944:
-	PHA			; E944  $48
-	JSR Draw_win_mid	; E945  $20 $0C $EA	draw middle of text window
-	JSR $E9BA		; E948  $20 $BA $E9	copy text window to ppu
-	PLA			; E94B  $68
-	SEC			; E94C  $38
-	SBC #$01		; E94D  $E9 $01
-	BNE L3E944		; E94F  $D0 $F3
+	PHA				; E944  $48
+	JSR Draw_win_mid		; E945  $20 $0C $EA	draw middle of text window
+	JSR $E9BA			; E948  $20 $BA $E9	copy text window to ppu
+	PLA				; E94B  $68
+	SEC				; E94C  $38
+	SBC #$01			; E94D  $E9 $01
+	BNE L3E944			; E94F  $D0 $F3
 L3E951:
-	JSR Draw_win_bot	; E951  $20 $2D $EA	draw bottom of text window
-	JSR $E9BA		; E954  $20 $BA $E9	copy text window to ppu
-	INC text_win_L		; E957  $E6 $38
-	INC text_win_T		; E959  $E6 $39
-	LDA menu_win_W		; E95B  $A5 $3C
+	JSR Draw_win_bot		; E951  $20 $2D $EA	draw bottom of text window
+	JSR $E9BA			; E954  $20 $BA $E9	copy text window to ppu
+	INC text_win_L			; E957  $E6 $38
+	INC text_win_T			; E959  $E6 $39
+	LDA menu_win_W			; E95B  $A5 $3C
 	SEC                      ; E95D  $38
 	SBC #$02                 ; E95E  $E9 $02
-	STA menu_win_W		; E960  $85 $3C
-	LDA menu_win_H		; E962  $A5 $3D
+	STA menu_win_W			; E960  $85 $3C
+	LDA menu_win_H			; E962  $A5 $3D
 	SEC                      ; E964  $38
 	SBC #$02                 ; E965  $E9 $02
-	STA menu_win_H		; E967  $85 $3D
-	LDA bank		; E969  $A5 $57
-	JMP Swap_PRG_		; E96B  $4C $03 $FE
+	STA menu_win_H			; E967  $85 $3D
+	LDA bank			; E969  $A5 $57
+	JMP Swap_PRG_			; E96B  $4C $03 $FE
 ; End of Draw window(OO) and text(??)
 
 ; Name	: Set_map_win_size
@@ -6743,60 +6743,60 @@ L3E951:
 ;	  get text window position
 ;; sub start ;;
 Set_map_win_size:
-	LDA text_win_mode	; E96E  $A5 $37
-	BNE L3E9A9		; E970  $D0 $37		if A != 0 (menu)
-	LDA $E9AA,X		; E972  $BD $AA $E9
-	SEC			; E975  $38
-	SBC #$01		; E976  $E9 $01
-	STA $97			; E978  $85 $97
-	LDA $E9AE,X		; E97A  $BD $AE $E9
-	CLC			; E97D  $18
-	ADC #$02		; E97E  $69 $02
-	STA $98			; E980  $85 $98
-	LDA in_x_pos		; E982  $A5 $29
-	ASL A			; E984  $0A
-	CLC			; E985  $18
-	ADC $E9AA,X		; E986  $7D $AA $E9
-	AND #$3F		; E989  $29 $3F
-	STA text_win_L		; E98B  $85 $38
-	LDA $2F			; E98D  $A5 $2F
-	ASL A			; E98F  $0A
-	CLC			; E990  $18
-	ADC $E9AE,X		; E991  $7D $AE $E9
-	CMP #$1E		; E994  $C9 $1E
-	BCC L3E99A		; E996  $90 $02		if A < 1Eh
-	SBC #$1E		; E998  $E9 $1E
+	LDA text_win_mode		; E96E  $A5 $37
+	BNE L3E9A9			; E970  $D0 $37		if A != 0 (menu)
+	LDA $E9AA,X			; E972  $BD $AA $E9
+	SEC				; E975  $38
+	SBC #$01			; E976  $E9 $01
+	STA $97				; E978  $85 $97
+	LDA $E9AE,X			; E97A  $BD $AE $E9
+	CLC				; E97D  $18
+	ADC #$02			; E97E  $69 $02
+	STA $98				; E980  $85 $98
+	LDA in_x_pos			; E982  $A5 $29
+	ASL A				; E984  $0A
+	CLC				; E985  $18
+	ADC $E9AA,X			; E986  $7D $AA $E9
+	AND #$3F			; E989  $29 $3F
+	STA text_win_L			; E98B  $85 $38
+	LDA $2F				; E98D  $A5 $2F
+	ASL A				; E98F  $0A
+	CLC				; E990  $18
+	ADC $E9AE,X			; E991  $7D $AE $E9
+	CMP #$1E			; E994  $C9 $1E
+	BCC L3E99A			; E996  $90 $02		if A < 1Eh
+	SBC #$1E			; E998  $E9 $1E
 L3E99A:
-	STA text_win_T		; E99A  $85 $39
-	LDA $E9B2,X		; E99C  $BD $B2 $E9
-	STA menu_win_W		; E99F  $85 $3C
-	LDA $E9B6,X		; E9A1  $BD $B6 $E9
-	STA menu_win_H		; E9A4  $85 $3D
-	JSR $E843		; E9A6  $20 $43 $E8	hide sprites behind text window
+	STA text_win_T			; E99A  $85 $39
+	LDA $E9B2,X			; E99C  $BD $B2 $E9
+	STA menu_win_W			; E99F  $85 $3C
+	LDA $E9B6,X			; E9A1  $BD $B6 $E9
+	STA menu_win_H			; E9A4  $85 $3D
+	JSR $E843			; E9A6  $20 $43 $E8	hide sprites behind text window
 L3E9A9:
-	RTS			; E9A9  $60
+	RTS				; E9A9  $60
 ; End of Set_map_win_size
 
 ;$E9AA - data block= text window positions
-.byte $02,$02,$08,$12		; left
-.byte $02,$12,$12,$0E		; top
-.byte $1C,$08,$16,$0C		; width
-.byte $0A,$0A,$0A,$04		; height
+.byte $02,$02,$08,$12			; left
+.byte $02,$12,$12,$0E			; top
+.byte $1C,$08,$16,$0C			; width
+.byte $0A,$0A,$0A,$04			; height
 
 ; Name	:
 ; Marks	: menu_win_W = $3C
 ;	  Copy window text buffer($0780) to PPU ??
 ;	  copy text window to ppu
 ;; sub start ;;
-	LDA menu_win_W		; E9BA  $A5 $3C
+	LDA menu_win_W			; E9BA  $A5 $3C
     STA $90                  ; E9BC  $85 $90
     JSR $D13D                ; E9BE  $20 $3D $D1
-	JSR Wait_NMI		; E9C1  $20 $00 $FE
+	JSR Wait_NMI			; E9C1  $20 $00 $FE
     LDA #$02                 ; E9C4  $A9 $02
     STA SpriteDma_4014       ; E9C6  $8D $14 $40
     JSR $F069                ; E9C9  $20 $69 $F0	Set text to ppu ??
     JSR $D157                ; E9CC  $20 $57 $D1	Check menu mode ??
-	JSR Scroll		; E9CF  $20 $D5 $E9
+	JSR Scroll			; E9CF  $20 $D5 $E9
     JMP L3C746               ; E9D2  $4C $46 $C7	sound process ??
 ; End of
 
@@ -6805,15 +6805,15 @@ L3E9A9:
 ;	  update scrolling (text window)
 ;; sub start ;;
 Scroll:
-	LDA text_win_mode	; E9D5  $A5 $37
-	BNE L3E9DC		; E9D7  $D0 $03		branch if in menu
-	JMP Scroll_normal	; E9D9  $4C $F5 $CD
+	LDA text_win_mode		; E9D5  $A5 $37
+	BNE L3E9DC			; E9D7  $D0 $03		branch if in menu
+	JMP Scroll_normal		; E9D9  $4C $F5 $CD
 ; End of Scroll
 L3E9DC:
-	LDA #$00		; E9DC  $A9 $00
-	STA PpuScroll_2005	; E9DE  $8D $05 $20
-	STA PpuScroll_2005	; E9E1  $8D $05 $20
-	RTS			; E9E4  $60
+	LDA #$00			; E9DC  $A9 $00
+	STA PpuScroll_2005		; E9DE  $8D $05 $20
+	STA PpuScroll_2005		; E9E1  $8D $05 $20
+	RTS				; E9E4  $60
 ; End of Scroll
 
 ; Name	: Draw_win_top
@@ -6833,7 +6833,7 @@ L3E9F1:
     LDA #$FF                 ; E9F6  $A9 $FF		blank
     STA $07A0,X              ; E9F8  $9D $A0 $07
     INX                      ; E9FB  $E8
-	CPX menu_win_W		; E9FC  $E4 $3C
+	CPX menu_win_W			; E9FC  $E4 $3C
     BCC L3E9F1               ; E9FE  $90 $F1
     DEX                      ; EA00  $CA
     LDA #$F9                 ; EA01  $A9 $F9		RIGHT TOP text box line tile
@@ -6858,7 +6858,7 @@ L3EA18:
     STA $0780,X              ; EA18  $9D $80 $07
     STA $07A0,X              ; EA1B  $9D $A0 $07
     INX                      ; EA1E  $E8
-	CPX menu_win_W		; EA1F  $E4 $3C
+	CPX menu_win_W			; EA1F  $E4 $3C
     BCC L3EA18               ; EA21  $90 $F5
     DEX                      ; EA23  $CA
     LDA #$FB                 ; EA24  $A9 $FB		RIGHT text box line tile
@@ -6900,17 +6900,17 @@ L3EA54:
 	JSR L3EA8C               ; EA54  $20 $8C $EA	text process
 	BCC L3EA8B               ; EA57  $90 $32
 L3EA59:
-	JSR Key_for_next	; EA59  $20 $F1 $E8
-	JSR Key_for_next	; EA5C  $20 $F1 $E8
-	LDA menu_win_H		; EA5F  $A5 $3D
+	JSR Key_for_next		; EA59  $20 $F1 $E8
+	JSR Key_for_next		; EA5C  $20 $F1 $E8
+	LDA menu_win_H			; EA5F  $A5 $3D
 L3EA61:
     PHA                      ; EA61  $48
     LDA #$00                 ; EA62  $A9 $00
-	STA frame_cnt_L		; EA64  $85 $F0
-	; Wait 3 frame - delay
+	STA frame_cnt_L			; EA64  $85 $F0
+		; Wait 3 frame - delay
 L3EA66:
     JSR $E911                ; EA66  $20 $11 $E9
-	LDA frame_cnt_L		; EA69  $A5 $F0
+	LDA frame_cnt_L			; EA69  $A5 $F0
     AND #$03                 ; EA6B  $29 $03
     BNE L3EA66               ; EA6D  $D0 $F7
     JSR $E7D4                ; EA6F  $20 $D4 $E7
@@ -6946,24 +6946,24 @@ L3EA8B:
 ; return carry clear if end of string is reached
 ; return carry set if window is full but end of end of string is not reached
 L3EA8C:
-	LDA text_bank		; EA8C  $A5 $93
-	JSR Swap_PRG_		; EA8E  $20 $03 $FE
-	LDA text_ID		; EA91  $A5 $92
-	ASL A			; EA93  $0A
-	PHP			; EA94  $08
-	CLC			; EA95  $18
-	ADC text_offset		; EA96  $65 $94
-	STA $80			; EA98  $85 $80
-	PLP			; EA9A  $28
-	LDA $95			; EA9B  $A5 $95
-	ADC #$00		; EA9D  $69 $00
-	STA $81			; EA9F  $85 $81
-	LDY #$00		; EAA1  $A0 $00
-	LDA ($80),Y		; EAA3  $B1 $80		get text pointer
-	STA $3E			; EAA5  $85 $3E
-	INY			; EAA7  $C8
-	LDA ($80),Y		; EAA8  $B1 $80
-	STA $3F			; EAAA  $85 $3F
+	LDA text_bank			; EA8C  $A5 $93
+	JSR Swap_PRG_			; EA8E  $20 $03 $FE
+	LDA text_ID			; EA91  $A5 $92
+	ASL A				; EA93  $0A
+	PHP				; EA94  $08
+	CLC				; EA95  $18
+	ADC text_offset			; EA96  $65 $94
+	STA $80				; EA98  $85 $80
+	PLP				; EA9A  $28
+	LDA $95				; EA9B  $A5 $95
+	ADC #$00			; EA9D  $69 $00
+	STA $81				; EA9F  $85 $81
+	LDY #$00			; EAA1  $A0 $00
+	LDA ($80),Y			; EAA3  $B1 $80		get text pointer
+	STA $3E				; EAA5  $85 $3E
+	INY				; EAA7  $C8
+	LDA ($80),Y			; EAA8  $B1 $80
+	STA $3F				; EAAA  $85 $3F
 ; Name	:
 ; SRC	: $93 - text prg bank
 ; Marks	: Some variables copy - text copy ??
@@ -6973,37 +6973,37 @@ L3EA8C:
 ;	  $1D <- $3F
 ;	  load next line of text
 ;; sub start ;;
-	LDA text_bank		; EAAC  $A5 $93
-	JSR Swap_PRG_		; EAAE  $20 $03 $FE
-	LDA #$00		; EAB1  $A9 $00
-	STA $1E			; EAB3  $85 $1E
-	LDA $3E			; EAB5  $A5 $3E
-	STA $1C			; EAB7  $85 $1C
-	LDA $3F			; EAB9  $A5 $3F
-	STA $1D			; EABB  $85 $1D
-	STA $1D			; EABD  $85 $1D
-	LDA text_win_L		; EABF  $A5 $38
-	STA text_x		; EAC1  $85 $3A
-	LDA text_win_T		; EAC3  $A5 $39
-	STA text_y		; EAC5  $85 $3B
-	JSR Text_buf_init	; EAC7  $20 $31 $F0	reset text buffer
-	LDA #$00		; EACA  $A9 $00
-	STA text_x_offset	; EACC  $85 $90
-	STA $1F			; EACE  $85 $1F
-	JSR L3EAE6		; EAD0  $20 $E6 $EA	insert string - decode text
-	BCS L3EADF		; EAD3  $B0 $0A
-	JSR Frame_end		; EAD5  $20 $53 $F0
-	LDA bank		; EAD8  $A5 $57
-	JSR Swap_PRG_		; EADA  $20 $03 $FE
+	LDA text_bank			; EAAC  $A5 $93
+	JSR Swap_PRG_			; EAAE  $20 $03 $FE
+	LDA #$00			; EAB1  $A9 $00
+	STA $1E				; EAB3  $85 $1E
+	LDA $3E				; EAB5  $A5 $3E
+	STA $1C				; EAB7  $85 $1C
+	LDA $3F				; EAB9  $A5 $3F
+	STA $1D				; EABB  $85 $1D
+	STA $1D				; EABD  $85 $1D
+	LDA text_win_L			; EABF  $A5 $38
+	STA text_x			; EAC1  $85 $3A
+	LDA text_win_T			; EAC3  $A5 $39
+	STA text_y			; EAC5  $85 $3B
+	JSR Text_buf_init		; EAC7  $20 $31 $F0	reset text buffer
+	LDA #$00			; EACA  $A9 $00
+	STA text_x_offset		; EACC  $85 $90
+	STA $1F				; EACE  $85 $1F
+	JSR L3EAE6			; EAD0  $20 $E6 $EA	insert string - decode text
+	BCS L3EADF			; EAD3  $B0 $0A
+	JSR Frame_end			; EAD5  $20 $53 $F0
+	LDA bank			; EAD8  $A5 $57
+	JSR Swap_PRG_			; EADA  $20 $03 $FE
 L3EADD:
 	CLC                      ; EADD  $18
 	RTS                      ; EADE  $60
 ; End of text copy ??
 
 L3EADF:
-	LDA bank		; EADF  $A5 $57
-	JSR Swap_PRG_		; EAE1  $20 $03 $FE
-	SEC			; EAE4  $38
+	LDA bank			; EADF  $A5 $57
+	JSR Swap_PRG_			; EAE1  $20 $03 $FE
+	SEC				; EAE4  $38
 	RTS                      ; EAE5  $60
 ; End of text copy ??
 
@@ -7031,67 +7031,67 @@ data_bufh=$3F
 L3EAE6:
     LDY #$00                 ; EAE6  $A0 $00
     LDA ($3E),Y              ; EAE8  $B1 $3E
-	; Address increase $3E(ADDR) -> Next data
-	; if A == #$00 (ZERO)
+		; Address increase $3E(ADDR) -> Next data
+		; if A == #$00 (ZERO)
     BEQ L3EADD               ; EAEA  $F0 $F1		branch if null terminator
     INC $3E                  ; EAEC  $E6 $3E
-	; if A != #$00 (OVERFLOW), else add high byte($3F)
+		; if A != #$00 (OVERFLOW), else add high byte($3F)
     BNE L3EAF2               ; EAEE  $D0 $02
     INC $3F                  ; EAF0  $E6 $3F
 L3EAF2:
     CMP #$3B                 ; EAF2  $C9 $3B
-	; if A < #$3B (It's not text)
+		; if A < #$3B (It's not text)
     BCC L3EB20               ; EAF4  $90 $2A		branch if a control code
     CMP #$6E                 ; EAF6  $C9 $6E
-	; if A < #$6E (Special compressed text)
+		; if A < #$6E (Special compressed text)
     BCC L3EB09               ; EAF8  $90 $0F		branch if character with dakuten
-	LDY text_x_offset	; EAFA  $A4 $90
+	LDY text_x_offset		; EAFA  $A4 $90
     STA $07A0,Y              ; EAFC  $99 $A0 $07	character
     LDA #$FF                 ; EAFF  $A9 $FF
     STA $0780,Y              ; EB01  $99 $80 $07	no dakuten
-	INC text_x_offset	; EB04  $E6 $90
-	; loop
+	INC text_x_offset		; EB04  $E6 $90
+		; loop
     JMP L3EAE6               ; EB06  $4C $E6 $EA	next character
 ; *** english translation ***
 L3EB09:
     TAX                      ; EB09  $AA
-	LDY text_x_offset	; EB0A  $A4 $90
+	LDY text_x_offset		; EB0A  $A4 $90
     LDA $EEA7,X              ; EB0C  $BD $A7 $EE
     STA $07A0,Y              ; EB0F  $99 $A0 $07
     LDA $EEDA,X              ; EB12  $BD $DA $EE
     STA $07A1,Y              ; EB15  $99 $A1 $07
     NOP                      ; EB18  $EA
-	INC text_x_offset	; EB19  $E6 $90
-	INC text_x_offset	; EB1B  $E6 $90
-	; loop
+	INC text_x_offset		; EB19  $E6 $90
+	INC text_x_offset		; EB1B  $E6 $90
+		; loop
     JMP L3EAE6               ; EB1D  $4C $E6 $EA
 L3EB20:
     CMP #$10                 ; EB20  $C9 $10
-	; if A < #$10
+		; if A < #$10
     BCC L3EB27               ; EB22  $90 $03
     JMP L3EC02               ; EB24  $4C $02 $EC
 L3EB27:
 ; $01: newline
     CMP #$01                 ; EB27  $C9 $01
-	; if A != #$01
+		; if A != #$01
     BNE L3EB3D               ; EB29  $D0 $12
-    JSR Frame_end		; JSR $F053                ; EB2B  $20 $53 $F0
+    JSR Frame_end			; JSR $F053                ; EB2B  $20 $53 $F0
     INC $1F                  ; EB2E  $E6 $1F
     INC $1F                  ; EB30  $E6 $1F
     LDA $1F                  ; EB32  $A5 $1F
     CMP $3D                  ; EB34  $C5 $3D
-	; if A < $3D
+		; if A < $3D
     BCC L3EB3A               ; EB36  $90 $02
     SEC                      ; EB38  $38
     RTS                      ; EB39  $60
 ; End of
 L3EB3A:
-	; loop
+		; loop
     JMP L3EAE6               ; EB3A  $4C $E6 $EA
 ; $02: item name (treasure)
 L3EB3D:
     CMP #$02                 ; EB3D  $C9 $02
-	; if A != #$02
+		; if A != #$02
     BNE L3EB50               ; EB3F  $D0 $0F
     LDA #$00                 ; EB41  $A9 $00
     JSR Swap_PRG_               ; EB43  $20 $03 $FE
@@ -7102,7 +7102,7 @@ L3EB3D:
 ; $03: gil (treasure)
 L3EB50:
     CMP #$03                 ; EB50  $C9 $03
-	; if A != #$03
+		; if A != #$03
     BNE L3EB69               ; EB52  $D0 $15
     LDA #$0E                 ; EB54  $A9 $0E
     JSR Swap_PRG_               ; EB56  $20 $03 $FE
@@ -7111,12 +7111,12 @@ L3EB50:
     JSR $89F3                ; EB5E  $20 $F3 $89	BANK 0E/89E3
     LDA $93                  ; EB61  $A5 $93
     JSR Swap_PRG_               ; EB63  $20 $03 $FE
-	; loop
+		; loop
     JMP L3EAE6               ; EB66  $4C $E6 $EA
 ; $04: gil (shop)
 L3EB69:
     CMP #$04                 ; EB69  $C9 $04
-	; if A != #$04
+		; if A != #$04
     BNE L3EB89               ; EB6B  $D0 $1C
     LDA $61                  ; EB6D  $A5 $61
     STA $80                  ; EB6F  $85 $80
@@ -7129,24 +7129,24 @@ L3EB69:
     JSR $89F3                ; EB7E  $20 $F3 $89
     LDA $93                  ; EB81  $A5 $93
     JSR Swap_PRG_               ; EB83  $20 $03 $FE
-	; loop
+		; loop
     JMP L3EAE6               ; EB86  $4C $E6 $EA
 ; $05: 
 L3EB89:
     CMP #$05                 ; EB89  $C9 $05
-	; if A != #$05
+		; if A != #$05
     BNE L3EB9D               ; EB8B  $D0 $10
     LDA #$0E                 ; EB8D  $A9 $0E
     JSR Swap_PRG_               ; EB8F  $20 $03 $FE
     JSR $89B5                ; EB92  $20 $B5 $89
     LDA $93                  ; EB95  $A5 $93
     JSR Swap_PRG_               ; EB97  $20 $03 $FE
-	; loop
+		; loop
     JMP L3EAE6               ; EB9A  $4C $E6 $EA
 ; $06: 
 L3EB9D:
     CMP #$06                 ; EB9D  $C9 $06
-	; if A != #$06
+		; if A != #$06
     BNE L3EBBA               ; EB9F  $D0 $19
     LDA #$0E                 ; EBA1  $A9 $0E
     JSR Swap_PRG_               ; EBA3  $20 $03 $FE
@@ -7158,12 +7158,12 @@ L3EB9D:
     JSR $89C7                ; EBAF  $20 $C7 $89
     LDA $93                  ; EBB2  $A5 $93
     JSR Swap_PRG_               ; EBB4  $20 $03 $FE
-	; loop
+		; loop
     JMP L3EAE6               ; EBB7  $4C $E6 $EA
 ; $07: 
 L3EBBA:
     CMP #$07                 ; EBBA  $C9 $07
-	; if A != #$07
+		; if A != #$07
     BNE L3EBDF               ; EBBC  $D0 $21
     LDA $6276                ; EBBE  $AD $76 $62
     STA $5A                  ; EBC1  $85 $5A
@@ -7181,9 +7181,9 @@ L3EBBA:
 ; $0F: 
 L3EBDF:
     CMP #$0F                 ; EBDF  $C9 $0F
-	; if A != #$0F(trash icon)
+		; if A != #$0F(trash icon)
     BNE L3EBFF               ; EBE1  $D0 $1C
-	LDX text_x_offset	; EBE3  $A6 $90
+	LDX text_x_offset		; EBE3  $A6 $90
     LDA #$76                 ; EBE5  $A9 $76
     STA $0782,X              ; EBE7  $9D $82 $07
     LDA #$FF                 ; EBEA  $A9 $FF
@@ -7195,39 +7195,39 @@ L3EBDF:
     TXA                      ; EBF9  $8A
     CLC                      ; EBFA  $18
     ADC #$04                 ; EBFB  $69 $04
-	STA text_x_offset	; EBFD  $85 $90
+	STA text_x_offset		; EBFD  $85 $90
 L3EBFF:
-	; loop
+		; loop
     JMP L3EAE6               ; EBFF  $4C $E6 $EA
-	; Case : A == #$10
-	; Get 1 data from $3E(ADDR) and Set to $84 and increase $3E(ADDR)
+		; Case : A == #$10
+		; Get 1 data from $3E(ADDR) and Set to $84 and increase $3E(ADDR)
 ; control codes with a parameter ($10-$3A)
 L3EC02:
     PHA                      ; EC02  $48
     LDA ($3E),Y              ; EC03  $B1 $3E	get parameter
     STA $84                  ; EC05  $85 $84
-	; ADDR increase $3E(ADDR)
+		; ADDR increase $3E(ADDR)
     INC $3E                  ; EC07  $E6 $3E
     BNE L3EC0D               ; EC09  $D0 $02
     INC $3F                  ; EC0B  $E6 $3F
 L3EC0D:
     PLA                      ; EC0D  $68
     CMP #$14                 ; EC0E  $C9 $14
-	; if A >= #$14
+		; if A >= #$14
     BCS L3EC15               ; EC10  $B0 $03
     JMP L3ECD0               ; EC12  $4C $D0 $EC
 ; $14: set text x offset (tab)
 L3EC15:
-	; if A != #$14
+		; if A != #$14
     BNE L3EC1E               ; EC15  $D0 $07
     LDA $84                  ; EC17  $A5 $84
-	STA text_x_offset	; EC19  $85 $90
-	; loop
+	STA text_x_offset		; EC19  $85 $90
+		; loop
     JMP L3EAE6               ; EC1B  $4C $E6 $EA
 ; $15-17: cursor position
 L3EC1E:
     CMP #$18                 ; EC1E  $C9 $18
-	; if A >= #$18
+		; if A >= #$18
     BCS L3EC6A               ; EC20  $B0 $48
     SEC                      ; EC22  $38
     SBC #$15                 ; EC23  $E9 $15
@@ -7237,7 +7237,7 @@ L3EC1E:
     LDA #$00                 ; EC2A  $A9 $00
     STA $80                  ; EC2C  $85 $80
     LDA $84                  ; EC2E  $A5 $84
-	STA text_x_offset	; EC30  $85 $90
+	STA text_x_offset		; EC30  $85 $90
     LDA ($3E),Y              ; EC32  $B1 $3E
     STA $82                  ; EC34  $85 $82
     INY                      ; EC36  $C8
@@ -7271,21 +7271,21 @@ L3EC46:
     LDA $83                  ; EC62  $A5 $83
     INY                      ; EC64  $C8
     STA ($80),Y              ; EC65  $91 $80
-	; loop
+		; loop
     JMP L3EAE6               ; EC67  $4C $E6 $EA
 ; $18: keyword (by id)
 L3EC6A:
-	; if A != #$18
+		; if A != #$18
     BNE L3EC98               ; EC6A  $D0 $2C
 L3EC6C:
-    JSR Save_dbuf		; JSR $EDF9                ; EC6C  $20 $F9 $ED
+    JSR Save_dbuf			; JSR $EDF9                ; EC6C  $20 $F9 $ED
     LDA #$0A                 ; EC6F  $A9 $0A
     JSR Swap_PRG_               ; EC71  $20 $03 $FE
     LDA $84                  ; EC74  $A5 $84
     ASL A                    ; EC76  $0A
     TAX                      ; EC77  $AA
-	; A is offset
-	; if A compare bit7 is 1(#$80-#$FF)
+		; A is offset
+		; if A compare bit7 is 1(#$80-#$FF)
     BCS L3EC85               ; EC78  $B0 $0B
     LDA $8200,X              ; EC7A  $BD $00 $82
     STA $3E                  ; EC7D  $85 $3E
@@ -7297,10 +7297,10 @@ L3EC85:
     LDA $8301,X              ; EC8A  $BD $01 $83
 L3EC8D:
     STA $3F                  ; EC8D  $85 $3F
-	; insert string
+		; insert string
     JSR L3EAE6               ; EC8F  $20 $E6 $EA
-    JSR Load_dbuf		; JSR $EE02                ; EC92  $20 $02 $EE
-	; loop
+    JSR Load_dbuf			; JSR $EE02                ; EC92  $20 $02 $EE
+		; loop
     JMP L3EAE6               ; EC95  $4C $E6 $EA
 ; End of
 ; $19: 
@@ -7314,7 +7314,7 @@ L3EC98:
     JSR $89F3                ; ECA6  $20 $F3 $89
     LDA $93                  ; ECA9  $A5 $93
     JSR Swap_PRG_               ; ECAB  $20 $03 $FE
-	; loop
+		; loop
     JMP L3EAE6               ; ECAE  $4C $E6 $EA
 ; End of
 ; $1A: 
@@ -7335,18 +7335,18 @@ L3ECBF:
     JMP L3EC6C               ; ECCA  $4C $6C $EC
 ; $1C-$3A: 
 L3ECCD:
-	; loop
+		; loop
     JMP L3EAE6               ; ECCD  $4C $E6 $EA
 ; $10-$13: character string
 L3ECD0:
-	; Find xxxx xooxb -> ooxx xxxxb = $02,$04,$06 -> $40,$80,$C0
+		; Find xxxx xooxb -> ooxx xxxxb = $02,$04,$06 -> $40,$80,$C0
     LSR A                    ; ECD0  $4A
     ROR A                    ; ECD1  $6A
     ROR A                    ; ECD2  $6A
     AND #$C0                 ; ECD3  $29 $C0
     STA $67                  ; ECD5  $85 $67		pointer to character properties
     LDA $84                  ; ECD7  $A5 $84		parameter
-	; if A($84) < #$20
+		; if A($84) < #$20
     CMP #$20                 ; ECD9  $C9 $20
     BCC L3ECEF               ; ECDB  $90 $12
     PHA                      ; ECDD  $48
@@ -7356,12 +7356,12 @@ L3ECD0:
     JSR $8924                ; ECE4  $20 $24 $89
     LDA $93                  ; ECE7  $A5 $93
     JSR Swap_PRG_               ; ECE9  $20 $03 $FE
-	; loop
+		; loop
     JMP L3EAE6               ; ECEC  $4C $E6 $EA
 ; $00: 
 L3ECEF:
     CMP #$00                 ; ECEF  $C9 $00
-	; if A != #$00
+		; if A != #$00
     BNE L3ED00               ; ECF1  $D0 $0D
     LDX $67                  ; ECF3  $A6 $67
     LDA $6100,X              ; ECF5  $BD $00 $61
@@ -7372,7 +7372,7 @@ L3ECEF:
 ; $01
 L3ED00:
     CMP #$01                 ; ED00  $C9 $01
-	; if A != #$01
+		; if A != #$01
     BNE L3ED53               ; ED02  $D0 $4F
     LDX $67                  ; ED04  $A6 $67
     LDY #$07                 ; ED06  $A0 $07
@@ -7404,10 +7404,10 @@ L3ED26:
 L3ED29:
     ASL A                    ; ED29  $0A
     TAX                      ; ED2A  $AA
-    JSR Save_dbuf		; JSR $EDF9                ; ED2B  $20 $F9 $ED
+    JSR Save_dbuf			; JSR $EDF9                ; ED2B  $20 $F9 $ED
     LDA #$0A                 ; ED2E  $A9 $0A
     JSR Swap_PRG_               ; ED30  $20 $03 $FE
-	; if A >= #$10
+		; if A >= #$10
     BCS L3ED40               ; ED33  $B0 $0B
     LDA $8400,X              ; ED35  $BD $00 $84
     STA $3E                  ; ED38  $85 $3E
@@ -7418,40 +7418,40 @@ L3ED40:
     STA $3E                  ; ED43  $85 $3E
     LDA $8501,X              ; ED45  $BD $01 $85
     STA $3F                  ; ED48  $85 $3F
-	; insert string
+		; insert string
     JSR L3EAE6               ; ED4A  $20 $E6 $EA
-    JSR Load_dbuf		; JSR $EE02                ; ED4D  $20 $02 $EE
-	; loop
+    JSR Load_dbuf			; JSR $EE02                ; ED4D  $20 $02 $EE
+		; loop
     JMP L3EAE6               ; ED50  $4C $E6 $EA
 ; $02: 
 L3ED53:
     CMP #$02                 ; ED53  $C9 $02
-	; if A != #$02
+		; if A != #$02
     BNE L3ED8E               ; ED55  $D0 $37
-	; Get Character name
+		; Get Character name
     LDX $67                  ; ED57  $A6 $67
-    LDA ch_name1,X		; LDA $6102,X              ; ED59  $BD $02 $61
+    LDA ch_name1,X			; LDA $6102,X              ; ED59  $BD $02 $61
     STA $5A                  ; ED5C  $85 $5A
-    LDA ch_name2,X		; LDA $6103,X              ; ED5E  $BD $03 $61
+    LDA ch_name2,X			; LDA $6103,X              ; ED5E  $BD $03 $61
     STA $5B                  ; ED61  $85 $5B
-    LDA ch_name3,X		; LDA $6104,X              ; ED63  $BD $04 $61
+    LDA ch_name3,X			; LDA $6104,X              ; ED63  $BD $04 $61
     STA $5C                  ; ED66  $85 $5C
-    LDA ch_name4,X		; LDA $6105,X              ; ED68  $BD $05 $61
+    LDA ch_name4,X			; LDA $6105,X              ; ED68  $BD $05 $61
     STA $5D                  ; ED6B  $85 $5D
-    LDA ch_name5,X		; LDA $6106,X              ; ED6D  $BD $06 $61
+    LDA ch_name5,X			; LDA $6106,X              ; ED6D  $BD $06 $61
     STA $5E                  ; ED70  $85 $5E
-    LDA ch_name6,X		; LDA $6107,X              ; ED72  $BD $07 $61
+    LDA ch_name6,X			; LDA $6107,X              ; ED72  $BD $07 $61
     STA $5F                  ; ED75  $85 $5F
 L3ED77:
-    JSR Save_dbuf		; JSR $EDF9                ; ED77  $20 $F9 $ED
+    JSR Save_dbuf			; JSR $EDF9                ; ED77  $20 $F9 $ED
     LDA #$5A                 ; ED7A  $A9 $5A
     STA $3E                  ; ED7C  $85 $3E
     LDA #$00                 ; ED7E  $A9 $00
     STA $3F                  ; ED80  $85 $3F
-    JSR Check_nameFF		; JSR $EE0F                ; ED82  $20 $0F $EE
+    JSR Check_nameFF			; JSR $EE0F                ; ED82  $20 $0F $EE
     JSR L3EAE6               ; ED85  $20 $E6 $EA
-    JSR Load_dbuf		; JSR $EE02                ; ED88  $20 $02 $EE
-	; loop
+    JSR Load_dbuf			; JSR $EE02                ; ED88  $20 $02 $EE
+		; loop
     JMP L3EAE6               ; ED8B  $4C $E6 $EA
 ; $03-??
 L3ED8E:
@@ -7478,7 +7478,7 @@ L3ED9D:
 L3EDAF:
     ADC $67                  ; EDAF  $65 $67
     TAX                      ; EDB1  $AA
-    JSR Save_dbuf		; JSR $EDF9                ; EDB2  $20 $F9 $ED
+    JSR Save_dbuf			; JSR $EDF9                ; EDB2  $20 $F9 $ED
     LDA #$0A                 ; EDB5  $A9 $0A
     JSR Swap_PRG_               ; EDB7  $20 $03 $FE
     LDA $6100,X              ; EDBA  $BD $00 $61
@@ -7506,10 +7506,10 @@ L3EDDE:
     LDA $8301,X              ; EDE3  $BD $01 $83
 L3EDE6:
     STA $3F                  ; EDE6  $85 $3F
-	; insert string
+		; insert string
     JSR L3EAE6               ; EDE8  $20 $E6 $EA
-    JSR Load_dbuf		; JSR $EE02                ; EDEB  $20 $02 $EE
-	; loop
+    JSR Load_dbuf			; JSR $EE02                ; EDEB  $20 $02 $EE
+		; loop
     JMP L3EAE6               ; EDEE  $4C $E6 $EA
 L3EDF1:
     BIT $03                  ; EDF1  $24 $03
@@ -7538,7 +7538,7 @@ Load_dbuf:
     STA $3E                  ; EE04  $85 $3E
     LDA $9A                  ; EE06  $A5 $9A
     STA $3F                  ; EE08  $85 $3F
-    LDA bank_tmp		; LDA $93                  ; EE0A  $A5 $93
+    LDA bank_tmp			; LDA $93                  ; EE0A  $A5 $93
     JMP Swap_PRG_               ; EE0C  $4C $03 $FE
 ; End of Load_dbuf
 
@@ -7574,7 +7574,7 @@ Set_text_xy:
     LDX $3A                  ; EE22  $A6 $3A
     LDY $3B                  ; EE24  $A4 $3B
     CPX #$20                 ; EE26  $E0 $20
-	; if X >= #$20
+		; if X >= #$20
     BCS L3EE38               ; EE28  $B0 $0E
     LDA $EEC2,Y              ; EE2A  $B9 $C2 $EE
     STA PpuAddr_2006         ; EE2D  $8D $06 $20
@@ -7616,41 +7616,41 @@ EE51:
     BNE L3EE66               ; EE62  $D0 $02
 ; Marks	: close menu ???
 L3EE64:
-	LDA #$1C		; EE64  $A9 $1C		character name input window center top ??
+	LDA #$1C			; EE64  $A9 $1C		character name input window center top ??
 L3EE66:
-	STA menu_win_H		; EE66  $85 $3D
-	LDA #$1B		; EE68  $A9 $1B
-	STA text_win_T		; EE6A  $85 $39
-	STA text_y		; EE6C  $85 $3B
-	LDA #$00		; EE6E  $A9 $00
-	STA text_win_L		; EE70  $85 $38
-	LDA #$20		; EE72  $A9 $20
-	STA menu_win_W		; EE74  $85 $3C
-	LDA menu_win_H		; EE76  $A5 $3D
-	LSR A			; EE78  $4A
+	STA menu_win_H			; EE66  $85 $3D
+	LDA #$1B			; EE68  $A9 $1B
+	STA text_win_T			; EE6A  $85 $39
+	STA text_y			; EE6C  $85 $3B
+	LDA #$00			; EE6E  $A9 $00
+	STA text_win_L			; EE70  $85 $38
+	LDA #$20			; EE72  $A9 $20
+	STA menu_win_W			; EE74  $85 $3C
+	LDA menu_win_H			; EE76  $A5 $3D
+	LSR A				; EE78  $4A
 L3EE79:
-	PHA			; EE79  $48
-	LDA menu_win_W		; EE7A  $A5 $3C
-	STA text_x_offset	; EE7C  $85 $90		??
-	STA $91			; EE7E  $85 $91
- 	LDY #$1F		; EE80  $A0 $1F
-	LDA #$00		; EE82  $A9 $00
+	PHA				; EE79  $48
+	LDA menu_win_W			; EE7A  $A5 $3C
+	STA text_x_offset		; EE7C  $85 $90		??
+	STA $91				; EE7E  $85 $91
+ 	LDY #$1F			; EE80  $A0 $1F
+	LDA #$00			; EE82  $A9 $00
 L3EE84:
-	STA $0780,Y		; EE84  $99 $80 $07	text buffer ??
-	STA $07A0,Y		; EE87  $99 $A0 $07
-	DEY			; EE8A  $88
-	BPL L3EE84		; EE8B  $10 $F7
-	JSR Frame_end		; EE8D  $20 $53 $F0
-	LDA text_y		; EE90  $A5 $3B
-	SEC			; EE92  $38
-	SBC #$04		; EE93  $E9 $04
-	STA text_y		; EE95  $85 $3B
-	PLA			; EE97  $68
-	SEC			; EE98  $38
-	SBC #$01		; EE99  $E9 $01
-	BNE L3EE79		; EE9B  $D0 $DC		loop -> remove text/window on screen ??
-	LDA bank		; EE9D  $A5 $57
-	JMP Swap_PRG_		; EE9F  $4C $03 $FE
+	STA $0780,Y			; EE84  $99 $80 $07	text buffer ??
+	STA $07A0,Y			; EE87  $99 $A0 $07
+	DEY				; EE8A  $88
+	BPL L3EE84			; EE8B  $10 $F7
+	JSR Frame_end			; EE8D  $20 $53 $F0
+	LDA text_y			; EE90  $A5 $3B
+	SEC				; EE92  $38
+	SBC #$04			; EE93  $E9 $04
+	STA text_y			; EE95  $85 $3B
+	PLA				; EE97  $68
+	SEC				; EE98  $38
+	SBC #$01			; EE99  $E9 $01
+	BNE L3EE79			; EE9B  $D0 $DC		loop -> remove text/window on screen ??
+	LDA bank			; EE9D  $A5 $57
+	JMP Swap_PRG_			; EE9F  $4C $03 $FE
 ; End of
 
 ;$EEA2 - data block = name table ppu address (lo byte)
@@ -7850,7 +7850,7 @@ L3F044:
     LDY #$1D                 ; F044  $A0 $1D
     LDA #$FF                 ; F046  $A9 $FF
 L3F048:
-	; Fill buffer #$FF
+		; Fill buffer #$FF
     STA $0780,Y              ; F048  $99 $80 $07
     STA $07A0,Y              ; F04B  $99 $A0 $07
     DEY                      ; F04E  $88
@@ -7867,13 +7867,13 @@ L3F048:
 ; also used to close menu windows ???
 ;; sub start ;;
 Frame_end:
-    JSR Wait_NMI		; JSR $FE00                ; F053  $20 $00 $FE
-    INC frame_cnt_L		; INC $F0                  ; F056  $E6 $F0
+    JSR Wait_NMI			; JSR $FE00                ; F053  $20 $00 $FE
+    INC frame_cnt_L			; INC $F0                  ; F056  $E6 $F0
     JSR $F069                ; F058  $20 $69 $F0	copy text to ppu
-	JSR Scroll		; F05B  $20 $D5 $E9
-	; Sound process ??
+	JSR Scroll			; F05B  $20 $D5 $E9
+		; Sound process ??
     JSR L3C746               ; F05E  $20 $46 $C7	sound process ??
-    LDA bank_tmp		; LDA $93                  ; F061  $A5 $93
+    LDA bank_tmp			; LDA $93                  ; F061  $A5 $93
     JSR Swap_PRG_               ; F063  $20 $03 $FE
     JMP L3F044               ; F066  $4C $44 $F0
 ; End of Frame_end
@@ -7883,60 +7883,60 @@ Frame_end:
 ;	  set text ??
 ;	  copy text to ppu
 ;; sub start ;;
-	LDA text_win_L		; F069  $A5 $38
-	STA text_x		; F06B  $85 $3A
-	JSR Set_text_xy		; JSR $EE1F                ; F06D  $20 $1F $EE
-	; Set text x offset to 0
+	LDA text_win_L			; F069  $A5 $38
+	STA text_x			; F06B  $85 $3A
+	JSR Set_text_xy			; JSR $EE1F                ; F06D  $20 $1F $EE
+		; Set text x offset to 0
     LDX #$00                 ; F070  $A2 $00
 L3F072:
     LDA $0780,X              ; F072  $BD $80 $07
     STA PpuData_2007         ; F075  $8D $07 $20
     INX                      ; F078  $E8
     CPX $91                  ; F079  $E4 $91
-	; if X < $91
+		; if X < $91
     BCC L3F072               ; F07B  $90 $F5
-	CPX menu_win_W		; F07D  $E4 $3C
-	; if X >= $3C
+	CPX menu_win_W			; F07D  $E4 $3C
+		; if X >= $3C
     BCS L3F099               ; F07F  $B0 $18
-	LDA text_x		; F081  $A5 $3A
+	LDA text_x			; F081  $A5 $3A
     AND #$20                 ; F083  $29 $20
     EOR #$20                 ; F085  $49 $20
-	STA text_x		; F087  $85 $3A
-	JSR Set_text_xy		; JSR $EE1F                ; F089  $20 $1F $EE
+	STA text_x			; F087  $85 $3A
+	JSR Set_text_xy			; JSR $EE1F                ; F089  $20 $1F $EE
     LDX $91                  ; F08C  $A6 $91
 L3F08E:
     LDA $0780,X              ; F08E  $BD $80 $07
     STA PpuData_2007         ; F091  $8D $07 $20
     INX                      ; F094  $E8
-	CPX menu_win_W		; F095  $E4 $3C
+	CPX menu_win_W			; F095  $E4 $3C
     BCC L3F08E               ; F097  $90 $F5
 L3F099:
-	LDA text_win_L		; F099  $A5 $38
-	STA text_x		; F09B  $85 $3A
-	LDA text_y		; F09D  $A5 $3B
+	LDA text_win_L			; F099  $A5 $38
+	STA text_x			; F09B  $85 $3A
+	LDA text_y			; F09D  $A5 $3B
     CLC                      ; F09F  $18
     ADC #$01                 ; F0A0  $69 $01
-	STA text_y		; F0A2  $85 $3B
-	JSR Set_text_xy		; JSR $EE1F                ; F0A4  $20 $1F $EE
+	STA text_y			; F0A2  $85 $3B
+	JSR Set_text_xy			; JSR $EE1F                ; F0A4  $20 $1F $EE
     LDX #$00                 ; F0A7  $A2 $00
 L3F0A9:
-	; Text buffer
+		; Text buffer
     LDA $07A0,X              ; F0A9  $BD $A0 $07
     STA PpuData_2007         ; F0AC  $8D $07 $20
     INX                      ; F0AF  $E8
-	; $91 = text length(1 line)
+		; $91 = text length(1 line)
     CPX $91                  ; F0B0  $E4 $91
-	; if X < $91
+		; if X < $91
     BCC L3F0A9               ; F0B2  $90 $F5
-	; $3C = ??
+		; $3C = ??
     CPX $3C                  ; F0B4  $E4 $3C
-	; if X >= $3C
+		; if X >= $3C
     BCS L3F0D0               ; F0B6  $B0 $18
     LDA $3A                  ; F0B8  $A5 $3A
     AND #$20                 ; F0BA  $29 $20
     EOR #$20                 ; F0BC  $49 $20
     STA $3A                  ; F0BE  $85 $3A
-	JSR Set_text_xy		; F0C0  $20 $1F $EE
+	JSR Set_text_xy			; F0C0  $20 $1F $EE
     LDX $91                  ; F0C3  $A6 $91
 L3F0C5:
     LDA $07A0,X              ; F0C5  $BD $A0 $07
@@ -7944,19 +7944,19 @@ L3F0C5:
     INX                      ; F0CB  $E8
     CPX $3C                  ; F0CC  $E4 $3C
     BCC L3F0C5               ; F0CE  $90 $F5
-	; Check line
+		; Check line
 L3F0D0:
     LDA #$00                 ; F0D0  $A9 $00
     STA $90                  ; F0D2  $85 $90
-	LDA text_y		; F0D4  $A5 $3B
+	LDA text_y			; F0D4  $A5 $3B
     CLC                      ; F0D6  $18
     ADC #$01                 ; F0D7  $69 $01
     CMP #$1E                 ; F0D9  $C9 $1E
-	; if A < #$1E
+		; if A < #$1E
     BCC L3F0DF               ; F0DB  $90 $02
     SBC #$1E                 ; F0DD  $E9 $1E
 L3F0DF:
-	STA text_y		; F0DF  $85 $3B
+	STA text_y			; F0DF  $85 $3B
     RTS                      ; F0E1  $60
 ; End of
 
@@ -7968,7 +7968,7 @@ L3F0DF:
     LDA #$88                 ; F0E7  $A9 $88
     STA $FF                  ; F0E9  $85 $FF
     JSR $E491                ; F0EB  $20 $91 $E4	load menu graphics
-    JSR Clear_Nametable0	; JSR $F321                ; F0EE  $20 $21 $F3
+    JSR Clear_Nametable0		; JSR $F321                ; F0EE  $20 $21 $F3
     LDA #$0F                 ; F0F1  $A9 $0F
     STA $03CE                ; F0F3  $8D $CE $03
     LDA #$07                 ; F0F6  $A9 $07
@@ -7981,9 +7981,9 @@ L3F0DF:
     STA $3D                  ; F104  $85 $3D
     LDA #$01                 ; F106  $A9 $01
     STA $37                  ; F108  $85 $37
-    JSR Init_Page2		; JSR $C46E                ; F10A  $20 $6E $C4
-    JSR Wait_NMI		; JSR $FE00                ; F10D  $20 $00 $FE
-    JSR Palette_copy		; JSR $DC30                ; F110  $20 $30 $DC
+    JSR Init_Page2			; JSR $C46E                ; F10A  $20 $6E $C4
+    JSR Wait_NMI			; JSR $FE00                ; F10D  $20 $00 $FE
+    JSR Palette_copy			; JSR $DC30                ; F110  $20 $30 $DC
     LDA #$02                 ; F113  $A9 $02
     STA SpriteDma_4014       ; F115  $8D $14 $40
     LDA $FF                  ; F118  $A5 $FF
@@ -7997,8 +7997,8 @@ L3F0DF:
     STA PpuMask_2001         ; F12B  $8D $01 $20
     JSR L3E91E               ; F12E  $20 $1E $E9
     JSR $F246                ; F131  $20 $46 $F2
-	JSR Key_process		; F134  $20 $A2 $DB
-    LDA key1p			; LDA $20                  ; F137  $A5 $20
+	JSR Key_process			; F134  $20 $A2 $DB
+    LDA key1p				; LDA $20                  ; F137  $A5 $20
     AND #$0C                 ; F139  $29 $0C
     STA $66                  ; F13B  $85 $66
     LDA #$00                 ; F13D  $A9 $00
@@ -8017,7 +8017,7 @@ L3F0DF:
     BMI F15C                 ; F158  $30 $02
     INC $67                  ; F15A  $E6 $67
 F15C:
-    JSR Wait_NMI		; JSR $FE00                ; F15C  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; F15C  $20 $00 $FE
     LDA #$02                 ; F15F  $A9 $02
     STA SpriteDma_4014       ; F161  $8D $14 $40
     LDA $FF                  ; F164  $A5 $FF
@@ -8031,7 +8031,7 @@ F15C:
     LDA #$0E                 ; F178  $A9 $0E
     STA $57                  ; F17A  $85 $57
     JSR L3C74F               ; F17C  $20 $4F $C7
-    JSR Init_Page2		; JSR $C46E                ; F17F  $20 $6E $C4
+    JSR Init_Page2			; JSR $C46E                ; F17F  $20 $6E $C4
     JSR $F212                ; F182  $20 $12 $F2
     JSR $F200                ; F185  $20 $00 $F2
     JSR $F1A1                ; F188  $20 $A1 $F1
@@ -8048,12 +8048,12 @@ F194:
 F1A0:
     RTS                      ; F1A0  $60
 
-	JSR Key_process		; F1A1  $20 $A2 $DB
+	JSR Key_process			; F1A1  $20 $A2 $DB
     LDA $25                  ; F1A4  $A5 $25
     BNE F194                 ; F1A6  $D0 $EC
     LDA $24                  ; F1A8  $A5 $24
     BNE F1DB                 ; F1AA  $D0 $2F
-    LDA key1p			; LDA $20                  ; F1AC  $A5 $20
+    LDA key1p				; LDA $20                  ; F1AC  $A5 $20
     AND #$0C                 ; F1AE  $29 $0C
     CMP $66                  ; F1B0  $C5 $66
     BEQ F1A0                 ; F1B2  $F0 $EC
@@ -8078,9 +8078,9 @@ F1CB:
 F1D4:
     AND #$03                 ; F1D4  $29 $03
     STA $65                  ; F1D6  $85 $65
-	JMP SndE_cur_mov	; F1D8  $4C $45 $DB
+	JMP SndE_cur_mov		; F1D8  $4C $45 $DB
 F1DB:
-	JSR SndE_cur_sel	; F1DB  $20 $2E $DB
+	JSR SndE_cur_sel		; F1DB  $20 $2E $DB
     LDA #$00                 ; F1DE  $A9 $00
     STA $24                  ; F1E0  $85 $24
     LDA $65                  ; F1E2  $A5 $65
@@ -8206,7 +8206,7 @@ F31F:
 ;; sub start ;;
 Clear_Nametable0:
     LDA PpuStatus_2002       ; F321  $AD $02 $20
-	; Set PPU $2000-$$23BF to #$00
+		; Set PPU $2000-$$23BF to #$00
     LDA #$20                 ; F324  $A9 $20
     STA PpuAddr_2006         ; F326  $8D $06 $20
     LDA #$00                 ; F329  $A9 $00
@@ -8225,7 +8225,7 @@ L3F33C:
     INY                      ; F33F  $C8
     CPY #$C0                 ; F340  $C0 $C0
     BCC L3F33C               ; F342  $90 $F8
-	; Set Nametable0 Attribute to #$FF
+		; Set Nametable0 Attribute to #$FF
     LDA #$FF                 ; F344  $A9 $FF
 L3F346:
     STA PpuData_2007         ; F346  $8D $07 $20
@@ -8250,8 +8250,8 @@ L3F346:
     LDA #$88                 ; F36B  $A9 $88
     STA $FF                  ; F36D  $85 $FF
     STA PpuControl_2000      ; F36F  $8D $00 $20
-	JSR Init_tile		; F372  $20 $CE $E5
-    JSR Clear_Nametable0	; JSR $F321                ; F375  $20 $21 $F3
+	JSR Init_tile			; F372  $20 $CE $E5
+    JSR Clear_Nametable0		; JSR $F321                ; F375  $20 $21 $F3
     JSR $F427                ; F378  $20 $27 $F4
     LDA #$0F                 ; F37B  $A9 $0F
     STA $03CD                ; F37D  $8D $CD $03
@@ -8279,7 +8279,7 @@ L3F346:
     LDA #$E8                 ; F3BC  $A9 $E8
 F3BE:
     PHA                      ; F3BE  $48
-    JSR Wait_NMI		; JSR $FE00                ; F3BF  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; F3BF  $20 $00 $FE
     LDA #$02                 ; F3C2  $A9 $02
     STA SpriteDma_4014       ; F3C4  $8D $14 $40
     JSR L3C746               ; F3C7  $20 $46 $C7	sound process ??
@@ -8305,7 +8305,7 @@ F3D1:
     BNE F3D1                 ; F3E8  $D0 $E7
     RTS                      ; F3EA  $60
 
-    JSR Wait_NMI		; JSR $FE00                ; F3EB  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; F3EB  $20 $00 $FE
     LDA $62                  ; F3EE  $A5 $62
     STA PpuAddr_2006         ; F3F0  $8D $06 $20
     LDA $61                  ; F3F3  $A5 $61
@@ -8318,13 +8318,13 @@ F3FC:
     BNE F3FC                 ; F400  $D0 $FA
     JSR $F453                ; F402  $20 $53 $F4
     JMP L3C746               ; F405  $4C $46 $C7	sound process ??
-    JSR Init_Page2		; JSR $C46E                ; F408  $20 $6E $C4
-    JSR Wait_NMI		; JSR $FE00                ; F40B  $20 $00 $FE
+    JSR Init_Page2			; JSR $C46E                ; F408  $20 $6E $C4
+    JSR Wait_NMI			; JSR $FE00                ; F40B  $20 $00 $FE
     LDA #$1E                 ; F40E  $A9 $1E
     STA PpuMask_2001         ; F410  $8D $01 $20
     LDA #$02                 ; F413  $A9 $02
     STA SpriteDma_4014       ; F415  $8D $14 $40
-    JSR Palette_copy		; JSR $DC30                ; F418  $20 $30 $DC
+    JSR Palette_copy			; JSR $DC30                ; F418  $20 $30 $DC
     BIT PpuStatus_2002       ; F41B  $2C $02 $20
     LDA #$00                 ; F41E  $A9 $00
     STA PpuScroll_2005       ; F420  $8D $05 $20
@@ -8376,13 +8376,13 @@ F464:
 Show_title_screen:
     LDA #$88                 ; F476  $A9 $88
     STA $FF                  ; F478  $85 $FF
-	; Set PPU : bit7 1 Generate NMI
-	;	  : bit6 0
-	;	  : bit5 0 Sprite size 8x8
-	;	  : bit4 0 Background table address $0000
-	;	  : bit3 1 Sprite pattern table address $1000
-	;	  : bit2 0 VRAM address increment add 1
-	;	  : bit1-bit0 00 Base nametable address
+		; Set PPU : bit7 1 Generate NMI
+		;	  : bit6 0
+		;	  : bit5 0 Sprite size 8x8
+		;	  : bit4 0 Background table address $0000
+		;	  : bit3 1 Sprite pattern table address $1000
+		;	  : bit2 0 VRAM address increment add 1
+		;	  : bit1-bit0 00 Base nametable address
     STA PpuControl_2000      ; F47A  $8D $00 $20
     LDA #$00                 ; F47D  $A9 $00
     STA PpuMask_2001         ; F47F  $8D $01 $20
@@ -8390,7 +8390,7 @@ Show_title_screen:
     BIT PpuStatus_2002       ; F485  $2C $02 $20
     LDY #$00                 ; F488  $A0 $00
     LDX #$04                 ; F48A  $A2 $04
-	; Init to zero PPU Nametable0 ($2000 - $23FF)
+		; Init to zero PPU Nametable0 ($2000 - $23FF)
     LDA #$20                 ; F48C  $A9 $20
     STA PpuAddr_2006         ; F48E  $8D $06 $20
     LDA #$00                 ; F491  $A9 $00
@@ -8401,7 +8401,7 @@ F496:
     BNE F496                 ; F49A  $D0 $FA
     DEX                      ; F49C  $CA
     BNE F496                 ; F49D  $D0 $F7
-	; Init to zero RAM ($0350 - $035F)
+		; Init to zero RAM ($0350 - $035F)
     LDX #$0F                 ; F49F  $A2 $0F
 F4A1:
     STA $0350,X              ; F4A1  $9D $50 $03
@@ -8410,7 +8410,7 @@ F4A1:
     LDA #$00                 ; F4A7  $A9 $00
     STA PpuAddr_2006         ; F4A9  $8D $06 $20
     STA PpuAddr_2006         ; F4AC  $8D $06 $20
-	; Init to zero PPU Pattern table 0 (CHR RAM : $0000 - $08FF)
+		; Init to zero PPU Pattern table 0 (CHR RAM : $0000 - $08FF)
     LDX #$09                 ; F4AF  $A2 $09
 F4B1:
     STA PpuData_2007         ; F4B1  $8D $07 $20
@@ -8418,12 +8418,12 @@ F4B1:
     BNE F4B1                 ; F4B5  $D0 $FA
     DEX                      ; F4B7  $CA
     BNE F4B1                 ; F4B8  $D0 $F7
-    JSR Wait_NMI		; JSR $FE00                ; F4BA  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; F4BA  $20 $00 $FE
     BIT PpuStatus_2002       ; F4BD  $2C $02 $20
-	; Set to Palette RAM indexes ($3F00 - $3FFF)
-	; 0F 30 02 02 02 02 02 02 02 02 02 02 02 02 02 02
-	; 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
-	; 02 = blue, 04 = purple, 0F = black, 30 = white
+		; Set to Palette RAM indexes ($3F00 - $3FFF)
+		; 0F 30 02 02 02 02 02 02 02 02 02 02 02 02 02 02
+		; 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02 02
+		; 02 = blue, 04 = purple, 0F = black, 30 = white
     LDA #$3F                 ; F4C0  $A9 $3F
     STA PpuAddr_2006         ; F4C2  $8D $06 $20
     LDA #$00                 ; F4C5  $A9 $00
@@ -8438,7 +8438,7 @@ F4D8:
     STA PpuData_2007         ; F4D8  $8D $07 $20
     DEX                      ; F4DB  $CA
     BNE F4D8                 ; F4DC  $D0 $FA
-	; Initialize ??
+		; Initialize ??
     LDA #$3F                 ; F4DE  $A9 $3F
     STA PpuAddr_2006         ; F4E0  $8D $06 $20
     LDA #$00                 ; F4E3  $A9 $00
@@ -8448,31 +8448,31 @@ F4D8:
     LDA #$00                 ; F4EE  $A9 $00
     STA PpuScroll_2005       ; F4F0  $8D $05 $20
     STA PpuScroll_2005       ; F4F3  $8D $05 $20
-	; PPU MASK	: Bit3 Show background = 1
-	;		: Bit2 Show sprites in leftmost 8pixels of screen is Hide = 0
-	;		: Bit1 Show background in leftmost 8 pixels of screen = 1
-	;		: Bit0 Display type is color = 1
+		; PPU MASK	: Bit3 Show background = 1
+		;		: Bit2 Show sprites in leftmost 8pixels of screen is Hide = 0
+		;		: Bit1 Show background in leftmost 8 pixels of screen = 1
+		;		: Bit0 Display type is color = 1
     LDA #$0A                 ; F4F6  $A9 $0A
     STA PpuMask_2001         ; F4F8  $8D $01 $20
-	; $3E(ADDRESS) = #$F692
+		; $3E(ADDRESS) = #$F692
     LDA #$92                 ; F4FB  $A9 $92
     STA $3E                  ; F4FD  $85 $3E
     LDA #$F6                 ; F4FF  $A9 $F6
     STA $3F                  ; F501  $85 $3F
-	; Title tile start address $61(ADDR) = #$2102 ( col : 8 = $100, row : 2 )
+		; Title tile start address $61(ADDR) = #$2102 ( col : 8 = $100, row : 2 )
     LDA #$02                 ; F503  $A9 $02
     STA $61                  ; F505  $85 $61
     LDA #$21                 ; F507  $A9 $21
     STA $62                  ; F509  $85 $62
-	; $64 = #$01
+		; $64 = #$01
     LDA #$01                 ; F50B  $A9 $01
     STA $64                  ; F50D  $85 $64
 ;; For intro logo uppper code
 ;; For intro logo
 ;; For intro logo lower code
-	; Get Title screen tile address(compressed)
-	; Title screen tile address #$FF = end
-	; Title screen tile address #$FE = next line ??
+		; Get Title screen tile address(compressed)
+		; Title screen tile address #$FF = end
+		; Title screen tile address #$FE = next line ??
 L3F50F:
     LDY #$00                 ; F50F  $A0 $00
     LDA ($3E),Y              ; F511  $B1 $3E
@@ -8483,9 +8483,9 @@ L3F50F:
     JSR $F562                ; F51B  $20 $62 $F5
     JMP L3F524               ; F51E  $4C $24 $F5
 L3F521:
-    JSR Title_flow_effect	; JSR $F59F                ; F521  $20 $9F $F5
+    JSR Title_flow_effect		; JSR $F59F                ; F521  $20 $9F $F5
 L3F524:
-	; Increase Title screen tile address(compressed) from $F692
+		; Increase Title screen tile address(compressed) from $F692
     LDA $3E                  ; F524  $A5 $3E
     CLC                      ; F526  $18
     ADC #$01                 ; F527  $69 $01
@@ -8494,31 +8494,31 @@ L3F524:
     ADC #$00                 ; F52D  $69 $00
     STA $3F                  ; F52F  $85 $3F
     JMP L3F50F               ; F531  $4C $0F $F5
-	; Show intro logo done.
-	; Wait for timeout or key pressed.
+		; Show intro logo done.
+		; Wait for timeout or key pressed.
 L3F534:
     LDA #$00                 ; F534  $A9 $00
     STA $F1                  ; F536  $85 $F1
-    JSR Get_key			; JSR $DBA9                ; F538  $20 $A9 $DB
-    LDA key1p			; LDA $20                  ; F53B  $A5 $20
+    JSR Get_key				; JSR $DBA9                ; F538  $20 $A9 $DB
+    LDA key1p				; LDA $20                  ; F53B  $A5 $20
     STA $80                  ; F53D  $85 $80
 L3F53F:
-    JSR Wait_NMI		; JSR $FE00                ; F53F  $20 $00 $FE
-    JSR Get_key			; JSR $DBA9                ; F542  $20 $A9 $DB
-	; Increase frame_counter
-    LDA frame_cnt_L		; LDA $F0                  ; F545  $A5 $F0
+    JSR Wait_NMI			; JSR $FE00                ; F53F  $20 $00 $FE
+    JSR Get_key				; JSR $DBA9                ; F542  $20 $A9 $DB
+		; Increase frame_counter
+    LDA frame_cnt_L			; LDA $F0                  ; F545  $A5 $F0
     CLC                      ; F547  $18
     ADC #$01                 ; F548  $69 $01
-    STA frame_cnt_L		; STA $F0                  ; F54A  $85 $F0
-    LDA frame_cnt_H		; LDA $F1                  ; F54C  $A5 $F1
+    STA frame_cnt_L			; STA $F0                  ; F54A  $85 $F0
+    LDA frame_cnt_H			; LDA $F1                  ; F54C  $A5 $F1
     ADC #$00                 ; F54E  $69 $00
-    STA frame_cnt_H		; STA $F1                  ; F550  $85 $F1
-	; Next screen after about 12sec
+    STA frame_cnt_H			; STA $F1                  ; F550  $85 $F1
+		; Next screen after about 12sec
     CMP #$03                 ; F552  $C9 $03
     BCS L3F55C               ; F554  $B0 $06
-	; Press any key to move to the next screen
-    LDA key1p			; LDA $20                  ; F556  $A5 $20
-	; $80 = previous key1p(temp)
+		; Press any key to move to the next screen
+    LDA key1p				; LDA $20                  ; F556  $A5 $20
+		; $80 = previous key1p(temp)
     CMP $80                  ; F558  $C5 $80
     BEQ L3F53F               ; F55A  $F0 $E3
 L3F55C:
@@ -8530,7 +8530,7 @@ L3F55C:
 ; Name	:
 ; Marks	:
 ;; sub start ;;
-    JSR Wait_NMI		; JSR $FE00                ; F562  $20 $00 $FE
+    JSR Wait_NMI			; JSR $FE00                ; F562  $20 $00 $FE
     LDA $62                  ; F565  $A5 $62
     STA PpuAddr_2006         ; F567  $8D $06 $20
     LDA $61                  ; F56A  $A5 $61
@@ -8544,8 +8544,8 @@ L3F575:
     LDA $80                  ; F57A  $A5 $80
     AND #$1F                 ; F57C  $29 $1F
     BNE L3F575               ; F57E  $D0 $F5
-	; PPU Scroll reset
-    JSR PpuScroll_reset		; JSR $F689                ; F580  $20 $89 $F6
+		; PPU Scroll reset
+    JSR PpuScroll_reset			; JSR $F689                ; F580  $20 $89 $F6
     LDX #$0F                 ; F583  $A2 $0F
     LDA #$00                 ; F585  $A9 $00
 L3F587:
@@ -8596,26 +8596,26 @@ Title_flow_effect:
     ADC #$B0                 ; F5BA  $69 $B0
     STA $81                  ; F5BC  $85 $81
     LDA #$09                 ; F5BE  $A9 $09
-	; Swap PAGE 09
+		; Swap PAGE 09
     JSR Swap_PRG_               ; F5C0  $20 $03 $FE
     LDY #$0F                 ; F5C3  $A0 $0F
-	; Tile copy to $0340 - $034F (temp buffer)
+		; Tile copy to $0340 - $034F (temp buffer)
 L3F5C5:
     LDA ($80),Y              ; F5C5  $B1 $80
     STA $0340,Y              ; F5C7  $99 $40 $03
     DEY                      ; F5CA  $88
     BPL L3F5C5               ; F5CB  $10 $F8
-	; $61 = PPU Nametable low address(Row number??)
+		; $61 = PPU Nametable low address(Row number??)
     LDA $61                  ; F5CD  $A5 $61
     STA $80                  ; F5CF  $85 $80
-    JSR Wait_NMI		; JSR $FE00                ; F5D1  $20 $00 $FE
-	; Write Nametable0 ($2104?? about $1F)
+    JSR Wait_NMI			; JSR $FE00                ; F5D1  $20 $00 $FE
+		; Write Nametable0 ($2104?? about $1F)
     BIT PpuStatus_2002       ; F5D4  $2C $02 $20
     LDA $62                  ; F5D7  $A5 $62
     STA PpuAddr_2006         ; F5D9  $8D $06 $20
     LDA $61                  ; F5DC  $A5 $61
     STA PpuAddr_2006         ; F5DE  $8D $06 $20
-	; Fill #$80 till PPU 1 H line (256 = 32 tiles) - erase tile ??
+		; Fill #$80 till PPU 1 H line (256 = 32 tiles) - erase tile ??
     LDX #$80                 ; F5E1  $A2 $80
 L3F5E3:
     STX PpuData_2007         ; F5E3  $8E $07 $20
@@ -8623,12 +8623,12 @@ L3F5E3:
     LDA $80                  ; F5E8  $A5 $80
     AND #$1F                 ; F5EA  $29 $1F
     BNE L3F5E3               ; F5EC  $D0 $F5
-	; Scroll reset
-    JSR PpuScroll_reset		; JSR $F689                ; F5EE  $20 $89 $F6
-	; $65 ??
+		; Scroll reset
+    JSR PpuScroll_reset			; JSR $F689                ; F5EE  $20 $89 $F6
+		; $65 ??
     LDA #$04                 ; F5F1  $A9 $04
     STA $65                  ; F5F3  $85 $65
-	; Image shift to down 2 line in ($0350-$035F)
+		; Image shift to down 2 line in ($0350-$035F)
 L3F5F5:
     LDX #$05                 ; F5F5  $A2 $05
 L3F5F7:
@@ -8638,7 +8638,7 @@ L3F5F7:
     STA $0352,X              ; F600  $9D $52 $03
     DEX                      ; F603  $CA
     BPL L3F5F7               ; F604  $10 $F1
-	; Image fill empty 2 line for shift in ($0350-$035F)
+		; Image fill empty 2 line for shift in ($0350-$035F)
     LDA $034E                ; F606  $AD $4E $03
     STA $0358                ; F609  $8D $58 $03
     LDA $0346                ; F60C  $AD $46 $03
@@ -8648,7 +8648,7 @@ L3F5F7:
     LDA $0347                ; F618  $AD $47 $03
     STA $0351                ; F61B  $8D $51 $03
     LDX #$05                 ; F61E  $A2 $05
-	; Image shift to down 2 line in ($0340-$034F) for 
+		; Image shift to down 2 line in ($0340-$034F) for 
 L3F620:
     LDA $0348,X              ; F620  $BD $48 $03
     STA $034A,X              ; F623  $9D $4A $03
@@ -8656,9 +8656,9 @@ L3F620:
     STA $0342,X              ; F629  $9D $42 $03
     DEX                      ; F62C  $CA
     BPL L3F620               ; F62D  $10 $F1
-	; Tile buffer ready and Nametable0 Screen refresh
-    JSR Wait_NMI		; JSR $FE00                ; F62F  $20 $00 $FE
-	; copy tile(16bytes) from RAM ($0350-$035F) to PPU $0800- (Flow motion on title)
+		; Tile buffer ready and Nametable0 Screen refresh
+    JSR Wait_NMI			; JSR $FE00                ; F62F  $20 $00 $FE
+		; copy tile(16bytes) from RAM ($0350-$035F) to PPU $0800- (Flow motion on title)
     LDA #$08                 ; F632  $A9 $08
     STA PpuAddr_2006         ; F634  $8D $06 $20
     LDA #$00                 ; F637  $A9 $00
@@ -8670,13 +8670,13 @@ L3F63E:
     INX                      ; F644  $E8
     CPX #$10                 ; F645  $E0 $10
     BCC L3F63E               ; F647  $90 $F5
-	; PPU scroll reset
-    JSR PpuScroll_reset		; JSR $F689                ; F649  $20 $89 $F6
+		; PPU scroll reset
+    JSR PpuScroll_reset			; JSR $F689                ; F649  $20 $89 $F6
     DEC $65                  ; F64C  $C6 $65
-	; Until 4 times flow effect(2 line down)
+		; Until 4 times flow effect(2 line down)
     BNE L3F5F5               ; F64E  $D0 $A5
-    JSR Wait_NMI		; JSR $FE00                ; F650  $20 $00 $FE
-	; Store CHR RAM($0000-
+    JSR Wait_NMI			; JSR $FE00                ; F650  $20 $00 $FE
+		; Store CHR RAM($0000-
     LDA $64                  ; F653  $A5 $64
     LSR A                    ; F655  $4A
     LSR A                    ; F656  $4A
@@ -8696,15 +8696,15 @@ L3F667:
     INX                      ; F66D  $E8
     CPX #$10                 ; F66E  $E0 $10
     BCC L3F667               ; F670  $90 $F5
-	; Copy PPU Nametable0(Specific Col and Row)
+		; Copy PPU Nametable0(Specific Col and Row)
     LDA $62                  ; F672  $A5 $62
     STA PpuAddr_2006         ; F674  $8D $06 $20
     LDA $61                  ; F677  $A5 $61
     STA PpuAddr_2006         ; F679  $8D $06 $20
     LDA $64                  ; F67C  $A5 $64
     STA PpuData_2007         ; F67E  $8D $07 $20
-	; Scroll reset
-    JSR PpuScroll_reset		; JSR $F689                ; F681  $20 $89 $F6
+		; Scroll reset
+    JSR PpuScroll_reset			; JSR $F689                ; F681  $20 $89 $F6
     INC $64                  ; F684  $E6 $64
     INC $61                  ; F686  $E6 $61
     RTS                      ; F688  $60
@@ -8745,14 +8745,14 @@ PpuScroll_reset:
 ;	  newly added code for dash
 ;; sub start ;;
 Dash:
-	STA $32			; F750  $85 $32		map background needs update ??
-	STA mov_spd		; F752  $85 $34
-	LDA key1p		; F754  $A5 $20
-	AND #$40		; F756  $29 $40		check B button
-	BEQ L3F75C		; F758  $F0 $02		if B button not pressing
-	INC mov_spd		; F75A  $E6 $34
+	STA $32				; F750  $85 $32		map background needs update ??
+	STA mov_spd			; F752  $85 $34
+	LDA key1p			; F754  $A5 $20
+	AND #$40			; F756  $29 $40		check B button
+	BEQ L3F75C			; F758  $F0 $02		if B button not pressing
+	INC mov_spd			; F75A  $E6 $34
 L3F75C:
-	RTS			; F75C  $60
+	RTS				; F75C  $60
 ; End of Dash
 
  ;data block---
@@ -8855,27 +8855,27 @@ rnum_tbl:
 ; Marks	: Battle code
 ;; sub start ;;
 Battle_start:
-	JMP Battle_code		; FA00  $4C $9E $FA
+	JMP Battle_code			; FA00  $4C $9E $FA
 ; End of Battle_start(very long loop code)
 
 ;; sub start ;;
     PHA                      ; FA03  $48
-	JSR Zpage_store		; FA04  $20 $1F $FA
+	JSR Zpage_store			; FA04  $20 $1F $FA
     LDA #$0E                 ; FA07  $A9 $0E
     STA $3E                  ; FA09  $85 $3E	bank ret tmp ??
     PLA                      ; FA0B  $68
     JSR $FAFB                ; FA0C  $20 $FB $FA
 ; Marks	: Return from battle to map. Used BANK 05, BANK 0C
 Ret_to_map:
-	LDA #$0E		; FA0F  $A9 $0E		BANK 0E
-	JSR Swap_PRG		; FA11  $20 $1A $FE
-	LDX #$B0		; FA14  $A2 $B0
+	LDA #$0E			; FA0F  $A9 $0E		BANK 0E
+	JSR Swap_PRG			; FA11  $20 $1A $FE
+	LDX #$B0			; FA14  $A2 $B0
 Ret_to_map_restore_zpage:
-	LDA $7BFF,X		; FA16  $BD $FF $7B	restore saved zero page($7C00-$7CAF)
-	STA $FF,X		; FA19  $95 $FF
-	DEX			; FA1B  $CA
-	BNE Ret_to_map_restore_zpage	; FA1C  $D0 $F8	loop
-	RTS			; FA1E  $60
+	LDA $7BFF,X			; FA16  $BD $FF $7B	restore saved zero page($7C00-$7CAF)
+	STA $FF,X			; FA19  $95 $FF
+	DEX				; FA1B  $CA
+	BNE Ret_to_map_restore_zpage		; FA1C  $D0 $F8	loop
+	RTS				; FA1E  $60
 ; End of Ret_to_map
 
 ; Name	: Zpage_store
@@ -8924,28 +8924,28 @@ L3FA3C:
 ; Marks	: sound
 ;	  bank 05 -> bank 0D -> previous bank
 L3FA48:
-	JSR Swap_bank_05	; FA48  $20 $6D $FA
-	JSR $BA00		; FA4B  $20 $00 $BA	sound effect code start - bank 05
-	LDA #$0D		; FA4E  $A9 $0D
-	JSR Swap_PRG		; FA50  $20 $1A $FE
-	JSR $9800		; FA53  $20 $00 $98	sound process
-	JMP Swap_ret_bank	; FA56  $4C $84 $FA
+	JSR Swap_bank_05		; FA48  $20 $6D $FA
+	JSR $BA00			; FA4B  $20 $00 $BA	sound effect code start - bank 05
+	LDA #$0D			; FA4E  $A9 $0D
+	JSR Swap_PRG			; FA50  $20 $1A $FE
+	JSR $9800			; FA53  $20 $00 $98	sound process
+	JMP Swap_ret_bank		; FA56  $4C $84 $FA
 ; End of
 
 ; X	:
 L3FA59:
-	JSR Swap_bank_05	; FA59  $20 $6D $FA
-	TXA			; FA5C  $8A
-	ORA #$40		; FA5D  $09 $40
-	JSR $BA03		; FA5F  $20 $03 $BA
-	JMP Swap_ret_bank	; FA62  $4C $84 $FA
+	JSR Swap_bank_05		; FA59  $20 $6D $FA
+	TXA				; FA5C  $8A
+	ORA #$40			; FA5D  $09 $40
+	JSR $BA03			; FA5F  $20 $03 $BA
+	JMP Swap_ret_bank		; FA62  $4C $84 $FA
 ; End of
 
 ; Name	: Swap_bank_00
 ; Marks	: Swap to bank 00
 Swap_bank_00:
-	LDA #$00		; FA65  $A9 $00
-	BEQ Swap_PRG_1		; FA67  $F0 $18
+	LDA #$00			; FA65  $A9 $00
+	BEQ Swap_PRG_1			; FA67  $F0 $18
 
     LDA #$00                 ; FA69  $A9 $00
     BEQ Swap_PRG_ret       ; FA6B  $F0 $12
@@ -8953,37 +8953,37 @@ Swap_bank_00:
 ; Name	: Swap_bank_05
 ; Marks	: Swap bank to 05h (map bg tilemaps/monster names/sound effects ... etc)
 Swap_bank_05:
-	LDA #$05		; FA6D  $A9 $05
-	BNE Swap_PRG_1		; FA6F  $D0 $10
+	LDA #$05			; FA6D  $A9 $05
+	BNE Swap_PRG_1			; FA6F  $D0 $10
 ; End of Swap_bank_05
 
 ; Name	: Swap_bank_05_ret
 ; A	: Bank to save
 ; Marks	: Swap to battle message code bank with BANK SAVE
-	LDA #BANK_LEVELUP	; FA71  $A9 $05
-	BNE Swap_PRG_ret	; FA73  $D0 $0A
+	LDA #BANK_LEVELUP		; FA71  $A9 $05
+	BNE Swap_PRG_ret		; FA73  $D0 $0A
 
 ; Name	: Swap_bank_09
 ; Marks	: Swap bank to 09h (potrait/battle graphics)
 Swap_bank_09:
-	LDA #$09		; FA75  $A9 $09
-	BNE Swap_PRG_1		; FA77  $D0 $08
+	LDA #$09			; FA75  $A9 $09
+	BNE Swap_PRG_1			; FA77  $D0 $08
 ; End of Swap_bank_09
 
 ; Name	: Swap_bank_0B_ret
 ; Marks	: Swap to battle graphics code bank with return address
 Swap_bank_0B_ret:
-	LDA #BANK_BATTLELOAD	; FA79  $A9 $0B
-	BNE Swap_PRG_ret	; FA7B  $D0 $02		branch must happen
+	LDA #BANK_BATTLELOAD		; FA79  $A9 $0B
+	BNE Swap_PRG_ret		; FA7B  $D0 $02		branch must happen
 
 ; Name	: Swap_bank_0C_ret
 ; Marks	: Swap to battle code bank with return address
 Swap_bank_0C_ret:
-	LDA #BANK_BATTLE	; FA7D  $A9 $0C
+	LDA #BANK_BATTLE		; FA7D  $A9 $0C
 Swap_PRG_ret:
-	STA bank_ret_tmp	; FA7F  $85 $3E		bank temp buffer ??
+	STA bank_ret_tmp		; FA7F  $85 $3E		bank temp buffer ??
 Swap_PRG_1:
-	JMP Swap_PRG		; FA81  $4C $1A $FE
+	JMP Swap_PRG			; FA81  $4C $1A $FE
 ; End of Swap_bank_0C_ret
 ; End of Swap_bank_0B_ret
 ; End of Swap_bank_05_ret
@@ -8996,137 +8996,137 @@ Swap_PRG_1:
 ; Marks	: Swap program bank to $3E and Return subroutine
 ;	  bank cannot over 7Fh
 Swap_ret_bank:
-	LDA bank_ret_tmp	; FA84  $A5 $3E		bank temp buffer ??
-	BPL Swap_PRG_1		; FA86  $10 $F9
+	LDA bank_ret_tmp		; FA84  $A5 $3E		bank temp buffer ??
+	BPL Swap_PRG_1			; FA86  $10 $F9
 ; End of Swap_ret_bank. Jump to Swap_PRG and RTS
 
 ; A	: bank
 ; SRC	: $40(ADDR) = excute code address
 Exec_bank:
-	PHA			; FA88  $48
-	LDA bank_ret_tmp	; FA89  $A5 $3E		bank temp buffer ??
-	STA $3F			; FA8B  $85 $3F		bank temp buffer save ??
-	PLA			; FA8D  $68
-	JSR Swap_PRG_ret	; FA8E  $20 $7F $FA	bank swap 0C -> 0B/05 ?? any bank can swap
-	LDA #$FA		; FA91  $A9 $FA
-	PHA			; FA93  $48
-	LDA #$99		; FA94  $A9 $99
-	PHA			; FA96  $48
-	JMP ($0040)		; FA97  $6C $40 $00	ex> bank_0B : 9630
-	LDA $3F			; FA9A  $A5 $3F		bank temp buffer load ??
-	BPL Swap_PRG_ret	; FA9C  $10 $E1
+	PHA				; FA88  $48
+	LDA bank_ret_tmp		; FA89  $A5 $3E		bank temp buffer ??
+	STA $3F				; FA8B  $85 $3F		bank temp buffer save ??
+	PLA				; FA8D  $68
+	JSR Swap_PRG_ret		; FA8E  $20 $7F $FA	bank swap 0C -> 0B/05 ?? any bank can swap
+	LDA #$FA			; FA91  $A9 $FA
+	PHA				; FA93  $48
+	LDA #$99			; FA94  $A9 $99
+	PHA				; FA96  $48
+	JMP ($0040)			; FA97  $6C $40 $00	ex> bank_0B : 9630
+	LDA $3F				; FA9A  $A5 $3F		bank temp buffer load ??
+	BPL Swap_PRG_ret		; FA9C  $10 $E1
 ;
 
 ; Marks	: battle code start
 ; A	: battle ID ??
 ; X	: battle back ground ID ??
 Battle_code:
-	STA $7B48		; FA9E  $8D $48 $7B	battle ID
-	TXA			; FAA1  $8A
-	AND #$0F		; FAA2  $29 $0F
-	STA $7B49		; FAA4  $8D $49 $7B	battle background
-	JSR Zpage_store		; FAA7  $20 $1F $FA
-	STX $E5			; FAAA  $86 $E5
-	STX $6F60		; FAAC  $8E $60 $6F
-	LDA #$40		; FAAF  $A9 $40		BGM silence ??
-	STA current_song_ID	; FAB1  $85 $E0
-	JSR Swap_bank_0B_ret	; FAB3  $20 $79 $FA	bank swap
-	JSR L3FA48		; FAB6  $20 $48 $FA
-	JMP Init_battle		; FAB9  $4C $39 $96	Init battle - long loop code
+	STA $7B48			; FA9E  $8D $48 $7B	battle ID
+	TXA				; FAA1  $8A
+	AND #$0F			; FAA2  $29 $0F
+	STA $7B49			; FAA4  $8D $49 $7B	battle background
+	JSR Zpage_store			; FAA7  $20 $1F $FA
+	STX $E5				; FAAA  $86 $E5
+	STX $6F60			; FAAC  $8E $60 $6F
+	LDA #$40			; FAAF  $A9 $40		BGM silence ??
+	STA current_song_ID		; FAB1  $85 $E0
+	JSR Swap_bank_0B_ret		; FAB3  $20 $79 $FA	bank swap
+	JSR L3FA48			; FAB6  $20 $48 $FA
+	JMP Init_battle			; FAB9  $4C $39 $96	Init battle - long loop code
 ; End of Battle_start(long loop code)
 
 ; Name	: SR_Battle_pose
 ; Marks	: $40(ADDR) = execute code address
 ;	  Used on BANK 0C
 SR_Battle_pose:
-	LDA #<Char_pose_0B	; FABC  $A9 $12
+	LDA #<Char_pose_0B		; FABC  $A9 $12
 	BNE Exec_battle_gfx_bank; FABE  $D0 $30
 ; Name	: SR_Battle_target
 ; Marks	: Used on BANK 0C
 SR_Battle_target:
-	LDA #<Chk_mag_target_0B	; FAC0  $A9 $15
+	LDA #<Chk_mag_target_0B		; FAC0  $A9 $15
 	BNE Exec_battle_gfx_bank; FAC2  $D0 $2C
 ; Name	: SR_Battle_front
 ; Marks	: Used on BANK 0C
 SR_Battle_front:
-	LDA #<Set_front_0B	; FAC4  $A9 $18
+	LDA #<Set_front_0B		; FAC4  $A9 $18
 	BNE Exec_battle_gfx_bank; FAC6  $D0 $28
 ; Name	: SR_Battle_mob_dead
 ; Marks	: Used on BANK 0C
 SR_Battle_mob_dead:
-	LDA #<Mob_dead_ani_0B	; FAC8  $A9 $1B
+	LDA #<Mob_dead_ani_0B		; FAC8  $A9 $1B
 	BNE Exec_battle_gfx_bank; FACA  $D0 $24
 ; Name	: SR_Battle_attack
 ; Marks	: Used on BANK 0C
 SR_Battle_attack:
-	LDA #<Attack_0B		; FACC  $A9 $1E
+	LDA #<Attack_0B			; FACC  $A9 $1E
 	BNE Exec_battle_gfx_bank; FACE  $D0 $20
 ; Name	: SR_Battle_cursor
 ; Marks	: Used on BANK 05, BANK 0C
 SR_Battle_cursor:
-	LDA #<Copy_cursor_0B	; FAD0  $A9 $21
+	LDA #<Copy_cursor_0B		; FAD0  $A9 $21
 	BNE Exec_battle_gfx_bank; FAD2  $D0 $1C
 ; Name	: SR_Battle_char
 ; Marks	: Used on BANK 0C
 SR_Battle_char:
-	LDA #<Load_char_0B	; FAD4  $A9 $24
+	LDA #<Load_char_0B		; FAD4  $A9 $24
 	BNE Exec_battle_gfx_bank; FAD6  $D0 $18
 ; Name	: SR_Battle_win
 ; Marks	: Used on BANK 0C
 SR_Battle_win:
-	LDA #<Win_celemony_0B	; FAD8  $A9 $27
+	LDA #<Win_celemony_0B		; FAD8  $A9 $27
 	BNE Exec_battle_gfx_bank; FADA  $D0 $14
 ; Name	: SR_Battle_fadeout
 ; Marks	: Used on BANK 05
 SR_Battle_fadeout:
-	LDA #<Fade_out_0B	; FADC  $A9 $2A
+	LDA #<Fade_out_0B		; FADC  $A9 $2A
 	BNE Exec_battle_gfx_bank; FADE  $D0 $10
 ; Name	: SR_Battle_set_status
 ; Marks	: Used on BANK 0C
 SR_Battle_set_status:
-	LDA #<Set_status_gfx_0B	; FAE0  $A9 $2D
+	LDA #<Set_status_gfx_0B		; FAE0  $A9 $2D
 	BNE Exec_battle_gfx_bank; FAE2  $D0 $0C
 ; Name	: SR_Battle_status_ani
 ; Marks	: Used on BANK 0C
 SR_Battle_status_ani:
-	LDA #<Status_ani_0B	; FAE4  $A9 $30
+	LDA #<Status_ani_0B		; FAE4  $A9 $30
 	BNE Exec_battle_gfx_bank; FAE6  $D0 $08
 ; Name	: SR_Battle_runaway
 ; Marks	: Used on BANK 0C
 SR_Battle_runaway:
-	LDA #<Run_away_0B	; FAE8  $A9 $33
+	LDA #<Run_away_0B		; FAE8  $A9 $33
 	BNE Exec_battle_gfx_bank; FAEA  $D0 $04
 ; Name	: SR_battle_defeat
 ; Marks	: Used on BANK 0C
 SR_battle_defeat:
-	LDA #<Battle_defeat_0B	; FAEC  $A9 $36
+	LDA #<Battle_defeat_0B		; FAEC  $A9 $36
 	BNE Exec_battle_gfx_bank; FAEE  $D0 $00
 Exec_battle_gfx_bank:
 ; A	: 
-	STA $40			; FAF0  $85 $40
-	LDA #>Battle_defeat_0B	; FAF2  $A9 $96
-	STA $41			; FAF4  $85 $41
-	LDA #$0B		; FAF6  $A9 $0B		BANK 0B
-	JMP Exec_bank		; FAF8  $4C $88 $FA
+	STA $40				; FAF0  $85 $40
+	LDA #>Battle_defeat_0B		; FAF2  $A9 $96
+	STA $41				; FAF4  $85 $41
+	LDA #$0B			; FAF6  $A9 $0B		BANK 0B
+	JMP Exec_bank			; FAF8  $4C $88 $FA
 ; End of and to FA88
 
 ; Name	:
 ; Marks	: Used on BANK 0C, BANK 0F
 ;; sub start ;;
 Do_009880:
-	PHA			; FAFB  $48
-	JSR Swap_bank_00	; FAFC  $20 $65 $FA
-	PLA			; FAFF  $68
-	JSR Update_char_equip	; FB00  $20 $80 $98	bank 00 - used on BANK 0C
-	JMP Swap_ret_bank	; FB03  $4C $84 $FA
+	PHA				; FAFB  $48
+	JSR Swap_bank_00		; FAFC  $20 $65 $FA
+	PLA				; FAFF  $68
+	JSR Update_char_equip		; FB00  $20 $80 $98	bank 00 - used on BANK 0C
+	JMP Swap_ret_bank		; FB03  $4C $84 $FA
 ; End of
 
 ; Name	: SR_BattleMain
 ; Marks	: Swap bank 0C and go battle main code
 ;	  Use on BANK 0B
 SR_BattleMain:
-	JSR Swap_bank_0C_ret	; FB06  $20 $7D $FA
-	JMP BattleMain_bank0C	; FB09  $4C $43 $8F	bank 0C - battle code -> battle main code
+	JSR Swap_bank_0C_ret		; FB06  $20 $7D $FA
+	JMP BattleMain_bank0C		; FB09  $4C $43 $8F	bank 0C - battle code -> battle main code
 ; End of SR_BattleMain
 
 ; Name	: SR_SortVal
@@ -9134,41 +9134,41 @@ SR_BattleMain:
 ;	  for sort value from another bank
 ;; sub start ;;
 SR_SortVal:
-	PHA			; FB0C  $48
-	JSR Swap_bank_0C_ret	; FB0D  $20 $7D $FA
-	PLA			; FB10  $68
-	JSR SortVal_bank0C	; FB11  $20 $46 $8F	bank 0C - battle code -> sort value
-	JMP Swap_bank_0B_ret	; FB14  $4C $79 $FA
+	PHA				; FB0C  $48
+	JSR Swap_bank_0C_ret		; FB0D  $20 $7D $FA
+	PLA				; FB10  $68
+	JSR SortVal_bank0C		; FB11  $20 $46 $8F	bank 0C - battle code -> sort value
+	JMP Swap_bank_0B_ret		; FB14  $4C $79 $FA
 ; End of SR_SortVal
 
 ; Marks	: $40(ADDR) = excute code address ??
 ;; sub start ;;
 SR_Init_battle_stats:
-	LDA #<Init_battle_stats_bank0C	; FB17	$A9 $49
-	BNE Exec_battle_bank		; FB19	$D0 $16
+	LDA #<Init_battle_stats_bank0C		; FB17	$A9 $49
+	BNE Exec_battle_bank			; FB19	$D0 $16
 ;
-	LDA #<Copy_txt_buf_bank0C	; FB1B	$A9 $4C
-	BNE Exec_battle_bank		; FB1D	$D0 $12
+	LDA #<Copy_txt_buf_bank0C		; FB1B	$A9 $4C
+	BNE Exec_battle_bank			; FB1D	$D0 $12
 ;
-	LDA #<Open_win_bank0C	; FB1F	$A9 $4F
-	BNE Exec_battle_bank		; FB21	$D0 $0E
+	LDA #<Open_win_bank0C		; FB1F	$A9 $4F
+	BNE Exec_battle_bank			; FB21	$D0 $0E
 ;
-	LDA #<Update_addr_bank0C	;FB23	$A9 $52
-	BNE Exec_battle_bank		; FB25	$D0 $0A
+	LDA #<Update_addr_bank0C		;FB23	$A9 $52
+	BNE Exec_battle_bank			; FB25	$D0 $0A
 ;
-	LDA #<HtoD_bank0C	; FB27	$A9 $55
-	BNE Exec_battle_bank		; FB29  $D0 $06
+	LDA #<HtoD_bank0C		; FB27	$A9 $55
+	BNE Exec_battle_bank			; FB29  $D0 $06
 ;
-	LDA #<Get_win_pos_datap_bank0C	; FB2B	$A9 $58
-	BNE Exec_battle_bank		; FB2D	$D0 $02
+	LDA #<Get_win_pos_datap_bank0C		; FB2B	$A9 $58
+	BNE Exec_battle_bank			; FB2D	$D0 $02
 ;
-	LDA #<Move_OAM_XY_bank0C	; FB2F	$A9 $5B
+	LDA #<Move_OAM_XY_bank0C		; FB2F	$A9 $5B
 Exec_battle_bank:
-	STA $40			; FB31	$85 $40
-	LDA #>Init_battle_stats_bank0C	; FB33	$A9 $8F
-	STA $41			; FB35	$85 $41
-	LDA #BANK_BATTLE	; FB37	$A9 $0C
-	JMP Exec_bank		; FB39	$4C $88 $FA
+	STA $40				; FB31	$85 $40
+	LDA #>Init_battle_stats_bank0C		; FB33	$A9 $8F
+	STA $41				; FB35	$85 $41
+	LDA #BANK_BATTLE		; FB37	$A9 $0C
+	JMP Exec_bank			; FB39	$4C $88 $FA
 ; End of
 
 L3FB3C:
@@ -9184,7 +9184,7 @@ L3FB48:
     LDA #$9F                 ; FB4A  $A9 $9F
     STA $41                  ; FB4C  $85 $41
     LDA #$05                 ; FB4E  $A9 $05
- 	JMP Exec_bank		; FB50  $4C $88 $FA
+ 	JMP Exec_bank			; FB50  $4C $88 $FA
 ; End of
 
 ; Name	:
@@ -9196,27 +9196,27 @@ L3FB48:
     JSR Calc_tile_addr                ; FB57  $20 $7C $FB
     TAY                      ; FB5A  $A8
     TAX                      ; FB5B  $AA
-	; Tile copy to SRAM
+		; Tile copy to SRAM
     JSR Copy_to_gfxbuf                ; FB5C  $20 $F3 $FB
-	JMP Swap_ret_bank	; FB5F  $4C $84 $FA
+	JMP Swap_ret_bank		; FB5F  $4C $84 $FA
 ; End of
 
 ; Name	: Set_mob_gfx
 ; Marks	: Load monster graphics
 ;; sub start ;;
 Set_mob_gfx:
-	LDA $7B4C		; FB62  $AD $4C $7B	monster graphics set
-	JSR Calc_tile_addr	; FB65  $20 $7C $FB
-	LDA #$0E		; FB68  $A9 $0E
-	STA $04			; FB6A  $85 $04
+	LDA $7B4C			; FB62  $AD $4C $7B	monster graphics set
+	JSR Calc_tile_addr		; FB65  $20 $7C $FB
+	LDA #$0E			; FB68  $A9 $0E
+	STA $04				; FB6A  $85 $04
 L3FB6C:
-	LDX #$00		; FB6C  $A2 $00
-	JSR Set_buf_to_Ppu	; FB6E  $20 $6F $FD
-	INC $01			; FB71  $E6 $01
-	INC $03			; FB73  $E6 $03
-	DEC $04			; FB75  $C6 $04
-	BNE L3FB6C		; FB77  $D0 $F3		loop
-	JMP Swap_ret_bank	; FB79  $4C $84 $FA
+	LDX #$00			; FB6C  $A2 $00
+	JSR Set_buf_to_Ppu		; FB6E  $20 $6F $FD
+	INC $01				; FB71  $E6 $01
+	INC $03				; FB73  $E6 $03
+	DEC $04				; FB75  $C6 $04
+	BNE L3FB6C			; FB77  $D0 $F3		loop
+	JMP Swap_ret_bank		; FB79  $4C $84 $FA
 ; End of Set_mob_gfx
 
 ; Name	: Calc_tile_bank
@@ -9226,11 +9226,11 @@ L3FB6C:
 ;	  and swap BANK
 ;; sub start ;;
 Calc_tile_addr:
-	LSR A			; FB7C  $4A
-	LSR A			; FB7D  $4A
-	CLC			; FB7E  $18
-	ADC #$07		; FB7F  $69 $07
-	JMP Swap_PRG		; FB81  $4C $1A $FE
+	LSR A				; FB7C  $4A
+	LSR A				; FB7D  $4A
+	CLC				; FB7E  $18
+	ADC #$07			; FB7F  $69 $07
+	JMP Swap_PRG			; FB81  $4C $1A $FE
 ; End of Calc_tile_addr
 
 ; Name	: Load_text_gfx
@@ -9240,34 +9240,34 @@ Calc_tile_addr:
 ;	  Use on BANK 0B
 ;; sub start ;;
 Load_text_gfx:
-	JSR Swap_bank_09	; FB84  $20 $75 $FA
-	LDA #$06		; FB87  $A9 $06
-	STA $01			; FB89  $85 $01
-	LDA #$E0		; FB8B  $A9 $E0		ppu $06E0-$0FFF
-	STA $00			; FB8D  $85 $00
-	LDA #$8A		; FB8F  $A9 $8A
-	STA $03			; FB91  $85 $03
-	LDA #$00		; FB93  $A9 $00		BANK 09/8A00 (text graphics)
-	STA $02			; FB95  $85 $02
-	LDA #$09		; FB97  $A9 $09		$0900 bytes
-	STA $04			; FB99  $85 $04
+	JSR Swap_bank_09		; FB84  $20 $75 $FA
+	LDA #$06			; FB87  $A9 $06
+	STA $01				; FB89  $85 $01
+	LDA #$E0			; FB8B  $A9 $E0		ppu $06E0-$0FFF
+	STA $00				; FB8D  $85 $00
+	LDA #$8A			; FB8F  $A9 $8A
+	STA $03				; FB91  $85 $03
+	LDA #$00			; FB93  $A9 $00		BANK 09/8A00 (text graphics)
+	STA $02				; FB95  $85 $02
+	LDA #$09			; FB97  $A9 $09		$0900 bytes
+	STA $04				; FB99  $85 $04
 Load_text_gfx_loop:
-	JSR Set_buf_to_Ppu	; FB9B  $20 $6F $FD
-	INC $01			; FB9E  $E6 $01
-	INC $03			; FBA0  $E6 $03
-	DEC $04			; FBA2  $C6 $04
-	BNE Load_text_gfx_loop	; FBA4  $D0 $F5
-	LDX #$20		; FBA6  $A2 $20		remaining $20 bytes out of $0920 bytes
-	JSR Set_buf_to_Ppu	; FBA8  $20 $6F $FD
-	JMP Swap_ret_bank	; FBAB  $4C $84 $FA
+	JSR Set_buf_to_Ppu		; FB9B  $20 $6F $FD
+	INC $01				; FB9E  $E6 $01
+	INC $03				; FBA0  $E6 $03
+	DEC $04				; FBA2  $C6 $04
+	BNE Load_text_gfx_loop		; FBA4  $D0 $F5
+	LDX #$20			; FBA6  $A2 $20		remaining $20 bytes out of $0920 bytes
+	JSR Set_buf_to_Ppu		; FBA8  $20 $6F $FD
+	JMP Swap_ret_bank		; FBAB  $4C $84 $FA
 ; End of Load_text_gfx
 
 ; Marks	: Used on BANK 0B
 L3FBAE:
     JSR Swap_bank_09                ; FBAE  $20 $75 $FA
-    JSR Set_IRQ_JMP		; JSR L3FA2A               ; FBB1  $20 $2A $FA
+    JSR Set_IRQ_JMP			; JSR L3FA2A               ; FBB1  $20 $2A $FA
     JSR Set_buf_to_Ppu               ; FBB4  $20 $6F $FD
-	JMP Swap_ret_bank	; FBB7  $4C $84 $FA
+	JMP Swap_ret_bank		; FBB7  $4C $84 $FA
 ; End of
 
 ; Name	: Copy_char_tile
@@ -9279,9 +9279,9 @@ L3FBAE:
 ;	  ** It's not for character tile only **
 ;; sub start ;;
 Copy_char_tile:
-	JSR Swap_bank_09	; FBBA  $20 $75 $FA
-	JSR Copy_to_gfxbuf	; FBBD  $20 $F3 $FB
-	JMP Swap_ret_bank	; FBC0  $4C $84 $FA
+	JSR Swap_bank_09		; FBBA  $20 $75 $FA
+	JSR Copy_to_gfxbuf		; FBBD  $20 $F3 $FB
+	JMP Swap_ret_bank		; FBC0  $4C $84 $FA
 ; End of Copy_char_tile
 
 ; Name	:
@@ -9302,7 +9302,7 @@ Copy_char_tile:
     INC $03                  ; FBDC  $E6 $03	BANK 09/9B00
     LDX #$C0                 ; FBDE  $A2 $C0
     JSR Set_buf_to_Ppu               ; FBE0  $20 $6F $FD
-	JMP Swap_ret_bank	; FBE3  $4C $84 $FA
+	JMP Swap_ret_bank		; FBE3  $4C $84 $FA
 ; End of
 
 ; Name	: Get_data_BANK_0C
@@ -9315,11 +9315,11 @@ Copy_char_tile:
 ;	  Used on BANK 00
 ;; sub start ;;
 Get_data_BANK_0C:
-	LDA #BANK_BATTLE	; FBE6  $A9 $0C
-	JSR Swap_PRG		; FBE8  $20 $1A $FE
-	LDX #$00		; FBEB  $A2 $00
-	JSR Copy_to_gfxbuf	; FBED  $20 $F3 $FB
-	JMP Swap_bank_00	; FBF0  $4C $65 $FA
+	LDA #BANK_BATTLE		; FBE6  $A9 $0C
+	JSR Swap_PRG			; FBE8  $20 $1A $FE
+	LDX #$00			; FBEB  $A2 $00
+	JSR Copy_to_gfxbuf		; FBED  $20 $F3 $FB
+	JMP Swap_bank_00		; FBF0  $4C $65 $FA
 ; End of Get_data_BANK_0C
 
 ; Name	: Copy_to_gfxbuf
@@ -9330,16 +9330,16 @@ Get_data_BANK_0C:
 ; Marks	: Char tile copy to SRAM(graphic buffer)
 ;; sub start ;;
 Copy_to_gfxbuf:
-	STY $02			; FBF3  $84 $02
-	LDY #$00		; FBF5  $A0 $00
+	STY $02				; FBF3  $84 $02
+	LDY #$00			; FBF5  $A0 $00
 L3FBF7:
-	LDA ($00),Y		; FBF7  $B1 $00
-	STA $7600,X		; FBF9  $9D $00 $76
-	INY			; FBFC  $C8
-	INX			; FBFD  $E8
-	CPY $02			; FBFE  $C4 $02
-	BNE L3FBF7		; FC00  $D0 $F5		loop
-	RTS			; FC02  $60
+	LDA ($00),Y			; FBF7  $B1 $00
+	STA $7600,X			; FBF9  $9D $00 $76
+	INY				; FBFC  $C8
+	INX				; FBFD  $E8
+	CPY $02				; FBFE  $C4 $02
+	BNE L3FBF7			; FC00  $D0 $F5		loop
+	RTS				; FC02  $60
 ; End of Copy_to_gfxbuf
 
 ; Name	: Set_wpn_pal
@@ -9349,15 +9349,15 @@ L3FBF7:
 ;	  Set weapon palettes
 ;; sub start ;;
 Set_wpn_pal:
-	LDA #$00		; FC03  $A9 $00
-	JSR Swap_PRG		; FC05  $20 $1A $FE
-	LDA $9700,X		; FC08  $BD $00 $97
-	STA $79A8,Y		; FC0B  $99 $A8 $79	color palettes
-	LDA $9780,X		; FC0E  $BD $80 $97
-	STA $79A9,Y		; FC11  $99 $A9 $79	color palettes
-	LDA $9800,X		; FC14  $BD $00 $98
-	STA $79AA,Y		; FC17  $99 $AA $79	color palettes
-	JMP Swap_ret_bank	; FC1A  $4C $84 $FA
+	LDA #$00			; FC03  $A9 $00
+	JSR Swap_PRG			; FC05  $20 $1A $FE
+	LDA $9700,X			; FC08  $BD $00 $97
+	STA $79A8,Y			; FC0B  $99 $A8 $79	color palettes
+	LDA $9780,X			; FC0E  $BD $80 $97
+	STA $79A9,Y			; FC11  $99 $A9 $79	color palettes
+	LDA $9800,X			; FC14  $BD $00 $98
+	STA $79AA,Y			; FC17  $99 $AA $79	color palettes
+	JMP Swap_ret_bank		; FC1A  $4C $84 $FA
 ; End of Set_wpn_pal
 
 ; unused ??
@@ -9369,7 +9369,7 @@ Set_wpn_pal:
     STA $01                  ; FC2A  $85 $01
     LDA $9800,X              ; FC2C  $BD $00 $98
     STA $02                  ; FC2F  $85 $02
-	JMP Swap_ret_bank	; FC31  $4C $84 $FA
+	JMP Swap_ret_bank		; FC31  $4C $84 $FA
 ; End of
 
 ; Name	:
@@ -9378,30 +9378,30 @@ Set_wpn_pal:
 ;	  expension port works
 ;	  update joypad input
 ;; sub start ;;
-	LDA $35			; FC34  $A5 $35		save buttons pressed last frame
-	STA $34			; FC36  $85 $34		key
-	LDA #$01		; FC38  $A9 $01
-	STA Ctrl1_4016		; FC3A  $8D $16 $40
-	LDA #$00		; FC3D  $A9 $00
-	STA Ctrl1_4016		; FC3F  $8D $16 $40
-	LDX #$08		; FC42  $A2 $08
+	LDA $35				; FC34  $A5 $35		save buttons pressed last frame
+	STA $34				; FC36  $85 $34		key
+	LDA #$01			; FC38  $A9 $01
+	STA Ctrl1_4016			; FC3A  $8D $16 $40
+	LDA #$00			; FC3D  $A9 $00
+	STA Ctrl1_4016			; FC3F  $8D $16 $40
+	LDX #$08			; FC42  $A2 $08
 L3FC44:
-	LDA Ctrl1_4016		; FC44  $AD $16 $40
-	ROR A			; FC47  $6A		support expansion controller
-	BCS L3FC4B		; FC48  $B0 $01
-	ROR A			; FC4A  $6A
+	LDA Ctrl1_4016			; FC44  $AD $16 $40
+	ROR A				; FC47  $6A		support expansion controller
+	BCS L3FC4B			; FC48  $B0 $01
+	ROR A				; FC4A  $6A
 L3FC4B:
-	ROR $35			; FC4B  $66 $35
-	DEX			; FC4D  $CA
-	BNE L3FC44		; FC4E  $D0 $F4		next button
-	LDA $34			; FC50  $A5 $34
-	ORA $35			; FC52  $05 $35
-	BNE L3FC5D		; FC54  $D0 $07		branch if buttons pressed or released
+	ROR $35				; FC4B  $66 $35
+	DEX				; FC4D  $CA
+	BNE L3FC44			; FC4E  $D0 $F4		next button
+	LDA $34				; FC50  $A5 $34
+	ORA $35				; FC52  $05 $35
+	BNE L3FC5D			; FC54  $D0 $07		branch if buttons pressed or released
 ; no button pressed
-	STA $34			; FC56  $85 $34
-	LDA #$08		; FC58  $A9 $08		reset repeat counter
-	STA $36			; FC5A  $85 $36
-	RTS			; FC5C  $60
+	STA $34				; FC56  $85 $34
+	LDA #$08			; FC58  $A9 $08		reset repeat counter
+	STA $36				; FC5A  $85 $36
+	RTS				; FC5C  $60
 ; End of Get key on battle
 L3FC5D:
     LDA $34                  ; FC5D  $A5 $34
@@ -9435,25 +9435,25 @@ L3FC6C:
 ;	  ex> A: weapon(00h-3Fh), X: 09 -> 
 ;; sub start ;;
 Multi:
-	STA $00			; FC79  $85 $00
-	STX $01			; FC7B  $86 $01
-	LDX #$08		; FC7D  $A2 $08
-	LDA #$00		; FC7F  $A9 $00
-	STA $03			; FC81  $85 $03
-	STA $02			; FC83  $85 $02
+	STA $00				; FC79  $85 $00
+	STX $01				; FC7B  $86 $01
+	LDX #$08			; FC7D  $A2 $08
+	LDA #$00			; FC7F  $A9 $00
+	STA $03				; FC81  $85 $03
+	STA $02				; FC83  $85 $02
 L3FC85:
-	ROR $01			; FC85  $66 $01
-	BCC L3FC90		; FC87  $90 $07
-	CLC			; FC89  $18
-	LDA $00			; FC8A  $A5 $00
-	ADC $03			; FC8C  $65 $03
-	STA $03			; FC8E  $85 $03
+	ROR $01				; FC85  $66 $01
+	BCC L3FC90			; FC87  $90 $07
+	CLC				; FC89  $18
+	LDA $00				; FC8A  $A5 $00
+	ADC $03				; FC8C  $65 $03
+	STA $03				; FC8E  $85 $03
 L3FC90:
-	ROR $03			; FC90  $66 $03
-	ROR $02			; FC92  $66 $02
-	DEX			; FC94  $CA
-	BNE L3FC85		; FC95  $D0 $EE		loop
-	RTS			; FC97  $60
+	ROR $03				; FC90  $66 $03
+	ROR $02				; FC92  $66 $02
+	DEX				; FC94  $CA
+	BNE L3FC85			; FC95  $D0 $EE		loop
+	RTS				; FC97  $60
 ; End of Multi
 
 ; Name	: Multi16
@@ -9465,31 +9465,31 @@ L3FC90:
 ;	  $04,$05,$06,$07 = result(32-bit value)
 ;; sub start ;;
 Multi16:
-	LDX #$10		; FC98  $A2 $10
-	LDA #$00		; FC9A  $A9 $00
-	STA $05			; FC9C  $85 $05
-	STA $04			; FC9E  $85 $04
-	STA $07			; FCA0  $85 $07
-	STA $06			; FCA2  $85 $06
+	LDX #$10			; FC98  $A2 $10
+	LDA #$00			; FC9A  $A9 $00
+	STA $05				; FC9C  $85 $05
+	STA $04				; FC9E  $85 $04
+	STA $07				; FCA0  $85 $07
+	STA $06				; FCA2  $85 $06
 L3FCA4:
-	ROR $03			; FCA4  $66 $03
-	ROR $02			; FCA6  $66 $02
-	BCC L3FCB7		; FCA8  $90 $0D
-	CLC			; FCAA  $18
-	LDA $00			; FCAB  $A5 $00
-	ADC $06			; FCAD  $65 $06
-	STA $06			; FCAF  $85 $06
-	LDA $01			; FCB1  $A5 $01
-	ADC $07			; FCB3  $65 $07
-	STA $07			; FCB5  $85 $07
+	ROR $03				; FCA4  $66 $03
+	ROR $02				; FCA6  $66 $02
+	BCC L3FCB7			; FCA8  $90 $0D
+	CLC				; FCAA  $18
+	LDA $00				; FCAB  $A5 $00
+	ADC $06				; FCAD  $65 $06
+	STA $06				; FCAF  $85 $06
+	LDA $01				; FCB1  $A5 $01
+	ADC $07				; FCB3  $65 $07
+	STA $07				; FCB5  $85 $07
 L3FCB7:
-	ROR $07			; FCB7  $66 $07
-	ROR $06			; FCB9  $66 $06
-	ROR $05			; FCBB  $66 $05
-	ROR $04			; FCBD  $66 $04
-	DEX			; FCBF  $CA
-	BNE L3FCA4		; FCC0  $D0 $E2		loop
-	RTS			; FCC2  $60
+	ROR $07				; FCB7  $66 $07
+	ROR $06				; FCB9  $66 $06
+	ROR $05				; FCBB  $66 $05
+	ROR $04				; FCBD  $66 $04
+	DEX				; FCBF  $CA
+	BNE L3FCA4			; FCC0  $D0 $E2		loop
+	RTS				; FCC2  $60
 ; End of Multi16
 
 ; Name	: DoDivision
@@ -9548,15 +9548,15 @@ DoDivision:
 ; Marks	:
 ;; sub start ;;
 Get_nybble:
-	PHA			; FD07  $48
-	AND #$0F		; FD08  $29 $0F
-	TAX			; FD0A  $AA
-	PLA			; FD0B  $68
-	LSR A			; FD0C  $4A
-	LSR A			; FD0D  $4A
-	LSR A			; FD0E  $4A
-	LSR A			; FD0F  $4A
-	RTS			; FD10  $60
+	PHA				; FD07  $48
+	AND #$0F			; FD08  $29 $0F
+	TAX				; FD0A  $AA
+	PLA				; FD0B  $68
+	LSR A				; FD0C  $4A
+	LSR A				; FD0D  $4A
+	LSR A				; FD0E  $4A
+	LSR A				; FD0F  $4A
+	RTS				; FD10  $60
 ; End of Get_nybble
 
 ; Name	: Random
@@ -9567,38 +9567,38 @@ Get_nybble:
 ;	  X <= random value < A
 ;; sub start ;;
 Random:
-	STX $08			; FD11  $86 $08		start(minimum) value
-	CPX #$FF		; FD13  $E0 $FF
-	BNE L3FD1A		; FD15  $D0 $03
-	TXA			; FD17  $8A
-	BNE L3FD45		; FD18  $D0 $2B
+	STX $08				; FD11  $86 $08		start(minimum) value
+	CPX #$FF			; FD13  $E0 $FF
+	BNE L3FD1A			; FD15  $D0 $03
+	TXA				; FD17  $8A
+	BNE L3FD45			; FD18  $D0 $2B
 L3FD1A:
-	CMP #$00		; FD1A  $C9 $00
-	BEQ L3FD45		; FD1C  $F0 $27
-	CMP $08			; FD1E  $C5 $08
-	BEQ L3FD45		; FD20  $F0 $23
-	SEC			; FD22  $38
-	SBC $08			; FD23  $E5 $08
-	STA $00			; FD25  $85 $00
-	LDA #$80		; FD27  $A9 $80
-	STA $02			; FD29  $85 $02
-	ASL A			; FD2B  $0A
-	STA $01			; FD2C  $85 $01
-	LDX $42			; FD2E  $A6 $42
-	LDA rng_tbl,X		; FD30  $BD $48 $7A
-	INC $42			; FD33  $E6 $42
-	STA $03			; FD35  $85 $03
-	JSR Multi16		; FD37  $20 $98 $FC
-	LDX $06			; FD3A  $A6 $06
-	LDA $05			; FD3C  $A5 $05
-	BPL L3FD41		; FD3E  $10 $01
-	INX			; FD40  $E8
+	CMP #$00			; FD1A  $C9 $00
+	BEQ L3FD45			; FD1C  $F0 $27
+	CMP $08				; FD1E  $C5 $08
+	BEQ L3FD45			; FD20  $F0 $23
+	SEC				; FD22  $38
+	SBC $08				; FD23  $E5 $08
+	STA $00				; FD25  $85 $00
+	LDA #$80			; FD27  $A9 $80
+	STA $02				; FD29  $85 $02
+	ASL A				; FD2B  $0A
+	STA $01				; FD2C  $85 $01
+	LDX $42				; FD2E  $A6 $42
+	LDA rng_tbl,X			; FD30  $BD $48 $7A
+	INC $42				; FD33  $E6 $42
+	STA $03				; FD35  $85 $03
+	JSR Multi16			; FD37  $20 $98 $FC
+	LDX $06				; FD3A  $A6 $06
+	LDA $05				; FD3C  $A5 $05
+	BPL L3FD41			; FD3E  $10 $01
+	INX				; FD40  $E8
 L3FD41:
-	TXA			; FD41  $8A
-	CLC			; FD42  $18
-	ADC $08			; FD43  $65 $08		start(minimum) value
+	TXA				; FD41  $8A
+	CLC				; FD42  $18
+	ADC $08				; FD43  $65 $08		start(minimum) value
 L3FD45:
-	RTS			; FD45  $60
+	RTS				; FD45  $60
 ; End of Random
 
 
@@ -9610,29 +9610,29 @@ L3FD45:
 ;	  Scroll reset
 ;	  Battle text thing. Waits for Sprite 0 hit?
 Wait_NMI_end:
-	BIT PpuStatus_2002	; FD46  $2C $02 $20	resets paired write latch w to 0.
-	BVS Wait_NMI_end	; FD49  $70 $FB		loop
+	BIT PpuStatus_2002		; FD46  $2C $02 $20	resets paired write latch w to 0.
+	BVS Wait_NMI_end		; FD49  $70 $FB		loop
 Ctrl_Scroll:
-	LDA PpuCtrl_NT		; FD4B  $A5 $3B
-	STA PpuControl_2000	; FD4D  $8D $00 $20
-	LDA PpuScroll_1st	; FD50  $A5 $39
-	STA PpuScroll_2005	; FD52  $8D $05 $20
-	LDA PpuScroll_2nd	; FD55  $A5 $37
-	STA PpuScroll_2005	; FD57  $8D $05 $20
-	RTS			; FD5A  $60
+	LDA PpuCtrl_NT			; FD4B  $A5 $3B
+	STA PpuControl_2000		; FD4D  $8D $00 $20
+	LDA PpuScroll_1st		; FD50  $A5 $39
+	STA PpuScroll_2005		; FD52  $8D $05 $20
+	LDA PpuScroll_2nd		; FD55  $A5 $37
+	STA PpuScroll_2005		; FD57  $8D $05 $20
+	RTS				; FD5A  $60
 ; End of Wait_NMI_end
 
 ; Name	: Wait_MENU_snd
 ; Marks	: Set Ppu for menu area ??
 Wait_MENU_snd:
-	BIT PpuStatus_2002	; FD5B  $2C $02 $20
-	BVC Wait_MENU_snd	; FD5E  $50 $FB		loop - wait sprite 0 hit
-	LDA PpuCtrl_menu	; FD60  $A5 $3A
-	AND #$EF		; FD62  $29 $EF		set background pattern table address to $0000
-	STA PpuControl_2000	; FD64  $8D $00 $20
-	LDA PpuScroll_h		; FD67  $A5 $38
-	STA PpuScroll_2005	; FD69  $8D $05 $20
-	JMP L3FA48		; FD6C  $4C $48 $FA	sound ??
+	BIT PpuStatus_2002		; FD5B  $2C $02 $20
+	BVC Wait_MENU_snd		; FD5E  $50 $FB		loop - wait sprite 0 hit
+	LDA PpuCtrl_menu		; FD60  $A5 $3A
+	AND #$EF			; FD62  $29 $EF		set background pattern table address to $0000
+	STA PpuControl_2000		; FD64  $8D $00 $20
+	LDA PpuScroll_h			; FD67  $A5 $38
+	STA PpuScroll_2005		; FD69  $8D $05 $20
+	JMP L3FA48			; FD6C  $4C $48 $FA	sound ??
 ; End of Wait_MENU_snd
 
 ; Name	: Set_buf_to_Ppu
@@ -9641,15 +9641,15 @@ Wait_MENU_snd:
 ; SRC	: $02(ADDR)
 ; Marks	: Used on BANK 0B, BANK 0F
 Set_buf_to_Ppu:
-	JSR Set_PpuAddr_00	; FD6F  $20 $7E $FD
-	LDY #$00		; FD72  $A0 $00
+	JSR Set_PpuAddr_00		; FD6F  $20 $7E $FD
+	LDY #$00			; FD72  $A0 $00
 Set_buf_to_Ppu_loop:
-	LDA ($02),Y		; FD74  $B1 $02
-	STA PpuData_2007	; FD76  $8D $07 $20
-	INY			; FD79  $C8
-	DEX			; FD7A  $CA
-	BNE Set_buf_to_Ppu_loop	; FD7B  $D0 $F7		loop
-	RTS			; FD7D  $60
+	LDA ($02),Y			; FD74  $B1 $02
+	STA PpuData_2007		; FD76  $8D $07 $20
+	INY				; FD79  $C8
+	DEX				; FD7A  $CA
+	BNE Set_buf_to_Ppu_loop		; FD7B  $D0 $F7		loop
+	RTS				; FD7D  $60
 ; End of Set_buf_to_Ppu
 
 ; Name	: Set_PpuAddr_00
@@ -9658,12 +9658,12 @@ Set_buf_to_Ppu_loop:
 ;	  Used on BANK 0B, BANK 0F
 ;; sub start ;;
 Set_PpuAddr_00:
-	LDA PpuStatus_2002	; FD7E  $AD $02 $20
-	LDA $01			; FD81  $A5 $01
-	STA PpuAddr_2006	; FD83  $8D $06 $20
-	LDA $00			; FD86  $A5 $00
-	STA PpuAddr_2006	; FD88  $8D $06 $20
-	RTS			; FD8B  $60
+	LDA PpuStatus_2002		; FD7E  $AD $02 $20
+	LDA $01				; FD81  $A5 $01
+	STA PpuAddr_2006		; FD83  $8D $06 $20
+	LDA $00				; FD86  $A5 $00
+	STA PpuAddr_2006		; FD88  $8D $06 $20
+	RTS				; FD8B  $60
 ; End of Set_PpuAddr_00
 
 ; Name	:
@@ -9674,42 +9674,42 @@ Set_PpuAddr_00:
 ;	  Load battle text ??
 ;	  Used on BANK 0C
 L3FD8C:
-	TXA			; FD8C  $8A
-	JSR Swap_PRG		; FD8D  $20 $1A $FE
-	LDA #$00		; FD90  $A9 $00
-	TAY			; FD92  $A8
-	STA $65			; FD93  $85 $65
-	LDA $64			; FD95  $A5 $64
-	ASL A			; FD97  $0A
-	ROL $65			; FD98  $26 $65
-	CLC			; FD9A  $18
-	ADC $62			; FD9B  $65 $62		get pointer offset
-	STA $64			; FD9D  $85 $64
-	LDA $65			; FD9F  $A5 $65
-	ADC $63			; FDA1  $65 $63
-	STA $65			; FDA3  $85 $65
-	LDA ($64),Y		; FDA5  $B1 $64		pointers to battle text ??
-	PHA			; FDA7  $48
-	INY			; FDA8  $C8
-	LDA ($64),Y		; FDA9  $B1 $64
-	STA $65			; FDAB  $85 $65
-	PLA			; FDAD  $68
-	STA $64			; FDAE  $85 $64
-	DEY			; FDB0  $88
-	;LDX $00AA		; FDB1  $AE $AA $00
+	TXA				; FD8C  $8A
+	JSR Swap_PRG			; FD8D  $20 $1A $FE
+	LDA #$00			; FD90  $A9 $00
+	TAY				; FD92  $A8
+	STA $65				; FD93  $85 $65
+	LDA $64				; FD95  $A5 $64
+	ASL A				; FD97  $0A
+	ROL $65				; FD98  $26 $65
+	CLC				; FD9A  $18
+	ADC $62				; FD9B  $65 $62		get pointer offset
+	STA $64				; FD9D  $85 $64
+	LDA $65				; FD9F  $A5 $65
+	ADC $63				; FDA1  $65 $63
+	STA $65				; FDA3  $85 $65
+	LDA ($64),Y			; FDA5  $B1 $64		pointers to battle text ??
+	PHA				; FDA7  $48
+	INY				; FDA8  $C8
+	LDA ($64),Y			; FDA9  $B1 $64
+	STA $65				; FDAB  $85 $65
+	PLA				; FDAD  $68
+	STA $64				; FDAE  $85 $64
+	DEY				; FDB0  $88
+		;LDX $00AA			; FDB1  $AE $AA $00
 ;; JIGS - Mesen's debugger screwed up here. Replacing it with bytes.
 	.byte $AE,$AA,$00
 L3FDB4:
-	LDA ($64),Y		; FDB4  $B1 $64		copy to buffer
-	STA $7D47,X		; FDB6  $9D $47 $7D	text buffer
-	BEQ L3FDC1		; FDB9  $F0 $06		branch if null-terminator
-	INY			; FDBB  $C8
-	INX			; FDBC  $E8
-	CPX #$11		; FDBD  $E0 $11		max 17 bytes
-	BNE L3FDB4		; FDBF  $D0 $F3
+	LDA ($64),Y			; FDB4  $B1 $64		copy to buffer
+	STA $7D47,X			; FDB6  $9D $47 $7D	text buffer
+	BEQ L3FDC1			; FDB9  $F0 $06		branch if null-terminator
+	INY				; FDBB  $C8
+	INX				; FDBC  $E8
+	CPX #$11			; FDBD  $E0 $11		max 17 bytes
+	BNE L3FDB4			; FDBF  $D0 $F3
 L3FDC1:
-	STX $7CBF		; FDC1  $8E $BF $7C	text length ??
-	JMP Swap_ret_bank	; FDC4  $4C $84 $FA
+	STX $7CBF			; FDC1  $8E $BF $7C	text length ??
+	JMP Swap_ret_bank		; FDC4  $4C $84 $FA
 ; End of
 
 ; Name	: Weapon_type
@@ -9722,16 +9722,16 @@ L3FDC1:
 ;	  Used on BANK 0B
 ;; sub start ;;
 Weapon_type:
-	LDA #BANK_BATTLE	; FDC7  $A9 $0C		Need properties BANK
-	JSR Swap_PRG		; FDC9  $20 $1A $FE
-	LDA $D0			; FDCC  $A5 $D0
-	JSR Get_weapon_type	; FDCE  $20 $DF $FD
-	STA $1E			; FDD1  $85 $1E
-	LDA $D1			; FDD3  $A5 $D1
-	JSR Get_weapon_type	; FDD5  $20 $DF $FD
-	STA $1F			; FDD8  $85 $1F
-	LDA #$0B		; FDDA  $A9 $0B
-	JMP Swap_PRG		; FDDC  $4C $1A $FE
+	LDA #BANK_BATTLE		; FDC7  $A9 $0C		Need properties BANK
+	JSR Swap_PRG			; FDC9  $20 $1A $FE
+	LDA $D0				; FDCC  $A5 $D0
+	JSR Get_weapon_type		; FDCE  $20 $DF $FD
+	STA $1E				; FDD1  $85 $1E
+	LDA $D1				; FDD3  $A5 $D1
+	JSR Get_weapon_type		; FDD5  $20 $DF $FD
+	STA $1F				; FDD8  $85 $1F
+	LDA #$0B			; FDDA  $A9 $0B
+	JMP Swap_PRG			; FDDC  $4C $1A $FE
 ; End of Weapon_type
 
 .import	Weapon_prop
@@ -9746,17 +9746,17 @@ Weapon_type:
 ;	  use BANK 0C
 ;; sub start ;;
 Get_weapon_type:
-	LDX #$09		; FDDF  $A2 $09
-	JSR Multi		; FDE1  $20 $79 $FC	get weapon properties address
-	LDA $02			; FDE4  $A5 $02
-	ADC #<Weapon_prop	; FDE6	$69 $F6		BANK 0C/80F6 (weapon properties)
-	STA $00			; FDE8  $85 $00
-	LDA $03			; FDEA  $A5 $03
-	ADC #>Weapon_prop	; FDEC	$69 $80
-	STA $01			; FDEE  $85 $01
-	LDY #$00		; FDF0  $A0 $00
-	LDA ($00),Y		; FDF2  $B1 $00		ex> 82EEh - weapon properties(type)
-	RTS			; FDF4  $60
+	LDX #$09			; FDDF  $A2 $09
+	JSR Multi			; FDE1  $20 $79 $FC	get weapon properties address
+	LDA $02				; FDE4  $A5 $02
+	ADC #<Weapon_prop		; FDE6	$69 $F6		BANK 0C/80F6 (weapon properties)
+	STA $00				; FDE8  $85 $00
+	LDA $03				; FDEA  $A5 $03
+	ADC #>Weapon_prop		; FDEC	$69 $80
+	STA $01				; FDEE  $85 $01
+	LDY #$00			; FDF0  $A0 $00
+	LDA ($00),Y			; FDF2  $B1 $00		ex> 82EEh - weapon properties(type)
+	RTS				; FDF4  $60
 ; End of Get_weapon_type
 
 ; stale code = (now at 0F/FDBD), data block ?? - unused code
@@ -9773,7 +9773,7 @@ Get_weapon_type:
 ; Marks	: fall in loop for wait NMI start
 Wait_NMI:
 ;; sub start ;;
-	JMP Wait_NMI_		; FE00  $4C $AD $FE
+	JMP Wait_NMI_			; FE00  $4C $AD $FE
 ; End of Wait_NMI
 
 Swap_PRG_:
@@ -9786,16 +9786,16 @@ Swap_PRG_:
 ; Marks	: MMC1 control REGISTER
 ;	  A will be 0
 MMC1_CONTROL_REGISTER:
-	STA $9FFF		; FE06  $8D $FF $9F
-	LSR A			; FE09  $4A
-	STA $9FFF		; FE0A  $8D $FF $9F
-	LSR A			; FE0D  $4A
-	STA $9FFF		; FE0E  $8D $FF $9F
-	LSR A			; FE11  $4A
-	STA $9FFF		; FE12  $8D $FF $9F
-	LSR A			; FE15  $4A
-	STA $9FFF		; FE16  $8D $FF $9F
-	RTS			; FE19  $60
+	STA $9FFF			; FE06  $8D $FF $9F
+	LSR A				; FE09  $4A
+	STA $9FFF			; FE0A  $8D $FF $9F
+	LSR A				; FE0D  $4A
+	STA $9FFF			; FE0E  $8D $FF $9F
+	LSR A				; FE11  $4A
+	STA $9FFF			; FE12  $8D $FF $9F
+	LSR A				; FE15  $4A
+	STA $9FFF			; FE16  $8D $FF $9F
+	RTS				; FE19  $60
 ; End of MMC1_CONTROL_REGISTER
 
 ; Name	: Swap_PRG
@@ -9803,16 +9803,16 @@ MMC1_CONTROL_REGISTER:
 ; Marks	: Change Program Rom Bank
 ;	  A will be 0
 Swap_PRG:
-	STA $FFF9		; FE1A  $8D $F9 $FF
-	LSR A			; FE1D  $4A
-	STA $FFF9		; FE1E  $8D $F9 $FF
-	LSR A			; FE21  $4A
-	STA $FFF9		; FE22  $8D $F9 $FF
-	LSR A			; FE25  $4A
-	STA $FFF9		; FE26  $8D $F9 $FF
-	LSR A			; FE29  $4A
-	STA $FFF9		; FE2A  $8D $F9 $FF
-	RTS			; FE2D  $60
+	STA $FFF9			; FE1A  $8D $F9 $FF
+	LSR A				; FE1D  $4A
+	STA $FFF9			; FE1E  $8D $F9 $FF
+	LSR A				; FE21  $4A
+	STA $FFF9			; FE22  $8D $F9 $FF
+	LSR A				; FE25  $4A
+	STA $FFF9			; FE26  $8D $F9 $FF
+	LSR A				; FE29  $4A
+	STA $FFF9			; FE2A  $8D $F9 $FF
+	RTS				; FE2D  $60
 ; End of Swap_PRG
 
 
@@ -9831,51 +9831,51 @@ OnReset:
     LDA #$06                 ; FE38  $A9 $06
     STA PpuMask_2001         ; FE3A  $8D $01 $20
     CLD                      ; FE3D  $D8
-	; Wait 2 frame
+		; Wait 2 frame
     LDX #$02                 ; FE3E  $A2 $02
   : BIT PpuStatus_2002       ; FE40  $2C $02 $20
     BPL :-                   ; FE43  $10 $FB
     DEX                      ; FE45  $CA
     BNE :-                   ; FE46  $D0 $F8
-	; Clear the shift register to its initial state.
+		; Clear the shift register to its initial state.
     LDA #$80                 ; FE48  $A9 $80
     STA $9FFF                ; FE4A  $8D $FF $9F
     STA $BFFF                ; FE4D  $8D $FF $BF
     STA $DFFF                ; FE50  $8D $FF $DF
     STA $FFF9                ; FE53  $8D $F9 $FF
-	; Set switch CHR ROM 8KB, switch 16KB bank at $8000, fix last bank at $C000, vertical Mirroring
-	LDA #$0E		; FE56  $A9 $0E		BANK 0E
-	JSR MMC1_CONTROL_REGISTER	; FE58  $20 $06 $FE
-	; Set CHR bank 0 = already set 8KB CHR RAM mode
+		; Set switch CHR ROM 8KB, switch 16KB bank at $8000, fix last bank at $C000, vertical Mirroring
+	LDA #$0E			; FE56  $A9 $0E		BANK 0E
+	JSR MMC1_CONTROL_REGISTER		; FE58  $20 $06 $FE
+		; Set CHR bank 0 = already set 8KB CHR RAM mode
     STA $BFFF                ; FE5B  $8D $FF $BF
     STA $BFFF                ; FE5E  $8D $FF $BF
     STA $BFFF                ; FE61  $8D $FF $BF
     STA $BFFF                ; FE64  $8D $FF $BF
     STA $BFFF                ; FE67  $8D $FF $BF
-	; Set CHR bank 1 = already set 8KB CHR RAM mode(ignored in 8KB mode)
+		; Set CHR bank 1 = already set 8KB CHR RAM mode(ignored in 8KB mode)
     STA $DFFF                ; FE6A  $8D $FF $DF
     STA $DFFF                ; FE6D  $8D $FF $DF
     STA $DFFF                ; FE70  $8D $FF $DF
     STA $DFFF                ; FE73  $8D $FF $DF
     STA $DFFF                ; FE76  $8D $FF $DF
-	; Set bank_06($18000)
+		; Set bank_06($18000)
     LDA #$06                 ; FE79  $A9 $06
     JSR Swap_PRG             ; FE7B  $20 $1A $FE
-	; Init PAD, APU
+		; Init PAD, APU
     STA Ctrl1_4016           ; FE7E  $8D $16 $40
     STA ApuStatus_4015       ; FE81  $8D $15 $40
     STA DmcFreq_4010         ; FE84  $8D $10 $40
     LDA #$C0                 ; FE87  $A9 $C0
     STA Ctrl2_FrameCtr_4017  ; FE89  $8D $17 $40
     DEX                      ; FE8C  $CA
-	TXS			; FE8D	$9A		Set SP init
-	STX $0100		; FE8E  $8E $00 $01
-	JSR Palettes_init	; FE91	$20 $BF $FE
-	LDA #$06		; FE94  $A9 $06		BANK 06 - Called twice, before on $FE79, why ??
-	JSR Swap_PRG		; FE96  $20 $1A $FE
-	LDA #$40		; FE99  $A9 $40		Set instruction to RTI
-	STA $0100		; FE9B  $8D $00 $01
-	JMP $C000		; FE9E  $4C $00 $C0	How about go to $C025 directly ??
+	TXS				; FE8D	$9A		Set SP init
+	STX $0100			; FE8E  $8E $00 $01
+	JSR Palettes_init		; FE91	$20 $BF $FE
+	LDA #$06			; FE94  $A9 $06		BANK 06 - Called twice, before on $FE79, why ??
+	JSR Swap_PRG			; FE96  $20 $1A $FE
+	LDA #$40			; FE99  $A9 $40		Set instruction to RTI
+	STA $0100			; FE9B  $8D $00 $01
+	JMP $C000			; FE9E  $4C $00 $C0	How about go to $C025 directly ??
 ; End of OnReset
 
 ; < NMI routine >
@@ -9893,41 +9893,41 @@ NMI_routine:
 
 ; Marks	: set JMP to $FEA1 on $0100(NMI) and wait NMI
 Wait_NMI_:
-	LDA #<NMI_routine	; FEAD  $A9 $A1
-	STA $0101		; FEAF  $8D $01 $01
-	LDA #>NMI_routine	; FEB2  $A9 $FE
-	STA $0102		; FEB4  $8D $02 $01
-	LDA #$4C		; FEB7  $A9 $4C		Set instruction to JMP
-	STA $0100		; FEB9  $8D $00 $01
+	LDA #<NMI_routine		; FEAD  $A9 $A1
+	STA $0101			; FEAF  $8D $01 $01
+	LDA #>NMI_routine		; FEB2  $A9 $FE
+	STA $0102			; FEB4  $8D $02 $01
+	LDA #$4C			; FEB7  $A9 $4C		Set instruction to JMP
+	STA $0100			; FEB9  $8D $00 $01
 ; Endless loop - wait NMI or IRQ
 OnIRQ:
-	JMP OnIRQ		; FEBC  $4C $BC $FE	Endless loop - wait NMI or IRQ
+	JMP OnIRQ			; FEBC  $4C $BC $FE	Endless loop - wait NMI or IRQ
 ; End of Wait_NMI
 
 ; Name	: Palettes_init
 ; Marks	: Palettes init
 ;	  Set 0Fh to $3F00-$3F0F
 Palettes_init:
-	LDA #$00		; FEBF  $A9 $00		hide sprite/background
-	STA PpuMask_2001	; FEC1  $8D $01 $20
-	LDA PpuStatus_2002	; FEC4  $AD $02 $20
-	LDA #$3F		; FEC7  $A9 $3F
-	STA PpuAddr_2006	; FEC9  $8D $06 $20
-	LDA #$00		; FECC  $A9 $00
-	STA PpuAddr_2006	; FECE  $8D $06 $20
-	LDX #$10		; FED1  $A2 $10
-	LDA #$0F		; FED3  $A9 $0F
+	LDA #$00			; FEBF  $A9 $00		hide sprite/background
+	STA PpuMask_2001		; FEC1  $8D $01 $20
+	LDA PpuStatus_2002		; FEC4  $AD $02 $20
+	LDA #$3F			; FEC7  $A9 $3F
+	STA PpuAddr_2006		; FEC9  $8D $06 $20
+	LDA #$00			; FECC  $A9 $00
+	STA PpuAddr_2006		; FECE  $8D $06 $20
+	LDX #$10			; FED1  $A2 $10
+	LDA #$0F			; FED3  $A9 $0F
 Palettes_init_loop:
-	STA PpuData_2007	; FED5  $8D $07 $20
-	DEX			; FED8  $CA
-	BNE Palettes_init_loop	; FED9  $D0 $FA
-	LDA #$3F		; FEDB  $A9 $3F
-	STA PpuAddr_2006	; FEDD  $8D $06 $20
-	LDA #$00		; FEE0  $A9 $00
-	STA PpuAddr_2006	; FEE2  $8D $06 $20
-	STA PpuAddr_2006	; FEE5  $8D $06 $20
-	STA PpuAddr_2006	; FEE8  $8D $06 $20
-	RTS			; FEEB  $60
+	STA PpuData_2007		; FED5  $8D $07 $20
+	DEX				; FED8  $CA
+	BNE Palettes_init_loop		; FED9  $D0 $FA
+	LDA #$3F			; FEDB  $A9 $3F
+	STA PpuAddr_2006		; FEDD  $8D $06 $20
+	LDA #$00			; FEE0  $A9 $00
+	STA PpuAddr_2006		; FEE2  $8D $06 $20
+	STA PpuAddr_2006		; FEE5  $8D $06 $20
+	STA PpuAddr_2006		; FEE8  $8D $06 $20
+	RTS				; FEEB  $60
 ; End of Palettes_init
 
 ; $FEEC - data block = padding
@@ -9981,11 +9981,11 @@ FF97:
 ;	  init sram
 ;	  Used on BANK 0E
 Init_variables:
-	LDA #$00		; FFB0	$A9 $00		BANK 00
-	JSR Swap_PRG_		; FFB2	$20 $03 $FE
-	JSR Init_var		; FFB5	$20 $09 $9C
-	LDA #$0E		; FFB8	$A9 $0E		BANK 0E
-	JMP Swap_PRG_		; FFBA	$4C $03 $FE
+	LDA #$00			; FFB0	$A9 $00		BANK 00
+	JSR Swap_PRG_			; FFB2	$20 $03 $FE
+	JSR Init_var			; FFB5	$20 $09 $9C
+	LDA #$0E			; FFB8	$A9 $0E		BANK 0E
+	JMP Swap_PRG_			; FFBA	$4C $03 $FE
 ; End of Init_variables
 
 ;; [FFBD : 3FFBF] - unused code ??
@@ -9995,11 +9995,11 @@ Init_variables:
 
 ; Marks	: decompress world tilemap (minimap)
 ;	  Used on BANK 09
-	LDA #$01		; FFC0	$A9 $01
-	JSR Swap_PRG_		; FFC2	$20 $03 $FE
-	JSR $BFB0		; FFC5	$20 $B0 $BF
-	LDA #$09		; FFC8	$A9 $09
-	JMP Swap_PRG_		; FFCA	$4C $03 $FE
+	LDA #$01			; FFC0	$A9 $01		BANK 01
+	JSR Swap_PRG_			; FFC2	$20 $03 $FE
+	JSR $BFB0			; FFC5	$20 $B0 $BF
+	LDA #$09			; FFC8	$A9 $09		BANK 09
+	JMP Swap_PRG_			; FFCA	$4C $03 $FE
 ; End of
 
 ;$FFCD - data block = padding

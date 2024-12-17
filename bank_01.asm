@@ -5,7 +5,7 @@
 
 ; ========== pointers to world tilemaps ($8000-$81FF) START ==========
 ;; [$8000 :: 0x04000]
-
+TILEMAP_L_TBL:
 .byte $00,$82,$09,$82,$1A,$82,$3A,$82,$65,$82,$92,$82,$B9,$82,$E5,$82
 .byte $15,$83,$3D,$83,$63,$83,$8B,$83,$BB,$83,$EC,$83,$21,$84,$5A,$84
 .byte $A2,$84,$DE,$84,$19,$85,$59,$85,$96,$85,$CF,$85,$09,$86,$41,$86
@@ -24,7 +24,7 @@
 .byte $C5,$A3,$05,$A4,$44,$A4,$83,$A4,$C1,$A4,$FA,$A4,$35,$A5,$6A,$A5
 
 ;; [$8100 :: 0x04100]
-
+TILEMAP_H_TBL:
 .byte $A4,$A5,$D8,$A5,$0D,$A6,$46,$A6,$84,$A6,$C0,$A6,$F8,$A6,$2B,$A7
 .byte $5D,$A7,$8E,$A7,$C5,$A7,$07,$A8,$50,$A8,$9C,$A8,$EB,$A8,$3B,$A9
 .byte $88,$A9,$D2,$A9,$1A,$AA,$69,$AA,$B5,$AA,$FF,$AA,$48,$AB,$9A,$AB
@@ -45,8 +45,8 @@
 
 ; ========== world tilemaps($8200-$BC4D) START ==========
 ; tile is compressed.(RLU)
-; tile(bit7 Set), next data is tile count.
-; tile(bit7 clear), next data is tile.
+; tile(bit7 Set), data is tile count. next is tile index.
+; tile(bit7 clear), data is tile index.
 ; tile(FFh), end of tilemap
 ;; [$8200 :: 0x04200]
 
@@ -1232,54 +1232,56 @@
 
 ; Name	:
 ; Marks	: decompress world tilemap (minimap)
-	LDA $41			; BFB0	$A5 $41		map row
-	ASL			; BFB2	$0A
-	TAX			; BFB3	$AA
-	BCC L07FC3		; BFB4	$90 $0D
-	LDA $8100,X		; BFB6	$BD $00 $81
-	STA $80			; BFB9	$85 $80
-	LDA $8101,X		; BFBB	$BD $01 $81
-	STA $81			; BFBE	$85 $81
-	JMP L07FCD		; BFC0	$4C $CD $BF
+;	  +$80 = tilemap address
+;	  Set world tilemap to $0600-$06FF
+	LDA oam_y			; BFB0	$A5 $41		map row
+	ASL				; BFB2	$0A
+	TAX				; BFB3	$AA
+	BCC L07FC3			; BFB4	$90 $0D
+	LDA TILEMAP_H_TBL,X		; BFB6	$BD $00 $81
+	STA $80				; BFB9	$85 $80
+	LDA TILEMAP_H_TBL+1,X		; BFBB	$BD $01 $81
+	STA $81				; BFBE	$85 $81
+	JMP L07FCD			; BFC0	$4C $CD $BF
 L07FC3:
-	LDA $8000,X		; BFC3	$BD $00 $80
-	STA $80			; BFC6	$85 $80
-	LDA $8001,X		; BFC8	$BD $01 $80
-	STA $81			; BFCB	$85 $81
+	LDA TILEMAP_L_TBL,X		; BFC3	$BD $00 $80
+	STA $80				; BFC6	$85 $80
+	LDA TILEMAP_L_TBL+1,X		; BFC8	$BD $01 $80
+	STA $81				; BFCB	$85 $81
 L07FCD:
-	LDY #$00		; BFCD	$A0 $00
-	LDX #$00		; BFCF	$A2 $00
+	LDY #$00			; BFCD	$A0 $00
+	LDX #$00			; BFCF	$A2 $00
 ; start of loop
 L07FD1:
-	LDA ($80),Y		; BFD1	$B1 $80
-	BPL L07FF2		; BFD3	$10 $1D
-	CMP #$FF		; BFD5	$C9 $FF
-	BEQ L07FFF		; BFD7	$F0 $26		terminator
-	AND #$7F		; BFD9	$29 $7F
-	STA $82			; BFDB	$85 $82		tile index
-	INC $80			; BFDD	$E6 $80
-	BNE L07FE3		; BFDF	$D0 $02
-	INC $81			; BFE1	$E6 $81
+	LDA ($80),Y			; BFD1	$B1 $80
+	BPL L07FF2			; BFD3	$10 $1D
+	CMP #$FF			; BFD5	$C9 $FF
+	BEQ L07FFF			; BFD7	$F0 $26		terminator
+	AND #$7F			; BFD9	$29 $7F
+	STA $82				; BFDB	$85 $82		tile index
+	INC $80				; BFDD	$E6 $80
+	BNE L07FE3			; BFDF	$D0 $02
+	INC $81				; BFE1	$E6 $81
 L07FE3:
-	LDA ($80),Y		; BFE3	$B1 $80		run length
-	TAY			; BFE5	$A8
-	DEY			; BFE6	$88
-	LDA $82			; BFE7	$A5 $82
+	LDA ($80),Y			; BFE3	$B1 $80		run length
+	TAY				; BFE5	$A8
+	DEY				; BFE6	$88
+	LDA $82				; BFE7	$A5 $82
 L07FE9:
-	STA $0600,X		; BFE9	$9D $00 $06
-	INX			; BFEC	$E8
-	DEY			; BFED	$88
-	BNE L07FE9		; BFEE	$D0 $F9
-	LDY #$00		; BFF0	$A0 $00
+	STA $0600,X			; BFE9	$9D $00 $06	multiple tile
+	INX				; BFEC	$E8
+	DEY				; BFED	$88
+	BNE L07FE9			; BFEE	$D0 $F9
+	LDY #$00			; BFF0	$A0 $00
 L07FF2:
-	STA $0600,X		; BFF2	$9D $00 $06	single tile
-	INX			; BFF5	$E8
-	INC $80			; BFF6	$E6 $80
-	BNE L07FD1		; BFF8	$D0 $D7
-	INC $81			; BFFA	$E6 $81
-	JMP L07FD1		; BFFC	$4C $D1 $BF
+	STA $0600,X			; BFF2	$9D $00 $06	single tile
+	INX				; BFF5	$E8
+	INC $80				; BFF6	$E6 $80
+	BNE L07FD1			; BFF8	$D0 $D7
+	INC $81				; BFFA	$E6 $81
+	JMP L07FD1			; BFFC	$4C $D1 $BF
 L07FFF:
-	RTS			; BFFF	$60
+	RTS				; BFFF	$60
 ; End of
 
 ;========== decompress world tilemap code ($BFB0-$BFFF) END ==========
