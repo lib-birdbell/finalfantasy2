@@ -284,7 +284,7 @@ WAIT_KEY_REL:
 	LDA #$00		; ????  $A9 $00
 	STA PpuScroll_2005	; ????  $8D $05 $20
 	STA PpuScroll_2005	; ????  $8D $05 $20
-	JSR Sound_proc		; ????	$20 $A9 $DB
+	JSR Sound_proc		; ????	$20 $A9 $DB	Init ??
 	JSR Get_key
 	LDA key1p
 	CMP $21
@@ -390,6 +390,16 @@ SKIP_INY:
 
 ; Name	:
 ; Marks	: Sound ??
+;	  $C0 = Update flag for $4000-$4003
+;	  $C1 = Update flag for $4004-$4007
+;	  $C2 = Update flag for $4008-$400B
+;	  $E0 = Current ID
+;	  $E5 = ??
+;	  $6F19,$6F1A,$6F1B,$6F1C = $4000-$4003 temp
+;	  $6F1D,$6F1E,$6F1F,$6F20 = $4004-$4007 temp
+;	  $6F21,$6F22,$6F23,$6F24 = $4008-$400B temp
+;	  $6F00 = tempo
+;	  $6F06 = Sum of tempo
 Sound_proc:
 	LDA #$00		; 9800	$A9 $00		$826F
 	STA $C0			; 9802	$85 $C0
@@ -422,22 +432,35 @@ L35832:
 	STA current_song_ID	; 9839	$85 $E0
 	CMP current_BGM_ID	; 983B	$CD $25 $6F
 	BEQ L35847		; 983E	$F0 $07
-	JSR J988E		; 9840	$20 $8E $98
-	JSR J9867		; 9843	$20 $67 $98
+	JSR J988E		; 9840	$20 $8E $98	Backup all data(APU temp)
+L382B2_:
+	JSR J9867		; 9843	$20 $67 $98	Load settings
 	RTS			; 9846	$60
 ; End of
-
 L35847:
-.byte $C9,$09,$F0,$F8,$A9,$30,$8D,$00,$40
-.byte $8D,$04,$40,$A9,$80,$8D,$08,$40,$A9,$00,$8D,$1B,$6F,$8D,$1F,$6F
-.byte $8D,$23,$6F
+	CMP #$09		; .byte $C9,$09
+	BEQ L382B2_		; $F0,$F8
+	LDA #$30		; $A9,$30
+	STA Sq0Duty_4000	; $8D,$00,$40
+	STA Sq1Duty_4004	; .byte $8D,$04,$40
+	LDA #$80		; $A9,$80
+	STA TrgLinear_4008	; $8D,$08,$40
+	LDA #$00		; $A9,$00
+	STA $6F1B		; $8D,$1B,$6F
+	STA $6F1F		; $8D,$1F,$6F
+	STA $6F23		; .byte $8D,$23,$6F
 L35863:
-	JSR J990E		; 9863	$20 $0E $99	$8191
+	JSR J990E		; 9863	$20 $0E $99	APU process - $82D2
 	RTS			; 9866	$60
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Load settings(CH0, CH1, TRI)
+;	  $6F25 = Current ID
+;	  +$B0 = CH0 address
+;	  +$B2 = CH1 address
+;	  +$B4 = TRI address
+;	  $E6 = ??
 J9867:
 	LDA $E0			; 9867	$A5 $E0
 	STA $6F25		; 9869	$8D $25 $6F
@@ -456,14 +479,16 @@ L3587C:
 	INX			; 9881	$E8
 	CPX #$06		; 9882	$E0 $06
 	BCC L3587C		; 9884	$90 $F6
-	JSR J98C4		; 9886	$20 $C4 $98
+	JSR J98C4		; 9886	$20 $C4 $98	Init temp
 	LDA #$00		; 9889	$A9 $00
 	STA $E6			; 988B	$85 $E6
 	RTS			; 988D	$60
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Backup all data
+;	  $B0-$C1 -> $6F26-$6F37 = backup
+;	  $6F00-$6F25 -> $6F38-$6F5D = backup
 J988E:
 	LDX #$00		; 988E	$A2 $00
 L35890:
@@ -503,7 +528,14 @@ L358B7:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Init temp
+;	  $B6-$B9 = ??
+;	  $BA-$BF = ??
+;	  $6F06-$6F09 = ??
+;	  $6F04 = ??
+;	  $6F05 = ??
+;	  $6F00 = temp offset base value ??
+;	  $-$ -> $6F19-$6F24 = ??
 J98C4:
 	LDX #$00		; 98C4	$A2 $00
 	LDA #$FF		; 98C6	$A9 $FF
@@ -595,28 +627,36 @@ D9902:
 .byte $30,$08,$00,$00,$30,$08,$00,$00,$80,$00,$00,$00
 
 ; Name	:
-; Marks	: ??
+; Marks	: APU process
 J990E:
-	LDA $6F00		; 990E	$AD $00 $6F	$823C
+	LDA $6F00		; 990E	$AD $00 $6F	tempo value - $83C3
 	CLC			; 9911	$18
 	ADC $6F06		; 9912	$6D $06 $6F
-	STA $6F06		; 9915	$8D $06 $6F
+	STA $6F06		; 9915	$8D $06 $6F	Total tempo
 J9918:
 	LDA $6F06		; 9918	$AD $06 $6F
 	CMP #$4B		; 991B	$C9 $4B
 	BCC L3592A		; 991D	$90 $0B
 	SBC #$4B		; 991F	$E9 $4B
 	STA $6F06		; 9921	$8D $06 $6F
-	JSR J9931		; 9924	$20 $31 $99
-	JMP J9918		; 9927	$4C $18 $99	$8255
+	JSR J9931		; 9924	$20 $31 $99	Check and data process
+	JMP J9918		; 9927	$4C $18 $99	$83DC
 L3592A:
-	JSR J9B22		; 992A	$20 $22 $9B	$8258
-	JSR J9C1F		; 992D	$20 $1F $9C	$825B
+	JSR J9B22		; 992A	$20 $22 $9B	Settings parameter process - $83DF
+	JSR J9C1F		; 992D	$20 $1F $9C	Update APU registers - $825B
 	RTS			; 9930	$60
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Check and data process (CH0, CH1, TRI)
+;	  $B0,$B1 = CH0
+;	  $B2,$B3 = CH1
+;	  $B4,$B5 = TRI
+;	  +$C3 = CH data address
+;	  $C5, $C6, $C7 = temp CH data address position(+1, +2, +4)
+;	  $6F07 = CH0 tick/rest count
+;	  $6F08 = CH1 tick/rest count
+;	  $6F09 = TRI tick/rest count
 J9931:
 	LDA #$00		; 9931	$A9 $00
 	STA $C5			; 9933	$85 $C5
@@ -637,9 +677,9 @@ L35935:
 	LDA $6F07,Y		; 994B	$B9 $07 $6F
 	BNE L35963		; 994E	$D0 $13
 	LDY #$00		; 9950	$A0 $00
-	JSR J9971		; 9952	$20 $71 $99	$827E
+	JSR J9971		; 9952	$20 $71 $99	Data process - $827E
 	LDX $C6			; 9955	$A6 $C6
-	TYA			; 9957	$98
+	TYA			; 9957	$98		Increase data address(for next data)
 	CLC			; 9958	$18
 	ADC $C3			; 9959	$65 $C3
 	STA $B0,X		; 995B	$95 $B0		////debug
@@ -656,78 +696,85 @@ L35968:
 	BCC L35935		; 996E	$90 $C5
 	RTS			; 9970	$60
 ; End of
+
+; Name	:
+; Marks	: Data process
 J9971:
 	LDA ($C3),Y		; 9971	$B1 $C3		$8426
 	INY			; 9973	$C8
 	CMP #$E0		; 9974	$C9 $E0
 	BCS L3597C		; 9976	$B0 $04
-	JSR J99C8		; 9978	$20 $C8 $99
+	JSR J99C8		; 9978	$20 $C8 $99	if A<E0h
 	RTS			; 997B	$60
 ; Enf of
 L3597C:
 	BNE L35984		; 997C	$D0 $06
-	JSR J9A4C		; 997E	$20 $4C $9A
-	JMP J9971		; 9981	$4C $71 $99
+	JSR J9A4C		; 997E	$20 $4C $9A	if A == E0h - Set tempo
+	JMP J9971		; 9981	$4C $71 $99	goto Data process
 L35984:
 	CMP #$F0		; 9984	$C9 $F0
 	BCS L3598E		; 9986	$B0 $06
 	JSR J9A53		; 9988	$20 $53 $9A	if A<F0h
-	JMP J9971		; 998B	$4C $71 $99
+	JMP J9971		; 998B	$4C $71 $99	goto Data process
 L3598E:
 	CMP #$F6		; 998E	$C9 $F6
 	BCS L35998		; 9990	$B0 $06
-	JSR J9A5B		; 9992	$20 $5B $9A
+	JSR J9A5B		; 9992	$20 $5B $9A	if A<F6h
 L35995:
-	JMP J9971		; 9995	$4C $71 $99
+	JMP J9971		; 9995	$4C $71 $99	goto Data process
 L35998:
 	BNE L359A0		; 9998	$D0 $06
-	JSR J9A63		; 999A	$20 $63 $9A	if A==F6h
-	JMP J9971		; 999D	$4C $71 $99	$8452
+	JSR J9A63		; 999A	$20 $63 $9A	if A==F6h - Load and Set Setting parameters
+	JMP J9971		; 999D	$4C $71 $99	goto Data process
 L359A0:
 	CMP #$FC		; 99A0	$C9 $FC
 	BCS L359AA		; 99A2	$B0 $06
 	JSR J9A82		; 99A4	$20 $82 $9A
-	JMP J9971		; 99A7	$4C $71 $99
+	JMP J9971		; 99A7	$4C $71 $99	goto Data process
 L359AA:
 	BNE L359B2		; 99AA	$D0 $06
 	JSR J9A95		; 99AC	$20 $95 $9A
-	JMP J9971		; 99AF	$4C $71 $99
+	JMP J9971		; 99AF	$4C $71 $99	goto Data process
 L359B2:
 	CMP #$FE		; 99B2	$C9 $FE		$8467
 	BCS L359BC		; 99B4	$B0 $06
 	JSR J9AB1		; 99B6	$20 $B1 $9A
-	JMP J9971		; 99B9	$4C $71 $99
+	JMP J9971		; 99B9	$4C $71 $99	goto Data process
 L359BC:
 	BNE L359C4		; 99BC	$D0 $06
 	JSR J9ACE		; 99BE	$20 $CE $9A
-	JMP J9971		; 99C1	$4C $71 $99
+	JMP J9971		; 99C1	$4C $71 $99	goto Data process
 L359C4:
 	JSR J9ADF		; 99C4	$20 $DF $9A
 	RTS			; 99C7	$60
 ; End of
+
+; Name	:
+; Marks	: Normal data process
+;	  $C7 = ??
+;	  $C8 = data
 J99C8:
-	STA $C8			; 99C8	$85 $C8
+	STA $C8			; 99C8	$85 $C8		data
 	AND #$0F		; 99CA	$29 $0F
 	TAX			; 99CC	$AA
-	LDA D9CFD,X		; 99CD	$BD $FD $9C
-	LDX $C5			; 99D0	$A6 $C5
-	STA $6F07,X		; 99D2	$9D $07 $6F
-	LDA $C8			; 99D5	$A5 $C8
+	LDA D9CFD,X		; 99CD	$BD $FD $9C	tick table ??
+	LDX $C5			; 99D0	$A6 $C5		CHx1
+	STA $6F07,X		; 99D2	$9D $07 $6F	CH tick/rest count
+	LDA $C8			; 99D5	$A5 $C8		data
 	CMP #$D0		; 99D7	$C9 $D0
-	BCC L359DC		; 99D9	$90 $01
+	BCC L359DC		; 99D9	$90 $01		branch if A < D0h
 	RTS			; 99DB	$60
-; End of
 L359DC:
 	CMP #$C0		; 99DC	$C9 $C0
-	BCC L359FE		; 99DE	$90 $1E
+	BCC L359FE		; 99DE	$90 $1E		branch if A < C0h
 	LDA #$01		; 99E0	$A9 $01
 	STA $C0,X		; 99E2	$95 $C0
 	LDX $C7			; 99E4	$A6 $C7
 	LDA #$00		; 99E6	$A9 $00
-	STA $6F1B,X		; 99E8	$9D $1B $6F
+	STA $6F1B,X		; 99E8	$9D $1B $6F	$4002,$4006,$400A
 	CPX #$08		; 99EB	$E0 $08
 	BEQ L359F8		; 99ED	$F0 $09
-	LDA $6F19,X		; 99EF	$BD $19 $6F
+	LDA $6F19,X		; 99EF	$BD $19 $6F	$4000,$4004,$4008
 	AND #$F0		; 99F2	$29 $F0
 	STA $6F19,X		; 99F4	$9D $19 $6F
 	RTS			; 99F7	$60
@@ -758,7 +805,7 @@ L35A07:
 	ASL A			; 9A25	$0A
 	ADC $C9			; 9A26	$65 $C9
 	STA $C9			; 9A28	$85 $C9
-	LDA $C8			; 9A2A	$A5 $C8
+	LDA $C8			; 9A2A	$A5 $C8		data
 	LSR A			; 9A2C	$4A
 	LSR A			; 9A2D	$4A
 	LSR A			; 9A2E	$4A
@@ -773,33 +820,45 @@ L35A07:
 	STA $C9			; 9A3D	$85 $C9
 	LDX $C7			; 9A3F	$A6 $C7
 	LDA $C8			; 9A41	$A5 $C8
-	STA $6F1B,X		; 9A43	$9D $1B $6F
+	STA $6F1B,X		; 9A43	$9D $1B $6F	$4002,$4006,$400A
 	LDA $C9			; 9A46	$A5 $C9
-	STA $6F1C,X		; 9A48	$9D $1C $6F
+	STA $6F1C,X		; 9A48	$9D $1C $6F	$4003,$4007,$400B
 	RTS			; 9A4B	$60
 ; End of
+
+; Name	:
+; Marks	: Set tempo
 J9A4C:
 	LDA ($C3),Y		; 9A4C	$B1 $C3
 	INY			; 9A4E	$C8
 	STA $6F00		; 9A4F	$8D $00 $6F
 	RTS			; 9A52	$60
 ; End of
+
+; Name	:
+; Marks	:
 J9A53:
 	AND #$0F		; 9A53	$29 $0F
 	LDX $C5			; 9A55	$A6 $C5
 	STA $6F04,X		; 9A57	$9D $04 $6F
 	RTS			; 9A5A	$60
 ; End of
+
 J9A5B:
 	AND #$0F		; 9A5B	$29 $0F
 	LDX $C5			; 9A5D	$A6 $C5
 	STA $6F01,X		; 9A5F	$9D $01 $6F
 	RTS			; 9A60	$60
 ; End of
+
+; Name	:
+; Marks	: Load and Set settings
+;	  +$B6,+$B8,+$BA = ??
+;	  +$BA =
 J9A63:
 	LDA ($C3),Y		; 9A63	$B1 $C3
 	INY			; 9A65	$C8
-	LDX $C7			; 9A66	$A6 $C7
+	LDX $C7			; 9A66	$A6 $C7		temp CH $4000/$4004/$4008 address
 	STA $6F19,X		; 9A68	$9D $19 $6F
 	LDX $C6			; 9A6B	$A6 $C6
 	LDA ($C3),Y		; 9A6D	$B1 $C3
@@ -816,6 +875,7 @@ J9A63:
 	STA $BB,X		; 9A7F	$95 $BB
 	RTS			; 9A81	$60
 ; End of
+
 J9A82:
 .byte $A6,$C5,$C9,$F8,$90,$06,$E9,$F6,$9D,$10,$6F,$60,$B1,$C3
 .byte $C8,$9D,$10,$6F,$60
@@ -885,7 +945,8 @@ L35B21:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Settings parameter process
+;	  +$C3 = setting A/B ?? address
 J9B22:
 	LDA #$00		; 9B22	$A9 $00		$8450
 	STA $C5			; 9B24	$85 $C5
@@ -897,19 +958,19 @@ L35B26:
 	ASL A			; 9B2C	$0A
 	STA $C7			; 9B2D	$85 $C7
 	TAY			; 9B2F	$A8
-	LDA $6F1B,Y		; 9B30	$B9 $1B $6F
+	LDA $6F1B,Y		; 9B30	$B9 $1B $6F	$4002,$4006,$400A temp
 	BEQ L35B4D		; 9B33	$F0 $18
 	LDA $B6,X		; 9B35	$B5 $B6
 	STA $C3			; 9B37	$85 $C3
 	LDA $B7,X		; 9B39	$B5 $B7
 	STA $C4			; 9B3B	$85 $C4
-	JSR J9B56		; 9B3D	$20 $56 $9B	$846B
+	JSR J9B56		; 9B3D	$20 $56 $9B	Settings parameter A process - $846B
 	LDX $C6			; 9B40	$A6 $C6
 	LDA $BA,X		; 9B42	$B5 $BA
 	STA $C3			; 9B44	$85 $C3
 	LDA $BB,X		; 9B46	$B5 $BB
 	STA $C4			; 9B48	$85 $C4
-	JSR J9BB6		; 9B4A	$20 $B6 $9B	$8478
+	JSR J9BB6		; 9B4A	$20 $B6 $9B	Settings parameter B process - $8478
 L35B4D:
 	INC $C5			; 9B4D	$E6 $C5
 	LDA $C5			; 9B4F	$A5 $C5
@@ -917,6 +978,10 @@ L35B4D:
 	BCC L35B26		; 9B53	$90 $D1
 	RTS			; 9B55	$60
 ; End of
+
+; Name	:
+; Marks	: Settings parameter A process
+;	  $6F0A = count ??
 J9B56:
 	LDA $C4			; 9B56	$A5 $C4
 	CMP #$FF		; 9B58	$C9 $FF
@@ -958,10 +1023,10 @@ L35B81:
 	AND #$0F		; 9B96	$29 $0F
 	ORA $C8			; 9B98	$05 $C8
 	TAY			; 9B9A	$A8
-	LDA D9D0D,Y		; 9B9B	$B9 $0D $9D
+	LDA D9D0D,Y		; 9B9B	$B9 $0D $9D	table
 	STA $C8			; 9B9E	$85 $C8
 	LDY $C7			; 9BA0	$A4 $C7
-	LDA $6F19,Y		; 9BA2	$B9 $19 $6F
+	LDA $6F19,Y		; 9BA2	$B9 $19 $6F	$4000,$4004,$4008 temp
 	AND #$F0		; 9BA5	$29 $F0
 	ORA $C8			; 9BA7	$05 $C8
 	STA $6F19,Y		; 9BA9	$99 $19 $6F
@@ -972,6 +1037,10 @@ L35BB2:
 	DEC $6F0A,X		; 9BB2	$DE $0A $6F
 	RTS			; 9BB5	$60
 ; End of
+
+; Name	:
+; Marks	: Settings parameter B process
+;	  $6F0D = count ??
 J9BB6:
 	LDA $C4			; 9BB6	$A5 $C4
 	CMP #$FF		; 9BB8	$C9 $FF
@@ -1008,7 +1077,7 @@ L35BE1:
 	LDY $C7			; 9BF1	$A4 $C7
 	AND #$08		; 9BF3	$29 $08
 	BNE L35C02		; 9BF5	$D0 $0B
-	LDA $6F1B,Y		; 9BF7	$B9 $1B $6F
+	LDA $6F1B,Y		; 9BF7	$B9 $1B $6F	$4002,$4006,$400A
 	CLC			; 9BFA	$18
 	ADC $C8			; 9BFB	$65 $C8
 	BCS L35C1B		; 9BFD	$B0 $1C
@@ -1023,7 +1092,7 @@ L35C02:
 	BEQ L35C1B		; 9C0E	$F0 $0B
 	BCC L35C1B		; 9C10	$90 $09
 J9C12:
-	STA $6F1B,Y		; 9C12	$99 $1B $6F
+	STA $6F1B,Y		; 9C12	$99 $1B $6F	$4002,$4006,$400A
 	LDA #$04		; 9C15	$A9 $04
 	ORA $C0,X		; 9C17	$15 $C0
 	STA $C0,X		; 9C19	$95 $C0
@@ -1033,7 +1102,7 @@ L35C1B:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: Update APU register
 J9C1F:
 	LDA ApuStatus_4015	; 9C1F	$AD $15 $40	$854D
 	ORA #$0F		; 9C22	$09 $0F
@@ -1050,24 +1119,24 @@ L35C2F:
 	LDA $E5			; 9C37	$A5 $E5
 	BNE L35C63		; 9C39	$D0 $28
 L35C3B:
-	LSR $C0,X		; 9C3B	$56 $C0
+	LSR $C0,X		; 9C3B	$56 $C0		bit 7654 3210 - bit 3, 2,1,0 is updated(If Set)
 	BCC L35C45		; 9C3D	$90 $06
-	LDA $6F19,Y		; 9C3F	$B9 $19 $6F
+	LDA $6F19,Y		; 9C3F	$B9 $19 $6F	$4000 temp
 	STA Sq0Duty_4000,Y	; 9C42	$99 $00 $40
 L35C45:
 	LSR $C0,X		; 9C45	$56 $C0
 	BCC L35C4F		; 9C47	$90 $06
-	LDA $6F1A,Y		; 9C49	$B9 $1A $6F
+	LDA $6F1A,Y		; 9C49	$B9 $1A $6F	$4001 temp
 	STA Sq0Sweep_4001,Y	; 9C4C	$99 $01 $40
 L35C4F:
 	LSR $C0,X		; 9C4F	$56 $C0
 	BCC L35C59		; 9C51	$90 $06
-	LDA $6F1B,Y		; 9C53	$B9 $1B $6F
+	LDA $6F1B,Y		; 9C53	$B9 $1B $6F	$4002 temp
 	STA Sq0Timer_4002,Y	; 9C56	$99 $02 $40
 L35C59:
 	LSR $C0,X		; 9C59	$56 $C0
 	BCC L35C63		; 9C5B	$90 $06
-	LDA $6F1C,Y		; 9C5D	$B9 $1C $6F
+	LDA $6F1C,Y		; 9C5D	$B9 $1C $6F	$4003 temp
 	STA Sq0Length_4003,Y	; 9C60	$99 $03 $40
 L35C63:
 	INY			; 9C63	$C8		$8591
@@ -1814,6 +1883,7 @@ A1CA:
 ;	  FDh: repeat
 ;	  FEh: repeat
 ;	  FFh: stop
+.if 0
 A07C:
 .word A086	; A07C	$86 $A0 - Pulse 1
 .byte $FF,$FF	;.word A1CA	; A07E	$CA $A1 - Pulse 2
@@ -1871,12 +1941,216 @@ A08C:
 .byte $0F,$0E,$0D,$0C,$0B,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$00
 .byte $FE	; repeat
 .word A08A	; A1D0	$8A $A0
+.endif
+
+
+
+; ==================================================
+; TEST C - MATOYA(Mod)
+;
+
+A07C:
+.word MATOYA_CH0
+.byte $FF,$FF
+.byte $FF,$FF
+;.word MATOYA_CH1
+;.word MATOYA_TRI
+MATOYA_CH0:		; SQ channel 0
+.byte $F6,$3F			; Settings
+;.word VPBD6A
+.word VPBD37
+.word APBEC4
+.byte $E0,$61			; tempo
+MATOYA_CH0_S:
+.byte $D8			; tick(Delay) - must be speed
+.byte $EC			; envelope pattern select
+.byte $F2,$B7, $F3,$27,$67, $F2,$B7, $F3,$75,$67,$47,$25,$47,$27
+.byte $D8
+.byte $EE			; envelope pattern select
+.byte $13
+.byte $D8
+
+.byte $EC			; envelope pattern select
+.byte $27,$67,$97,$27,$B5,$97,$77,$65,$77,$67,$45
+
+.byte $67,$77
+.byte $D8			; tick
+.byte $EE			; envelope pattern select
+.byte $93,$15,$45,$2C
+.byte $DC			;.byte $CC
+.byte $1C
+.byte $DC			;.byte $CC
+.byte $2C
+.byte $DC			;.byte $CC
+.byte $F2,$B3
+
+.byte $F3,$77,$97,$B3,$25,$75,$6C
+.byte $DC			;.byte $CC
+.byte $7C
+.byte $DC			;.byte $CC
+.byte $6C
+.byte $DC			;.byte $CC
+.byte $43
+
+.byte $97,$B7
+.byte $F4,$13
+.byte $D7			;.byte $C7
+.byte $F3,$97,$B7
+.byte $F4,$17,$49,$29,$19,$29
+.byte $F3,$B4
+
+.byte $97,$77,$67,$43
+.byte $D7			;.byte $C7
+.byte $07,$27,$47,$23,$15
+.byte $F2,$95
+.byte $EE			; envelope pattern select
+.byte $F3,$20
+.byte $D5			;.byte $C5
+.byte $D4			; tick
+.byte $E1			; envelope pattern select
+
+.byte $29,$19
+.byte $F2,$B9
+.byte $F3,$19
+.byte $D8			; tick
+.byte $EE			; envelope pattern select
+.byte $20
+.byte $C5
+
+.byte $D4			; tick
+.byte $E1			; envelope pattern select
+.byte $69,$49,$29,$49
+.byte $D8			; tick
+.byte $EE			; envelope pattern select
+.byte $60
+.byte $D5			;.byte $C5
+
+.byte $D8			; tick
+.byte $E1			; envelope pattern select
+.byte $99,$79,$69,$79
+.byte $D8			; tick
+.byte $EE			; envelope pattern select
+.byte $90
+
+.byte $D4			; tick
+.byte $E1			; envelope pattern select
+.byte $69,$49,$29,$19,$49,$29,$19
+.byte $F2,$A9
+.byte $FE			; Repeat
+.word MATOYA_CH0_S
+
+MATOYA_CH1:		; SQ channel 1
+.byte $F6,$3F
+.word VPBD15
+.byte $FF,$FF
+.byte $E0,$61			; tempo
+
+MATOYA_CH1_S:
+.byte $DA			; tick
+.byte $EE			; volume e2
+
+.byte $F1,$B9,$C9
+.byte $F2,$69,$C9
+.byte $F1,$B9,$C9
+.byte $F2,$69,$C9
+
+.byte $F1,$B9,$C9
+.byte $F2,$79,$C9
+.byte $F1,$B9,$C9
+.byte $F2,$79,$C9
+.byte $F1,$B9,$C9
+.byte $F2,$79,$C9
+.byte $F1,$B9,$C9
+.byte $F2,$79,$C9
+
+.byte $19,$C9,$99,$C9
+.byte $19,$C9,$99,$C9
+
+.byte $29,$C9,$99,$C9
+.byte $29,$C9,$99,$C9
+
+.byte $29,$C9,$b9,$C9
+.byte $29,$C9,$b9,$C9
+.byte $29,$C9,$b9,$C9
+.byte $29,$C9,$b9,$C9
+
+.byte $19,$C9,$99,$C9
+.byte $19,$C9,$99,$C9
+
+.byte $99,$C9,$99,$C9,$C5
+.byte $99,$C9,$99,$C9,$C5
+
+.byte $69,$C9,$69,$C9,$C5
+.byte $69,$C9,$69,$C9,$C5
+
+.byte $b9,$C9,$b9,$C9,$C5
+.byte $b9,$C9,$b9,$C9,$C5
+
+.byte $F3
+.byte $19,$C9,$19,$C9,$C5
+.byte $19,$C9,$19,$C9,$C5
+
+.byte $F2
+.byte $99,$C9,$99,$C9,$C5
+.byte $99,$C9,$99,$C9,$C5
+.byte $69,$C9,$69,$C9,$C5
+.byte $69,$C9,$69,$C9,$C5
+
+.byte $49,$C9,$79,$C9
+.byte $49,$C9,$79,$C9
+.byte $49,$C9,$79,$C9
+.byte $49,$C9,$79,$C9
+.byte $49,$C9,$79,$C9
+.byte $49,$C9,$79,$C9
+
+.byte $99,$79,$69,$49,$69,$49,$29,$19
+.byte $F9			; Set repeat count as 3
+MATOYA_CH1_R:
+.byte $DA			; tick
+.byte $EE			; volume
+.byte $65,$25,$75,$25,$97,$97,$27,$97,$75,$45
+.byte $FC			; Repeat 3
+.word MATOYA_CH1_R
+.byte $65,$25,$75,$25,$97,$97,$27,$97,$65,$45
+.byte $FE			; Repeat
+.word MATOYA_CH1_S
+
+MATOYA_TRI:		; TRIANGLE
+.byte $F6,$3F
+.word VPBD15
+.word APBEC4
+.byte $E0,$61			; tempo
+MATOYA_TRI_S:
+.byte $EC			; volume
+.byte $F1,$B3
+.byte $F2,$43,$73
+.byte $95,$75,$23,$73,$b3,$97,$49,$C9,$19,$C9,$F1,$99,$C9,$C7,$67,$F2
+.byte $19,$C9,$69,$C9,$C7,$F1,$69,$C9,$F2,$67,$19,$C9,$C7,$F1,$B7,$F2
+.byte $69,$C9,$B9,$C9,$C7,$F1,$B9,$C9,$F2,$B7,$69,$C9,$C7,$F1,$77,$F2
+.byte $29,$C9,$79,$C9,$C7,$F1,$79,$C9,$F2,$77,$29,$C9,$C7,$F1,$97,$F2
+.byte $49,$C9,$99,$C9,$C7,$F1,$99,$C9,$F2,$97,$49,$C9,$C7,$F1,$67,$F2
+.byte $19,$C9,$69,$C9,$C7,$F1,$69,$C9,$F2,$67,$19,$C9,$C7,$F1,$B7,$F2
+.byte $69,$C9,$B9,$C9,$C7,$F1,$B9,$C9,$F2,$B7,$69,$C9,$07,$F3,$09,$C9
+.byte $F2,$07,$F3,$09,$C9,$F2,$07,$F3,$09,$C9,$F2,$07,$F3,$09,$C9,$F1
+.byte $97,$F2,$99,$C9,$F1,$97,$F2,$99,$C9,$F1,$97,$F2,$99,$C9,$F1,$97
+.byte $F2,$99,$C9
+.byte $F8			; Set repeat count as 2
+MATOYA_TRI_R:
+.byte $27,$99,$C9,$C7,$99,$C9,$27,$B9,$C9,$C7,$B9,$C9,$27
+.byte $F3,$19,$C9,$C7,$19,$C9,$F2,$27,$B9,$C9,$C7,$B9,$C9
+.byte $FC			; Repeat
+.word MATOYA_TRI_R
+.byte $27,$99,$C9,$C7,$99,$C9,$27,$B9,$C9,$C7,$B9,$C9,$27,$F3,$19,$C9
+.byte $C7,$19,$C9,$F2,$67,$F3,$19,$C9,$F2,$67,$F3,$19,$C9
+.byte $FE			; Repeat
+.word MATOYA_TRI_S
 
 
 
 
 
 .segment "DATA_SND"
+;pitch table
 D9C6D:
 .byte $AB
 D9C6E:
@@ -1890,35 +2164,29 @@ D9C6E:
 .byte $00,$5E,$00,$59,$00,$54,$00,$4F,$00,$4B,$00,$46,$00,$42,$00,$3E
 .byte $00,$3B,$00,$38,$00,$34,$00,$31,$00,$2F,$00,$2C,$00,$29,$00,$27
 .byte $00,$25,$00,$23,$00,$21,$00,$1F,$00,$1D,$00,$1B,$00
+
 D9CFD:
-.byte $60,$48,$30
+;       0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+.byte $60,$48,$30,$24,$20,$18,$12,$10,$0C,$09,$08,$06,$04,$03,$02,$01
 
-;; [$9D00 :: 0x35D00]
-
-.byte $24,$20,$18,$12,$10,$0C,$09,$08,$06,$04,$03,$02,$01
-; READ ADDR = $863B
+; READ ADDR = $863B 256 bytes
 D9D0D:
-.byte $00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$00,$00,$00
-.byte $00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$02,$00,$00,$00
-.byte $00,$00,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$03,$00,$00,$00
-.byte $00,$01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$04,$00,$00,$00
-.byte $01,$01,$01,$02,$02,$02,$03,$03,$03,$04,$04,$04,$05,$00,$00,$00
-.byte $01,$01,$02,$02,$02,$03,$03,$04,$04,$04,$05,$05,$06,$00,$00,$00
-.byte $01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07,$00,$00,$01
-.byte $01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07,$08,$00,$00,$01
-.byte $01,$02,$03,$03,$04,$04,$05,$06,$06,$07,$07,$08,$09,$00,$00,$01
-.byte $02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$09,$0A,$00,$00,$01
-.byte $02,$02,$03,$04,$05,$05,$06,$07,$08,$08,$09,$0A,$0B,$00,$00,$01
-.byte $02,$03,$04,$04,$05,$06,$07,$08,$08,$09,$0A,$0B,$0C,$00,$00,$01
-.byte $02,$03,$04,$05,$06,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$00,$00,$01
-.byte $02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$00,$01,$02
-
-;; [$9E00 :: 0x35E00]
-
-; song data ??
-.byte $03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$02
+.byte $00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$03
+.byte $00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$04
+.byte $00,$00,$00,$01,$01,$01,$02,$02,$02,$03,$03,$03,$04,$04,$04,$05
+.byte $00,$00,$00,$01,$01,$02,$02,$02,$03,$03,$04,$04,$04,$05,$05,$06
+.byte $00,$00,$00,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07
+.byte $00,$00,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07,$08
+.byte $00,$00,$01,$01,$02,$03,$03,$04,$04,$05,$06,$06,$07,$07,$08,$09
+.byte $00,$00,$01,$02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$09,$0A
+.byte $00,$00,$01,$02,$02,$03,$04,$05,$05,$06,$07,$08,$08,$09,$0A,$0B
+.byte $00,$00,$01,$02,$03,$04,$04,$05,$06,$07,$08,$08,$09,$0A,$0B,$0C
+.byte $00,$00,$01,$02,$03,$04,$05,$06,$06,$07,$08,$09,$0A,$0B,$0C,$0D
+.byte $00,$00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E
+.byte $00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F
 
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) START ==========
 ;; [$9E0D :: 0x35E0D]
