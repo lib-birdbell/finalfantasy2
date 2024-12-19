@@ -1855,10 +1855,11 @@ A1CA:
 ; TEST B
 ; Pitch example
 ;	  XYh ~ XYh: X = pitch, Y = length(0=longest, F=shortest)
-;	   0Yh=C, 2Yh=D, 4Yh=E, 6Yh=F, 8Yh=G, 9Yh=A, BYh=B
+;	   0Yh=C, 2Yh=D, 4Yh=E, 5Yh=F, 8Yh=G, 9Yh=A, BYh=B
+;	  C0h ~ CFh:
 ;	  D0h ~ DFh: rest length(Delay 0=longest, F=shortest)
 ;	  E0h: tempo counter rate(next 1 byte)
-;	  E1h ~ EFh: volume
+;	  E1h ~ EFh: volume !!
 ;	  F0h, F1h, F2h, F3h, F4h, F5h: octave
 ;	  F6h: $6F19, $B6, $B7, $BA, $BB(next 5 bytes)
 ;		VPBD04:
@@ -1901,14 +1902,28 @@ A086:
 .byte $E0,$28				; Set tempo
 A08A:
 .byte $F0				; Octave 0
-.byte $DF				; rest length (D0h-DFh)
+;.byte $D0				; rest length (D0h-DFh)
 A08C:
+.byte $CF
 ;     C   D   E   F   G   A   B
 .byte $00,$20,$40,$50,$70,$90,$B0
 .byte $F1				; Octave 1
 ;     C
 .byte $00
 .byte $F0				; Octave 0
+.byte $04,$24,$44,$54,$74,$94,$B4
+.byte $F1				; Octave 1
+.byte $04
+.byte $F0				; Octave 0
+.byte $08,$28,$48,$58,$78,$98,$B8
+.byte $F1				; Octave 1
+.byte $08,$08,$08,$08
+.byte $F0				; Octave 0
+.byte $0C,$2C,$4C,$5C,$7C,$9C,$BC
+.byte $F1				; Octave 1
+.byte $0C,$0C,$0C,$0C
+.byte $0C,$0C,$0C,$0C
+.byte $F0
 ;$10,$30,$60,$80,$A0,$C0
 .byte $FE	; repeat
 .word A08C	; A1D0	$8A $A0
@@ -1941,41 +1956,49 @@ A08C:
 .byte $0F,$0E,$0D,$0C,$0B,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$00
 .byte $FE	; repeat
 .word A08A	; A1D0	$8A $A0
-.endif
+
+
+
+.else
 
 
 
 ; ==================================================
 ; TEST C - MATOYA(Mod)
 ;
-
 A07C:
-.word MATOYA_CH0
+;.word MATOYA_CH0
 .byte $FF,$FF
+.word MATOYA_CH1
 .byte $FF,$FF
-;.word MATOYA_CH1
 ;.word MATOYA_TRI
 MATOYA_CH0:		; SQ channel 0
 .byte $F6,$3F			; Settings
 ;.word VPBD6A
 .word VPBD37
 .word APBEC4
-.byte $E0,$61			; tempo
+;.byte $E0,$61			; tempo
+.byte $E0,$4F			; tempo
 MATOYA_CH0_S:
-.byte $D8			; tick(Delay) - must be speed
-.byte $EC			; envelope pattern select
+;.byte $D8			; tick(Delay) - must be speed
+.byte $EF			; volume
+;.byte $EC			; envelope pattern select
+.byte $CC			; tempo ??
 .byte $F2,$B7, $F3,$27,$67, $F2,$B7, $F3,$75,$67,$47,$25,$47,$27
-.byte $D8
-.byte $EE			; envelope pattern select
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte $CE			; tempo ??
 .byte $13
-.byte $D8
+;.byte $D8			; tick
 
-.byte $EC			; envelope pattern select
+;.byte $EC			; envelope pattern select
+.byte $CC			; tempo ??
 .byte $27,$67,$97,$27,$B5,$97,$77,$65,$77,$67,$45
 
 .byte $67,$77
-.byte $D8			; tick
-.byte $EE			; envelope pattern select
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte $CE			; tempo ??
 .byte $93,$15,$45,$2C
 .byte $DC			;.byte $CC
 .byte $1C
@@ -2003,37 +2026,48 @@ MATOYA_CH0_S:
 .byte $D7			;.byte $C7
 .byte $07,$27,$47,$23,$15
 .byte $F2,$95
-.byte $EE			; envelope pattern select
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte $CE			; tempo ??
 .byte $F3,$20
 .byte $D5			;.byte $C5
-.byte $D4			; tick
-.byte $E1			; envelope pattern select
+.byte $E0,$48			; tempo xxx
+;.byte $D4			; tick
+;.byte $E1			; envelope pattern select
+.byte $C1			; tempo ??
 
 .byte $29,$19
 .byte $F2,$B9
 .byte $F3,$19
-.byte $D8			; tick
-.byte $EE			; envelope pattern select
+.byte $E0,$4F			; tempo xxx
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte $CE			; tempo ??
 .byte $20
-.byte $C5
+.byte $D5			;.byte $C5
 
-.byte $D4			; tick
-.byte $E1			; envelope pattern select
+;.byte $D4			; tick
+;.byte $E1			; envelope pattern select
+.byte $C1			; tempo ??
 .byte $69,$49,$29,$49
-.byte $D8			; tick
-.byte $EE			; envelope pattern select
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte $CE			; tempo ??
 .byte $60
 .byte $D5			;.byte $C5
 
-.byte $D8			; tick
-.byte $E1			; envelope pattern select
+;.byte $D8			; tick
+;.byte $E1			; envelope pattern select
+.byte $C1			; tempo ??
 .byte $99,$79,$69,$79
-.byte $D8			; tick
-.byte $EE			; envelope pattern select
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte $CE			; tempo ??
 .byte $90
 
-.byte $D4			; tick
-.byte $E1			; envelope pattern select
+;.byte $D4			; tick
+;.byte $E1			; envelope pattern select
+.byte $C1			; tempo ??
 .byte $69,$49,$29,$19,$49,$29,$19
 .byte $F2,$A9
 .byte $FE			; Repeat
@@ -2041,73 +2075,79 @@ MATOYA_CH0_S:
 
 MATOYA_CH1:		; SQ channel 1
 .byte $F6,$3F
-.word VPBD15
-.byte $FF,$FF
-.byte $E0,$61			; tempo
+;.word VPBD15
+.word VPBD37
+.word APBEC4
+;.byte $FF,$FF
+;.byte $E0,$61			; tempo
+.byte $E0,$7B			; tempo
+.byte $EF			; volume
 
 MATOYA_CH1_S:
-.byte $DA			; tick
-.byte $EE			; volume e2
+;.byte $DA			; tick
+;.byte $EE			; volume e2
+.byte $CE
 
-.byte $F1,$B9,$C9
-.byte $F2,$69,$C9
-.byte $F1,$B9,$C9
-.byte $F2,$69,$C9
+.byte $F1,$B9,$D9
+.byte $F2,$69,$D9
+.byte $F1,$B9,$D9
+.byte $F2,$69,$D9
 
-.byte $F1,$B9,$C9
-.byte $F2,$79,$C9
-.byte $F1,$B9,$C9
-.byte $F2,$79,$C9
-.byte $F1,$B9,$C9
-.byte $F2,$79,$C9
-.byte $F1,$B9,$C9
-.byte $F2,$79,$C9
+.byte $F1,$B9,$D9
+.byte $F2,$79,$D9
+.byte $F1,$B9,$D9
+.byte $F2,$79,$D9
+.byte $F1,$B9,$D9
+.byte $F2,$79,$D9
+.byte $F1,$B9,$D9
+.byte $F2,$79,$D9
 
-.byte $19,$C9,$99,$C9
-.byte $19,$C9,$99,$C9
+.byte $19,$D9,$99,$D9
+.byte $19,$D9,$99,$D9
 
-.byte $29,$C9,$99,$C9
-.byte $29,$C9,$99,$C9
+.byte $29,$D9,$99,$D9
+.byte $29,$D9,$99,$D9
 
-.byte $29,$C9,$b9,$C9
-.byte $29,$C9,$b9,$C9
-.byte $29,$C9,$b9,$C9
-.byte $29,$C9,$b9,$C9
+.byte $29,$D9,$b9,$D9
+.byte $29,$D9,$b9,$D9
+.byte $29,$D9,$b9,$D9
+.byte $29,$D9,$b9,$D9
 
-.byte $19,$C9,$99,$C9
-.byte $19,$C9,$99,$C9
+.byte $19,$D9,$99,$D9
+.byte $19,$D9,$99,$D9
 
-.byte $99,$C9,$99,$C9,$C5
-.byte $99,$C9,$99,$C9,$C5
+.byte $99,$D9,$99,$D9,$D5
+.byte $99,$D9,$99,$D9,$D5
 
-.byte $69,$C9,$69,$C9,$C5
-.byte $69,$C9,$69,$C9,$C5
+.byte $69,$D9,$69,$D9,$D5
+.byte $69,$D9,$69,$D9,$D5
 
-.byte $b9,$C9,$b9,$C9,$C5
-.byte $b9,$C9,$b9,$C9,$C5
+.byte $B9,$D9,$b9,$D9,$D5
+.byte $B9,$D9,$b9,$D9,$D5
 
 .byte $F3
-.byte $19,$C9,$19,$C9,$C5
-.byte $19,$C9,$19,$C9,$C5
+.byte $19,$D9,$19,$D9,$D5
+.byte $19,$D9,$19,$D9,$D5
 
 .byte $F2
-.byte $99,$C9,$99,$C9,$C5
-.byte $99,$C9,$99,$C9,$C5
-.byte $69,$C9,$69,$C9,$C5
-.byte $69,$C9,$69,$C9,$C5
+.byte $99,$D9,$99,$D9,$D5
+.byte $99,$D9,$99,$D9,$D5
+.byte $69,$D9,$69,$D9,$D5
+.byte $69,$D9,$69,$D9,$D5
 
-.byte $49,$C9,$79,$C9
-.byte $49,$C9,$79,$C9
-.byte $49,$C9,$79,$C9
-.byte $49,$C9,$79,$C9
-.byte $49,$C9,$79,$C9
-.byte $49,$C9,$79,$C9
+.byte $49,$D9,$79,$D9
+.byte $49,$D9,$79,$D9
+.byte $49,$D9,$79,$D9
+.byte $49,$D9,$79,$D9
+.byte $49,$D9,$79,$D9
+.byte $49,$D9,$79,$D9
 
 .byte $99,$79,$69,$49,$69,$49,$29,$19
 .byte $F9			; Set repeat count as 3
 MATOYA_CH1_R:
-.byte $DA			; tick
-.byte $EE			; volume
+;.byte $DA			; tick
+;.byte $EE			; volume
+.byte $CE
 .byte $65,$25,$75,$25,$97,$97,$27,$97,$75,$45
 .byte $FC			; Repeat 3
 .word MATOYA_CH1_R
@@ -2144,26 +2184,91 @@ MATOYA_TRI_R:
 .byte $C7,$19,$C9,$F2,$67,$F3,$19,$C9,$F2,$67,$F3,$19,$C9
 .byte $FE			; Repeat
 .word MATOYA_TRI_S
-
+.endif
 
 
 
 
 .segment "DATA_SND"
-;pitch table
+;pitch table(timer) - 0-71
+;$4002,$4006,$400A / $4003,$4007,$400B
+;$4002 = TTTT TTTT
+;$4003 = LLLL LTTT
 D9C6D:
 .byte $AB
 D9C6E:
-.byte $06,$4D
-.byte $06,$F3,$05,$9D,$05,$4C,$05,$01,$05,$B8,$04,$74,$04,$34,$04,$F7
-.byte $03,$BE,$03,$88,$03,$55,$03,$26,$03,$F9,$02,$CE,$02,$A6,$02,$80
-.byte $02,$5C,$02,$3A,$02,$19,$02,$FB,$01,$DE,$01,$C4,$01,$AA,$01,$93
-.byte $01,$7C,$01,$67,$01,$52,$01,$3F,$01,$2D,$01,$1C,$01,$0C,$01,$FD
-.byte $00,$EF,$00,$E1,$00,$D5,$00,$C9,$00,$BE,$00,$B3,$00,$A9,$00,$9F
-.byte $00,$96,$00,$8E,$00,$86,$00,$7E,$00,$77,$00,$70,$00,$6A,$00,$64
-.byte $00,$5E,$00,$59,$00,$54,$00,$4F,$00,$4B,$00,$46,$00,$42,$00,$3E
-.byte $00,$3B,$00,$38,$00,$34,$00,$31,$00,$2F,$00,$2C,$00,$29,$00,$27
-.byte $00,$25,$00,$23,$00,$21,$00,$1F,$00,$1D,$00,$1B,$00
+.byte $06
+.byte $4D,$06
+.byte $F3,$05
+.byte $9D,$05
+.byte $4C,$05
+.byte $01,$05
+.byte $B8,$04
+.byte $74,$04
+.byte $34,$04
+.byte $F7,$03
+.byte $BE,$03	; 10
+.byte $88,$03
+.byte $55,$03
+.byte $26,$03
+.byte $F9,$02
+.byte $CE,$02
+.byte $A6,$02
+.byte $80,$02
+.byte $5C,$02
+.byte $3A,$02
+.byte $19,$02	; 20
+.byte $FB,$01
+.byte $DE,$01
+.byte $C4,$01
+.byte $AA,$01
+.byte $93,$01
+.byte $7C,$01
+.byte $67,$01
+.byte $52,$01
+.byte $3F,$01
+.byte $2D,$01	; 30
+.byte $1C,$01
+.byte $0C,$01
+.byte $FD,$00
+.byte $EF,$00
+.byte $E1,$00
+.byte $D5,$00
+.byte $C9,$00
+.byte $BE,$00
+.byte $B3,$00
+.byte $A9,$00	; 40
+.byte $9F,$00
+.byte $96,$00
+.byte $8E,$00
+.byte $86,$00
+.byte $7E,$00
+.byte $77,$00
+.byte $70,$00
+.byte $6A,$00
+.byte $64,$00
+.byte $5E,$00	; 50
+.byte $59,$00
+.byte $54,$00
+.byte $4F,$00
+.byte $4B,$00
+.byte $46,$00
+.byte $42,$00
+.byte $3E,$00
+.byte $3B,$00
+.byte $38,$00
+.byte $34,$00	; 60
+.byte $31,$00
+.byte $2F,$00
+.byte $2C,$00
+.byte $29,$00
+.byte $27,$00
+.byte $25,$00
+.byte $23,$00
+.byte $21,$00
+.byte $1F,$00
+.byte $1D,$00	; 70
+.byte $1B,$00	; 71
 
 D9CFD:
 ;       0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
