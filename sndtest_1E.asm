@@ -1850,6 +1850,183 @@ A1CA:
 .endif
 
 
+D1	= $00
+D3_4	= $01
+D1_2	= $02
+D3_8	= $03
+D1_3	= $04
+D1_4	= $05
+D3_16	= $06
+D1_6	= $07
+D1_8	= $08
+D3_32	= $09
+D1_12	= $0A
+D1_16	= $0B
+D1_24	= $0C
+D1_32	= $0D
+D1_48	= $0E
+D1_96	= $0F
+
+R1	= $20
+R3_4	= $21
+R1_2	= $22
+R3_8	= $23
+R1_3	= $24
+R1_4	= $25
+R3_16	= $26
+R1_6	= $27
+R1_8	= $28
+R3_32	= $29
+R1_12	= $2A
+R1_16	= $2B
+R1_24	= $2C
+R1_32	= $2D
+R1_48	= $2E
+R1_96	= $2F
+
+M1	= $40
+M3_4	= $41
+M1_2	= $42
+M3_8	= $43
+M1_3	= $44
+M1_4	= $45
+M3_16	= $46
+M1_6	= $47
+M1_8	= $48
+M3_32	= $49
+M1_12	= $4A
+M1_16	= $4B
+M1_24	= $4C
+M1_32	= $4D
+M1_48	= $4E
+M1_96	= $4F
+
+F1	= $50
+F3_4	= $51
+F1_2	= $52
+F3_8	= $53
+F1_3	= $54
+F1_4	= $55
+F3_16	= $56
+F1_6	= $57
+F1_8	= $58
+F3_32	= $59
+F1_12	= $5A
+F1_16	= $5B
+F1_24	= $5C
+F1_32	= $5D
+F1_48	= $5E
+F1_96	= $5F
+
+FH1	= $60
+FH3_4	= $61
+FH1_2	= $62
+FH3_8	= $63
+FH1_3	= $64
+FH1_4	= $65
+FH3_16	= $66
+FH1_6	= $67
+FH1_8	= $68
+FH3_32	= $69
+FH1_12	= $6A
+FH1_16	= $6B
+FH1_24	= $6C
+FH1_32	= $6D
+FH1_48	= $6E
+FH1_96	= $6F
+
+S1	= $80
+S3_4	= $81
+S1_2	= $82
+S3_8	= $83
+S1_3	= $84
+S1_4	= $85
+S3_16	= $86
+S1_6	= $87
+S1_8	= $88
+S3_32	= $89
+S1_12	= $8A
+S1_16	= $8B
+S1_24	= $8C
+S1_32	= $8D
+S1_48	= $8E
+S1_96	= $8F
+
+L1	= $90
+L3_4	= $91
+L1_2	= $92
+L3_8	= $93
+L1_3	= $94
+L1_4	= $95
+L3_16	= $96
+L1_6	= $97
+L1_8	= $98
+L3_32	= $99
+L1_12	= $9A
+L1_16	= $9B
+L1_24	= $9C
+L1_32	= $9D
+L1_48	= $9E
+L1_96	= $9F
+
+LH1	= $A0
+LH3_4	= $A1
+LH1_2	= $A2
+LH3_8	= $A3
+LH1_3	= $A4
+LH1_4	= $A5
+LH3_16	= $A6
+LH1_6	= $A7
+LH1_8	= $A8
+LH3_32	= $A9
+LH1_12	= $AA
+LH1_16	= $AB
+LH1_24	= $AC
+LH1_32	= $AD
+LH1_48	= $AE
+LH1_96	= $AF
+
+C1	= $B0
+C3_4	= $B1
+C1_2	= $B2
+C3_8	= $B3
+C1_3	= $B4
+C1_4	= $B5
+C3_16	= $B6
+C1_6	= $B7
+C1_8	= $B8
+C3_32	= $B9
+C1_12	= $BA
+C1_16	= $BB
+C1_24	= $BC
+C1_32	= $BD
+C1_48	= $BE
+C1_96	= $BF
+
+X1	= $C0
+X3_4	= $C1
+X1_2	= $C2
+X3_8	= $C3
+X1_3	= $C4
+X1_4	= $C5
+X3_16	= $C6
+X1_6	= $C7
+X1_8	= $C8
+X3_32	= $C9
+X1_12	= $CA
+X1_16	= $CB
+X1_24	= $CC
+X1_32	= $CD
+X1_48	= $CE
+X1_96	= $CF
+
+OT0	= $F0
+OT1	= $F1
+OT2	= $F2
+OT3	= $F3
+OT4	= $F4
+OT5	= $F5
+
 
 ; ==================================================
 ; TEST B
@@ -1885,12 +2062,12 @@ A1CA:
 ;		APBECB:
 ;		APBEDD:
 ;		APBEF9:
-;	  F7h,F8h,F9h,FAh,FBh: loop counter
+;	  F7h,F8h,F9h,FAh,FBh: loop counter(?, ?, 3, 4. ?)
 ;	  FCh: repeat - if loop count is exist
 ;	  FDh: repeat
 ;	  FEh: repeat
 ;	  FFh: stop
-.if 0
+.if 1
 A07C:
 .word A086	; A07C	$86 $A0 - Pulse 1
 .byte $FF,$FF	;.word A1CA	; A07E	$CA $A1 - Pulse 2
@@ -1905,8 +2082,9 @@ A086:
 .word APBEC7
 ;.byte $FF,$FF
 .byte $EF				; Set volume (E1h-EFh)
-.byte $E0,$25				; Set tempo
-;.byte $E0,$4B				; Set tempo
+;.byte $E0,$25				; Set tempo
+.byte $E0,$4B				; Set tempo
+;.byte $E0,$96				; Set tempo
 A08A:
 .byte $F1				; Octave 0
 ;.byte $D0				; rest length (D0h-DFh)
@@ -1914,13 +2092,24 @@ A08C:
 
 .if 1
 .byte $EF				; Set volume (E1h-EFh)
-.byte $F2,$46,$CB,$4B,$CB,$4B,$CB,$F1,$B6,$CB,$B6,$CB
-.byte $EB       			; Set volume (E1h-EFh)
-.byte $F2,$46,$CB,$4B,$CB,$4B,$CB,$F1,$B6,$CB,$B6,$CB
-.byte $E7       			; Set volume (E1h-EFh)
-.byte $F2,$46,$CB,$4B,$CB,$4B,$CB,$F1,$B6,$CB,$B6,$CB
-.byte $E3       			; Set volume (E1h-EFh)
-.byte $F2,$46,$CB,$4B,$CB,$4B,$CB,$F1,$B6,$CB,$B6,$CB
+.byte $FA				; Repeat 4
+FF9_R1:
+.byte OT2,M1_32,X3_32,M1_32,X1_32,M1_32,X1_32,OT1,C3_32,X1_32,C3_32,X1_32
+.byte $FC
+.word FF9_R1
+.byte OT2,M1_4,M1_4,M1_4,FH1_4
+.byte S1_2,L1_2
+.byte C1
+
+.byte OT3
+.byte R1_4,F1_4,M1_2
+.byte R1_2,D1_2
+.byte OT2,C1_2,L1_2
+.byte S1_2,L1_2
+.byte S,
+;.byte OT2,$4B,$C6,$4B,$CB,$4B,$CB,OT1,$B6,$CB,$B6,$CB
+;.byte $E3       			; Set volume (E1h-EFh)
+;.byte OT2,$4B,$C6,$4B,$CB,$4B,$CB,OT1,$B6,$CB,$B6,$CB
 .endif
 
 .if 0
@@ -2037,10 +2226,10 @@ A08C:
 ;0		-> 1(3/4)
 ;3		-> 5(1/4)
 ;5 5		-> 8(1/8)
-;7 7 7 7		-> B(1/16)
+;7 7 7 7	-> B(1/16)
 ;99999999	-> D(1/32)
-;C		-> E
-;4		-> 6
+;C		-> E(1/48)
+;4		-> 6(3/16)
 A07C:
 .word MATOYA_CH0
 ;.byte $FF,$FF
@@ -2113,7 +2302,7 @@ MATOYA_CH0_S:
 ;.byte $D8			; tick
 ;.byte $EE			; envelope pattern select
 .byte $F3,$21
-.byte $D8			;.byte $C5
+.byte $C8			;.byte $C5
 ;.byte $D4			; tick
 ;.byte $E1			; envelope pattern select
 
@@ -2123,7 +2312,7 @@ MATOYA_CH0_S:
 ;.byte $D8			; tick
 ;.byte $EE			; envelope pattern select
 .byte $21
-.byte $D8			;.byte $C5
+.byte $C8			;.byte $C5
 
 ;.byte $D4			; tick
 ;.byte $E8			; envelope pattern select
@@ -2131,7 +2320,7 @@ MATOYA_CH0_S:
 ;.byte $D8			; tick
 ;.byte $E1			; envelope pattern select
 .byte $61
-.byte $D8			;.byte $C5
+.byte $C8			;.byte $C5
 
 ;.byte $D4			; tick
 ;.byte $E8			; envelope pattern select
@@ -2155,7 +2344,7 @@ MATOYA_CH1:		; SQ channel 1
 ;.byte $FF,$FF
 ;.byte $E0,$61			; tempo
 .byte $E0,$26			; tempo
-.byte $EF			; volume
+.byte $EC			; volume
 
 MATOYA_CH1_S:
 ;.byte $DA			; tick
@@ -2238,7 +2427,7 @@ MATOYA_TRI:		; TRIANGLE
 ;.word VPBD15
 ;.word APBEC4
 .byte $E0,$26			; tempo
-.byte $EF			; volume
+.byte $EC			; volume
 MATOYA_TRI_S:
 ;.byte $EC			; volume
 .byte $F1,$B5
