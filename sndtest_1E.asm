@@ -1867,6 +1867,23 @@ D1_32	= $0D
 D1_48	= $0E
 D1_96	= $0F
 
+DH1	= $10
+DH3_4	= $11
+DH1_2	= $12
+DH3_8	= $13
+DH1_3	= $14
+DH1_4	= $15
+DH3_16	= $16
+DH1_6	= $17
+DH1_8	= $18
+DH3_32	= $19
+DH1_12	= $1A
+DH1_16	= $1B
+DH1_24	= $1C
+DH1_32	= $1D
+DH1_48	= $1E
+DH1_96	= $1F
+
 R1	= $20
 R3_4	= $21
 R1_2	= $22
@@ -1935,22 +1952,39 @@ FH1_32	= $6D
 FH1_48	= $6E
 FH1_96	= $6F
 
-S1	= $80
-S3_4	= $81
-S1_2	= $82
-S3_8	= $83
-S1_3	= $84
-S1_4	= $85
-S3_16	= $86
-S1_6	= $87
-S1_8	= $88
-S3_32	= $89
-S1_12	= $8A
-S1_16	= $8B
-S1_24	= $8C
-S1_32	= $8D
-S1_48	= $8E
-S1_96	= $8F
+S1	= $70
+S3_4	= $71
+S1_2	= $72
+S3_8	= $73
+S1_3	= $74
+S1_4	= $75
+S3_16	= $76
+S1_6	= $77
+S1_8	= $78
+S3_32	= $79
+S1_12	= $7A
+S1_16	= $7B
+S1_24	= $7C
+S1_32	= $7D
+S1_48	= $7E
+S1_96	= $7F
+
+SH1	= $80
+SH3_4	= $81
+SH1_2	= $82
+SH3_8	= $83
+SH1_3	= $84
+SH1_4	= $85
+SH3_16	= $86
+SH1_6	= $87
+SH1_8	= $88
+SH3_32	= $89
+SH1_12	= $8A
+SH1_16	= $8B
+SH1_24	= $8C
+SH1_32	= $8D
+SH1_48	= $8E
+SH1_96	= $8F
 
 L1	= $90
 L3_4	= $91
@@ -2020,12 +2054,52 @@ X1_32	= $CD
 X1_48	= $CE
 X1_96	= $CF
 
+TEMPO	= $E0
+
+VOL1	= $E1
+VOL2	= $E2
+VOL3	= $E3
+VOL4	= $E4
+VOL5	= $E5
+VOL6	= $E6
+VOL7	= $E7
+VOL8	= $E8
+VOL9	= $E9
+VOL10	= $EA
+VOL11	= $EB
+VOL12	= $EC
+VOL13	= $ED
+VOL14	= $EE
+VOL15	= $EF
+
 OT0	= $F0
 OT1	= $F1
 OT2	= $F2
 OT3	= $F3
 OT4	= $F4
 OT5	= $F5
+
+SET_P3	= $F6
+
+; Duty(DDLC VVVV(Duty/Constant/Volume,envelope) APU $4000,$4004)
+;  D18 = 1/8 12.5%
+;  D14 = 1/4 25%
+;  D12 = 1/2 50%
+;  D34 = 3/4 75%(negative)
+; Infinite play / One-shot
+;  I = Infinite play
+;  O = One-shot
+; Constant / envelope Lowering
+;  C = Constant
+;  L = Lowering
+; Volume
+;  V0 -  V15 = Volume(0-15)
+D18ICV15	= $3F
+D14ICV15	= $7F
+D12ICV15	= $BF
+D12OCV15	= $AF
+D12OLV15	= $9F
+D34ICV15	= $CF
 
 
 ; ==================================================
@@ -2069,44 +2143,48 @@ OT5	= $F5
 ;	  FFh: stop
 .if 1
 A07C:
-.word A086	; A07C	$86 $A0 - Pulse 1
-.byte $FF,$FF	;.word A1CA	; A07E	$CA $A1 - Pulse 2
+.word TESTB_CH1_S
+.byte $FF,$FF
+;.word TESTB_CH2_S
 .byte $FF,$FF	; A080	- Triangle
-A086:
-.byte $F6				; Settings (3 parameters)
-.byte $BF				; DDLC VVVV(Duty/Constant/Volume,envelope) APU $4000,$4004, Envelope(0=
+
+TESTB_CH1_S:
+.byte SET_P3	;$F6		; Settings (3 parameters)
+.byte D12ICV15	;.byte $BF	; DDLC VVVV(Duty/Constant/Volume,envelope) APU $4000,$4004, Envelope(0=
 .word VPBD43
 ;.word VPBE01
 ;.byte $37,$BD
 ;.word APBECB
 .word APBEC7
 ;.byte $FF,$FF
-.byte $EF				; Set volume (E1h-EFh)
+.byte VOL15				;.byte $EF				; Set volume (E1h-EFh)
 ;.byte $E0,$25				; Set tempo
-.byte $E0,$4B				; Set tempo
-;.byte $E0,$96				; Set tempo
+.byte TEMPO, $4B			;.byte $E0,$4B				; Set tempo
+
 A08A:
 .byte $F1				; Octave 0
 ;.byte $D0				; rest length (D0h-DFh)
 A08C:
-
-.if 1
+.if 0
 .byte $EF				; Set volume (E1h-EFh)
 .byte $FA				; Repeat 4
+.if 0
 FF9_R1:
 .byte OT2,M1_32,X3_32,M1_32,X1_32,M1_32,X1_32,OT1,C3_32,X1_32,C3_32,X1_32
 .byte $FC
 .word FF9_R1
-.byte OT2,M1_4,M1_4,M1_4,FH1_4
-.byte S1_2,L1_2
-.byte C1
+.endif
 
-.byte OT3
-.byte R1_4,F1_4,M1_2
-.byte R1_2,D1_2
-.byte OT2,C1_2,L1_2
-.byte S1_2,L1_2
-.byte S,
+.byte OT2,R1_8,R1_8,R1_8,M1_8
+.byte F1_4
+.byte S1_4
+
+.byte L1_2
+.byte C1_4,OT3,D1_4
+
+.byte OT2,C1_4,L1_4,S1_4,L1_4
+.byte F1_4,M1_4,R1_4,D1_4
+
 ;.byte OT2,$4B,$C6,$4B,$CB,$4B,$CB,OT1,$B6,$CB,$B6,$CB
 ;.byte $E3       			; Set volume (E1h-EFh)
 ;.byte OT2,$4B,$C6,$4B,$CB,$4B,$CB,OT1,$B6,$CB,$B6,$CB
@@ -2124,13 +2202,26 @@ FF9_R1:
 .byte $F2,$4D,$CC,$4D,$CF,$4D,$CF,$F1,$B8,$CF,$B8,$CF
 .endif
 
-.if 0
-.byte $F0
+.if 1
+.byte $F2
 ;     C   D   E   F   G   A   B
 .byte $00,$20,$40,$50,$70,$90,$B0
-.byte $F1				; Octave 1
+.byte $F3				; Octave 1
 ;     C
 .byte $00
+.byte $F2
+;     C   D   E   F   G   A   B
+.byte $00,$20,$40,$50,$80,$90,$B0
+.byte $F3				; Octave 1
+;     C
+.byte $00,$00
+.byte $F2
+;     C   D   E   F   G   A   B
+.byte $00,$20,$40,$50,$60,$90,$B0
+.byte $F3				; Octave 1
+;     C
+.byte $00,$00,$00
+.else
 .byte $F0				; Octave 0
 .byte $CF
 .byte $02,$C2,$22,$C2,$42,$C2,$52,$C2,$72,$C2,$92,$C2,$B2,$C2
@@ -2211,10 +2302,8 @@ FF9_R1:
 .byte $2F,$2E,$2D,$2C,$2B,$2A,$29,$28,$27,$26,$25,$24,$23,$22,$21,$20
 .byte $1F,$1E,$1D,$1C,$1B,$1A,$19,$18,$17,$16,$15,$14,$13,$12,$11,$10
 .byte $0F,$0E,$0D,$0C,$0B,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01,$00
-.byte $FE	; repeat
+.byte $FE	; Repeat
 .word A08A	; A1D0	$8A $A0
-
-
 
 .else
 
@@ -2472,6 +2561,133 @@ MATOYA_TRI_R:
 
 
 
+; ==================================================
+; TEST D - Final Fantasy IX : The place i'll return to someday (ver 1)
+FF9_BGM:
+.word FF9_CH1
+.word FF9_CH2
+.byte $FF,$FF
+
+FF9_CH1:
+.byte SET_P3
+.byte D12ICV15
+.word VPBD43	;.word VPBD37
+.word APBEC7
+.byte VOL15
+.byte TEMPO,$4B
+
+FF9_CH1_S:
+.if 1
+.byte $FA				; Repeat 4
+FF9_CH1_R1:
+;.byte OT2,M1_32,X3_32,M1_32,X1_32,M1_32,X1_32,OT1,C3_32,X1_32,C3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte $FC
+.word FF9_CH1_R1
+.endif
+
+;.byte OT2,R1_8,R1_8,R1_8,M1_8,F1_4,S1_4
+.byte OT2,R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
+.byte L3_4,C1_8,OT3,D1_8
+.byte OT2,C1_4,L1_4,S3_8,L1_8
+.byte F1_4,M1_4,R1_4,D1_4
+
+.byte OT2,R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
+.byte L3_4,C1_8,OT3,D1_8
+.byte OT2,C1_4,L1_4,L1_4,SH1_4
+.byte L3_4,X1_4
+
+.byte R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
+.byte L3_4,C1_8,OT3,D1_8
+.byte OT2,C1_4,L1_4,S3_8,L1_8
+.byte F1_4,M1_4,R1_4,D1_4
+
+.byte F3_8,F1_8,S1_8,F1_8,M1_8,R1_8
+.byte D1_4,L1_4,M3_8,S1_8
+.byte F1_4,M1_4,M1_4,M1_4
+.byte R3_4,X1_4
+;
+.byte OT4,R1_2,OT3,L1_4,OT4,R1_4
+.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte L1_4,F1_8,S1_8,L1_4,C1_4
+.byte OT4,D1_2,D1_4,X1_4
+
+.byte R1_2,OT3,L1_4,OT4,R1_4
+.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte F1_4,L1_4,M1_4,R1_8,DH1_8
+.byte R1_2,R1_4,X1_4
+
+.byte OT4,R1_2,OT3,L1_4,OT4,R1_4
+.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte L1_4,F1_8,S1_8,L1_4,C1_4
+.byte OT4,D1_2,D1_4,X1_4
+
+.byte R1_2,OT3,L1_4,OT4,R1_4
+.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte F1_4,L1_4,M1_4,R1_8,DH1_8
+.byte R3_4,X1_4
+
+
+.byte $FE	; Repeat
+.word FF9_CH1_S
+
+FF9_CH2:
+.byte SET_P3
+.byte D12ICV15
+.word VPBD43	;.word VPBD37
+.word APBEC7
+.byte VOL15
+.byte TEMPO, $4B
+
+FF9_CH2_S:
+.byte X1,X1
+
+.byte OT2,X1_2,R1_4,D1_4
+.byte X1_8,D1_8,R1_8,M1_8,F1_4,R1_8,M1_8
+.byte R1_4,D1_4,OT1,C1_4,OT2,R1_4
+.byte R1_4,D1_4,OT1,L1_4,X1_4
+
+.byte X1_2,D1_2
+.byte R1_2,D1_4,R1_8,D1_8
+.byte OT1,C1_4,OT2,D1_4,R1_4,M1_4
+.byte D1_4,R1_4,M1_2
+
+.byte X1_2,R1_4,D1_4
+.byte X1_8,D1_8,R1_8,M1_8,F1_4,R1_8,M1_8
+.byte R1_4,D1_4,OT1,C1_4,OT2,R1_4
+.byte R1_4,D1_4,OT1,L1_4,X1_4
+
+.byte L1_4,OT2,D1_4,R1_4,OT1,C1_4
+.byte L1_4,L1_4,OT2,D1_4,OT1,C1_4
+.byte L1_4,OT2,D1_2,DH1_4
+.byte OT1,C1_4,L1_2,X1_4
+;
+.byte OT2,R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_2,M1_4
+.byte D1_2,M1_4,X1_4
+
+.byte R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_4,OT1,C1_2
+.byte L1_2,L1_4,X1_4
+
+.byte OT2,R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_2,M1_4
+.byte D1_2,M1_4,X1_4
+
+.byte R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_4,OT1,C1_2
+.byte L3_4,X1_4
+
+.byte $FE	; Repeat
+.word FF9_CH2_S
+
+
+
+
 
 .segment "DATA_SND"
 ;pitch table(timer) - 0-71
@@ -2582,18 +2798,72 @@ D9D0D:
 D9E0D:
 .byte $4B
 D9E0E:
-.byte $9E,$51
-.byte $9E,$62,$9F,$87,$9F,$F2,$9F
+.byte $9E
+;01
+.byte $51,$9E
+;02
+.byte $62,$9F
+;03
+.byte $87,$9F
+;04
+.word FF9_BGM
+;.byte $F2,$9F
+;05
 .word A07C	; 9E17	$F2 $9F
 ;.word A1D2	; 9E19	$F2 $9F
 ;.word BGM_0009
 ;.word BGM_FF39
 ;.word BGM9F87
+;06
 .word BGMFF3_CHOCOBO
-.byte $67,$A1,$C4,$A1,$0D
-.byte $A2,$55,$A2,$A0,$A2,$65,$A4,$EB,$A5,$BA,$A7,$9B,$A9,$0B,$AB,$5A
-.byte $AC,$5A,$AD,$30,$B0,$10,$B5,$2A,$B5,$4A,$B6,$D5,$B6,$4D,$B7,$85
-.byte $B7,$26,$B8,$A0,$B8,$80,$B9,$E1,$B9,$E2,$BC
+;07
+.byte $67,$A1
+;08
+.byte $C4,$A1
+;09
+.byte $0D,$A2
+;10(0A)
+.byte $55,$A2
+;11(0B)
+.byte $A0,$A2
+;12(0C)
+.byte $65,$A4
+;13(0D)
+.byte $EB,$A5
+;14(0E)
+.byte $BA,$A7
+;15(0F)
+.byte $9B,$A9
+;16(10)
+.byte $0B,$AB
+;17(11)
+.byte $5A,$AC
+;17(11)
+.byte $5A,$AD
+;18(12)
+.byte $30,$B0
+;19(13)
+.byte $10,$B5
+;20(14)
+.byte $2A,$B5
+;21(15)
+.byte $4A,$B6
+;22(16)
+.byte $D5,$B6
+;23(17)
+.byte $4D,$B7
+;24(18)
+.byte $85,$B7
+;25(19)
+.byte $26,$B8
+;26(1A)
+.byte $A0,$B8
+;27(1B)
+.byte $80,$B9
+;28(1C)
+.byte $E1,$B9
+;29(1D)
+.byte $E2,$BC
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) END ==========
 
 
