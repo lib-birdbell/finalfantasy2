@@ -2081,6 +2081,8 @@ OT5	= $F5
 
 SET_P3	= $F6
 
+REPEAT	= $FE
+
 ; Duty(DDLC VVVV(Duty/Constant/Volume,envelope) APU $4000,$4004)
 ;  D18 = 1/8 12.5%
 ;  D14 = 1/4 25%
@@ -2689,6 +2691,156 @@ FF9_CH2_S:
 
 
 
+; ==================================================
+; TEST E - Final Fantasy IX : The place i'll return to someday (ver 2)
+FF92_BGM:
+.word FF92_CH1
+.word FF92_CH2
+;.byte $FF,$FF
+;.byte $FF,$FF
+.word FF92_TRI
+
+FF92_CH1:
+.byte SET_P3
+.byte D12ICV15
+.word VPBD43	;.word VPBD37
+.word APBEC7
+.byte VOL15
+.byte TEMPO,$4B
+
+FF92_CH1_S:
+.byte $FA				; Repeat 4
+FF92_CH1_R1:
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte $FC
+.word FF92_CH1_R1
+
+.byte OT2,R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
+.byte X1_4,L3_32,X1_32,L3_32,X1_32,L1_4,C1_8,OT3,D1_32,X3_32
+.byte OT2,C3_32,X1_32,C3_32,X1_32,L3_32,X1_32,L3_32,X1_32,S3_8,L1_8
+.byte F1_8,F1_8,M1_8,M1_8,R1_8,R1_8,D1_8,D1_8
+
+.byte OT2,R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
+.byte X1_4,L3_32,X1_32,L3_32,X1_32,L1_4,C1_8,OT3,D1_32,X3_32
+.byte OT2,C3_32,X1_32,C3_32,X1_32,L3_32,X1_32,L3_32,X1_32,L1_4,SH1_4
+;testing
+;.byte L1_4,OT3,D1_4,M1_4,X1_4,OT2
+.byte L1_2,X1_32,L3_32,X1_8,X1_4
+
+.byte R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
+.byte X1_4,L3_32,X1_32,L3_32,X1_32,L1_4,C1_8,OT3,D1_32,X3_32
+.byte OT2,C3_32,X1_32,C3_32,X1_32,L3_32,X1_32,L3_32,X1_32,S3_8,L1_8
+.byte F1_8,F1_8,M1_8,M1_8,R1_8,R1_8,D1_8,D1_8
+
+.byte F1_8,F1_4,F1_8,S1_8,F1_8,M1_8,R1_8
+.byte D1_32,X3_32,D1_32,X1_32,D1_32,X1_32,L1_8,L1_8,M3_8,S1_8
+.byte F3_32,X1_32,F3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32
+.byte R1_2,X1_32,R3_32,X1_8,X1_4
+;
+;.byte OT4,R1_2,OT3,L1_4,OT4,R1_4
+.byte OT4,R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+;.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
+;.byte L1_8,L1_8,F1_8,S1_8,L1_4,C1_4
+.byte L1_8,L1_8,F1_8,S1_8,L1_4,C1_8,X1_8
+;.byte OT4,D1_2,D1_4,X1_4
+;.byte OT4,D1_32,X3_32,D1_32,X3_32,D1_32,X3_32,D1_32,X3_32,D1_4,X1_4
+.byte OT4,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_4,X1_4
+
+;.byte R1_2,OT3,L1_4,OT4,R1_4
+.byte R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+;.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
+;.byte F1_4,L1_4,M1_4,R1_8,DH1_8
+.byte F1_8,F1_8,L1_8,L1_8,M1_8,M1_8,R1_8,DH1_8
+.byte R1_2,R1_4,X1_4
+
+;.byte OT4,R1_2,OT3,L1_4,OT4,R1_4
+.byte OT4,R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+;.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
+;.byte L1_4,F1_8,S1_8,L1_4,C1_4
+.byte L1_8,L1_8,F1_8,S1_8,L1_8,L1_8,C1_8,C1_8
+;.byte OT4,D1_2,D1_4,X1_4
+.byte OT4,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_4,X1_4
+
+;.byte R1_2,OT3,L1_4,OT4,R1_4
+.byte R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+;.byte D3_8,OT3,C1_8,L1_4,S1_4
+.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
+;.byte F1_4,L1_4,M1_4,R1_8,DH1_8
+.byte F1_8,F1_8,L1_8,L1_8,M1_8,M1_8,R1_8,DH1_8
+;.byte R3_4,X1_4
+.byte R1_2,R1_4,X1_4
+
+.byte REPEAT
+.word FF92_CH1_S
+
+FF92_CH2:
+.byte SET_P3
+.byte D12ICV15
+.word VPBD43	;.word VPBD37
+.word APBEC7
+.byte VOL15
+.byte TEMPO, $4B
+
+FF92_CH2_S:
+.byte X1,X1
+
+.byte OT2,X1_2,R1_4,D1_4
+.byte X1_8,D1_8,R1_8,M1_8,F1_4,R1_8,M1_8
+.byte R1_4,D1_4,OT1,C1_4,OT2,R1_4
+.byte R1_4,D1_4,OT1,L1_4,X1_4
+
+.byte X1_2,D1_2
+.byte R1_2,D1_4,R1_8,D1_8
+.byte OT1,C1_4,OT2,D1_4,R1_4,M1_4
+.byte D1_4,R1_4,M1_2
+
+.byte X1_2,R1_4,D1_4
+.byte X1_8,D1_8,R1_8,M1_8,F1_4,R1_8,M1_8
+.byte R1_4,D1_4,OT1,C1_4,OT2,R1_4
+.byte R1_4,D1_4,OT1,L1_4,X1_4
+
+.byte L1_4,OT2,D1_4,R1_4,OT1,C1_4
+.byte L1_4,L1_4,OT2,D1_4,OT1,C1_4
+.byte L1_4,OT2,D1_2,DH1_4
+.byte OT1,C1_4,L1_2,X1_4
+;
+.byte OT2,R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_2,M1_4
+.byte D1_2,M1_4,X1_4
+
+.byte R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_4,OT1,C1_2
+.byte L1_2,L1_4,X1_4
+
+.byte OT2,R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_2,M1_4
+.byte D1_2,M1_4,X1_4
+
+.byte R1_2,D1_4,R1_4
+.byte D1_4,R1_2,OT1,C1_4
+.byte OT2,D1_4,R1_4,OT1,C1_2
+.byte L3_4,X1_4
+
+.byte REPEAT
+.word FF92_CH2_S
+
+FF92_TRI:
+.byte VOL7
+.byte TEMPO, $4B
+FF92_TRI_S:
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte REPEAT
+.word FF92_TRI_S
+
+
+
+
 .segment "DATA_SND"
 ;pitch table(timer) - 0-71
 ;$4002,$4006,$400A / $4003,$4007,$400B
@@ -2804,7 +2956,8 @@ D9E0E:
 ;02
 .byte $62,$9F
 ;03
-.byte $87,$9F
+.word FF92_BGM
+;.byte $87,$9F
 ;04
 .word FF9_BGM
 ;.byte $F2,$9F
