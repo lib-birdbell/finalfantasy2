@@ -477,57 +477,57 @@
 ; Marks	: Sound ?? loop - ready for sound process
 ;	  $E0 = current song ID, bit7, bit6 
 ;	  song ID is 00h-3Fh(64)
-	LDA #$00		; 9800	$A9 $00
-	STA $C0			; 9802	$85 $C0		apu register update flag
-	STA $C1			; 9804	$85 $C1		apu register update flag
-	STA $C2			; 9806	$85 $C2		apu register update flag
-	LDA $E5			; 9808	$A5 $E5		sound effect counter (mute square 2 music channel)
-	BEQ L3581A		; 980A	$F0 $0E
-	DEC $E5			; 980C	$C6 $E5
-	BNE L3581A		; 980E	$D0 $0A
-	LDA #$30		; 9810	$A9 $30
-	STA Sq1Duty_4004	; 9812	$8D $04 $40
-	LDA #$00		; 9815	$A9 $00
-	STA SQ2_Note_Value	; 9817	$8D $1F $6F
+	LDA #$00			; 9800	$A9 $00
+	STA $C0				; 9802	$85 $C0		apu register update flag
+	STA $C1				; 9804	$85 $C1		apu register update flag
+	STA $C2				; 9806	$85 $C2		apu register update flag
+	LDA $E5				; 9808	$A5 $E5		sound effect counter (mute square 2 music channel)
+	BEQ L3581A			; 980A	$F0 $0E
+	DEC $E5				; 980C	$C6 $E5
+	BNE L3581A			; 980E	$D0 $0A
+	LDA #$30			; 9810	$A9 $30
+	STA Sq1Duty_4004		; 9812	$8D $04 $40
+	LDA #$00			; 9815	$A9 $00
+	STA SQ2_Note_Value		; 9817	$8D $1F $6F
 L3581A:
-	LDA current_song_ID	; 981A	$A5 $E0
-	ASL A			; 981C	$0A
-	BCC L35832		; 981D	$90 $13
-	JSR $98A9		; 981F	$20 $A9 $98	if bit7 is set, copy some data $6F26 -> $B0 (load ??)
-	LDA #$00		; 9822	$A9 $00
-	STA current_song_ID	; 9824	$85 $E0
-	STA tmp_sq04002		; 9826	$8D $1B $6F	timer low
-	STA tmp_sq14006		; 9829	$8D $1F $6F	timer low
-	STA tmp_trg400A		; 982C	$8D $23 $6F	timer low
-	JMP $9863		; 982F	$4C $63 $98
+	LDA current_song_ID		; 981A	$A5 $E0
+	ASL A				; 981C	$0A
+	BCC L35832			; 981D	$90 $13
+	JSR $98A9			; 981F	$20 $A9 $98	if bit7 is set, copy some data $6F26 -> $B0 (load ??)
+	LDA #$00			; 9822	$A9 $00
+	STA current_song_ID		; 9824	$85 $E0
+	STA tmp_sq04002			; 9826	$8D $1B $6F	timer low
+	STA tmp_sq14006			; 9829	$8D $1F $6F	timer low
+	STA tmp_trg400A			; 982C	$8D $23 $6F	timer low
+	JMP $9863			; 982F	$4C $63 $98
 L35832:
-	ASL A			; 9832	$0A
-	BCC L35863		; 9833	$90 $2E
-	LDA current_song_ID	; 9835	$A5 $E0		if bit6 is set, check song ID
-	AND #$3F		; 9837	$29 $3F
-	STA current_song_ID	; 9839	$85 $E0
-	CMP current_BGM_ID	; 983B	$CD $25 $6F
-	BEQ L35847		; 983E	$F0 $07
-	JSR $988E		; 9840	$20 $8E $98	if song ID changed, copy some data $B0 -> $6F26 (store ??)
+	ASL A				; 9832	$0A
+	BCC L35863			; 9833	$90 $2E
+	LDA current_song_ID		; 9835	$A5 $E0		if bit6 is set, check song ID
+	AND #$3F			; 9837	$29 $3F
+	STA current_song_ID		; 9839	$85 $E0
+	CMP current_BGM_ID		; 983B	$CD $25 $6F
+	BEQ L35847			; 983E	$F0 $07
+	JSR $988E			; 9840	$20 $8E $98	if song ID changed, copy some data $B0 -> $6F26 (store ??)
 L35843:
-	JSR LoadNewBGM		; 9843	$20 $67 $98	Load new BGM
-	RTS			; 9846	$60
+	JSR LoadNewBGM			; 9843	$20 $67 $98	Load new BGM
+	RTS				; 9846	$60
 ; End of
 L35847:
-	CMP #$09		; 9847	$C9 $09		keyword get ??
-	BEQ L35843		; 9849	$F0 $F8
-	LDA #$30		; 984B	$A9 $30
-	STA Sq0Duty_4000	; 984D	$8D $00 $40
-	STA Sq1Duty_4004	; 9850	$8D $04 $40
-	LDA #$80		; 9853	$A9 $80
-	STA TrgLinear_4008	; 9855	$8D $08 $40
-	LDA #$00		; 9858	$A9 $00
-	STA tmp_sq04002		; 985A	$8D $1B $6F
-	STA tmp_sq14006		; 985D	$8D $1F $6F
-	STA tmp_trg400A		; 9860	$8D $23 $6F
+	CMP #$09			; 9847	$C9 $09		keyword get ??
+	BEQ L35843			; 9849	$F0 $F8
+	LDA #$30			; 984B	$A9 $30
+	STA Sq0Duty_4000		; 984D	$8D $00 $40
+	STA Sq1Duty_4004		; 9850	$8D $04 $40
+	LDA #$80			; 9853	$A9 $80
+	STA TrgLinear_4008		; 9855	$8D $08 $40
+	LDA #$00			; 9858	$A9 $00
+	STA tmp_sq04002			; 985A	$8D $1B $6F
+	STA tmp_sq14006			; 985D	$8D $1F $6F
+	STA tmp_trg400A			; 9860	$8D $23 $6F
 L35863:
-	JSR $990E		; 9863	$20 $0E $99	next BGM data(keep going on) ??
-	RTS			; 9866	$60
+	JSR $990E			; 9863	$20 $0E $99	next BGM data(keep going on) ??
+	RTS				; 9866	$60
 ; End of
 
 ; Name	: LoadNewBGM
@@ -538,67 +538,67 @@ L35863:
 ;	  $B2(ADDR) = Sq1 note address
 ;	  $B4(ADDR) = Tri note address
 LoadNewBGM:
-	LDA current_song_ID	; 9867	$A5 $E0
-	STA current_BGM_ID	; 9869	$8D $25 $6F
-	ASL A			; 986C	$0A
-	TAX			; 986D	$AA
-	LDA BGM_LIST0,X		; 986E	$BD $0D $9E	pointers to song data
-	STA $C8			; 9871	$85 $C8
-	LDA BGM_LIST0+1,X	; 9873	$BD $0E $9E
-	STA $C9			; 9876	$85 $C9
-	LDY #$00		; 9878	$A0 $00
-	LDX #$00		; 987A	$A2 $00
+	LDA current_song_ID		; 9867	$A5 $E0
+	STA current_BGM_ID		; 9869	$8D $25 $6F
+	ASL A				; 986C	$0A
+	TAX				; 986D	$AA
+	LDA BGM_LIST0,X			; 986E	$BD $0D $9E	pointers to song data
+	STA $C8				; 9871	$85 $C8
+	LDA BGM_LIST0+1,X		; 9873	$BD $0E $9E
+	STA $C9				; 9876	$85 $C9
+	LDY #$00			; 9878	$A0 $00
+	LDX #$00			; 987A	$A2 $00
 L3587C:
-	LDA ($C8),Y		; 987C	$B1 $C8
-	STA $B0,X		; 987E	$95 $B0
-	INY			; 9880	$C8
-	INX			; 9881	$E8
-	CPX #$06		; 9882	$E0 $06
-	BCC L3587C		; 9884	$90 $F6		loop
-	JSR Init_tmp_reg	; 9886	$20 $C4 $98	Init temporary register
-	LDA #$00		; 9889	$A9 $00
-	STA $E6			; 988B	$85 $E6
-	RTS			; 988D	$60
+	LDA ($C8),Y			; 987C	$B1 $C8
+	STA $B0,X			; 987E	$95 $B0
+	INY				; 9880	$C8
+	INX				; 9881	$E8
+	CPX #$06			; 9882	$E0 $06
+	BCC L3587C			; 9884	$90 $F6		loop
+	JSR Init_tmp_reg		; 9886	$20 $C4 $98	Init temporary register
+	LDA #$00			; 9889	$A9 $00
+	STA $E6				; 988B	$85 $E6
+	RTS				; 988D	$60
 ; End of LoadNewBGM
 
 ; Name	:
 ; Marks	: store state ??
-	LDX #$00		; 988E	$A2 $00
+	LDX #$00			; 988E	$A2 $00
 L35890:
-	LDA SQ1FramePosition,X	; 9890	$B5 $B0
-	STA $6F26,X		; 9892	$9D $26 $6F
-	INX			; 9895	$E8
-	CPX #$12		; 9896	$E0 $12
-	BCC L35890		; 9898	$90 $F6		loop
-	LDY #$00		; 989A	$A0 $00
+	LDA SQ1FramePosition,X		; 9890	$B5 $B0
+	STA $6F26,X			; 9892	$9D $26 $6F
+	INX				; 9895	$E8
+	CPX #$12			; 9896	$E0 $12
+	BCC L35890			; 9898	$90 $F6		loop
+	LDY #$00			; 989A	$A0 $00
 L3589C:
-	LDA song_tempo,Y	; 989C	$B9 $00 $6F
-	STA $6F26,X		; 989F	$9D $26 $6F
-	INX			; 98A2	$E8
-	INY			; 98A3	$C8
-	CPY #$26		; 98A4	$C0 $26
-	BCC L3589C		; 98A6	$90 $F4		loop
-	RTS			; 98A8	$60
+	LDA song_tempo,Y		; 989C	$B9 $00 $6F
+	STA $6F26,X			; 989F	$9D $26 $6F
+	INX				; 98A2	$E8
+	INY				; 98A3	$C8
+	CPY #$26			; 98A4	$C0 $26
+	BCC L3589C			; 98A6	$90 $F4		loop
+	RTS				; 98A8	$60
 ; End of
 
 ; Name	:
 ; Marks	: load state ??
-	LDX #$00		; 98A9	$A2 $00
+	LDX #$00			; 98A9	$A2 $00
 L358AB:
-	LDA $6F26,X		; 98AB	$BD $26 $6F
-	STA $B0,X		; 98AE	$95 $B0
-	INX			; 98B0	$E8
-	CPX #$12		; 98B1	$E0 $12
-	BCC L358AB		; 98B3	$90 $F6		loop
-	LDY #$00		; 98B5	$A0 $00
+	LDA $6F26,X			; 98AB	$BD $26 $6F
+	STA $B0,X			; 98AE	$95 $B0
+	INX				; 98B0	$E8
+	CPX #$12			; 98B1	$E0 $12
+	BCC L358AB			; 98B3	$90 $F6		loop
+	LDY #$00			; 98B5	$A0 $00
 L358B7:
-	LDA $6F26,X		; 98B7	$BD $26 $6F
-	STA song_tempo,Y	; 98BA	$99 $00 $6F
-	INX			; 98BD	$E8
-	INY			; 98BE	$C8
-	CPY #$26		; 98BF	$C0 $26
-	BCC L358B7		; 98C1	$90 $F4		loop
-	RTS			; 98C3	$60
+	LDA $6F26,X			; 98B7	$BD $26 $6F
+	STA song_tempo,Y		; 98BA	$99 $00 $6F
+	INX				; 98BD	$E8
+	INY				; 98BE	$C8
+	CPY #$26			; 98BF	$C0 $26
+	BCC L358B7			; 98C1	$90 $F4		loop
+	RTS				; 98C3	$60
 ; End of
 
 ; Name	: Init_tmp_reg
@@ -607,40 +607,40 @@ L358B7:
 ;	  volume to 0Fh
 ;	  song_tempo to 4Bh
 Init_tmp_reg:
-	LDX #$00		; 98C4	$A2 $00
-	LDA #$FF		; 98C6	$A9 $FF
+	LDX #$00			; 98C4	$A2 $00
+	LDA #$FF			; 98C6	$A9 $FF
 L358C8:
-	STA $B6,X		; 98C8	$95 $B6
-	INX			; 98CA	$E8
-	CPX #$04		; 98CB	$E0 $04
-	BCC L358C8		; 98CD	$90 $F9		loop
-	LDX #$00		; 98CF	$A2 $00
+	STA $B6,X			; 98C8	$95 $B6
+	INX				; 98CA	$E8
+	CPX #$04			; 98CB	$E0 $04
+	BCC L358C8			; 98CD	$90 $F9		loop
+	LDX #$00			; 98CF	$A2 $00
 L358D1:
-	STA $BA,X		; 98D1	$95 $BA
-	INX			; 98D3	$E8
-	CPX #$06		; 98D4	$E0 $06
-	BCC L358D1		; 98D6	$90 $F9		loop
-	LDX #$00		; 98D8	$A2 $00
-	LDA #$00		; 98DA	$A9 $00
+	STA $BA,X			; 98D1	$95 $BA
+	INX				; 98D3	$E8
+	CPX #$06			; 98D4	$E0 $06
+	BCC L358D1			; 98D6	$90 $F9		loop
+	LDX #$00			; 98D8	$A2 $00
+	LDA #$00			; 98DA	$A9 $00
 L358DC:
-	STA tempo_cnt,X		; 98DC	$9D $06 $6F
-	INX			; 98DF	$E8
-	CPX #$04		; 98E0	$E0 $04
-	BCC L358DC		; 98E2	$90 $F8		loop
-	LDA #$0F		; 98E4	$A9 $0F
-	STA Sq0Vol		; 98E6	$8D $04 $6F
-	STA Sq1Vol		; 98E9	$8D $05 $6F
-	LDA #$4B		; 98EC	$A9 $4B
-	STA song_tempo		; 98EE	$8D $00 $6F
-	LDX #$00		; 98F1	$A2 $00
-	STX ApuStatus_4015	; 98F3	$8E $15 $40
+	STA tempo_cnt,X			; 98DC	$9D $06 $6F
+	INX				; 98DF	$E8
+	CPX #$04			; 98E0	$E0 $04
+	BCC L358DC			; 98E2	$90 $F8		loop
+	LDA #$0F			; 98E4	$A9 $0F
+	STA Sq0Vol			; 98E6	$8D $04 $6F
+	STA Sq1Vol			; 98E9	$8D $05 $6F
+	LDA #$4B			; 98EC	$A9 $4B
+	STA song_tempo			; 98EE	$8D $00 $6F
+	LDX #$00			; 98F1	$A2 $00
+	STX ApuStatus_4015		; 98F3	$8E $15 $40
 L358F6:
-	LDA APU_REG_RESET,X	; 98F6	$BD $02 $99
-	STA tmp_sq04000,X	; 98F9	$9D $19 $6F
-	INX			; 98FC	$E8
-	CPX #$0C		; 98FD	$E0 $0C
-	BCC L358F6		; 98FF	$90 $F5
-	RTS			; 9901	$60
+	LDA APU_REG_RESET,X		; 98F6	$BD $02 $99
+	STA tmp_sq04000,X		; 98F9	$9D $19 $6F
+	INX				; 98FC	$E8
+	CPX #$0C			; 98FD	$E0 $0C
+	BCC L358F6			; 98FF	$90 $F5
+	RTS				; 9901	$60
 ; End of Init_tmp_reg
 
 ;; [$9902 :: 0x35902]
@@ -650,62 +650,62 @@ APU_REG_RESET:
 
 ; Name	:
 ; Marks	: ??
-	LDA song_tempo		; 990E	$AD $00 $6F
-	CLC			; 9911	$18
-	ADC tempo_cnt		; 9912	$6D $06 $6F
-	STA tempo_cnt		; 9915	$8D $06 $6F
-	LDA tempo_cnt		; 9918	$AD $06 $6F
-	CMP #$4B		; 991B	$C9 $4B
-	BCC L3592A		; 991D	$90 $0B
-	SBC #$4B		; 991F	$E9 $4B
-	STA tempo_cnt		; 9921	$8D $06 $6F
-	JSR $9931		; 9924	$20 $31 $99
-	JMP $9918		; 9927	$4C $18 $99
+	LDA song_tempo			; 990E	$AD $00 $6F
+	CLC				; 9911	$18
+	ADC tempo_cnt			; 9912	$6D $06 $6F
+	STA tempo_cnt			; 9915	$8D $06 $6F
+	LDA tempo_cnt			; 9918	$AD $06 $6F
+	CMP #$4B			; 991B	$C9 $4B
+	BCC L3592A			; 991D	$90 $0B
+	SBC #$4B			; 991F	$E9 $4B
+	STA tempo_cnt			; 9921	$8D $06 $6F
+	JSR $9931			; 9924	$20 $31 $99
+	JMP $9918			; 9927	$4C $18 $99
 L3592A:
-	JSR $9B22		; 992A	$20 $22 $9B
-	JSR $9C1F		; 992D	$20 $1F $9C	Write to APU REGISTER
-	RTS			; 9930	$60
+	JSR $9B22			; 992A	$20 $22 $9B
+	JSR $9C1F			; 992D	$20 $1F $9C	Write to APU REGISTER
+	RTS				; 9930	$60
 ; End of
 
 ; Name	:
 ; Marks	:
-	LDA #$00		; 9931	$A9 $00
-	STA $C5			; 9933	$85 $C5
+	LDA #$00			; 9931	$A9 $00
+	STA $C5				; 9933	$85 $C5
 L35935:
-	LDA $C5			; 9935	$A5 $C5
-	TAY			; 9937	$A8
-	ASL A			; 9938	$0A
-	STA $C6			; 9939	$85 $C6
-	TAX			; 993B	$AA
-	ASL A			; 993C	$0A
-	STA $C7			; 993D	$85 $C7
-	LDA $B0,X		; 993F	$B5 $B0
-	STA $C3			; 9941	$85 $C3
-	LDA $B1,X		; 9943	$B5 $B1
-	STA $C4			; 9945	$85 $C4
-	CMP #$FF		; 9947	$C9 $FF
-	BEQ L35968		; 9949	$F0 $1D
-	LDA Sq0tick_cnt,Y	; 994B	$B9 $07 $6F
-	BNE L35963		; 994E	$D0 $13		if tick counter is exist(not zero)
-	LDY #$00		; 9950	$A0 $00
-	JSR $9971		; 9952	$20 $71 $99	next data ??
-	LDX $C6			; 9955	$A6 $C6		set next address
-	TYA			; 9957	$98
-	CLC			; 9958	$18
-	ADC $C3			; 9959	$65 $C3
-	STA $B0,X		; 995B	$95 $B0
-	LDA #$00		; 995D	$A9 $00
-	ADC $C4			; 995F	$65 $C4
-	STA $B1,X		; 9961	$95 $B1
+	LDA $C5				; 9935	$A5 $C5
+	TAY				; 9937	$A8
+	ASL A				; 9938	$0A
+	STA $C6				; 9939	$85 $C6
+	TAX				; 993B	$AA
+	ASL A				; 993C	$0A
+	STA $C7				; 993D	$85 $C7
+	LDA $B0,X			; 993F	$B5 $B0
+	STA $C3				; 9941	$85 $C3
+	LDA $B1,X			; 9943	$B5 $B1
+	STA $C4				; 9945	$85 $C4
+	CMP #$FF			; 9947	$C9 $FF
+	BEQ L35968			; 9949	$F0 $1D
+	LDA Sq0tick_cnt,Y		; 994B	$B9 $07 $6F
+	BNE L35963			; 994E	$D0 $13		if tick counter is exist(not zero)
+	LDY #$00			; 9950	$A0 $00
+	JSR $9971			; 9952	$20 $71 $99	next data ??
+	LDX $C6				; 9955	$A6 $C6		set next address
+	TYA				; 9957	$98
+	CLC				; 9958	$18
+	ADC $C3				; 9959	$65 $C3
+	STA $B0,X			; 995B	$95 $B0
+	LDA #$00			; 995D	$A9 $00
+	ADC $C4				; 995F	$65 $C4
+	STA $B1,X			; 9961	$95 $B1
 L35963:
-	LDX $C5			; 9963	$A6 $C5
-	DEC Sq0tick_cnt,X	; 9965	$DE $07 $6F
+	LDX $C5				; 9963	$A6 $C5
+	DEC Sq0tick_cnt,X		; 9965	$DE $07 $6F
 L35968:
-	INC $C5			; 9968	$E6 $C5
-	LDA $C5			; 996A	$A5 $C5
-	CMP #$03		; 996C	$C9 $03
-	BCC L35935		; 996E	$90 $C5
-	RTS			; 9970	$60
+	INC $C5				; 9968	$E6 $C5
+	LDA $C5				; 996A	$A5 $C5
+	CMP #$03			; 996C	$C9 $03
+	BCC L35935			; 996E	$90 $C5
+	RTS				; 9970	$60
 ; End of
 
 ; Name	:
@@ -720,158 +720,158 @@ L35968:
 ;	  FDh: repeat
 ;	  FEh: repeat
 ;	  FFh: stop
-	LDA ($C3),Y		; 9971	$B1 $C3
-	INY			; 9973	$C8
-	CMP #$E0		; 9974	$C9 $E0
-	BCS L3597C		; 9976	$B0 $04
-	JSR $99C8		; 9978	$20 $C8 $99
-	RTS			; 997B	$60
+	LDA ($C3),Y			; 9971	$B1 $C3
+	INY				; 9973	$C8
+	CMP #$E0			; 9974	$C9 $E0
+	BCS L3597C			; 9976	$B0 $04
+	JSR $99C8			; 9978	$20 $C8 $99
+	RTS				; 997B	$60
 ; Enf of
 L3597C:
-	BNE L35984		; 997C	$D0 $06
-	JSR $9A4C		; 997E	$20 $4C $9A	if A==E0h
-	JMP $9971		; 9981	$4C $71 $99	loop - next data
+	BNE L35984			; 997C	$D0 $06
+	JSR $9A4C			; 997E	$20 $4C $9A	if A==E0h
+	JMP $9971			; 9981	$4C $71 $99	loop - next data
 L35984:
-	CMP #$F0		; 9984	$C9 $F0
-	BCS L3598E		; 9986	$B0 $06
-	JSR $9A53		; 9988	$20 $53 $9A	if E0h<A<F0h
-	JMP $9971		; 998B	$4C $71 $99	loop - next data
+	CMP #$F0			; 9984	$C9 $F0
+	BCS L3598E			; 9986	$B0 $06
+	JSR $9A53			; 9988	$20 $53 $9A	if E0h<A<F0h
+	JMP $9971			; 998B	$4C $71 $99	loop - next data
 L3598E:
-	CMP #$F6		; 998E	$C9 $F6
-	BCS L35998		; 9990	$B0 $06
-	JSR $9A5B		; 9992	$20 $5B $9A	if EFh<A<F6h
+	CMP #$F6			; 998E	$C9 $F6
+	BCS L35998			; 9990	$B0 $06
+	JSR $9A5B			; 9992	$20 $5B $9A	if EFh<A<F6h
 L35995:
-	JMP $9971		; 9995	$4C $71 $99	loop - next data
+	JMP $9971			; 9995	$4C $71 $99	loop - next data
 L35998:
-	BNE L359A0		; 9998	$D0 $06
-	JSR $9A63		; 999A	$20 $63 $9A	if A==F6h
-	JMP $9971		; 999D	$4C $71 $99	loop - next data
+	BNE L359A0			; 9998	$D0 $06
+	JSR $9A63			; 999A	$20 $63 $9A	if A==F6h
+	JMP $9971			; 999D	$4C $71 $99	loop - next data
 L359A0:
-	CMP #$FC		; 99A0	$C9 $FC
-	BCS L359AA		; 99A2	$B0 $06		if F6h<A<FCh
-	JSR $9A82		; 99A4	$20 $82 $9A
-	JMP $9971		; 99A7	$4C $71 $99	loop - next data
+	CMP #$FC			; 99A0	$C9 $FC
+	BCS L359AA			; 99A2	$B0 $06		if F6h<A<FCh
+	JSR $9A82			; 99A4	$20 $82 $9A
+	JMP $9971			; 99A7	$4C $71 $99	loop - next data
 L359AA:
-	BNE L359B2		; 99AA	$D0 $06
-	JSR $9A95		; 99AC	$20 $95 $9A	if A==FCh
-	JMP $9971		; 99AF	$4C $71 $99	loop - next data
+	BNE L359B2			; 99AA	$D0 $06
+	JSR $9A95			; 99AC	$20 $95 $9A	if A==FCh
+	JMP $9971			; 99AF	$4C $71 $99	loop - next data
 L359B2:
-	CMP #$FE		; 99B2	$C9 $FE
-	BCS L359BC		; 99B4	$B0 $06
-	JSR $9AB1		; 99B6	$20 $B1 $9A	if A==FDh
-	JMP $9971		; 99B9	$4C $71 $99	loop - next data
+	CMP #$FE			; 99B2	$C9 $FE
+	BCS L359BC			; 99B4	$B0 $06
+	JSR $9AB1			; 99B6	$20 $B1 $9A	if A==FDh
+	JMP $9971			; 99B9	$4C $71 $99	loop - next data
 L359BC:
-	BNE L359C4		; 99BC	$D0 $06
-	JSR $9ACE		; 99BE	$20 $CE $9A	if A==FEh
-	JMP $9971		; 99C1	$4C $71 $99	loop - next data
+	BNE L359C4			; 99BC	$D0 $06
+	JSR $9ACE			; 99BE	$20 $CE $9A	if A==FEh
+	JMP $9971			; 99C1	$4C $71 $99	loop - next data
 L359C4:
-	JSR $9ADF		; 99C4	$20 $DF $9A	if A==FFh
-	RTS			; 99C7	$60
+	JSR $9ADF			; 99C4	$20 $DF $9A	if A==FFh
+	RTS				; 99C7	$60
 ; End of
 
 ; Name	:
 ; A	: A < E0h
 ; Marks	:
-	STA $C8			; 99C8	$85 $C8		note temporary variable
-	AND #$0F		; 99CA	$29 $0F
-	TAX			; 99CC	$AA
-	LDA TICK_CNT_TBL,X	; 99CD	$BD $FD $9C
-	LDX $C5			; 99D0	$A6 $C5
-	STA Sq0tick_cnt,X	; 99D2	$9D $07 $6F
-	LDA $C8			; 99D5	$A5 $C8
-	CMP #$D0		; 99D7	$C9 $D0
-	BCC L359DC		; 99D9	$90 $01
-	RTS			; 99DB	$60
+	STA $C8				; 99C8	$85 $C8		note temporary variable
+	AND #$0F			; 99CA	$29 $0F
+	TAX				; 99CC	$AA
+	LDA TICK_CNT_TBL,X		; 99CD	$BD $FD $9C
+	LDX $C5				; 99D0	$A6 $C5
+	STA Sq0tick_cnt,X		; 99D2	$9D $07 $6F
+	LDA $C8				; 99D5	$A5 $C8
+	CMP #$D0			; 99D7	$C9 $D0
+	BCC L359DC			; 99D9	$90 $01
+	RTS				; 99DB	$60
 ; End of
 L359DC:
-	CMP #$C0		; 99DC	$C9 $C0
-	BCC L359FE		; 99DE	$90 $1E
-	LDA #$01		; 99E0	$A9 $01
-	STA $C0,X		; 99E2	$95 $C0
-	LDX $C7			; 99E4	$A6 $C7
-	LDA #$00		; 99E6	$A9 $00
-	STA tmp_sq04002,X	; 99E8	$9D $1B $6F
-	CPX #$08		; 99EB	$E0 $08
-	BEQ L359F8		; 99ED	$F0 $09
-	LDA tmp_sq04000,X	; 99EF	$BD $19 $6F
-	AND #$F0		; 99F2	$29 $F0
-	STA tmp_sq04000,X	; 99F4	$9D $19 $6F
-	RTS			; 99F7	$60
+	CMP #$C0			; 99DC	$C9 $C0
+	BCC L359FE			; 99DE	$90 $1E
+	LDA #$01			; 99E0	$A9 $01
+	STA $C0,X			; 99E2	$95 $C0
+	LDX $C7				; 99E4	$A6 $C7
+	LDA #$00			; 99E6	$A9 $00
+	STA tmp_sq04002,X		; 99E8	$9D $1B $6F
+	CPX #$08			; 99EB	$E0 $08
+	BEQ L359F8			; 99ED	$F0 $09
+	LDA tmp_sq04000,X		; 99EF	$BD $19 $6F
+	AND #$F0			; 99F2	$29 $F0
+	STA tmp_sq04000,X		; 99F4	$9D $19 $6F
+	RTS				; 99F7	$60
 ; End of
 L359F8:
-	LDA #$80		; 99F8	$A9 $80
-	STA tmp_trg4008		; 99FA	$8D $21 $6F
-	RTS			; 99FD	$60
+	LDA #$80			; 99F8	$A9 $80
+	STA tmp_trg4008			; 99FA	$8D $21 $6F
+	RTS				; 99FD	$60
 ; End of
 L359FE:
-	CPX #$02		; 99FE	$E0 $02
-	BNE L35A07		; 9A00	$D0 $05
-	LDA #$FF		; 9A02	$A9 $FF
-	STA tmp_trg4008		; 9A04	$8D $21 $6F
+	CPX #$02			; 99FE	$E0 $02
+	BNE L35A07			; 9A00	$D0 $05
+	LDA #$FF			; 9A02	$A9 $FF
+	STA tmp_trg4008			; 9A04	$8D $21 $6F
 L35A07:
-	LDA #$00		; 9A07	$A9 $00
-	STA $6F13,X		; 9A09	$9D $13 $6F	index
-	STA $6F0A,X		; 9A0C	$9D $0A $6F
-	STA $6F16,X		; 9A0F	$9D $16 $6F	timer adjust table index
-	STA $6F0D,X		; 9A12	$9D $0D $6F	timer adjust delay/counter ??
-	LDA #$0F		; 9A15	$A9 $0F
-	STA $C0,X		; 9A17	$95 $C0
-	LDA Sq0Oct,X		; 9A19	$BD $01 $6F
-	ASL A			; 9A1C	$0A
-	ASL A			; 9A1D	$0A
-	ASL A			; 9A1E	$0A
-	STA $C9			; 9A1F	$85 $C9
-	LDA Sq0Oct,X		; 9A21	$BD $01 $6F
-	ASL A			; 9A24	$0A
-	ASL A			; 9A25	$0A
-	ADC $C9			; 9A26	$65 $C9
-	STA $C9			; 9A28	$85 $C9
-	LDA $C8			; 9A2A	$A5 $C8
-	LSR A			; 9A2C	$4A
-	LSR A			; 9A2D	$4A
-	LSR A			; 9A2E	$4A
-	LSR A			; 9A2F	$4A
-	CLC			; 9A30	$18
-	ADC $C9			; 9A31	$65 $C9
-	ASL A			; 9A33	$0A
-	TAX			; 9A34	$AA
-	LDA $9C6D,X		; 9A35	$BD $6D $9C
-	STA $C8			; 9A38	$85 $C8
-	LDA $9C6E,X		; 9A3A	$BD $6E $9C
-	STA $C9			; 9A3D	$85 $C9
-	LDX $C7			; 9A3F	$A6 $C7
-	LDA $C8			; 9A41	$A5 $C8
-	STA tmp_sq04002,X	; 9A43	$9D $1B $6F
-	LDA $C9			; 9A46	$A5 $C9
-	STA tmp_sq04003,X	; 9A48	$9D $1C $6F
-	RTS			; 9A4B	$60
+	LDA #$00			; 9A07	$A9 $00
+	STA $6F13,X			; 9A09	$9D $13 $6F	index
+	STA $6F0A,X			; 9A0C	$9D $0A $6F
+	STA $6F16,X			; 9A0F	$9D $16 $6F	timer adjust table index
+	STA $6F0D,X			; 9A12	$9D $0D $6F	timer adjust delay/counter ??
+	LDA #$0F			; 9A15	$A9 $0F
+	STA $C0,X			; 9A17	$95 $C0
+	LDA Sq0Oct,X			; 9A19	$BD $01 $6F
+	ASL A				; 9A1C	$0A
+	ASL A				; 9A1D	$0A
+	ASL A				; 9A1E	$0A
+	STA $C9				; 9A1F	$85 $C9
+	LDA Sq0Oct,X			; 9A21	$BD $01 $6F
+	ASL A				; 9A24	$0A
+	ASL A				; 9A25	$0A
+	ADC $C9				; 9A26	$65 $C9
+	STA $C9				; 9A28	$85 $C9
+	LDA $C8				; 9A2A	$A5 $C8
+	LSR A				; 9A2C	$4A
+	LSR A				; 9A2D	$4A
+	LSR A				; 9A2E	$4A
+	LSR A				; 9A2F	$4A
+	CLC				; 9A30	$18
+	ADC $C9				; 9A31	$65 $C9
+	ASL A				; 9A33	$0A
+	TAX				; 9A34	$AA
+	LDA $9C6D,X			; 9A35	$BD $6D $9C
+	STA $C8				; 9A38	$85 $C8
+	LDA $9C6E,X			; 9A3A	$BD $6E $9C
+	STA $C9				; 9A3D	$85 $C9
+	LDX $C7				; 9A3F	$A6 $C7
+	LDA $C8				; 9A41	$A5 $C8
+	STA tmp_sq04002,X		; 9A43	$9D $1B $6F
+	LDA $C9				; 9A46	$A5 $C9
+	STA tmp_sq04003,X		; 9A48	$9D $1C $6F
+	RTS				; 9A4B	$60
 ; End of
 
 ; Name	:
 ; Marks	: E0h - tempo counter rate
 ;	  1st: $6F00 = tempo counter rate
-	LDA ($C3),Y		; 9A4C	$B1 $C3
-	INY			; 9A4E	$C8
-	STA song_tempo		; 9A4F	$8D $00 $6F
-	RTS			; 9A52	$60
+	LDA ($C3),Y			; 9A4C	$B1 $C3
+	INY				; 9A4E	$C8
+	STA song_tempo			; 9A4F	$8D $00 $6F
+	RTS				; 9A52	$60
 ; End of
 
 ; Name	:
 ; Marks	: E0h < A < F0h (E1h ~ EFh)
 ;	  $6F04,X = 01h~0Fh (volume)
-	AND #$0F		; 9A53	$29 $0F
-	LDX $C5			; 9A55	$A6 $C5
-	STA Sq0Vol,X		; 9A57	$9D $04 $6F
-	RTS			; 9A5A	$60
+	AND #$0F			; 9A53	$29 $0F
+	LDX $C5				; 9A55	$A6 $C5
+	STA Sq0Vol,X			; 9A57	$9D $04 $6F
+	RTS				; 9A5A	$60
 ; End of
 
 ; Name	:
 ; Marks	: F0h, F1h, F2h, F3h, F4h, F5h
 ;	  $6F01,X = 0~5 (octave)
-	AND #$0F		; 9A5B	$29 $0F
-	LDX $C5			; 9A5D	$A6 $C5
-	STA Sq0Oct,X		; 9A5F	$9D $01 $6F	square n / triangle octave
-	RTS			; 9A60	$60
+	AND #$0F			; 9A5B	$29 $0F
+	LDX $C5				; 9A5D	$A6 $C5
+	STA Sq0Oct,X			; 9A5F	$9D $01 $6F	square n / triangle octave
+	RTS				; 9A60	$60
 ; End of
 
 ; Name	:
@@ -881,24 +881,24 @@ L35A07:
 ;	  3rd: $B7,X
 ;	  4th: $BA,X
 ;	  5th: $BB,X
-	LDA ($C3),Y		; 9A63	$B1 $C3
-	INY			; 9A65	$C8
-	LDX $C7			; 9A66	$A6 $C7
-	STA tmp_sq04000,X	; 9A68	$9D $19 $6F
-	LDX $C6			; 9A6B	$A6 $C6
-	LDA ($C3),Y		; 9A6D	$B1 $C3
-	INY			; 9A6F	$C8
-	STA $B6,X		; 9A70	$95 $B6
-	LDA($C3),Y		; 9A72	$B1 $C3
-	INY			; 9A74	$C8
-	STA $B7,X		; 9A75	$95 $B7
-	LDA ($C3),Y		; 9A77	$B1 $C3
-	INY			; 9A79	$C8
-	STA $BA,X		; 9A7A	$95 $BA
-	LDA ($C3),Y		; 9A7C	$B1 $C3
-	INY			; 9A7E	$C8
-	STA $BB,X		; 9A7F	$95 $BB
-	RTS			; 9A81	$60
+	LDA ($C3),Y			; 9A63	$B1 $C3
+	INY				; 9A65	$C8
+	LDX $C7				; 9A66	$A6 $C7
+	STA tmp_sq04000,X		; 9A68	$9D $19 $6F
+	LDX $C6				; 9A6B	$A6 $C6
+	LDA ($C3),Y			; 9A6D	$B1 $C3
+	INY				; 9A6F	$C8
+	STA $B6,X			; 9A70	$95 $B6
+	LDA($C3),Y			; 9A72	$B1 $C3
+	INY				; 9A74	$C8
+	STA $B7,X			; 9A75	$95 $B7
+	LDA ($C3),Y			; 9A77	$B1 $C3
+	INY				; 9A79	$C8
+	STA $BA,X			; 9A7A	$95 $BA
+	LDA ($C3),Y			; 9A7C	$B1 $C3
+	INY				; 9A7E	$C8
+	STA $BB,X			; 9A7F	$95 $BB
+	RTS				; 9A81	$60
 ; End of
 
 ; Name	:
@@ -910,314 +910,314 @@ L35A07:
 ;	  FBh = 5
 ;	  $6F10,X = loop counter
 L9A82:
-	LDX $C5			; 9A82	$A6 $C5
-	CMP #$F8		; 9A84	$C9 $F8
-	BCC L35A8E		; 9A86	$90 $06
-	SBC #$F6		; 9A88	$E9 $F6
-	STA $6F10,X		; 9A8A	$9D $10 $6F
-	RTS			; 9A8D	$60
+	LDX $C5				; 9A82	$A6 $C5
+	CMP #$F8			; 9A84	$C9 $F8
+	BCC L35A8E			; 9A86	$90 $06
+	SBC #$F6			; 9A88	$E9 $F6
+	STA $6F10,X			; 9A8A	$9D $10 $6F
+	RTS				; 9A8D	$60
 ; End of
 L35A8E:
-	LDA ($C3),Y		; 9A8E	$B1 $C3
-	INY			; 9A90	$C8
-	STA $6F10,X		; 9A91	$9D $10 $6F
-	RTS			; 9A94	$60
+	LDA ($C3),Y			; 9A8E	$B1 $C3
+	INY				; 9A90	$C8
+	STA $6F10,X			; 9A91	$9D $10 $6F
+	RTS				; 9A94	$60
 ; End of
 
 ; Name	:
 ; Marks	: FCh - jump
 L9A95:
-	LDA ($C3),Y		; 9A95	$B1 $C3
-	INY			; 9A97	$C8
-	STA $C8			; 9A98	$85 $C8
-	LDA ($C3),Y		; 9A9A	$B1 $C3
-	INY			; 9A9C	$C8
-	STA $C9			; 9A9D	$85 $C9
-	LDX $C5			; 9A9F	$A6 $C5
-	DEC $6F10,X		; 9AA1	$DE $10 $6F
-	BEQ L35AB0		; 9AA4	$F0,$0A
-	LDA $C8			; 9AA6	$A5 $C8
-	STA $C3			; 9AA8	$85 $C3
-	LDA $C9			; 9AAA	$A5 $C9
-	STA $C4			; 9AAC	$85 $C4
-	LDY #$00		; 9AAE	$A0 $00
+	LDA ($C3),Y			; 9A95	$B1 $C3
+	INY				; 9A97	$C8
+	STA $C8				; 9A98	$85 $C8
+	LDA ($C3),Y			; 9A9A	$B1 $C3
+	INY				; 9A9C	$C8
+	STA $C9				; 9A9D	$85 $C9
+	LDX $C5				; 9A9F	$A6 $C5
+	DEC $6F10,X			; 9AA1	$DE $10 $6F
+	BEQ L35AB0			; 9AA4	$F0,$0A
+	LDA $C8				; 9AA6	$A5 $C8
+	STA $C3				; 9AA8	$85 $C3
+	LDA $C9				; 9AAA	$A5 $C9
+	STA $C4				; 9AAC	$85 $C4
+	LDY #$00			; 9AAE	$A0 $00
 L35AB0:
-	RTS			; 9AB0	$60
+	RTS				; 9AB0	$60
 ; End of
 
 ; Name	:
 ; Marks	: FDh - jump
 L9AB1:
-	LDA ($C3),Y		; 9AB1	$B1 $C3
-	INY			; 9AB3	$C8
-	STA $C8			; 9AB4	$85 $C8
-	LDA ($C3),Y		; 9AB6	$B1 $C3
-	INY			; 9AB8	$C8
-	STA $C9			; 9AB9	$85 $C9
-	LDX $C5			; 9ABB	$A6 $C5
-	LDA $6F10,X		; 9ABD	$BD $10 $6F
-	LSR A			; 9AC0	$4A
-	BCC L35ACD		; 9AC1	$90 $0A
-	LDA $C8			; 9AC3	$A5 $C8
-	STA $C3			; 9AC5	$85 $C3
-	LDA $C9			; 9AC7	$A5 $C9
-	STA $C4			; 9AC9	$85 $C4
-	LDY #$00		; 9ACB	$A0 $00
+	LDA ($C3),Y			; 9AB1	$B1 $C3
+	INY				; 9AB3	$C8
+	STA $C8				; 9AB4	$85 $C8
+	LDA ($C3),Y			; 9AB6	$B1 $C3
+	INY				; 9AB8	$C8
+	STA $C9				; 9AB9	$85 $C9
+	LDX $C5				; 9ABB	$A6 $C5
+	LDA $6F10,X			; 9ABD	$BD $10 $6F
+	LSR A				; 9AC0	$4A
+	BCC L35ACD			; 9AC1	$90 $0A
+	LDA $C8				; 9AC3	$A5 $C8
+	STA $C3				; 9AC5	$85 $C3
+	LDA $C9				; 9AC7	$A5 $C9
+	STA $C4				; 9AC9	$85 $C4
+	LDY #$00			; 9ACB	$A0 $00
 L35ACD:
-	RTS			; 9ACD	$60
+	RTS				; 9ACD	$60
 ; End of
 
 ; Name	:
 ; Marks	: FEh = reload data ??
-	LDA ($C3),Y		; 9ACE	$B1 $C3
-	INY			; 9AD0	$C8
-	STA $C8			; 9AD1	$85 $C8
-	LDA ($C3),Y		; 9AD3	$B1 $C3
-	INY			; 9AD5	$C8
-	STA $C4			; 9AD6	$85 $C4
-	LDA $C8			; 9AD8	$A5 $C8
-	STA $C3			; 9ADA	$85 $C3
-	LDY #$00		; 9ADC	$A0 $00
-	RTS			; 9ADE	$60
+	LDA ($C3),Y			; 9ACE	$B1 $C3
+	INY				; 9AD0	$C8
+	STA $C8				; 9AD1	$85 $C8
+	LDA ($C3),Y			; 9AD3	$B1 $C3
+	INY				; 9AD5	$C8
+	STA $C4				; 9AD6	$85 $C4
+	LDA $C8				; 9AD8	$A5 $C8
+	STA $C3				; 9ADA	$85 $C3
+	LDY #$00			; 9ADC	$A0 $00
+	RTS				; 9ADE	$60
 ; End of
 
 ; Name	:
 ; Marks	:
-	LDX $C6			; 9ADF	$A6 $C6
-	LDA #$FF		; 9AE1	$A9 $FF
-	STA $B6,X		; 9AE3	$95 $B6
-	STA $B7,X		; 9AE5	$95 $B7
-	STA $BA,X		; 9AE7	$95 $BA
-	STA $BB,X		; 9AE9	$95 $BB
-	STA $B0,X		; 9AEB	$95 $B0
-	STA $B1,X		; 9AED	$95 $B1
-	STA $C3			; 9AEF	$85 $C3
-	STA $C4			; 9AF1	$85 $C4
-	LDY #$00		; 9AF3	$A0 $00
-	LDX $C5			; 9AF5	$A6 $C5
-	LDA #$01		; 9AF7	$A9 $01
-	STA $C0,X		; 9AF9	$95 $C0
-	LDX $C7			; 9AFB	$A6 $C7
-	LDA #$00		; 9AFD	$A9 $00
-	STA tmp_sq04002,X	; 9AFF	$9D $1B $6F
-	CPX #$08		; 9B02	$E0 $08
-	BEQ L35B0B		; 9B04	$F0 $05
-	LDA #$F0		; 9B06	$A9 $F0
-	JMP $9B0D		; 9B08	$4C $0D $9B
+	LDX $C6				; 9ADF	$A6 $C6
+	LDA #$FF			; 9AE1	$A9 $FF
+	STA $B6,X			; 9AE3	$95 $B6
+	STA $B7,X			; 9AE5	$95 $B7
+	STA $BA,X			; 9AE7	$95 $BA
+	STA $BB,X			; 9AE9	$95 $BB
+	STA $B0,X			; 9AEB	$95 $B0
+	STA $B1,X			; 9AED	$95 $B1
+	STA $C3				; 9AEF	$85 $C3
+	STA $C4				; 9AF1	$85 $C4
+	LDY #$00			; 9AF3	$A0 $00
+	LDX $C5				; 9AF5	$A6 $C5
+	LDA #$01			; 9AF7	$A9 $01
+	STA $C0,X			; 9AF9	$95 $C0
+	LDX $C7				; 9AFB	$A6 $C7
+	LDA #$00			; 9AFD	$A9 $00
+	STA tmp_sq04002,X		; 9AFF	$9D $1B $6F
+	CPX #$08			; 9B02	$E0 $08
+	BEQ L35B0B			; 9B04	$F0 $05
+	LDA #$F0			; 9B06	$A9 $F0
+	JMP $9B0D			; 9B08	$4C $0D $9B
 ; End of
 L35B0B:
-	LDA #$00		; 9B0B	$A9 $00
-	STA tmp_sq04000,X	; 9B0D	$9D $19 $6F
-	LDA #$FF		; 9B10	$A9 $FF
-	LDX #$00		; 9B12	$A2 $00
+	LDA #$00			; 9B0B	$A9 $00
+	STA tmp_sq04000,X		; 9B0D	$9D $19 $6F
+	LDA #$FF			; 9B10	$A9 $FF
+	LDX #$00			; 9B12	$A2 $00
 L35B14:
-	CMP $B0,X		; 9B14	$D5 $B0
-	BNE L35B21		; 9B16	$D0 $09
-	INX			; 9B18	$E8
-	CPX #$06		; 9B19	$E0 $06
-	BCC L35B14		; 9B1B	$90 $F7		loop
-	LDA #$80		; 9B1D	$A9 $80		return to 
-	STA current_song_ID	; 9B1F	$85 $E0
+	CMP $B0,X			; 9B14	$D5 $B0
+	BNE L35B21			; 9B16	$D0 $09
+	INX				; 9B18	$E8
+	CPX #$06			; 9B19	$E0 $06
+	BCC L35B14			; 9B1B	$90 $F7		loop
+	LDA #$80			; 9B1D	$A9 $80		return to 
+	STA current_song_ID		; 9B1F	$85 $E0
 L35B21:
-	RTS			; 9B21	$60
+	RTS				; 9B21	$60
 ; End of
 
 ; Name	:
 ; Marks	: $C5 = channel ID
 ;	  $C6 X = channel ID * 2
 ;	  $C7 Y = channel ID * 4
-	LDA #$00		; 9B22	$A9 $00
-	STA $C5			; 9B24	$85 $C5
+	LDA #$00			; 9B22	$A9 $00
+	STA $C5				; 9B24	$85 $C5
 L35B26:
-	LDA $C5			; 9B26	$A5 $C5
-	ASL A			; 9B28	$0A
-	STA $C6			; 9B29	$85 $C6
-	TAX			; 9B2B	$AA
-	ASL A			; 9B2C	$0A
-	STA $C7			; 9B2D	$85 $C7
-	TAY			; 9B2F	$A8
-	LDA tmp_sq04002,Y	; 9B30	$B9 $1B $6F
-	BEQ L35B4D		; 9B33	$F0 $18
-	LDA $B6,X		; 9B35	$B5 $B6
-	STA $C3			; 9B37	$85 $C3
-	LDA $B7,X		; 9B39	$B5 $B7
-	STA $C4			; 9B3B	$85 $C4
-	JSR $9B56		; 9B3D	$20 $56 $9B	volume/envelope(Sq0Duty_4000,X) ??
-	LDX $C6			; 9B40	$A6 $C6
-	LDA $BA,X		; 9B42	$B5 $BA
-	STA $C3			; 9B44	$85 $C3
-	LDA $BB,X		; 9B46	$B5 $BB
-	STA $C4			; 9B48	$85 $C4
-	JSR $9BB6		; 9B4A	$20 $B6 $9B	Sq0Timer_4002,X ??
+	LDA $C5				; 9B26	$A5 $C5
+	ASL A				; 9B28	$0A
+	STA $C6				; 9B29	$85 $C6
+	TAX				; 9B2B	$AA
+	ASL A				; 9B2C	$0A
+	STA $C7				; 9B2D	$85 $C7
+	TAY				; 9B2F	$A8
+	LDA tmp_sq04002,Y		; 9B30	$B9 $1B $6F
+	BEQ L35B4D			; 9B33	$F0 $18
+	LDA $B6,X			; 9B35	$B5 $B6
+	STA $C3				; 9B37	$85 $C3
+	LDA $B7,X			; 9B39	$B5 $B7
+	STA $C4				; 9B3B	$85 $C4
+	JSR $9B56			; 9B3D	$20 $56 $9B	volume/envelope(Sq0Duty_4000,X) ??
+	LDX $C6				; 9B40	$A6 $C6
+	LDA $BA,X			; 9B42	$B5 $BA
+	STA $C3				; 9B44	$85 $C3
+	LDA $BB,X			; 9B46	$B5 $BB
+	STA $C4				; 9B48	$85 $C4
+	JSR $9BB6			; 9B4A	$20 $B6 $9B	Sq0Timer_4002,X ??
 L35B4D:
-	INC $C5			; 9B4D	$E6 $C5
-	LDA $C5			; 9B4F	$A5 $C5
-	CMP #$03		; 9B51	$C9 $03
-	BCC L35B26		; 9B53	$90 $D1
-	RTS			; 9B55	$60
+	INC $C5				; 9B4D	$E6 $C5
+	LDA $C5				; 9B4F	$A5 $C5
+	CMP #$03			; 9B51	$C9 $03
+	BCC L35B26			; 9B53	$90 $D1
+	RTS				; 9B55	$60
 ; End of
 
 ; Name	:
 ; Marks	:
-	LDA $C4			; 9B56	$A5 $C4
-	CMP #$FF		; 9B58	$C9 $FF
-	BNE L35B5D		; 9B5A	$D0 $01
-	RTS			; 9B5C	$60
+	LDA $C4				; 9B56	$A5 $C4
+	CMP #$FF			; 9B58	$C9 $FF
+	BNE L35B5D			; 9B5A	$D0 $01
+	RTS				; 9B5C	$60
 ; End of
 L35B5D:
-	LDX $C5			; 9B5D	$A6 $C5
-	LDA $6F0A,X		; 9B5F	$BD $0A $6F
-	BNE L35BB2		; 9B62	$D0 $4E
-	LDY $6F13,X		; 9B64	$BC $13 $6F	index
-	LDA ($C3),Y		; 9B67	$B1 $C3		volume/pitch envelope data
-	AND #$F0		; 9B69	$29 $F0
-	BNE L35B81		; 9B6B	$D0 $14
-	LDA ($C3),Y		; 9B6D	$B1 $C3
-	AND #$0F		; 9B6F	$29 $0F
-	BEQ L35BB2		; 9B71	$F0 $3F
-	STA $C8			; 9B73	$85 $C8
-	LDA $6F13,X		; 9B75	$BD $13 $6F	index
-	SEC			; 9B78	$38
-	SBC $C8			; 9B79	$E5 $C8
-	STA $6F13,X		; 9B7B	$9D $13 $6F	index
-	JMP $9B64		; 9B7E	$4C $64 $9B
+	LDX $C5				; 9B5D	$A6 $C5
+	LDA $6F0A,X			; 9B5F	$BD $0A $6F
+	BNE L35BB2			; 9B62	$D0 $4E
+	LDY $6F13,X			; 9B64	$BC $13 $6F	index
+	LDA ($C3),Y			; 9B67	$B1 $C3		volume/pitch envelope data
+	AND #$F0			; 9B69	$29 $F0
+	BNE L35B81			; 9B6B	$D0 $14
+	LDA ($C3),Y			; 9B6D	$B1 $C3
+	AND #$0F			; 9B6F	$29 $0F
+	BEQ L35BB2			; 9B71	$F0 $3F
+	STA $C8				; 9B73	$85 $C8
+	LDA $6F13,X			; 9B75	$BD $13 $6F	index
+	SEC				; 9B78	$38
+	SBC $C8				; 9B79	$E5 $C8
+	STA $6F13,X			; 9B7B	$9D $13 $6F	index
+	JMP $9B64			; 9B7E	$4C $64 $9B
 L35B81:
-	LSR A			; 9B81	$4A
-	LSR A			; 9B82	$4A
-	LSR A			; 9B83	$4A
-	LSR A			; 9B84	$4A
-	STA $6F0A,X		; 9B85	$9D $0A $6F	index low nibble
-	INC $6F13,X		; 9B88	$FE $13 $6F
-	LDA Sq0Vol,X		; 9B8B	$BD $04 $6F	volume index high nibble
-	ASL A			; 9B8E	$0A
-	ASL A			; 9B8F	$0A
-	ASL A			; 9B90	$0A
-	ASL A			; 9B91	$0A
-	STA $C8			; 9B92	$85 $C8
-	LDA ($C3),Y		; 9B94	$B1 $C3		BD04 ??
-	AND #$0F		; 9B96	$29 $0F
-	ORA $C8			; 9B98	$05 $C8
-	TAY			; 9B9A	$A8
-	LDA VOL_TBL,Y		; 9B9B	$B9 $0D $9D	data size is FFh
-	STA $C8			; 9B9E	$85 $C8
-	LDY $C7			; 9BA0	$A4 $C7
-	LDA tmp_sq04000,Y	; 9BA2	$B9 $19 $6F
-	AND #$F0		; 9BA5	$29 $F0
-	ORA $C8			; 9BA7	$05 $C8
-	STA tmp_sq04000,Y	; 9BA9	$99 $19 $6F
-	LDA #$01		; 9BAC	$A9 $01
-	ORA $C0,X		; 9BAE	$15 $C0
-	STA $C0,X		; 9BB0	$95 $C0
+	LSR A				; 9B81	$4A
+	LSR A				; 9B82	$4A
+	LSR A				; 9B83	$4A
+	LSR A				; 9B84	$4A
+	STA $6F0A,X			; 9B85	$9D $0A $6F	index low nibble
+	INC $6F13,X			; 9B88	$FE $13 $6F
+	LDA Sq0Vol,X			; 9B8B	$BD $04 $6F	volume index high nibble
+	ASL A				; 9B8E	$0A
+	ASL A				; 9B8F	$0A
+	ASL A				; 9B90	$0A
+	ASL A				; 9B91	$0A
+	STA $C8				; 9B92	$85 $C8
+	LDA ($C3),Y			; 9B94	$B1 $C3		BD04 ??
+	AND #$0F			; 9B96	$29 $0F
+	ORA $C8				; 9B98	$05 $C8
+	TAY				; 9B9A	$A8
+	LDA VOL_TBL,Y			; 9B9B	$B9 $0D $9D	data size is FFh
+	STA $C8				; 9B9E	$85 $C8
+	LDY $C7				; 9BA0	$A4 $C7
+	LDA tmp_sq04000,Y		; 9BA2	$B9 $19 $6F
+	AND #$F0			; 9BA5	$29 $F0
+	ORA $C8				; 9BA7	$05 $C8
+	STA tmp_sq04000,Y		; 9BA9	$99 $19 $6F
+	LDA #$01			; 9BAC	$A9 $01
+	ORA $C0,X			; 9BAE	$15 $C0
+	STA $C0,X			; 9BB0	$95 $C0
 L35BB2:
-	DEC $6F0A,X		; 9BB2	$DE $0A $6F
-	RTS			; 9BB5	$60
+	DEC $6F0A,X			; 9BB2	$DE $0A $6F
+	RTS				; 9BB5	$60
 ; End of
 
 ; Name	:
 ; Marks	: timer adjust process
-	LDA $C4			; 9BB6	$A5 $C4
-	CMP #$FF		; 9BB8	$C9 $FF
-	BNE L35BBD		; 9BBA	$D0 $01
-	RTS			; 9BBC	$60
+	LDA $C4				; 9BB6	$A5 $C4
+	CMP #$FF			; 9BB8	$C9 $FF
+	BNE L35BBD			; 9BBA	$D0 $01
+	RTS				; 9BBC	$60
 ; End of
 L35BBD:
-	LDX $C5			; 9BBD	$A6 $C5
-	LDA $6F0D,X		; 9BBF	$BD $0D $6F	timer adjust delay/counter ??
-	BNE L35C1B		; 9BC2	$D0 $57
-	LDY $6F16,X		; 9BC4	$BC $16 $6F	timer adjust table index
-	LDA ($C3),Y		; 9BC7	$B1 $C3
-	AND #$F0		; 9BC9	$29 $F0
-	BNE L35BE1		; 9BCB	$D0 $14
-	LDA ($C3),Y		; 9BCD	$B1 $C3
-	AND #$0F		; 9BCF	$29 $0F
-	BEQ L35C1B		; 9BD1	$F0 $48
-	STA $C8			; 9BD3	$85 $C8		timer adjust value temporary variable
-	LDA $6F16,X		; 9BD5	$BD $16 $6F
-	SEC			; 9BD8	$38
-	SBC $C8			; 9BD9	$E5 $C8
-	STA $6F16,X		; 9BDB	$9D $16 $6F
-	JMP $9BC4		; 9BDE	$4C $C4 $9B
+	LDX $C5				; 9BBD	$A6 $C5
+	LDA $6F0D,X			; 9BBF	$BD $0D $6F	timer adjust delay/counter ??
+	BNE L35C1B			; 9BC2	$D0 $57
+	LDY $6F16,X			; 9BC4	$BC $16 $6F	timer adjust table index
+	LDA ($C3),Y			; 9BC7	$B1 $C3
+	AND #$F0			; 9BC9	$29 $F0
+	BNE L35BE1			; 9BCB	$D0 $14
+	LDA ($C3),Y			; 9BCD	$B1 $C3
+	AND #$0F			; 9BCF	$29 $0F
+	BEQ L35C1B			; 9BD1	$F0 $48
+	STA $C8				; 9BD3	$85 $C8		timer adjust value temporary variable
+	LDA $6F16,X			; 9BD5	$BD $16 $6F
+	SEC				; 9BD8	$38
+	SBC $C8				; 9BD9	$E5 $C8
+	STA $6F16,X			; 9BDB	$9D $16 $6F
+	JMP $9BC4			; 9BDE	$4C $C4 $9B
 L35BE1:
-	LSR A			; 9BE1	$4A
-	LSR A			; 9BE2	$4A
-	LSR A			; 9BE3	$4A
-	LSR A			; 9BE4	$4A
-	STA $6F0D,X		; 9BE5	$9D $0D $6F	timer adjust delay/counter ??
-	INC $6F16,X		; 9BE8	$FE $16 $6F	timer adjust table index
-	LDA ($C3),Y		; 9BEB	$B1 $C3
-	AND #$0F		; 9BED	$29 $0F
-	STA $C8			; 9BEF	$85 $C8
-	LDY $C7			; 9BF1	$A4 $C7
-	AND #$08		; 9BF3	$29 $08		bit3 is +,-
-	BNE L35C02		; 9BF5	$D0 $0B
-	LDA tmp_sq04002,Y	; 9BF7	$B9 $1B $6F	bit3 clear: Add timer value
-	CLC			; 9BFA	$18
-	ADC $C8			; 9BFB	$65 $C8
-	BCS L35C1B		; 9BFD	$B0 $1C
-	JMP $9C12		; 9BFF	$4C $12 $9C
+	LSR A				; 9BE1	$4A
+	LSR A				; 9BE2	$4A
+	LSR A				; 9BE3	$4A
+	LSR A				; 9BE4	$4A
+	STA $6F0D,X			; 9BE5	$9D $0D $6F	timer adjust delay/counter ??
+	INC $6F16,X			; 9BE8	$FE $16 $6F	timer adjust table index
+	LDA ($C3),Y			; 9BEB	$B1 $C3
+	AND #$0F			; 9BED	$29 $0F
+	STA $C8				; 9BEF	$85 $C8
+	LDY $C7				; 9BF1	$A4 $C7
+	AND #$08			; 9BF3	$29 $08		bit3 is +,-
+	BNE L35C02			; 9BF5	$D0 $0B
+	LDA tmp_sq04002,Y		; 9BF7	$B9 $1B $6F	bit3 clear: Add timer value
+	CLC				; 9BFA	$18
+	ADC $C8				; 9BFB	$65 $C8
+	BCS L35C1B			; 9BFD	$B0 $1C
+	JMP $9C12			; 9BFF	$4C $12 $9C
 L35C02:
-	LDA $C8			; 9C02	$A5 $C8
-	AND #$07		; 9C04	$29 $07
-	STA $C8			; 9C06	$85 $C8
-	LDA tmp_sq04002,Y	; 9C08	$B9 $1B $6F	bit3 set: Subtract timer value
-	SEC			; 9C0B	$38
-	SBC $C8			; 9C0C	$E5 $C8
-	BEQ L35C1B		; 9C0E	$F0 $0B
-	BCC L35C1B		; 9C10	$90 $09
-	STA tmp_sq04002,Y	; 9C12	$99 $1B $6F
-	LDA #$04		; 9C15	$A9 $04
-	ORA $C0,X		; 9C17	$15 $C0
-	STA $C0,X		; 9C19	$95 $C0
+	LDA $C8				; 9C02	$A5 $C8
+	AND #$07			; 9C04	$29 $07
+	STA $C8				; 9C06	$85 $C8
+	LDA tmp_sq04002,Y		; 9C08	$B9 $1B $6F	bit3 set: Subtract timer value
+	SEC				; 9C0B	$38
+	SBC $C8				; 9C0C	$E5 $C8
+	BEQ L35C1B			; 9C0E	$F0 $0B
+	BCC L35C1B			; 9C10	$90 $09
+	STA tmp_sq04002,Y		; 9C12	$99 $1B $6F
+	LDA #$04			; 9C15	$A9 $04
+	ORA $C0,X			; 9C17	$15 $C0
+	STA $C0,X			; 9C19	$95 $C0
 L35C1B:
-	DEC $6F0D,X		; 9C1B	$DE $0D $6F
-	RTS			; 9C1E	$60
+	DEC $6F0D,X			; 9C1B	$DE $0D $6F
+	RTS				; 9C1E	$60
 ; End of
 
 ; Name	:
 ; Marks	:
-	LDA ApuStatus_4015	; 9C1F	$AD $15 $40
-	ORA #$0F		; 9C22	$09 $0F
-	STA ApuStatus_4015	; 9C24	$8D $15 $40
-	LDA $E6			; 9C27	$A5 $E6
-	STA $E7			; 9C29	$85 $E7
-	LDX #$00		; 9C2B	$A2 $00
-	LDY #$00		; 9C2D	$A0 $00
+	LDA ApuStatus_4015		; 9C1F	$AD $15 $40
+	ORA #$0F			; 9C22	$09 $0F
+	STA ApuStatus_4015		; 9C24	$8D $15 $40
+	LDA $E6				; 9C27	$A5 $E6
+	STA $E7				; 9C29	$85 $E7
+	LDX #$00			; 9C2B	$A2 $00
+	LDY #$00			; 9C2D	$A0 $00
 L35C2F:
-	LSR $E7			; 9C2F	$46 $E7
-	BCS L35C63		; 9C31	$B0 $30
-	CPX #$01		; 9C33	$E0 $01
-	BNE L35C3B		; 9C35	$D0 $04
-	LDA $E5			; 9C37	$A5 $E5
-	BNE L35C63		; 9C39	$D0 $28
+	LSR $E7				; 9C2F	$46 $E7
+	BCS L35C63			; 9C31	$B0 $30
+	CPX #$01			; 9C33	$E0 $01
+	BNE L35C3B			; 9C35	$D0 $04
+	LDA $E5				; 9C37	$A5 $E5
+	BNE L35C63			; 9C39	$D0 $28
 L35C3B:
-	LSR $C0,X		; 9C3B	$56 $C0
-	BCC L35C45		; 9C3D	$90 $06
-	LDA tmp_sq04000,Y	; 9C3F	$B9 $19 $6F
-	STA Sq0Duty_4000,Y	; 9C42	$99 $00 $40
+	LSR $C0,X			; 9C3B	$56 $C0
+	BCC L35C45			; 9C3D	$90 $06
+	LDA tmp_sq04000,Y		; 9C3F	$B9 $19 $6F
+	STA Sq0Duty_4000,Y		; 9C42	$99 $00 $40
 L35C45:
-	LSR $C0,X		; 9C45	$56 $C0
-	BCC L35C4F		; 9C47	$90 $06
-	LDA tmp_sq04001,Y	; 9C49	$B9 $1A $6F
-	STA Sq0Sweep_4001,Y	; 9C4C	$99 $01 $40
+	LSR $C0,X			; 9C45	$56 $C0
+	BCC L35C4F			; 9C47	$90 $06
+	LDA tmp_sq04001,Y		; 9C49	$B9 $1A $6F
+	STA Sq0Sweep_4001,Y		; 9C4C	$99 $01 $40
 L35C4F:
-	LSR $C0,X		; 9C4F	$56 $C0
-	BCC L35C59		; 9C51	$90 $06
-	LDA tmp_sq04002,Y	; 9C53	$B9 $1B $6F
-	STA Sq0Timer_4002,Y	; 9C56	$99 $02 $40
+	LSR $C0,X			; 9C4F	$56 $C0
+	BCC L35C59			; 9C51	$90 $06
+	LDA tmp_sq04002,Y		; 9C53	$B9 $1B $6F
+	STA Sq0Timer_4002,Y		; 9C56	$99 $02 $40
 L35C59:
-	LSR $C0,X		; 9C59	$56 $C0
-	BCC L35C63		; 9C5B	$90 $06
-	LDA tmp_sq04003,Y	; 9C5D	$B9 $1C $6F
-	STA Sq0Length_4003,Y	; 9C60	$99 $03 $40
+	LSR $C0,X			; 9C59	$56 $C0
+	BCC L35C63			; 9C5B	$90 $06
+	LDA tmp_sq04003,Y		; 9C5D	$B9 $1C $6F
+	STA Sq0Length_4003,Y		; 9C60	$99 $03 $40
 L35C63:
-	INY			; 9C63	$C8
-	INY			; 9C64	$C8
-	INY			; 9C65	$C8
-	INY			; 9C66	$C8
-	INX			; 9C67	$E8
-	CPX #$03		; 9C68	$E0 $03
-	BCC L35C2F		; 9C6A	$90 $C3
-	RTS			; 9C6C	$60
+	INY				; 9C63	$C8
+	INY				; 9C64	$C8
+	INY				; 9C65	$C8
+	INY				; 9C66	$C8
+	INX				; 9C67	$E8
+	CPX #$03			; 9C68	$E0 $03
+	BCC L35C2F			; 9C6A	$90 $C3
+	RTS				; 9C6C	$60
 ; End of
 
 ; data block - total size is 8850 bytes
@@ -1267,37 +1267,37 @@ VOL_TBL:
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) START ==========
 ;; [$9E0D :: 0x35E0D]
 BGM_LIST0:
-.word BGM9E4B 			; 9E0D	$4B $9E - 00: Silence
-.word BGM9E51 			; 9E0F	$51 $9E - 01: title prelude
-.word BGM9F62 			; 9E11	$62 $9F - 02: suprise
-.word BGM9F87 			; 9E13	$87 $9F - 03: Chocobo
-.word BGM9FF2			; 9E15	$F2 $9F - 04: Main thema
-.word BGM9FF2			; 9E17	$F2 $9F - 05:
-.word BGM9FF2			; 9E19	$F2 $9F - 06:
-.word BGMA167			; 9E1B	$67 $A1 - 07: Victory
-.word BGMA1C4			; 9E1D	$C4 $A1 - 08: item get
-.word BGMA20D			; 9E1F	$0D $A2 - 09: Keyword get
-.word BGMA255			; 9E21	$55 $A2 - 0A: Company joined
-.word BGMA2A0			; 9E23	$A0 $A2 - 0B: pandemonium
-.word BGMA465			; 9E25	$65 $A4 - 0C: Castle
-.word BGMA5EB			; 9E27	$EB $A5 - 0D: Crystal tower
-.word BGMA7BA			; 9E29	$BA $A7 - 0E: Dreadnought
-.word BGMA99B			; 9E2B	$9B $A9 - 0F: Dungeon
-.word BGMAB0B			; 9E2D	$0B $AB - 10: Town
-.word BGMAC5A			; 9E2F	$5A $AC - 11: Rebel_army
-.word BGMAD5A			; 9E31	$5A $AD - 12: Battle
-.word BGMB030			; 9E33	$30 $B0 - 13: Final battle
-.word BGMB510			; 9E35	$10 $B5 - 14: Fail sound
-.word BGMB52A			; 9E37	$2A $B5 - 15: Battle win
-.word BGMB64A			; 9E39	$4A $B6 - 16: Game over
-.word BGMB6D5			; 9E3B	$D5 $B6 - 17: Lamia
-.word BGMB74D			; 9E3D	$4D $B7 - 18: Survive
-.word BGMB785			; 9E3F	$85 $B7 - 19: First meet
-.word BGMB826			; 9E41	$26 $B8 - 1A: Escape
-.word BGMB8A0			; 9E43	$A0 $B8 - 1B: Celebrate
-.word BGMB980			; 9E45	$80 $B9 - 1C: Warning
-.word BGMB9E1			; 9E47	$E1 $B9 - 1D: Ending
-.word BGMBCE2			; 9E49	$E2 $BC - 1E: laser ??
+.word BGM9E4B 				; 9E0D	$4B $9E - 00: Silence
+.word BGM9E51 				; 9E0F	$51 $9E - 01: title prelude
+.word BGM9F62 				; 9E11	$62 $9F - 02: suprise
+.word BGM9F87 				; 9E13	$87 $9F - 03: Chocobo
+.word BGM9FF2				; 9E15	$F2 $9F - 04: Main thema
+.word BGM9FF2				; 9E17	$F2 $9F - 05:
+.word BGM9FF2				; 9E19	$F2 $9F - 06:
+.word BGMA167				; 9E1B	$67 $A1 - 07: Victory
+.word BGMA1C4				; 9E1D	$C4 $A1 - 08: item get
+.word BGMA20D				; 9E1F	$0D $A2 - 09: Keyword get
+.word BGMA255				; 9E21	$55 $A2 - 0A: Company joined
+.word BGMA2A0				; 9E23	$A0 $A2 - 0B: pandemonium
+.word BGMA465				; 9E25	$65 $A4 - 0C: Castle
+.word BGMA5EB				; 9E27	$EB $A5 - 0D: Crystal tower
+.word BGMA7BA				; 9E29	$BA $A7 - 0E: Dreadnought
+.word BGMA99B				; 9E2B	$9B $A9 - 0F: Dungeon
+.word BGMAB0B				; 9E2D	$0B $AB - 10: Town
+.word BGMAC5A				; 9E2F	$5A $AC - 11: Rebel_army
+.word BGMAD5A				; 9E31	$5A $AD - 12: Battle
+.word BGMB030				; 9E33	$30 $B0 - 13: Final battle
+.word BGMB510				; 9E35	$10 $B5 - 14: Fail sound
+.word BGMB52A				; 9E37	$2A $B5 - 15: Battle win
+.word BGMB64A				; 9E39	$4A $B6 - 16: Game over
+.word BGMB6D5				; 9E3B	$D5 $B6 - 17: Lamia
+.word BGMB74D				; 9E3D	$4D $B7 - 18: Survive
+.word BGMB785				; 9E3F	$85 $B7 - 19: First meet
+.word BGMB826				; 9E41	$26 $B8 - 1A: Escape
+.word BGMB8A0				; 9E43	$A0 $B8 - 1B: Celebrate
+.word BGMB980				; 9E45	$80 $B9 - 1C: Warning
+.word BGMB9E1				; 9E47	$E1 $B9 - 1D: Ending
+.word BGMBCE2				; 9E49	$E2 $BC - 1E: laser ??
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) END ==========
 
 
@@ -1366,40 +1366,73 @@ BGM9F87:
 .byte $F2,$7B,$CB,$BB,$C6,$BB,$CB,$5B,$CB,$9B,$C6,$9B,$CB,$FE,$E2,$9F
 
 BGM9FF2:
-.byte $F8,$9F,$4B,$A0,$56,$A0
+.word S9FFB_CH0				; 9FF2	$F8 $9F
+.word SA04B_CH1				; 9FF4	$4B $A0
+.word SA056_TRI				; 9FF6	$56 $A0
 S9FFB_CH0:
-.byte $F6,$B0,$43,$BD,$C7,$BE,$E0,$34
+;$9FF8
+.byte $F6,$B0,$43,$BD,$C7,$BE
+BGM9FF2_CH0_R0:
+.byte $E0,$34				; 9FFE
 ;; [$A000 :: 0x36000]
-.byte $F1,$9C,$BC,$F2,$0C,$2D,$4D,$6D,$8D,$F8,$F2,$91,$F3,$45,$F2,$B1
-.byte $45,$F3,$05,$F2,$B5,$95,$B5,$72,$42,$FD,$2E,$A0,$52,$D8,$58,$98
-.byte $F3,$08,$45,$25,$75,$55,$31,$F2,$B5,$F3,$40,$FC,$0A,$A0,$F2,$52
+.byte $F1,$9C,$BC,$F2,$0C,$2D,$4D,$6D,$8D
+BGM9FF2_CH0_R1:
+.byte $F8				; A009
+BGM9FF2_CH0_R2:
+.byte $F2,$91,$F3,$45,$F2,$B1		; A00A
+.byte $45,$F3,$05,$F2,$B5,$95,$B5,$72,$42
+.byte $FD				; A019	Repeat
+.word BGM9FF2_CH0_R3			; A01A	$2E $A0
+.byte $52,$D8,$58,$98
+.byte $F3,$08,$45,$25,$75,$55,$31,$F2,$B5,$F3,$40
+.byte $FC				; A02B	Repeat
+.word BGM9FF2_CH0_R2			; A02C	$0A $A0
+BGM9FF2_CH0_R3:
+.byte $F2,$52				; A02E
 .byte $D8,$58,$78,$98,$F3,$05,$F2,$A5,$95,$85,$93,$B8,$F3,$03,$28,$41
-.byte $F1,$BC,$F2,$0C,$2C,$4C,$6C,$8C,$FE,$09,$A0
+.byte $F1,$BC,$F2,$0C,$2C,$4C,$6C,$8C
+.byte $FE				; A048	Repeat
+.word BGM9FF2_CH0_R1			; A049	$09 $A0
 SA04B_CH1:
-.byte $F6,$B0,$43,$BD,$E0
-.byte $BE
-.byte $E9,$C8,$FE,$FE,$9F
+;$A04B
+.byte $F6,$B0,$43,$BD,$E0,$BE
+.byte $E9,$C8				; A051
+.byte $FE				; A053	Repeat
+.word BGM9FF2_CH0_R0			; A054	$FE $9F
 SA056_TRI:
+;$A056
 .byte $F6,$FF,$FF,$FF,$E4,$BE
-.byte $C5,$F8,$F2,$9B
+.byte $C5				; A05C
+BGM9FF2_TRI_R0:
+.byte $F8				; A05D
+BGM9FF2_TRI_R1:
+.byte $F2,$9B				; A05E
 .byte $CB,$F3,$4B,$CB,$5B,$CB,$4B,$CB,$F2,$9B,$CB,$F3,$4B,$CB,$5B,$CB
 .byte $4B,$CB,$F2,$7B,$CB,$F3,$4B,$CB,$5B,$CB,$4B,$CB,$F2,$7B,$CB,$F3
 .byte $4B,$CB,$5B,$CB,$4B,$CB,$F2,$5B,$CB,$F3,$2B,$CB,$4B,$CB,$2B,$CB
 .byte $F2,$5B,$CB,$F3,$2B,$CB,$4B,$CB,$2B,$CB,$F2,$4B,$CB,$F3,$2B,$CB
-.byte $4B,$CB,$2B,$CB,$F2,$4B,$CB,$F3,$1B,$CB,$2B,$CB,$1B,$CB,$FD,$05
-.byte $A1,$F2,$2B,$CB,$BB,$CB,$F3,$0B,$CB,$4B,$CB,$F2,$0B,$CB,$9B,$CB
+.byte $4B,$CB,$2B,$CB,$F2,$4B,$CB,$F3,$1B,$CB,$2B,$CB,$1B,$CB
+.byte $FD				; A0AE
+.word BGM9FF2_TRI_R2			; A0AF	$05 $A1
+.byte $F2,$2B,$CB,$BB,$CB,$F3,$0B,$CB,$4B,$CB,$F2,$0B,$CB,$9B,$CB
 .byte $F3,$0B,$CB,$4B,$CB,$F1,$BB,$CB,$F2,$BB,$CB,$F3,$2B,$CB,$5B,$CB
 .byte $F1,$AB,$CB,$F3,$0B,$CB,$2B,$CB,$5B,$CB,$F2,$3B,$CB,$9B,$CB,$AB
 .byte $CB,$F3,$3B,$CB,$F1,$BB,$CB,$F2,$6B,$CB,$BB,$CB,$F3,$3B,$CB,$F2
 .byte $4B,$CB,$9B,$CB,$BB,$CB,$F3,$4B,$CB,$2B,$CB,$F2,$BB,$CB,$8B,$CB
 ;; [$A100 :: 0x36100]
-.byte $4B,$CB,$FC,$5E,$A0,$F2,$2B,$CB,$BB,$CB,$F3,$0B,$CB,$4B,$CB,$F2
+.byte $4B,$CB
+.byte $FC				; A102
+.word BGM9FF2_TRI_R1			; A103	$5E $A0
+BGM9FF2_TRI_R2:
+.byte $F2,$2B,$CB,$BB,$CB,$F3,$0B,$CB,$4B,$CB,$F2
 .byte $0B,$CB,$9B,$CB,$F3,$0B,$CB,$4B,$CB,$F1,$AB,$CB,$F2,$9B,$CB,$F3
 .byte $2B,$CB,$5B,$CB,$F1,$BB,$CB,$F2,$9B,$CB,$BB,$CB,$F3,$4B,$CB,$E0
 .byte $33,$F2,$9B,$CB,$BB,$CB,$E0,$32,$F3,$4B,$CB,$5B,$CB,$E0,$31,$F2
 .byte $5B,$CB,$9B,$CB,$E0,$30,$BB,$CB,$F3,$5B,$CB,$E0,$2F,$F2,$4B,$CB
 .byte $E0,$2E,$9B,$CB,$E0,$2C,$BB,$CB,$E0,$28,$F3,$2B,$CB,$E0,$23,$45
-.byte $E0,$34,$D8,$C8,$FE,$5D,$A0
+.byte $E0,$34,$D8,$C8
+.byte $FE				; A164
+.word BGM9FF2_TRI_R0			; A165	$5D $A0
 
 BGMA167:
 .byte $6D,$A1,$97,$A1,$B5,$A1

@@ -1,5 +1,6 @@
 .include "Constants.inc"
 .include "variables.inc"
+.include "score.inc"
 
 .import Init_Page2		;C46E
 .import Get_key			;DBA9
@@ -1414,7 +1415,7 @@ S09_TRI_AD1B:
 
 
 ; ==================================================
-; TEST C - MATOYA
+; TEST C - MATOYA (initial version - deprecated)
 ;
 ; $Cx -> $Dy oo
 ; $Cx = $Cx xx
@@ -1850,258 +1851,7 @@ A1CA:
 .endif
 
 
-D1	= $00
-D3_4	= $01
-D1_2	= $02
-D3_8	= $03
-D1_3	= $04
-D1_4	= $05
-D3_16	= $06
-D1_6	= $07
-D1_8	= $08
-D3_32	= $09
-D1_12	= $0A
-D1_16	= $0B
-D1_24	= $0C
-D1_32	= $0D
-D1_48	= $0E
-D1_96	= $0F
 
-DH1	= $10
-DH3_4	= $11
-DH1_2	= $12
-DH3_8	= $13
-DH1_3	= $14
-DH1_4	= $15
-DH3_16	= $16
-DH1_6	= $17
-DH1_8	= $18
-DH3_32	= $19
-DH1_12	= $1A
-DH1_16	= $1B
-DH1_24	= $1C
-DH1_32	= $1D
-DH1_48	= $1E
-DH1_96	= $1F
-
-R1	= $20
-R3_4	= $21
-R1_2	= $22
-R3_8	= $23
-R1_3	= $24
-R1_4	= $25
-R3_16	= $26
-R1_6	= $27
-R1_8	= $28
-R3_32	= $29
-R1_12	= $2A
-R1_16	= $2B
-R1_24	= $2C
-R1_32	= $2D
-R1_48	= $2E
-R1_96	= $2F
-
-M1	= $40
-M3_4	= $41
-M1_2	= $42
-M3_8	= $43
-M1_3	= $44
-M1_4	= $45
-M3_16	= $46
-M1_6	= $47
-M1_8	= $48
-M3_32	= $49
-M1_12	= $4A
-M1_16	= $4B
-M1_24	= $4C
-M1_32	= $4D
-M1_48	= $4E
-M1_96	= $4F
-
-F1	= $50
-F3_4	= $51
-F1_2	= $52
-F3_8	= $53
-F1_3	= $54
-F1_4	= $55
-F3_16	= $56
-F1_6	= $57
-F1_8	= $58
-F3_32	= $59
-F1_12	= $5A
-F1_16	= $5B
-F1_24	= $5C
-F1_32	= $5D
-F1_48	= $5E
-F1_96	= $5F
-
-FH1	= $60
-FH3_4	= $61
-FH1_2	= $62
-FH3_8	= $63
-FH1_3	= $64
-FH1_4	= $65
-FH3_16	= $66
-FH1_6	= $67
-FH1_8	= $68
-FH3_32	= $69
-FH1_12	= $6A
-FH1_16	= $6B
-FH1_24	= $6C
-FH1_32	= $6D
-FH1_48	= $6E
-FH1_96	= $6F
-
-S1	= $70
-S3_4	= $71
-S1_2	= $72
-S3_8	= $73
-S1_3	= $74
-S1_4	= $75
-S3_16	= $76
-S1_6	= $77
-S1_8	= $78
-S3_32	= $79
-S1_12	= $7A
-S1_16	= $7B
-S1_24	= $7C
-S1_32	= $7D
-S1_48	= $7E
-S1_96	= $7F
-
-SH1	= $80
-SH3_4	= $81
-SH1_2	= $82
-SH3_8	= $83
-SH1_3	= $84
-SH1_4	= $85
-SH3_16	= $86
-SH1_6	= $87
-SH1_8	= $88
-SH3_32	= $89
-SH1_12	= $8A
-SH1_16	= $8B
-SH1_24	= $8C
-SH1_32	= $8D
-SH1_48	= $8E
-SH1_96	= $8F
-
-L1	= $90
-L3_4	= $91
-L1_2	= $92
-L3_8	= $93
-L1_3	= $94
-L1_4	= $95
-L3_16	= $96
-L1_6	= $97
-L1_8	= $98
-L3_32	= $99
-L1_12	= $9A
-L1_16	= $9B
-L1_24	= $9C
-L1_32	= $9D
-L1_48	= $9E
-L1_96	= $9F
-
-LH1	= $A0
-LH3_4	= $A1
-LH1_2	= $A2
-LH3_8	= $A3
-LH1_3	= $A4
-LH1_4	= $A5
-LH3_16	= $A6
-LH1_6	= $A7
-LH1_8	= $A8
-LH3_32	= $A9
-LH1_12	= $AA
-LH1_16	= $AB
-LH1_24	= $AC
-LH1_32	= $AD
-LH1_48	= $AE
-LH1_96	= $AF
-
-C1	= $B0
-C3_4	= $B1
-C1_2	= $B2
-C3_8	= $B3
-C1_3	= $B4
-C1_4	= $B5
-C3_16	= $B6
-C1_6	= $B7
-C1_8	= $B8
-C3_32	= $B9
-C1_12	= $BA
-C1_16	= $BB
-C1_24	= $BC
-C1_32	= $BD
-C1_48	= $BE
-C1_96	= $BF
-
-X1	= $C0
-X3_4	= $C1
-X1_2	= $C2
-X3_8	= $C3
-X1_3	= $C4
-X1_4	= $C5
-X3_16	= $C6
-X1_6	= $C7
-X1_8	= $C8
-X3_32	= $C9
-X1_12	= $CA
-X1_16	= $CB
-X1_24	= $CC
-X1_32	= $CD
-X1_48	= $CE
-X1_96	= $CF
-
-TEMPO	= $E0
-
-VOL1	= $E1
-VOL2	= $E2
-VOL3	= $E3
-VOL4	= $E4
-VOL5	= $E5
-VOL6	= $E6
-VOL7	= $E7
-VOL8	= $E8
-VOL9	= $E9
-VOL10	= $EA
-VOL11	= $EB
-VOL12	= $EC
-VOL13	= $ED
-VOL14	= $EE
-VOL15	= $EF
-
-OT0	= $F0
-OT1	= $F1
-OT2	= $F2
-OT3	= $F3
-OT4	= $F4
-OT5	= $F5
-
-SET_P3	= $F6
-
-REPEAT	= $FE
-
-; Duty(DDLC VVVV(Duty/Constant/Volume,envelope) APU $4000,$4004)
-;  D18 = 1/8 12.5%
-;  D14 = 1/4 25%
-;  D12 = 1/2 50%
-;  D34 = 3/4 75%(negative)
-; Infinite play / One-shot
-;  I = Infinite play
-;  O = One-shot
-; Constant / envelope Lowering
-;  C = Constant
-;  L = Lowering
-; Volume
-;  V0 -  V15 = Volume(0-15)
-D18ICV15	= $3F
-D14ICV15	= $7F
-D12ICV15	= $BF
-D12OCV15	= $AF
-D12OLV15	= $9F
-D34ICV15	= $CF
 
 
 ; ==================================================
@@ -2138,9 +1888,9 @@ D34ICV15	= $CF
 ;		APBECB:
 ;		APBEDD:
 ;		APBEF9:
-;	  F7h,F8h,F9h,FAh,FBh: loop counter(?, ?, 3, 4. ?)
+;	  F7h,F8h,F9h,FAh,FBh: loop counter(?, 2, 3, 4. 5)
 ;	  FCh: repeat - if loop count is exist
-;	  FDh: repeat
+;	  FDh: repeat - ??
 ;	  FEh: repeat
 ;	  FFh: stop
 .if 1
@@ -2718,60 +2468,49 @@ FF92_CH1_R1:
 .byte OT2,R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
 .byte X1_4,L3_32,X1_32,L3_32,X1_32,L1_4,C1_8,OT3,D1_32,X3_32
 .byte OT2,C3_32,X1_32,C3_32,X1_32,L3_32,X1_32,L3_32,X1_32,S3_8,L1_8
-.byte F1_8,F1_8,M1_8,M1_8,R1_8,R1_8,D1_8,D1_8
+.byte F3_32,X1_32,F3_32,X1_32,M3_32,X1_32,M3_32,X1_32,R3_32,X1_32,R3_32,X1_32,D3_32,X1_32,D3_32,X1_32
 
 .byte OT2,R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
 .byte X1_4,L3_32,X1_32,L3_32,X1_32,L1_4,C1_8,OT3,D1_32,X3_32
 .byte OT2,C3_32,X1_32,C3_32,X1_32,L3_32,X1_32,L3_32,X1_32,L1_4,SH1_4
-;testing
-;.byte L1_4,OT3,D1_4,M1_4,X1_4,OT2
-.byte L1_2,X1_32,L3_32,X1_8,X1_4
+.byte L3_32,X1_32,L3_32,X1_32,SH3_32,X1_32,SH3_32,X1_32,L3_32,X1_32,L3_32,X1_32,SH3_32,X1_32,SH3_32,X1_32
 
 .byte R1_32,X3_32,R1_8,R1_8,M1_8,F1_4,S1_4
 .byte X1_4,L3_32,X1_32,L3_32,X1_32,L1_4,C1_8,OT3,D1_32,X3_32
 .byte OT2,C3_32,X1_32,C3_32,X1_32,L3_32,X1_32,L3_32,X1_32,S3_8,L1_8
-.byte F1_8,F1_8,M1_8,M1_8,R1_8,R1_8,D1_8,D1_8
+.byte F3_32,X1_32,F3_32,X1_32,M3_32,X1_32,M3_32,X1_32,R3_32,X1_32,R3_32,X1_32,D3_32,X1_32,D3_32,X1_32
 
-.byte F1_8,F1_4,F1_8,S1_8,F1_8,M1_8,R1_8
+.byte F3_32,X1_32,F3_16,F1_16,F3_32,X1_32,S1_8,F1_8,M1_8,R1_8
 .byte D1_32,X3_32,D1_32,X1_32,D1_32,X1_32,L1_8,L1_8,M3_8,S1_8
 .byte F3_32,X1_32,F3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32,M3_32,X1_32
 .byte R1_2,X1_32,R3_32,X1_8,X1_4
 ;
-;.byte OT4,R1_2,OT3,L1_4,OT4,R1_4
-.byte OT4,R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
-;.byte D3_8,OT3,C1_8,L1_4,S1_4
-.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
-;.byte L1_8,L1_8,F1_8,S1_8,L1_4,C1_4
-.byte L1_8,L1_8,F1_8,S1_8,L1_4,C1_8,X1_8
-;.byte OT4,D1_2,D1_4,X1_4
-;.byte OT4,D1_32,X3_32,D1_32,X3_32,D1_32,X3_32,D1_32,X3_32,D1_4,X1_4
+.byte OT4,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+.byte X1_8,D3_32,X1_32,D3_32,X1_32,OT3,C1_8,L3_32,X1_32,L3_32,X1_32,S1_8,X1_8
+.byte L3_32,X1_32,L3_32,X1_32,F1_8,S1_8,L3_32,X1_32,L3_32,X1_32,C3_32,X1_32,C3_32,X1_32
 .byte OT4,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_4,X1_4
 
-;.byte R1_2,OT3,L1_4,OT4,R1_4
-.byte R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
-;.byte D3_8,OT3,C1_8,L1_4,S1_4
-.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
-;.byte F1_4,L1_4,M1_4,R1_8,DH1_8
-.byte F1_8,F1_8,L1_8,L1_8,M1_8,M1_8,R1_8,DH1_8
-.byte R1_2,R1_4,X1_4
+.byte R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+.byte X1_8,D3_32,X1_32,D3_32,X1_32,OT3,C1_8,L3_32,X1_32,L3_32,X1_32,S1_8,X1_8
+.byte F3_32,X1_32,F3_32,X1_32,L3_32,X1_32,L3_32,X1_32,M3_32,X1_32,M3_32,X1_32,R1_8,DH1_8
+.byte R3_4,X1_4
 
-;.byte OT4,R1_2,OT3,L1_4,OT4,R1_4
-.byte OT4,R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
-;.byte D3_8,OT3,C1_8,L1_4,S1_4
-.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
-;.byte L1_4,F1_8,S1_8,L1_4,C1_4
-.byte L1_8,L1_8,F1_8,S1_8,L1_8,L1_8,C1_8,C1_8
-;.byte OT4,D1_2,D1_4,X1_4
+.byte OT4,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+.byte X1_8,D3_32,X1_32,D3_32,X1_32,OT3,C1_8,L3_32,X1_32,L3_32,X1_32,S1_8,X1_8
+.byte L3_32,X1_32,L3_32,X1_32,F1_8,S1_8,L3_32,X1_32,L3_32,X1_32,C3_32,X1_32,C3_32,X1_32
 .byte OT4,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_16,X1_16,D1_4,X1_4
 
-;.byte R1_2,OT3,L1_4,OT4,R1_4
-.byte R1_32,X3_32, R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
-;.byte D3_8,OT3,C1_8,L1_4,S1_4
-.byte X1_8,D1_8,D1_8,OT3,C1_8,L1_8,L1_8,S1_8,X1_8
-;.byte F1_4,L1_4,M1_4,R1_8,DH1_8
-.byte F1_8,F1_8,L1_8,L1_8,M1_8,M1_8,R1_8,DH1_8
-;.byte R3_4,X1_4
-.byte R1_2,R1_4,X1_4
+.byte R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,R1_32,X3_32,R1_32,X3_32,OT3,L3_32,X1_32,L3_32,X1_32,OT4,R3_32,X1_32,R3_32,X1_32
+.byte X1_8,D3_32,X1_32,D3_32,X1_32,OT3,C1_8,L3_32,X1_32,L3_32,X1_32,S1_8,X1_8
+.byte F3_32,X1_32,F3_32,X1_32,L3_32,X1_32,L3_32,X1_32,M3_32,X1_32,M3_32,X1_32,R1_8,DH1_8
+.byte R3_4,X1_4
+;
+.byte F3_32,X1_32,F3_32,X1_32,L3_32,X1_32,L3_32,X1_32,M3_32,X1_32,M3_32,X1_32,R1_8,DH1_8
+.byte R3_4,X1_4
+
+.byte F3_32,X1_32,F3_32,X1_32,L3_32,X1_32,L1_8,L1_2
+.byte L1_16,X3_16,L1_16,X3_16,M3_32,X1_32,M3_32,X1_32,R1_8,DH1_8
+.byte R3_4,X1_4
 
 .byte REPEAT
 .word FF92_CH1_S
@@ -2781,7 +2520,7 @@ FF92_CH2:
 .byte D12ICV15
 .word VPBD43	;.word VPBD37
 .word APBEC7
-.byte VOL15
+.byte VOL7
 .byte TEMPO, $4B
 
 FF92_CH2_S:
@@ -2826,6 +2565,13 @@ FF92_CH2_S:
 .byte D1_4,R1_2,OT1,C1_4
 .byte OT2,D1_4,R1_4,OT1,C1_2
 .byte L3_4,X1_4
+;
+.byte OT2,D1_4,R1_4,OT1,C1_2
+.byte L3_4,X1_4
+
+.byte OT2,D1_4,R3_4
+.byte A1_2,OT1,C1_2
+.byte L3_4,X1_4
 
 .byte REPEAT
 .word FF92_CH2_S
@@ -2834,9 +2580,142 @@ FF92_TRI:
 .byte VOL7
 .byte TEMPO, $4B
 FF92_TRI_S:
+.byte $FB				; Repeat - 5(14x5=70)
+FF92_TRI_R0:
 .byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte $FC
+.word FF92_TRI_R0
+.byte $F9				; Repeat - 3(73)
+FF92_TRI_R1:
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte $FC
+.word FF92_TRI_R1
+.byte X1_2,X1				; 76
+.byte $F8				; Repeat - 2(78)
+FF92_TRI_R2:
+.byte OT2,R1_32,X3_32,R1_32,X1_32,R1_32,X1_32,OT1,L3_32,X1_32,L3_32,X1_32
+.byte $FC
+.word FF92_TRI_R2
 .byte REPEAT
 .word FF92_TRI_S
+
+
+
+
+
+;==================================================
+; Final Fantasy 2 Main thema(Field)
+;
+BGM_FIELD:
+;.word S9FFB_CH0				; 9FF2	$F8 $9F
+;.word SA04B_CH1				; 9FF4	$4B $A0
+.byte $FF,$FF
+.byte $FF,$FF
+.word SA056_TRI				; 9FF6	$56 $A0
+
+S9FFB_CH0:
+.byte SET_P3
+.byte D12ICV00
+.byte $43,$BD
+.byte $C7,$BE
+BGM9FF2_CH0_R0:
+.byte TEMPO,$34
+.byte OT1,$9C,$BC,OT2,$0C,$2D,$4D,$6D,$8D
+BGM9FF2_CH0_R1:
+.byte $F8				; Repeat - 2 ??
+BGM9FF2_CH0_R2:
+.byte OT2,$91,OT3,$45,OT2,$B1		; A00A
+.byte $45,OT3,$05,OT2,$B5,$95,$B5,$72,$42
+.byte $FD				; A019	Repeat
+.word BGM9FF2_CH0_R3			; A01A	$2E $A0
+.byte $52,$D8,$58,$98
+.byte OT3,$08,$45,$25,$75,$55,$31,OT2,$B5,OT3,$40
+.byte $FC				; A02B	Repeat
+.word BGM9FF2_CH0_R2			; A02C	$0A $A0
+BGM9FF2_CH0_R3:
+.byte OT2,$52				; A02E
+.byte $D8,$58,$78,$98,OT3,$05,OT2,$A5,$95,$85,$93,$B8,OT3,$03,$28,$41
+.byte OT1,$BC,OT2,$0C,$2C,$4C,$6C,$8C
+.byte REPEAT
+.word BGM9FF2_CH0_R1
+
+SA04B_CH1:
+.byte SET_P3
+.byte D12ICV00
+.byte $43,$BD
+.byte TEMPO,$BE
+.byte VOL9
+.byte X1_8
+.byte REPEAT
+.word BGM9FF2_CH0_R0
+
+SA056_TRI:
+;$A056
+.byte SET_P3
+.byte $FF
+.byte $FF,$FF
+.byte $E4,$BE
+.byte TEMPO,$34				; temp variable
+.byte X1_4
+BGM9FF2_TRI_R0:
+.byte $F8				; repeat - 2 ??
+BGM9FF2_TRI_R1:
+.byte OT2,$9B
+.byte $CB,OT3,$4B,$CB,$5B,$CB,$4B,$CB,OT2,$9B,$CB,OT3,$4B,$CB,$5B,$CB
+.byte $4B,$CB,OT2,$7B,$CB,OT3,$4B,$CB,$5B,$CB,$4B,$CB,OT2,$7B,$CB,OT3
+.byte $4B,$CB,$5B,$CB,$4B,$CB,OT2,$5B,$CB,OT3,$2B,$CB,$4B,$CB,$2B,$CB
+.byte OT2,$5B,$CB,OT3,$2B,$CB,$4B,$CB,$2B,$CB,OT2,$4B,$CB,OT3,$2B,$CB
+.byte $4B,$CB,$2B,$CB,OT2,$4B,$CB,OT3,$1B,$CB,$2B,$CB,$1B,$CB
+.byte $FD
+.word BGM9FF2_TRI_R2
+.byte OT2,$2B,$CB,$BB,$CB,OT3,$0B,$CB,$4B,$CB,OT2,$0B,$CB,$9B,$CB
+.byte OT3,$0B,$CB,$4B,$CB,OT1,$BB,$CB,OT2,$BB,$CB,OT3,$2B,$CB,$5B,$CB
+.byte OT1,$AB,$CB,OT3,$0B,$CB,$2B,$CB,$5B,$CB,OT2,$3B,$CB,$9B,$CB,$AB
+.byte $CB,OT3,$3B,$CB,OT1,$BB,$CB,OT2,$6B,$CB,$BB,$CB,OT3,$3B,$CB,OT2
+.byte $4B,$CB,$9B,$CB,$BB,$CB,OT3,$4B,$CB,$2B,$CB,OT2,$BB,$CB,$8B,$CB
+.byte $4B,$CB
+.byte $FC
+.word BGM9FF2_TRI_R1
+BGM9FF2_TRI_R2:
+.byte OT2,$2B,$CB,$BB,$CB,OT3,$0B,$CB,$4B,$CB,OT2
+.byte $0B,$CB,$9B,$CB,OT3,$0B,$CB,$4B,$CB,OT1,$AB,$CB,OT2,$9B,$CB,OT3
+.byte $2B,$CB,$5B,$CB,OT1,$BB,$CB,OT2,$9B,$CB,$BB,$CB,OT3,$4B,$CB
+.byte TEMPO,$33
+.byte OT2,$9B,$CB,$BB,$CB
+.byte TEMPO,$32
+.byte OT3,$4B,$CB,$5B,$CB
+.byte TEMPO,$31
+.byte OT2
+.byte $5B,$CB,$9B,$CB
+.byte TEMPO,$30
+.byte $BB,$CB,OT3,$5B,$CB
+.byte TEMPO,$2F
+.byte OT2,$4B,$CB
+.byte TEMPO,$2E
+.byte $9B,$CB
+.byte TEMPO,$2C
+.byte $BB,$CB
+.byte TEMPO,$28
+.byte OT3,$2B,$CB
+.byte TEMPO,$23
+.byte $45
+.byte TEMPO,$34
+.byte $D8,$C8
+.byte REPEAT
+.word BGM9FF2_TRI_R0
 
 
 
@@ -2947,75 +2826,77 @@ D9D0D:
 
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) START ==========
 ;; [$9E0D :: 0x35E0D]
+;00 - Silence
 D9E0D:
 .byte $4B
 D9E0E:
 .byte $9E
-;01
+;01 - title prelude
 .byte $51,$9E
-;02
+;02 - Suprise
 .byte $62,$9F
-;03
+;03 - Chocobo
 .word FF92_BGM
 ;.byte $87,$9F
-;04
+;04 - Main thema
 .word FF9_BGM
 ;.byte $F2,$9F
-;05
+;05 - Main thema
 .word A07C	; 9E17	$F2 $9F
 ;.word A1D2	; 9E19	$F2 $9F
 ;.word BGM_0009
 ;.word BGM_FF39
 ;.word BGM9F87
-;06
-.word BGMFF3_CHOCOBO
-;07
+;06 - Main thema
+.word BGM_FIELD
+;.word BGMFF3_CHOCOBO
+;07 - Victory
 .byte $67,$A1
-;08
+;08 - Item get
 .byte $C4,$A1
-;09
+;09 - Keyword get
 .byte $0D,$A2
-;10(0A)
+;10(0A) - Company joined
 .byte $55,$A2
-;11(0B)
+;11(0B) - Pandemonium
 .byte $A0,$A2
-;12(0C)
+;12(0C) - Catle
 .byte $65,$A4
-;13(0D)
+;13(0D) - Crystal tower
 .byte $EB,$A5
-;14(0E)
+;14(0E) - Airplane
 .byte $BA,$A7
-;15(0F)
+;15(0F) - Dungeon
 .byte $9B,$A9
-;16(10)
+;16(10) - Town
 .byte $0B,$AB
-;17(11)
+;17(11) - Rebel army
 .byte $5A,$AC
-;17(11)
+;18(12) - Battle
 .byte $5A,$AD
-;18(12)
+;19(13) - Final battle
 .byte $30,$B0
-;19(13)
+;20(14) - Fall sound
 .byte $10,$B5
-;20(14)
+;21(15) - Battle win
 .byte $2A,$B5
-;21(15)
+;22(16) - Game over
 .byte $4A,$B6
-;22(16)
+;23(17) - Lamia
 .byte $D5,$B6
-;23(17)
+;24(18) - Survive
 .byte $4D,$B7
-;24(18)
+;25(19) - First meet
 .byte $85,$B7
-;25(19)
+;26(1A) - Escape
 .byte $26,$B8
-;26(1A)
+;27(1B) - Celebrate
 .byte $A0,$B8
-;27(1B)
+;28(1C) - Warning
 .byte $80,$B9
-;28(1C)
+;29(1D) - Ending
 .byte $E1,$B9
-;29(1D)
+;30(1E) - Laser
 .byte $E2,$BC
 ;; ========== pointers to song data (31 items) ($9E0D-$9E4A) END ==========
 
