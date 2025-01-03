@@ -1858,7 +1858,7 @@ A1CA:
 ; TEST B
 ; Pitch example
 ;	  XYh ~ XYh: X = pitch, Y = length(0=longest, F=shortest)
-;	   0Yh=C, 2Yh=D, 4Yh=E, 5Yh=F, 8Yh=G, 9Yh=A, BYh=B
+;	   0Yh=C, 2Yh=D, 4Yh=E, 5Yh=F, 7Yh=G, 9Yh=A, BYh=B
 ;	   X0h=1, X1h=3/4
 ;	   X2h=1/2,  X3h=3/8,  X4h=1/3
 ;	   X5h=1/4,  X6h=3/16, X7h=1/6
@@ -2620,35 +2620,65 @@ FF92_TRI_R2:
 ; Final Fantasy 2 Main thema(Field)
 ;
 BGM_FIELD:
-;.word S9FFB_CH0				; 9FF2	$F8 $9F
-;.word SA04B_CH1				; 9FF4	$4B $A0
+.word S9FFB_CH0				; 9FF2	$F8 $9F
+.word SA04B_CH1				; 9FF4	$4B $A0
+;.byte $FF,$FF
 .byte $FF,$FF
-.byte $FF,$FF
-.word SA056_TRI				; 9FF6	$56 $A0
+;.word SA056_TRI				; 9FF6	$56 $A0
 
 S9FFB_CH0:
 .byte SET_P3
 .byte D12ICV00
 .byte $43,$BD
 .byte $C7,$BE
+
+;temp
+TEMP_R0:
+.byte TEMPO,$34
+.byte OT3,M3_4,OT1,R1_4				; 1
+.byte S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
+.byte OT1,S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
+.byte R1_4,D1_4,R1_4,RH1_4
+.byte OT1,LH3_8,LH1_24,L1_24,SH1_24,S1_2	; 5
+.byte SH1_2,SH1_8,SH1_8,OT2,D1_8,RH1_8
+.byte S1_4,F1_4,LH1_4,SH1_4
+.byte FH3_4,R1_4
+.byte S3_4,F1_24,RH1_24,R1_24,D1_24,OT1,LH1_24,SH1_24	; 9
+.byte S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
+.byte OT1,S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
+.byte R1_4,D1_4,R1_4,RH1_4
+.byte OT1,LH3_8,LH1_24,L1_24,SH1_24,S1_2	; 13
+.byte SH1_2,SH1_8,SH1_8,OT2,D1_8,RH1_8
+.byte RH1_4,DH1_4,D1_4,OT1,C1_4
+.byte OT2,D3_8,R1_8,RH3_8,F1_8
+.byte S1					; 17
+.byte REPEAT
+.word TEMP_R0
+;
+
 BGM9FF2_CH0_R0:
 .byte TEMPO,$34
-.byte OT1,$9C,$BC,OT2,$0C,$2D,$4D,$6D,$8D
+.byte OT1,L1_24,C1_24,OT2,D1_24,R1_32,M1_32,FH1_32,SH1_32
 BGM9FF2_CH0_R1:
-.byte $F8				; Repeat - 2 ??
+.byte $F8				; Repeat - 2
 BGM9FF2_CH0_R2:
-.byte OT2,$91,OT3,$45,OT2,$B1		; A00A
-.byte $45,OT3,$05,OT2,$B5,$95,$B5,$72,$42
+.byte OT2,L3_4				; 3/4
+.byte OT3,M1_4,OT2,C3_4
+.byte M1_4,OT3,D1_4,OT2,C1_4,L1_4
+.byte C1_4,S1_2,M1_2			; 1 + 1/4
 .byte $FD				; A019	Repeat
 .word BGM9FF2_CH0_R3			; A01A	$2E $A0
-.byte $52,$D8,$58,$98
-.byte OT3,$08,$45,$25,$75,$55,$31,OT2,$B5,OT3,$40
+.byte F1_2,A1_8,F1_8			; 3/4
+.byte L1_8,OT3,D1_8,M1_4,R1_4,S1_4
+.byte F1_4,RH3_4
+.byte OT2,C1_4,OT3,M1			; 1 + 1/4
 .byte $FC				; A02B	Repeat
-.word BGM9FF2_CH0_R2			; A02C	$0A $A0
+.word BGM9FF2_CH0_R2
 BGM9FF2_CH0_R3:
-.byte OT2,$52				; A02E
-.byte $D8,$58,$78,$98,OT3,$05,OT2,$A5,$95,$85,$93,$B8,OT3,$03,$28,$41
-.byte OT1,$BC,OT2,$0C,$2C,$4C,$6C,$8C
+.byte OT2,F1_2,A1_8,F1_8,S1_8,L1_8
+.byte OT3,D1_4,OT2,LH1_4,L1_4,SH1_4
+.byte L3_8,C1_8,OT3,D3_8,R1_8
+.byte M3_4,OT1,C1_24,OT2,D1_24,R1_24,M1_24,FH1_24,SH1_24
 .byte REPEAT
 .word BGM9FF2_CH0_R1
 
@@ -2656,9 +2686,13 @@ SA04B_CH1:
 .byte SET_P3
 .byte D12ICV00
 .byte $43,$BD
-.byte TEMPO,$BE
+.byte $E0,$BE
 .byte VOL9
 .byte X1_8
+;temp
+.byte REPEAT
+.word TEMP_R0
+;
 .byte REPEAT
 .word BGM9FF2_CH0_R0
 
@@ -2670,50 +2704,55 @@ SA056_TRI:
 .byte $E4,$BE
 .byte TEMPO,$34				; temp variable
 .byte X1_4
+
+;temp
+TEMP_TRI_R0:
+.byte OT1,D1_8,F1_8,S1_8,C1_8,S1_8,F1_8,D1_8,OT0,C1_8	; 1
+.byte L1_8,OT1,M1_8,C1_16,C1_16,L1_8,OT2,M1_8,OT1,M1_16,FH1_16,OT1,C1_8,OT2,M1_8
+.byte OT0,FH1_8,OT1,FH1_8,OT2,R1_16,M1_16,OT1,FH1_8,C1_8,M1_16,S1_16,C1_8,OT2,R1_8
+.byte REPEAT
+.word TEMP_TRI_R0
+;
+
 BGM9FF2_TRI_R0:
-.byte $F8				; repeat - 2 ??
+.byte $F8				; repeat - 2
 BGM9FF2_TRI_R1:
-.byte OT2,$9B
-.byte $CB,OT3,$4B,$CB,$5B,$CB,$4B,$CB,OT2,$9B,$CB,OT3,$4B,$CB,$5B,$CB
-.byte $4B,$CB,OT2,$7B,$CB,OT3,$4B,$CB,$5B,$CB,$4B,$CB,OT2,$7B,$CB,OT3
-.byte $4B,$CB,$5B,$CB,$4B,$CB,OT2,$5B,$CB,OT3,$2B,$CB,$4B,$CB,$2B,$CB
-.byte OT2,$5B,$CB,OT3,$2B,$CB,$4B,$CB,$2B,$CB,OT2,$4B,$CB,OT3,$2B,$CB
-.byte $4B,$CB,$2B,$CB,OT2,$4B,$CB,OT3,$1B,$CB,$2B,$CB,$1B,$CB
-.byte $FD
+.byte OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
+.byte OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
+.byte OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16
+.byte OT2,M1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,M1_16,X1_16,OT3,DH1_16,X1_16,R1_16,X1_16,DH1_16,X1_16
+.byte $FD				; repeat
 .word BGM9FF2_TRI_R2
-.byte OT2,$2B,$CB,$BB,$CB,OT3,$0B,$CB,$4B,$CB,OT2,$0B,$CB,$9B,$CB
-.byte OT3,$0B,$CB,$4B,$CB,OT1,$BB,$CB,OT2,$BB,$CB,OT3,$2B,$CB,$5B,$CB
-.byte OT1,$AB,$CB,OT3,$0B,$CB,$2B,$CB,$5B,$CB,OT2,$3B,$CB,$9B,$CB,$AB
-.byte $CB,OT3,$3B,$CB,OT1,$BB,$CB,OT2,$6B,$CB,$BB,$CB,OT3,$3B,$CB,OT2
-.byte $4B,$CB,$9B,$CB,$BB,$CB,OT3,$4B,$CB,$2B,$CB,OT2,$BB,$CB,$8B,$CB
-.byte $4B,$CB
-.byte $FC
+.byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+.byte OT1,C1_16,X1_16,OT2,C1_16,X1_16,OT3,R1_16,X1_16,F1_16,X1_16,OT1,LH1_16,X1_16,OT3,D1_16,X1_16,R1_16,X1_16,F1_16,X1_16
+.byte OT2,RH1_16,X1_16,L1_16,X1_16,LH1_16,X1_16,OT3,RH1_16,X1_16,OT1,C1_16,X1_16,OT2,FH1_16,X1_16,C1_16,X1_16,OT3,RH1_16,X1_16
+.byte OT2,M1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,M1_16,X1_16,R1_16,X1_16,OT2,C1_16,X1_16,SH1_16,X1_16,M1_16,X1_16
+.byte $FC				; repeat
 .word BGM9FF2_TRI_R1
 BGM9FF2_TRI_R2:
-.byte OT2,$2B,$CB,$BB,$CB,OT3,$0B,$CB,$4B,$CB,OT2
-.byte $0B,$CB,$9B,$CB,OT3,$0B,$CB,$4B,$CB,OT1,$AB,$CB,OT2,$9B,$CB,OT3
-.byte $2B,$CB,$5B,$CB,OT1,$BB,$CB,OT2,$9B,$CB,$BB,$CB,OT3,$4B,$CB
+.byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+.byte OT1,LH1_16,X1_16,OT2,L1_16,X1_16,OT3,R1_16,X1_16,F1_16,X1_16,OT1,C1_16,X1_16,OT2,L1_16,X1_16,C1_16,X1_16,OT3,M1_16,X1_16
 .byte TEMPO,$33
-.byte OT2,$9B,$CB,$BB,$CB
+.byte OT2,L1_16,X1_16,C1_16,X1_16
 .byte TEMPO,$32
-.byte OT3,$4B,$CB,$5B,$CB
+.byte OT3,M1_16,X1_16,F1_16,X1_16
 .byte TEMPO,$31
 .byte OT2
-.byte $5B,$CB,$9B,$CB
+.byte F1_16,X1_16,L1_16,X1_16
 .byte TEMPO,$30
-.byte $BB,$CB,OT3,$5B,$CB
+.byte C1_16,X1_16,OT3,F1_16,X1_16	; 1
 .byte TEMPO,$2F
-.byte OT2,$4B,$CB
+.byte OT2,M1_16,X1_16
 .byte TEMPO,$2E
-.byte $9B,$CB
+.byte L1_16,X1_16
 .byte TEMPO,$2C
-.byte $BB,$CB
+.byte C1_16,X1_16
 .byte TEMPO,$28
-.byte OT3,$2B,$CB
+.byte OT3,R1_16,X1_16			; 1/2
 .byte TEMPO,$23
-.byte $45
+.byte M1_4
 .byte TEMPO,$34
-.byte $D8,$C8
+.byte A1_8,X1_8				; 2/2
 .byte REPEAT
 .word BGM9FF2_TRI_R0
 

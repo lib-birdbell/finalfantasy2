@@ -1,6 +1,6 @@
 ; Pitch example
 ;	  XYh ~ XYh: X = pitch, Y = length(0=longest, F=shortest)
-;	   0Yh=C, 2Yh=D, 4Yh=E, 5Yh=F, 8Yh=G, 9Yh=A, BYh=B
+;	   0Yh=C, 2Yh=D, 4Yh=E, 5Yh=F, 7Yh=G, 9Yh=A, BYh=B
 ;	   X0h=1, X1h=3/4
 ;	   X2h=1/2,  X3h=3/8,  X4h=1/3
 ;	   X5h=1/4,  X6h=3/16, X7h=1/6
@@ -32,7 +32,7 @@
 ;		APBEF9:
 ;	  F7h,F8h,F9h,FAh,FBh: loop counter(?, 2, 3, 4. 5)
 ;	  FCh: repeat - if loop count is exist
-;	  FDh: repeat - ??
+;	  FDh: repeat - if loop count is not exist ??
 ;	  FEh: repeat
 ;	  FFh: stop
 
@@ -86,6 +86,23 @@ R1_24	= $2C
 R1_32	= $2D
 R1_48	= $2E
 R1_96	= $2F
+
+RH1	= $30
+RH3_4	= $31
+RH1_2	= $32
+RH3_8	= $33
+RH1_3	= $34
+RH1_4	= $35
+RH3_16	= $36
+RH1_6	= $37
+RH1_8	= $38
+RH3_32	= $39
+RH1_12	= $3A
+RH1_16	= $3B
+RH1_24	= $3C
+RH1_32	= $3D
+RH1_48	= $3E
+RH1_96	= $3F
 
 M1	= $40
 M3_4	= $41
