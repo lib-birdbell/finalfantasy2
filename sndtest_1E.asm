@@ -2623,19 +2623,44 @@ BGM_FIELD:
 .word S9FFB_CH0				; 9FF2	$F8 $9F
 .word SA04B_CH1				; 9FF4	$4B $A0
 ;.byte $FF,$FF
-.byte $FF,$FF
-;.word SA056_TRI				; 9FF6	$56 $A0
+;.byte $FF,$FF
+.word SA056_TRI				; 9FF6	$56 $A0
 
 S9FFB_CH0:
 .byte SET_P3
 .byte D12ICV00
 .byte $43,$BD
 .byte $C7,$BE
-
-;temp
-TEMP_R0:
+BGM9FF2_CH0_R0:
 .byte TEMPO,$34
-.byte OT3,M3_4,OT1,R1_4				; 1
+FF2_MAIN_CH0_NEW:
+.byte OT1,L1_24,C1_24,OT2,D1_24,R1_32,M1_32,FH1_32,SH1_32	; 1/4
+BGM9FF2_CH0_R1:
+.byte $F8				; Repeat - 2
+BGM9FF2_CH0_R2:
+.byte OT2,L3_4				; 3/4
+.byte OT3,M1_4,OT2,C3_4
+.byte M1_4,OT3,D1_4,OT2,C1_4,L1_4
+.byte C1_4,S1_2,M1_2			; 1 + 1/4	= 4 + 1/4
+.byte $FD				; A019	Repeat
+.word BGM9FF2_CH0_R3			; A01A	$2E $A0
+.byte F1_2,A1_8,F1_8			; 3/4		= 5
+.byte L1_8,OT3,D1_8,M1_4,R1_4,S1_4
+.byte F1_4,RH3_4
+.byte OT2,C1_4,OT3,M1			; 1 + 1/4	= 8 + 1/4
+.byte $FC				; A02B	Repeat
+.word BGM9FF2_CH0_R2
+BGM9FF2_CH0_R3:
+.byte OT2,F1_2,A1_8,F1_8,S1_8,L1_8
+.byte OT3,D1_4,OT2,LH1_4,L1_4,SH1_4
+.byte L3_8,C1_8,OT3,D3_8,R1_8
+.byte M3_4				; 3/4
+;OT1,C1_24,OT2,D1_24,R1_24,M1_24,FH1_24,SH1_24	; = total = 12 + 1/4 , commented
+;temp
+;TEMP_R0:
+;.byte TEMPO,$34
+;.byte OT3,M3_4				commented
+.byte OT1,R1_4				; 1 -> 1/4
 .byte S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
 .byte OT1,S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
 .byte R1_4,D1_4,R1_4,RH1_4
@@ -2651,34 +2676,13 @@ TEMP_R0:
 .byte SH1_2,SH1_8,SH1_8,OT2,D1_8,RH1_8
 .byte RH1_4,DH1_4,D1_4,OT1,C1_4
 .byte OT2,D3_8,R1_8,RH3_8,F1_8
-.byte S1					; 17
+;.byte S1					; 17 commented
+.byte S3_4					; total minus is 3/4 + 1/4
 .byte REPEAT
-.word TEMP_R0
+;.word TEMP_R0
+.word FF2_MAIN_CH0_NEW
 ;
 
-BGM9FF2_CH0_R0:
-.byte TEMPO,$34
-.byte OT1,L1_24,C1_24,OT2,D1_24,R1_32,M1_32,FH1_32,SH1_32
-BGM9FF2_CH0_R1:
-.byte $F8				; Repeat - 2
-BGM9FF2_CH0_R2:
-.byte OT2,L3_4				; 3/4
-.byte OT3,M1_4,OT2,C3_4
-.byte M1_4,OT3,D1_4,OT2,C1_4,L1_4
-.byte C1_4,S1_2,M1_2			; 1 + 1/4
-.byte $FD				; A019	Repeat
-.word BGM9FF2_CH0_R3			; A01A	$2E $A0
-.byte F1_2,A1_8,F1_8			; 3/4
-.byte L1_8,OT3,D1_8,M1_4,R1_4,S1_4
-.byte F1_4,RH3_4
-.byte OT2,C1_4,OT3,M1			; 1 + 1/4
-.byte $FC				; A02B	Repeat
-.word BGM9FF2_CH0_R2
-BGM9FF2_CH0_R3:
-.byte OT2,F1_2,A1_8,F1_8,S1_8,L1_8
-.byte OT3,D1_4,OT2,LH1_4,L1_4,SH1_4
-.byte L3_8,C1_8,OT3,D3_8,R1_8
-.byte M3_4,OT1,C1_24,OT2,D1_24,R1_24,M1_24,FH1_24,SH1_24
 .byte REPEAT
 .word BGM9FF2_CH0_R1
 
@@ -2690,8 +2694,8 @@ SA04B_CH1:
 .byte VOL9
 .byte X1_8
 ;temp
-.byte REPEAT
-.word TEMP_R0
+;.byte REPEAT
+;.word TEMP_R0
 ;
 .byte REPEAT
 .word BGM9FF2_CH0_R0
@@ -2702,21 +2706,10 @@ SA056_TRI:
 .byte $FF
 .byte $FF,$FF
 .byte $E4,$BE
-.byte TEMPO,$34				; temp variable
-.byte X1_4
+;.byte TEMPO,$34				; temp variable
+;.byte VOL15				; temp variable
+.byte X1_4				; temp comment
 
-;temp
-TEMP_TRI_R0:
-.byte OT1,D1_8,F1_8,S1_8,C1_8,S1_8,F1_8,D1_8,OT0,C1_8	; 1
-.byte L1_8,OT1,M1_8,C1_16,C1_16,L1_8,OT2,M1_8,OT1,M1_16,FH1_16,OT1,C1_8,OT2,M1_8
-.byte OT0,FH1_8,OT1,FH1_8,OT2,R1_16,M1_16,OT1,FH1_8,C1_8,M1_16,S1_16,C1_8,OT2,R1_8
-;D->C,S->FH,F->M
-.byte OT1,M1_8,C1_8,OT2,M1_16,M1_16,OT1,C1_8,OT2,L1_8,FH1_8,M1_8,OT1,C1_8
-.byte M1_8,C1_8,OT2,R1_16,M1_16,OT1,C1_8,OT2,S1_8,OT1,C1_8,OT2,M1_8,S1_8
-.byte OT1,R1_8,L1_8,OT2,R1_8,M1_8,OT0,C1_8,OT1,C1_8,OT2,M1_8,L1_8
-.byte REPEAT
-.word TEMP_TRI_R0
-;
 
 BGM9FF2_TRI_R0:
 .byte $F8				; repeat - 2
@@ -2754,9 +2747,40 @@ BGM9FF2_TRI_R2:
 .byte TEMPO,$28
 .byte OT3,R1_16,X1_16			; 1/2
 .byte TEMPO,$23
-.byte M1_4
+;.byte M1_4				commented
+.byte OT2,C1_16,X1_16,SH1_16,X1_16	; added
 .byte TEMPO,$34
-.byte A1_8,X1_8				; 2/2
+.byte M1_16,X1_16,R1_16,X1_16
+;.byte A1_8,X1_8				; 2/2	commented
+
+;temp ;M->RH,C->LH,L->SH
+;TEMP_TRI_R0:
+;.byte OT2,M1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,R1_16,X1_16
+;.byte OT2,C1_16,X1_16,SH1_16,X1_16,M1_16,X1_16,R1_16,X1_16	; 1
+.byte D1_8,S1_8,OT3,R1_16,RH1_16,D1_8,S1_8,OT2,SH1_16,LH1_16,OT3,RH1_8,S1_8
+.byte OT1,LH1_8,OT2,LH1_8,OT3,F1_16,S1_16,OT2,LH1_8,OT3,R1_8,OT2,SH1_16,LH1_16,OT3,R1_8,F1_8	; 3
+.byte OT2,SH1_8,OT3,RH1_8,S1_16,SH1_16,RH1_8, OT3,D1_8,OT2,LH1_8,SH1_8,RH1_8
+.byte OT1,S1_8,OT2,R1_8,F1_16,S1_16,R1_8,LH1_8,R1_8,S1_8,LH1_8
+.byte OT1,F1_8,OT2,D1_8,F1_8,S1_8,OT1,RH1_8,OT2,D1_8,F1_8,SH1_8
+.byte OT1,R1_8,OT2,R1_8,F1_8,SH1_8,OT1,DH1_8,OT2,RH1_8,F1_8,SH1_8				; 7
+.byte OT1,FH1_8,OT2,D1_8,DH1_8,FH1_8,OT1,R1_8,L1_8,OT2,R1_8,F1_8
+.byte OT1,S1_8,OT2,R1_8,S1_8,OT3,R1_8,D1_8,OT2,C1_16,OT3,D1_16,OT2,S1_8,R1_8
+.byte OT1,D1_8,S1_8,OT2,R1_16,RH1_16,D1_8,S1_8,OT1,SH1_16,LH1_16,OT2,RH1_8,S1_8			; 10
+.byte OT0,LH1_8,OT1,LH1_8,OT2,F1_16,S1_16,OT1,LH1_8,OT2,R1_8,OT1,SH1_16,LH1_16,OT2,R1_8,F1_8
+.byte OT1,SH1_8,OT2,RH1_8,S1_16,SH1_16,RH1_8,OT3,D1_8,OT2,LH1_8,SH1_8,RH1_8
+.byte OT1,S1_8,OT2,R1_8,F1_16,S1_16,R1_8,LH1_8,R1_8,S1_8,LH1_8					; 13
+.byte OT1,F1_8,OT2,D1_8,F1_8,S1_8,OT1,RH1_8,OT2,D1_8,F1_8,SH1_8
+.byte OT1,R1_8,OT2,R1_8,F1_8,L1_8,OT1,DH1_8,OT2,RH1_8,F1_8,SH1_8
+;.byte OT1,D1_8,OT2,D1_8,RH1_8,S1_8,OT1,SH1_8,OT2,RH1_8,SH1_8,OT3,D1_8				; 16 commented
+.byte TEMPO,$33,OT1,D1_8,OT2,D1_8,TEMPO,$32,RH1_8,S1_8	; 16 added
+.byte TEMPO,$31,OT1,SH1_8,OT2,RH1_8,TEMPO,$30,SH1_8,OT3,D1_8				; 16 added
+;.byte OT1,S1_8,OT2,R1_8,OT3,D1_8,R1_8,OT2,S1_2							; 17 commented
+;.byte OT1,S1_8,OT2,R1_8,OT3,D1_8,R1_8,OT2,S1_4,X1_4							; 17 added/commented
+.byte TEMPO,$2F,OT1,S1_8,TEMPO,$2E,OT2,R1_8	; added
+.byte TEMPO,$2C,OT3,D1_8,TEMPO,$28,R1_8,OT2,TEMPO,$23,S1_4,TEMPO,$34,X1_4			; 17 added
+;.byte REPEAT
+;.word TEMP_TRI_R0
+;
 .byte REPEAT
 .word BGM9FF2_TRI_R0
 
