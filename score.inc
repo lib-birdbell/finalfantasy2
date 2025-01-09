@@ -7,8 +7,8 @@
 ;	   X8h=1/8,  X9h=3/32, XAh=1/12
 ;	   XBh=1/16,           XCh=1/24
 ;	   XDh=1/32,           XEh=1/48, XFh=1/96
-;	  C0h ~ CFh: Cut ?? Reset ??
-;	  D0h ~ DFh: rest length(Delay 0=longest, F=shortest)
+;	  C0h ~ CFh: Cut ?? Reset ?? X
+;	  D0h ~ DFh: rest length(Delay 0=longest, F=shortest) A
 ;	  E0h: tempo counter rate(next 1 byte) - lower(Slow) < 4Bh(base) < (Fast)
 ;	  E1h ~ EFh: volume !!
 ;	  F0h, F1h, F2h, F3h, F4h, F5h: octave
@@ -29,6 +29,8 @@
 ;		APBEC7:
 ;		APBECB:
 ;		APBEDD:
+;		APBEE0:
+;		APBEE4:
 ;		APBEF9:
 ;	  F7h,F8h,F9h,FAh,FBh: loop counter(?, 2, 3, 4. 5)
 ;	  FCh: repeat - if loop count is exist
@@ -301,6 +303,13 @@ OT5	= $F5
 
 SET_P3	= $F6
 
+BACK_2	= $F8
+BACK_3	= $F9
+BACK_4	= $FA
+BACK_5	= $FB
+
+BACK_N	= $FC
+JUMP_Z	= $FD
 REPEAT	= $FE
 
 ; Duty(DDLC VVVV(Duty/Constant/Volume,envelope) APU $4000,$4004)
@@ -316,7 +325,9 @@ REPEAT	= $FE
 ;  L = Lowering
 ; Volume
 ;  V0 -  V15 = Volume(0-15)
+D18ICV00	= $30
 D18ICV15	= $3F
+D14ICV00	= $70
 D14ICV15	= $7F
 D12ICV00	= $B0
 D12ICV15	= $BF

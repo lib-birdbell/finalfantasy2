@@ -1152,18 +1152,67 @@ L35C63:
 
 
 
+; ================================================== End of code ==================================================
+
+
+
+
+
 ; ==================================================
-; TEST F - chocobo FF3 version - good
+; Convert from FF1
+;
+; 0. rest.
+; $Cx -> $Dy oo
+; $Cx = $Cx xx
+;
+; 0. tick
+; $F8,$?? -> $Cx ??
+; $F8,$?? -> $Dx ?? <-
+;
+; 1. octave
+;      $d8, $d9, $da, $db	<- FF1
+; $F0, $F1, $F2, $F3, $F4, $F5
+;
+; 2. repeat
+; D0h = Infinite loop -> FDh(FF2)
+; D1h-D7h = loop count -> F7h-FBh(FF2)
+; $Dx -> $Fy
+;
+; 3. Envelop pattern select
+; FF1 -> FF2
+; $Ex -> comment
+;
+; 4. Play a note. Score(Beat is differ)
+; 00h-BFh
+; FF1           -> FF2(Beat)
+; 0		-> 1(3/4)
+; 3		-> 5(1/4)
+; 5 5		-> 8(1/8)
+; 7 7 7 7	-> B(1/16)
+; 99999999	-> D(1/32)
+; C		-> E(1/48)
+; 4		-> 6(3/16)
+;
+; 5. Tempo select
+; FF1     -> FF2
+; F9h-FEh -> E0h,(tempo value)
+
+
+
+
+
+; ==================================================
+; chocobo (FF3 version) - good
 ; octave +1
 
-BGMFF3_CHOCOBO:
-.word AA8B	; .byte $8B,$AA
+BGM_FF3_CHOCOBO:
+.word BGM_FF3_CHOCOBO_CH0	; .byte $8B,$AA
 .word AB3D	; .byte $3D,$AB
 .word AB81	; .byte $81,$AB
 ;.byte $FF,$FF
 ;.byte $FF,$FF
 
-AA8B:	; CH0
+BGM_FF3_CHOCOBO_CH0:	; CH0
 .byte $F6,$30,$15,$BD,$CB,$BE	; added from ff2 chocobo
 ;.byte $E0,$9B	tempo - original
 ;.byte $E0,$46	; tempo
@@ -1266,77 +1315,59 @@ ABD4:
 
 
 
+.if 0
 ; ==================================================
-; TEST E - CHOCOBO extension
-BGM9F87:
-.word BGM9F87_CH0_9F8D	; $8D,$9F
-.word BGM9F87_CH1_9FCC	; $CC,$9F
-.word BGM9F87_TRI_9FE1	; $E1,$9F
+; Final Fantasy 2 Chocobo ORIGINAL
+BGM_CHOCOBO:
+.word BGM_CHOCOBO_CH0
+.word BGM_CHOCOBO_CH1
+.word BGM_CHOCOBO_TRI
 
-BGM9F87_CH0_9F8D:	; ----------
-.byte $F6,$30,$15,$BD,$CB,$BE
-.byte $E0,$46
-.byte $F2		; tempo
-.byte $BE
-.byte $F3		; tempo
-.byte $0E,$1E
-; $9F9A-$9FCB - CH_0
-BGM9F87_CH0_9F9A:
-.byte $2B,$C6
-.byte $F2		; tempo
-.byte $B8,$7B,$CB
-.byte $48
-.byte $F3		; tempo
-.byte $2B,$CB
-.byte $F2		; tempo
-.byte $BB,$CB,$7B,$CB,$BB
-.byte $C6,$7B,$C6,$B3,$98,$7B
-.byte $CB,$7B,$9B,$7B,$CB,$5B,$CB,$73,$58,$7B,$CB,$7B,$BB
-.byte $F3		; tempo
-.byte $2B,$CB
-.byte $4B,$CB,$53,$CB
-.byte $F2		; tempo
-.byte $BE
-.byte $F3		; tempo
-.byte $0E,$1E
+; CH0		----------
+BGM_CHOCOBO_CH0:
+.byte SET_P3
+.byte D18ICV00
+.word VPBD15
+.word APBECB
+.byte TEMPO,$46
+.byte OT2,C1_48,OT3,D1_48,DH1_48				; 1/16
+BGM_CHOCOBO_CH0_R1:
+.byte R1_16,X3_16						; 1/4
+.byte OT2,C1_8,S1_16,X1_16					; 1/4
+.byte M1_8,OT3,R1_16,X1_16					; 1/4
+.byte OT2,C1_16,X1_16,S1_16,X1_16				; 1/4
+.byte C1_16,X3_16,S1_16,X3_16,C3_8,L1_8				; 1
+.byte S1_16,X1_16,S1_16,L1_16,S1_16,X1_16,F1_16,X1_16,S3_8,F1_8	; 1
+.byte S1_16,X1_16,S1_16,C1_16,OT3,R1_16,X1_16,M1_16,X1_16	; 1/2
+.byte F3_8,X1_16,OT2,C1_48,OT3,D1_48,DH1_48			; 1/2
+.byte REPEAT
+.word BGM_CHOCOBO_CH0_R1
 
-.byte $F1,$8B,$6B,$4B,$6B,$8B,$CB,$9B,$CB
-.byte $F2,$16,$F1,$BB,$F2,$1B,$CB,$3B,$CB,$48,$7B,$7B,$7B,$CB,$7B,$CB
-.byte $72,$88,$6B,$4B,$38,$1B,$F1,$BB,$F2,$4B,$4B,$3B,$1B,$F1,$BB,$9B
-.byte $8B,$6B,$7B,$CB,$F2,$4B,$0B,$F1,$BB,$9B,$7B,$5B,$46
-;.byte $F8
-.byte $8D,$4B
-;.byte $F8
-.byte $08,$4B,$C6
+; CH1		----------
+BGM_CHOCOBO_CH1:
+.byte SET_P3
+.byte D14ICV00
+.word VPBD15
+.byte $FF,$FF
+.byte VOL11
+.byte X1_16
+BGM_CHOCOBO_CH1_R1:
+.byte X1_8,OT2,R1_16,X3_16,R1_16,X3_16,D1_16,X3_16,D1_16,X1_16	; 1
+.byte REPEAT
+.word BGM_CHOCOBO_CH1_R1
 
-.byte $FE		; repeat
-.word BGM9F87_CH0_9F9A	; ,$9A,$9F
-
-; $9FCC - CH1		; ----------
-BGM9F87_CH1_9FCC:
-.byte $F6,$70,$15,$BD,$FF,$FF
-.byte $EB
-.byte $CB
-; $9FD4-$9FE0 - CH_1
-BGM9F87_CH1_9FD4:
-.byte $C8
-.byte $F2		; tempo
-.byte $2B,$C6,$2B,$C6,$0B,$C6,$0B,$CB
-.byte $FE		; repeat
-.word BGM9F87_CH1_9FD4	; $D4,$9F
-
-; $9FE1			; ----------
-BGM9F87_TRI_9FE1:
-.byte $CB
-; $9FE2-$9FF1 - TRI
-BGM9F87_TRI_9FE2:
-.byte $F2		; tempo
-.byte $7B,$CB,$BB,$C6,$BB,$CB,$5B,$CB,$9B,$C6,$9B,$CB
-.byte $FE		; repeat
-.word BGM9F87_TRI_9FE2	; $E2,$9F
+; TRI		----------
+BGM_CHOCOBO_TRI:
+.byte X1_16
+BGM_CHOCOBO_TRI_R1:
+.byte OT2,S1_16,X1_16,C1_16,X3_16,C1_16,X1_16,F1_16,X1_16,L1_16,X3_16,L1_16,X1_16
+.byte REPEAT
+.word BGM_CHOCOBO_TRI_R1
+.endif
 
 
 
+.if 0
 ; ==================================================
 ; TEST D - CHOCOBO FF3 XXXXX une OOOOO
 BGM_FF39:
@@ -1411,9 +1442,11 @@ S09_TRI_AD1B:
 .byte $75,$D2,$C2
 .byte $FE
 .word S09_TRI_ACD8	; $D8,$AC
+.endif
 
 
 
+.if 0
 ; ==================================================
 ; TEST C - MATOYA (initial version - deprecated)
 ;
@@ -1628,6 +1661,157 @@ REP_8583:
 .byte $27,$99,$c9,$c7,$99,$c9,$27,$b9,$c9,$c7,$b9,$c9,$27,$f3,$19,$c9
 .byte $c7,$19,$c9,$f2,$67,$f3,$19,$c9,$f2,$67,$f3,$19,$c9,$FE
 .word S84E8	; $e8,$84
+.endif
+
+
+
+.if 1
+; ==================================================
+; FF1 No.09
+FF1_09:
+.word FF1_09_CH0
+.byte $FF,$FF
+.byte $FF,$FF
+;.word FF1_09_CH1
+;.word FF1_09_TRI
+
+FF1_09_CH0:
+.byte $F6,$30,$6A,$BD,$C4,$BE
+.byte TEMPO,$4B
+.byte VOL15
+;.byte fb
+;.byte f8 03
+;.byte e0
+;.byte d9 29c9 29c9 59c9 29c9 
+FF1_09_CH0_S:
+.byte BACK_2
+FF1_09_CH0_R1:
+.byte OT2,R1_32,X1_32,R1_32,X1_32,F1_32,X1_32,R1_32,X1_32
+;00001100: 09c9 f807 4525 f803 29c9 59c9 29c9 49c9  
+.byte D1_32,X1_32,M1_8,R1_8,R1_32,X1_32,F1_32,X1_32,R1_32,X1_32,M1_32,X1_32
+;00001110: f807 75f8 0379 c9d1 f790 f805 1729 c959  
+.byte S1_8,S1_32,X1_32
+.byte BACK_N
+.word FF1_09_CH0_R1
+.byte DH1_16,R1_32,X1_32,F1_32
+;00001120: c999 c9f8 08ee da21 c7f8 03e0 d9bc da0c  
+.byte X1_32,L1_32,X1_32,OT3,R1_2,X1_16,OT2,C1_48,OT3,D1_48
+.byte REPEAT		; temp
+.word FF1_09_CH0	; temp
+.if 0
+;00001130: d9bc 99c9 b9c9 f805 da07 d9b9 c999 c979  
+.byte OT2,C,L,X,C,X,OT3,D,OT2,C,X,L,X,S
+;00001140: c957 79c9 99c9 59c9 f808 ee21 f805 e017  
+.byte X,F,S,XL,X,F,X,R,DH
+;00001150: 29c9 59c9 99c9 f808 eeda 21f8 03e0 c7d9  
+.byte R,X,F,X,L,X,OT3,R,X,OT2
+;00001160: bcda 0cd9 bc99 c9b9 c9f8 05da 07d9 99c9  
+.byte C,OT3,D,OT2,C,L,X,C,X,OT3,D,OT2,L,X
+;00001170: 59c9 99c9 da47 59c9 49c9 09c9 f808 ee21  
+.byte F,X,L,X,OT3,M,F,X,M,X,D,X,R
+;00001180: f805 e007 d997 5797 b7da 07d9 b797 f808  
+.byte D,OT2,L,F,L,C,OT3,D,OT2,C,L
+;00001190: b4f8 08b9 b9f8 08b4 f808 b9b9 f805 da07  
+.byte C,C,C,C,C,C,OT3,D
+;000011a0: d997 5797 b7da 07d9 b797 f808 da24 f808  
+.byte OT2,L,F,L,C,OT3,D,OT2,C,L,OT3,R
+;000011b0: 2929 f808 da24 f808 2929 f805 3707 d987  
+.byte R,R,OT3,R,R,R,RH,D,OT2,SH
+;000011c0: da07 2737 2707 f808 d9a4 f808 a9a9 f808  
+.byte OT3,D,R,RH,R,D,OT2,LH,LH,LH
+;000011d0: d9a4 f808 a9a9 f805 da37 07d9 87da 0727  
+.byte OT2,LH,LH,LH,OT3,RH,D,OT2,SH,OT3,D,R
+;000011e0: 3727 07f8 0854 f808 5959 f808 54f8 0859  
+.byte RH,R,D,F,F,F,F,F
+;000011f0: 59
+.byte F
+.endif
+.byte REPEAT
+.word FF1_09_CH0_S
+;.byte d0 f490
+
+.if 0
+FF1_09_CH1:
+;.byte fb
+;.byte f8 05
+;.byte e1
+.byte d899 c999 c9c4 f805  Y...............
+;00001200: 75f8 0599 c9c3 79c9 f805 75f8 0579 c9d1  u.....y...u..y..
+;00001210: f891 f808 ee93 f803 e1c7 5779 c999 c9f8  ..........Wy....
+;00001220: 08ee b3f8 03e1 c777 99c9 b9c9 f808 eed9  .......w........
+;00001230: 03f8 03e1 c7d8 97b9 c9d9 09c9 f808 eed8  ................
+;00001240: b3f8 03e1 c777 99c9 b9c9 d112 92f8 05d9  .....w..........
+;00001250: 57c7 07c7 d897 c7d9 07c7 5727 5727 5727  W.........W'W'W'
+;00001260: 5727 d14d 9287 c737 c707 c737 c787 5787  W'.M...7...7..W.
+;00001270: 5787 5787 57d1 6592
+.byte REPEAT
+.word FF1_09_CH1
+;.byte d0 f5 91
+
+FF1_09_TRI:
+;.byte fb
+;.byte f8 08
+;.byte ec
+.byte da
+;00001280: 29c9 29c9 c405 29c9 c309 c9d9 b5b9 c9d1  ).)...).........
+;00001290: 7f92 da29 c929 c959 c959 c929 c9c5 09c9  ...).).Y.Y.)....
+;000012a0: 29c9 29c9 79c9 79c9 29c9 c509 c929 c929  ).).y.y.)....).)
+;000012b0: c999 c999 c929 c9c5 09c9 29c9 29c9 79c9  .....)....).).y.
+;000012c0: 79c9 29c9 c509 c9d1 9292 d959 c959 c9da  y.)........Y.Y..
+;000012d0: 59c9 59c6 d959 c9da 59c9 09c9 d974 79c9  Y.Y..Y..Y....ty.
+;000012e0: 7479 c9d1 ca92 89c9 89c9 da89 c989 c6d9  ty..............
+;000012f0: 89c9 da89 c939 c9d9 a4a9 c9a4 a9c9 d1e6  .....9..........
+;00001300: 92
+.byte REPEAT
+.word FF1_09_TRI
+;.byte d0 7c92
+.endif
+.endif
+
+
+
+; ==================================================
+; FF1 No22
+.if 0
+;00001ae0: 7392 fffb f808 e1d8 acd8 2c5c acd9 2c5c  s.........,\..,\
+;00001af0: acda 2c5c acdb 2c5c acff fbf8 08e2 c7d8  ..,\..,\........
+;00001b00: acd8 2c5c acd9 2c5c acda 2c5c acdb 2c5c  ..,\..,\..,\..,\
+;00001b10: acff fbf8 08ec c7c7 d8cc ccd9 cccc ccda  ................
+;00001b20: cccc ccdb cccc ccdc cccc fffc f807 e0da  ................
+.endif
+
+
+
+; ==================================================
+; FF1 No.23 Effect
+;
+FF1_23:
+.word FF1_23_CH0
+.word FF1_23_CH1
+.word FF1_23_TRI
+FF1_23_CH0:
+.byte $F6,$30,$15,$BD,$CB,$BE
+.byte VOL15
+.byte TEMPO,$4B		; temp
+;.byte fc
+;.byte f8 07
+;.byte e0
+;.byte da 79 b9 db 39 79 b9 ff
+.byte OT3,S1_8,C1_8,OT4,LH1_8,S1_8,C1_8,$FF
+FF1_23_CH1:
+.byte $F6,$30,$15,$BD,$CB,$BE
+;.byte fc
+;.byte f807
+;.byte e1
+;.byte d9 b9 da 39 79 b9 db 39 ff
+.byte OT1,C1_8,OT2,LH1_8,S1_8,C1_8,OT3,LH1_8,$FF
+FF1_23_TRI:
+.byte $F6,$FF,$FF,$FF,$CB,$BE
+;.byte fc
+;f8 08
+;e0
+;.byte c9 c9 c9 c9 c9 $ff
+.byte X1_8,X1_8,X1_8,X1_8,X1_8,$FF
 
 
 
@@ -1887,6 +2071,8 @@ A1CA:
 ;		APBEC7:
 ;		APBECB:
 ;		APBEDD:
+;		APBEE0:
+;		APBEE4:
 ;		APBEF9:
 ;	  F7h,F8h,F9h,FAh,FBh: loop counter(?, 2, 3, 4. 5)
 ;	  FCh: repeat - if loop count is exist
@@ -2061,6 +2247,7 @@ FF9_R1:
 
 
 
+.if 0
 ; ==================================================
 ; TEST C - MATOYA(Mod - playable)
 ;
@@ -2310,6 +2497,245 @@ MATOYA_TRI_R:
 .byte $FE			; Repeat
 .word MATOYA_TRI_S
 .endif
+.endif
+
+; ==================================================
+; TEST C 2 - MATOYA(Mod - playable modified)
+;
+;0		-> 1(3/4)
+;3		-> 2(1/2) o <- 5
+;4		-> 3(3/8)
+;5 5		-> 5(1/4) o <- 8
+;7 7 7 7	-> 8(1/8) o <- B
+;99999999	-> B(1/16) o <- D
+;C		-> A(1/12) o <- E
+;4		-> 6(3/16)
+FF1_10_MATOYA:
+.word FF1_10_CH0
+.byte $FF,$FF
+;.word MATOYA_CH1
+.byte $FF,$FF
+;.word MATOYA_TRI
+
+FF1_10_CH0:		; SQ channel 0
+.byte SET_P3
+.byte D18ICV15
+;.word VPBD6A
+.word VPBD37
+.word APBEC4
+.byte TEMPO,$4B
+.byte VOL15
+FF1_10_CH0_S:
+;.byte $D8			; tick(Delay) - must be speed
+;.byte $EC			; envelope pattern select
+.byte OT2,C1_8,OT3,R1_8,FH1_8,OT2,C1_8,OT3,S1_4,FH1_8,M1_8	; 1
+.byte R1_4,M1_8,R1_8
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte DH1_2							; 2
+;.byte $D8			; tick
+
+;.byte $EC			; envelope pattern select
+.byte R1_8,FH1_8,L1_8,R1_8,C1_4,L1_8,S1_8			; 3
+.byte FH1_4,S1_8,FH1_8,M1_4,FH1_8,S1_8				; 4
+
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte L1_2,DH1_4,M1_4						; 1
+.byte R1_12
+;.byte $DE			;.byte $CC
+.byte DH1_12
+;.byte $DE			;.byte $CC
+.byte R1_12
+;.byte $DE			;.byte $CC
+.byte OT2,C1_2,OT3,S1_8,L1_8					; 2
+
+.byte C1_2,R1_4,S1_4						; 3
+.byte FH1_12
+;.byte $DE			;.byte $CC
+.byte S1_12
+;.byte $DE			;.byte $CC
+.byte FH1_12
+;.byte $DE			;.byte $CC
+.byte M1_2,L1_8,C1_8						; 4
+
+.byte OT4,DH1_2
+;.byte $DB			;.byte $C7 A1_8
+.byte OT3,L1_8,C1_8,OT4,DH1_8					; 1
+.byte M1_16,R1_16,DH1_16,R1_16,OT3,C3_8,L1_8,S1_8,FH1_8		; 2
+.byte M1_2
+;.byte $DB			;.byte $C7
+.byte D1_8,R1_8,M1_8						; 3
+.byte R1_2,DH1_4,OT2,L1_4					; 4
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+.byte OT3,R1,X1_2,X1_4
+;;$21		; 1 + 3/4
+;.byte $C8			;.byte $C5
+;.byte $D4			; tick
+;.byte $E1			; envelope pattern select
+.byte R1_16,DH1_16,OT2,C1_16,OT3,DH1_16				; 2
+;.byte $D8			; tick
+;.byte $EE			; envelope pattern select
+;;.byte $21			; 1 + 3/4
+;;.byte $C8			;.byte $C5
+.byte R1,A1_2,A1_4
+
+;.byte $D4			; tick
+;.byte $E8			; envelope pattern select
+.byte FH1_16,M1_16,R1_16,M1_16					; 4
+;.byte $D8			; tick
+;.byte $E1			; envelope pattern select
+;;.byte $61			; 1 + 3/4			; 1
+.byte FH1,A1_2,A1_4
+;;.byte $C8			;.byte $C5
+
+;.byte $D4			; tick
+;.byte $E8			; envelope pattern select
+.byte L1_16,S1_16,FH1_16,S1_16					; 2
+;.byte $D8			; tick
+;.byte $E1			; envelope pattern select
+.byte L1,A1_2
+;;$91			; 1 + 1/2
+
+;.byte $D4			; tick
+;.byte $E1			; envelope pattern select
+.byte FH1_16,M1_16,R1_16,DH1_16,M1_16,R1_16,DH1_16,OT2,LH1_16
+.byte REPEAT
+.word FF1_10_CH0_S
+
+MATOYA_CH1:		; SQ channel 1
+.byte $F6,$3F
+;.word VPBD15
+.word VPBD37
+.word APBEC4
+;.byte $FF,$FF
+;.byte $E0,$61			; tempo
+.byte $E0,$26			; tempo
+.byte $EC			; volume
+
+MATOYA_CH1_S:
+;.byte $DA			; tick
+;.byte $EE			; volume e2
+
+.byte $F1,$BD,$DD
+.byte $F2,$6D,$DD
+.byte $F1,$BD,$DD
+.byte $F2,$6D,$DD
+
+.byte $F1,$BD,$DD
+.byte $F2,$7D,$DD
+.byte $F1,$BD,$DD
+.byte $F2,$7D,$DD
+.byte $F1,$BD,$DD
+.byte $F2,$7D,$DD
+.byte $F1,$BD,$DD
+.byte $F2,$7D,$DD
+
+.byte $1D,$DD,$9D,$DD
+.byte $1D,$DD,$9D,$DD
+
+.byte $2D,$DD,$9D,$DD
+.byte $2D,$DD,$9D,$DD
+
+.byte $2D,$DD,$BD,$DD
+.byte $2D,$DD,$BD,$DD
+.byte $2D,$DD,$BD,$DD
+.byte $2D,$DD,$BD,$DD
+
+.byte $1D,$DD,$9D,$DD
+.byte $1D,$DD,$9D,$DD
+
+.byte $9D,$DD,$9D,$DD,$D8
+.byte $9D,$DD,$9D,$DD,$D8
+
+.byte $6D,$DD,$6D,$DD,$D8
+.byte $6D,$DD,$6D,$DD,$D8
+
+.byte $BD,$DD,$BD,$DD,$D8
+.byte $BD,$DD,$BD,$DD,$D8
+
+.byte $F3
+.byte $1D,$DD,$1D,$DD,$D8
+.byte $1D,$DD,$1D,$DD,$D8
+
+.byte $F2
+.byte $9D,$DD,$9D,$DD,$D8
+.byte $9D,$DD,$9D,$DD,$D8
+.byte $6D,$DD,$6D,$DD,$D8
+.byte $6D,$DD,$6D,$DD,$D8
+
+.byte $4D,$DD,$7D,$DD
+.byte $4D,$DD,$7D,$DD
+.byte $4D,$DD,$7D,$DD
+.byte $4D,$DD,$7D,$DD
+.byte $4D,$DD,$7D,$DD
+.byte $4D,$DD,$7D,$DD
+
+.byte $9D,$7D,$6D,$4D,$6D,$4D,$2D,$1D
+.byte $F9			; Set repeat count as 3
+MATOYA_CH1_R:
+;.byte $DA			; tick
+;.byte $EE			; volume
+.byte $68,$28
+.byte $78,$28
+.byte $9B,$9B,$2B,$9B
+.byte $78,$48
+.byte $FC			; Repeat 3
+.word MATOYA_CH1_R
+.byte $68,$28
+.byte $78,$28
+.byte $9B,$9B,$2B,$9B
+.byte $68,$48
+.byte $FE			; Repeat
+.word MATOYA_CH1_S
+
+MATOYA_TRI:		; TRIANGLE
+;.byte $F6,$3F
+;.word VPBD15
+;.word APBEC4
+.byte $E0,$26			; tempo
+.byte $EC			; volume
+MATOYA_TRI_S:
+;.byte $EC			; volume
+.byte $F1,$B5
+.byte $F2,$45
+.byte $75
+.byte $98,$78
+.byte $25
+.byte $75
+.byte $B5
+.byte $9B,$4D,$CD,$1D,$CD,$F1,$9D,$CD
+.byte $CB,$6B,$F2,$1D,$CD,$6D,$CD
+.byte $CB,$F1,$6D,$CD,$F2,$6B,$1D,$CD
+.byte $CB,$F1,$BB,$F2,$6D,$CD,$BD,$CD
+.byte $CB,$F1,$BD,$CD,$F2,$BB,$6D,$CD
+.byte $CB,$F1,$7B,$F2,$2D,$CD,$7D,$CD
+.byte $CB,$F1,$7D,$CD,$F2,$7B,$2D,$CD
+.byte $CB,$F1,$9B,$F2,$4D,$CD,$9D,$CD
+.byte $CB,$F1,$9D,$CD,$F2,$9B,$4D,$CD
+.byte $CB,$F1,$6B,$F2,$1D,$CD,$6D,$CD
+.byte $CB,$F1,$6D,$CD,$F2,$6B,$1D,$CD
+.byte $CB,$F1,$BB,$F2,$6D,$CD,$BD,$CD
+.byte $CB,$F1,$BD,$CD,$F2,$BB,$6D,$CD
+.byte $0B,$F3,$0D,$CD,$F2,$0B,$F3,$0D,$CD
+.byte $F2,$0B,$F3,$0D,$CD,$F2,$0B,$F3,$0D,$CD
+.byte $F1,$9B,$F2,$9D,$CD,$F1,$9B,$F2,$9D,$CD
+.byte $F1,$9B,$F2,$9D,$CD,$F1,$9B,$F2,$9D,$CD
+.byte $F9			; Set repeat count as 2 x 3 o
+MATOYA_TRI_R:
+.byte $2B,$9D,$CD,$CB,$9D,$CD
+.byte $2B,$BD,$CD,$CB,$BD,$CD
+.byte $2B,$F3,$1D,$CD,$CB,$1D,$CD
+.byte $F2,$2B,$BD,$CD,$CB,$BD,$CD
+.byte $FC			; Repeat
+.word MATOYA_TRI_R
+.byte $2B,$9D,$CD,$CB,$9D,$CD
+.byte $2B,$BD,$CD,$CB,$BD,$CD
+.byte $2B,$F3,$1D,$CD,$CB,$1D,$CD
+.byte $F2,$6B,$F3,$1D,$CD,$F2,$6B,$F3,$1D,$CD
+.byte $FE			; Repeat
+.word MATOYA_TRI_S
 
 
 
@@ -2628,25 +3054,25 @@ BGM_FIELD:
 S9FFB_CH0:
 .byte SET_P3
 .byte D12ICV00
-.byte $43,$BD
-.byte $C7,$BE
+.word VPBD43
+.word APBEC7
 BGM9FF2_CH0_R0:
 .byte TEMPO,$34
 .byte OT1,L1_24,C1_24,OT2,D1_24,R1_32,M1_32,FH1_32,SH1_32	; 1/4
 BGM9FF2_CH0_R1:
-.byte $F8				; Repeat - 2
+.byte BACK_2				; Repeat - 2
 BGM9FF2_CH0_R2:
 .byte OT2,L3_4				; 3/4
 .byte OT3,M1_4,OT2,C3_4
 .byte M1_4,OT3,D1_4,OT2,C1_4,L1_4
 .byte C1_4,S1_2,M1_2			; 1 + 1/4	= 4 + 1/4
-.byte $FD				; A019	Repeat
+.byte JUMP_Z				; A019	Repeat
 .word BGM9FF2_CH0_R3			; A01A	$2E $A0
 .byte F1_2,A1_8,F1_8			; 3/4		= 5
 .byte L1_8,OT3,D1_8,M1_4,R1_4,S1_4
 .byte F1_4,RH3_4
 .byte OT2,C1_4,OT3,M1			; 1 + 1/4	= 8 + 1/4
-.byte $FC				; A02B	Repeat
+.byte BACK_N				; A02B	Repeat
 .word BGM9FF2_CH0_R2
 BGM9FF2_CH0_R3:
 .byte OT2,F1_2,A1_8,F1_8,S1_8,L1_8
@@ -2659,8 +3085,8 @@ BGM9FF2_CH0_R3:
 SA04B_CH1:
 .byte SET_P3
 .byte D12ICV00
-.byte $43,$BD
-.byte $E0,$BE
+.word VPBD43
+.word APBEE0
 .byte VOL9
 .byte X1_8
 .byte REPEAT
@@ -2671,22 +3097,22 @@ SA056_TRI:
 .byte SET_P3
 .byte $FF
 .byte $FF,$FF
-.byte $E4,$BE
+.word APBEE4
 .byte X1_4
 BGM9FF2_TRI_R0:
-.byte $F8				; repeat - 2
+.byte BACK_2				; repeat - 2
 BGM9FF2_TRI_R1:
 .byte OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
 .byte OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
 .byte OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16
 .byte OT2,M1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,M1_16,X1_16,OT3,DH1_16,X1_16,R1_16,X1_16,DH1_16,X1_16
-.byte $FD				; repeat
+.byte JUMP_Z				; repeat
 .word BGM9FF2_TRI_R2
 .byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
 .byte OT1,C1_16,X1_16,OT2,C1_16,X1_16,OT3,R1_16,X1_16,F1_16,X1_16,OT1,LH1_16,X1_16,OT3,D1_16,X1_16,R1_16,X1_16,F1_16,X1_16
 .byte OT2,RH1_16,X1_16,L1_16,X1_16,LH1_16,X1_16,OT3,RH1_16,X1_16,OT1,C1_16,X1_16,OT2,FH1_16,X1_16,C1_16,X1_16,OT3,RH1_16,X1_16
 .byte OT2,M1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,M1_16,X1_16,R1_16,X1_16,OT2,C1_16,X1_16,SH1_16,X1_16,M1_16,X1_16
-.byte $FC				; repeat
+.byte BACK_N				; repeat
 .word BGM9FF2_TRI_R1
 BGM9FF2_TRI_R2:
 .byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
@@ -2730,8 +3156,8 @@ BGM_FIELD:
 S9FFB_CH0:
 .byte SET_P3
 .byte D12ICV00
-.byte $43,$BD
-.byte $C7,$BE
+.word VPBD43
+.word APBEC7
 
 ;temp extended part
 TEMP_R0:
@@ -2762,19 +3188,19 @@ BGM9FF2_CH0_R0:
 FF2_MAIN_CH0_NEW:
 .byte OT1,L1_24,C1_24,OT2,D1_24,R1_32,M1_32,FH1_32,SH1_32	; 1/4
 BGM9FF2_CH0_R1:
-.byte $F8				; Repeat - 2
+.byte BACK_2				; Repeat - 2
 BGM9FF2_CH0_R2:
 .byte OT2,L3_4				; 3/4
 .byte OT3,M1_4,OT2,C3_4
 .byte M1_4,OT3,D1_4,OT2,C1_4,L1_4
 .byte C1_4,S1_2,M1_2			; 1 + 1/4	= 4 + 1/4
-.byte $FD				; A019	Repeat
+.byte JUMP_Z				; A019	Repeat
 .word BGM9FF2_CH0_R3			; A01A	$2E $A0
 .byte F1_2,A1_8,F1_8			; 3/4		= 5
 .byte L1_8,OT3,D1_8,M1_4,R1_4,S1_4
 .byte F1_4,RH3_4
 .byte OT2,C1_4,OT3,M1			; 1 + 1/4	= 8 + 1/4
-.byte $FC				; A02B	Repeat
+.byte BACK_N				; A02B	Repeat
 .word BGM9FF2_CH0_R2
 BGM9FF2_CH0_R3:
 .byte OT2,F1_2,A1_8,F1_8,S1_8,L1_8
@@ -2789,8 +3215,8 @@ BGM9FF2_CH0_R3:
 SA04B_CH1:
 .byte SET_P3
 .byte D12ICV00
-.byte $43,$BD
-.byte $E0,$BE
+.word VPBD43
+.word APBEE0
 .byte VOL9
 .byte X1_8
 
@@ -2807,7 +3233,7 @@ SA056_TRI:
 .byte SET_P3
 .byte $FF
 .byte $FF,$FF
-.byte $E4,$BE
+.word APBEE4
 .byte TEMPO,$34				; temp variable
 .byte VOL15				; temp variable
 ;.byte X1_4				; temp comment
@@ -2839,19 +3265,19 @@ TEMP_TRI_R0:
 
 
 BGM9FF2_TRI_R0:
-.byte $F8				; repeat - 2
+.byte BACK_2				; repeat - 2
 BGM9FF2_TRI_R1:
 .byte OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
 .byte OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
 .byte OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16
 .byte OT2,M1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,M1_16,X1_16,OT3,DH1_16,X1_16,R1_16,X1_16,DH1_16,X1_16
-.byte $FD				; repeat
+.byte JUMP_Z				; repeat
 .word BGM9FF2_TRI_R2
 .byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
 .byte OT1,C1_16,X1_16,OT2,C1_16,X1_16,OT3,R1_16,X1_16,F1_16,X1_16,OT1,LH1_16,X1_16,OT3,D1_16,X1_16,R1_16,X1_16,F1_16,X1_16
 .byte OT2,RH1_16,X1_16,L1_16,X1_16,LH1_16,X1_16,OT3,RH1_16,X1_16,OT1,C1_16,X1_16,OT2,FH1_16,X1_16,C1_16,X1_16,OT3,RH1_16,X1_16
 .byte OT2,M1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,M1_16,X1_16,R1_16,X1_16,OT2,C1_16,X1_16,SH1_16,X1_16,M1_16,X1_16
-.byte $FC				; repeat
+.byte BACK_N				; repeat
 .word BGM9FF2_TRI_R1
 BGM9FF2_TRI_R2:
 .byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
@@ -2899,25 +3325,25 @@ BGM_FIELD:
 BGM_FIELD_CH0:
 .byte SET_P3
 .byte D12ICV00
-.byte $43,$BD
-.byte $C7,$BE
+.word VPBD43
+.word APBEC7
 BGM_FIELD_CH0_R0:
 .byte TEMPO,$34
 FF2_FIELD_CH0_NEW:
 .byte OT1,L1_24,C1_24,OT2,D1_24,R1_32,M1_32,FH1_32,SH1_32	; 1/4
-.byte $F8				; Repeat - 2
+.byte BACK_2				; Repeat - 2
 BGM_FIELD_CH0_R2:
 .byte OT2,L3_4				; 3/4
 .byte OT3,M1_4,OT2,C3_4
 .byte M1_4,OT3,D1_4,OT2,C1_4,L1_4
 .byte C1_4,S1_2,M1_2			; 1 + 1/4	= 4 + 1/4
-.byte $FD				; Repeat
+.byte JUMP_Z				; Repeat
 .word BGM_FIELD_CH0_R3
 .byte F1_2,A1_8,F1_8			; 3/4		= 5
 .byte L1_8,OT3,D1_8,M1_4,R1_4,S1_4
 .byte F1_4,RH3_4
 .byte OT2,C1_4,OT3,M1			; 1 + 1/4	= 8 + 1/4
-.byte $FC				; Repeat
+.byte BACK_N				; Repeat
 .word BGM_FIELD_CH0_R2
 BGM_FIELD_CH0_R3:
 .byte OT2,F1_2,A1_8,F1_8,S1_8,L1_8
@@ -2925,19 +3351,19 @@ BGM_FIELD_CH0_R3:
 .byte L3_8,C1_8,OT3,D3_8,R1_8
 .byte M3_4				; 3/4
 .byte OT2,R1_4				; 1 -> 1/4
-.byte $F8				; Repeat - 2
+.byte BACK_2				; Repeat - 2
 FF2_FIELD_CH0_NEW_R0:
 .byte S3_4,S1_16,SH1_16,LH1_16,OT3,D1_16
 .byte OT2,S3_4,S1_16,SH1_16,LH1_16,OT3,D1_16
 .byte R1_4,D1_4,R1_4,RH1_4
 .byte OT2,LH3_8,LH1_24,L1_24,SH1_24,S1_2	; 5
 .byte SH1_2,SH1_8,SH1_8,OT3,D1_8,RH1_8
-.byte $FD
+.byte JUMP_Z
 .word FF2_FIELD_CH0_NEW_R1
 .byte S1_4,F1_4,LH1_4,SH1_4
 .byte FH3_4,R1_4
 .byte S3_4,F1_24,RH1_24,R1_24,D1_24,OT2,LH1_24,SH1_24	; 9
-.byte $FC				; Repeat
+.byte BACK_N				; Repeat
 .word FF2_FIELD_CH0_NEW_R0
 FF2_FIELD_CH0_NEW_R1:
 .byte RH1_4,DH1_4,D1_4,OT2,C1_4
@@ -2949,8 +3375,8 @@ FF2_FIELD_CH0_NEW_R1:
 BGM_FIELD_CH1:
 .byte SET_P3
 .byte D12ICV00
-.byte $43,$BD
-.byte $E0,$BE
+.word VPBD43
+.word APBEE0
 .byte VOL9
 .byte X1_8
 .byte REPEAT
@@ -2960,22 +3386,22 @@ BGM_FIELD_TRI:
 .byte SET_P3
 .byte $FF
 .byte $FF,$FF
-.byte $E4,$BE
+.word APBEE4
 .byte X1_4				; temp comment
 BGM_FIELD_TRI_R0:
-.byte $F8				; repeat - 2
+.byte BACK_2				; repeat - 2
 BGM_FIELD_TRI_R1:
 .byte OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
 .byte OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
 .byte OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16
 .byte OT2,M1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,M1_16,X1_16,OT3,DH1_16,X1_16,R1_16,X1_16,DH1_16,X1_16
-.byte $FD				; repeat
+.byte JUMP_Z				; repeat
 .word BGM_FIELD_TRI_R2
 .byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
 .byte OT1,C1_16,X1_16,OT2,C1_16,X1_16,OT3,R1_16,X1_16,F1_16,X1_16,OT1,LH1_16,X1_16,OT3,D1_16,X1_16,R1_16,X1_16,F1_16,X1_16
 .byte OT2,RH1_16,X1_16,L1_16,X1_16,LH1_16,X1_16,OT3,RH1_16,X1_16,OT1,C1_16,X1_16,OT2,FH1_16,X1_16,C1_16,X1_16,OT3,RH1_16,X1_16
 .byte OT2,M1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,M1_16,X1_16,R1_16,X1_16,OT2,C1_16,X1_16,SH1_16,X1_16,M1_16,X1_16
-.byte $FC				; repeat
+.byte BACK_N				; repeat
 .word BGM_FIELD_TRI_R1
 BGM_FIELD_TRI_R2:
 .byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
@@ -3001,7 +3427,7 @@ BGM_FIELD_TRI_R2:
 .byte OT2,C1_16,X1_16,SH1_16,X1_16	; added
 .byte M1_16,X1_16,R1_16,X1_16
 .byte TEMPO,$34
-.byte $F8				; Repeat - 2
+.byte BACK_2				; Repeat - 2
 BGM_FIELD_TRI_NEW_R0:
 .byte D1_8,S1_8,OT3,R1_16,RH1_16,D1_8,S1_8,OT2,SH1_16,LH1_16,OT3,RH1_8,S1_8
 .byte OT1,LH1_8,OT2,LH1_8,OT3,F1_16,S1_16,OT2,LH1_8,OT3,R1_8,OT2,SH1_16,LH1_16,OT3,R1_8,F1_8	; 3
@@ -3009,11 +3435,11 @@ BGM_FIELD_TRI_NEW_R0:
 .byte OT2,S1_8,OT3,R1_8,F1_16,S1_16,R1_8,LH1_8,R1_8,S1_8,LH1_8
 .byte OT2,F1_8,OT3,D1_8,F1_8,S1_8,OT2,RH1_8,OT3,D1_8,F1_8,SH1_8
 .byte OT2,R1_8,OT3,R1_8,F1_8,SH1_8,OT2,DH1_8,OT3,RH1_8,F1_8,SH1_8				; 7
-.byte $FD				; Repeat if count is not exist
+.byte JUMP_Z				; Repeat if count is not exist
 .word BGM_FIELD_TRI_NEW_R1
 .byte OT2,FH1_8,OT3,D1_8,DH1_8,FH1_8,OT2,R1_8,L1_8,OT3,R1_8,F1_8
 .byte OT2,S1_8,OT3,R1_8,S1_8,OT4,R1_8,D1_8,OT3,C1_16,OT4,D1_16,OT3,S1_8,R1_8
-.byte $FC				; Repeat if count is exist
+.byte BACK_N				; Repeat if count is exist
 .word BGM_FIELD_TRI_NEW_R0
 BGM_FIELD_TRI_NEW_R1:
 .byte TEMPO,$33,OT2,D1_8,OT3,D1_8,TEMPO,$32,RH1_8,S1_8	; 16 added
@@ -3149,14 +3575,16 @@ D9E0E:
 .word FF9_BGM
 ;.byte $F2,$9F
 ;05 - Main thema
-.word A07C	; 9E17	$F2 $9F
+;.word A07C	; 9E17	$F2 $9F
+.word FF1_10_MATOYA
+;.word FF1_09
 ;.word A1D2	; 9E19	$F2 $9F
 ;.word BGM_0009
 ;.word BGM_FF39
-;.word BGM9F87
+;.word BGM_CHOCOBO
 ;06 - Main thema
 .word BGM_FIELD
-;.word BGMFF3_CHOCOBO
+;.word BGM_FF3_CHOCOBO
 ;07 - Victory
 .byte $67,$A1
 ;08 - Item get
@@ -3861,10 +4289,13 @@ APBEC7:
 .byte $F0,$49,$41,$02
 APBECB:
 .byte $70,$39,$32,$3A,$32
-.byte $3A,$32,$3B,$34,$3C,$02,$F0,$49,$41,$49,$32,$3A,$02,$49,$41,$02
-.byte $F9,$49,$41,$02,$49,$42,$4A,$42,$4A,$42,$4B,$44,$4C,$02
+.byte $3A,$32,$3B,$34,$3C,$02,$F0,$49,$41,$49,$32,$3A,$02
 APBEDD:
-.byte $F0,$49
+.byte $49,$41,$02
+APBEE0:
+.byte $F9,$49,$41,$02
+APBEE4:
+.byte $49,$42,$4A,$42,$4A,$42,$4B,$44,$4C,$02,$F0,$49
 .byte $42,$4A,$42,$4A,$42,$4B,$44,$4C,$02
 APBEF9:
 .byte $FA,$00,$11,$01,$13,$11,$01
