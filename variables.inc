@@ -488,6 +488,8 @@ Trgtick_cnt		= $6F09
 loop_cnt_A		= $6F0A
 loop_cnt_B		= $6F0B
 loop_cnt_C		= $6F0C
+;$6F13 - CH0 setting A address position
+;$6F14 - CH1 setting A address position
 tmp_sq04000		= $6F19
 tmp_sq04001		= $6F1A
 tmp_sq04002		= $6F1B

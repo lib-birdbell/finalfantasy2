@@ -390,7 +390,7 @@ SKIP_INY:
 ; ------------------------------------------------------------
 
 ; Name	:
-; Marks	: Sound ??
+; Marks	: Sound processing subroutine
 ;	  $C0 = Update flag for $4000-$4003
 ;	  $C1 = Update flag for $4004-$4007
 ;	  $C2 = Update flag for $4008-$400B
@@ -406,7 +406,7 @@ Sound_proc:
 	STA $C0			; 9802	$85 $C0
 	STA $C1			; 9804	$85 $C1
 	STA $C2			; 9806	$85 $C2
-	LDA $E5			; 9808	$A5 $E5
+	LDA $E5			; 9808	$A5 $E5		Is sound processing ??
 	BEQ L3581A		; 980A	$F0 $0E
 	DEC $E5			; 980C	$C6 $E5
 	BNE L3581A		; 980E	$D0 $0A
@@ -415,10 +415,10 @@ Sound_proc:
 	LDA #$00		; 9815	$A9 $00
 	STA SQ2_Note_Value	; 9817	$8D $1F $6F
 L3581A:
-	LDA $E0			; 981A	$A5 $E0
+	LDA $E0			; 981A	$A5 $E0		Current ID
 	ASL A			; 981C	$0A
-	BCC L35832		; 981D	$90 $13
-	JSR J98A9		; 981F	$20 $A9 $98	$828E
+	BCC L35832		; 981D	$90 $13		branch if A.bit7 is 0
+	JSR J98A9		; 981F	$20 $A9 $98	load before sound
 	LDA #$00		; 9822	$A9 $00
 	STA $E0			; 9824	$85 $E0
 	STA $6F1B		; 9826	$8D $1B $6F
@@ -426,8 +426,8 @@ L3581A:
 	STA $6F23		; 982C	$8D $23 $6F
 	JMP L35863		; 982F	$4C $63 $98
 L35832:
-	ASL A			; 9832	$0A		$82A1
-	BCC L35863		; 9833	$90 $2E
+	ASL A			; 9832	$0A
+	BCC L35863		; 9833	$90 $2E		branch if A.bit6 is 0
 	LDA current_song_ID	; 9835	$A5 $E0
 	AND #$3F		; 9837	$29 $3F
 	STA current_song_ID	; 9839	$85 $E0
@@ -447,9 +447,9 @@ L35847:
 	LDA #$80		; $A9,$80
 	STA TrgLinear_4008	; $8D,$08,$40
 	LDA #$00		; $A9,$00
-	STA $6F1B		; $8D,$1B,$6F
-	STA $6F1F		; $8D,$1F,$6F
-	STA $6F23		; .byte $8D,$23,$6F
+	STA $6F1B		; $8D,$1B,$6F		tmp sq04002
+	STA $6F1F		; $8D,$1F,$6F		tmp sq14006
+	STA $6F23		; $8D,$23,$6F		tmp trg400A
 L35863:
 	JSR J990E		; 9863	$20 $0E $99	APU process - $82D2
 	RTS			; 9866	$60
@@ -520,7 +520,7 @@ L358AB:
 	LDY #$00		; 98B5	$A0 $00
 L358B7:
 	LDA $6F26,X		; 98B7	$BD $26 $6F
-	STA $6F00,Y		; 98BA	$99 $00 $6F
+	STA song_tempo,Y	; 98BA	$99 $00 $6F
 	INX			; 98BD	$E8
 	INY			; 98BE	$C8
 	CPY #$26		; 98BF	$C0 $26
@@ -532,7 +532,7 @@ L358B7:
 ; Marks	: Init temp
 ;	  $B6-$B9 = ??
 ;	  $BA-$BF = ??
-;	  $6F06-$6F09 = ??
+;	  $6F06-$6F09 = tempo_cnt, Sq0tick_cnt, Sq1tick_cnt, Trgtick_cnt
 ;	  $6F04 = ??
 ;	  $6F05 = ??
 ;	  $6F00 = temp offset base value ??
@@ -554,7 +554,7 @@ L358D1:
 	LDX #$00		; 98D8	$A2 $00
 	LDA #$00		; 98DA	$A9 $00
 L358DC:
-	STA $6F06,X		; 98DC	$9D $06 $6F
+	STA $6F06,X		; 98DC	$9D $06 $6F	tempo_cnt, Sq0tick_cnt, Sq1tick_cnt, Trgtick_cnt
 	INX			; 98DF	$E8
 	CPX #$04		; 98E0	$E0 $04
 	BCC L358DC		; 98E2	$90 $F8
@@ -630,21 +630,21 @@ D9902:
 ; Name	:
 ; Marks	: APU process
 J990E:
-	LDA $6F00		; 990E	$AD $00 $6F	tempo value - $83C3
+	LDA song_tempo		; 990E	$AD $00 $6F
 	CLC			; 9911	$18
-	ADC $6F06		; 9912	$6D $06 $6F
-	STA $6F06		; 9915	$8D $06 $6F	Total tempo
+	ADC tempo_cnt		; 9912	$6D $06 $6F
+	STA tempo_cnt		; 9915	$8D $06 $6F	Total tempo
 J9918:
-	LDA $6F06		; 9918	$AD $06 $6F
+	LDA tempo_cnt		; 9918	$AD $06 $6F
 	CMP #$4B		; 991B	$C9 $4B
 	BCC L3592A		; 991D	$90 $0B
 	SBC #$4B		; 991F	$E9 $4B
-	STA $6F06		; 9921	$8D $06 $6F
-	JSR J9931		; 9924	$20 $31 $99	Check and data process
-	JMP J9918		; 9927	$4C $18 $99	$83DC
+	STA tempo_cnt		; 9921	$8D $06 $6F
+	JSR J9931		; 9924	$20 $31 $99	Check and data process - check address overflow ??
+	JMP J9918		; 9927	$4C $18 $99
 L3592A:
-	JSR J9B22		; 992A	$20 $22 $9B	Settings parameter process - $83DF
-	JSR J9C1F		; 992D	$20 $1F $9C	Update APU registers - $825B
+	JSR J9B22		; 992A	$20 $22 $9B	Settings parameter process
+	JSR J9C1F		; 992D	$20 $1F $9C	Update APU registers
 	RTS			; 9930	$60
 ; End of
 
@@ -661,6 +661,7 @@ L3592A:
 J9931:
 	LDA #$00		; 9931	$A9 $00
 	STA $C5			; 9933	$85 $C5
+; Set ch address position
 L35935:
 	LDA $C5			; 9935	$A5 $C5
 	TAY			; 9937	$A8
@@ -674,8 +675,9 @@ L35935:
 	LDA $B1,X		; 9943	$B5 $B1
 	STA $C4			; 9945	$85 $C4
 	CMP #$FF		; 9947	$C9 $FF
-	BEQ L35968		; 9949	$F0 $1D
-	LDA $6F07,Y		; 994B	$B9 $07 $6F
+	BEQ L35968		; 9949	$F0 $1D		branch if address is not 0xFFxx
+;exception ??
+	LDA $6F07,Y		; 994B	$B9 $07 $6F	ch tick/rest count
 	BNE L35963		; 994E	$D0 $13
 	LDY #$00		; 9950	$A0 $00
 	JSR J9971		; 9952	$20 $71 $99	Data process - $827E
@@ -683,18 +685,20 @@ L35935:
 	TYA			; 9957	$98		Increase data address(for next data)
 	CLC			; 9958	$18
 	ADC $C3			; 9959	$65 $C3
-	STA $B0,X		; 995B	$95 $B0		////debug
+	STA $B0,X		; 995B	$95 $B0		////debug - apply ch address count
 	LDA #$00		; 995D	$A9 $00
 	ADC $C4			; 995F	$65 $C4
 	STA $B1,X		; 9961	$95 $B1
+;tick/rest count --
 L35963:
 	LDX $C5			; 9963	$A6 $C5
-	DEC $6F07,X		; 9965	$DE $07 $6F
+	DEC $6F07,X		; 9965	$DE $07 $6F	ch tick/rest count
+;Next ch
 L35968:
 	INC $C5			; 9968	$E6 $C5
 	LDA $C5			; 996A	$A5 $C5
 	CMP #$03		; 996C	$C9 $03
-	BCC L35935		; 996E	$90 $C5
+	BCC L35935		; 996E	$90 $C5		branch if ch is not trgger - next ch
 	RTS			; 9970	$60
 ; End of
 
@@ -710,7 +714,7 @@ J9971:
 ; Enf of
 L3597C:
 	BNE L35984		; 997C	$D0 $06
-	JSR J9A4C		; 997E	$20 $4C $9A	if A == E0h - Set tempo
+	JSR Set_tempo		; 997E	$20 $4C $9A	if A == E0h
 	JMP J9971		; 9981	$4C $71 $99	goto Data process
 L35984:
 	CMP #$F0		; 9984	$C9 $F0
@@ -829,10 +833,10 @@ L35A07:
 
 ; Name	:
 ; Marks	: Set tempo
-J9A4C:
+Set_tempo:
 	LDA ($C3),Y		; 9A4C	$B1 $C3
 	INY			; 9A4E	$C8
-	STA $6F00		; 9A4F	$8D $00 $6F
+	STA song_tempo		; 9A4F	$8D $00 $6F
 	RTS			; 9A52	$60
 ; End of
 
@@ -947,9 +951,14 @@ L35B21:
 
 ; Name	:
 ; Marks	: Settings parameter process
-;	  +$C3 = setting A/B ?? address
+;	  +$C3 = setting A/B ?? address(temp)
+;	  $B6,$B7 = CH0 A
+;	  $B8,$B9 = CH1
+;	  $BA,$BB = CH0 B
+;	  $BC,$BD = CH1
+;	  $C5, $C6, $C7 = temp CH data address position(+1, +2, +4)
 J9B22:
-	LDA #$00		; 9B22	$A9 $00		$8450
+	LDA #$00		; 9B22	$A9 $00
 	STA $C5			; 9B24	$85 $C5
 L35B26:
 	LDA $C5			; 9B26	$A5 $C5
@@ -959,30 +968,36 @@ L35B26:
 	ASL A			; 9B2C	$0A
 	STA $C7			; 9B2D	$85 $C7
 	TAY			; 9B2F	$A8
-	LDA $6F1B,Y		; 9B30	$B9 $1B $6F	$4002,$4006,$400A temp
-	BEQ L35B4D		; 9B33	$F0 $18
+	LDA $6F1B,Y		; 9B30	$B9 $1B $6F	$4002,$4006,$400A temp - ch timer
+	BEQ L35B4D		; 9B33	$F0 $18		branch if ch timer is 0
 	LDA $B6,X		; 9B35	$B5 $B6
 	STA $C3			; 9B37	$85 $C3
 	LDA $B7,X		; 9B39	$B5 $B7
 	STA $C4			; 9B3B	$85 $C4
-	JSR J9B56		; 9B3D	$20 $56 $9B	Settings parameter A process - $846B
+	JSR J9B56		; 9B3D	$20 $56 $9B	Settings parameter A process
 	LDX $C6			; 9B40	$A6 $C6
 	LDA $BA,X		; 9B42	$B5 $BA
 	STA $C3			; 9B44	$85 $C3
 	LDA $BB,X		; 9B46	$B5 $BB
 	STA $C4			; 9B48	$85 $C4
-	JSR J9BB6		; 9B4A	$20 $B6 $9B	Settings parameter B process - $8478
+	JSR J9BB6		; 9B4A	$20 $B6 $9B	Settings parameter B process
 L35B4D:
 	INC $C5			; 9B4D	$E6 $C5
 	LDA $C5			; 9B4F	$A5 $C5
 	CMP #$03		; 9B51	$C9 $03
-	BCC L35B26		; 9B53	$90 $D1
+	BCC L35B26		; 9B53	$90 $D1		branch if ch is not trgger - next ch
 	RTS			; 9B55	$60
 ; End of
 
 ; Name	:
 ; Marks	: Settings parameter A process
-;	  $6F0A = count ??
+;	  +$C3 = setting A address
+;	  $6F0A,$6F0B,$6F0C = loop count, CH0, CH1, TRI
+;	  $6F13,$6F14,$6F15(??) = ch setting A address position
+;	  $C5 = CH data address +1
+;	  $C8 = temp value
+;	  parameter A data = XXXX YYYY(move parameter A point address back)
+;	  $C0 = ??
 J9B56:
 	LDA $C4			; 9B56	$A5 $C4
 	CMP #$FF		; 9B58	$C9 $FF
@@ -991,16 +1006,16 @@ J9B56:
 ; End of
 L35B5D:
 	LDX $C5			; 9B5D	$A6 $C5
-	LDA $6F0A,X		; 9B5F	$BD $0A $6F
+	LDA $6F0A,X		; 9B5F	$BD $0A $6F	loop count
 	BNE L35BB2		; 9B62	$D0 $4E
 J9B64:
 	LDY $6F13,X		; 9B64	$BC $13 $6F
 	LDA ($C3),Y		; 9B67	$B1 $C3
 	AND #$F0		; 9B69	$29 $F0
-	BNE L35B81		; 9B6B	$D0 $14
+	BNE L35B81		; 9B6B	$D0 $14		branch if data(high nibble) is exist
 	LDA ($C3),Y		; 9B6D	$B1 $C3
 	AND #$0F		; 9B6F	$29 $0F
-	BEQ L35BB2		; 9B71	$F0 $3F
+	BEQ L35BB2		; 9B71	$F0 $3F		branch if data(all bit) is empty
 	STA $C8			; 9B73	$85 $C8
 	LDA $6F13,X		; 9B75	$BD $13 $6F
 	SEC			; 9B78	$38
@@ -1012,9 +1027,9 @@ L35B81:
 	LSR A			; 9B82	$4A
 	LSR A			; 9B83	$4A
 	LSR A			; 9B84	$4A
-	STA $6F0A,X		; 9B85	$9D $0A $6F
-	INC $6F13,X		; 9B88	$FE $13 $6F
-	LDA $6F04,X		; 9B8B	$BD $04 $6F
+	STA $6F0A,X		; 9B85	$9D $0A $6F	loop count
+	INC $6F13,X		; 9B88	$FE $13 $6F	increase ch setting A address position
+	LDA $6F04,X		; 9B8B	$BD $04 $6F	ch volume temp
 	ASL A			; 9B8E	$0A
 	ASL A			; 9B8F	$0A
 	ASL A			; 9B90	$0A
@@ -1024,18 +1039,18 @@ L35B81:
 	AND #$0F		; 9B96	$29 $0F
 	ORA $C8			; 9B98	$05 $C8
 	TAY			; 9B9A	$A8
-	LDA D9D0D,Y		; 9B9B	$B9 $0D $9D	table
+	LDA D9D0D,Y		; 9B9B	$B9 $0D $9D	table(volume ??)
 	STA $C8			; 9B9E	$85 $C8
-	LDY $C7			; 9BA0	$A4 $C7
+	LDY $C7			; 9BA0	$A4 $C7		CH data address +4
 	LDA $6F19,Y		; 9BA2	$B9 $19 $6F	$4000,$4004,$4008 temp
 	AND #$F0		; 9BA5	$29 $F0
 	ORA $C8			; 9BA7	$05 $C8
-	STA $6F19,Y		; 9BA9	$99 $19 $6F
+	STA $6F19,Y		; 9BA9	$99 $19 $6F	update volume($4000,$4004,$4008)
 	LDA #$01		; 9BAC	$A9 $01
 	ORA $C0,X		; 9BAE	$15 $C0
 	STA $C0,X		; 9BB0	$95 $C0
 L35BB2:
-	DEC $6F0A,X		; 9BB2	$DE $0A $6F
+	DEC $6F0A,X		; 9BB2	$DE $0A $6F	loop count
 	RTS			; 9BB5	$60
 ; End of
 
@@ -2512,8 +2527,12 @@ FF1_10_CH0:		; SQ channel 0
 .byte D18ICV15
 ;.word VPBD6A
 ;.word VPBD37
-.byte $FF,$FF
-.word APBEC4
+;.word APBEC7
+.word APBEDD
+;.byte $FF,$FF
+;.word APBEC4
+;.word APBEC7
+.word APBEDD
 .byte TEMPO,$4B
 .byte VOL15
 FF1_10_CH0_S:
@@ -3661,7 +3680,7 @@ D9CFD:
 ;       0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 .byte $60,$48,$30,$24,$20,$18,$12,$10,$0C,$09,$08,$06,$04,$03,$02,$01
 
-; READ ADDR = $863B 256 bytes
+; READ ADDR = $863B 256 bytes = volume ??
 D9D0D:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01
@@ -3700,8 +3719,8 @@ D9E0E:
 ;.byte $F2,$9F
 ;05 - Main thema
 ;.word BGM_TEST
-;.word FF1_10_MATOYA
-.word FF1_09
+.word FF1_10_MATOYA
+;.word FF1_09
 ;.word A1D2	; 9E19	$F2 $9F
 ;.word BGM_0009
 ;.word BGM_FF39
@@ -4352,6 +4371,10 @@ D9E0E:
 
 
 ;; ========== volume/pitch envelope data ($BD04-$BEFF) START ==========
+; It cannot be placed at address 0xFFxx
+; XXXX YYYY
+; if XXXX = 0, YYYY != 0 move the point address back by YYYY
+; if XXXX != 0, YYYY is low value(volume ??)
 ;; [$BD04 :: 0x37D04]
 VPBD04:
 .byte $2F,$2E,$2D,$2C,$2B,$2A,$29,$28,$27,$26,$25,$24
