@@ -565,7 +565,7 @@ L3587C:
 ; Marks	: store state ??
 	LDX #$00			; 988E	$A2 $00
 L35890:
-	LDA SQ1FramePosition,X		; 9890	$B5 $B0
+	LDA SQ0FramePosition,X		; 9890	$B5 $B0
 	STA $6F26,X			; 9892	$9D $26 $6F
 	INX				; 9895	$E8
 	CPX #$12			; 9896	$E0 $12

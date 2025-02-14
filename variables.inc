@@ -160,8 +160,16 @@ cur_char_idx		= $9E
 
 NMI_done_flag		= $AC
 
-; ========== SOUND VARIABLES ==========
-SQ1FramePosition	= $B0
+; ========== SOUND VARIABLES(1/2) ==========
+SQ0FramePosition	= $B0
+SQ1FramePosition	= $B1
+
+;$B6-$B9
+;$BA-$BF
+
+;	  $C0 = Update flag for $4000-$4003
+;	  $C1 = Update flag for $4004-$4007
+;	  $C2 = Update flag for $4008-$400B
 
 ; bit7 = load previous song ??
 ; bit6 = song change ?? interrupt ??
@@ -475,6 +483,8 @@ battle_row               = ch_skills + $35 ; $00 = back row, $01 = front row, $8
 
 
 
+;; ========== SOUND VARIABLES(2/2) ==========
+
 song_tempo		= $6F00
 Sq0Oct			= $6F01
 Sq1Oct			= $6F02
@@ -504,7 +514,7 @@ tmp_trg400A		= $6F23
 tmp_trg400B		= $6F24
 SQ2_Note_Value		 = $6F1F
 current_BGM_ID		 = $6F25
-_6F26_unknown		= $6F26
+_6F26_unknown		= $6F26	; Register backup from $6F26-$6F5D ??
 
 ; general buffer: map bg tilemap($7000-$7FFF)
 
