@@ -29,6 +29,33 @@
 Sound_test:
 	JMP Sound_test_			; 8000	$4C 
 
+.if 1
+; Name	: Sound_proc
+; Marks	: update sound
+Sound_proc:
+	LDA $7F43          		; 36/8003: AD 43 7F   branch if not song $37
+	CMP #$37           		; 36/8006: C9 37     
+	BNE B8011          		; 36/8008: D0 07     
+	LDA #$00           		; 36/800A: A9 00      no sound effect
+	STA $7F49          		; 36/800C: 8D 49 7F  
+	BEQ B8014          		; 36/800F: F0 03     
+B8011:
+	;JSR $8B9D          		; 36/8011: 20 9D 8B   update sound effects
+B8014:
+	JSR $8925          		; 36/8014: 20 25 89   update music
+	LDA $4015          		; 36/8017: AD 15 40  
+	ORA #$0F           		; 36/801A: 09 0F     
+	STA $4015          		; 36/801C: 8D 15 40   enable all channels except dmc
+	JSR $8030          		; 36/801F: 20 30 80   update apu (sound effects)
+	JSR $80AB          		; 36/8022: 20 AB 80   update apu (music)
+	ASL $7F40          		; 36/8025: 0E 40 7F  
+	LDA $7F42          		; 36/8028: AD 42 7F   roll "enable music" bit into $7F40
+	ASL                		; 36/802B: 0A        
+	ROR $7F40          		; 36/802C: 6E 40 7F  
+	RTS                		; 36/802F: 60        
+; End of Sound_proc(update sound)
+.endif
+
 ; Name	:
 ; Marks	:
 Sound_test_:
@@ -1242,9 +1269,9 @@ B81F5:
 	BEQ B820A       		; 36/8202: F0 06     
 	DEC $7F9E,X     		; 36/8204: DE 9E 7F  
 B8207:
-	DEC $7F97,X     		; 36/8207: DE 97 7F  
+	DEC $7F97,X     		; 36/8207: DE 97 7F
 B820A:
-	RTS             		; 36/820A: 60        
+	RTS             		; 36/820A: 60
 ; End of UpdateChScript
 
 ; Name	: ExeSoundCmd
@@ -1255,6 +1282,7 @@ ExeSoundCmd:
 	LDA $7F58,X        		; 36/8210: BD 58 7F  
 	STA $D4            		; 36/8213: 85 D4     
 	LDY #$00           		; 36/8215: A0 00     
+ExeSndCmd:
 	LDA ($D3),Y        		; 36/8217: B1 D3     ; get command
 	INY                		; 36/8219: C8        
 	CMP #$E0           		; 36/821A: C9 E0     
@@ -1262,18 +1290,23 @@ ExeSoundCmd:
 	SBC #$E0           		; 36/821E: E9 E0     
 	ASL                		; 36/8220: 0A        
 	TAX                		; 36/8221: AA        
-	LDA $822F,X        		; 36/8222: BD 2F 82  
+	LDA SndCmdTbl,X        		; 36/8222: BD 2F 82  
 	STA $D8            		; 36/8225: 85 D8     
-	LDA $8230,X        		; 36/8227: BD 30 82  
+	LDA SndCmdTbl+1,X      		; 36/8227: BD 30 82  
 	STA $D9            		; 36/822A: 85 D9     
 	JMP ($00D8)        		; 36/822C: 6C D8 00  
 ; End of ExeSoundCmd
 
 ; sound commands $E0-$FF
-36/822F: 8353 835C 8366 8370 837A 8384 838E 8398 ; $E0
-36/823F: 83A2 83AC 83B6 83C0 83CA 83D4 83DE 83E8
-36/824F: 83F2 83FC 8406 8410 841A 8424 843A 8450 ; $F0
-36/825F: 8466 8471 8485 8499 84AF 84D0 84F0 84FF
+SndCmdTbl:
+.word SndCmdE0, SndCmdE1, SndCmdE2, SndCmdE3, SndCmdE4, SndCmdE5, SndCmdE6, SndCmdE7
+.word SndCmdE8, SndCmdE9, SndCmdEA, SndCmdEB, SndCmdEC, SndCmdED, SndCmdEE, SndCmdEF
+.word SndCmdF0, SndCmdF1, SndCmdF2, SndCmdF3, SndCmdF4, SndCmdF5, SndCmdF6, SndCmdF7
+.word SndCmdF8, SndCmdF9, SndCmdFA, SndCmdFB, SndCmdFC, SndCmdFD, SndCmdFE, SndCmdFF
+;36/822F: 8353 835C 8366 8370 837A 8384 838E 8398 ; $E0
+;36/823F: 83A2 83AC 83B6 83C0 83CA 83D4 83DE 83E8
+;36/824F: 83F2 83FC 8406 8410 841A 8424 843A 8450 ; $F0
+;36/825F: 8466 8471 8485 8499 84AF 84D0 84F0 84FF
 
 ; Name	: PlayNote
 ; Marks	: sound command $00-$DF: play note
@@ -1316,7 +1349,7 @@ PlayNote:
 	JSR $831D       		; 36/82BD: 20 1D 83     ; init decay counter
 	LDA $D1         		; 36/82C0: A5 D1     
 	CMP #$01        		; 36/82C2: C9 01     
-	BEQ $82EA       		; 36/82C4: F0 24        ; branch if noise channel
+	BEQ B82EA       		; 36/82C4: F0 24        ; branch if noise channel
 B82C6:
 	LDA $7F66,X     		; 36/82C6: BD 66 7F     ; octave
 	ASL             		; 36/82C9: 0A        
@@ -1341,6 +1374,7 @@ B82C6:
 B82E9:
 	RTS             		; 36/82E9: 60        
 ; noise
+B82EA:
 	LDA $7F66,X        		; 36/82EA: BD 66 7F  ; octave
 	ASL                		; 36/82ED: 0A        
 	ASL                		; 36/82EE: 0A        
@@ -1368,9 +1402,10 @@ B8307:
 B8310:
 	LDA $7F44			; 36/8310: AD 44 7F  
 	CMP #$05        		; 36/8313: C9 05     
-	BCC $831C       		; 36/8315: 90 05     
+	BCC B831C       		; 36/8315: 90 05     
 	LDA #$FF        		; 36/8317: A9 FF        ; set dmc direct load (causes a pop sound)
 	STA $4011       		; 36/8319: 8D 11 40  
+B831C:
 	RTS             		; 36/831C: 60        
 ; End of PlayNote
 
@@ -1384,20 +1419,22 @@ InitDecayC:
 	STA $D8         		; 36/8325: 85 D8     
 	LDY #$00        		; 36/8327: A0 00     
 	STY $D9         		; 36/8329: 84 D9     
+B832B:
 	LDA ($D3),Y     		; 36/832B: B1 D3        ; add tie duration
 	INY             		; 36/832D: C8        
 	CMP #$D0        		; 36/832E: C9 D0     
-	BCC $8346       		; 36/8330: 90 14     
+	BCC B8346       		; 36/8330: 90 14     
 	CMP #$E0        		; 36/8332: C9 E0     
-	BCS $8346       		; 36/8334: B0 10     
+	BCS B8346       		; 36/8334: B0 10     
 	AND #$0F        		; 36/8336: 29 0F     
 	TAX             		; 36/8338: AA        
 	LDA $8815,X     		; 36/8339: BD 15 88  
 	ADC $D8         		; 36/833C: 65 D8     
 	STA $D8         		; 36/833E: 85 D8     
-	BCC $832B       		; 36/8340: 90 E9     
+	BCC B832B       		; 36/8340: 90 E9     
 	INC $D9         		; 36/8342: E6 D9     
-	BCS $832B       		; 36/8344: B0 E5     
+	BCS B832B       		; 36/8344: B0 E5     
+B8346:
 	LDX $D0         		; 36/8346: A6 D0     
 	LDA $D8         		; 36/8348: A5 D8     
 	STA $7F97,X     		; 36/834A: 9D 97 7F     ; decay counter
@@ -1406,31 +1443,515 @@ InitDecayC:
 	RTS             		; 36/8352: 60        
 ; End of InitDecayC
 
-; Name	: Sound_proc
-; Marks	: update sound
-Sound_proc:
-	LDA $7F43          		; 36/8003: AD 43 7F   branch if not song $37
-	CMP #$37           		; 36/8006: C9 37     
-	BNE B8011          		; 36/8008: D0 07     
-	LDA #$00           		; 36/800A: A9 00      no sound effect
-	STA $7F49          		; 36/800C: 8D 49 7F  
-	BEQ B8014          		; 36/800F: F0 03     
-B8011:
-	;JSR $8B9D          		; 36/8011: 20 9D 8B   update sound effects
-B8014:
-	JSR $8925          		; 36/8014: 20 25 89   update music
-	LDA $4015          		; 36/8017: AD 15 40  
-	ORA #$0F           		; 36/801A: 09 0F     
-	STA $4015          		; 36/801C: 8D 15 40   enable all channels except dmc
-	JSR $8030          		; 36/801F: 20 30 80   update apu (sound effects)
-	JSR $80AB          		; 36/8022: 20 AB 80   update apu (music)
-	ASL $7F40          		; 36/8025: 0E 40 7F  
-	LDA $7F42          		; 36/8028: AD 42 7F   roll "enable music" bit into $7F40
-	ASL                		; 36/802B: 0A        
-	ROR $7F40          		; 36/802C: 6E 40 7F  
-	RTS                		; 36/802F: 60        
-; End of Sound_proc(update sound)
+; Name	: SndCmdE0
+; Marks	: sound command $E0: set tempo
+SndCmdE0:
+	LDA ($D3),Y			; 36/8353: B1 D3     
+	INY                             ; 36/8355: C8        
+	STA $7F45                       ; 36/8356: 8D 45 7F  
+	JMP ExeSndCmd                   ; 36/8359: 4C 17 82  
+
+; Name	: SndCmdE1
+; Marks	: sound command $E1: set volume to 2
+SndCmdE1:
+	LDX $D0				; 36/835C: A6 D0     
+	LDA #$02                        ; 36/835E: A9 02     
+	STA $7F90,X                     ; 36/8360: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/8363: 4C 17 82  
+
+; Name	: SndCmdE2
+; Marks	: sound command $E2:set volume to 3
+SndCmdE2:
+	LDX $D0				; 36/8366: A6 D0     
+	LDA #$03                        ; 36/8368: A9 03     
+	STA $7F90,X                     ; 36/836A: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/836D: 4C 17 82  
+
+; Name	: SndCmdE3
+; Marks	: sound command $E3: set volume to 4
+SndCmdE3:
+	LDX $D0				; 36/8370: A6 D0     
+	LDA #$04                        ; 36/8372: A9 04     
+	STA $7F90,X                     ; 36/8374: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/8377: 4C 17 82  
+
+; Name	: SndCmdE4
+; Marks	: sound command $E4: set volume to 5
+SndCmdE4:
+	LDX $D0				; 36/837A: A6 D0     
+	LDA #$05                        ; 36/837C: A9 05     
+	STA $7F90,X                     ; 36/837E: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/8381: 4C 17 82  
+
+; Name	: SndCmdE5
+; Marks	: sound command $E5: set volume to 6
+SndCmdE5:
+	LDX $D0				; 36/8384: A6 D0     
+	LDA #$06                        ; 36/8386: A9 06     
+	STA $7F90,X                     ; 36/8388: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/838B: 4C 17 82  
+
+; Name	: SndCmdE6
+; Marks	: sound command $E6: set volume to 7
+SndCmdE6:
+	LDX $D0				; 36/838E: A6 D0     
+	LDA #$07                        ; 36/8390: A9 07     
+	STA $7F90,X                     ; 36/8392: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/8395: 4C 17 82  
+
+; Name	: SndCmdE7
+; Marks	: sound command $E7: set volume to 8
+SndCmdE7:
+	LDX $D0				; 36/8398: A6 D0     
+	LDA #$08                        ; 36/839A: A9 08     
+	STA $7F90,X                     ; 36/839C: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/839F: 4C 17 82  
+
+; Name	: SndCmdE8
+; Marks	: sound command $E8: set volume to 9
+SndCmdE8:
+	LDX $D0				; 36/83A2: A6 D0     
+	LDA #$09                        ; 36/83A4: A9 09     
+	STA $7F90,X                     ; 36/83A6: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/83A9: 4C 17 82  
+
+; Name	: SndCmdE9
+; Marks	: sound command $E9: set volume to 10
+SndCmdE9:
+	LDX $D0				; 36/83AC: A6 D0     
+	LDA #$0A                        ; 36/83AE: A9 0A     
+	STA $7F90,X                     ; 36/83B0: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/83B3: 4C 17 82  
+
+; Name	: SndCmdEA
+; Marks	: sound command $EA: set volume to 11
+SndCmdEA:
+	LDX $D0				; 36/83B6: A6 D0     
+	LDA #$0B                        ; 36/83B8: A9 0B     
+	STA $7F90,X                     ; 36/83BA: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/83BD: 4C 17 82  
+
+; Name	: SndCmdEB
+; Marks	: sound command $EB: set volume to 12
+SndCmdEB:
+	LDX $D0				; 36/83C0: A6 D0     
+	LDA #$0C                        ; 36/83C2: A9 0C     
+	STA $7F90,X                     ; 36/83C4: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/83C7: 4C 17 82  
+
+; Name	: SndCmdEC
+; Marks	: sound command $EC: set volume to 13
+SndCmdEC:
+	LDX $D0				; 36/83CA: A6 D0     
+	LDA #$0D                        ; 36/83CC: A9 0D     
+	STA $7F90,X                     ; 36/83CE: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/83D1: 4C 17 82  
+
+; Name	: SndCmdED
+; Marks	: sound command $ED: set volume to 14
+SndCmdED:
+	LDX $D0				; 36/83D4: A6 D0     
+	LDA #$0E                        ; 36/83D6: A9 0E     
+	STA $7F90,X                     ; 36/83D8: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/83DB: 4C 17 82  
+
+; Name	: SndCmdEE
+; Marks	: sound command $EE: set volume to 15
+SndCmdEE:
+	LDX $D0				; 36/83DE: A6 D0     
+	LDA #$0F                        ; 36/83E0: A9 0F     
+	STA $7F90,X                     ; 36/83E2: 9D 90 7F  
+	JMP ExeSndCmd                   ; 36/83E5: 4C 17 82  
+
+; Name	: SndCmdEF
+; Marks	: sound command $EF: set octave to 0
+SndCmdEF:
+	LDX $D0				; 36/83E8: A6 D0     
+	LDA #$00                        ; 36/83EA: A9 00     
+	STA $7F66,X                     ; 36/83EC: 9D 66 7F  
+	JMP ExeSndCmd                   ; 36/83EF: 4C 17 82  
+
+; Name	: SndCmdF0
+; Marks	: sound command $F0: set octave to 1
+SndCmdF0:
+	LDX $D0				; 36/83F2: A6 D0     
+	LDA #$01                        ; 36/83F4: A9 01     
+	STA $7F66,X                     ; 36/83F6: 9D 66 7F  
+	JMP ExeSndCmd                   ; 36/83F9: 4C 17 82  
+
+; Name	: SndCmdF1
+; Marks	: sound command $F1: set octave to 2
+SndCmdF1:
+	LDX $D0				; 36/83FC: A6 D0     
+	LDA #$02                        ; 36/83FE: A9 02     
+	STA $7F66,X                     ; 36/8400: 9D 66 7F  
+	JMP ExeSndCmd                   ; 36/8403: 4C 17 82  
+
+; Name	: SndCmdF2
+; Marks	: sound command $F2: set octave to 3
+SndCmdF2:
+	LDX $D0				; 36/8406: A6 D0     
+	LDA #$03                        ; 36/8408: A9 03     
+	STA $7F66,X                     ; 36/840A: 9D 66 7F  
+	JMP ExeSndCmd                   ; 36/840D: 4C 17 82  
+
+; Name	: SndCmdF3
+; Marks	: sound command $F3: set octave to 4
+SndCmdF3:
+	LDX $D0				; 36/8410: A6 D0     
+	LDA #$04                        ; 36/8412: A9 04     
+	STA $7F66,X                     ; 36/8414: 9D 66 7F  
+	JMP ExeSndCmd                   ; 36/8417: 4C 17 82  
+
+; Name	: SndCmdF4
+; Marks	: sound command $F4: set octave to 5
+SndCmdF4:
+	LDX $D0				; 36/841A: A6 D0     
+	LDA #$05                        ; 36/841C: A9 05     
+	STA $7F66,X                     ; 36/841E: 9D 66 7F  
+	JMP ExeSndCmd                   ; 36/8421: 4C 17 82  
+
+; Name	: SndCmdF5
+; Marks	: sound command $F5: set envelopes (1/8 duty cycle)
+;	  b1: volume envelope
+;	  b2: pitch envelope
+SndCmdF5:
+	LDX $D0				; 36/8424: A6 D0     
+	LDA #$30                        ; 36/8426: A9 30     
+	STA $7F89,X                     ; 36/8428: 9D 89 7F  
+	LDA ($D3),Y                     ; 36/842B: B1 D3     
+	INY                             ; 36/842D: C8        
+	STA $7FC1,X                     ; 36/842E: 9D C1 7F  
+	LDA ($D3),Y                     ; 36/8431: B1 D3     
+	INY                             ; 36/8433: C8        
+	STA $7FEB,X                     ; 36/8434: 9D EB 7F  
+	JMP ExeSndCmd                   ; 36/8437: 4C 17 82  
+
+; Name	: SndCmdF6
+; Marks	: sound command $F6: set envelopes (1/4 duty cycle)
+SndCmdF6:
+	LDX $D0				; 36/843A: A6 D0     
+	LDA #$70                        ; 36/843C: A9 70     
+	STA $7F89,X                     ; 36/843E: 9D 89 7F  
+	LDA ($D3),Y                     ; 36/8441: B1 D3     
+	INY                             ; 36/8443: C8        
+	STA $7FC1,X                     ; 36/8444: 9D C1 7F  
+	LDA ($D3),Y                     ; 36/8447: B1 D3     
+	INY                             ; 36/8449: C8        
+	STA $7FEB,X                     ; 36/844A: 9D EB 7F  
+	JMP ExeSndCmd                   ; 36/844D: 4C 17 82  
+
+; Name	: SndCmdF7
+; Marks	: sound command $F7: set envelopes (1/2 duty cycle)
+SndCmdF7:
+	LDX $D0				; 36/8450: A6 D0     
+	LDA #$B0                        ; 36/8452: A9 B0     
+	STA $7F89,X                     ; 36/8454: 9D 89 7F  
+	LDA ($D3),Y                     ; 36/8457: B1 D3     
+	INY                             ; 36/8459: C8        
+	STA $7FC1,X                     ; 36/845A: 9D C1 7F  
+	LDA ($D3),Y                     ; 36/845D: B1 D3     
+	INY                             ; 36/845F: C8        
+	STA $7FEB,X                     ; 36/8460: 9D EB 7F  
+	JMP ExeSndCmd                   ; 36/8463: 4C 17 82  
+
+; Name	: SndCmdF8
+; Marks	: sound command $F8: set sweep
+SndCmdF8:
+	LDX $D0				; 36/8466: A6 D0     
+	LDA ($D3),Y                     ; 36/8468: B1 D3     
+	INY                             ; 36/846A: C8        
+	STA $7F82,X                     ; 36/846B: 9D 82 7F  
+	JMP ExeSndCmd                   ; 36/846E: 4C 17 82  
+
+; Name	: SndCmdF9
+; Marks	: sound command $F9: hi-hat preset
+SndCmdF9:
+	LDX $D0				; 36/8471: A6 D0     
+	LDA #$04        		; 36/8473: A9 04        ; set octave to 4
+	STA $7F66,X     		; 36/8475: 9D 66 7F  
+	LDA #$00        		; 36/8478: A9 00        ; volume envelope 0
+	STA $7FC1,X     		; 36/847A: 9D C1 7F  
+	LDA #$08        		; 36/847D: A9 08        ; set channel volume to 8
+	STA $7F90,X     		; 36/847F: 9D 90 7F  
+	JMP ExeSndCmd   		; 36/8482: 4C 17 82  
+
+; Name	: SndCmdFA
+; Marks	: sound command $FA: snare drum preset
+SndCmdFA:
+	LDX $D0				; 36/8485: A6 D0     
+	LDA #$05        		; 36/8487: A9 05        ; set octave to 5
+	STA $7F66,X     		; 36/8489: 9D 66 7F  
+	LDA #$01        		; 36/848C: A9 01        ; volume envelope 1
+	STA $7FC1,X     		; 36/848E: 9D C1 7F  
+	LDA #$0F        		; 36/8491: A9 0F        ; set channel volume to 15
+	STA $7F90,X     		; 36/8493: 9D 90 7F  
+	JMP ExeSndCmd   		; 36/8496: 4C 17 82  
+
+; Name	: SndCmdFB
+; Marks	: sound command $FB: repeat start
+;	  b1: repeat count
+SndCmdFB:
+	LDA ($D3),Y			; 36/8499: B1 D3     
+	INY             		; 36/849B: C8        
+	LDX $D0         		; 36/849C: A6 D0     
+	INC $7FA5,X     		; 36/849E: FE A5 7F     ; increment repeat depth
+	BNE B84A9       		; 36/84A1: D0 06     
+	STA $7FAC,X     		; 36/84A3: 9D AC 7F  
+	JMP ExeSndCmd   		; 36/84A6: 4C 17 82  
+B84A9:
+	STA $7FB3,X     		; 36/84A9: 9D B3 7F  
+	JMP ExeSndCmd   		; 36/84AC: 4C 17 82  
+
+; Name	: SndCmdFC
+; Marks	: sound command $FC: repeat end
+;	  +b1: repeat address
+SndCmdFC:
+	LDX $D0				; 36/84AF: A6 D0     
+	LDA $7FA5,X     		; 36/84B1: BD A5 7F  
+	BNE B84C3       		; 36/84B4: D0 0D     
+	DEC $7FAC,X     		; 36/84B6: DE AC 7F  
+	BNE SndCmdFE       		; 36/84B9: D0 35        ; branch if looping
+	INY             		; 36/84BB: C8           ; skip over repeat address
+	INY             		; 36/84BC: C8        
+	DEC $7FA5,X     		; 36/84BD: DE A5 7F  
+	JMP ExeSndCmd   		; 36/84C0: 4C 17 82  
+B84C3:
+	DEC $7FB3,X     		; 36/84C3: DE B3 7F  
+	BNE SndCmdFE       		; 36/84C6: D0 28     
+	INY             		; 36/84C8: C8        
+	INY             		; 36/84C9: C8        
+	DEC $7FA5,X     		; 36/84CA: DE A5 7F  
+	JMP ExeSndCmd   		; 36/84CD: 4C 17 82  
+
+; Name	: SndCmdFD
+; Marks	: sound command $FD: volta repeat
+;	  +b1: repeat address
+SndCmdFD:
+	LDX $D0				; 36/84D0: A6 D0     
+	LDA $7FA5,X                     ; 36/84D2: BD A5 7F  
+	BNE B84E2                       ; 36/84D5: D0 0B     
+	LDA $7FAC,X                     ; 36/84D7: BD AC 7F  
+	LSR                             ; 36/84DA: 4A        
+	BCS B84ED                       ; 36/84DB: B0 10     
+	INY                             ; 36/84DD: C8        
+	INY                             ; 36/84DE: C8        
+	JMP ExeSndCmd                   ; 36/84DF: 4C 17 82  
+B84E2:
+	LDA $7FB3,X                     ; 36/84E2: BD B3 7F  
+	LSR                             ; 36/84E5: 4A        
+	BCS B84ED                       ; 36/84E6: B0 05     
+	INY                             ; 36/84E8: C8        
+	INY                             ; 36/84E9: C8        
+	JMP ExeSndCmd                   ; 36/84EA: 4C 17 82  
+B84ED:
+	DEC $7FA5,X                     ; 36/84ED: DE A5 7F  
+; fallthrough
+; Name	: SndCmdFE
+; Marks	: sound command $FE: jump
+;	  +b1: jump address
+SndCmdFE:
+	LDA ($D3),Y			; 36/84F0: B1 D3             ; get jump address
+	INY             		; 36/84F2: C8        
+	TAX             		; 36/84F3: AA        
+	LDA ($D3),Y     		; 36/84F4: B1 D3     
+	STA $D4         		; 36/84F6: 85 D4     
+	STX $D3         		; 36/84F8: 86 D3     
+	LDY #$00        		; 36/84FA: A0 00     
+	JMP ExeSndCmd   		; 36/84FC: 4C 17 82  
+
+; Name	: SndCmdFF
+; Marks	: sound command $FF: end of script
+SndCmdFF:
+	LDX $D0				; 36/84FF: A6 D0     
+	LDA $7F4A,X     		; 36/8501: BD 4A 7F     ; disable channel
+	AND #$7F        		; 36/8504: 29 7F     
+	STA $7F4A,X     		; 36/8506: 9D 4A 7F  
+	LDA $D1         		; 36/8509: A5 D1     
+	BEQ B8559       		; 36/850B: F0 4C        ; branch if dmc
+	CMP #$03        		; 36/850D: C9 03     
+	BEQ B8520       		; 36/850F: F0 0F        ; branch if pulse 2
+	CMP #$02        		; 36/8511: C9 02     
+	BEQ B853A       		; 36/8513: F0 25        ; branch if triangle
+	CMP #$01        		; 36/8515: C9 01     
+	BEQ B8541       		; 36/8517: F0 28        ; branch if noise
+	LDA #$30        		; 36/8519: A9 30     
+	STA $4000       		; 36/851B: 8D 00 40  
+	BNE B8559       		; 36/851E: D0 39     
+B8520:
+	LDA $D2         		; 36/8520: A5 D2     
+	BEQ B852E       		; 36/8522: F0 0A     
+	LDA $7F4B       		; 36/8524: AD 4B 7F  
+	ORA #$02        		; 36/8527: 09 02     
+	STA $7F4B       		; 36/8529: 8D 4B 7F  
+	BNE B8533       		; 36/852C: D0 05     
+B852E:
+	LDA $7F4F       		; 36/852E: AD 4F 7F  
+	BMI B8559       		; 36/8531: 30 26     
+B8533:
+	LDA #$30        		; 36/8533: A9 30     
+	STA $4004       		; 36/8535: 8D 04 40  
+	BNE B8559       		; 36/8538: D0 1F     
+B853A:
+	LDA #$80        		; 36/853A: A9 80     
+	STA $4008       		; 36/853C: 8D 08 40  
+	BNE B8559       		; 36/853F: D0 18     
+B8541:
+	LDA $D2         		; 36/8541: A5 D2     
+	BEQ B854F       		; 36/8543: F0 0A     
+	LDA $7F4D       		; 36/8545: AD 4D 7F  
+	ORA #$02        		; 36/8548: 09 02     
+	STA $7F4D       		; 36/854A: 8D 4D 7F  
+	BNE B8554       		; 36/854D: D0 05     
+B854F:
+	LDA $7F50       		; 36/854F: AD 50 7F  
+	BMI B8559       		; 36/8552: 30 05     
+B8554:
+	LDA #$30        		; 36/8554: A9 30     
+	STA $400C       		; 36/8556: 8D 0C 40  
+B8559:
+	LDA $D2         		; 36/8559: A5 D2     
+	BNE B856D       		; 36/855B: D0 10        ; branch if sound effect
+	LDX #$04        		; 36/855D: A2 04     
+B855F:
+	LDA $7F4A,X     		; 36/855F: BD 4A 7F  
+	BMI B857C       		; 36/8562: 30 18        ; return if any music channels active
+	DEX             		; 36/8564: CA        
+	BPL B855F       		; 36/8565: 10 F8     
+	LDA #$00        		; 36/8567: A9 00     
+	STA $7F42       		; 36/8569: 8D 42 7F     ; disable music
+	RTS             		; 36/856C: 60        
+B856D:
+	LDA $7F4F       		; 36/856D: AD 4F 7F     ; return if any sound effect channels active
+	BMI B857C       		; 36/8570: 30 0A     
+	LDA $7F50       		; 36/8572: AD 50 7F  
+	BMI B857C       		; 36/8575: 30 05     
+	LDA #$00        		; 36/8577: A9 00        ; no sound effect
+	STA $7F49       		; 36/8579: 8D 49 7F  
+B857C:
+	RTS             		; 36/857C: 60        
 .endif
+
+; Name	: UpdateChEnv
+; Marks	: update channel envelopes
+UpdateChEnv:
+	LDX $D0				; 36/857D: A6 D0     
+	LDA $7F4A,X     		; 36/857F: BD 4A 7F  
+	BPL B8594       		; 36/8582: 10 10        ; return if channel is disabled
+	AND #$02        		; 36/8584: 29 02     
+	BNE B858F       		; 36/8586: D0 07        ; branch if key off
+	JSR UpdateVolEnv       		; 36/8588: 20 95 85     ; update volume envelope
+	JSR UpdatePitEnv       		; 36/858B: 20 D5 86     ; update pitch envelope
+	RTS             		; 36/858E: 60        
+B858F:
+	LDA #$00        		; 36/858F: A9 00     
+	STA $7F7B,X     		; 36/8591: 9D 7B 7F     ; volume
+B8594:
+	RTS             		; 36/8594: 60        
+; End of UpdateChEnv
+
+; Name	: UpdateVolEnv
+; Marks	: update volume envelope
+UpdateVolEnv:
+	LDX $D0				; 36/8595: A6 D0     
+	LDA $7FBA,X     		; 36/8597: BD BA 7F     ; envelope state
+	CMP #$03        		; 36/859A: C9 03     
+	BCS B85EE       		; 36/859C: B0 50        ; branch if key off
+	CMP #$01        		; 36/859E: C9 01     
+	BNE B85B4       		; 36/85A0: D0 12        ; branch if not decay
+	LDA $7F97,X     		; 36/85A2: BD 97 7F  
+	BNE B85B4       		; 36/85A5: D0 0D        ; branch if still decaying
+	LDA $7F9E,X     		; 36/85A7: BD 9E 7F  
+	BNE B85B4       		; 36/85AA: D0 08     
+	INC $7FBA,X     		; 36/85AC: FE BA 7F     ; increment envelope state (to release)
+	LDA #$00        		; 36/85AF: A9 00     
+	STA $7FC8,X     		; 36/85B1: 9D C8 7F     ; reset envelope data offset
+B85B4:
+	LDA $7FC1,X     		; 36/85B4: BD C1 7F  
+	ASL             		; 36/85B7: 0A        
+	BCS B85E1       		; 36/85B8: B0 27     
+	TAY             		; 36/85BA: A8        
+	LDA $9A7C,Y     		; 36/85BB: B9 7C 9A     ; pointers to volume envelope data
+	STA $D6         		; 36/85BE: 85 D6     
+	LDA $9A7D,Y     		; 36/85C0: B9 7D 9A  
+	STA $D7         		; 36/85C3: 85 D7     
+	LDA $7FBA,X     		; 36/85C5: BD BA 7F     ; envelope state
+	ASL             		; 36/85C8: 0A        
+	TAX             		; 36/85C9: AA        
+	TAY             		; 36/85CA: A8        
+	LDA ($D6),Y     		; 36/85CB: B1 D6     
+	INY             		; 36/85CD: C8        
+	STA $D8         		; 36/85CE: 85 D8     
+	LDA ($D6),Y     		; 36/85D0: B1 D6     
+	STA $D9         		; 36/85D2: 85 D9     
+	LDA $85F4,X     		; 36/85D4: BD F4 85     ; envelope state jump table
+	STA $D6         		; 36/85D7: 85 D6     
+	LDA $85F5,X     		; 36/85D9: BD F5 85  
+	STA $D7         		; 36/85DC: 85 D7     
+	JMP ($00D6)     		; 36/85DE: 6C D6 00  
+B85E1:
+	LDA $7F44       		; 36/85E1: AD 44 7F  
+	CMP #$05        		; 36/85E4: C9 05     
+	BCC B85EE       		; 36/85E6: 90 06     
+	LDA #$FF        		; 36/85E8: A9 FF     
+	STA $7F7B,X     		; 36/85EA: 9D 7B 7F     ; volume
+	RTS             		; 36/85ED: 60        
+B85EE:
+	LDA #$00        		; 36/85EE: A9 00     
+	STA $7F7B,X     		; 36/85F0: 9D 7B 7F     ; volume
+	RTS             		; 36/85F3: 60        
+; End of UpdateVolEnv
+
+; Name	: UpdatePitEnv
+; Marks	: update pitch envelope
+UpdatePitEnv:
+	LDX $D0				; 36/86D5: A6 D0     
+	LDA $7FEB,X     		; 36/86D7: BD EB 7F  
+	ASL             		; 36/86DA: 0A        
+	BCS B872C       		; 36/86DB: B0 4F     
+	TAY             		; 36/86DD: A8        
+	LDA $9EAB,Y     		; 36/86DE: B9 AB 9E     ; pointers to pitch envelope data
+	STA $D8         		; 36/86E1: 85 D8     
+	LDA $9EAC,Y     		; 36/86E3: B9 AC 9E  
+	STA $D9         		; 36/86E6: 85 D9     
+	LDA $7FF9,X     		; 36/86E8: BD F9 7F     ; pitch envelope counter
+	BNE B8729       		; 36/86EB: D0 3C     
+	LDY $7FF2,X     		; 36/86ED: BC F2 7F     ; pitch envelope data offset
+	LDA ($D8),Y     		; 36/86F0: B1 D8     
+	BEQ B872C       		; 36/86F2: F0 38        ; pitch envelope is terminated
+	BPL B86FD       		; 36/86F4: 10 07     
+	CLC             		; 36/86F6: 18        
+	ADC $7FF2,X     		; 36/86F7: 7D F2 7F     ; "subtract" from data offset
+	TAY             		; 36/86FA: A8        
+	LDA ($D8),Y     		; 36/86FB: B1 D8     
+B86FD:
+	STA $7FF9,X     		; 36/86FD: 9D F9 7F     ; reset counter
+	INY             		; 36/8700: C8        
+	INY             		; 36/8701: C8        
+	TYA             		; 36/8702: 98        
+	STA $7FF2,X     		; 36/8703: 9D F2 7F     ; set data offset for next frame
+	DEY             		; 36/8706: 88        
+	LDA ($D8),Y     		; 36/8707: B1 D8        ; get pitch envelope frequency offset
+	BMI B871B       		; 36/8709: 30 10     
+	CLC             		; 36/870B: 18        
+	ADC $7F6D,X     		; 36/870C: 7D 6D 7F     ; frequency lo
+	STA $7F6D,X     		; 36/870F: 9D 6D 7F  
+	BCC B8729       		; 36/8712: 90 15     
+	LDA #$FF        		; 36/8714: A9 FF        ; max 255
+	STA $7F6D,X     		; 36/8716: 9D 6D 7F  
+	BNE B8729       		; 36/8719: D0 0E     
+B871B:
+	CLC             		; 36/871B: 18        
+	ADC $7F6D,X     		; 36/871C: 7D 6D 7F  
+	STA $7F6D,X     		; 36/871F: 9D 6D 7F  
+	BCS B8729       		; 36/8722: B0 05     
+	LDA #$00        		; 36/8724: A9 00        ; min 0
+	STA $7F6D,X     		; 36/8726: 9D 6D 7F  
+B8729:
+	DEC $7FF9,X     		; 36/8729: DE F9 7F  
+B872C:
+	RTS             		; 36/872C: 60        
+; End of UpdatePitEnv
 
 ; Name	: UpdateMusic
 ; Marks	: update music
@@ -1703,18 +2224,20 @@ B8B0D:
 ; [ update fade out ]
 ; Name	: UpdateFadeOut
 UpdateFadeOut:
-36/8B11: AD 48 7F  LDA $7F48
-36/8B14: D0 13     BNE $8B29
-36/8B16: CE 44 7F  DEC $7F44          ; decrement song volume
-36/8B19: D0 09     BNE $8B24
-36/8B1B: A9 00     LDA #$00
-36/8B1D: 8D 42 7F  STA $7F42
-36/8B20: 20 C0 8A  JSR $8AC0          ; silence music channels
-36/8B23: 60        RTS 
-36/8B24: A9 10     LDA #$10           ; reset fade in counter
-36/8B26: 8D 48 7F  STA $7F48
-36/8B29: CE 48 7F  DEC $7F48
-36/8B2C: 60        RTS 
+	LDA $7F48			; 36/8B11: AD 48 7F  
+	BNE B8B29       		; 36/8B14: D0 13     
+	DEC $7F44       		; 36/8B16: CE 44 7F     ; decrement song volume
+	BNE B8B24       		; 36/8B19: D0 09     
+	LDA #$00        		; 36/8B1B: A9 00     
+	STA $7F42       		; 36/8B1D: 8D 42 7F  
+	JSR SilenceMusicCh     		; 36/8B20: 20 C0 8A     ; silence music channels
+	RTS             		; 36/8B23: 60        
+B8B24:
+	LDA #$10        		; 36/8B24: A9 10        ; reset fade in counter
+	STA $7F48       		; 36/8B26: 8D 48 7F  
+B8B29:
+	DEC $7F48       		; 36/8B29: CE 48 7F  
+	RTS             		; 36/8B2C: 60        
 ; End of UpdateFadeOut
 
 ; Name	: UpdateMusicCh
@@ -1726,8 +2249,9 @@ UpdateMusicCh:
 	CLC             		; 36/8B34: 18        
 	ADC $7F46       		; 36/8B35: 6D 46 7F  
 	STA $7F46       		; 36/8B38: 8D 46 7F     ; tempo counter
-	BCC $8B40       		; 36/8B3B: 90 03     
+	BCC B8B40       		; 36/8B3B: 90 03     
 	INC $7F47       		; 36/8B3D: EE 47 7F  
+B8B40:
 	LDA $7F46       		; 36/8B40: AD 46 7F  
 	SEC             		; 36/8B43: 38        
 	SBC #$96        		; 36/8B44: E9 96     
@@ -1762,15 +2286,16 @@ UpdateMusicCh:
 B8B86:
 	LDA #$00        		; 36/8B86: A9 00     
 	STA $D0         		; 36/8B88: 85 D0     
-	JSR $857D       		; 36/8B8A: 20 7D 85     ; update channel envelopes
+	JSR UpdateChEnv       		; 36/8B8A: 20 7D 85     ; update channel envelopes
 	INC $D0         		; 36/8B8D: E6 D0     
-	JSR $857D       		; 36/8B8F: 20 7D 85     ; update channel envelopes
+	JSR UpdateChEnv       		; 36/8B8F: 20 7D 85     ; update channel envelopes
 	INC $D0         		; 36/8B92: E6 D0     
-	JSR $857D       		; 36/8B94: 20 7D 85     ; update channel envelopes
+	JSR UpdateChEnv       		; 36/8B94: 20 7D 85     ; update channel envelopes
 	INC $D0         		; 36/8B97: E6 D0     
-	JSR $857D       		; 36/8B99: 20 7D 85     ; update channel envelopes
+	JSR UpdateChEnv       		; 36/8B99: 20 7D 85     ; update channel envelopes
 	RTS             		; 36/8B9C: 60        
 ; End of UpdateMusicCh
+
 
 
 ; ==================================================
