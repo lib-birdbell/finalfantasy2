@@ -13,6 +13,7 @@
 .segment "BANK_1E"
 
 
+FF3_DRIVER = 0
 ; to do - key press process is too fast - OK
 ; to do - cursor are not visible
 ; to do - sound effect
@@ -29,7 +30,7 @@
 Sound_test:
 	JMP Sound_test_			; 8000	$4C 
 
-.if 1
+.if FF3_DRIVER
 ; Name	: Sound_proc
 ; Marks	: update sound
 Sound_proc:
@@ -42,19 +43,194 @@ Sound_proc:
 B8011:
 	;JSR $8B9D          		; 36/8011: 20 9D 8B   update sound effects
 B8014:
-	JSR $8925          		; 36/8014: 20 25 89   update music
-	LDA $4015          		; 36/8017: AD 15 40  
+	JSR UpdateMusic       		; 36/8014: 20 25 89   update music
+	LDA ApuStatus_4015     		; 36/8017: AD 15 40  
 	ORA #$0F           		; 36/801A: 09 0F     
-	STA $4015          		; 36/801C: 8D 15 40   enable all channels except dmc
-	JSR $8030          		; 36/801F: 20 30 80   update apu (sound effects)
-	JSR $80AB          		; 36/8022: 20 AB 80   update apu (music)
+	STA ApuStatus_4015     		; 36/801C: 8D 15 40   enable all channels except dmc
+	;JSR $8030          		; 36/801F: 20 30 80   update apu (sound effects)
+	JSR UpdataAPU          		; 36/8022: 20 AB 80   update apu (music)
 	ASL $7F40          		; 36/8025: 0E 40 7F  
 	LDA $7F42          		; 36/8028: AD 42 7F   roll "enable music" bit into $7F40
 	ASL                		; 36/802B: 0A        
 	ROR $7F40          		; 36/802C: 6E 40 7F  
 	RTS                		; 36/802F: 60        
 ; End of Sound_proc(update sound)
+
+.if 0
+; Name	: UpdateAPUfx
+; [ update apu (sound effects) ]
+UpdateAPUfx:
+36/8030: AD 49 7F  LDA $7F49
+36/8033: F0 75     BEQ $80AA          ; return if no sound effect
+36/8035: AD 4F 7F  LDA $7F4F          ; pulse 2 (sound effect)
+36/8038: 10 3F     BPL $8079
+36/803A: 29 01     AND #$01
+36/803C: F0 26     BEQ $8064
+36/803E: AD 4F 7F  LDA $7F4F
+36/8041: 29 FE     AND #$FE
+36/8043: 8D 4F 7F  STA $7F4F
+36/8046: AD 8E 7F  LDA $7F8E
+36/8049: 0D 80 7F  ORA $7F80
+36/804C: 8D 04 40  STA $4004
+36/804F: AD 87 7F  LDA $7F87
+36/8052: 8D 05 40  STA $4005
+36/8055: AD 72 7F  LDA $7F72
+36/8058: 8D 06 40  STA $4006
+36/805B: AD 79 7F  LDA $7F79
+36/805E: 8D 07 40  STA $4007
+36/8061: 4C 79 80  JMP $8079
+36/8064: AD 8E 7F  LDA $7F8E
+36/8067: 0D 80 7F  ORA $7F80
+36/806A: 8D 04 40  STA $4004
+36/806D: AD 87 7F  LDA $7F87
+36/8070: 0A        ASL 
+36/8071: B0 06     BCS $8079
+36/8073: AD 72 7F  LDA $7F72
+36/8076: 8D 06 40  STA $4006
+36/8079: AD 50 7F  LDA $7F50          ; noise (sound effect)
+36/807C: 10 2C     BPL $80AA
+36/807E: 29 01     AND #$01
+36/8080: F0 1A     BEQ $809C
+36/8082: AD 50 7F  LDA $7F50
+36/8085: 29 FE     AND #$FE
+36/8087: 8D 50 7F  STA $7F50
+36/808A: AD 81 7F  LDA $7F81
+36/808D: 09 30     ORA #$30
+36/808F: 8D 0C 40  STA $400C
+36/8092: AD 73 7F  LDA $7F73
+36/8095: 8D 0E 40  STA $400E
+36/8098: 8D 0F 40  STA $400F
+36/809B: 60        RTS 
+36/809C: AD 81 7F  LDA $7F81
+36/809F: 09 30     ORA #$30
+36/80A1: 8D 0C 40  STA $400C
+36/80A4: AD 73 7F  LDA $7F73
+36/80A7: 8D 0E 40  STA $400E
+36/80AA: 60        RTS 
 .endif
+
+; Name	: UpdataAPU
+; Marks	: update apu (music)
+UpdataAPU:
+	LDA $7F42			; 36/80AB: AD 42 7F  
+	BMI B80B1       		; 36/80AE: 30 01        ; branch if music enabled
+	RTS             		; 36/80B0: 60        
+B80B1:
+	LDA $7F4A       		; 36/80B1: AD 4A 7F     ; pulse 1
+	BPL B80F5       		; 36/80B4: 10 3F     
+	AND #$01        		; 36/80B6: 29 01     
+	BEQ B80E0       		; 36/80B8: F0 26        ; branch if not key on
+	LDA $7F4A       		; 36/80BA: AD 4A 7F  
+	AND #$FE        		; 36/80BD: 29 FE     
+	STA $7F4A       		; 36/80BF: 8D 4A 7F  
+	LDA $7F89       		; 36/80C2: AD 89 7F     ; duty cycle
+	ORA $7F7B       		; 36/80C5: 0D 7B 7F     ; volume
+	STA $4000       		; 36/80C8: 8D 00 40  
+	LDA $7F82       		; 36/80CB: AD 82 7F     ; sweep
+	STA $4001       		; 36/80CE: 8D 01 40  
+	LDA $7F6D       		; 36/80D1: AD 6D 7F     ; frequency
+	STA $4002       		; 36/80D4: 8D 02 40  
+	LDA $7F74       		; 36/80D7: AD 74 7F  
+	STA $4003       		; 36/80DA: 8D 03 40  
+	JMP B80F5       		; 36/80DD: 4C F5 80  
+B80E0:
+	LDA $7F89       		; 36/80E0: AD 89 7F     ; duty cycle
+	ORA $7F7B       		; 36/80E3: 0D 7B 7F     ; volume
+	STA $4000       		; 36/80E6: 8D 00 40  
+	LDA $7F82       		; 36/80E9: AD 82 7F     ; sweep
+	ASL             		; 36/80EC: 0A        
+	BCS B80F5       		; 36/80ED: B0 06     
+	LDA $7F6D       		; 36/80EF: AD 6D 7F     ; frequency (lo only)
+	STA $4002       		; 36/80F2: 8D 02 40  
+B80F5:
+	LDA $7F4F       		; 36/80F5: AD 4F 7F  
+	BMI B813E       		; 36/80F8: 30 44        ; branch if pulse 2 sound effect active
+	LDA $7F4B       		; 36/80FA: AD 4B 7F  
+	BPL B813E       		; 36/80FD: 10 3F     
+	AND #$01        		; 36/80FF: 29 01     
+	BEQ B8129       		; 36/8101: F0 26     
+	LDA $7F4B       		; 36/8103: AD 4B 7F  
+	AND #$FE        		; 36/8106: 29 FE     
+	STA $7F4B       		; 36/8108: 8D 4B 7F  
+	LDA $7F8A       		; 36/810B: AD 8A 7F  
+	ORA $7F7C       		; 36/810E: 0D 7C 7F  
+	STA $4004       		; 36/8111: 8D 04 40  
+	LDA $7F83       		; 36/8114: AD 83 7F  
+	STA $4005       		; 36/8117: 8D 05 40  
+	LDA $7F6E       		; 36/811A: AD 6E 7F  
+	STA $4006       		; 36/811D: 8D 06 40  
+	LDA $7F75       		; 36/8120: AD 75 7F  
+	STA $4007       		; 36/8123: 8D 07 40  
+	JMP B813E       		; 36/8126: 4C 3E 81  
+B8129:
+	LDA $7F8A       		; 36/8129: AD 8A 7F  
+	ORA $7F7C       		; 36/812C: 0D 7C 7F  
+	STA $4004       		; 36/812F: 8D 04 40  
+	LDA $7F83       		; 36/8132: AD 83 7F  
+	ASL             		; 36/8135: 0A        
+	BCS B813E       		; 36/8136: B0 06     
+	LDA $7F6E       		; 36/8138: AD 6E 7F  
+	STA $4006       		; 36/813B: 8D 06 40  
+B813E:
+	LDA $7F4C       		; 36/813E: AD 4C 7F     ; triangle
+	BPL B8174       		; 36/8141: 10 31     
+	AND #$01        		; 36/8143: 29 01     
+	BEQ B8166       		; 36/8145: F0 1F     
+	LDA $7F4C       		; 36/8147: AD 4C 7F  
+	AND #$FE        		; 36/814A: 29 FE     
+	STA $7F4C       		; 36/814C: 8D 4C 7F  
+	LDA $7F7D       		; 36/814F: AD 7D 7F  
+	ORA #$80        		; 36/8152: 09 80     
+	STA $4008       		; 36/8154: 8D 08 40  
+	LDA $7F6F       		; 36/8157: AD 6F 7F  
+	STA $400A       		; 36/815A: 8D 0A 40  
+	LDA $7F76       		; 36/815D: AD 76 7F  
+	STA $400B       		; 36/8160: 8D 0B 40  
+	JMP B8174       		; 36/8163: 4C 74 81  
+B8166:
+	LDA $7F7D       		; 36/8166: AD 7D 7F  
+	ORA #$80        		; 36/8169: 09 80     
+	STA $4008       		; 36/816B: 8D 08 40  
+	LDA $7F6F       		; 36/816E: AD 6F 7F  
+	STA $400A       		; 36/8171: 8D 0A 40  
+B8174:
+	LDA $7F50       		; 36/8174: AD 50 7F  
+	BMI B81AC       		; 36/8177: 30 33        ; branch if noise sound effect active
+	LDA $7F4D       		; 36/8179: AD 4D 7F  
+	BPL B81AC       		; 36/817C: 10 2E     
+	AND #$01        		; 36/817E: 29 01     
+	BEQ B819E       		; 36/8180: F0 1C     
+	LDA $7F4D       		; 36/8182: AD 4D 7F  
+	AND #$FE        		; 36/8185: 29 FE     
+	STA $7F4D       		; 36/8187: 8D 4D 7F  
+	LDA $7F7E       		; 36/818A: AD 7E 7F  
+	ORA #$30        		; 36/818D: 09 30     
+	STA $400C       		; 36/818F: 8D 0C 40  
+	LDA $7F70       		; 36/8192: AD 70 7F  
+	STA $400E       		; 36/8195: 8D 0E 40  
+	STA $400F       		; 36/8198: 8D 0F 40  
+	JMP B81AC       		; 36/819B: 4C AC 81  
+B819E:
+	LDA $7F7E       		; 36/819E: AD 7E 7F  
+	ORA #$30        		; 36/81A1: 09 30     
+	STA $400C       		; 36/81A3: 8D 0C 40  
+	LDA $7F70       		; 36/81A6: AD 70 7F  
+	STA $400E       		; 36/81A9: 8D 0E 40  
+B81AC:
+	LDA $7F4E       		; 36/81AC: AD 4E 7F     ; dmc
+	BPL B81C2       		; 36/81AF: 10 11     
+	AND #$01        		; 36/81B1: 29 01     
+	BEQ B81C2       		; 36/81B3: F0 0D     
+	LDA $7F4E       		; 36/81B5: AD 4E 7F  
+	AND #$FE        		; 36/81B8: 29 FE     
+	STA $7F4E       		; 36/81BA: 8D 4E 7F  
+	LDA #$00        		; 36/81BD: A9 00        ; disable dmc
+	STA $4011       		; 36/81BF: 8D 11 40  
+B81C2:
+	RTS             		; 36/81C2: 60        
+; End of UpdateAPU
+.endif
+; End of FF3_DRIVER
 
 ; Name	:
 ; Marks	:
@@ -211,10 +387,18 @@ SET_SPRITE:
 	LDA #$68
 	STA oam_y
 	;added for FF3
-.if 1
+.if FF3_DRIVER
 	JSR Init_sound
-.endif
+	LDA #$00           ; no sound effect
+	STA $7F49
+	LDA #$02
+	STA $7F43          ; song id
+	LDA #$01           ; play new song
+	STA $7F42
+	;LDA #$01
+	;STA $7F40
 	;
+.endif
 MAIN_LOOP:
 	JSR Wait_NMI
 	LDA #$02			; 811A  $A9 $02		copy OAM buffer(200h) to PPU
@@ -468,7 +652,7 @@ Get_udlr:
 ; End of Get_udlr
 
 ; For FF2
-.if 0
+.if FF3_DRIVER < 1
 ; ------------------------------------------------------------
 
 ; Name	:
@@ -1228,7 +1412,6 @@ Update_APU_reg_next:
 ; End of
 
 
-
 ; ================================================== End of code ==================================================
 .else
 ; Name	: Init_sound
@@ -1325,7 +1508,7 @@ PlayNote:
 	LDA $D5         		; 36/8285: A5 D5     
 	AND #$0F        		; 36/8287: 29 0F     
 	TAY             		; 36/8289: A8        
-	LDA $8805,Y     		; 36/828A: B9 05 88     ; note duration
+	LDA NoteDuTbl,Y     		; 36/828A: B9 05 88     ; note duration
 	STA $7F5F,X     		; 36/828D: 9D 5F 7F  
 	LDA $D5         		; 36/8290: A5 D5     
 	CMP #$D0        		; 36/8292: C9 D0     
@@ -1346,7 +1529,7 @@ PlayNote:
 	BEQ B8310       		; 36/82B7: F0 57        ; dmc doesn't have any of this stuff
 	CMP #$02        		; 36/82B9: C9 02     
 	BEQ B82C6       		; 36/82BB: F0 09        ; triangle channel doesn't have decay
-	JSR $831D       		; 36/82BD: 20 1D 83     ; init decay counter
+	JSR InitDecayC       		; 36/82BD: 20 1D 83     ; init decay counter
 	LDA $D1         		; 36/82C0: A5 D1     
 	CMP #$01        		; 36/82C2: C9 01     
 	BEQ B82EA       		; 36/82C4: F0 24        ; branch if noise channel
@@ -1367,9 +1550,9 @@ B82C6:
 	ADC $D6         		; 36/82D9: 65 D6     
 	ASL             		; 36/82DB: 0A        
 	TAY             		; 36/82DC: A8        
-	LDA $872D,Y     		; 36/82DD: B9 2D 87     ; frequency table
+	LDA FreqTbl,Y     		; 36/82DD: B9 2D 87     ; frequency table
 	STA $7F6D,X     		; 36/82E0: 9D 6D 7F  
-	LDA $872E,Y     		; 36/82E3: B9 2E 87  
+	LDA FreqTbl+1,Y     		; 36/82E3: B9 2E 87  
 	STA $7F74,X     		; 36/82E6: 9D 74 7F  
 B82E9:
 	RTS             		; 36/82E9: 60        
@@ -1390,7 +1573,7 @@ B82EA:
 	CLC                		; 36/82FC: 18        
 	ADC $D6            		; 36/82FD: 65 D6     
 	TAY                		; 36/82FF: A8        
-	LDA $87BD,Y        		; 36/8300: B9 BD 87  ; noise table
+	LDA NoiseTble,Y        		; 36/8300: B9 BD 87  ; noise table
 	STA $7F6D,X        		; 36/8303: 9D 6D 7F  
 	RTS                		; 36/8306: 60        
 B8307:
@@ -1415,7 +1598,7 @@ InitDecayC:
 	LDA $D5				; 36/831D: A5 D5     
 	AND #$0F        		; 36/831F: 29 0F     
 	TAX             		; 36/8321: AA        
-	LDA $8815,X     		; 36/8322: BD 15 88     ; decay duration
+	LDA DecayDuTbl,X     		; 36/8322: BD 15 88     ; decay duration
 	STA $D8         		; 36/8325: 85 D8     
 	LDY #$00        		; 36/8327: A0 00     
 	STY $D9         		; 36/8329: 84 D9     
@@ -1428,7 +1611,7 @@ B832B:
 	BCS B8346       		; 36/8334: B0 10     
 	AND #$0F        		; 36/8336: 29 0F     
 	TAX             		; 36/8338: AA        
-	LDA $8815,X     		; 36/8339: BD 15 88  
+	LDA DecayDuTbl,X     		; 36/8339: BD 15 88  
 	ADC $D8         		; 36/833C: 65 D8     
 	STA $D8         		; 36/833E: 85 D8     
 	BCC B832B       		; 36/8340: 90 E9     
@@ -1830,7 +2013,6 @@ B856D:
 	STA $7F49       		; 36/8579: 8D 49 7F  
 B857C:
 	RTS             		; 36/857C: 60        
-.endif
 
 ; Name	: UpdateChEnv
 ; Marks	: update channel envelopes
@@ -1871,9 +2053,9 @@ B85B4:
 	ASL             		; 36/85B7: 0A        
 	BCS B85E1       		; 36/85B8: B0 27     
 	TAY             		; 36/85BA: A8        
-	LDA $9A7C,Y     		; 36/85BB: B9 7C 9A     ; pointers to volume envelope data
+	LDA VolEnvTbl,Y     		; 36/85BB: B9 7C 9A     ; pointers to volume envelope data
 	STA $D6         		; 36/85BE: 85 D6     
-	LDA $9A7D,Y     		; 36/85C0: B9 7D 9A  
+	LDA VolEnvTbl+1,Y     		; 36/85C0: B9 7D 9A  
 	STA $D7         		; 36/85C3: 85 D7     
 	LDA $7FBA,X     		; 36/85C5: BD BA 7F     ; envelope state
 	ASL             		; 36/85C8: 0A        
@@ -1884,9 +2066,9 @@ B85B4:
 	STA $D8         		; 36/85CE: 85 D8     
 	LDA ($D6),Y     		; 36/85D0: B1 D6     
 	STA $D9         		; 36/85D2: 85 D9     
-	LDA $85F4,X     		; 36/85D4: BD F4 85     ; envelope state jump table
+	LDA EnvStatJumpTbl,X  		; 36/85D4: BD F4 85     ; envelope state jump table
 	STA $D6         		; 36/85D7: 85 D6     
-	LDA $85F5,X     		; 36/85D9: BD F5 85  
+	LDA EnvStatJumpTbl+1,X 		; 36/85D9: BD F5 85  
 	STA $D7         		; 36/85DC: 85 D7     
 	JMP ($00D6)     		; 36/85DE: 6C D6 00  
 B85E1:
@@ -1902,6 +2084,143 @@ B85EE:
 	RTS             		; 36/85F3: 60        
 ; End of UpdateVolEnv
 
+; envelope state jump table
+EnvStatJumpTbl:
+.word EnvStatAtk
+.word EnvStatDR
+.word EnvStatDR
+;36/85F4: 85FA 8635 8635
+
+; Name	: EnvStatAtk
+; Marks	: envelope state 0: attack
+EnvStatAtk:
+	LDX $D0				; 36/85FA: A6 D0     
+	LDY $7FC8,X     		; 36/85FC: BC C8 7F     ; envelope data offset
+	LDA ($D8),Y     		; 36/85FF: B1 D8     
+	STA $7FE4,X     		; 36/8601: 9D E4 7F     ; set volume envelope value
+	INC $7FC8,X     		; 36/8604: FE C8 7F  
+	INY             		; 36/8607: C8        
+	LDA ($D8),Y     		; 36/8608: B1 D8     
+	BPL B8614       		; 36/860A: 10 08        ; branch if not attack terminator
+	INC $7FBA,X     		; 36/860C: FE BA 7F     ; increment envelope state (to decay)
+	LDA #$00        		; 36/860F: A9 00     
+	STA $7FC8,X     		; 36/8611: 9D C8 7F     ; reset envelope data offset
+B8614:
+	LDA $7F90,X     		; 36/8614: BD 90 7F     ; channel volume
+	ASL             		; 36/8617: 0A        
+	ASL             		; 36/8618: 0A        
+	ASL             		; 36/8619: 0A        
+	ASL             		; 36/861A: 0A        
+	ORA $7FE4,X     		; 36/861B: 1D E4 7F     ; envelope value
+	TAY             		; 36/861E: A8        
+	LDA $D2         		; 36/861F: A5 D2        ; sound effects ignore song volume
+	BNE B862E       		; 36/8621: D0 0B     
+	LDA $7F44       		; 36/8623: AD 44 7F     ; song volume
+	ASL             		; 36/8626: 0A        
+	ASL             		; 36/8627: 0A        
+	ASL             		; 36/8628: 0A        
+	ASL             		; 36/8629: 0A        
+	ORA VolTbl,Y     		; 36/862A: 19 25 88     ; volume table
+	TAY             		; 36/862D: A8        
+B862E:
+	LDA VolTbl,Y     		; 36/862E: B9 25 88  
+	STA $7F7B,X     		; 36/8631: 9D 7B 7F     ; volume
+	RTS             		; 36/8634: 60        
+; End of EnvStatAtk
+
+; Name	: EnvStatDR
+; Marks	: envelope state 1/2: decay/release
+EnvStatDR:
+	LDX $D0				; 36/8635: A6 D0     
+	LDA $7FE4,X     		; 36/8637: BD E4 7F     ; volume envelope value
+	BEQ B8665       		; 36/863A: F0 29        ; key off if envelope reaches zero
+	LDY $7FC8,X     		; 36/863C: BC C8 7F     ; data offset
+	BNE B864D       		; 36/863F: D0 0C     
+	LDA ($D8),Y     		; 36/8641: B1 D8     
+	STA $7FD6,X     		; 36/8643: 9D D6 7F     ; set volume envelope rate
+	INC $7FC8,X     		; 36/8646: FE C8 7F     ; go to the first envelope value
+	TYA             		; 36/8649: 98        
+	STA $7FCF,X     		; 36/864A: 9D CF 7F  
+B864D:
+	LDA $7FD6,X     		; 36/864D: BD D6 7F  
+	CLC             		; 36/8650: 18        
+	ADC $7FDD,X     		; 36/8651: 7D DD 7F  
+	STA $7FDD,X     		; 36/8654: 9D DD 7F  
+	CMP #$64        		; 36/8657: C9 64     
+	BCC B8670       		; 36/8659: 90 15     
+	SBC #$64        		; 36/865B: E9 64     
+	STA $7FDD,X     		; 36/865D: 9D DD 7F  
+	DEC $7FE4,X     		; 36/8660: DE E4 7F     ; decrement envelope value
+	BNE B8670       		; 36/8663: D0 0B     
+B8665:
+	LDA #$03        		; 36/8665: A9 03        ; key off
+	STA $7FBA,X     		; 36/8667: 9D BA 7F  
+	LDA #$00        		; 36/866A: A9 00     
+	STA $7F7B,X     		; 36/866C: 9D 7B 7F     ; set volume to zero
+	RTS             		; 36/866F: 60        
+B8670:
+	LDA $7FE4,X     		; 36/8670: BD E4 7F     ; envelope value
+	STA $D5         		; 36/8673: 85 D5     
+	LDY $7FC8,X     		; 36/8675: BC C8 7F     ; envelope data offset
+	LDA $7FCF,X     		; 36/8678: BD CF 7F  
+	BNE B8693       		; 36/867B: D0 16     
+	LDA ($D8),Y     		; 36/867D: B1 D8     
+	BEQ B86B5       		; 36/867F: F0 34        ; envelope is terminated
+	BPL B868A       		; 36/8681: 10 07     
+	CLC             		; 36/8683: 18        
+	ADC $7FC8,X     		; 36/8684: 7D C8 7F     ; "subtract" from data offset
+	TAY             		; 36/8687: A8        
+	LDA ($D8),Y     		; 36/8688: B1 D8     
+B868A:
+	STA $7FCF,X     		; 36/868A: 9D CF 7F  
+	INY             		; 36/868D: C8        
+	INY             		; 36/868E: C8        
+	TYA             		; 36/868F: 98        
+	STA $7FC8,X     		; 36/8690: 9D C8 7F     ; envelope data offset
+B8693:
+	DEY             		; 36/8693: 88        
+	LDA ($D8),Y     		; 36/8694: B1 D8        ; change in volume
+	BMI B86A7       		; 36/8696: 30 0F     
+	CLC             		; 36/8698: 18        
+	ADC $D5         		; 36/8699: 65 D5     
+	STA $D5         		; 36/869B: 85 D5     
+	CMP #$10        		; 36/869D: C9 10     
+	BCC B86B2       		; 36/869F: 90 11     
+	LDA #$0F        		; 36/86A1: A9 0F        ; max 15
+	STA $D5         		; 36/86A3: 85 D5     
+	BNE B86B2       		; 36/86A5: D0 0B     
+B86A7:
+	CLC             		; 36/86A7: 18        
+	ADC $D5         		; 36/86A8: 65 D5     
+	STA $D5         		; 36/86AA: 85 D5     
+	BCS B86B2       		; 36/86AC: B0 04     
+	LDA #$00        		; 36/86AE: A9 00        ; min 0
+	STA $D5         		; 36/86B0: 85 D5     
+B86B2:
+	DEC $7FCF,X     		; 36/86B2: DE CF 7F  
+B86B5:
+	LDA $7F90,X     		; 36/86B5: BD 90 7F     ; channel volume
+	ASL             		; 36/86B8: 0A        
+	ASL             		; 36/86B9: 0A        
+	ASL             		; 36/86BA: 0A        
+	ASL             		; 36/86BB: 0A        
+	ORA $D5         		; 36/86BC: 05 D5     
+	TAY             		; 36/86BE: A8        
+	LDA $D2         		; 36/86BF: A5 D2        ; sound effects ignore song volume
+	BNE B86CE       		; 36/86C1: D0 0B     
+	LDA $7F44       		; 36/86C3: AD 44 7F     ; song volume
+	ASL             		; 36/86C6: 0A        
+	ASL             		; 36/86C7: 0A        
+	ASL             		; 36/86C8: 0A        
+	ASL             		; 36/86C9: 0A        
+	ORA VolTbl,Y     		; 36/86CA: 19 25 88     ; volume table
+	TAY             		; 36/86CD: A8        
+B86CE:
+	LDA VolTbl,Y     		; 36/86CE: B9 25 88  
+	STA $7F7B,X     		; 36/86D1: 9D 7B 7F     ; volume
+	RTS             		; 36/86D4: 60        
+; End of EnvStatDR
+
 ; Name	: UpdatePitEnv
 ; Marks	: update pitch envelope
 UpdatePitEnv:
@@ -1910,9 +2229,9 @@ UpdatePitEnv:
 	ASL             		; 36/86DA: 0A        
 	BCS B872C       		; 36/86DB: B0 4F     
 	TAY             		; 36/86DD: A8        
-	LDA $9EAB,Y     		; 36/86DE: B9 AB 9E     ; pointers to pitch envelope data
+	LDA PitEnvTbl,Y     		; 36/86DE: B9 AB 9E     ; pointers to pitch envelope data
 	STA $D8         		; 36/86E1: 85 D8     
-	LDA $9EAC,Y     		; 36/86E3: B9 AC 9E  
+	LDA PitEnvTbl+1,Y     		; 36/86E3: B9 AC 9E  
 	STA $D9         		; 36/86E6: 85 D9     
 	LDA $7FF9,X     		; 36/86E8: BD F9 7F     ; pitch envelope counter
 	BNE B8729       		; 36/86EB: D0 3C     
@@ -1953,8 +2272,83 @@ B872C:
 	RTS             		; 36/872C: 60        
 ; End of UpdatePitEnv
 
+; frequency values (6*12 items, 2 bytes each)
+FreqTbl:
+.word $06AB,$064D,$05F3,$059D,$054C,$0501,$04B8,$0474
+.word $0434,$03F7,$03BE,$0388,$0355,$0326,$02F9,$02CE
+.word $02A6,$0280,$025C,$023A,$0219,$01FB,$01DE,$01C4
+.word $01AA,$0193,$017C,$0167,$0152,$013F,$012D,$011C
+.word $010C,$00FD,$00EF,$00E1,$00D5,$00C9,$00BE,$00B3
+.word $00A9,$009F,$0096,$008E,$0086,$007E,$0077,$0070
+.word $006A,$0064,$005E,$0059,$0054,$004F,$004B,$0046
+.word $0042,$003E,$003B,$0038,$0034,$0031,$002F,$002C
+.word $0029,$0027,$0025,$0023,$0021,$001F,$001D,$001B
+
+;06AB 064D 05F3 059D 054C 0501 04B8 0474	36/872D:
+;0434 03F7 03BE 0388 0355 0326 02F9 02CE        36/873D:
+;02A6 0280 025C 023A 0219 01FB 01DE 01C4        36/874D:
+;01AA 0193 017C 0167 0152 013F 012D 011C        36/875D:
+;010C 00FD 00EF 00E1 00D5 00C9 00BE 00B3        36/876D:
+;00A9 009F 0096 008E 0086 007E 0077 0070        36/877D:
+;006A 0064 005E 0059 0054 004F 004B 0046        36/878D:
+;0042 003E 003B 0038 0034 0031 002F 002C        36/879D:
+;0029 0027 0025 0023 0021 001F 001D 001B        36/87AD:
+
+; noise table
+NoiseTble:
+.byte $00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B	; 36/87BD:
+.byte $0C,$0E,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F	; 36/87C9:
+.byte $80,$81,$82,$83,$84,$85,$86,$87,$88,$89,$8A,$8B	; 36/87D5:
+.byte $8C,$8E,$8F,$8F,$8F,$8F,$8F,$8F,$8F,$8F,$8F,$8F	; 36/87E1:
+.byte $04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04,$04	; 36/87ED:
+.byte $0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B	; 36/87F9:
+
+; note durations
+NoteDuTbl:
+.byte $60  ; 36/8805: 00: whole note
+.byte $48  ; 36/8806: 01: dotted half note
+.byte $30  ; 36/8807: 02: half note
+.byte $24  ; 36/8808: 03: dotted quarter note
+.byte $20  ; 36/8809: 04: quarter note triplet
+.byte $18  ; 36/880A: 05: quarter note
+.byte $12  ; 36/880B: 06: dotted eighth note
+.byte $10  ; 36/880C: 07: eighth note triplet
+.byte $0C  ; 36/880D: 08: eighth note
+.byte $09  ; 36/880E: 09: dotted 16th note
+.byte $08  ; 36/880F: 0A: 16th note triplet
+.byte $06  ; 36/8810: 0B: 16th note
+.byte $04  ; 36/8811: 0C: 32nd note triplet
+.byte $03  ; 36/8812: 0D: 32nd note
+.byte $02  ; 36/8813: 0E: 64th note triplet
+.byte $01  ; 36/8814: 0F: 128th note triplet
+
+; decay durations
+DecayDuTbl:
+.byte $48,$36,$24,$1B,$18,$12,$0D,$0C,$09,$07,$06,$04,$03,$02,$01,$00
+;36/8815: 48 36 24 1B 18 12 0D 0C 09 07 06 04 03 02 01 00
+
+; volume table (16 items, 16 bytes each)
+VolTbl:
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00	;,$36/8825:;,$muted
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01	;,$36/8835:
+.byte $00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$01,$01,$02	;,$36/8845:
+.byte $00,$00,$00,$00,$00,$01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$03	;,$36/8855:
+.byte $00,$00,$00,$00,$01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$04	;,$36/8865:
+.byte $00,$00,$00,$01,$01,$01,$02,$02,$02,$03,$03,$03,$04,$04,$04,$05	;,$36/8875:
+.byte $00,$00,$00,$01,$01,$02,$02,$02,$03,$03,$04,$04,$04,$05,$05,$06	;,$36/8885:
+.byte $00,$00,$00,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07	;,$36/8895:
+.byte $00,$00,$01,$01,$02,$02,$03,$03,$04,$04,$05,$05,$06,$06,$07,$08	;,$36/88A5:
+.byte $00,$00,$01,$01,$02,$03,$03,$04,$04,$05,$06,$06,$07,$07,$08,$09	;,$36/88B5:
+.byte $00,$00,$01,$02,$02,$03,$04,$04,$05,$06,$06,$07,$08,$08,$09,$0A	;,$36/88C5:
+.byte $00,$00,$01,$02,$02,$03,$04,$05,$05,$06,$07,$08,$08,$09,$0A,$0B	;,$36/88D5:
+.byte $00,$00,$01,$02,$03,$04,$04,$05,$06,$07,$08,$08,$09,$0A,$0B,$0C	;,$36/88E5:
+.byte $00,$00,$01,$02,$03,$04,$05,$06,$06,$07,$08,$09,$0A,$0B,$0C,$0D	;,$36/88F5:
+.byte $00,$00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E	;,$36/8905:
+.byte $00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F	;,$36/8915:;,$full,$volume
+
 ; Name	: UpdateMusic
 ; Marks	: update music
+UpdateMusic:
 	;JSR $899F          		; 36/8925: 20 9F 89   switch to song bank
 	LDA $7F42          		; 36/8928: AD 42 7F  
 	TAX                		; 36/892B: AA        
@@ -2057,9 +2451,9 @@ B89C8:
 B8A0E:
 	ASL 				; 36/8A0E: 0A        
 	TAX                             ; 36/8A0F: AA        
-	LDA $A000,X                     ; 36/8A10: BD 00 A0  
+	LDA MusicTbl,X                  ; 36/8A10: BD 00 A0  
 	STA $D8                         ; 36/8A13: 85 D8     
-	LDA $A001,X                     ; 36/8A15: BD 01 A0  
+	LDA MusicTbl+1,X                ; 36/8A15: BD 01 A0  
 	STA $D9                         ; 36/8A18: 85 D9     
 	JMP B8A57                       ; 36/8A1A: 4C 57 8A  
 ; songs $2B-36
@@ -2282,7 +2676,7 @@ B8B40:
 	LDA #$04        		; 36/8B7C: A9 04     
 	STA $D1         		; 36/8B7E: 85 D1     
 	JSR UpdateChScript     		; 36/8B80: 20 E6 81     ; update channel script
-	JMP $8B40       		; 36/8B83: 4C 40 8B  
+	JMP B8B40       		; 36/8B83: 4C 40 8B  
 B8B86:
 	LDA #$00        		; 36/8B86: A9 00     
 	STA $D0         		; 36/8B88: 85 D0     
@@ -2295,9 +2689,13 @@ B8B86:
 	JSR UpdateChEnv       		; 36/8B99: 20 7D 85     ; update channel envelopes
 	RTS             		; 36/8B9C: 60        
 ; End of UpdateMusicCh
+.endif
+; End of FF3_DRIVER
 
 
 
+; All FF2 sound
+.if FF3_DRIVER < 1
 ; ==================================================
 ; Convert from FF1
 ;
@@ -3270,7 +3668,7 @@ BGM_TEST_S:
 .byte REPEAT
 .word BGM_TEST_S
 
-.if 1
+.if 0
 .byte $F2
 ;     C   D   E   F   G   A   B
 .byte $00,$20,$40,$50,$70,$90,$B0
@@ -3631,6 +4029,7 @@ MATOYA_TRI_R:
 .endif
 .endif
 
+.if 0
 ; ==================================================
 ; TEST C 2 - MATOYA(Mod - playable modified)
 ;
@@ -3866,6 +4265,8 @@ MATOYA_TRI_R:
 .byte OT2,$6B,OT3,$1D,$CD,OT2,$6B,OT3,$1D,$CD
 .byte REPEAT				; Repeat
 .word MATOYA_TRI_S
+.endif
+; End of MATOYA
 
 
 
@@ -4758,7 +5159,8 @@ BGM_FIELD_TRI_NEW_R1:
 
 ; ==================================================
 ; FF1L Main theme
-
+.endif
+; All FF2 sound
 
 
 
@@ -4766,6 +5168,10 @@ BGM_FIELD_TRI_NEW_R1:
 
 
 .segment "DATA_SND"
+
+; All FF2 sound
+.if FF3_DRIVER < 1
+
 ;pitch table(timer) - 0-71
 ;$4002,$4006,$400A / $4003,$4007,$400B
 ;$4002 = TTTT TTTT
@@ -4889,9 +5295,9 @@ Song_p_tbl_H:
 ;.byte $F2,$9F
 ;05 - Main thema
 ;.word BGM_TEST
-.word FF1_10_MATOYA
+;.word FF1_10_MATOYA
 ;.word FF1_09
-;.word A1D2		; 9E19	$F2 $9F
+.word A1D2		; 9E19	$F2 $9F
 ;.word BGM_0009
 ;.word BGM_FF39
 ;.word BGM_CHOCOBO
@@ -5626,6 +6032,10 @@ APBF00:
 APBF09:
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$05
 
+.endif
+; All FF2 sound
+
+; FF3 discription
 .if 0
 [format]
 script pointer 5ch (10 bytes)
@@ -5674,11 +6084,17 @@ $7FEB-$7FBF : pitch number
 $7FE4-$7FE8 : volume envelope value
 $7FF2-$7FF6 : pitch envelope data offset
 $7FF9-$7FFD : pitch envelope counter
+.endif
+; FF3 discription
 
 
-;$00-$18
-A032	;32 A0 - $00 = sleeping
-A07C	;7C A0 - $01 = prelude
+.if FF3_DRIVER
+;$00-$18 - $A000($A032-$BF81=1F50h)
+MusicTbl:
+.word M_A032	;32 A0 - $00 = sleeping
+.word M_A07C	;7C A0 - $01 = prelude
+.word BGM_AIRSHIP
+.if 0
 A1D2	;D2 A1 - $02 = crystal dungeon
 A444	;44 A4 - $03 = area wreck
 A56A	;6A A5 - $04 = bards song
@@ -5702,47 +6118,173 @@ BC54	;54 BC
 BE23	;23 BE
 BF3D	;3D BF
 BF81	;81 BF
+.endif
 
-----------
-;A032 - $00
-3C A0 5F A0 67 A0 FF FF FF FF 
-F7 04 07 EC
-E0 5A C5 F2 08 F1 A8 F2 38 18 F1 88 58 E0 56 48
-E0 52 F2 08 E0 4E F1 78 E0 4A A8 E0 46 92 FF F7
-04 09 E8 CB FE 40 A0 F1 18 88 F2 08 C8 F1 68 A8
-F2 18 C8 F1 08 78 F2 08 C8 F1 52 FF
+;----------
+;A032 - $00 - sleeping
+M_A032:
+.word M_A032_CH0
+.word M_A032_CH1
+.word M_A032_TRI
+;.byte $3C,$A0,$5F,$A0,$67,$A0,
+.byte $FF,$FF,$FF,$FF
+M_A032_CH0:
+.byte $F7,$04,$07,$EC
+.byte $E0,$5A,$C5,$F2,$08,$F1,$A8,$F2,$38,$18,$F1,$88,$58,$E0,$56,$48
+.byte $E0,$52,$F2,$08,$E0,$4E,$F1,$78,$E0,$4A,$A8,$E0,$46,$92,$FF
+M_A032_CH1:
+.byte $F7,$04,$09,$E8,$CB,$FE,$40,$A0
+M_A032_TRI:
+.byte $F1,$18,$88,$F2,$08,$C8,$F1,$68,$A8
+.byte $F2,$18,$C8,$F1,$08,$78,$F2,$08,$C8,$F1,$52,$FF
 
-----------
+;----------
 ;A07C - $01 - prelude
-86 A0 CA A1 FF FF FF FF FF FF 
+M_A07C:
+.word M_A07C_CH0
+.word M_A07C_CH1
+;.byte $FF,$FF
+;.byte $86,$A0,$CA,$A1,
+.byte $FF,$FF,$FF,$FF,$FF,$FF
 ;A086 - CH0
-F7 02 FF EB E0 51 F0 0B E0 53
-2B E0 55 4B E0 57 7B E0 59 F1 0B E0 5B 2B E0 5D
-4B E0 5F 7B F2 0B 2B 4B 7B F3 0B 2B 4B 7B FB 02
-F4 0B F3 7B 4B 2B 0B F2 7B 4B 2B 0B F1 7B 4B 2B
-0B F0 7B 4B 2B EF 9B BB F0 0B 4B 9B BB F1 0B 4B
-9B BB F2 0B 4B 9B BB F3 0B 4B 9B 4B 0B F2 BB 9B
-4B 0B F1 BB 9B 4B 0B F0 BB 9B 4B 0B EF BB FD 08
-A1 F0 0B 2B 4B 7B F1 0B 2B 4B 7B F2 0B 2B 4B 7B
+M_A07C_CH0:
+.byte $F7,$02,$FF
+.byte $EB
+M_A07C_CH0_S:
+.byte $E0,$51
+.byte $F0,$0B
+.byte $E0,$53
+.byte $2B,$E0,$55,$4B,$E0,$57,$7B,$E0,$59,$F1,$0B,$E0,$5B,$2B,$E0,$5D
+.byte $4B,$E0,$5F,$7B,$F2,$0B,$2B,$4B,$7B,$F3,$0B,$2B,$4B,$7B,$FB,$02
+M_A0B0_CH0_2:
+.byte $F4,$0B,$F3,$7B,$4B,$2B,$0B,$F2,$7B,$4B,$2B,$0B,$F1,$7B,$4B,$2B
+.byte $0B,$F0,$7B,$4B,$2B,$EF,$9B,$BB,$F0,$0B,$4B,$9B,$BB,$F1,$0B,$4B
+.byte $9B,$BB,$F2,$0B,$4B,$9B,$BB,$F3,$0B,$4B,$9B,$4B,$0B,$F2,$BB,$9B
+.byte $4B,$0B,$F1,$BB,$9B,$4B,$0B,$F0,$BB,$9B,$4B,$0B,$EF,$BB
+.byte JUMP_Z
+.word M_A108_CH0_1
+;.byte $FD,$08
+;.byte $A1
+.byte $F0,$0B,$2B,$4B,$7B,$F1,$0B,$2B,$4B,$7B,$F2,$0B,$2B,$4B,$7B
 
-F3 0B 2B 4B 7B FC B0 A0 9B F0 0B 5B 7B 9B F1 0B
-5B 7B 9B F2 0B 5B 7B 9B F3 0B 5B 7B 9B 7B 5B 0B
-F2 9B 7B 5B 0B F1 9B 7B 5B 0B F0 9B 7B 5B 0B EF
-BB F0 2B 7B 9B BB F1 2B 7B 9B BB F2 2B 7B 9B BB
-F3 2B 7B 9B BB 9B 7B 2B F2 BB 9B 7B 2B F1 BB 9B
-7B 2B F0 BB 9B 7B 2B EF 8B F0 0B 3B 7B 8B F1 0B
-3B 7B 8B F2 0B 3B 7B 8B F3 0B 3B 7B 8B 7B 3B 0B
-F2 8B 7B 3B 0B F1 8B 7B 3B 0B F0 8B 7B 3B 0B EF
-AB F0 2B 5B 9B AB F1 2B 5B 9B AB F2 2B 5B 9B AB
-F3 2B 5B 9B E0 5E AB E0 5D 9B E0 5C 5B E0 5B 2B
-E0 5A F2 AB E0 59 9B E0 58 5B E0 57 2B E0 55 F1
-AB E0 53 9B E0 51 5B E0 4F 2B E0 4C F0 AB E0 49
-9B E0 46 5B E0 43 2B FE 8A A0 
+.byte $F3,$0B,$2B,$4B,$7B
+;.byte $FC,$B0,$A0
+.byte BACK_N
+.word M_A0B0_CH0_2
+M_A108_CH0_1:
+.byte $9B,$F0,$0B,$5B,$7B,$9B,$F1,$0B
+.byte $5B,$7B,$9B,$F2,$0B,$5B,$7B,$9B,$F3,$0B,$5B,$7B,$9B,$7B,$5B,$0B
+.byte $F2,$9B,$7B,$5B,$0B,$F1,$9B,$7B,$5B,$0B,$F0,$9B,$7B,$5B,$0B,$EF
+.byte $BB,$F0,$2B,$7B,$9B,$BB,$F1,$2B,$7B,$9B,$BB,$F2,$2B,$7B,$9B,$BB
+.byte $F3,$2B,$7B,$9B,$BB,$9B,$7B,$2B,$F2,$BB,$9B,$7B,$2B,$F1,$BB,$9B
+.byte $7B,$2B,$F0,$BB,$9B,$7B,$2B,$EF,$8B,$F0,$0B,$3B,$7B,$8B,$F1,$0B
+.byte $3B,$7B,$8B,$F2,$0B,$3B,$7B,$8B,$F3,$0B,$3B,$7B,$8B,$7B,$3B,$0B
+.byte $F2,$8B,$7B,$3B,$0B,$F1,$8B,$7B,$3B,$0B,$F0,$8B,$7B,$3B,$0B,$EF
+.byte $AB,$F0,$2B,$5B,$9B,$AB,$F1,$2B,$5B,$9B,$AB,$F2,$2B,$5B,$9B,$AB
+.byte $F3,$2B,$5B,$9B,$E0,$5E,$AB,$E0,$5D,$9B,$E0,$5C,$5B,$E0,$5B,$2B
+.byte $E0,$5A,$F2,$AB,$E0,$59,$9B,$E0,$58,$5B,$E0,$57,$2B,$E0,$55,$F1
+.byte $AB,$E0,$53,$9B,$E0,$51,$5B,$E0,$4F,$2B,$E0,$4C,$F0,$AB,$E0,$49
+.byte $9B,$E0,$46,$5B,$E0,$43,$2B
+.byte REPEAT
+.word M_A07C_CH0_S
+;.word $8A,$A0
 ;A1CA - CH1
-F7 02 00 E5 CA FE
-8A A0
+M_A07C_CH1:
+.byte $F7,$02,$00,$E5,$CA
+.byte REPEAT
+.word M_A07C_CH0_S
+;.byte $8A,$A0
 
-----------
+; ==================================================
+; Final Fantasy 2 Airship ORIGINAL
+BGM_AIRSHIP:
+.word BGM_AIRSHIP_CH0
+.word BGM_AIRSHIP_CH1
+.word BGM_AIRSHIP_TRI
+.byte $FF,$FF,$FF,$FF
+BGM_AIRSHIP_CH0:
+.byte $F5,$04,$07
+.byte VOL15
+.byte TEMPO,$96
+BGM_AIRSHIP_CH0_R0:
+.byte OT1,L1_2,OT2,D1_2
+.byte OT1,LH1_2,L1_2
+.byte OT2,R1_4,OT1,S1_2,L1_4
+.byte S1_2,S1_8,C1_8,OT2,R1_8,F1_8
+
+.byte M3_4,D1_8,R1_8
+.byte M1_4,L1_2,S1_4
+.byte F1
+.byte X1_2,X1_8,R1_8,R1_8,M1_8
+
+.byte F1_4,OT1,LH1_4,X1_8,OT2,D1_8,R1_4
+.byte R1_2,OT1,LH1_4,OT2,R1_4
+.byte D3_8,OT1,L1_8,L1_2
+.byte X1_2,X1_8,OT2,R1_8,R1_8,M1_8
+
+.byte F1_4,OT1,LH1_4,X1_8,OT2,D1_8,R1_4
+.byte R1_2,M1_4,F1_4
+.byte M1
+.byte D1
+.byte REPEAT
+.word BGM_AIRSHIP_CH0_R0
+
+BGM_AIRSHIP_CH1:
+.byte $F5,$09,$Ff
+.byte VOL15
+;.byte TEMPO,$96
+BGM_AIRSHIP_CH1_R0:
+.byte OT0,L1_16,OT1,D1_16,R1_16,M1_16,F1_16,M1_16,R1_16,D1_16,OT0,S1_16,OT1,D1_16,R1_16,M1_16,S1_16,M1_16,R1_16,D1_16
+.byte OT0,LH1_16,OT1,D1_16,R1_16,M1_16,F1_16,M1_16,R1_16,D1_16,OT0,L1_16,OT1,D1_16,R1_16,M1_16,F1_16,M1_16,R1_16,D1_16
+.byte R1_2,D1_2
+.byte OT0,C1_2,X1_2
+
+.byte OT1,S1_8,M1_8,S1_8,M1_8,S1_8,M1_8,S1_8,M1_8
+.byte S1_8,M1_8,S1_8,M1_8,S1_8,M1_8,S1_8,M1_8
+.byte R1_8,OT0,L1_8,OT1,F1_8,OT0,L1_8,OT1,DH1_8,OT0,L1_8,OT1,F1_8,OT0,L1_8
+.byte OT1,D1_8,OT0,L1_8,OT1,F1_8,OT0,L1_8,C1_8,L1_8,OT1,F1_8,OT0,L1_8
+
+.byte OT1,F1_2,M1_2
+.byte R1_2,F1_2
+.byte M1_2,R1_2
+.byte D1_2,M1_2
+
+.byte R1_2,D1_2
+.byte OT0,LH1_2,OT1,R1_2
+.byte D1_4,DH1_4,R1_4,RH1_4
+.byte M1_4,F1_4,FH1_4,S1_4
+
+.byte REPEAT
+.word BGM_AIRSHIP_CH1_R0
+
+BGM_AIRSHIP_TRI:
+BGM_AIRSHIP_TRI_R0:
+.byte OT1,F1_16,X1_16,F1_16,X1_16,X1_8,F1_8,M1_16,X1_16,M1_16,X1_16,X1_8,M1_8
+.byte R1_16,X1_16,R1_16,X1_16,X1_8,R1_8,D1_16,X1_16,D1_16,X1_16,X1_8,D1_8
+.byte OT0,C1_8,OT1,S1_8,OT0,C1_8,OT1,S1_8,D1_8,S1_8,D1_8,S1_8
+.byte DH1_8,S1_8,DH1_8,S1_8,R1_8,S1_8,R1_8,S1_8
+
+.byte D1_8,S1_8,D1_8,S1_8,D1_8,S1_8,D1_8,S1_8
+.byte DH1_8,L1_8,DH1_8,L1_8,DH1_8,L1_8,DH1_8,L1_8
+.byte R1_16,X1_16,R1_16,X1_16,X1_8,R1_16,X1_16,DH1_16,X1_16,DH1_16,X1_16,X1_8,DH1_16,X1_16
+.byte D1_16,X1_16,D1_16,X1_16,X1_8,D1_16,X1_16,OT0,C1_16,X1_16,C1_16,X1_16,X1_8,C1_16,X1_16
+
+.byte LH1_8,OT1,LH1_8,OT0,LH1_8,OT1,LH1_8,OT0,LH1_8,OT1,LH1_8,OT0,LH1_8,OT1,LH1_8
+.byte OT0,LH1_8,OT1,LH1_8,OT0,LH1_8,OT1,LH1_8,OT0,LH1_8,OT1,LH1_8,OT0,LH1_8,OT1,LH1_8
+.byte OT0,L1_8,OT1,L1_8,OT0,L1_8,OT1,L1_8,OT0,L1_8,OT1,L1_8,OT0,L1_8,OT1,L1_8
+.byte OT0,L1_8,OT1,L1_8,OT0,L1_8,OT1,L1_8,OT0,L1_8,OT1,L1_8,OT0,L1_8,OT1,L1_8
+
+.byte OT0,S1_8,OT1,S1_8,OT0,S1_8,OT1,S1_8,OT0,S1_8,OT1,S1_8,OT0,S1_8,OT1,S1_8
+.byte OT0,S1_8,OT1,S1_8,OT0,S1_8,OT1,S1_8,OT0,S1_8,OT1,S1_8,OT0,S1_8,OT1,S1_8
+.byte D1_8,S1_8,D1_8,S1_8,D1_8,S1_8,D1_8,S1_8
+.byte D1_8,S1_8,D1_8,S1_8,D1_8,S1_8,D1_8,S1_8
+
+.byte REPEAT
+.word BGM_AIRSHIP_TRI_R0
+.endif
+
+.if 0
+;----------
 ;A1D2 - $02
 DC A1 24 A3 01 A4 FF FF FF FF 
 F6 03 FF E0
@@ -5791,7 +6333,7 @@ DD CD 3C CC 3C CC 3C CC 43 DB CB 46 DD CD 4C CC
 51 F1 05 F0 51 F1 25 F0 51 F1 35 F0 51 C5 FC 2F
 A4 FE 03 A4
 
-----------
+;----------
 ;A444 - $03 - area wreck
 4E A4 A6 A4 AE A4 FF FF FF FF 
 ;A44E - CH0
@@ -5821,7 +6363,7 @@ E0 4E F2 48 E0 4D 98 E0 4C F3 18 E0 4B F2 98 E0
 4A 48 E0 48 F3 18 E0 46 F2 98 E0 44 48 E0 41 18
 E0 3E F1 98 E0 3A 48 FE B2 A4
 
-----------
+;----------
 ;A56A - $04
 74 A5 41 A6 FF FF FF FF FF FF 
 ;A574 - CH0
@@ -5849,7 +6391,7 @@ E3 BA D5 E9 F0 95 DA F1 E4 97 D2 E5 F0 58 F1 E2
 
 0D FF E3 01 FF
 
-----------
+;----------
 ;A685 - $05 - piecefull castle
 8F A6 00 A7 74 A7 FF FF FF FF 
 ;A68F - CH0
@@ -5883,7 +6425,7 @@ CA BC CC B2 27 CA F0 97 CA F1 27 CA F0 97 CA F1
 CA F1 17 CA F0 97 CA F1 17 CA F0 97 CA F1 17 CA
 F0 97 CA FE 75 A7
 
-----------
+;----------
 ;A7F6 - $06
 00 A8 61 A8 BF A8 FF FF FF FF
 ;A800
@@ -5914,7 +6456,7 @@ F2 48 F1 78 F2 08 F1 78 F0 78 B8 F1 28 78 B8 28
 44 F0 78 E0 43 F1 28 E0 42 78 E0 41 28 E0 40 98
 E0 3F 28 E0 3E B8 E0 3D 28 FE BF A8
 
-----------
+;----------
 ;A97C - $07
 86 A9 D6 A9 1F AA 5F AA 6E AA 
 07_CH0_A986:
@@ -5959,7 +6501,7 @@ C0 02 08 03 03 08 02 02 08 03 03 05 05 08 FE 71
 
 AA
 
-----------
+;----------
 ;AA81 - $08
 8B AA 3D AB 81 AB FF FF FF FF 
 E0 9B F5 03 07
@@ -5988,7 +6530,7 @@ CB 68 BB CB 28 BB CB FD D4 AB 0B C6 7B CB 0B CB
 CB FC A0 AB 58 9B CB 48 9B CB 28 9B CB 08 9B CB
 F0 98 F1 4B CB 9B CB 7B CB 6B C6 25 FE 81 AB
 
-----------
+;----------
 ;ABEF - $09
 F9 AB 7E AC D8 AC FF FF FF FF 
 E0 89 F6 02 07 EB FB
@@ -6016,7 +6558,7 @@ C8 F1 48 C5 F0 BB CB F1 08 C8 F0 78 C8 F1 08 C5
 CB C8 FC EB AC C0 F0 58 F1 08 78 F0 88 F1 18 68
 75 D2 C2 FE D8 AC
 
-----------
+;----------
 ;AD36 - $0A = airship(Go above the Clouds!)
 40 AD A4 AD 40 AE FF FF FF FF
 ;AD40 - CH0
@@ -6054,7 +6596,7 @@ AB CB FC 7D AE F0 A8 F1 AB CB F0 A8 F1 AB CB F0
 5B CB F1 58 F2 5B CB F1 45 F2 4B CB F1 25 F2 2B
 CB F1 28 F2 2B CB FE 4A AE
 
-----------
+;----------
 ;AEB9 - $0B
 C3 AE 5A AF D6 AF FF FF FF FF 
 E0 60 EB F6 02 FF F2 0B F1 AB FB 02 98
@@ -6086,7 +6628,7 @@ F1 5B CB 4B CB 2B CB 0B CB FC 06 B0 F0 7B F1 7B
 F0 9B F1 9B F0 AB F1 AB F0 BB F1 BB 0B C6 A5 FE
 D7 AF
 
-----------
+;----------
 ;B042 - $0C
 4C B0 BA B0 14 B1 FF FF FF FF 
 E0 8C EB F6
@@ -6111,7 +6653,7 @@ FB 02 A8 C5 F1 59 DE 9F A3 F0 AB CB FD 5B B1 9B
 CB 9B C6 F1 48 95 F0 95 FC 42 B1 9B CB 9B C7 CF
 F1 3F 48 F0 98 C3 FC 40 B1 FE 14 B1
 
-----------
+;----------
 ;B16C - $0D
 76 B1 FA B1 5B B2 FF FF FF FF 
 E0 50 F6 0B 05 E6 F2 3E 4E 5E
@@ -6139,7 +6681,7 @@ F2 48 F1 48 F2 08 68 F1 48 B8 F2 48 F1 48 F2 18
 78 F1 48 B8 F2 48 F1 48 A8 F2 48 F1 48 F2 18 78
 F1 48 F2 08 68 FE 5C B2
 
-----------
+;----------
 ;B2B8 - $0E
 C2 B2 E9 B2 0E B3 FF FF FF FF 
 E0 B4 F6 03 FF EB F1 78 88 98 A5 A8 B8 F2
@@ -6151,7 +6693,7 @@ E0 B4 F6 03 FF EB F1 78 88 98 A5 A8 B8 F2
 07 FB 05 F1 1B CB 1B CB F2 18 FC 13 B3 F1 1B CB
 FE 11 B3
 
-----------
+;----------
 ;B323 - $0F
 2D B3 70 B3 03 B4 FF FF FF FF 
 E0 55 F6
@@ -6177,7 +6719,7 @@ B4 BD 9D 7D 6D 4C 2C 0C F0 B3 F1 18 33 48 68 48
 38 18 F0 B5 95 FB 08 F1 1B CB 7B CB FC 47 B4 FE
 03 B4
 
-----------
+;----------
 ;B452 - $10
 5C B4 B2 B4 02 B5 FF FF FF FF 
 F6 0B 07 EB
@@ -6204,7 +6746,7 @@ F1 B8 48 88 B8 F2 48 88 48 F1 B8 88 78 B8 F2 28
 
 48 E0 48 F1 B8 E0 46 88 FE 02 B5
 
-----------
+;----------
 ;B58B - $11
 95 B5 08 B6 6A B6 FF FF FF FF 
 E0 6E F6 02 FF EB FB 02 F3 0B C6
@@ -6228,7 +6770,7 @@ C8 FC 6D B6 FB 02 F1 28 C8 98 C8 28 C8 98 C8 FD
 F3 3B FC 76 B6 F2 28 F1 2B CB F2 08 F1 4B CB B8
 6B CB 98 2B CB FE 6A B6
 
-----------
+;----------
 ;B6A8 - $12
 B2 B6 7D B7 79 B8 FF FF FF FF 
 F7 04 07 EB F2 25 F1 A8 F2 0B 2B 05 F1 98
@@ -6277,7 +6819,7 @@ C5 4D CD 4D CD 8D CD 8D CD 9D C9 F0 98 F1 2B CB
 9B CB F2 23 F1 2D CD 2D CD C5 F1 2B CB 9B CB F2
 03 F1 2D CD 2D CD C5 FE 79 B8
 
-----------
+;----------
 ;B92A - $13
 34 B9 B2 B9 35 BA FF FF FF FF 
 F7 04 07 E0 5A E4 F0 28 E0 57 E5 68
@@ -6303,7 +6845,7 @@ F0 A2 FE CB B9 C0 F1 75 D9 CD 78 62 45 D9 CD 48
 F1 25 12 25 D9 CD 28 45 D9 CD 48 62 D8 D9 CD 68
 48 25 D9 CD 28 45 D9 CD 48 60 FE 36 BA
 
-----------
+;----------
 ;BA6D - $14
 77 BA 0C BB AD BB FF FF FF FF 
 F5 03 FF EB E0 46 F2 88 38
@@ -6342,7 +6884,7 @@ BB CB F1 BB 9B B8 78 6B CB F2 1B CB F1 9B CB F0
 9B BB F1 0B CB F2 0B CB F1 4B 6B 78 68 38 F0 B8
 98 FE EE BB
 
-----------
+;----------
 ;BC54 - $15
 5E BC B5 BC 60 BD FF FF FF FF 
 F6 0F
@@ -6380,7 +6922,7 @@ B8 E0 6A F2 18 E0 68 F1 B8 E0 66 78 E0 64 48 E0
 62 78 E0 60 B8 E0 5E F2 18 E0 5C F1 B8 E0 5A 78
 FE 60 BD
 
-----------
+;----------
 ;BE23 - $16
 2D BE 9F BE CD BE FF FF FF FF 
 E0 7D F6
@@ -6404,7 +6946,7 @@ F2 2A 5A 2A 5A 75 45 F1 BA 7A BA F2 4A F1 BA F2
 4A 55 25 F1 9A 5A 9A F2 2A F1 9A F2 2A 45 05 F1
 BA F2 0A 2A 4A 5A 7A FC 0B BF FE D5 BE
 
-----------
+;----------
 ;BF3D - $17
 47 BF 63 BF 74 BF FF FF FF FF 
 E0 7D F5 07 07 EB F1 7D 9D
@@ -6414,7 +6956,7 @@ AD F2 05 0C CC 0C CC 0C CC E0 76 15 E0 6F 35 E0
 
 FF
 
-----------
+;----------
 ;BF81 - $18
 8B BF B8 BF DC BF FF FF FF FF 
 F5 07 07 EB E0
@@ -6446,7 +6988,7 @@ B717	;17 B7
 BA9A	;9A BA
 BCC0	;C0 BC
 
-----------
+;----------
 ;A024 - $19
 2E A0 90 A0 E5 A0 FF FF FF FF 
 F6 02 
@@ -6469,7 +7011,7 @@ A8 78 52 0A C4 0A 2A C4 2A 7A C7 2A C7 7A C4 6A
 7C CC 7A 9A AA B8 C3 2C CC 2C CC 2C CC 2A 4A 6A 
 78 C3 FE F3 A0
 
-----------
+;----------
 ;A125 - $1A
 2F A1 75 A1 AB A1 FF FF FF FF 
 F6 
@@ -6486,7 +7028,7 @@ FC AE A1 FB 10 59 CD FC B5 A1 FB 10 09 CD FC BC
 A1 FB 08 79 CD FC C3 A1 FB 08 59 CD FC CA A1 FE 
 AC A1
 
-----------
+;----------
 ;A1D2 - $1B
 DC A1 3A A2 68 A2 FF FF FF FF 
 F6 02 07 EB 
@@ -6506,7 +7048,7 @@ F1 BB CB FB 07 C8 F1 4B C6 4B C6 2B C6 2B CB FC
 F2 1B CB F1 98 F2 1B CB F1 78 BB CB 78 BB CB FC 
 8F A2 C1 95 FE 8D A2
 
-----------
+;----------
 ;A2A7 - $1C = dance ver 1
 B1 A2 ED A2 1E A3 FF FF FF FF 
 ;A2B1 - CH0
@@ -6525,7 +7067,7 @@ FB 14
 F1 6B CB F2 1B CB FC 20 A3 F1 68 C8 F2 1B C6 F1 
 65 FF
 
-----------
+;----------
 ;A332 - $1D
 3C A3 7C A3 E3 A3 FF FF FF FF 
 E0 5A F6 03 
@@ -6551,7 +7093,7 @@ E0 56 F1 8B CB F2 4B CB E0 54 F1 8B CB F2 4B CB
 E0 52 F1 8B CB F2 4B CB E0 5A C5 85 9B C6 C2 85 
 6B C6 C2 85 9B C6 C2 F3 05 3B C6 C2 FE E3 A3
 
-----------
+;----------
 ;A46F - $1E
 79 A4 F9 A4 3D A6 FF FF FF FF 
 E0 78 F5 02 FF E3 C6 
@@ -6607,7 +7149,7 @@ F0 FB 02 AD CD AD CD C5 AD CD AD CD C2 FC 23 A7
 BD CD BD CD C5 BD CD BD CD C2 F1 4D CD 4D CD C5 
 4D CD 4D CD C2 FE 3F A6
 
-----------
+;----------
 ;A748 - $1F
 52 A7 CD A7 27 A8 FF FF FF FF 
 E0 4C EB F7 04 01 F1 B8 F2 88 68 48 38 48 
@@ -6645,7 +7187,7 @@ F2 08 F1 98 F2 08 F1 98 45 35 15 F0 B5 A2 F1 65
 F1 B8 F2 68 F1 B8 F2 48 F1 B8 48 B8 F2 48 F1 B8 
 F2 68 F1 B8 F2 48 F1 B8 FE 27 A8 
 
-----------
+;----------
 ;A92B - $20
 35 A9 BF A9 E1 AA A6 AB 38 AC 
 E0 9E EB F5 09 FF F0 5C 8C BC F1 
@@ -6708,7 +7250,7 @@ AB FC E8 AB FB 02 F9 08 0B 0B FA 08 F9 0B 0B 08
 05 05 08 02 FD 71 AC FB 04 08 03 FC 69 AC FC 5D 
 AC FB 03 02 08 03 FC 73 AC 03 08 02 FE 43 AC
 
-----------
+;----------
 ;AC7F - $21
 89 AC DE AC 5B AD FF FF FF FF 
 E0 80 F5 07 07 EB C0 
@@ -6732,7 +7274,7 @@ FC 5D AD FB 04 F1 2B C6 2B C6 2B C6 2B C6 2B C6
 0B C6 0B C6 0B C6 0B C6 0B CB F0 98 F1 0B CB F0 
 98 FC 65 AD FE 63 AD
 
-----------
+;----------
 ;AD97 - $22
 A1 AD 05 AE 5D AE FF FF FF FF 
 E0 93 F6 03 07 EB C8 C0 F2 43 28 D2 63 43 F1 
@@ -6760,7 +7302,7 @@ F1 8B CB F0 98 F1 8B CB F0 B8 F1 8B CB 18 8B CB
 B8 F1 15 35 65 98 FD F6 AE 48 68 78 85 F0 B8 F1 
 48 F0 B8 FC 8A AE F1 B8 95 85 68 48 28 FE 6D AE 
 
-----------
+;----------
 ;AF00 - $23 = The invincible
 0A AF 8B AF 2E B0 FF FF FF FF 
 ;AF0A - CH0
@@ -6802,7 +7344,7 @@ CB FC 6F B0 FB 08 F0 9B CB FC 76 B0 F1 FB 03 FB
 7F B0 FB 08 8B CB 48 FC 94 B0 FB 08 9B CB 48 FC 
 9C B0 FE 2E B0
 
-----------
+;----------
 ;B0A5 - $24
 AF B0 63 B1 01 B2 FF FF FF FF 
 E0 
@@ -6835,7 +7377,7 @@ FB 10 0B CB 3B CB 5B CB 3B CB FC 12 B2 FB 02 FB
 04 68 C8 FC 21 B2 75 F2 28 F1 78 58 F2 15 F1 58 
 FC 1F B2 FE 10 B2
 
-----------
+;----------
 ;B236 - $25
 40 B2 B4 B2 64 B3 FF FF FF FF 
 E0 99 F6 0A 01 EB F0 BC F1 0C 2C 4C 6C 8C FB 02 
@@ -6872,7 +7414,7 @@ CB F1 98 FC EE B3 FB 03 F1 4B CB F0 B8 FC F8 B3
 ;B400
 F1 8C 6C 4C 2C 0C F0 BC FE 65 B3
 
-----------
+;----------
 ;B40B - $26
 15 B4 C9 B4 42 B5 FF FF FF FF 
 E0 55 F5 02 FF F2 EE 58 EC 58 EA 
@@ -6903,7 +7445,7 @@ F2 23 F0 A3 D5 F1 58 F0 78 F1 28 78 A3 08 78 F2
 
 F2 03 FE 42 B5
 
-----------
+;----------
 ;B585 - $27
 8F B5 E6 B5 75 B6 FF FF FF FF 
 E0 
@@ -6936,7 +7478,7 @@ AB CB C8 AB CB BB CB BB CB C8 BB CB FC C5 B6 FB
 04 F1 3B CB F0 A8 FC 01 B7 FB 04 F0 9B CB F1 4B 
 CB FC 0B B7 FE 75 B6
 
-----------
+;----------
 ;B717 - $28
 21 B7 51 B8 27 B9 BA B9 66 BA 
 E0 A3 F6 13 FF E8 FB 08 F1 9E 4E F0 9E FC 29 
@@ -7003,7 +7545,7 @@ FA 08 F9 08 FA 0B 0B F9 08 FC 26 BA 05 05 08 FA
 D2 03 05 05 08 03 08 D2 FD 94 BA C8 05 08 08 05 
 08 FC 7E BA 03 08 02 FE 66 BA
 
-----------
+;----------
 ;BA9A - $29
 A4 BA 02 BB 22 BC FF FF FF FF 
 E0 A0 EB F7 0A 01 FB 02 F1 B1 D8 F2 
@@ -7045,7 +7587,7 @@ B8 F1 6B CB FC 8F BC FB 04 F0 98 F1 4B CB FC 99
 BC 0B CB 0B C6 0B CB 0B CB 0B C6 0B CB 6B CB 6B 
 CB 4B CB 4B CB 2B CB 2B CB 1B CB 1B CB FE 22 BC 
 
-----------
+;----------
 ;BCC0 - $2A
 CA BC 8B BD 98 BE 61 BF B7 BF 
 E0 A5 CB F6 02 FF 
@@ -7116,7 +7658,7 @@ FC CF BF FE B8 BF 00 00 00 00 00 00 00 00 00 00
 9220	;20 92
 924A	;4A 92
 
-----------
+;----------
 ;8C8F - $2B
 99 8C B5 8C C9 8C FF FF FF FF 
 F6 02 FF EB E0 5A F1
@@ -7125,7 +7667,7 @@ F6 02 FF EB E0 5A F1
 78 58 28 05 38 08 F0 B2 FF F1 05 55 35 A5 85 55
 72 FF
 
-----------
+;----------
 ;8CD2 - $2C
 DC 8C F6 8C 13 8D FF FF FF FF 
 E0 89 F7 0A
@@ -7135,7 +7677,7 @@ E0 89 F7 0A
 F1 5A 2A 5A 7A 2A F0 BA F1 0A 3A 7A 8A AA F2 0A
 F1 B2 FF F1 72 52 85 55 72 FF
 
-----------
+;----------
 ;8D1A - $2D
 24 8D 57 8D 84 8D FF FF FF FF 
 E0 BE EB F7 12 07 F0 AB BB AB BB A1
@@ -7149,7 +7691,7 @@ F0 A8 78 F2 68 38 08 F1 98 68 38 08 F0 98 FC 65
 18 C8 18 C8 18 08 C5 08 C8 08 C8 08 FC 8D 8D FE
 84 8D
 
-----------
+;----------
 ;8DA2 - $2E
 AC 8D 21 8E D4 8E FF FF FF FF 
 E0 87 F6 12
@@ -7186,7 +7728,7 @@ F0 B5 F1 58 C8 F0 B5 F1 18 C8 95 25 45 55 65 FB
 27 CA 27 CA 07 CA 07 CA 07 CA 07 CA F0 B1 F1 35
 62 F0 B2 FE D4 8E
 
-----------
+;----------
 ;8F76 - $2F
 80 8F E6 8F 43 90 FF FF FF FF
 
@@ -7221,13 +7763,13 @@ F1 88 F0 88 F1 38 88 F2 08 38 08 F1 88 38 F0 B8
 F1 68 B8 F2 38 68 38 F1 B8 68 F2 B8 68 38 F1 B8
 98 68 38 F0 B8 FE 44 90
 
-----------
+;----------
 ;9128 - $30
 32 91 3B 91 FF FF 40 91 FF FF 
 F6 1A FF F8 C4 F4 90 D5 FF E7 C6 FE 32 91
 F5 1B FF F0 C0 C2 09 FF
 
-----------
+;----------
 ;9148 - $31
 52 91 6B 91 82 91 8C 91 FF FF 
 F5 19 FF F8 8F F2 E6 04 E7 04 E8 04 E9 04
@@ -7237,14 +7779,14 @@ F2 E7 14 E8 14 E9 14 EA 14 EB 14 EC 14 ED 14 EE
 14 FF F4 C2 04 C2 0B C7 02 C2 04 FF F5 16 FF F0
 20 10 00 EF 55 92 F5 0B FF 90 D0 FF
 
-----------
+;----------
 ;919C - $32
 A6 91 B4 91 FF FF B9 91 FF FF 
 F7 1D 0B F4 48 AB 06 48 AB 06
 48 AB 06 FF CC E7 FE A6 91 F5 15 FF EF B5 95 75
 A5 85 FF
 
-----------
+;----------
 ;91C3 - $33
 CD 91 DA 91 E5 91 F0 91 FF FF 
 F6 1E 0C
@@ -7254,20 +7796,20 @@ F5 14 FF EF FB 02 89 89 69 69 49 A9 99 FC F6 91
 ;9200
 FF
 
-----------
+;----------
 ;9201 - $34
 0B 92 15 92 FF FF FF FF FF FF 
 F7 1C FF F8 B5
 F2 54 43 32 FF F7 1C FF F8 B5 F1 14 03 F0 B2 FF
 
-----------
+;----------
 ;9220 - $35
 2A 92 2C 92 FF FF 3D 92 FF FF 
 EB C9 F5 24 FF F8
 B5 F1 2A F2 25 F1 2A F2 25 C1 FE 31 92 EA F5 1A
 FF F0 0B EF 6D 2A C8 FE 41 92
 
-----------
+;----------
 ;924A - $36
 54 92 BD 92 FF FF FF FF FF FF 
 E0 5F EB F6 02 FF FB 02 F0 5B 8B BB
@@ -7285,7 +7827,7 @@ B876	;76 B8
 BA82	;82 BA
 BABF	;BF BA
 
-----------
+;----------
 ;B3B6 - $37
 C0 B3 C8 B4 F9 B6 FF FF FF FF
 E8 F5 02 07 E0 91 F1 BB F2 1B F1 BB CB BB F2 1B
@@ -7374,7 +7916,7 @@ F0 9B CB F1 4B CB 0B 4B 9B F2 0B FC 40 B8 F1 FB
 B8 FB 04 9B CB 4B CB FC 63 B8 FB 04 AB CB 4B CB
 FC 6C B8 FE FD B6
 
-----------
+;----------
 ;B876 - $38
 80 B8 13 B9 D8 B9 FF FF FF FF
 
@@ -7416,7 +7958,7 @@ FB 0B F1 A9 CD FC 62 BA 98 78 58 48 28 FB 02 F0
 
 EE B9
 
-----------
+;----------
 ;BA82 - $39
 FF FF 8C BA A4 BA FF FF FF FF 
 F5 03 07 E8
@@ -7424,7 +7966,7 @@ C5 F1 2B C6 C8 0B C6 0B CB C8 2B C6 2B C6 C8 0B
 C6 FE 90 BA F1 7B C6 BB CB 7B CB 58 9B C6 9B CB
 78 BB CB 78 BB CB 5B C6 9B CB 5B CB FE A5 BA
 
-----------
+;----------
 ;BABF - $3A
 C9 BA E9 BA FF FF FF FF FF FF 
 E0 FA F5 0B FF EB F1
@@ -7442,7 +7984,7 @@ BF14	;14 BF
 BFA5	;A5 BF
 BFB4	;B4 BF
 
-----------
+;----------
 ;$B40C - $3B
 16 B4 7D B5 91 B9 7A BB FF FF 
 F7 0E 01 E0 82 EC FB 0C C0 FC
@@ -7603,7 +8145,7 @@ EF 40 C0 C0 C0 C0 FB 04 EF 42 FA E7 AB E8 AB E9
 AB EA AB EB AB EC AB ED AB EE AB F5 27 FF FC A8
 BC EF 40 42 42 40 FF
 
-----------
+;----------
 ;BCC7 - $3C
 D1 BC 58 BD FF FF FF FF FF FF 
 E0 50 C0 C0 EB F7 04 07 F1 65 95 F2 25 F1 95
@@ -7637,7 +8179,7 @@ F0 48 78 48 98 48 78 48 EF 98 F0 48 78 48 98 48
 78 48 28 E0 4E 68 E0 4C 98 E0 4A 68 E0 48 F1 28
 E0 46 F0 68 E0 44 98 E0 42 68 E0 40 20 D0 FF
 
-----------
+;----------
 ;BE7F - $3D
 89 BE B4 BE 00 BF FF FF FF FF 
 F6 0B 07 E9 F1 0B 1B
@@ -7652,7 +8194,7 @@ BA BE ED F5 0A 07 FB 02 F2 0E 5E 7E F3 0B D1 F2
 F1 08 18 08 18 38 48 38 48 68 78 68 78 98 A8 98
 A8 FE 01 BF
 
-----------
+;----------
 ;BF14 - $3E
 1E BF 69 BF 71 BF FF FF FF FF 
 E0 46
@@ -7667,13 +8209,13 @@ D7 F1 2A 55 AF BF DE DC AF BF DE DC AF BF DE DC
 F0 B5 D7 F1 2A 55 AF BF DE DC AF BF DE DC AF BF
 DE DC FE 71 BF
 
-----------
+;----------
 ;BFA5 - $3F
 AF BF 69 BF 71 BF FF FF FF FF 
 E0
 78 FE 20 BF
 
-----------
+;----------
 ;BFB4 - $40
 BE BF FF FF FF FF FF FF FF FF 
 E0 78
@@ -7684,48 +8226,55 @@ F5 0B FF EB F2 48 38 48 38 46 F1 95 DB C2 F2 48
 
 
 
+.endif
+
+
+
+.if FF3_DRIVER
+; 6DA80h ($36:9A7C) - pointers to volume envelope data
 ;Volume envelope Address (41)
-9ACE	;CE 9A - $00
-9ADB	;DB 9A - $01
-9AED	;ED 9A - $02
-9B0E	;0E 9B - $03
-9B55	;55 9B - $04
-9B83	;83 9B - $05
-9BA0	;A0 9B - $06
-9BAA	;AA 9B - $07
-9BC9	;C9 9B - $08
-9BE8	;E8 9B - $09
-9C0A	;0A 9C - $0A
-9B18	;18 9B - $0B
-9B73	;73 9B - $0C
-9B22	;22 9B - $0D
-9B7B	;7B 9B - $0E
-9C24	;24 9C - $0F
-9C40	;40 9C - $10
-9C00	;00 9C - $11
-9C56	;56 9C - $12
-9C72	;72 9C - $13
-9C82	;82 9C - $14
-9C91	;91 9C - $15
-9C9B	;9B 9C - $16
-9CA5	;A5 9C - $17
-9D3A	;3A 9D - $18
-9DC5	;C5 9D - $19
-9E23	;23 9E - $1A
-9E40	;40 9E - $1B
-9CD7	;D7 9C - $1C
-9C4A	;4A 9C - $1D
-9E51	;51 9E - $1E
-9D80	;80 9D - $1F
-9CF3	;F3 9C - $20
-9D16	;16 9D - $21
-9CBF	;BF 9C - $22
-9CEB	;EB 9C - $23
-9DF4	;F4 9D - $24
-9E6F	;6F 9E - $25
-9E31	;31 9E - $26
-9B28	;28 9B - $27
-9E7D	;7D 9E - $28
+VolEnvTbl:
+.word VE_9ACE	;CE 9A - $00
+.word VE_9ADB	;DB 9A - $01
+.word VE_9AED	;ED 9A - $02
+.word VE_9B0E	;0E 9B - $03
+.word VE_9B55	;55 9B - $04
+.word VE_9B83	;83 9B - $05
+.word VE_9BA0	;A0 9B - $06
+.word VE_9BAA	;AA 9B - $07
+.word VE_9BC9	;C9 9B - $08
+.word VE_9BE8	;E8 9B - $09
+.word VE_9C0A	;0A 9C - $0A
+.word VE_9B18	;18 9B - $0B
+.word VE_9B73	;73 9B - $0C
+.word VE_9B22	;22 9B - $0D
+.word VE_9B7B	;7B 9B - $0E
+.word VE_9C24	;24 9C - $0F
+.word VE_9C40	;40 9C - $10
+.word VE_9C00	;00 9C - $11
+.word VE_9C56	;56 9C - $12
+.word VE_9C72	;72 9C - $13
+.word VE_9C82	;82 9C - $14
+.word VE_9C91	;91 9C - $15
+.word VE_9C9B	;9B 9C - $16
+.word VE_9CA5	;A5 9C - $17
+.word VE_9D3A	;3A 9D - $18
+.word VE_9DC5	;C5 9D - $19
+.word VE_9E23	;23 9E - $1A
+.word VE_9E40	;40 9E - $1B
+.word VE_9CD7	;D7 9C - $1C
+.word VE_9C4A	;4A 9C - $1D
+.word VE_9E51	;51 9E - $1E
+.word VE_9D80	;80 9D - $1F
+.word VE_9CF3	;F3 9C - $20
+.word VE_9D16	;16 9D - $21
+.word VE_9CBF	;BF 9C - $22
+.word VE_9CEB	;EB 9C - $23
+.word VE_9DF4	;F4 9D - $24
+.word VE_9E6F	;6F 9E - $25
+.word VE_9E31	;31 9E - $26
+.word VE_9B28	;28 9B - $27
+.word VE_9E7D	;7D 9E - $28
 
 ; Attack : volumes(low nibble) : if -(negative) is attack terminate(to decay)
 ; Decay/Release : 1st : volume envelope rate, 
@@ -7733,531 +8282,542 @@ F5 0B FF EB F2 48 38 48 38 46 F1 95 DB C2 F2 48
 ;		  3rd : + = vol up, - = vol down(if 2nd is not terminate(0) ) - 2nd, 3rd repeat
 ;		  [volume envelope rate], [count or terminate], [volume], [count or terminate], [volume], ...
 
-----------
+;----------
 ;9ACE - $00
+VE_9ACE:
 .word VE_9AD4				; D4 9A
 .word VE_9AD9				; D9 9A
 .word VE_9AD9				; D9 9A
 VE_9AD4:
-0F 09 03 00 FF 
+.byte $0F,$09,$03,$00,$FF
 VE_9AD9:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9ADB - $01
+VE_9ADB:
 .word VE_9AE1				; E1 9A
 .word VE_9AEB				; EB 9A
 .word VE_9AEB				; EB 9A
 VE_9AE1:
-0F 0C 09 07 05 03 02 01 00 FF 
+.byte $0F,$0C,$09,$07,$05,$03,$02,$01,$00,$FF
 VE_9AEB:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9AED - $02
+VE_9AED:
 .word VE_9AF3				; F3 9A
 .word VE_9B0A				; 0A 9B
 .word VE_9B0C				; 0C 9B
 VE_9AF3:
-0F 0F 0E 0E 0D 0D 0C 0C 0B 0B 0A 0A 09
-09 08 08 08 07 07 07 07 06 FF
+.byte $0F,$0F,$0E,$0E,$0D,$0D,$0C,$0C,$0B,$0B,$0A,$0A,$09,$09,$08,$08,$08,$07,$07,$07,$07,$06,$FF
 VE_9B0A:
-14 00
+.byte $14,$00
 VE_9B0C:
-1E 00
+.byte $1E,$00
 
-----------
+;----------
 ;9B0E - $03
+VE_9B0E:
 .word VE_9AF3				; F3 9A
 .word VE_9B14				; 14 9B
 .word VE_9B16				; 16 9B
 VE_9B14:
-0A 00
+.byte $0A,$00
 VE_9B16:
-14 00
+.byte $14,$00
 
-----------
+;----------
 ;9B18 - $0B
+VE_9B18:
 .word VE_9AF3				; F3 9A
 .word VE_9B1E				; 1E 9B
 .word VE_9B20				; 20 9B
 VE_9B1E:
-05 00
+.byte $05,$00
 VE_9B20:
-0A 00
+.byte $0A,$00
 
-----------
+;----------
 ;9B22 - $0D
+VE_9B22:
 .word VE_9AF3				; F3 9A
 .word VE_9B14				; 14 9B
 .word VE_9B20				; 20 9B
 
-----------
+;----------
 ;9B28 - $27
+VE_9B28:
 .word VE_9B2E				; 2E 9B
 .word VE_9B53				; 53 9B
 .word VE_9B53				; 53 9B
 VE_9B2E:
-0F 0F
-0E 0E 0D 0D 0C 0C 0B 0B 0A 0A 09 09 08 08 08 07
-07 07 06 06 06 06 05 05 05 05 05 04 04 04 04 04
-04 03 FF
+.byte $0F,$0F,$0E,$0E,$0D,$0D,$0C,$0C,$0B,$0B,$0A,$0A,$09,$09,$08,$08,$08,$07,$07,$07,$06,$06,$06,$06,$05,$05,$05,$05,$05,$04,$04,$04,$04,$04,$04,$03,$FF
 VE_9B53:
-05 00
+.byte $05,$00
 
-----------
+;----------
 ;9B55 - $04
+VE_9B55:
 .word VE_9B5B				; 5B 9B
 .word VE_9B6B				; 6B 9B
 .word VE_9B71				; 71 9B
 VE_9B5B:
-05 06 07 08 09
-09 0A 0A 0B 0B 0C 0C 0D 0D 0F FF
+.byte $05,$06,$07,$08,$09,$09,$0A,$0A,$0B,$0B,$0C,$0C,$0D,$0D,$0F,$FF
 VE_9B6B:
-05 02 00 02 FF
-FC
+.byte $05,$02,$00,$02,$FF,$FC
 VE_9B71:
-32 00
+.byte $32,$00
 
-----------
+;----------
 ;9B73 - $0C
+VE_9B73:
 .word VE_9B5B				; 5B 9B
 .word VE_9B79				; 79 9B
 .word VE_9B71				; 71 9B
 VE_9B79:
-05 00
+.byte $05,$00
 
-----------
+;----------
 ;9B7B - $0E
+VE_9B7B:
 .word VE_9B5B				; 5B 9B
 .word VE_9B79				; 79 9B
 .word VE_9B81				; 81 9B
 VE_9B81:
-19 00
+.byte $19,$00
 
-----------
+;----------
 ;9B83 - $05
+VE_9B83:
 .word VE_9B89				; 89 9B
 .word VE_9B9C				; 9C 9B
 .word VE_9B9E				; 9E 9B
 VE_9B89:
-0B 0C 0D 0E 0F 0E 0D
-0C 0B 0A 09 08 07 07 06 06 06 05 FF
+.byte $0B,$0C,$0D,$0E,$0F,$0E,$0D,$0C,$0B,$0A,$09,$08,$07,$07,$06,$06,$06,$05,$FF
 VE_9B9C:
-0A 00
+.byte $0A,$00
 VE_9B9E:
-05 00
+.byte $05,$00
 
-----------
+;----------
 ;9BA0 - $06
+VE_9BA0:
 .word VE_9B89				; 89 9B
 .word VE_9BA6				; A6 9B
 .word VE_9BA8				; A8 9B
 VE_9BA6:
-05 00
+.byte $05,$00
 VE_9BA8:
-02 00
+.byte $02,$00
 
-----------
+;----------
 ;9BAA - $07
+VE_9BAA:
 .word VE_9BB0				; B0 9B
 .word VE_9BBB				; BB 9B
 .word VE_9BC7				; C7 9B
 VE_9BB0:
-0F 06 08 09 0A 0B 0C 0D 0E 0F FF
+.byte $0F,$06,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F,$FF
 VE_9BBB:
-05 01 00 02 FF
-02 FE 02 FF 01 00 F6
+.byte $05,$01,$00,$02,$FF,$02,$FE,$02,$FF,$01,$00,$F6
 VE_9BC7:
-43 00
+.byte $43,$00
 
-----------
+;----------
 ;9BC9 - $08
+VE_9BC9:
 .word VE_9BCF				; CF 9B
 .word VE_9BDE				; DE 9B
 .word VE_9BE6				; E6 9B
 VE_9BCF:
-05
-06 07 08 09 09 0A 0A 0B 0B 0D 0D 0F 0F FF
+.byte $05,$06,$07,$08,$09,$09,$0A,$0A,$0B,$0B,$0D,$0D,$0F,$0F,$FF
 VE_9BDE:
-05 01
-00 02 FF 01 00 FA 
+.byte $05,$01,$00,$02,$FF,$01,$00,$FA
 VE_9BE6:
-32 00
+.byte $32,$00
 
-----------
+;----------
 ;9BE8 - $09
+VE_9BE8:
 .word VE_9BEE				; EE 9B
 .word VE_9BFC				; FC 9B
 .word VE_9BFE				; FE 9B
 VE_9BEE:
-0F 0E
-0D 0C 0B 0A 09 08 08 07 07 07 06 FF 
+.byte $0F,$0E,$0D,$0C,$0B,$0A,$09,$08,$08,$07,$07,$07,$06,$FF
 VE_9BFC:
-19 00
+.byte $19,$00
 VE_9BFE:
-1E 00
+.byte $1E,$00
 
-----------
+;----------
 ;9C00 - $11
+VE_9C00:
 .word VE_9BEE				; EE 9B
 .word VE_9C06				; 06 9C
 .word VE_9C08				; 08 9C
 VE_9C06:
-05 00
+.byte $05,$00
 VE_9C08:
-0A 00
+.byte $0A,$00
 
-----------
+;----------
 ;9C0A - $0A
+VE_9C0A:
 .word VE_9C10				; 10 9C
 .word VE_9C16				; 16 9C
 .word VE_9C1C				; 1C 9C
 VE_9C10:
-07 09 0B 0D 0F FF 
+.byte $07,$09,$0B,$0D,$0F,$FF
 VE_9C16:
-05 02 00 02 FF FC 
+.byte $05,$02,$00,$02,$FF,$FC
 VE_9C1C:
-32 02 00 02
-FE 02 01 FA
+.byte $32,$02,$00,$02,$FE,$02,$01,$FA
 
-----------
+;----------
 ;9C24 - $0F
+VE_9C24:
 .word VE_9C2A				; 2A 9C
 .word VE_9C38				; 38 9C
 .word VE_9C3E				; 3E 9C
 VE_9C2A:
-03 03 05 05 07 07
-09 09 0B 0B 0D 0D 0F FF
+.byte $03,$03,$05,$05,$07,$07,$09,$09,$0B,$0B,$0D,$0D,$0F,$FF
 VE_9C38:
-05 02 00 02 FF FC
+.byte $05,$02,$00,$02,$FF,$FC
 VE_9C3E:
-1E 00
+.byte $1E,$00
 
-----------
+;----------
 ;9C40 - $10
+VE_9C40:
 .word VE_9C46				; 46 9C
 .word VE_9C48				; 48 9C
 .word VE_9C48				; 48 9C
 VE_9C46:
-0F FF
+.byte $0F,$FF
 VE_9C48:
-64 00
+.byte $64,$00
 
-----------
+;----------
 ;9C4A - $1D
+VE_9C4A:
 .word VE_9C46				; 46 9C
 .word VE_9C50				; 50 9C
 .word VE_9C50				; 50 9C
 VE_9C50:
-64 01 FA 01 00 FC
+.byte $64,$01,$FA,$01,$00,$FC
 
-----------
+;----------
 ;9C56 - $12
+VE_9C56:
 .word VE_9C5C				; 5C 9C
 .word VE_9C64				; 64 9C
 .word VE_9C70				; 70 9C
 VE_9C5C:
-0F 0F 0E 0E
-0D 0D 0C FF
+.byte $0F,$0F,$0E,$0E,$0D,$0D,$0C,$FF
 VE_9C64:
-00 01 00 02 FF 02 FE 02 FF 01 00 F6
+.byte $00,$01,$00,$02,$FF,$02,$FE,$02,$FF,$01,$00,$F6
 VE_9C70:
-32 00
+.byte $32,$00
 
-----------
+;----------
 ;9C72 - $13
+VE_9C72:
 .word VE_9C78				; 78 9C
 .word VE_9C80				; 80 9C
 .word VE_9C80				; 80 9C
 VE_9C78:
-0F 0D 0B 09 07 05 04 FF
+.byte $0F,$0D,$0B,$09,$07,$05,$04,$FF
 VE_9C80:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9C82 - $14
+VE_9C82:
 .word VE_9C88				; 88 9C
 .word VE_9C8F				; 8F 9C
 .word VE_9C8F				; 8F 9C
 VE_9C88:
-0F 0C 09 06 03 00 FF
+.byte $0F,$0C,$09,$06,$03,$00,$FF
 VE_9C8F:
-00
-00
+.byte $00,$00
 
-----------
+;----------
 ;9C91 - $15
+VE_9C91:
 .word VE_9C97				; 97 9C
 .word VE_9C99				; 99 9C
 .word VE_9C99				; 99 9C
 VE_9C97:
-0F FF
+.byte $0F,$FF
 VE_9C99:
-21 00
+.byte $21,$00
 
-----------
+;----------
 ;9C9B - $16
+VE_9C9B:
 .word VE_9CA1				; A1 9C
 .word VE_9CA3				; A3 9C
 .word VE_9CA3				; A3 9C
 VE_9CA1:
-0F FF
+.byte $0F,$FF
 VE_9CA3:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9CA5 - $17
+VE_9CA5:
 .word VE_9CAB				; AB 9C
 .word VE_9CBB				; BB 9C
 .word VE_9CBD				; BD 9C 
 VE_9CAB:
-01 02 03 04 05
-06 07 08 09 0A 0B 0C 0D 0E 0F FF
+.byte $01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F,$FF
 VE_9CBB:
-00 00
+.byte $00,$00
 VE_9CBD:
-64 00
+.byte $64,$00
 
-----------
+;----------
 ;9CBF - $22
+VE_9CBF:
 .word VE_9CC5				; C5 9C
 .word VE_9CD5				; D5 9C
 .word VE_9CD5				; D5 9C
 VE_9CC5:
-08 00 09 00 0A 00 0B 00 0C 00 0D
-00 0E 00 0F FF
+.byte $08,$00,$09,$00,$0A,$00,$0B,$00,$0C,$00,$0D,$00,$0E,$00,$0F,$FF
 VE_9CD5:
-64 00
+.byte $64,$00
 
-----------
+;----------
 ;9CD7 - $1C
+VE_9CD7:
 .word VE_9CAB				; AB 9C
 .word VE_9CDD				; DD 9C
 .word VE_9CBD				; BD 9C
 VE_9CDD:
-00 01 FD
-01 FA 01 F7 01 FA 01 FD 01 00 F4
+.byte $00,$01,$FD,$01,$FA,$01,$F7,$01,$FA,$01,$FD,$01,$00,$F4
 
-----------
+;----------
 ;9CEB - $23
+VE_9CEB:
 .word VE_9CAB				; AB 9C
 .word VE_9CF1				; F1 9C
 .word VE_9CF1				; F1 9C 
 VE_9CF1:
-64 00
+.byte $64,$00
 
-----------
+;----------
 ;9CF3 - $20
+VE_9CF3:
 .word VE_9CF9				; F9 9C
 .word VE_9D0A				; 0A 9D
 .word VE_9D10				; 10 9D
 VE_9CF9:
-00 02 00 04 00 06 00
-08 00 0A 00 0C 00 0E 00 0F FF
+.byte $00,$02,$00,$04,$00,$06,$00,$08,$00,$0A,$00,$0C,$00,$0E,$00,$0F,$FF
 VE_9D0A:
-00 01 F1 01 00 FC
+.byte $00,$01,$F1,$01,$00,$FC
 VE_9D10:
-64 01 F1 01 00 FC
+.byte $64,$01,$F1,$01,$00,$FC
 
-----------
+;----------
 ;9D16 - $21
+VE_9D16:
 .word VE_9D1C				; 1C 9D
 .word VE_9D2C				; 2C 9D
 .word VE_9D34				; 34 9D
 VE_9D1C:
-01 00 03 00
-05 00 07 00 09 00 0B 00 0D 00 0F FF
+.byte $01,$00,$03,$00,$05,$00,$07,$00,$09,$00,$0B,$00,$0D,$00,$0F,$FF
 VE_9D2C:
-00 01 F1 01
-F1 01 00 FC
+.byte $00,$01,$F1,$01,$F1,$01,$00,$FC
 VE_9D34:
-64 01 F1 01 00 FC
+.byte $64,$01,$F1,$01,$00,$FC
 
-----------
+;----------
 ;9D3A - $18
+VE_9D3A:
 .word VE_9D40				; 40 9D
 .word VE_9D7E				; 7E 9D
 .word VE_9D7E				; 7E 9D
 VE_9D40:
-01 01 01 01 02 02 02 02 03 03 03 03 04 04 04 04
-05 05 05 05 06 06 06 06 07 07 07 07 08 08 08 08
-09 09 09 09 0A 0A 0A 0A 0B 0B 0B 0B 0C 0C 0C 0C
-0D 0D 0D 0D 0E 0E 0E 0E 0F 0F 0F 0F 00 FF
+.byte $01,$01,$01,$01,$02,$02,$02,$02,$03,$03,$03,$03,$04,$04,$04,$04,$05,$05,$05,$05,$06,$06,$06,$06,$07,$07,$07,$07,$08,$08,$08,$08,$09,$09,$09,$09,$0A,$0A,$0A,$0A,$0B,$0B,$0B,$0B,$0C,$0C,$0C,$0C,$0D,$0D,$0D,$0D,$0E,$0E,$0E,$0E,$0F,$0F,$0F,$0F,$00,$FF
 VE_9D7E:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9D80 - $1F
+VE_9D80:
 .word VE_9D86				; 86 9D
 .word VE_9DC3				; C3 9D
 .word VE_9DC3				; C3 9D
 VE_9D86:
-01 00 01 00 02 00 02 00 03 00
-03 00 04 00 04 00 05 00 05 00 06 00 06 00 07 00
-07 00 08 00 08 00 09 00 09 00 0A 00 0A 00 0B 00
-0B 00 0C 00 0C 00 0D 00 0D 00 0E 00 0E 00 0F 00
-0F 00 FF
+.byte $01,$00,$01,$00,$02,$00,$02,$00,$03,$00,$03,$00,$04,$00,$04,$00,$05,$00,$05,$00,$06,$00,$06,$00,$07,$00,$07,$00,$08,$00,$08,$00,$09,$00,$09,$00,$0A,$00,$0A,$00,$0B,$00,$0B,$00,$0C,$00,$0C,$00,$0D,$00,$0D,$00,$0E,$00,$0E,$00,$0F,$00,$0F,$00,$FF
 VE_9DC3:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9DC5 - $19
+VE_9DC5:
 .word VE_9DCB				; CB 9D
 .word VE_9DF2				; F2 9D
 .word VE_9DF2				; F2 9D
 VE_9DCB:
-01 03 05 07 07
-07 07 07 07 07 07 09 0B 0D 0F 0F 0F 0F 0F 0F 0F
-0F 0F 0D 0B 09 07 07 07 07 07 07 07 07 05 03 01
-00 FF
+.byte $01,$03,$05,$07,$07,$07,$07,$07,$07,$07,$07,$09,$0B,$0D,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F,$0D,$0B,$09,$07,$07,$07,$07,$07,$07,$07,$07,$05,$03,$01,$00,$FF
 VE_9DF2:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9DF4 - $24
+VE_9DF4:
 .word VE_9DFA				; FA 9D
 .word VE_9E21				; 21 9E
 .word VE_9E21				; 21 9E
 VE_9DFA:
-01 00 05 00 07 00
-07 00 07 00 07 00 0B 00 0F 00 0F 00 0F 00 0F 00
-0F 00 0B 00 07 00 07 00 07 00 07 00 05 00 01 00
-FF
+.byte $01,$00,$05,$00,$07,$00,$07,$00,$07,$00,$07,$00,$0B,$00,$0F,$00,$0F,$00,$0F,$00,$0F,$00,$0F,$00,$0B,$00,$07,$00,$07,$00,$07,$00,$07,$00,$05,$00,$01,$00,$FF
 VE_9E21:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9E23 - $1A
+VE_9E23:
 .word VE_9E29				; 29 9E
 .word VE_9E2F				; 2F 9E
 .word VE_9E2F				; 2F 9E
 VE_9E29:
-03 06 09 0C 0F FF
+.byte $03,$06,$09,$0C,$0F,$FF
 VE_9E2F:
-00
-00
+.byte $00,$00
 
-----------
+;----------
 ;9E31 - $26
+VE_9E31:
 .word VE_9E37				; 37 9E
 .word VE_9E3E				; 3E 9E
 .word VE_9E3E				; 3E 9E
 VE_9E37:
-03 06 09 0C 0F 00 FF
+.byte $03,$06,$09,$0C,$0F,$00,$FF
 VE_9E3E:
-00 00
+.byte $00,$00
 
-----------
+;----------
 ;9E40 - $1B
+VE_9E40:
 .word VE_9E46				; 46 9E
 .word VE_9E4F				; 4F 9E
 .word VE_9E4F				; 4F 9E
 VE_9E46:
-0F 0F 03 03 06 09 0C 0F FF
+.byte $0F,$0F,$03,$03,$06,$09,$0C,$0F,$FF
 VE_9E4F:
-21
-00
+.byte $21,$00
 
-----------
+;----------
 ;9E51 - $1E
+VE_9E51:
 .word VE_9E57				; 57 9E
 .word VE_9E5D				; 5D 9E
 .word VE_9E6B				; 6B 9E
 VE_9E57:
-03 06 09 0C 0F FF
+.byte $03,$06,$09,$0C,$0F,$FF
 VE_9E5D:
-00 01 FE
-01 FC 01 FA 01 FC 01 FE 01 00
+.byte $00,$01,$FE,$01,$FC,$01,$FA,$01,$FC,$01,$FE,$01,$00
 VE_9E6B:
-F4 64 01 FF FE
+.byte $F4,$64,$01,$FF,$FE
 
-----------
+;----------
 ;9E6F - $25
+VE_9E6F:
 .word VE_9E75				; 75 9E
 .word VE_9E77				; 77 9E
 .word VE_9E77				; 77 9E
 VE_9E75:
-0F FF
+.byte $0F,$FF
 VE_9E77:
-00 01 F1 01 00 FC
+.byte $00,$01,$F1,$01,$00,$FC
 
-----------
+;----------
 ;9E7D - $28
+VE_9E7D:
 .word VE_9E83				; 83 9E
 .word VE_9EA9				; A9 9E
 .word VE_9EA9				; A9 9E 
 VE_9E83:
-07 07 09 0B 0D 0F 0F 0F 0F 0A 05 0A 0F
-0A 05 00 05 0A 0F 0A 05 00 00 05 0A 0F 0A 05 00
-00 00 05 0A 0F 0A 05 00 FF
+.byte $07,$07,$09,$0B,$0D,$0F,$0F,$0F,$0F,$0A,$05,$0A,$0F,$0A,$05,$00,$05,$0A,$0F,$0A,$05,$00,$00,$05,$0A,$0F,$0A,$05,$00,$00,$00,$05,$0A,$0F,$0A,$05,$00,$FF
 VE_9EA9:
-00 00
+.byte $00,$00
 ;9EAA
-----------
+;----------
 
+; 6DEBBh ($36:9EABh) - pointers to pitch envelope data
 ;Pitch envelop address (16)
-9ECB	;CB 9E - $00
-9ED0	;D0 9E - $01
-9ED7	;D7 9E - $02
-9EDE	;DE 9E - $03
-9EE3	;E3 9E - $04
-9EE6	;E6 9E - $05
-9EED	;ED 9E - $06
-9EF4	;F4 9E - $07
-9EFB	;FB 9E - $08
-9EFE	;FE 9E - $09
-9F05	;05 9F - $0A
-9F24	;24 9F - $0B
-9F2F	;2F 9F - $0C
-9F7A	;7A 9F - $0D
-9F8D	;8D 9F - $0E
-9FA2	;A2 9F - $0F
+PitEnvTbl:
+.word PE_9ECB	;CB 9E - $00
+.word PE_9ED0	;D0 9E - $01
+.word PE_9ED7	;D7 9E - $02
+.word PE_9EDE	;DE 9E - $03
+.word PE_9EE3	;E3 9E - $04
+.word PE_9EE6	;E6 9E - $05
+.word PE_9EED	;ED 9E - $06
+.word PE_9EF4	;F4 9E - $07
+.word PE_9EFB	;FB 9E - $08
+.word PE_9EFE	;FE 9E - $09
+.word PE_9F05	;05 9F - $0A
+.word PE_9F24	;24 9F - $0B
+.word PE_9F2F	;2F 9F - $0C
+.word PE_9F7A	;7A 9F - $0D
+.word PE_9F8D	;8D 9F - $0E
+.word PE_9FA2	;A2 9F - $0F
 
 ; plus : count, pitch +,- [byte1, byte2]
 ; minus : count back [byte]
 ; zero : stop [byte]
 
 ;9ECB - $00
-04 FF 04 01 FC
+PE_9ECB:
+.byte $04,$FF,$04,$01,$FC
 ;9ED0 - $01
-32 00 06 FF 06 01 FC
+PE_9ED0:
+.byte $32,$00,$06,$FF,$06,$01,$FC
 ;9ED7 - $02
-32 FF 06 01 06 FF FC
+PE_9ED7:
+.byte $32,$FF,$06,$01,$06,$FF,$FC
 ;9EDE - $03
-06 FF 06 01 FC
+PE_9EDE:
+.byte $06,$FF,$06,$01,$FC
 ;9EE3 - $04
-01 FF 00
+PE_9EE3:
+.byte $01,$FF,$00
 ;9EE6 - $05
-10 00 06 FF 06 01 FC
+PE_9EE6:
+.byte $10,$00,$06,$FF,$06,$01,$FC
 ;9EED - $06
-06 00 06 FF 06 01 FC
+PE_9EED:
+.byte $06,$00,$06,$FF,$06,$01,$FC
 ;9EF4 - $07
-18 00 06 FF 06 01 FC
+PE_9EF4:
+.byte $18,$00,$06,$FF,$06,$01,$FC
 ;9EFB - $08
-04 FF FE
+PE_9EFB:
+.byte $04,$FF,$FE
 ;9EFE - $09
-18 FF 06 FF 06 01 FC
+PE_9EFE:
+.byte $18,$FF,$06,$FF,$06,$01,$FC
 ;9F05 - $0A
-01 FF 01 FE 01 FE 01 FE 01 02 01 02 01 02 01 02 01 02 01 02 01 02 01 FE 01 FE 01 FE 01 FE E4
+PE_9F05:
+.byte $01,$FF,$01,$FE,$01,$FE,$01,$FE,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$01,$FE,$E4
 ;9F24 - $0B
-01 00 01 FF 01 01 01 01 01 FF F8
+PE_9F24:
+.byte $01,$00,$01,$FF,$01,$01,$01,$01,$01,$FF,$F8
 ;9F2F - $0C
-01
-07 01 FE 01 FE 01 FE 01 FE 01 FE 01 FE 01 FE 01
-FE 01 01 01 01 01 01 01 FF 01 FF 01 FF 01 01 01
-01 01 01 01 FF 01 FF 01 FF 01 01 01 01 01 01 01
-FF 01 FF 01 FF 01 02 01 02 01 02 01 02 01 02 01
-02 01 02 01 FE 01 FE 01 FE 00
+PE_9F2F:
+.byte $01,$07,$01,$FE,$01,$FE,$01,$FE,$01,$FE,$01,$FE,$01,$FE,$01,$FE,$01,$FE,$01,$01,$01,$01,$01,$01,$01,$FF,$01,$FF,$01,$FF,$01,$01,$01,$01,$01,$01,$01,$FF,$01,$FF,$01,$FF,$01,$01,$01,$01,$01,$01,$01,$FF,$01,$FF,$01,$FF,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$00
 ;9F7A - $0D
-01 01 01 02 01 02 01 02 02 02 01 FE 01 FE 01 FE 01 FF EE
+PE_9F7A:
+.byte $01,$01,$01,$02,$01,$02,$01,$02,$02,$02,$01,$FE,$01,$FE,$01,$FE,$01,$FF,$EE
 ;9F8D - $0E
-01 07 01 FD 01 FD 01 FD 01 FD 02 FE 02 01 02 01 02 FF 02 FF F8 
+PE_9F8D:
+.byte 01,$07,$01,$FD,$01,$FD,$01,$FD,$01,$FD,$02,$FE,$02,$01,$02,$01,$02,$FF,$02,$FF,$F8
 ;9FA2 - $0F
-01 F9 01 07 02 07 01 FE 01 FD 01 FD 01 FD
-01 FD 01 02 01 02 01 02 01 FE 01 FE 01 FE 01 02
-01 02 01 02 01 FE 01 FE 01 FE 01 02 01 02 01 02
-01 FE 01 FE 01 FE 01 02 01 02 01 02 01 02 01 02
-01 02 01 02 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+PE_9FA2:
+.byte $01,$F9,$01,$07,$02,$07,$01,$FE,$01,$FD,$01,$FD,$01,$FD,$01,$FD,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .endif
+; End of FF3_DRIVER
