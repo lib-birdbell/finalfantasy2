@@ -6103,6 +6103,7 @@ MusicTbl:
 .word BGM_FFL1_FIELD
 .word BGM_FF2_SHOP
 .word BGM_FF2_BATTLE_A
+.word BGM_FF4_FOUR_FIENDS
 .if 0
 A1D2	;D2 A1 - $02 = crystal dungeon
 A444	;44 A4 - $03 = area wreck
@@ -6781,6 +6782,34 @@ BGM_FF2_BATTLE_A_TRI_S:
 .byte L3_32,X1_32,L1_32,X1_32,FH1_32,X1_32
 .byte REPEAT
 .word BGM_FF2_BATTLE_A_TRI_S
+
+
+; ==================================================
+; Final Fantasy 4 Golbeza's Four Fiends
+BGM_FF4_FOUR_FIENDS:
+.word BGM_FF4_FOUR_FIENDS_CH0
+.word BGM_FF4_FOUR_FIENDS_CH1
+.word BGM_FF4_FOUR_FIENDS_TRI
+.byte $FF,$FF,$FF,$FF
+
+BGM_FF4_FOUR_FIENDS_CH0:
+.byte DUTY_1_4,$04,$07
+.byte VOL15
+.byte TEMPO,$96
+BGM_FF4_FOUR_FIENDS_CH0_S:
+.byte REPEAT
+.word BGM_FF4_FOUR_FIENDS_CH0_S
+
+BGM_FF4_FOUR_FIENDS_CH1:
+.byte DUTY_1_4,$04,$07
+.byte VOL15
+BGM_FF4_FOUR_FIENDS_CH1_S:
+.byte REPEAT
+.word BGM_FF4_FOUR_FIENDS_CH1_S
+
+BGM_FF4_FOUR_FIENDS_TRI:
+.byte REPEAT
+.word BGM_FF4_FOUR_FIENDS_TRI
 
 .if 0
 ;----------
