@@ -278,6 +278,8 @@ A1_96	= $DF
 
 TEMPO	= $E0
 
+; FF2
+.if FF3_DRIVER < 1
 VOL1	= $E1
 VOL2	= $E2
 VOL3	= $E3
@@ -300,6 +302,7 @@ OT2	= $F2
 OT3	= $F3
 OT4	= $F4
 OT5	= $F5
+.endif
 
 SET_P3	= $F6
 

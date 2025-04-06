@@ -1,5 +1,6 @@
 .include "Constants.inc"
 .include "variables.inc"
+FF3_DRIVER = 1
 .include "score.inc"
 
 .import Init_Page2			;C46E
@@ -13,7 +14,6 @@
 .segment "BANK_1E"
 
 
-FF3_DRIVER = 1
 ; to do - key press process is too fast - OK
 ; to do - cursor are not visible
 ; to do - sound effect
@@ -6096,8 +6096,8 @@ $7FF9-$7FFD : pitch envelope counter
 .if FF3_DRIVER
 ;$00-$18 - $A000($A032-$BF81=1F50h)
 MusicTbl:
-.word M_A032	;32 A0 - $00 = sleeping
-.word M_A07C	;7C A0 - $01 = prelude
+.word M_A032	;32 A0 - $00 = Resting At The Inn
+.word M_A07C	;7C A0 - $01 = The Prelude
 .word BGM_AIRSHIP
 .word BGM_FIELD
 .word BGM_FFL1_FIELD
@@ -6105,33 +6105,33 @@ MusicTbl:
 .word BGM_FF2_BATTLE_A
 .word BGM_FF4_FOUR_FIENDS
 .if 0
-A1D2	;D2 A1 - $02 = crystal dungeon
-A444	;44 A4 - $03 = area wreck
-A56A	;6A A5 - $04 = bards song
-A685	;85 A6 - $05 = castle
-A7F6	;F6 A7 - $06 = village of amur
-A97C	;7C A9 - $07 = victory
-AA81	;81 AA - $08 = chocobo
-ABEF	;EF AB - $09 = light 4 warriors
-AD36	;36 AD - $0A = airship(Go above the Clouds!)
-AEB9	;B9 AE - $0B = village of minimun
-B042	;42 B0 - $0C = mystery castle(sasun castle before, agas castle before)
-B16C	;6C B1 - $0D = 1000 year forest
-B2B8	;B8 B2 - $0E = warning(area arow in water crystal dungeon)
-B323	;23 B3 - $0F = dungeon of under water
-B452	;52 B4 - $10 = village of ancient people
-B58B	;8B B5 - $11 = village of gysahl
-B6A8	;A8 B6 - $12 = town of dastar
-B92A	;2A B9 - $13 = g over
-BA6D	;6D BA - $14 = intro in crystal dungeon
-BC54	;54 BC - $15 = under water
-BE23	;23 BE - $16 = sea king neft
-BF3D	;3D BF - $17 = key item get(effect)
-BF81	;81 BF - $18 = win from kaluda(effect)
+A1D2	;D2 A1 - $02 = Crystal Cave
+A444	;44 A4 - $03 = Elia, the Maiden of Water
+A56A	;6A A5 - $04 = Lute of Noah
+A685	;85 A6 - $05 = Return of the Warrior
+A7F6	;F6 A7 - $06 = Town of Water
+A97C	;7C A9 - $07 = Fanfare
+AA81	;81 AA - $08 = Chocobos!
+ABEF	;EF AB - $09 = Good ol's Fellows
+AD36	;36 AD - $0A = Go above the Clouds!
+AEB9	;B9 AE - $0B = Tozus
+B042	;42 B0 - $0C = Jinn, the Fire
+B16C	;6C B1 - $0D = Living Forest
+B2B8	;B8 B2 - $0E = Ambushed
+B323	;23 B3 - $0F = Beneath the Horizon
+B452	;52 B4 - $10 = Time Remains
+B58B	;8B B5 - $11 = Vigies of Geasal
+B6A8	;A8 B6 - $12 = In the Covert Town
+B92A	;2A B9 - $13 = The Requiem
+BA6D	;6D BA - $14 = Opening Theme
+BC54	;54 BC - $15 = Deep under the water
+BE23	;23 BE - $16 = Shrine of Nept
+BF3D	;3D BF - $17 = Hurray! (effect - key item get)
+BF81	;81 BF - $18 = Prince Allus's Theme (effect)
 .endif
 
 ;----------
-;A032 - $00 - sleeping
+;A032 - $00 = Resting At The Inn
 M_A032:
 .word M_A032_CH0
 .word M_A032_CH1
@@ -6149,7 +6149,7 @@ M_A032_TRI:
 .byte $F2,$18,$C8,$F1,$08,$78,$F2,$08,$C8,$F1,$52,$FF
 
 ;----------
-;A07C - $01 - prelude
+;A07C - $01 = The Prelude
 M_A07C:
 .word M_A07C_CH0
 .word M_A07C_CH1
@@ -6785,7 +6785,7 @@ BGM_FF2_BATTLE_A_TRI_S:
 
 
 ; ==================================================
-; Final Fantasy 4 Golbeza's Four Fiends
+; Final Fantasy 4 The Dreadful Fight(Golbeza's Four Fiends)
 BGM_FF4_FOUR_FIENDS:
 .word BGM_FF4_FOUR_FIENDS_CH0
 .if 0
@@ -6793,146 +6793,104 @@ BGM_FF4_FOUR_FIENDS:
 .else
 .byte $FF,$FF
 .endif
-;.word BGM_FF4_FOUR_FIENDS_TRI
+.if 1
+.word BGM_FF4_FOUR_FIENDS_TRI
+.else
 .byte $FF,$FF
-.byte $FF,$FF,$FF,$FF
+.endif
+.if 0
+.word M_BCC0_NOI
+.else
+.byte $FF,$FF		; Noise
+.endif
+.byte $FF,$FF		; DMC
 
 BGM_FF4_FOUR_FIENDS_CH0:
-.byte DUTY_1_4,$04,$07
-.byte VOL15
-.byte TEMPO,$96
-BGM_FF4_FOUR_FIENDS_CH0_S:
-.if 0	;=====
-;A
-.byte OT0,SH1_8,L1_8,C1_8,OT1,D1_8,A1_8,OT0,C1_8,OT1,D1_8,R1_8
+;.byte DUTY_1_4,$04,$07
+.byte DUTY_1_4,$04,$FF
+.byte VOL2
+;.byte VOL15	; temp commented
+;.byte TEMPO,$96	; test tempo
+.byte TEMPO,$A4	; Real tempo
+;BGM_FF4_FOUR_FIENDS_CH0_S:	;temp
+.byte OT1,SH1_8,L1_8,C1_8,OT2,D1_8,A1_8,OT1,C1_8,OT2,D1_8,R1_8
 .byte M1_4,RH1_8,F1_8,A1_8,M1_8,L1_8,SH1_8
-.byte OT2,D1_8,OT1,SH1_8,L1_8,OT2,F1_8,M1_8,L1_8,SH1_8,OT3,D1_8
-.byte OT2,C1
-
-;B
+.byte OT3,D1_8,OT2,SH1_8,L1_8,OT3,F1_8,M1_8,L1_8,SH1_8,OT4,D1_8
+.byte OT3,C1
 .byte A1
-.byte L1_8,X3_8,OT1,L1_8,X3_8
-;3/4
-.byte OT2,L1_8,X1_8,OT1,L1_8,X3_8
 
-;C
-.byte OT2,C1_8,X3_8,OT1,C1_8,X3_8
-.byte OT2,C1_8,X1_8,OT1,C1_8,X3_8,OT0,C1_16,OT1,D1_16,R1_16,FH1_16
-.byte L1_4,SH1_8,X3_8,SH1_4
+BGM_FF4_FOUR_FIENDS_CH0_S:	;; ori
+.byte L1_8,X3_8,OT2,L1_8,X3_8
+.byte OT3,L1_8,X1_8,OT2,L1_8,X3_8	; 3/4
+.byte OT3,C1_8,X3_8,OT2,C1_8,X3_8
+.byte OT3,C1_8,X1_8,OT2,C1_8,X3_8,   OT1,L1_16,C1_16,OT2,D1_16,M1_16 	;;;
 
-;D - 3/4
-.byte S1_8,X3_8,S1_4
-.byte FH1_8,X3_8,F1_4,FH1_4
-;2/4
-.byte S1_16,FH1_16,F1_16,FH1_16,S1_4
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_CH0_R0:
+.byte S1_4,FH1_8,X3_8			; 3/4
+.byte FH1_4,F1_8,X3_8			; 3/4
+.byte F1_4,M1_8,X3_8			; 3/4
+.byte RH1_4,M1_4,F1_16,M1_16,RH1_16,M1_16,F1_4
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_CH0_R0
 
-;E
-.byte L1_4,SH1_8,X3_8,SH1_4
-;3/4
-.byte S1_8,X3_8,S1_4
-.byte FH1_8,X3_8,F1_4,FH1_4
+;;;
 
-;F - 2/4
-.byte S1_16,FH1_16,F1_16,FH1_16,S1_4
-.byte C3_8,OT2,D1_8,R3_8,M1_8
-.byte F3_8,M1_8,R3_8,OT1,C1_8
-.byte OT2,D3_8,R1_8,M3_8,F1_8
-
-;G
+.byte C3_8,OT3,D1_8,R3_8,M1_8
+.byte F3_8,M1_8,R3_8,OT2,C1_8
+.byte OT3,D3_8,R1_8,M3_8,F1_8
 .byte S3_8,F1_8,M3_8,D1_8
-.byte OT1,C3_8,OT2,D1_8,R3_8,M1_8
-.byte F3_8,M1_8,R3_8,OT1,C1_8
-.byte OT2,D3_8,R1_8,M3_8,F1_8
 
-;H
-.byte S1_16,L1_16,S1_16,F1_16,S1_16,F1_16,M1_16,F1_16,S1_16,R1_16,M1_16,R1_16,D1_16,R1_16,D1_16,OT1,L1_16
-.byte OT1,S1_8,OT2,S1_16,X1_16,S1_16,X1_16,OT1,F1_8,OT2,F1_16,X1_16,F1_16,X1_16,OT1,M1_8,OT2,M1_16,X1_16
-.byte M1_16,X1_16,X3_8,OT0,C1_16,OT1,D1_16,R1_16,M1_16,R1_4
+.byte OT2,C3_8,OT3,D1_8,R3_8,M1_8
+.byte F3_8,M1_8,R3_8,OT2,C1_8
+.byte OT3,D3_8,R1_8,M3_8,F1_8
+.byte S1_16,L1_16,S1_16,F1_16,S1_16,F1_16,M1_16,F1_16,M1_16,R1_16,M1_16,R1_16,D1_16,R1_16,D1_16,OT2,L1_16
 
-;I
-.byte S1_8,OT2,S1_16,X1_16,S1_16,X1_16,OT1,F1_8,OT2,F1_16,X1_16,F1_16,X1_16,OT1,M1_8,OT2,M1_16,X1_16
-.byte M1_16,X1_16,X3_8,SH1_16,F1_16,M1_16,R1_16,D1_16,OT1,C1_16,L1_16,SH1_16
-.endif	;=====
-.byte OT1
+;BGM_FF4_FOUR_FIENDS_CH0_R1:
+.byte OT2,C1_8,OT3,S1_16,X1_16,S1_16,X1_16,OT2,L1_8,OT3,F1_16,X1_16,F1_16,X1_16,OT2,SH1_8,OT3,M1_16,X1_16
+.byte M1_16,X1_16,X3_8,OT1,C1_16,OT2,D1_16,R1_16,M1_16,R1_4
+.byte C1_8,OT3,S1_16,X1_16,S1_16,X1_16,OT2,L1_8,OT3,F1_16,X1_16,F1_16,X1_16,OT2,SH1_8,OT3,M1_16,X1_16	; repeat
+.byte M1_16,X1_16,X3_8,SH1_16,F1_16,M1_16,R1_16,D1_16,OT2,C1_16,L1_16,SH1_16
+
 .byte L3_4,L1_8,LH1_8
 .byte LH3_4,LH1_8,L1_8
-
-
-;J
 .byte L3_4,L1_8,S1_8
 .byte S1
+
 .byte L3_4,L1_8,LH1_8
 .byte LH3_4,LH1_8,L1_8
+.byte A3_4,A1_8,X1_8
+;;;
+.byte OT3,M1_4,RH1_4,F1_4,M1_4
 
-;K
-.byte L1
-;.byte OT2,D1_4,OT1,C1_4,OT2,DH1_4,D1_4
-.byte OT2,M1_4,RH1_4,F1_4,M1_4
-;.byte FH1_4,F1_4,S1_4,FH1_4
-.byte X1
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_CH0_R2:
+.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4
+.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,OT2,C1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+.byte RH1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,RH1_4
 
-.byte D1
-.byte OT2,S1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,SH1_32,X1_32,S1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,C1_32,X1_32,LH1_32,X1_32,L1_32,X1_32,S1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,S1_32,X1_32
+.byte D1_16,X1_16,R1_16,X1_16,M1_4,D1_16,X1_16,R1_16,X1_16,M1_4
+.byte D1_16,X1_16,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,D1_16,X1_16,R1_16,X1_16,M1_16,X1_16,S1_16,X1_16
+.byte FH1_4,FH1_4,D1_16,X1_16,R1_16,X1_16,M1_16,X1_16,S1_16,X1_16
 
-;L
-.byte OT1,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-.byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
+.byte FH1_4,RH1_8,F1_8,A1_8,R1_8, M1_4
+.byte DH1_8, RH1_4,D1_8, R1_8,OT2,C1_8,OT3,DH1_8,OT2,LH1_8
+.byte OT3,D1_8,OT2,L1_8,C1_8,SH1_8	; 2/4
+.byte OT3,M1_8,D1_16,X3_16,M1_8,RH1_8,X1_8,D1_8,OT2,L1_8
+.byte OT3,D1_8,OT2,L1_8,X1_4,X1_2
 
-;M
-.byte FH1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,F1_4
-.byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_CH0_R2
 
-;N
-.byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-.byte FH1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,F1_4
+.byte OT3,F1_2,M1_2
+.byte RH1_2,M1_2
+.byte F1_2,S1_4,F1_4
+.byte M1
 
-;O - 3/4
-.byte FH3_8,F3_8
-.byte M3_8,RH3_8
-
-;P
-.byte R1_4,DH1_4,D1_4,OT0,C1_4
-.byte X1_4,OT2,M1_8,RH1_8,X1_4,D1_8,OT1,L1_8
-
-;Q
-.byte D1_8,L1_8,X3_4
-
-;R
-.byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-.byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
-;S
-.byte FH1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,F1_4
-.byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
-;T
-.byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-.byte FH1_4,F1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
-;U - 3/4
-.byte FH3_8,F3_8
-.byte M3_8,RH3_8
-
-;V
-.byte R1_4,DH1_4,D1_4,OT0,C1_4
-.byte X1_4,OT2,M1_8,RH1_8,X1_4,D1_8,OT1,L1_8
-
-;W
-.byte OT2,D1_8,OT1,L1_8,X3_4
-.byte F1_8,S1_8,L1_8,S1_8,M1_8,S1_8,L1_8,S1_8
-
-;X
-.byte RH1_8,S1_8,L1_8,S1_8,M1_8,S1_8,L1_8,S1_8
-.byte L1_2,OT2,D1_2
-.byte OT1,C1
-.byte L1_8,X1_8,OT2,L1_4,OT1,SH1_8,X1_8,OT2,SH1_4
-
-;Y
-.byte OT1,S1_8,X1_8,OT2,S1_4,OT1,SH1_8,X1_8,OT2,SH1_4
-.byte L1_8,S1_8,F1_8,M1_8,R1_8,D1_8,OT1,C1_8,L1_8
-
-;Z
-.byte SH1_16,C1_16,C1_16,SH1_16,M1_16,SH1_16,SH1_16,M1_16,R1_16,SH1_16,SH1_16,R1_16,M1_16,SH1_16,SH1_16,M1_16
+.byte F1_2,M1_2
+.byte RH1_2,M1_2
+.byte F1_2,S1_4,F1_4
+.byte M1
 
 .byte REPEAT
 .word BGM_FF4_FOUR_FIENDS_CH0_S
@@ -6955,138 +6913,299 @@ BGM_FF4_FOUR_FIENDS_CH1_S:
 .word BGM_FF4_FOUR_FIENDS_CH1_S
 
 BGM_FF4_FOUR_FIENDS_TRI:
+;.byte OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8	; ori
+;.byte L1_8,OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8,OT2,L1_8,OT1,L1_8
+;.byte OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8
+.byte OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16	; cut
+.byte L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_8,OT2,L1_8,OT1,L1_8
+.byte OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_8
+;.byte OT2,M3_4,C1_4	; ori
+;.byte OT2,M3_16,X1_16,M1_16,X1_16,M1_4,F1_8,C1_4
+.byte OT2,M1_8,X1_8,M1_16,X1_16,M1_4,F1_8,C1_4
+;.byte OT3,D1_2,OT2,SH1_2	; ori
+.byte OT3,D1_2,OT2,SH1_8,X1_8,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48
+
+BGM_FF4_FOUR_FIENDS_TRI_S:
+.if 0	; ori
+.byte OT2,L1_8,X3_8,OT1,L1_8,X3_8
+.byte OT2,L1_8,X1_8,OT1,L1_8,X3_8	; 3/4
+.byte OT2,C1_8,X3_8,OT1,C1_8,X3_8
+.byte OT2,C1_8,X1_8,OT1,C1_8,X3_8,OT2,R1_16,DH1_16,D1_16,OT1,C1_16
+.else
+.byte OT1,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16,L1_16,X1_16
+.byte L1_8,X1_8,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16	; 3/4
+.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16,L1_16,X1_16
+.byte L1_8,X1_8,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16,OT2,R1_16,DH1_16,D1_16,OT1,C1_16
+.endif
+
+.if 0	; decompressed
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_TRI_R0:
+.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16	; 3/4
+.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16	; 3/4
+.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16	; 3/4
+.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16
+.else	; compressed
+.byte BACK_CNT,$34	; 26 * 2 = 52(34h)
+BGM_FF4_FOUR_FIENDS_TRI_R0:
+.byte L1_16,X1_16
+.endif
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_TRI_R0
+
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_TRI_R1:
+.byte OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8
+.byte OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8
+.byte OT2,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8
+.byte OT2,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_TRI_R1
+
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_TRI_R2:
+.byte OT1,S1_8,OT2,S1_16,X1_16,S1_16,X1_16,OT1,F1_8,OT2,F1_16,X1_16,F1_16,X1_16,OT1,M1_8,OT2,M1_16,X1_16
+.byte M1_16,X3_16,X3_4
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_TRI_R2
+
+.if 0	; decompressed
+BGM_FF4_FOUR_FIENDS_TRI_R3:
+.byte OT1,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
+.else	; compressed
+.byte OT1
+.byte BACK_CNT,$20	; 32(20h)
+BGM_FF4_FOUR_FIENDS_TRI_R3:
+.byte L1_8,X1_8
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_TRI_R3
+.endif
+
+.byte BACK_CNT,$02	; will be more compressed as JUMP_Z
+BGM_FF4_FOUR_FIENDS_TRI_R4:
+.byte L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
+.byte OT1,L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
+.byte OT1,C1_4,L1_8,OT2,D1_8,M1_8,S1_8,FH1_4
+.byte OT1,L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
+.byte OT1,L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
+.byte OT1,C1_8,X1_8,C1_8,X1_8,L1_8,OT2,D1_8,M1_8,S1_8
+
+.byte OT1,C3_8,LH3_8	; 3/4
+.byte L3_8,SH3_8	; 3/4
+.byte S1_4,FH1_4,F1_4,M1_4	; 2/4 + 2/4
+.byte OT2,D1_8,OT1,L1_8,X1_8,OT2,M1_8,RH1_8,X1_8,D1_8,OT1,L1_8
+;.byte OT2,D1_8,OT1,L1_8,X1_2,M1_4	; A
+.byte OT2,D1_8,OT1,L1_8,X1_2,OT2,M1_96,X1_96,M1_96,X1_96,RH1_96,X1_96,RH1_96,X1_96,R1_96,X1_96,R1_96,X1_96,DH1_96,X1_96,DH1_96,X1_96,D1_96,X1_96,D1_96,X1_96,OT1,C1_96,X1_96,C1_96,X1_96	; B
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_TRI_R4
+
+.byte F1_8,L1_8,OT2,D1_8,F1_4,D1_8,F1_8,D1_8
+.byte OT1,F1_8,L1_8,OT2,D1_8,F1_4,D1_8,F1_8,M1_8
+.byte R3_8,OT1,R3_16,X1_16,R1_8,M1_8,F1_8
+.byte M1_16,X1_16,M1_16,X1_16,OT2,S1_8,OT1,M1_8,OT2,F1_8,S1_8,F1_8,OT1,M1_8
+
+.byte F1_16,X1_16,F1_16,X1_16,OT2,F1_4,OT1,M1_16,X1_16,M1_16,X1_16,OT2,M1_4
+.byte OT1,RH1_16,X1_16,RH1_16,X1_16,OT2,RH1_4,OT1,M1_16,X1_16,M1_16,X1_16,OT2,M1_4
+.byte OT1,R1_16,X1_16,R1_16,X1_16,OT2,R1_8,OT1,R1_16,X1_16,R1_16,X1_16,OT2,R1_8,OT1,R1_16,X1_16,R1_16,X1_16
+.byte M1_16,X1_16,M1_16,X1_16,OT2,M1_8,OT1,M1_16,X1_16,M1_16,X1_16,OT2,M1_8,OT1,M1_16,X1_16,M1_16,X1_16
+
 .byte REPEAT
-.word BGM_FF4_FOUR_FIENDS_TRI
+.word BGM_FF4_FOUR_FIENDS_TRI_S
+
+;M_BCC0_NOI:
+;.byte X1_16		; CB
+M_BCC0_NOI_BF62:
+.byte $F9		; F9 = hi-hat preset
+.byte BACK_CNT,$20	; FB 20
+M_BCC0_NOI_BF65:
+.byte D1_4		; 05
+.byte BACK_N		; FC 65 BF
+.word M_BCC0_NOI_BF65
+
+.byte BACK_CNT,$03	; FB 03
+M_BCC0_NOI_BF6B:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4,D1_4,D1_4	; 05 05 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte BACK_N		; FC 6B BF
+.word M_BCC0_NOI_BF6B
+
+.byte BACK_CNT,$02	; FB 02
+M_BCC0_NOI_BF76:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_16,D1_16	; 08 0B 0B
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_16,D1_16	; 0B 0B
+.byte BACK_N		; FC 
+.word M_BCC0_NOI_BF76	; $BF80	76 BF
+
+M_BCC0_NOI:	; temp
+.byte X1_16		; CB	temp
+.byte BACK_CNT,$03	; FB 03
+M_BCC0_NOI_BF84:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL12		; EB
+.byte L1_8,L1_8		; 98 98
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 
+; $BF90	01 FF
+.byte OT0		; EF
+.byte VOL12		; EB
+.byte L1_4		; 95
+;;;;debug start
+.byte REPEAT
+.word M_BCC0_NOI_BF84
+;;;;debug end
+.byte BACK_N		; FC
+.word M_BCC0_NOI_BF84	; 84 BF
+
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL12		; EB
+.byte L1_4		; 95
+.byte L1_16,L1_16,L1_8,L1_16,L1_16,L1_8	; $BFA0	9B 9B 98 9B 9B 98
+
+.byte BACK_CNT,$20	; FB 20
+M_BCC0_NOI_BFA8:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_16,D1_16	; 08 0B 0B
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_16		; 0B 
+.byte D1_16		; $BFB0	0B
+.byte BACK_N		; FC
+.word M_BCC0_NOI_BFA8	; A8 BF
+
+.byte REPEAT		; FE 62 BF 
+.word M_BCC0_NOI_BF62
 
 
 
-.if 0	; Violins 1
+.if 0	; Violins 1 - initial version - deprecated
 ;A
 .byte OT0,SH1_8,L1_8,C1_8,OT1,D1_8,D1_8,OT0,C1_8,OT1,D1_8,R1_8
 .byte M1_4,RH1_8,F1_8,F1_8,M1_8,L1_8,SH1_8
 .byte OT2,D1_8,OT1,SH1_8,L1_8,OT2,F1_8,M1_8,L1_8,SH1_8,OT3,D1_8
 .byte OT2,F1
-
 .byte F1
 .byte L1_8,X3_8,OT1,L1_8,X3_8
 ;3/4
 .byte OT2,L1_8,X1_8,OT1,L1_8,X3_8
-
 .byte OT2,C1_8,X3_8,OT1,C1_8,X3_8
 .byte OT2,C1_8,X1_8,OT1,C1_8,X1_8,X1_2
 .byte OT2,M1
-
 ;3/4
 .byte F3_4
 .byte FH1
 ;2/4
 .byte F1_2
-
 ;E
 .byte OT2,M1
 ;3/4
 .byte F3_4
 .byte FH1
-
 ;F
 ;2/4
 .byte F1_2
 .byte OT1,C3_8,OT2,D1_8,R3_8,M1_8
 .byte F3_8,M1_8,R3_8,OT1,C1_8
 .byte OT2,D3_8,R1_8,M3_8,F1_8
-
 ;G
 .byte S3_8,F1_8,M3_8,D1_8
 .byte OT1,C3_8,OT2,D1_8,R3_8,M1_8
 .byte F3_8,M1_8,R3_8,OT1,C1_8
 .byte OT2,D3_8,R1_8,M3_8,F1_8
-
 ;H
 .byte S1_16,L1_16,S1_16,F1_16,S1_16,F1_16,M1_16,F1_16,S1_16,R1_16,M1_16,R1_16,D1_16,R1_16,D1_16,OT1,L1_16
 .byte C3_8,L1_8,L1_4,SH1_4
 .byte X1
-
 ;I
 .byte C3_8,L1_8,L1_4,SH1_4
 .byte X1_2,OT2,SH1_16,F1_16,M1_16,R1_16,D1_16,OT1,C1_16,L1_16,SH1_16
 .byte D3_4,D1_8,R1_8
 .byte R3_4,R1_8,D1_8
-
 ;J
 .byte D3_4,D1_8,OT0,C1_8
 .byte C1
 .byte OT1,D3_4,D1_8,R1_8
 .byte R3_4,R1_8,D1_8
-
 ;K
 .byte D1
 .byte OT2,S1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,SH1_32,X1_32,S1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,C1_32,X1_32,LH1_32,X1_32,L1_32,X1_32,S1_32,X1_32,FH1_32,X1_32,L1_32,X1_32,S1_32,X1_32
-
 ;L
 .byte OT1,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
 .byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
 ;M
 .byte FH1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,F1_4
 .byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
 ;N
 .byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
 .byte FH1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,F1_4
-
 ;O - 3/4
 .byte FH3_8,F3_8
 .byte M3_8,RH3_8
-
 ;P
 .byte R1_4,DH1_4,D1_4,OT0,C1_4
 .byte X1_4,OT2,M1_8,RH1_8,X1_4,D1_8,OT1,L1_8
-
 ;Q
 .byte D1_8,L1_8,X3_4
-
 ;R
 .byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
 .byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
 ;S
 .byte FH1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,F1_4
 .byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
 ;T
 .byte M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
 .byte FH1_4,F1_4,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16,M1_16,X1_16
-
 ;U - 3/4
 .byte FH3_8,F3_8
 .byte M3_8,RH3_8
-
 ;V
 .byte R1_4,DH1_4,D1_4,OT0,C1_4
 .byte X1_4,OT2,M1_8,RH1_8,X1_4,D1_8,OT1,L1_8
-
 ;W
 .byte OT2,D1_8,OT1,L1_8,X3_4
 .byte F1_8,S1_8,L1_8,S1_8,M1_8,S1_8,L1_8,S1_8
-
 ;X
 .byte RH1_8,S1_8,L1_8,S1_8,M1_8,S1_8,L1_8,S1_8
 .byte L1_2,OT2,D1_2
 .byte OT1,C1
 .byte L1_8,X1_8,OT2,L1_4,OT1,SH1_8,X1_8,OT2,SH1_4
-
 ;Y
 .byte OT1,S1_8,X1_8,OT2,S1_4,OT1,SH1_8,X1_8,OT2,SH1_4
 .byte L1_8,S1_8,F1_8,M1_8,R1_8,D1_8,OT1,C1_8,L1_8
-
 ;Z
 .byte SH1_16,C1_16,C1_16,SH1_16,M1_16,SH1_16,SH1_16,M1_16,R1_16,SH1_16,SH1_16,R1_16,M1_16,SH1_16,SH1_16,M1_16
-.endif
+.endif	; End of deprecated
 
 .if 0
 ;----------
-;A1D2 - $02
-DC A1 24 A3 01 A4 FF FF FF FF 
+;A1D2 - $02 = Crystal Cave
+M_A1D2:
+.word M_A1D2_CH0	; DC A1
+.word M_A1D2_CH1	; 24 A3
+.word M_A1D2_TRI	; 01 A4
+.byte $FF,$FF,$FF,$FF	; FF FF FF FF 
+
+M_A1D2_CH0:	; $A1DC
 F6 03 FF E0
 5A E2 F0 AB F1 0B 2B 5B E3 2B 0B F0 AB F1 0B E4
 2B 5B 2B 0B E5 F0 AB F1 0B 2B 5B E6 3B 5B 7B AB
@@ -7111,7 +7230,10 @@ A2 EB FB 02 F2 5E 8E F3 0E 5B D5 38 25 35 F2 2E
 ;$A300
 D8 D2 35 F2 2E 5E AE F3 2B D8 D2 C5 FC E4 A2 F2
 3E 5E 8E F3 0B D8 D2 75 F2 5E AE F3 2E 5B D8 D2
-C5 FE 10 A2 F5 02 FF E1 F0 7B 9B AB F1 2B E2 F0
+C5 FE 10 A2 
+
+M_A1D2_CH1:	; $A324
+F5 02 FF E1 F0 7B 9B AB F1 2B E2 F0
 AB 9B 7B 9B E3 AB F1 2B F0 AB 9B E4 7B 9B AB F1
 2B E5 F0 7B 9B AB F1 3B E6 F0 AB 9B 7B 9B E7 AB
 F1 3B F0 AB 9B E8 7B 9B AB F1 3B E9 FB 02 FB 02
@@ -7127,14 +7249,16 @@ AB 9B FC 99 A3 7B 9B AB F1 3B FC 5E A3 FB 02 FB
 FC D7 A3 7B 8B F1 3B 7B FB 02 F0 7B 8B F1 2B 5B
 2B F0 8B FC EA A3 7B 8B F1 2B 5B FC AF A3 FE 5C
 ;$A400
-A3 C0 C0 FB 02 F1 23 DB CB 23 DB CB 33 DB CB 36
+A3 
+M_A1D2_TRI:	; $A401
+C0 C0 FB 02 F1 23 DB CB 23 DB CB 33 DB CB 36
 DD CD 3C CC 3C CC 3C CC 43 DB CB 46 DD CD 4C CC
 4C CC 4C CC 33 DB CB 33 DB CB FC 05 A4 FB 02 F0
 51 F1 05 F0 51 F1 25 F0 51 F1 35 F0 51 C5 FC 2F
 A4 FE 03 A4
 
 ;----------
-;A444 - $03 - area wreck
+;A444 - $03 = Elia, the Maiden of Water
 4E A4 A6 A4 AE A4 FF FF FF FF 
 ;A44E - CH0
 F7 04
@@ -7164,7 +7288,7 @@ E0 4E F2 48 E0 4D 98 E0 4C F3 18 E0 4B F2 98 E0
 E0 3E F1 98 E0 3A 48 FE B2 A4
 
 ;----------
-;A56A - $04
+;A56A - $04 = Lute of Noah
 74 A5 41 A6 FF FF FF FF FF FF 
 ;A574 - CH0
 F7 05 FF FB 02 E6 E0 50 F2 0A E0 55
@@ -7192,7 +7316,7 @@ E3 BA D5 E9 F0 95 DA F1 E4 97 D2 E5 F0 58 F1 E2
 0D FF E3 01 FF
 
 ;----------
-;A685 - $05 - piecefull castle
+;A685 - $05 = Return of the Warrior
 8F A6 00 A7 74 A7 FF FF FF FF 
 ;A68F - CH0
 E0
@@ -7226,7 +7350,7 @@ CA F1 17 CA F0 97 CA F1 17 CA F0 97 CA F1 17 CA
 F0 97 CA FE 75 A7
 
 ;----------
-;A7F6 - $06
+;A7F6 - $06 = Town of Water
 00 A8 61 A8 BF A8 FF FF FF FF
 ;A800
 F7 04 01 EB FB 02 F1 B3 F2 08 25 F1 B5 F2 23 48
@@ -7257,7 +7381,7 @@ F2 48 F1 78 F2 08 F1 78 F0 78 B8 F1 28 78 B8 28
 E0 3F 28 E0 3E B8 E0 3D 28 FE BF A8
 
 ;----------
-;A97C - $07 - victory
+;A97C - $07 = Fanfare
 86 A9 D6 A9 1F AA 5F AA 6E AA 
 07_CH0_A986:
 E0 91 
@@ -7302,7 +7426,7 @@ C0 02 08 03 03 08 02 02 08 03 03 05 05 08 FE 71
 AA
 
 ;----------
-;AA81 - $08
+;AA81 - $08 = Chocobos!
 8B AA 3D AB 81 AB FF FF FF FF 
 E0 9B F5 03 07
 EB C0 C1 C6 F1 BE F2 0E 1E FB 02 2B C6 F1 BB CB
@@ -7331,7 +7455,7 @@ CB FC A0 AB 58 9B CB 48 9B CB 28 9B CB 08 9B CB
 F0 98 F1 4B CB 9B CB 7B CB 6B C6 25 FE 81 AB
 
 ;----------
-;ABEF - $09
+;ABEF - $09 = Good ol's Fellows
 F9 AB 7E AC D8 AC FF FF FF FF 
 E0 89 F6 02 07 EB FB
 ;AC00
@@ -7359,7 +7483,7 @@ CB C8 FC EB AC C0 F0 58 F1 08 78 F0 88 F1 18 68
 75 D2 C2 FE D8 AC
 
 ;----------
-;AD36 - $0A = airship(Go above the Clouds!)
+;AD36 - $0A = Go above the Clouds!
 40 AD A4 AD 40 AE FF FF FF FF
 ;AD40 - CH0
 E0 A2 
@@ -7397,7 +7521,7 @@ AB CB FC 7D AE F0 A8 F1 AB CB F0 A8 F1 AB CB F0
 CB F1 28 F2 2B CB FE 4A AE
 
 ;----------
-;AEB9 - $0B
+;AEB9 - $0B = Tozus
 C3 AE 5A AF D6 AF FF FF FF FF 
 E0 60 EB F6 02 FF F2 0B F1 AB FB 02 98
 F2 0B CB 2B CB 5B CB 4B 5B 4B 5B 4B CB 2B CB 0B
@@ -7429,7 +7553,7 @@ F0 9B F1 9B F0 AB F1 AB F0 BB F1 BB 0B C6 A5 FE
 D7 AF
 
 ;----------
-;B042 - $0C
+;B042 - $0C = Jinn, the Fire
 4C B0 BA B0 14 B1 FF FF FF FF 
 E0 8C EB F6
 03 07 FB 02 C0 C4 CD F1 E4 8F E7 9B CB C2 FC 54
@@ -7454,7 +7578,7 @@ CB 9B C6 F1 48 95 F0 95 FC 42 B1 9B CB 9B C7 CF
 F1 3F 48 F0 98 C3 FC 40 B1 FE 14 B1
 
 ;----------
-;B16C - $0D
+;B16C - $0D = Living Forest
 76 B1 FA B1 5B B2 FF FF FF FF 
 E0 50 F6 0B 05 E6 F2 3E 4E 5E
 
@@ -7482,7 +7606,7 @@ F2 48 F1 48 F2 08 68 F1 48 B8 F2 48 F1 48 F2 18
 F1 48 F2 08 68 FE 5C B2
 
 ;----------
-;B2B8 - $0E
+;B2B8 - $0E = Ambushed
 C2 B2 E9 B2 0E B3 FF FF FF FF 
 E0 B4 F6 03 FF EB F1 78 88 98 A5 A8 B8 F2
 08 15 18 28 38 45 48 F2 78 88 98 A5 A8 B8 F3 08
@@ -7494,7 +7618,7 @@ E0 B4 F6 03 FF EB F1 78 88 98 A5 A8 B8 F2
 FE 11 B3
 
 ;----------
-;B323 - $0F
+;B323 - $0F = Beneath the Horizon
 2D B3 70 B3 03 B4 FF FF FF FF 
 E0 55 F6
 0B 07 EB FB 02 C5 F2 7F 69 DE 48 38 48 7F 69 DE
@@ -7520,7 +7644,7 @@ B4 BD 9D 7D 6D 4C 2C 0C F0 B3 F1 18 33 48 68 48
 03 B4
 
 ;----------
-;B452 - $10
+;B452 - $10 = Time Remains
 5C B4 B2 B4 02 B5 FF FF FF FF 
 F6 0B 07 EB
 FB 02 F2 13 F1 98 45 68 88 98 F2 18 68 38 45 F1
@@ -7547,7 +7671,7 @@ F1 B8 48 88 B8 F2 48 88 48 F1 B8 88 78 B8 F2 28
 48 E0 48 F1 B8 E0 46 88 FE 02 B5
 
 ;----------
-;B58B - $11
+;B58B - $11 = Vigies of Geasal
 95 B5 08 B6 6A B6 FF FF FF FF 
 E0 6E F6 02 FF EB FB 02 F3 0B C6
 F2 7B C6 66 9B 7B CB 2B CB FD BF B5 6B CB 6B 7B
@@ -7571,7 +7695,7 @@ F3 3B FC 76 B6 F2 28 F1 2B CB F2 08 F1 4B CB B8
 6B CB 98 2B CB FE 6A B6
 
 ;----------
-;B6A8 - $12
+;B6A8 - $12 = In the Covert Town
 B2 B6 7D B7 79 B8 FF FF FF FF 
 F7 04 07 EB F2 25 F1 A8 F2 0B 2B 05 F1 98
 F2 08 F1 A8 98 78 A8 92 F2 55 18 3B 5B 35 08 38
@@ -7620,7 +7744,7 @@ C5 4D CD 4D CD 8D CD 8D CD 9D C9 F0 98 F1 2B CB
 03 F1 2D CD 2D CD C5 FE 79 B8
 
 ;----------
-;B92A - $13
+;B92A - $13 = The Requiem
 34 B9 B2 B9 35 BA FF FF FF FF 
 F7 04 07 E0 5A E4 F0 28 E0 57 E5 68
 E0 54 E6 98 E0 51 E7 F1 18 E0 4E E8 28 E0 4B E9
@@ -7646,7 +7770,7 @@ F1 25 12 25 D9 CD 28 45 D9 CD 48 62 D8 D9 CD 68
 48 25 D9 CD 28 45 D9 CD 48 60 FE 36 BA
 
 ;----------
-;BA6D - $14
+;BA6D - $14 = Opening Theme
 77 BA 0C BB AD BB FF FF FF FF 
 F5 03 FF EB E0 46 F2 88 38
 
@@ -7685,7 +7809,7 @@ BB CB F1 BB 9B B8 78 6B CB F2 1B CB F1 9B CB F0
 98 FE EE BB
 
 ;----------
-;BC54 - $15
+;BC54 - $15 = Deep under the water
 5E BC B5 BC 60 BD FF FF FF FF 
 F6 0F
 01 EB FB 02 F2 63 D5 48 93 23 13 D5 F1 B8 F2 43
@@ -7723,7 +7847,7 @@ B8 E0 6A F2 18 E0 68 F1 B8 E0 66 78 E0 64 48 E0
 FE 60 BD
 
 ;----------
-;BE23 - $16
+;BE23 - $16 = Shrine of Nept
 2D BE 9F BE CD BE FF FF FF FF 
 E0 7D F6
 02 FF EB FB 02 F1 5B CB 2B CB 1B CB 4B CB 5B CB
@@ -7747,7 +7871,7 @@ F2 2A 5A 2A 5A 75 45 F1 BA 7A BA F2 4A F1 BA F2
 BA F2 0A 2A 4A 5A 7A FC 0B BF FE D5 BE
 
 ;----------
-;BF3D - $17
+;BF3D - $17 = Hurray! (effect - key item get)
 47 BF 63 BF 74 BF FF FF FF FF 
 E0 7D F5 07 07 EB F1 7D 9D
 AD F2 05 0C CC 0C CC 0C CC E0 76 15 E0 6F 35 E0
@@ -7757,7 +7881,7 @@ AD F2 05 0C CC 0C CC 0C CC E0 76 15 E0 6F 35 E0
 FF
 
 ;----------
-;BF81 - $18
+;BF81 - $18 = Prince Allus's Theme (effect)
 8B BF B8 BF DC BF FF FF FF FF 
 F5 07 07 EB E0
 87 F2 0C CC 0C CC 0C CC 02 D8 F1 7B 7B F2 0B CB
@@ -7769,27 +7893,27 @@ CC 7C CC 7C CC 78 4B 5B 7B CB F2 0B CB F1 A5 55
 F2 08 F1 0B 2B 4B CB 5B CB F0 A1 D8 FF 00 00 00
 
 ;$19-$2A
-A024	;24 A0 - $19 = Big chocobo
-A125	;25 A1 - $1A = dance ver 2
-A1D2	;D2 A1 - $1B = wake up une
-A2A7	;A7 A2 - $1C = dance ver 1
-A332	;32 A3 - $1D = dungeon(Jin)
-A46F	;6F A4 - $1E = field(eternal wind)
-A748	;48 A7 - $1F = url villiage
-A92B	;2B A9 - $20 = battle 1
-AC7F	;7F AC - $21 = inner invincible
-AD97	;97 AD - $22 = notilus ship
-AF00	;00 AF - $23 = The invincible
-B0A5	;A5 B0 - $24 = oen tower
-B236	;36 B2 - $25 = crystal tower
-B40B	;0B B4 - $26 = dega mansion
-B585	;85 B5 - $27 = forbiden area aureka
-B717	;17 B7 - $28 = dark cloud
-BA9A	;9A BA - $29 = dark world
-BCC0	;C0 BC - $2A = battle 2
+A024	;24 A0 - $19 = Big chocobo!
+A125	;25 A1 - $1A = Swift Twist
+A1D2	;D2 A1 - $1B = Good Morning!
+A2A7	;A7 A2 - $1C = Dancer's Theme
+A332	;32 A3 - $1D = The Dungeon
+A46F	;6F A4 - $1E = Eternal Wind
+A748	;48 A7 - $1F = My Home Town
+A92B	;2B A9 - $20 = Battle 1
+AC7F	;7F AC - $21 = The Way to the Top
+AD97	;97 AD - $22 = Sailing Enterprise
+AF00	;00 AF - $23 = The Invincible
+B0A5	;A5 B0 - $24 = Tower of Owen
+B236	;36 B2 - $25 = The Crystal Tower
+B40B	;0B B4 - $26 = Let Me Know the Truth
+B585	;85 B5 - $27 = Forbiden Land
+B717	;17 B7 - $28 = This is the Last Battle 3(Final Battle)
+BA9A	;9A BA - $29 = The Dark Crystals
+BCC0	;C0 BC - $2A = Battle 2
 
 ;----------
-;A024 - $19
+;A024 - $19 = Big chocobo!
 2E A0 90 A0 E5 A0 FF FF FF FF 
 F6 02 
 FF EB E0 78 F2 58 4B 4B 4B CB 5B CB 7B CB 7B CB 
@@ -7812,7 +7936,7 @@ A8 78 52 0A C4 0A 2A C4 2A 7A C7 2A C7 7A C4 6A
 78 C3 FE F3 A0
 
 ;----------
-;A125 - $1A
+;A125 - $1A = Swift Twist
 2F A1 75 A1 AB A1 FF FF FF FF 
 F6 
 02 FF EB E0 BE C0 C0 FB 02 F2 38 48 38 48 08 F1 
@@ -7829,7 +7953,7 @@ A1 FB 08 79 CD FC C3 A1 FB 08 59 CD FC CA A1 FE
 AC A1
 
 ;----------
-;A1D2 - $1B
+;A1D2 - $1B = Good Morning!
 DC A1 3A A2 68 A2 FF FF FF FF 
 F6 02 07 EB 
 E0 A5 F1 95 F2 16 2B 48 18 28 48 25 66 7B 98 68 
@@ -7849,7 +7973,7 @@ F2 1B CB F1 98 F2 1B CB F1 78 BB CB 78 BB CB FC
 8F A2 C1 95 FE 8D A2
 
 ;----------
-;A2A7 - $1C = dance ver 1
+;A2A7 - $1C = Dancer's Theme
 B1 A2 ED A2 1E A3 FF FF FF FF 
 ;A2B1 - CH0
 F7 0A 07 EC E0 6E C0 C8 F1 9B CB 9B CB 9B CB 
@@ -7868,7 +7992,7 @@ F1 6B CB F2 1B CB FC 20 A3 F1 68 C8 F2 1B C6 F1
 65 FF
 
 ;----------
-;A332 - $1D
+;A332 - $1D = The Dungeon
 3C A3 7C A3 E3 A3 FF FF FF FF 
 E0 5A F6 03 
 07 E8 FB 02 F3 43 28 15 F2 B5 F3 23 08 F2 B5 95 
@@ -7894,7 +8018,7 @@ E0 52 F1 8B CB F2 4B CB E0 5A C5 85 9B C6 C2 85
 6B C6 C2 85 9B C6 C2 F3 05 3B C6 C2 FE E3 A3
 
 ;----------
-;A46F - $1E
+;A46F - $1E = Eternal Wind
 79 A4 F9 A4 3D A6 FF FF FF FF 
 E0 78 F5 02 FF E3 C6 
 
@@ -7950,7 +8074,7 @@ BD CD BD CD C5 BD CD BD CD C2 F1 4D CD 4D CD C5
 4D CD 4D CD C2 FE 3F A6
 
 ;----------
-;A748 - $1F
+;A748 - $1F = My Home Town
 52 A7 CD A7 27 A8 FF FF FF FF 
 E0 4C EB F7 04 01 F1 B8 F2 88 68 48 38 48 
 F1 88 F2 18 F1 B5 B5 65 F2 15 F1 B3 B8 65 F2 18 
@@ -7988,8 +8112,14 @@ F1 B8 F2 68 F1 B8 F2 48 F1 B8 48 B8 F2 48 F1 B8
 F2 68 F1 B8 F2 48 F1 B8 FE 27 A8 
 
 ;----------
-;A92B - $20
-35 A9 BF A9 E1 AA A6 AB 38 AC 
+;A92B - $20 = Battle 1
+M_A92B:
+.word M_A92B_CH0	; 35 A9
+.word M_A92B_CH1	; BF A9
+.word M_A92B_TRI	; E1 AA
+.word M_A92B_NOI	; A6 AB
+.word M_A92B_DMC	; 38 AC 
+M_A92B_CH0:		; $A935
 E0 9E EB F5 09 FF F0 5C 8C BC F1 
 2C 5C 8C BC F2 2C 5C 8C BC F3 2C C0 C0 F5 12 07 
 FB 02 F1 91 B5 F2 01 25 45 95 75 45 68 2B CB C1 
@@ -8034,24 +8164,134 @@ FB 04 9B CB 9B CB C5 FC 72 AB FC 60 AB 9B CB 9B
 
 C6 F1 9B CB F0 BB CB BB CB F1 88 F0 BB CB F1 0B 
 CB 0B C6 7B CB 2B CB 2B CB B8 F0 BB CB F1 42 22 
-02 F0 B2 FE F3 AA F5 01 FF EF EB C2 C0 C2 C8 9B 
-9B 9B 9B 9B 9B FB 02 FB 06 F9 05 FA 05 FC B9 AB 
-08 08 C1 FB 02 F9 05 05 05 FA 05 FC C5 AB F9 05 
-FA 05 F9 05 FA 05 FD DE AB 05 C1 FC B7 AB F9 05 
-FA 05 F9 05 FA 05 FB 02 F9 05 FA 05 F9 05 FA 05 
-F9 05 FA 05 F9 08 FA 08 08 08 FD 14 AC FB 02 F9 
-;AC00
-08 08 C8 FA 08 F9 08 0B 0B FA 08 F9 0B 0B FC FF 
-AB FC E8 AB FB 02 F9 08 0B 0B FA 08 F9 0B 0B 08 
-0B 0B FA 08 F9 0B 0B FC 16 AC 05 05 05 05 05 05 
-08 FA 08 08 08 FE B5 AB C2 05 05 05 05 05 05 08 
+02 F0 B2 FE F3 AA 
+
+M_A92B_NOI:	; $ABA6
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL12		; EB
+.byte X1_2		; C2
+.byte X1		; C0
+.byte X1_2		; C2
+.byte X1_8		; C8
+.byte L1_16		; 9B 
+.byte L1_16,L1_16,L1_16,L1_16,L1_16	; $ABB0	9B 9B 9B 9B 9B
+M_A92B_NOI_ABB5:
+.byte BACK_CNT,$02	; FB 02
+M_A92B_NOI_ABB7:
+.byte BACK_CNT,$06	; FB 06
+M_A92B_NOI_ABB9:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte BACK_N		; FC B9 AB
+.word M_A92B_NOI_ABB9
+.byte D1_8, D1_8	; $ABC0	08 08
+.byte X3_4		; C1
+
+.byte BACK_CNT,$02	; FB 02
+M_A92B_NOI_ABC5:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4,D1_4,D1_4	; 05 05 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05 
+.byte BACK_N		; FC C5 AB
+.word M_A92B_NOI_ABC5
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05 
+.byte $FA		; $ABD0	FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte JUMP_Z		; FD DE AB
+.word M_A92B_NOI_ABDE
+.byte D1_4		; 05
+.byte X3_4		; C1
+.byte BACK_N		; FC B7 AB 
+.word M_A92B_NOI_ABB7
+M_A92B_NOI_ABDE:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; $ABE0	FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+
+.byte BACK_CNT,$02	; FB 02
+M_A92B_NOI_ABE8:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; $ABF0	F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8		; 08
+.byte $FA		; FA = snare drum preset
+.byte D1_8,D1_8,D1_8	; 08 08 08
+.byte JUMP_Z		; FD 14 AC
+.word M_A92B_NOI_AC14
+
+.byte BACK_CNT,$02	; FB 02
+M_A92B_NOI_ABFF:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_8,X1_8	; $AC00 08 08 C8
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_16,D1_16	; 08 0B 0B
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_16,D1_16	; 0B 0B
+.byte BACK_N		; FC FF AB 
+.word M_A92B_NOI_ABFF
+.byte BACK_N		; $AC11	FC E8 AB 
+.word M_A92B_NOI_ABE8
+
+M_A92B_NOI_AC14:
+.byte BACK_CNT,$02	; FB 02
+M_A92B_NOI_AC16:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_16,D1_16	; 08 0B 0B
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_16,D1_16,D1_8	; 0B 0B 08 
+.byte D1_16,D1_16	; $AC20	0B 0B
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_16,D1_16	; 0B 0B
+.byte BACK_N		; FC 16 AC
+.word M_A92B_NOI_AC16
+.byte D1_4,D1_4,D1_4,D1_4,D1_4,D1_4	; 05 05 05 05 05 05 
+.byte D1_8		; 08
+.byte $FA		; FA = snare drum preset
+.byte D1_8,D1_8,D1_8	; 08 08 08
+.byte REPEAT		; FE B5 AB 
+.word M_A92B_NOI_ABB5
+
+M_A92B_DMC:		; $AC38
+C2 05 05 05 05 05 05 08 
 0B 06 08 FB 02 FB 03 02 08 03 FC 47 AC C0 FB 03 
 03 05 05 08 FC 50 AC 00 FC 45 AC FB 02 03 08 03 
 05 05 08 02 FD 71 AC FB 04 08 03 FC 69 AC FC 5D 
 AC FB 03 02 08 03 FC 73 AC 03 08 02 FE 43 AC
 
 ;----------
-;AC7F - $21
+;AC7F - $21 = The Way to the Top
 89 AC DE AC 5B AD FF FF FF FF 
 E0 80 F5 07 07 EB C0 
 C0 F1 92 D8 68 78 98 FB 02 25 F2 25 65 25 F5 09 
@@ -8075,7 +8315,7 @@ FC 5D AD FB 04 F1 2B C6 2B C6 2B C6 2B C6 2B C6
 98 FC 65 AD FE 63 AD
 
 ;----------
-;AD97 - $22
+;AD97 - $22 = Sailing Enterprise
 A1 AD 05 AE 5D AE FF FF FF FF 
 E0 93 F6 03 07 EB C8 C0 F2 43 28 D2 63 43 F1 
 9B BB F2 1B 2B 4B C6 4B C6 22 6B CB 65 48 D2 F1 
@@ -8103,7 +8343,7 @@ B8 F1 15 35 65 98 FD F6 AE 48 68 78 85 F0 B8 F1
 48 F0 B8 FC 8A AE F1 B8 95 85 68 48 28 FE 6D AE 
 
 ;----------
-;AF00 - $23 = The invincible
+;AF00 - $23 = The Invincible
 0A AF 8B AF 2E B0 FF FF FF FF 
 ;AF0A - CH0
 E0 9B EB 
@@ -8145,7 +8385,7 @@ CB FC 6F B0 FB 08 F0 9B CB FC 76 B0 F1 FB 03 FB
 9C B0 FE 2E B0
 
 ;----------
-;B0A5 - $24
+;B0A5 - $24 = Tower of Owen
 AF B0 63 B1 01 B2 FF FF FF FF 
 E0 
 69 F7 08 07 EB FB 02 F1 08 58 68 F2 08 F1 68 58 
@@ -8178,7 +8418,7 @@ FB 10 0B CB 3B CB 5B CB 3B CB FC 12 B2 FB 02 FB
 FC 1F B2 FE 10 B2
 
 ;----------
-;B236 - $25
+;B236 - $25 = The Crystal Tower
 40 B2 B4 B2 64 B3 FF FF FF FF 
 E0 99 F6 0A 01 EB F0 BC F1 0C 2C 4C 6C 8C FB 02 
 F1 92 F2 42 25 05 F1 B5 95 73 78 95 B5 90 F6 02 
@@ -8215,7 +8455,7 @@ CB F1 98 FC EE B3 FB 03 F1 4B CB F0 B8 FC F8 B3
 F1 8C 6C 4C 2C 0C F0 BC FE 65 B3
 
 ;----------
-;B40B - $26
+;B40B - $26 = Let Me Know the Truth
 15 B4 C9 B4 42 B5 FF FF FF FF 
 E0 55 F5 02 FF F2 EE 58 EC 58 EA 
 58 E8 58 E6 58 E4 58 EE 48 EC 48 EA 48 E8 48 E6 
@@ -8246,7 +8486,7 @@ F2 23 F0 A3 D5 F1 58 F0 78 F1 28 78 A3 08 78 F2
 F2 03 FE 42 B5
 
 ;----------
-;B585 - $27
+;B585 - $27 = Forbiden Land
 8F B5 E6 B5 75 B6 FF FF FF FF 
 E0 
 8A F5 12 07 EB FB 02 C5 F2 2B CB 4B CB 55 25 75 
@@ -8279,8 +8519,14 @@ AB CB C8 AB CB BB CB BB CB C8 BB CB FC C5 B6 FB
 CB FC 0B B7 FE 75 B6
 
 ;----------
-;B717 - $28
-21 B7 51 B8 27 B9 BA B9 66 BA 
+;B717 - $28 = This is the Last Battle 3(Final Battle)
+M_B717:
+.word M_B717_CH0	; 21 B7
+.word M_B717_CH1	; 51 B8
+.word M_B717_TRI	; 27 B9
+.word M_B717_NOI	; BA B9
+.word M_B717_DMC	; 66 BA 
+; $B721
 E0 A3 F6 13 FF E8 FB 08 F1 9E 4E F0 9E FC 29 
 B7 FB 08 F2 0E F1 7E 0E FC 33 B7 FB 08 F1 BE 6E 
 F0 BE FC 3D B7 FB 08 F2 2E F1 9E 2E FC 47 B7 FB 
@@ -8327,7 +8573,10 @@ F1 25 F2 2B CB F1 45 F2 4B CB F1 48 F2 4B CB F1
 5B CB 08 5B CB 08 5B CB 08 5B CB 08 F0 98 F1 9B 
 CB F0 B8 F1 BB CB 08 F2 0B CB F0 98 F1 9B CB 58 
 4B 2B 08 F0 B5 F1 BB CB F0 B8 F1 BB CB 48 F0 B8 
-F1 08 28 48 68 88 48 FE 27 B9 F9 02 F5 01 FF EF 
+F1 08 28 48 68 88 48 FE 27 B9 
+
+M_B717_NOI:	; $B9BA
+F9 02 F5 01 FF EF 
 ED 95 95 F9 05 F5 01 FF EF ED 95 92 F9 02 F5 01 
 FF EF ED 95 95 9C EC 9C EB 9C EA 9C E9 9A ED 9C 
 EC 9C EB 9C EA 9C E9 9A ED 97 97 97 F9 02 F5 01 
@@ -8339,14 +8588,17 @@ F9 05 F5 01 FF EF ED 95 FC 00 BA FB 02 F9 05 FA
 08 05 FA 05 F9 05 FA 05 F9 08 08 FA 08 F9 08 08 
 FA 08 F9 08 08 FD 5C BA FA 08 F9 08 FA 08 F9 08 
 FA 08 F9 08 FA 0B 0B F9 08 FC 26 BA 05 05 08 FA 
-08 08 08 FE BA B9 FB 03 01 05 00 FC 68 BA FB 08 
+08 08 08 FE BA B9 
+
+M_B717_DMC:	; 66 BA 
+FB 03 01 05 00 FC 68 BA FB 08 
 05 FC 70 BA FB 08 03 02 08 FC 76 BA FB 02 03 08 
 
 D2 03 05 05 08 03 08 D2 FD 94 BA C8 05 08 08 05 
 08 FC 7E BA 03 08 02 FE 66 BA
 
 ;----------
-;BA9A - $29
+;BA9A - $29 = The Dark Crystals
 A4 BA 02 BB 22 BC FF FF FF FF 
 E0 A0 EB F7 0A 01 FB 02 F1 B1 D8 F2 
 1E 2E 4E 6E 8E AE B0 92 42 D0 F1 B1 D8 F2 1D 2D 
@@ -8462,13 +8714,72 @@ FC EC BE FB 02 F0 AB CB AB CB F1 5B CB AB CB FC
 BE 
 ;$BF61
 M_BCC0_NOI:
-CB F9 FB 20 05 FC 65 BF FB 03 F9 05 05 05 FA 
-05 FC 6B BF FB 02 F9 08 0B 0B FA 08 F9 0B 0B FC 
-
-76 BF FB 03 F9 05 F5 01 FF EF EB 98 98 F9 05 F5 
-01 FF EF EB 95 FC 84 BF F9 05 F5 01 FF EF EB 95 
-9B 9B 98 9B 9B 98 FB 20 F9 08 0B 0B FA 08 F9 0B 
-0B FC A8 BF FE 62 BF 
+.byte X1_16		; CB
+M_BCC0_NOI_BF62:
+.byte $F9		; F9 = hi-hat preset
+.byte BACK_CNT,$20	; FB 20
+M_BCC0_NOI_BF65:
+.byte D1_4		; 05
+.byte BACK_N		; FC 65 BF
+.word M_BCC0_NOI_BF65
+.byte BACK_CNT,$03	; FB 03
+M_BCC0_NOI_BF6B:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4,D1_4,D1_4	; 05 05 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte BACK_N		; FC 6B BF
+.word M_BCC0_NOI_BF6B
+.byte BACK_N,$02	; FB 02
+M_BCC0_NOI_BF76:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_16,D1_16	; 08 0B 0B
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_16,D1_16	; 0B 0B
+.byte BACK_N		; FC 
+.word M_BCC0_NOI_BF76
+; $BF80	76 BF
+.byte BACK_CNT,$03	; FB 03
+M_BCC0_NOI_BF84:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL12		; EB
+.byte L1_8,L1_8		; 98 98
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 
+; $BF90	01 FF
+.byte OT0		; EF
+.byte VOL12		; EB
+.byte L1_4		; 95
+.byte BACK_N		; FC
+.word M_BCC0_NOI_BF84	; 84 BF
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL12		; EB
+.byte L1_4		; 95
+; $BFA0
+.byte L1_16,L1_16,L1_8,L1_16,L1_16,L1_8	; 9B 9B 98 9B 9B 98
+.byte BACK_CNT,$20	; FB 20
+M_BCC0_NOI_BFA8:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_16,D1_16	; 08 0B 0B
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_16		; 0B 
+; $BFB0
+.byte D1_16		; 0B
+.byte BACK_N		; FC
+.word M_BCC0_NOI_BFA8	; A8 BF
+.byte REPEAT		; FE 62 BF 
+.word M_BCC0_NOI_BF62
 
 ;$BFB7
 M_BCC0_DMC:
@@ -8479,21 +8790,21 @@ FC CF BF FE B8 BF 00 00 00 00 00 00 00 00 00 00
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
 ;$2B-$36
-8C8F	;8F 8C - $2B = Ending(to home)
-8CD2	;D2 8C - $2C = dark dungeon
-8D1A	;1A 8D - $2D = Chocobo forest
-8DA2	;A2 8D - $2E = Piano 2
-8F76	;76 8F - $2F = Ending(step)
-9128	;28 91 - $30 = Ending(text)
-9148	;48 91 - $31 = Emergency
-919C	;9C 91 - $32 = Meet the dark cloud
-91C3	;C3 91 - $33 = Meet the dark cloud x2
-9201	;01 92 - $34 = Piano 1
-9220	;20 92 - $35 = Goodbye with friend
-924A	;4A 92 - $36 = Join the party
+8C8F	;8F 8C - $2B = The Everlasting World (Ending Part 2)
+8CD2	;D2 8C - $2C = Castle of Hain
+8D1A	;1A 8D - $2D = Chocobos!(No Melody)
+8DA2	;A2 8D - $2E = Let's Play the Piano Again!
+8F76	;76 8F - $2F = The Everlasting World (Ending Part 3)
+9128	;28 91 - $30 = The Everlasting World (Ending Part 1)
+9148	;48 91 - $31 = Bad Event
+919C	;9C 91 - $32 = This is the Last Battle
+91C3	;C3 91 - $33 = This is the Last Battle 2(x2)
+9201	;01 92 - $34 = Let's Play the Piano!
+9220	;20 92 - $35 = Leaving Party
+924A	;4A 92 - $36 = Joining Party
 
 ;----------
-;8C8F - $2B
+;8C8F - $2B = The Everlasting World (Ending Part 2)
 99 8C B5 8C C9 8C FF FF FF FF 
 F6 02 FF EB E0 5A F1
 48 78 F2 08 48 78 28 98 58 E0 55 78 38 E0 50 08
@@ -8502,7 +8813,7 @@ F6 02 FF EB E0 5A F1
 72 FF
 
 ;----------
-;8CD2 - $2C
+;8CD2 - $2C = Castle of Hain
 DC 8C F6 8C 13 8D FF FF FF FF 
 E0 89 F7 0A
 01 EC F1 B5 2A 7A BA F2 25 F1 B5 E0 83 F2 75 E0
@@ -8512,7 +8823,7 @@ F1 5A 2A 5A 7A 2A F0 BA F1 0A 3A 7A 8A AA F2 0A
 F1 B2 FF F1 72 52 85 55 72 FF
 
 ;----------
-;8D1A - $2D
+;8D1A - $2D = Chocobos!(No Melody)
 24 8D 57 8D 84 8D FF FF FF FF 
 E0 BE EB F7 12 07 F0 AB BB AB BB A1
 D2 F2 4B 5B 4B 5B 45 FB 04 F6 12 07 F2 A8 78 48
@@ -8526,7 +8837,7 @@ F0 A8 78 F2 68 38 08 F1 98 68 38 08 F0 98 FC 65
 84 8D
 
 ;----------
-;8DA2 - $2E
+;8DA2 - $2E = Let's Play the Piano Again!
 AC 8D 21 8E D4 8E FF FF FF FF 
 E0 87 F6 12
 07 EB FB 02 F1 71 95 A1 F2 05 15 F1 95 B5 F2 35
@@ -8563,7 +8874,7 @@ F0 B5 F1 58 C8 F0 B5 F1 18 C8 95 25 45 55 65 FB
 62 F0 B2 FE D4 8E
 
 ;----------
-;8F76 - $2F
+;8F76 - $2F = The Everlasting World (Ending Part 3)
 80 8F E6 8F 43 90 FF FF FF FF
 
 E0 6E F7 0E 01 EB F1 BD F2 1D 3D 4D 6C 7C 9C FB
@@ -8598,13 +8909,14 @@ F1 68 B8 F2 38 68 38 F1 B8 68 F2 B8 68 38 F1 B8
 98 68 38 F0 B8 FE 44 90
 
 ;----------
-;9128 - $30
+;9128 - $30 = The Everlasting World (Ending Part 1)
 32 91 3B 91 FF FF 40 91 FF FF 
 F6 1A FF F8 C4 F4 90 D5 FF E7 C6 FE 32 91
+M_9128_NOI:	; $9140
 F5 1B FF F0 C0 C2 09 FF
 
 ;----------
-;9148 - $31
+;9148 - $31 = Bad Event
 52 91 6B 91 82 91 8C 91 FF FF 
 F5 19 FF F8 8F F2 E6 04 E7 04 E8 04 E9 04
 EA 04 EB 04 EC 04 ED 04 EE 04 FF F5 19 FF F8 8F
@@ -8614,37 +8926,50 @@ F2 E7 14 E8 14 E9 14 EA 14 EB 14 EC 14 ED 14 EE
 20 10 00 EF 55 92 F5 0B FF 90 D0 FF
 
 ;----------
-;919C - $32
+;919C - $32 = This is the Last Battle
 A6 91 B4 91 FF FF B9 91 FF FF 
 F7 1D 0B F4 48 AB 06 48 AB 06
-48 AB 06 FF CC E7 FE A6 91 F5 15 FF EF B5 95 75
+48 AB 06 FF CC E7 FE A6 91 
+M_919C_NOI:	; $91B9
+F5 15 FF EF B5 95 75
 A5 85 FF
 
 ;----------
-;91C3 - $33
+;91C3 - $33 = This is the Last Battle 2(x2)
 CD 91 DA 91 E5 91 F0 91 FF FF 
 F6 1E 0C
 F4 CE 58 C9 53 CE 58 C9 53 FF F6 1E 0C F3 EB 13
 DB C5 13 DB FF F5 FF 0C F4 CC 25 24 CC 25 24 FF
+M_91C3_NOI:	; $91F0
 F5 14 FF EF FB 02 89 89 69 69 49 A9 99 FC F6 91
 ;9200
 FF
 
 ;----------
-;9201 - $34
+;9201 - $34 = Let's Play the Piano!
 0B 92 15 92 FF FF FF FF FF FF 
 F7 1C FF F8 B5
 F2 54 43 32 FF F7 1C FF F8 B5 F1 14 03 F0 B2 FF
 
 ;----------
-;9220 - $35
-2A 92 2C 92 FF FF 3D 92 FF FF 
-EB C9 F5 24 FF F8
-B5 F1 2A F2 25 F1 2A F2 25 C1 FE 31 92 EA F5 1A
+;9220 - $35 = Leaving Party
+M_9220:
+.word M_9220_CH0	; 2A 92
+.word M_9220_CH1	; 2C 92
+.byte $FF,$FF		; FF FF
+.word M_9220_NOI	; 3D 92
+.byte $FF,$FF		; FF FF 
+M_9220_CH0:	; $922A
+EB C9 
+M_9220_CH1:	; $922C
+F5 24 FF F8
+B5 F1 2A F2 25 F1 2A F2 25 C1 FE 31 92 
+M_9220_NOI:	; $923D
+EA F5 1A
 FF F0 0B EF 6D 2A C8 FE 41 92
 
 ;----------
-;924A - $36
+;924A - $36 = Joining Party
 54 92 BD 92 FF FF FF FF FF FF 
 E0 5F EB F6 02 FF FB 02 F0 5B 8B BB
 F1 3B 5B 8B BB F2 3B 5B 8B BB F3 3B F3 5B 8B BB
@@ -8656,13 +8981,13 @@ F3 1B 2B 6B 8B BB FC 5C 92 FB 02 F0 9B F1 0B 4B
 E5 C8 FE 5A 92
 
 ;$37-$3A
-B3B6	;B6 B3 - $37 = Sudden danger
-B876	;76 B8 - $38 = Saronia(Bad)
-BA82	;82 BA - $39 = Flood world
+B3B6	;B6 B3 - $37 = Bullied Prince
+B876	;76 B8 - $38 = Salonia
+BA82	;82 BA - $39 = The Boundless Ocean
 BABF	;BF BA - $3A = Fall
 
 ;----------
-;B3B6 - $37
+;B3B6 - $37 = Bullied Prince
 C0 B3 C8 B4 F9 B6 FF FF FF FF
 E8 F5 02 07 E0 91 F1 BB F2 1B F1 BB CB BB F2 1B
 F1 BB CB BB F2 1B 2B 1B 2B 4B 2B 1B F1 BB CB BB
@@ -8751,7 +9076,7 @@ B8 FB 04 9B CB 4B CB FC 63 B8 FB 04 AB CB 4B CB
 FC 6C B8 FE FD B6
 
 ;----------
-;B876 - $38
+;B876 - $38 = Salonia
 80 B8 13 B9 D8 B9 FF FF FF FF
 
 E0 6C EB C0 C0 F6 0A 07 FB 02 F1 52 F2 23 0D F1
@@ -8793,7 +9118,7 @@ FB 0B F1 A9 CD FC 62 BA 98 78 58 48 28 FB 02 F0
 EE B9
 
 ;----------
-;BA82 - $39
+;BA82 - $39 = The Boundless Ocean
 FF FF 8C BA A4 BA FF FF FF FF 
 F5 03 07 E8
 C5 F1 2B C6 C8 0B C6 0B CB C8 2B C6 2B C6 C8 0B
@@ -8801,7 +9126,7 @@ C6 FE 90 BA F1 7B C6 BB CB 7B CB 58 9B C6 9B CB
 78 BB CB 78 BB CB 5B C6 9B CB 5B CB FE A5 BA
 
 ;----------
-;BABF - $3A
+;BABF - $3A = Fall
 C9 BA E9 BA FF FF FF FF FF FF 
 E0 FA F5 0B FF EB F1
 98 78 C5 F2 05 05 F1 98 78 C5 F2 05 05 F1 98 78
@@ -8816,10 +9141,10 @@ BCC7	;C7 BC - $3C = Upgrade machine
 BE7F	;7F BE - $3D = Cheers
 BF14	;14 BF - $3E = woo
 BFA5	;A5 BF - $3F = Bahamute wings
-BFB4	;B4 BF - $40 = Crystal room
+BFB4	;B4 BF - $40 = Crystal Room
 
 ;----------
-;$B40C - $3B
+;$B40C - $3B = Take off invinsible
 16 B4 7D B5 91 B9 7A BB FF FF 
 F7 0E 01 E0 82 EC FB 0C C0 FC
 1E B4 FB 03 C5 F2 65 45 25 15 F1 B5 A5 B5 F2 42
@@ -8980,7 +9305,7 @@ AB EA AB EB AB EC AB ED AB EE AB F5 27 FF FC A8
 BC EF 40 42 42 40 FF
 
 ;----------
-;BCC7 - $3C
+;BCC7 - $3C = Upgrade machine
 D1 BC 58 BD FF FF FF FF FF FF 
 E0 50 C0 C0 EB F7 04 07 F1 65 95 F2 25 F1 95
 B5 F2 25 72 65 28 F1 98 88 B8 F2 28 68 40 43 48
@@ -9014,7 +9339,7 @@ F0 48 78 48 98 48 78 48 EF 98 F0 48 78 48 98 48
 E0 46 F0 68 E0 44 98 E0 42 68 E0 40 20 D0 FF
 
 ;----------
-;BE7F - $3D
+;BE7F - $3D = Cheers
 89 BE B4 BE 00 BF FF FF FF FF 
 F6 0B 07 E9 F1 0B 1B
 3B 4B 0B 1B 3B 4B 3B 4B 6B 7B 3B 4B 6B 7B 6B 7B
@@ -9029,7 +9354,7 @@ F1 08 18 08 18 38 48 38 48 68 78 68 78 98 A8 98
 A8 FE 01 BF
 
 ;----------
-;BF14 - $3E
+;BF14 - $3E = woo
 1E BF 69 BF 71 BF FF FF FF FF 
 E0 46
 F7 04 06 EB F3 0A 1A 3A F2 6A 7A 9A 0A 1A 3A F1
@@ -9044,13 +9369,13 @@ F0 B5 D7 F1 2A 55 AF BF DE DC AF BF DE DC AF BF
 DE DC FE 71 BF
 
 ;----------
-;BFA5 - $3F
+;BFA5 - $3F = Bahamute wings
 AF BF 69 BF 71 BF FF FF FF FF 
 E0
 78 FE 20 BF
 
 ;----------
-;BFB4 - $40
+;BFB4 - $40 = Crystal Room
 BE BF FF FF FF FF FF FF FF FF 
 E0 78
 F5 0B FF EB F2 48 38 48 38 46 F1 95 DB C2 F2 48
