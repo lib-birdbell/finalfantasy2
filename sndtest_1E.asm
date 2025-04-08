@@ -6793,13 +6793,13 @@ BGM_FF4_FOUR_FIENDS:
 .else
 .byte $FF,$FF
 .endif
-.if 1
+.if 0
 .word BGM_FF4_FOUR_FIENDS_TRI
 .else
 .byte $FF,$FF
 .endif
-.if 0
-.word M_BCC0_NOI
+.if 1
+.word BGM_FF4_FOUR_FIENDS_NOI
 .else
 .byte $FF,$FF		; Noise
 .endif
@@ -6808,8 +6808,8 @@ BGM_FF4_FOUR_FIENDS:
 BGM_FF4_FOUR_FIENDS_CH0:
 ;.byte DUTY_1_4,$04,$07
 .byte DUTY_1_4,$04,$FF
-.byte VOL2
-;.byte VOL15	; temp commented
+;.byte VOL2	; temp
+.byte VOL15	; temp commented
 ;.byte TEMPO,$96	; test tempo
 .byte TEMPO,$A4	; Real tempo
 ;BGM_FF4_FOUR_FIENDS_CH0_S:	;temp
@@ -7019,23 +7019,99 @@ BGM_FF4_FOUR_FIENDS_TRI_R4:
 .byte REPEAT
 .word BGM_FF4_FOUR_FIENDS_TRI_S
 
-;M_BCC0_NOI:
-;.byte X1_16		; CB
+BGM_FF4_FOUR_FIENDS_NOI:
+.byte $FA		; FA = snare drum preset
+.byte D1,X1,X1,D1_4,D1_8,D1_4,D1_8,D1_4
+.byte D1_8,D1_4,D1_8,D1_8,X1_8,D1_24,D1_24,D1_24,D1_24,D1_24,D1_24
+
+BGM_FF4_FOUR_FIENDS_NOI_S:
+.byte D1_8,D1_8,D1_8,D1_8,D1_8,X1_8,D1_8,D1_8
+.byte D1_4,D1_8,D1_4,D1_8		; 3/4
+.byte D1_8,D1_8,D1_8,D1_8,D1_8,X1_8,D1_8,D1_8
+.byte D1_8,X1_8,D1_8,D1_4,D1_8,D1_8,X1_8
+
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_NOI_R1:	;CH0_R0
+.byte X1_2,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 4/4
+.byte X1_4,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 3/4
+.byte X1_4,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 3/4
+.byte X1_4,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 3/4
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_NOI_R1
+
+.byte $F9				; F9 = hi-hat preset
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+
+.byte X1,X1,X1,X1
+
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_NOI_R4:	;CH0_R2
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
+
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
+
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16	; 3/4
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16	; 3/4
+.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16, D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16	; 2/4 + 2/4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_8,D1_16,D1_16,X1_4
+
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_NOI_R4
+
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+
+.byte D1_8,D1_8,X1_4,D1_8,D1_8,X1_4
+.byte D1_8,D1_8,X1_4,D1_8,D1_8,X1_4
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_4,D1_4,D1_4,D1_4
+
+.byte REPEAT
+.word BGM_FF4_FOUR_FIENDS_NOI_S
+
+.if 0	;; TEST CODE
+M_BCC0_NOI:
+.byte X1_16				; CB
 M_BCC0_NOI_BF62:
-.byte $F9		; F9 = hi-hat preset
-.byte BACK_CNT,$20	; FB 20
+.byte $F9				; F9 = hi-hat preset
+.byte BACK_CNT,$20			; FB 20
 M_BCC0_NOI_BF65:
-.byte D1_4		; 05
-.byte BACK_N		; FC 65 BF
+.byte D1_4				; 05
+.byte BACK_N				; FC 65 BF
 .word M_BCC0_NOI_BF65
 
-.byte BACK_CNT,$03	; FB 03
+.byte BACK_CNT,$03			; FB 03
 M_BCC0_NOI_BF6B:
-.byte $F9		; F9 = hi-hat preset
-.byte D1_4,D1_4,D1_4	; 05 05 05
-.byte $FA		; FA = snare drum preset
-.byte D1_4		; 05
-.byte BACK_N		; FC 6B BF
+.byte $F9				; F9 = hi-hat preset
+.byte D1_4,D1_4,D1_4			; 05 05 05
+.byte $FA				; FA = snare drum preset
+.byte D1_4				; 05
+.byte BACK_N				; FC 6B BF
 .word M_BCC0_NOI_BF6B
 
 .byte BACK_CNT,$02	; FB 02
@@ -7049,7 +7125,7 @@ M_BCC0_NOI_BF76:
 .byte BACK_N		; FC 
 .word M_BCC0_NOI_BF76	; $BF80	76 BF
 
-M_BCC0_NOI:	; temp
+;M_BCC0_NOI:	; temp
 .byte X1_16		; CB	temp
 .byte BACK_CNT,$03	; FB 03
 M_BCC0_NOI_BF84:
@@ -7095,6 +7171,29 @@ M_BCC0_NOI_BFA8:
 
 .byte REPEAT		; FE 62 BF 
 .word M_BCC0_NOI_BF62
+
+BGM_NOI_TEST:
+.byte $FF,$FF
+.byte $FF,$FF
+.byte $FF,$FF
+.word BGM_NOI_TEST_S
+.byte $FF,$FF
+BGM_NOI_TEST_S:
+.byte X1_16				; CB
+BGM_NOI_TEST_S1:
+.byte $FA		; FA = snare drum preset
+.byte D1,D1,D1,D1
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_8,D1_8,D1_8,D1_8
+.byte X1_2
+.byte $F9		; F9 = hi-hat preset
+.byte D1,D1,D1,D1
+.byte D1_4,D1_4,D1_4,D1_4
+.byte D1_8,D1_8,D1_8,D1_8
+.byte X1_2
+.byte REPEAT		; FE 62 BF 
+.word BGM_NOI_TEST_S1
+.endif		; End of TEST CODE
 
 
 
@@ -8576,19 +8675,143 @@ CB F0 B8 F1 BB CB 08 F2 0B CB F0 98 F1 9B CB 58
 F1 08 28 48 68 88 48 FE 27 B9 
 
 M_B717_NOI:	; $B9BA
-F9 02 F5 01 FF EF 
-ED 95 95 F9 05 F5 01 FF EF ED 95 92 F9 02 F5 01 
-FF EF ED 95 95 9C EC 9C EB 9C EA 9C E9 9A ED 9C 
-EC 9C EB 9C EA 9C E9 9A ED 97 97 97 F9 02 F5 01 
-FF EF ED 95 95 F9 05 F5 01 FF EF ED 95 92 FB 02 
-;BA00
-F9 05 F5 01 FF EF ED 95 FC 00 BA FB 02 F9 05 FA 
-05 FC 0D BA FB 08 F9 05 FA 08 F9 05 08 FA 08 F9 
-08 FC 16 BA FB 02 F9 05 08 FA 05 F9 08 FA 08 F9 
-08 05 FA 05 F9 05 FA 05 F9 08 08 FA 08 F9 08 08 
-FA 08 F9 08 08 FD 5C BA FA 08 F9 08 FA 08 F9 08 
-FA 08 F9 08 FA 0B 0B F9 08 FC 26 BA 05 05 08 FA 
-08 08 08 FE BA B9 
+M_B717_NOI_B9BA:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_2		; 02
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL13		; $B9C0	ED
+.byte L1_4,L1_4		; 95 95
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL13		; ED
+.byte L1_4,L1_2		; 95 92
+.byte $F9		; F9 = hi-hat preset
+.byte D1_2		; 02
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; $B9D1	EF
+.byte VOL13		; ED
+.byte L1_4,L1_4,L1_24	; 95 95 9C
+.byte VOL12		; EC
+.byte L1_24		; 9C
+.byte VOL11		; EB
+.byte L1_24		; 9C
+.byte VOL10		; EA
+.byte L1_24		; 9C
+.byte VOL9		; E9
+.byte L1_12		; 9A
+.byte VOL13		; ED
+.byte L1_24		; 9C 
+.byte VOL12		; $B9E0	EC
+.byte L1_24		; 9C
+.byte VOL11		; EB
+.byte L1_24		; 9C
+.byte VOL10		; EA
+.byte L1_24		; 9C
+.byte VOL9		; E9
+.byte L1_12		; 9A
+.byte VOL13		; ED
+.byte L1_6,L1_6,L1_6	; 97 97 97
+.byte $F9		; F9 = hi-hat preset
+.byte D1_2		; 02
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; $B9F1	EF
+.byte VOL13		; ED
+.byte L1_4,L1_4		; 95 95
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL13		; ED
+.byte L1_4,L1_2		; 95 92
+.byte BACK_CNT,$02	; FB 02 
+M_B717_NOI_BA00:
+.byte $F9		; $BA00 F9 = hi-hat preset
+.byte D1_4		; 05
+.byte DUTY_1_8,$01,$FF	; F5 01 FF
+.byte OT0		; EF
+.byte VOL13		; ED
+.byte L1_4		; 95
+.byte BACK_N		; FC 00 BA
+.word M_B717_NOI_BA00
+.byte BACK_CNT,$02	; FB 02 
+M_B717_NOI_BA0D:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; $BA10 05
+.byte BACK_N		; FC 0D BA
+.word M_B717_NOI_BA0D
+.byte BACK_CNT,$08	; FB 08
+M_B717_NOI_BA16:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4,D1_8		; 05 08
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8		; $BA20	08
+.byte BACK_N		; FC 16 BA
+.word M_B717_NOI_BA16
+.byte BACK_CNT,$02	; FB 02
+M_B717_NOI_BA26:
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4,D1_8		; 05 08
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8		; 08
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_4		; $BA30	08 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; F9 = hi-hat preset
+.byte D1_4		; 05
+.byte $FA		; FA = snare drum preset
+.byte D1_4		; 05
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_8		; 08 08
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_8		; 08 08 
+.byte $FA		; $BA40	FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8,D1_8		; 08 08
+.byte JUMP_Z		; FD 5C BA
+.word M_B717_NOI_BA5C
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8		; 08
+.byte $FA		; FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8		; 08 
+.byte $FA		; $BA50	FA = snare drum preset
+.byte D1_8		; 08
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8		; 08
+.byte $FA		; FA = snare drum preset
+.byte D1_16,D1_16	; 0B 0B
+.byte $F9		; F9 = hi-hat preset
+.byte D1_8		; 08
+.byte BACK_N		; FC 26 BA
+.word M_B717_NOI_BA26
+M_B717_NOI_BA5C:
+.byte D1_4,D1_4,D1_8	; 05 05 08
+.byte $FA		; FA = snare drum preset
+.byte D1_8,D1_8,D1_8	; $BA60	08 08 08
+.byte REPEAT		; FE BA B9 
+.word M_B717_NOI_B9BA
 
 M_B717_DMC:	; 66 BA 
 FB 03 01 05 00 FC 68 BA FB 08 
@@ -8823,7 +9046,7 @@ F1 5A 2A 5A 7A 2A F0 BA F1 0A 3A 7A 8A AA F2 0A
 F1 B2 FF F1 72 52 85 55 72 FF
 
 ;----------
-;8D1A - $2D = Chocobos!(No Melody)
+;8D1A - $2D = Chocobos!(No Melody) -> Bullied Prince ??
 24 8D 57 8D 84 8D FF FF FF FF 
 E0 BE EB F7 12 07 F0 AB BB AB BB A1
 D2 F2 4B 5B 4B 5B 45 FB 04 F6 12 07 F2 A8 78 48
@@ -8837,7 +9060,7 @@ F0 A8 78 F2 68 38 08 F1 98 68 38 08 F0 98 FC 65
 84 8D
 
 ;----------
-;8DA2 - $2E = Let's Play the Piano Again!
+;8DA2 - $2E = Let's Play the Piano Again! -> Salonia ??
 AC 8D 21 8E D4 8E FF FF FF FF 
 E0 87 F6 12
 07 EB FB 02 F1 71 95 A1 F2 05 15 F1 95 B5 F2 35
@@ -8874,7 +9097,7 @@ F0 B5 F1 58 C8 F0 B5 F1 18 C8 95 25 45 55 65 FB
 62 F0 B2 FE D4 8E
 
 ;----------
-;8F76 - $2F = The Everlasting World (Ending Part 3)
+;8F76 - $2F = The Everlasting World (Ending Part 3) -> The Boundless Ocean ??
 80 8F E6 8F 43 90 FF FF FF FF
 
 E0 6E F7 0E 01 EB F1 BD F2 1D 3D 4D 6C 7C 9C FB
@@ -8909,67 +9132,136 @@ F1 68 B8 F2 38 68 38 F1 B8 68 F2 B8 68 38 F1 B8
 98 68 38 F0 B8 FE 44 90
 
 ;----------
-;9128 - $30 = The Everlasting World (Ending Part 1)
-32 91 3B 91 FF FF 40 91 FF FF 
-F6 1A FF F8 C4 F4 90 D5 FF E7 C6 FE 32 91
-M_9128_NOI:	; $9140
-F5 1B FF F0 C0 C2 09 FF
+;9128 - $30 = The Everlasting World (Ending Part 1) -> fall ??
+M_9128:
+.word M_9128_CH0			; 32 91
+.word M_9128_CH1			; 3B 91
+.byte $FF,$FF				; FF FF
+.word M_9128_NOI			; 40 91
+.byte $FF,$FF				; FF FF 
+M_9128_CH0:				; $9132
+.byte DUTY_1_4,$1A,$FF			; F6 1A FF
+.byte $F8,$C4				; F8 C4	- sweep
+.byte OT5				; F4
+.byte L1				; 90
+.byte A1_4				; D5
+.byte $FF				; FF 
+M_9128_CH1:				; $913B
+E7 C6 FE 32 91
+M_9128_NOI:				; $9140
+.byte DUTY_1_8,$1B,$FF			; F5 1B FF
+.byte OT1				; F0
+.byte X1				; C0
+.byte X1_2				; C2
+.byte D1_32				; 09
+.byte $FF				; FF
 
 ;----------
-;9148 - $31 = Bad Event
-52 91 6B 91 82 91 8C 91 FF FF 
+;9148 - $31 = Bad Event -> Take off invinsible ??
+M_9148:
+.word M_9148_CH0			; 52 91
+.word M_9148_CH1			; 6B 91
+.word M_9148_TRI			; 82 91 
+.word M_9148_NOI			; 8C 91
+.byte $FF,$FF				; FF FF 
+M_9148_CH0:				; $9152
 F5 19 FF F8 8F F2 E6 04 E7 04 E8 04 E9 04
-EA 04 EB 04 EC 04 ED 04 EE 04 FF F5 19 FF F8 8F
+EA 04 EB 04 EC 04 ED 04 EE 04 FF 
+M_9148_CH1:				; $916B
+F5 19 FF F8 8F
 F2 E7 14 E8 14 E9 14 EA 14 EB 14 EC 14 ED 14 EE
 
-14 FF F4 C2 04 C2 0B C7 02 C2 04 FF F5 16 FF F0
-20 10 00 EF 55 92 F5 0B FF 90 D0 FF
+14 FF 
+M_9148_TRI:				; $9182
+F4 C2 04 C2 0B C7 02 C2 04 FF 
+M_9148_NOI:				; $918C
+.byte DUTY_1_8,$16,$FF			; F5 16 FF
+.byte OT1				; F0
+.byte R1,DH1,D1				; 20 10 00
+.byte OT0				; EF
+.byte F1_4,L1_2				; 55 92
+.byte DUTY_1_8,$0B,$FF			; F5 0B FF
+.byte L1,A1				; 90 D0
+.byte $FF				; FF
 
 ;----------
-;919C - $32 = This is the Last Battle
-A6 91 B4 91 FF FF B9 91 FF FF 
+;919C - $32 = This is the Last Battle -> Upgrade machine ??
+M_919C:
+.word M_919C_CH0			; A6 91
+.word M_919C_CH1			; B4 91
+.byte $FF,$FF				; FF FF 
+.word M_919C_NOI			; B9 91
+.word $FF,$FF				; FF FF 
+M_919C_CH0:				; $91A6
 F7 1D 0B F4 48 AB 06 48 AB 06
-48 AB 06 FF CC E7 FE A6 91 
-M_919C_NOI:	; $91B9
-F5 15 FF EF B5 95 75
-A5 85 FF
+48 AB 06 FF 
+M_919C_CH1:				; $91B4
+CC E7 FE A6 91 
+M_919C_NOI:				; $91B9
+.byte DUTY_1_8,$15,$FF			; F5 15 FF
+.byte OT0				; EF
+.byte C1_4,L1_4,S1_4			; B5 95 75
+.byte LH1_4,SH1_4			; $91C0	A5 85
+.byte $FF				; FF
 
 ;----------
-;91C3 - $33 = This is the Last Battle 2(x2)
-CD 91 DA 91 E5 91 F0 91 FF FF 
+;91C3 - $33 = This is the Last Battle 2(x2) -> Cheers
+M_91C3:
+.word M_91C3_CH0			; CD 91
+.word M_91C3_CH1			; DA 91
+.word M_91C3_TRI			; E5 91
+.word M_91C3_NOI			; F0 91
+.byte $FF,$FF				; FF FF 
+M_91C3_CH0:				; $91CD
 F6 1E 0C
-F4 CE 58 C9 53 CE 58 C9 53 FF F6 1E 0C F3 EB 13
-DB C5 13 DB FF F5 FF 0C F4 CC 25 24 CC 25 24 FF
-M_91C3_NOI:	; $91F0
-F5 14 FF EF FB 02 89 89 69 69 49 A9 99 FC F6 91
-;9200
-FF
+F4 CE 58 C9 53 CE 58 C9 53 FF 
+M_91C3_CH1:				; $91DA
+F6 1E 0C F3 EB 13
+DB C5 13 DB FF 
+M_91C3_TRI:				; $91E5
+F5 FF 0C F4 CC 25 24 CC 25 24 FF
+M_91C3_NOI:				; $91F0
+.byte DUTY_1_8,$14,$FF			; F5 14 FF
+.byte OT0				; EF
+.byte BACK_CNT,$02			; FB 02 
+M_91C3_NOI_91F6:
+.byte SH3_32,SH3_32,FH3_32,FH3_32,M3_32,LH3_32,L3_32	; 89 89 69 69 49 A9 99
+.byte BACK_N				; FC F6 91
+.word M_91C3_NOI_91F6
+.byte $FF				; $9200 FF
 
 ;----------
-;9201 - $34 = Let's Play the Piano!
+;9201 - $34 = Let's Play the Piano! -> woo ??
 0B 92 15 92 FF FF FF FF FF FF 
 F7 1C FF F8 B5
 F2 54 43 32 FF F7 1C FF F8 B5 F1 14 03 F0 B2 FF
 
 ;----------
-;9220 - $35 = Leaving Party
+;9220 - $35 = Leaving Party -> Bahamute wings ??
 M_9220:
-.word M_9220_CH0	; 2A 92
-.word M_9220_CH1	; 2C 92
-.byte $FF,$FF		; FF FF
-.word M_9220_NOI	; 3D 92
-.byte $FF,$FF		; FF FF 
-M_9220_CH0:	; $922A
+.word M_9220_CH0			; 2A 92
+.word M_9220_CH1			; 2C 92
+.byte $FF,$FF				; FF FF
+.word M_9220_NOI			; 3D 92
+.byte $FF,$FF				; FF FF 
+M_9220_CH0:				; $922A
 EB C9 
-M_9220_CH1:	; $922C
+M_9220_CH1:				; $922C
 F5 24 FF F8
 B5 F1 2A F2 25 F1 2A F2 25 C1 FE 31 92 
-M_9220_NOI:	; $923D
-EA F5 1A
-FF F0 0B EF 6D 2A C8 FE 41 92
+M_9220_NOI:				; $923D
+.byte VOL11				; EA
+.byte DUTY_1_8,$1A,$FF			; F5 1A FF
+M_9220_NOI_9241:
+.byte OT1				; $9241 F0
+.byte D1_16				; 0B
+.byte OT0				; EF
+.byte FH1_32,R1_12,X1_8			; 6D 2A C8
+.byte REPEAT				; FE 41 92
+.word M_9220_NOI_9241
 
 ;----------
-;924A - $36 = Joining Party
+;924A - $36 = Joining Party -> Crystal Room ??
 54 92 BD 92 FF FF FF FF FF FF 
 E0 5F EB F6 02 FF FB 02 F0 5B 8B BB
 F1 3B 5B 8B BB F2 3B 5B 8B BB F3 3B F3 5B 8B BB
@@ -8981,13 +9273,13 @@ F3 1B 2B 6B 8B BB FC 5C 92 FB 02 F0 9B F1 0B 4B
 E5 C8 FE 5A 92
 
 ;$37-$3A
-B3B6	;B6 B3 - $37 = Bullied Prince
-B876	;76 B8 - $38 = Salonia
-BA82	;82 BA - $39 = The Boundless Ocean
-BABF	;BF BA - $3A = Fall
+B3B6	;B6 B3 - $37 = Bullied Prince -> The Everlasting World (Ending Part 2)
+B876	;76 B8 - $38 = Salonia -> Castle of Hain
+BA82	;82 BA - $39 = The Boundless Ocean -> Chocobos!(No Melody)
+BABF	;BF BA - $3A = Fall -> Let's Play the Piano Again!
 
 ;----------
-;B3B6 - $37 = Bullied Prince
+;B3B6 - $37 = Bullied Prince -> The Everlasting World (Ending Part 2) ??
 C0 B3 C8 B4 F9 B6 FF FF FF FF
 E8 F5 02 07 E0 91 F1 BB F2 1B F1 BB CB BB F2 1B
 F1 BB CB BB F2 1B 2B 1B 2B 4B 2B 1B F1 BB CB BB
@@ -9076,7 +9368,7 @@ B8 FB 04 9B CB 4B CB FC 63 B8 FB 04 AB CB 4B CB
 FC 6C B8 FE FD B6
 
 ;----------
-;B876 - $38 = Salonia
+;B876 - $38 = Salonia -> Castle of Hain ??
 80 B8 13 B9 D8 B9 FF FF FF FF
 
 E0 6C EB C0 C0 F6 0A 07 FB 02 F1 52 F2 23 0D F1
@@ -9118,7 +9410,7 @@ FB 0B F1 A9 CD FC 62 BA 98 78 58 48 28 FB 02 F0
 EE B9
 
 ;----------
-;BA82 - $39 = The Boundless Ocean
+;BA82 - $39 = The Boundless Ocean -> Chocobos!(No Melody) ??
 FF FF 8C BA A4 BA FF FF FF FF 
 F5 03 07 E8
 C5 F1 2B C6 C8 0B C6 0B CB C8 2B C6 2B C6 C8 0B
@@ -9126,7 +9418,7 @@ C6 FE 90 BA F1 7B C6 BB CB 7B CB 58 9B C6 9B CB
 78 BB CB 78 BB CB 5B C6 9B CB 5B CB FE A5 BA
 
 ;----------
-;BABF - $3A = Fall
+;BABF - $3A = Fall -> Let's Play the Piano Again! ??
 C9 BA E9 BA FF FF FF FF FF FF 
 E0 FA F5 0B FF EB F1
 98 78 C5 F2 05 05 F1 98 78 C5 F2 05 05 F1 98 78
@@ -9144,8 +9436,14 @@ BFA5	;A5 BF - $3F = Bahamute wings
 BFB4	;B4 BF - $40 = Crystal Room
 
 ;----------
-;$B40C - $3B = Take off invinsible
-16 B4 7D B5 91 B9 7A BB FF FF 
+;$B40C - $3B = Take off invinsible -> The Everlasting World (Ending Part 3) ??
+M_B40C:
+.word M_B40C_CH0			; 16 B4
+.word M_B40C_CH1			; 7D B5
+.word M_B40C_TRI			; 91 B9
+.word M_B40C_NOI			; 7A BB
+.byte $FF,$FF				; FF FF 
+M_B40C_CH0:				; $B416
 F7 0E 01 E0 82 EC FB 0C C0 FC
 1E B4 FB 03 C5 F2 65 45 25 15 F1 B5 A5 B5 F2 42
 F1 72 D1 C5 C5 F2 45 25 15 F1 B5 95 85 95 F2 22
@@ -9170,7 +9468,9 @@ F3 1B 2B F2 BB 8B 6B 4B 2B F1 BB F2 2B E0 6C 4B
 E0 6A 6B E0 68 7B E0 66 9B E0 64 6B E0 62 7B E0
 60 9B E0 5E BB E0 5C F3 1B E0 5A F2 BB E0 58 9B
 E0 56 7B E0 54 6B E0 52 4B E0 50 2B E0 4E 1B E0
-55 EC F2 70 E0 50 62 E0 4B 42 60 D0 FF F6 0B 07
+55 EC F2 70 E0 50 62 E0 4B 42 60 D0 FF 
+M_B40C_CH1:				; $B57D
+F6 0B 07
 
 E2 F0 2B 4B 6B 9B F1 2B 4B 6B 9B E3 F2 2B 4B 6B
 9B F3 2B 4B 6B 9B E4 F4 2B F3 9B 6B 4B 2B F2 9B
@@ -9245,7 +9545,9 @@ BB F2 1B 2B 4B 6B 7B 9B 8B 6B 4B 2B F1 BB 8B 6B
 8B 9B F2 2B 4B 6B 2B 4B 6B 7B 9B 7B 6B 4B 2B 1B
 
 F1 BB 9B EA 95 75 95 B5 F2 15 F1 75 95 75 90 D0
-FF FB 0C C0 FC 93 B9 FB 03 F1 FB 02 C8 2B CB 68
+FF 
+M_B40C_TRI:				; $B991
+FB 0C C0 FC 93 B9 FB 03 F1 FB 02 C8 2B CB 68
 2B CB FC 9C B9 FB 02 C8 5B CB 88 5B CB FC A7 B9
 FB 02 C8 4B CB 98 4B CB FC B2 B9 1B F0 9B F1 1B
 4B 9B 4B 9B F2 1B 4C 1C F1 9C F2 1C F1 9C 4C 9C
@@ -9278,7 +9580,9 @@ FB 08 7B CB 2B CB FC 12 BB FB 08 9B CB 4B CB FC
 10 D2 D6 CB 1C CC 1C CC 1C CC F0 B0 D1 D6 CB B2
 92 F1 42 F2 42 E0 5A 15 E0 55 F1 B5 E0 50 95 E0
 4B 75 95 F2 25 45 F1 95 F2 72 65 45 25 18 28 45
-26 CB 22 12 20 F1 92 42 20 FF FB 08 C0 FC 7C BB
+26 CB 22 12 20 F1 92 42 20 FF 
+M_B40C_NOI:				; $BB7A
+FB 08 C0 FC 7C BB
 
 FA E6 A8 A8 E4 AB E6 AB E4 AB AB E6 A8 A8 AC E5
 AC E4 AC E3 AC E2 AC E1 AC E8 A8 A8 E6 AB E8 AB
@@ -9305,7 +9609,7 @@ AB EA AB EB AB EC AB ED AB EE AB F5 27 FF FC A8
 BC EF 40 42 42 40 FF
 
 ;----------
-;BCC7 - $3C = Upgrade machine
+;BCC7 - $3C = Upgrade machine -> The Everlasting World (Ending Part 1) ??
 D1 BC 58 BD FF FF FF FF FF FF 
 E0 50 C0 C0 EB F7 04 07 F1 65 95 F2 25 F1 95
 B5 F2 25 72 65 28 F1 98 88 B8 F2 28 68 40 43 48
@@ -9339,7 +9643,7 @@ F0 48 78 48 98 48 78 48 EF 98 F0 48 78 48 98 48
 E0 46 F0 68 E0 44 98 E0 42 68 E0 40 20 D0 FF
 
 ;----------
-;BE7F - $3D = Cheers
+;BE7F - $3D = Cheers -> Bad Event ??
 89 BE B4 BE 00 BF FF FF FF FF 
 F6 0B 07 E9 F1 0B 1B
 3B 4B 0B 1B 3B 4B 3B 4B 6B 7B 3B 4B 6B 7B 6B 7B
@@ -9354,28 +9658,54 @@ F1 08 18 08 18 38 48 38 48 68 78 68 78 98 A8 98
 A8 FE 01 BF
 
 ;----------
-;BF14 - $3E = woo
-1E BF 69 BF 71 BF FF FF FF FF 
-E0 46
-F7 04 06 EB F3 0A 1A 3A F2 6A 7A 9A 0A 1A 3A F1
+;BF14 - $3E = woo -> This is the Last Battle
+M_BF14:
+.word M_BF14_CH0			; 1E BF
+.word M_BF14_CH1			; 69 BF
+.word M_BF14_TRI			; 71 BF
+.byte $FF,$FF,$FF,$FF			; FF FF FF FF 
+M_BF14_CH0:				; $BF1E
+.byte TEMPO,$46				; E0 46
+M_BF14_CH0_BF20:
+F7 04 06 EB 
+M_BF14_CH0_BF24:
+F3 0A 1A 3A F2 6A 7A 9A 0A 1A 3A F1
 6A 7A 9A F3 0A 1A 3A F2 6A 7A 9A 0A 1A 3A F1 6A
 7A 9A F1 2A F0 BA F1 5A 2A 8A 5A BA 8A F2 2A F1
 BA F2 5A 2A F1 2A F0 BA F1 5A 2A 8A 5A BA 8A F2
-2A F1 BA F2 5A 2A FE 24 BF F7 04 03 E7 C9 FE 24
-BF F1 02 37 6A 9A 7A 6A 02 37 6A 9A 7A 6A F0 B5
+2A F1 BA F2 5A 2A
+.byte REPEAT				; FE 24 BF 
+.word M_BF14_CH0_BF24
+
+M_BF14_CH1:				; $BF69
+F7 04 03 E7 C9
+.byte REPEAT				; FE 24 BF 
+.word M_BF14_CH0_BF24
+
+M_BF14_TRI:				; $BF71
+M_BF14_TRI_BF71:
+F1 02 37 6A 9A 7A 6A 02 37 6A 9A 7A 6A F0 B5
 
 D7 F1 2A 55 AF BF DE DC AF BF DE DC AF BF DE DC
 F0 B5 D7 F1 2A 55 AF BF DE DC AF BF DE DC AF BF
-DE DC FE 71 BF
+DE DC
+.byte REPEAT				; FE 71 BF
+.word M_BF14_TRI_BF71
 
 ;----------
-;BFA5 - $3F = Bahamute wings
-AF BF 69 BF 71 BF FF FF FF FF 
-E0
-78 FE 20 BF
+;BFA5 - $3F = Bahamute wings -> This is the Last Battle 2(x2)
+M_BFA5:
+.word M_BFA5_CH0			; AF BF
+.word M_BF14_CH1			; 69 BF
+.word M_BF14_TRI			; 71 BF
+.byte $FF,$FF,$FF,$FF			; FF FF FF FF 
+M_BFA5_CH0:
+.byte TEMPO,$78				; $AFBF	E0 78
+.byte REPEAT				; FE 20 BF
+.word M_BF14_CH0_BF20
 
 ;----------
-;BFB4 - $40 = Crystal Room
+;BFB4 - $40 = Crystal Room -> Let's Play the Piano! ??
 BE BF FF FF FF FF FF FF FF FF 
 E0 78
 F5 0B FF EB F2 48 38 48 38 46 F1 95 DB C2 F2 48
