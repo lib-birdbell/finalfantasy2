@@ -1,6 +1,7 @@
 .include "Constants.inc"
 .include "variables.inc"
 FF3_DRIVER = 1
+SONG_NO		= 7
 .include "score.inc"
 
 .import Init_Page2			;C46E
@@ -391,7 +392,7 @@ SET_SPRITE:
 	JSR Init_sound
 	LDA #$00           ; no sound effect
 	STA $7F49
-	LDA #$07
+	LDA #SONG_NO			; 7 is Dreadful fight
 	STA $7F43          ; song id
 	LDA #$01           ; play new song
 	STA $7F42
@@ -2130,6 +2131,7 @@ B862E:
 
 ; Name	: EnvStatDR
 ; Marks	: envelope state 1/2: decay/release
+;	  envelope value are automatically decreased at every rate
 EnvStatDR:
 	LDX $D0				; 36/8635: A6 D0     
 	LDA $7FE4,X     		; 36/8637: BD E4 7F     ; volume envelope value
@@ -2140,16 +2142,16 @@ EnvStatDR:
 	STA $7FD6,X     		; 36/8643: 9D D6 7F     ; set volume envelope rate
 	INC $7FC8,X     		; 36/8646: FE C8 7F     ; go to the first envelope value
 	TYA             		; 36/8649: 98        
-	STA $7FCF,X     		; 36/864A: 9D CF 7F  
+	STA $7FCF,X     		; 36/864A: 9D CF 7F	; Current data offset
 B864D:
-	LDA $7FD6,X     		; 36/864D: BD D6 7F  
+	LDA $7FD6,X     		; 36/864D: BD D6 7F	; Volume Envelope Rate
 	CLC             		; 36/8650: 18        
-	ADC $7FDD,X     		; 36/8651: 7D DD 7F  
-	STA $7FDD,X     		; 36/8654: 9D DD 7F  
+	ADC $7FDD,X     		; 36/8651: 7D DD 7F	; VER cnt
+	STA $7FDD,X     		; 36/8654: 9D DD 7F	; VER cnt
 	CMP #$64        		; 36/8657: C9 64     
 	BCC B8670       		; 36/8659: 90 15     
 	SBC #$64        		; 36/865B: E9 64     
-	STA $7FDD,X     		; 36/865D: 9D DD 7F  
+	STA $7FDD,X     		; 36/865D: 9D DD 7F	; VER cnt
 	DEC $7FE4,X     		; 36/8660: DE E4 7F     ; decrement envelope value
 	BNE B8670       		; 36/8663: D0 0B     
 B8665:
@@ -2160,11 +2162,11 @@ B8665:
 	RTS             		; 36/866F: 60        
 B8670:
 	LDA $7FE4,X     		; 36/8670: BD E4 7F     ; envelope value
-	STA $D5         		; 36/8673: 85 D5     
+	STA $D5         		; 36/8673: 85 D5	; EV tmp
 	LDY $7FC8,X     		; 36/8675: BC C8 7F     ; envelope data offset
-	LDA $7FCF,X     		; 36/8678: BD CF 7F  
+	LDA $7FCF,X     		; 36/8678: BD CF 7F	; Current data offset
 	BNE B8693       		; 36/867B: D0 16     
-	LDA ($D8),Y     		; 36/867D: B1 D8     
+	LDA ($D8),Y     		; 36/867D: B1 D8	; first envelope value - loop count
 	BEQ B86B5       		; 36/867F: F0 34        ; envelope is terminated
 	BPL B868A       		; 36/8681: 10 07     
 	CLC             		; 36/8683: 18        
@@ -2172,39 +2174,39 @@ B8670:
 	TAY             		; 36/8687: A8        
 	LDA ($D8),Y     		; 36/8688: B1 D8     
 B868A:
-	STA $7FCF,X     		; 36/868A: 9D CF 7F  
+	STA $7FCF,X     		; 36/868A: 9D CF 7F	; Current data offset
 	INY             		; 36/868D: C8        
 	INY             		; 36/868E: C8        
 	TYA             		; 36/868F: 98        
 	STA $7FC8,X     		; 36/8690: 9D C8 7F     ; envelope data offset
 B8693:
 	DEY             		; 36/8693: 88        
-	LDA ($D8),Y     		; 36/8694: B1 D8        ; change in volume
+	LDA ($D8),Y     		; 36/8694: B1 D8        ; change in volume - volume(+-)
 	BMI B86A7       		; 36/8696: 30 0F     
 	CLC             		; 36/8698: 18        
-	ADC $D5         		; 36/8699: 65 D5     
-	STA $D5         		; 36/869B: 85 D5     
+	ADC $D5         		; 36/8699: 65 D5	; EV tmp
+	STA $D5         		; 36/869B: 85 D5	; EV tmp
 	CMP #$10        		; 36/869D: C9 10     
 	BCC B86B2       		; 36/869F: 90 11     
 	LDA #$0F        		; 36/86A1: A9 0F        ; max 15
-	STA $D5         		; 36/86A3: 85 D5     
+	STA $D5         		; 36/86A3: 85 D5	; EV tmp
 	BNE B86B2       		; 36/86A5: D0 0B     
 B86A7:
 	CLC             		; 36/86A7: 18        
-	ADC $D5         		; 36/86A8: 65 D5     
-	STA $D5         		; 36/86AA: 85 D5     
-	BCS B86B2       		; 36/86AC: B0 04     
+	ADC $D5         		; 36/86A8: 65 D5	; EV tmp
+	STA $D5         		; 36/86AA: 85 D5	; EV tmp
+	BCS B86B2       		; 36/86AC: B0 04	; Normal state is carry set
 	LDA #$00        		; 36/86AE: A9 00        ; min 0
-	STA $D5         		; 36/86B0: 85 D5     
+	STA $D5         		; 36/86B0: 85 D5	; EV tmp
 B86B2:
-	DEC $7FCF,X     		; 36/86B2: DE CF 7F  
+	DEC $7FCF,X     		; 36/86B2: DE CF 7F	; Current data offset
 B86B5:
 	LDA $7F90,X     		; 36/86B5: BD 90 7F     ; channel volume
 	ASL             		; 36/86B8: 0A        
 	ASL             		; 36/86B9: 0A        
 	ASL             		; 36/86BA: 0A        
 	ASL             		; 36/86BB: 0A        
-	ORA $D5         		; 36/86BC: 05 D5     
+	ORA $D5         		; 36/86BC: 05 D5	; EV tmp
 	TAY             		; 36/86BE: A8        
 	LDA $D2         		; 36/86BF: A5 D2        ; sound effects ignore song volume
 	BNE B86CE       		; 36/86C1: D0 0B     
@@ -5025,15 +5027,20 @@ BGM9FF2_TRI_R2:
 ;
 BGM_FIELD:
 .word BGM_FIELD_CH0
-.byte $FF,$FF,$FF,$FF
-;.word BGM_FIELD_CH1
+.if 0
+.word BGM_FIELD_CH1
+.else
+.byte $FF,$FF
+.endif
+.byte $FF,$FF
 ;.word BGM_FIELD_TRI
 
 BGM_FIELD_CH0:
 .byte SET_P3
 .byte D12ICV00
 .word VPBD43
-.word APBEC7
+;.word APBEC7	; debug commented
+.byte $FF,$FF	; deprecated
 BGM_FIELD_CH0_R0:
 .byte TEMPO,$34
 FF2_FIELD_CH0_NEW:
@@ -6010,7 +6017,9 @@ APBEAF:
 APBEC4:
 .byte $40,$F1,$00
 APBEC7:
-.byte $F0,$49,$41,$02
+;.byte $F0,$49,$41,$02	; debug commented
+;.byte $F0,$4F,$47,$02	; deprecated
+.byte $F9,$4F,$47,$02	; deprecated
 APBECB:
 .byte $70,$39,$32,$3A,$32
 .byte $3A,$32,$3B,$34,$3C,$02
@@ -6020,6 +6029,7 @@ APBEDD:
 .byte $49,$41,$02
 APBEE0:
 .byte $F9,$49,$41,$02
+;.byte $F9,$4F,$47,$02	; deprecated
 APBEE4:
 .byte $49,$42,$4A,$42,$4A,$42,$4B,$44,$4C,$02
 APBEEE:
@@ -6099,11 +6109,11 @@ MusicTbl:
 .word M_A032	;32 A0 - $00 = Resting At The Inn
 .word M_A07C	;7C A0 - $01 = The Prelude
 .word BGM_AIRSHIP
-.word BGM_FIELD
+.word BGM_FIELD			; 3
 .word BGM_FFL1_FIELD
-.word BGM_FF2_SHOP
+.word BGM_FF2_SHOP		; 5
 .word BGM_FF2_BATTLE_A
-.word BGM_FF4_FOUR_FIENDS
+.word BGM_FF4_FOUR_FIENDS	; 7
 .if 0
 A1D2	;D2 A1 - $02 = Crystal Cave
 A444	;44 A4 - $03 = Elia, the Maiden of Water
@@ -6130,6 +6140,9 @@ BF3D	;3D BF - $17 = Hurray! (effect - key item get)
 BF81	;81 BF - $18 = Prince Allus's Theme (effect)
 .endif
 
+
+
+.if FF3_DRIVER
 ;----------
 ;A032 - $00 = Resting At The Inn
 M_A032:
@@ -6204,6 +6217,8 @@ M_A07C_CH1:
 .byte REPEAT
 .word M_A07C_CH0_S
 ;.byte $8A,$A0
+
+
 
 ; ==================================================
 ; Final Fantasy 2 Airship ORIGINAL(FF3 DRIVER)
@@ -6300,58 +6315,65 @@ BGM_AIRSHIP_TRI_R0:
 ;
 BGM_FIELD:
 .word BGM_FIELD_CH0
+.if 0
 .word BGM_FIELD_CH1
-;.byte $FF,$FF
+.else
+.byte $FF,$FF
+.endif
+.if 0
 .word BGM_FIELD_TRI
-;.byte $FF,$FF
+.else
+.byte $FF,$FF
+.endif
 .byte $FF,$FF,$FF,$FF
 
 BGM_FIELD_CH0:
-.byte DUTY_1_2, $29, $10
+;.byte DUTY_1_2, $29, $10	; debug commented
+.byte DUTY_1_2, $29, $FF	; debug commented
 .byte VOL15
 BGM_FIELD_CH0_R0:
 .byte TEMPO,$68
 FF2_FIELD_CH0_NEW:
-.byte OT0,L1_24,C1_24,OT1,D1_24,R1_32,M1_32,FH1_32,SH1_32		; 1/4
+.byte OT1,L1_24,C1_24,OT2,D1_24,R1_32,M1_32,FH1_32,SH1_32		; 1/4
 .byte $FB,$02
 ;.byte BACK_2					; Repeat - 2
 BGM_FIELD_CH0_R2:
-.byte OT1,L3_4					; 3/4
-.byte OT2,M1_4,OT1,C3_4
-.byte M1_4,OT2,D1_4,OT1,C1_4,L1_4
+.byte OT2,L3_4					; 3/4
+.byte OT3,M1_4,OT2,C3_4
+.byte M1_4,OT3,D1_4,OT2,C1_4,L1_4
 .byte C1_4,S1_2,M1_2				; 1 + 1/4	= 4 + 1/4
 .byte JUMP_Z					; Repeat
 .word BGM_FIELD_CH0_R3
 .byte F1_2,A1_8,F1_8				; 3/4		= 5
-.byte L1_8,OT2,D1_8,M1_4,R1_4,S1_4
+.byte L1_8,OT3,D1_8,M1_4,R1_4,S1_4
 .byte F1_4,RH3_4
-.byte OT1,C1_4,OT2,M1				; 1 + 1/4	= 8 + 1/4
+.byte OT2,C1_4,OT3,M1				; 1 + 1/4	= 8 + 1/4
 .byte BACK_N					; Repeat
 .word BGM_FIELD_CH0_R2
 BGM_FIELD_CH0_R3:
-.byte OT1,F1_2,A1_8,F1_8,S1_8,L1_8
-.byte OT2,D1_4,OT1,LH1_4,L1_4,SH1_4
-.byte L3_8,C1_8,OT2,D3_8,R1_8
+.byte OT2,F1_2,A1_8,F1_8,S1_8,L1_8
+.byte OT3,D1_4,OT2,LH1_4,L1_4,SH1_4
+.byte L3_8,C1_8,OT3,D3_8,R1_8
 .byte M3_4					; 3/4
-.byte OT1,R1_4					; 1 -> 1/4
+.byte OT2,R1_4					; 1 -> 1/4
 .byte $FB,$02
 ;.byte BACK_2					; Repeat - 2
 FF2_FIELD_CH0_NEW_R0:
-.byte S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
-.byte OT1,S3_4,S1_16,SH1_16,LH1_16,OT2,D1_16
+.byte S3_4,S1_16,SH1_16,LH1_16,OT3,D1_16
+.byte OT2,S3_4,S1_16,SH1_16,LH1_16,OT3,D1_16
 .byte R1_4,D1_4,R1_4,RH1_4
-.byte OT1,LH3_8,LH1_24,L1_24,SH1_24,S1_2		; 5
-.byte SH1_2,SH1_8,SH1_8,OT2,D1_8,RH1_8
+.byte OT2,LH3_8,LH1_24,L1_24,SH1_24,S1_2		; 5
+.byte SH1_2,SH1_8,SH1_8,OT3,D1_8,RH1_8
 .byte JUMP_Z
 .word FF2_FIELD_CH0_NEW_R1
 .byte S1_4,F1_4,LH1_4,SH1_4
 .byte FH3_4,R1_4
-.byte S3_4,F1_24,RH1_24,R1_24,D1_24,OT1,LH1_24,SH1_24		; 9
+.byte S3_4,F1_24,RH1_24,R1_24,D1_24,OT2,LH1_24,SH1_24		; 9
 .byte BACK_N					; Repeat
 .word FF2_FIELD_CH0_NEW_R0
 FF2_FIELD_CH0_NEW_R1:
-.byte RH1_4,DH1_4,D1_4,OT1,C1_4
-.byte OT2,D3_8,R1_8,RH3_8,F1_8
+.byte RH1_4,DH1_4,D1_4,OT2,C1_4
+.byte OT3,D3_8,R1_8,RH3_8,F1_8
 .byte S3_4						; total minus is 3/4 + 1/4
 .byte REPEAT
 .word FF2_FIELD_CH0_NEW
@@ -6369,62 +6391,62 @@ BGM_FIELD_TRI_R0:
 .byte $FB,$02
 ;.byte BACK_2					; repeat - 2
 BGM_FIELD_TRI_R1:
-.byte OT1,L1_16,X1_16,OT2,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT1,L1_16,X1_16,OT2,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
-.byte OT1,S1_16,X1_16,OT2,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT1,S1_16,X1_16,OT2,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
-.byte OT1,F1_16,X1_16,OT2,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT1,F1_16,X1_16,OT2,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16
-.byte OT1,M1_16,X1_16,OT2,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT1,M1_16,X1_16,OT2,DH1_16,X1_16,R1_16,X1_16,DH1_16,X1_16
+.byte OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,L1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
+.byte OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16,OT2,S1_16,X1_16,OT3,M1_16,X1_16,F1_16,X1_16,M1_16,X1_16
+.byte OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,F1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16
+.byte OT2,M1_16,X1_16,OT3,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,OT2,M1_16,X1_16,OT3,DH1_16,X1_16,R1_16,X1_16,DH1_16,X1_16
 .byte JUMP_Z					; repeat
 .word BGM_FIELD_TRI_R2
-.byte OT1,R1_16,X1_16,C1_16,X1_16,OT2,D1_16,X1_16,M1_16,X1_16,OT1,D1_16,X1_16,L1_16,X1_16,OT2,D1_16,X1_16,M1_16,X1_16
-.byte OT0,C1_16,X1_16,OT1,C1_16,X1_16,OT2,R1_16,X1_16,F1_16,X1_16,OT0,LH1_16,X1_16,OT2,D1_16,X1_16,R1_16,X1_16,F1_16,X1_16
-.byte OT1,RH1_16,X1_16,L1_16,X1_16,LH1_16,X1_16,OT2,RH1_16,X1_16,OT0,C1_16,X1_16,OT1,FH1_16,X1_16,C1_16,X1_16,OT2,RH1_16,X1_16
-.byte OT1,M1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT2,M1_16,X1_16,R1_16,X1_16,OT1,C1_16,X1_16,SH1_16,X1_16,M1_16,X1_16
+.byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+.byte OT1,C1_16,X1_16,OT2,C1_16,X1_16,OT3,R1_16,X1_16,F1_16,X1_16,OT1,LH1_16,X1_16,OT3,D1_16,X1_16,R1_16,X1_16,F1_16,X1_16
+.byte OT2,RH1_16,X1_16,L1_16,X1_16,LH1_16,X1_16,OT3,RH1_16,X1_16,OT1,C1_16,X1_16,OT2,FH1_16,X1_16,C1_16,X1_16,OT3,RH1_16,X1_16
+.byte OT2,M1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,M1_16,X1_16,R1_16,X1_16,OT2,C1_16,X1_16,SH1_16,X1_16,M1_16,X1_16
 .byte BACK_N					; repeat
 .word BGM_FIELD_TRI_R1
 BGM_FIELD_TRI_R2:
-.byte OT1,R1_16,X1_16,C1_16,X1_16,OT2,D1_16,X1_16,M1_16,X1_16,OT1,D1_16,X1_16,L1_16,X1_16,OT2,D1_16,X1_16,M1_16,X1_16
-.byte OT0,LH1_16,X1_16,OT1,L1_16,X1_16,OT2,R1_16,X1_16,F1_16,X1_16,OT0,C1_16,X1_16,OT1,L1_16,X1_16,C1_16,X1_16,OT2,M1_16,X1_16
+.byte OT2,R1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,D1_16,X1_16,L1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+.byte OT1,LH1_16,X1_16,OT2,L1_16,X1_16,OT3,R1_16,X1_16,F1_16,X1_16,OT1,C1_16,X1_16,OT2,L1_16,X1_16,C1_16,X1_16,OT3,M1_16,X1_16
 .byte TEMPO,$66
-.byte OT1,L1_16,X1_16,C1_16,X1_16
+.byte OT2,L1_16,X1_16,C1_16,X1_16
 .byte TEMPO,$64
-.byte OT2,M1_16,X1_16,F1_16,X1_16
+.byte OT3,M1_16,X1_16,F1_16,X1_16
 .byte TEMPO,$62
-.byte OT1
+.byte OT2
 .byte F1_16,X1_16,L1_16,X1_16
 .byte TEMPO,$60
-.byte C1_16,X1_16,OT2,F1_16,X1_16		; 1
+.byte C1_16,X1_16,OT3,F1_16,X1_16		; 1
 .byte TEMPO,$5E
-.byte OT1,M1_16,X1_16
+.byte OT2,M1_16,X1_16
 .byte TEMPO,$5C
 .byte L1_16,X1_16
 .byte TEMPO,$58
 .byte C1_16,X1_16
 .byte TEMPO,$50
-.byte OT2,R1_16,X1_16				; 1/2
+.byte OT3,R1_16,X1_16				; 1/2
 .byte TEMPO,$46
-.byte OT1,C1_16,X1_16,SH1_16,X1_16		; added
+.byte OT2,C1_16,X1_16,SH1_16,X1_16		; added
 .byte M1_16,X1_16,R1_16,X1_16
 .byte TEMPO,$68
 .byte $FB,$02
 ;.byte BACK_2					; Repeat - 2
 BGM_FIELD_TRI_NEW_R0:
-.byte D1_8,S1_8,OT2,R1_16,RH1_16,D1_8,S1_8,OT1,SH1_16,LH1_16,OT2,RH1_8,S1_8
-.byte OT0,LH1_8,OT1,LH1_8,OT2,F1_16,S1_16,OT1,LH1_8,OT2,R1_8,OT1,SH1_16,LH1_16,OT2,R1_8,F1_8		; 3
-.byte OT1,SH1_8,OT2,RH1_8,S1_16,SH1_16,RH1_8,OT3,D1_8,OT2,LH1_8,SH1_8,RH1_8
-.byte OT1,S1_8,OT2,R1_8,F1_16,S1_16,R1_8,LH1_8,R1_8,S1_8,LH1_8
-.byte OT1,F1_8,OT2,D1_8,F1_8,S1_8,OT1,RH1_8,OT2,D1_8,F1_8,SH1_8
-.byte OT1,R1_8,OT2,R1_8,F1_8,SH1_8,OT1,DH1_8,OT2,RH1_8,F1_8,SH1_8					; 7
+.byte D1_8,S1_8,OT3,R1_16,RH1_16,D1_8,S1_8,OT2,SH1_16,LH1_16,OT3,RH1_8,S1_8
+.byte OT1,LH1_8,OT2,LH1_8,OT3,F1_16,S1_16,OT2,LH1_8,OT3,R1_8,OT2,SH1_16,LH1_16,OT3,R1_8,F1_8		; 3
+.byte OT2,SH1_8,OT3,RH1_8,S1_16,SH1_16,RH1_8,OT4,D1_8,OT3,LH1_8,SH1_8,RH1_8
+.byte OT2,S1_8,OT3,R1_8,F1_16,S1_16,R1_8,LH1_8,R1_8,S1_8,LH1_8
+.byte OT2,F1_8,OT3,D1_8,F1_8,S1_8,OT2,RH1_8,OT3,D1_8,F1_8,SH1_8
+.byte OT2,R1_8,OT3,R1_8,F1_8,SH1_8,OT2,DH1_8,OT3,RH1_8,F1_8,SH1_8					; 7
 .byte JUMP_Z					; Repeat if count is not exist
 .word BGM_FIELD_TRI_NEW_R1
-.byte OT1,FH1_8,OT2,D1_8,DH1_8,FH1_8,OT1,R1_8,L1_8,OT2,R1_8,F1_8
-.byte OT1,S1_8,OT2,R1_8,S1_8,OT3,R1_8,D1_8,OT2,C1_16,OT3,D1_16,OT2,S1_8,R1_8
+.byte OT2,FH1_8,OT3,D1_8,DH1_8,FH1_8,OT2,R1_8,L1_8,OT3,R1_8,F1_8
+.byte OT2,S1_8,OT3,R1_8,S1_8,OT4,R1_8,D1_8,OT3,C1_16,OT4,D1_16,OT3,S1_8,R1_8
 .byte BACK_N					; Repeat if count is exist
 .word BGM_FIELD_TRI_NEW_R0
 BGM_FIELD_TRI_NEW_R1:
-.byte TEMPO,$66,OT1,D1_8,OT2,D1_8,TEMPO,$64,RH1_8,S1_8		; 16 added
-.byte TEMPO,$62,OT1,SH1_8,OT2,RH1_8,TEMPO,$60,SH1_8,OT3,D1_8					; 16 added
-.byte TEMPO,$5E,OT1,S1_8,TEMPO,$5C,OT2,R1_8		; added
-.byte TEMPO,$58,OT3,D1_8,TEMPO,$50,R1_8,OT2,TEMPO,$46,S1_4,TEMPO,$68,X1_4			; 17 added
+.byte TEMPO,$66,OT2,D1_8,OT3,D1_8,TEMPO,$64,RH1_8,S1_8		; 16 added
+.byte TEMPO,$62,OT2,SH1_8,OT3,RH1_8,TEMPO,$60,SH1_8,OT4,D1_8					; 16 added
+.byte TEMPO,$5E,OT2,S1_8,TEMPO,$5C,OT3,R1_8		; added
+.byte TEMPO,$58,OT4,D1_8,TEMPO,$50,R1_8,OT3,TEMPO,$46,S1_4,TEMPO,$68,X1_4			; 17 added
 .byte REPEAT
 .word BGM_FIELD_TRI_R0
 
@@ -6788,12 +6810,12 @@ BGM_FF2_BATTLE_A_TRI_S:
 ; Final Fantasy 4 The Dreadful Fight(Golbeza's Four Fiends)
 BGM_FF4_FOUR_FIENDS:
 .word BGM_FF4_FOUR_FIENDS_CH0
-.if 0
+.if 1
 .word BGM_FF4_FOUR_FIENDS_CH1
 .else
 .byte $FF,$FF
 .endif
-.if 0
+.if 1
 .word BGM_FF4_FOUR_FIENDS_TRI
 .else
 .byte $FF,$FF
@@ -6813,6 +6835,7 @@ BGM_FF4_FOUR_FIENDS_CH0:
 ;.byte TEMPO,$96	; test tempo
 .byte TEMPO,$A4	; Real tempo
 ;BGM_FF4_FOUR_FIENDS_CH0_S:	;temp
+BGM_FF4_FOUR_FIENDS_CH0_S_INIT:	;temp
 .byte OT1,SH1_8,L1_8,C1_8,OT2,D1_8,A1_8,OT1,C1_8,OT2,D1_8,R1_8
 .byte M1_4,RH1_8,F1_8,A1_8,M1_8,L1_8,SH1_8
 .byte OT3,D1_8,OT2,SH1_8,L1_8,OT3,F1_8,M1_8,L1_8,SH1_8,OT4,D1_8
@@ -6852,7 +6875,7 @@ BGM_FF4_FOUR_FIENDS_CH0_R0:
 .byte C1_8,OT3,S1_16,X1_16,S1_16,X1_16,OT2,L1_8,OT3,F1_16,X1_16,F1_16,X1_16,OT2,SH1_8,OT3,M1_16,X1_16	; repeat
 .byte M1_16,X1_16,X3_8,SH1_16,F1_16,M1_16,R1_16,D1_16,OT2,C1_16,L1_16,SH1_16
 
-.byte L3_4,L1_8,LH1_8
+.byte L3_4,L1_8,LH1_8		; make countinue ??
 .byte LH3_4,LH1_8,L1_8
 .byte L3_4,L1_8,S1_8
 .byte S1
@@ -6895,22 +6918,118 @@ BGM_FF4_FOUR_FIENDS_CH0_R2:
 .byte REPEAT
 .word BGM_FF4_FOUR_FIENDS_CH0_S
 
+;;;;;;;;;;
+
 BGM_FF4_FOUR_FIENDS_CH1:
 .byte DUTY_1_4,$04,$07
-.byte VOL15
-BGM_FF4_FOUR_FIENDS_CH1_S:
-;A
-.byte OT0,SH1_8,L1_8,C1_8,OT1,D1_8,D1_8,OT0,C1_8,OT1,D1_8,R1_8
-.byte M1_4,RH1_8,F1_8,F1_8,M1_8,L1_8,SH1_8
-.byte OT2,D1_8,OT1,SH1_8,L1_8,OT2,F1_8, M1_8,L1_8,SH1_8,OT3,D1_8
-;.byte OT2,SH1
+;.byte DUTY_1_2,$04,$FF
+;.byte VOL15
+.byte VOL12
+BGM_FF4_FOUR_FIENDS_CH1_INTRO:
+.byte X1
+.byte X1_4,X1_8,OT1,F1_8,A1_8,M1_8,L1_8,SH1_8
+.byte OT2,D1_8,OT1,SH1_8,L1_8,OT2,F1_8,M1_8,L1_8,SH1_8,OT3,D1_8
+;.byte OT2,FH1
+;.byte SH1	; 5 point per 10
+.byte F1
+.byte A1
 
-;B
-;.byte SH1
-.byte X1,X1,X1,X1
+BGM_FF4_FOUR_FIENDS_CH1_S:
+.if 0	; init v
+.byte OT2
+.byte LH1_8,X3_8,OT1,LH1_8,X3_8
+.byte OT2,LH1_8,X1_8,OT1,LH1_8,X3_8	; 3/4
+.byte OT2,F1_8,X3_8,OT1,F1_8,X3_8
+.byte OT2,F1_8,X1_8,OT1,F1_8,X3_8,OT1,M1_16,L1_16,OT0,D1_16,C1_16
+.else
+;; need new version
+.byte RH1_8,X3_8,OT2,RH1_8,X3_8
+.byte OT3,RH1_8,X1_8,OT2,RH1_8,X3_8	; 3/4
+.byte OT3,F1_8,X3_8,OT2,F1_8,X3_8
+.byte OT3,F1_8,X1_8,OT2,F1_8,X3_8,OT1,M1_16,L1_16,OT0,D1_16,C1_16
+.if 0	; XXX
+.byte C1_8,X3_8,OT2,C1_8,X3_8
+.byte OT3,C1_8,X1_8,OT2,C1_8,X3_8	; 3/4
+.byte OT4,D1_8,X3_8,OT3,D1_8,X3_8
+.byte OT4,D1_8,X1_8,OT3,D1_8,X3_8,OT1,C1_16,OT2,D1_16,DH1_16,R1_16
+.endif
+.endif
+
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_CH1_R0:
+.byte OT2,D1_4,D1_8,X3_8		; 3/4
+.byte D1_4,D1_8,X3_8			; 3/4
+.byte D1_4,D1_8,X3_8			; 3/4
+.byte D1_4,D1_4,F1_4,D1_4
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_CH1_R0
+
+.byte SH3_8,L1_8,C3_8,OT3,D1_8
+.byte R3_8,D1_8,OT2,C3_8,SH1_8
+.byte L3_8,C1_8,OT3,D3_8,R1_8
+.byte M3_8,R1_8,D3_8,OT2,L1_8
+
+.byte SH3_8,L1_8,C3_8,OT3,D1_8
+.byte R3_8,D1_8,OT2,C3_8,SH1_8
+.byte L3_8,C1_8,OT3,D3_8,R1_8
+.byte S1_16,L1_16,S1_16,F1_16,S1_16,F1_16,M1_16,F1_16,M1_16,R1_16,M1_16,R1_16,D1_16,R1_16,D1_16,OT2,L1_16
+
+;BGM_FF4_FOUR_FIENDS_CH1_R1:
+.byte S1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,F1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,M1_8,OT3,R1_16,X1_16
+.byte R1_16,X1_16,X3_8,OT1,SH1_16,L1_16,C1_16,OT2,D1_16,OT1,C1_4
+.byte S1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,F1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,M1_8,OT3,R1_16,X1_16
+.byte R1_16,X1_16,X3_8,SH1_16,F1_16,M1_16,R1_16,D1_16,OT2,C1_16,L1_16,SH1_16
+; delete cut ??
+
+.byte M3_4,M1_8,R1_8
+.byte R3_4,R1_8,D1_8
+.byte D3_4,D1_8,OT1,C1_8
+.byte C1
+
+.byte OT2,M3_4,M1_8,R1_8
+.byte R3_4,R1_8,D1_8
+.byte D3_4,D1_8,X1_8
+;;;
+.byte S1_16,OT3,D1_16,M1_16,S1_16,OT2,FH1_16,C1_16,OT3,R1_16,FH1_16,OT2,SH1_16,OT3,DH1_16,M1_16,SH1_16,OT2,S1_16,OT3,D1_16,M1_16,S1_16
+
+.byte BACK_CNT,$02
+BGM_FF4_FOUR_FIENDS_CH1_R2:
+.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4
+.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,OT2,C1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+.byte OT2,C1_4,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,C1_4
+
+.byte L1_16,X1_16,C1_16,X1_16,OT3,D1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4
+.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,OT2,C1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+.byte RH1_4,RH1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
+
+.byte RH1_4,OT2,C1_8,OT3,R1_8,A1_8,OT2,LH1_8,OT3,DH1_4
+.byte OT2,L1_8,OT3,D1_4,OT2,SH1_8, C1_8,S1_8,LH1_8,FH1_8
+.byte L1_8,F1_8,SH1_8,M1_8	; 2/4
+.byte OT3,D1_8,OT2,L1_16,X3_16,M1_8,RH1_16,X3_16,D1_8,OT1,L1_16,X1_16
+.byte OT2,D1_8,OT1,L1_16,X1_16,X1_4,X1_2
+
+.byte BACK_N
+.word BGM_FF4_FOUR_FIENDS_CH1_R2
+
+.byte X1_8,OT2,S1_8,L1_8,S1_8,X1_8,S1_8,L1_8,S1_8
+.byte X1_8,S1_8,L1_8,S1_8,C1_8,S1_8,L1_8,S1_8
+.byte OT3,D1_2,R1_4,D1_4
+.byte OT2,C1
+
+;.byte F1_4,L1_,OT3,D1_,R1_,F1_4,OT2,M1_4,SH1_,C1_,OT3,R1_,M1_4
+;.byte L1_12,OT3,D1_12,R1_12,F1_4,OT2,SH1_12,C1_12,OT3,R1_12,M1_4
+.byte L1_16,C1_32,OT3,D1_32,R1_32,M1_32,F1_32,S1_32,L1_4, OT2,SH1_16,LH1_32,C1_32,OT3,DH1_32,LH1_32,M1_32,FH1_32,SH1_4
+.byte OT2
+.byte S1_16,L1_32,LH1_32,OT3,D1_32,R1_32,RH1_32,F1_32,S1_4, OT2,SH1_16,LH1_32,C1_32,OT3,DH1_32,RH1_32,M1_32,FH1_32,SH1_4
+.byte OT2
+;.byte OT2,F1_12,LH1_12,OT3,DH1_12,R1_4,OT2,SH1_12,C1_12,OT3,R1_12,M1_4
+.byte D1_2,R1_4,D1_4
+.byte M1_4,R1_4,D1_4,OT2,C1_4
 
 .byte REPEAT
 .word BGM_FF4_FOUR_FIENDS_CH1_S
+
+;;;;;;;;;;
 
 BGM_FF4_FOUR_FIENDS_TRI:
 ;.byte OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8	; ori
@@ -6919,11 +7038,12 @@ BGM_FF4_FOUR_FIENDS_TRI:
 .byte OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16	; cut
 .byte L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_8,OT2,L1_8,OT1,L1_8
 .byte OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_8
-;.byte OT2,M3_4,C1_4	; ori
+.byte OT2,M3_4,C1_4	; ori
 ;.byte OT2,M3_16,X1_16,M1_16,X1_16,M1_4,F1_8,C1_4
-.byte OT2,M1_8,X1_8,M1_16,X1_16,M1_4,F1_8,C1_4
-;.byte OT3,D1_2,OT2,SH1_2	; ori
-.byte OT3,D1_2,OT2,SH1_8,X1_8,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48
+;.byte OT2,M1_8,X1_8,M1_16,X1_16,M1_4,F1_8,C1_4
+
+.byte OT3,D1_2,OT2,SH1_2	; ori
+;.byte OT3,D1_2,OT2,SH1_8,X1_8,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48
 
 BGM_FF4_FOUR_FIENDS_TRI_S:
 .if 0	; ori
@@ -7019,12 +7139,15 @@ BGM_FF4_FOUR_FIENDS_TRI_R4:
 .byte REPEAT
 .word BGM_FF4_FOUR_FIENDS_TRI_S
 
+;;;;;;;;;;
+
 BGM_FF4_FOUR_FIENDS_NOI:
 .byte $FA		; FA = snare drum preset
 .byte D1,X1,X1,D1_4,D1_8,D1_4,D1_8,D1_4
 .byte D1_8,D1_4,D1_8,D1_8,X1_8,D1_24,D1_24,D1_24,D1_24,D1_24,D1_24
 
 BGM_FF4_FOUR_FIENDS_NOI_S:
+.byte $FA		; FA = snare drum preset
 .byte D1_8,D1_8,D1_8,D1_8,D1_8,X1_8,D1_8,D1_8
 .byte D1_4,D1_8,D1_4,D1_8		; 3/4
 .byte D1_8,D1_8,D1_8,D1_8,D1_8,X1_8,D1_8,D1_8
@@ -7039,6 +7162,19 @@ BGM_FF4_FOUR_FIENDS_NOI_R1:	;CH0_R0
 .byte BACK_N
 .word BGM_FF4_FOUR_FIENDS_NOI_R1
 
+.if 1
+.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
+.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
+.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
+.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
+
+.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
+.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
+.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
+.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
+
+.byte $F9				; F9 = hi-hat preset
+.else	; init v
 .byte $F9				; F9 = hi-hat preset
 .byte D1_4,D1_4,D1_4,D1_4
 .byte D1_4,D1_4,D1_4,D1_4
@@ -7049,8 +7185,18 @@ BGM_FF4_FOUR_FIENDS_NOI_R1:	;CH0_R0
 .byte D1_4,D1_4,D1_4,D1_4
 .byte D1_4,D1_4,D1_4,D1_4
 .byte D1_4,D1_4,D1_4,D1_4
+.endif
 
+.if 0	; init v
 .byte X1,X1,X1,X1
+.else
+.byte $FA				; FA = snare drum preset
+.byte D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8
+.byte D1_8,X3_8,X1_2
+.byte D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8
+.byte D1_8,X3_8,X1_2
+.byte $F9				; F9 = hi-hat preset
+.endif
 
 .byte D1_4,D1_4,D1_4,D1_4
 .byte D1_4,D1_4,D1_4,D1_4
@@ -7059,8 +7205,15 @@ BGM_FF4_FOUR_FIENDS_NOI_R1:	;CH0_R0
 
 .byte D1_4,D1_4,D1_4,D1_4
 .byte D1_4,D1_4,D1_4,D1_4
+.if 0	; init v
 .byte D1_4,D1_4,D1_4,D1_4
 .byte D1_4,D1_4,D1_4,D1_4
+.else
+;.byte $FA				; FA = snare drum preset
+.byte D1_4,D1_4,D1_4,$FA,D1_24,D1_24,D1_24,D1_24,D1_24,D1_24
+.byte D1_4,D1_4,D1_4,D1_4
+.byte $F9				; F9 = hi-hat preset
+.endif
 
 .byte BACK_CNT,$02
 BGM_FF4_FOUR_FIENDS_NOI_R4:	;CH0_R2
@@ -7086,14 +7239,27 @@ BGM_FF4_FOUR_FIENDS_NOI_R4:	;CH0_R2
 .byte D1_4,D1_4,D1_4,D1_4
 .byte D1_4,D1_4,D1_4,D1_4
 
+.if 0	; init v
 .byte D1_8,D1_8,X1_4,D1_8,D1_8,X1_4
 .byte D1_8,D1_8,X1_4,D1_8,D1_8,X1_4
+.else
+.byte D1_8,D1_8,$FA,D1_4,$F9,D1_8,D1_8,$FA,D1_4
+.byte $F9,D1_8,D1_8,$FA,D1_4,$F9,D1_8,D1_8,$FA,D1_4
+.byte $F9
+.endif
 .byte D1_4,D1_4,D1_4,D1_4
+.if 0	; init v
 .byte D1_4,D1_4,D1_4,D1_4
+.else
+.byte D1_4,D1_4,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
+.endif
 
 .byte REPEAT
 .word BGM_FF4_FOUR_FIENDS_NOI_S
+.endif	; End of FF3_DRIVER
 
+
+;==========
 .if 0	;; TEST CODE
 M_BCC0_NOI:
 .byte X1_16				; CB
@@ -9767,9 +9933,9 @@ VolEnvTbl:
 .word VE_NEW1	; - $29
 
 ; Attack : volumes(low nibble) : if -(negative) is attack terminate(to decay)
-; Decay/Release : 1st : volume envelope rate, 
+; Decay/Release : 1st : volume envelope rate, (low val = slow, high val = fast)
 ;		  2nd : 0 = terminate, + = count, - = loop back to ..
-;		  3rd : + = vol up, - = vol down(if 2nd is not terminate(0) ) - 2nd, 3rd repeat
+;		  3rd : + = vol up, - = vol down(if 2nd is not terminate(0) ) - 2nd, 3rd repeat <- temporary value, not permanent
 ;		  [volume envelope rate], [count or terminate], [volume], [count or terminate], [volume], ...
 
 ;----------
@@ -10239,15 +10405,20 @@ VE_9EA9:
 VE_NEW1:
 .word VE_NEW1_ATK
 .word VE_NEW1_DR
-.word VE_NEW1_DR
+.word VE_NEW1_DRE
 VE_NEW1_ATK:
+.if 1	; Attack only
 .byte $05,$06,$07,$08,$09,$09,$0A,$0A,$0B,$0B,$0C,$0C,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$FF
 ;.byte $0C,$0C,$0C,$0C,$0B,$0B,$0B,$0B,$0A,$0A,$0A,$0A,$09,$09,$09,$09,$09,$08,$08,$08,$08,$08,$07,$07,$07,$07,$07,$06,$06,$06,$06,$06,$06,$05,$05,$05,$05,$05,$05,$04,$04,$04,$04,$04,$04,$03,$03,$03,$03,$03,$03,$03,$02,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$01,$00,$FF
 ;.byte $05,$05,$06,$06,$07,$07,$08,$08,$09,$09,$09,$09,$0A,$0A,$0A,$0A,$0B,$0B,$0B,$0B,$0C,$0C,$0C,$0C,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$0F,$0F,$0F,$0F,$0D,$0D,$0D,$0D,$FF
+.else	; Full
+.byte $05,$06,$07,$08,$09,$09,$0A,$0A,$0B,$0B,$0C,$0C,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D,$0F,$0F,$0D,$0D
+.byte $0C,$0C,$0C,$0C,$0B,$0B,$0B,$0B,$0A,$0A,$0A,$0A,$09,$09,$09,$09,$09,$08,$08,$08,$08,$08,$07,$07,$07,$07,$07,$06,$06,$06,$06,$06,$06,$05,$05,$05,$05,$05,$05,$04,$04,$04,$04,$04,$04,$03,$03,$03,$03,$03,$03,$03,$02,$02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$01,$00,$FF
+.endif	; End of Attack ..
 VE_NEW1_DR:
-.if 0
+.if 0	; None
 .byte $00,$00
-.else
+.else	; Else of None
 .if 0
 .byte $1B
 .byte $01,$FF,$03,$00, $01,$FF,$03,$00, $01,$FF,$03,$00
@@ -10256,14 +10427,27 @@ VE_NEW1_DR:
 .byte $01,$FF,$06,$00, $01,$FF,$06,$00, $01,$FF,$06,$00
 .byte $01,$00,$00,$00
 .else
+.if 0	; A
 .byte $16
 .byte $01,$FF,$07,$00, $01,$FF,$07,$00, $01,$FF,$07,$00
 .byte $01,$FF,$09,$00, $01,$FF,$09,$00, $01,$FF,$09,$00
 .byte $01,$FF,$0B,$00, $01,$FF,$0B,$00, $01,$FF,$0B,$00
 .byte $01,$FF,$0D,$00, $01,$FF,$0D,$00, $01,$FF,$0D,$00
 .byte $01,$00,$00,$00
+.else	; Else of A
+.byte $00
+.byte $04,$FF, $04,$FE, $04,$FD	; 4
+.byte $05,$FC, $05,$FB, $05,$FA	; 5
+.byte $06,$F9, $06,$F8, $06,$F7	; 6
+.byte $07,$F6, $07,$F5, $07,$F4	; 7
+.byte $07,$F3, $07,$F2, $0F,$F1, $00,$00
+;.byte $0F,$F3, $FE,$00
+.endif	; End of A
 .endif
-.endif
+.endif	; End of None
+VE_NEW1_DRE:
+;.byte $64,$01,$F3,$01,$F4,$FC
+.byte $00,$00
 
 ; 6DEBBh ($36:9EABh) - pointers to pitch envelope data
 ;Pitch envelop address (16)
@@ -10340,8 +10524,10 @@ PE_9F8D:
 PE_9FA2:
 .byte $01,$F9,$01,$07,$02,$07,$01,$FE,$01,$FD,$01,$FD,$01,$FD,$01,$FD,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$01,$02,$01,$02,$01,$02,$01,$FE,$01,$FE,$01,$FE,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$01,$02,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 PE_NEW1:
-.byte $0F,$00,$04,$FF,$04,$01,$FC
+;.byte $0F,$00,$04,$FF,$04,$01,$FC
+.byte $0F,$00,$01,$FF,$03,$00,$01,$01,$03,$00,$F8		; OK
 PE_NEW2:
-.byte $0F,$FF,$04,$FF,$04,$01,$FC
+;.byte $0F,$FF,$04,$FF,$04,$01,$FC
+.byte $01,$FF,$0E,$00,$01,$FF,$03,$00,$01,$01,$03,$00,$F8	; OK
 .endif
 ; End of FF3_DRIVER
