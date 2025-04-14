@@ -313,7 +313,7 @@ BACK_5	= $FB
 
 BACK_N	= $FC
 JUMP_Z	= $FD
-REPEAT	= $FE
+JUMP	= $FE
 
 ; Duty(DDLC VVVV(Duty/Constant/Volume,envelope) APU $4000,$4004)
 ;  D18 = 1/8 12.5%
