@@ -6274,7 +6274,7 @@ BGM_AIRSHIP_CH0:
 ;.byte DUTY_1_4,$07,$07	; little good
 ;.byte DUTY_1_4,$29,$07	; little good
 ;.byte DUTY_1_4,$2A,$FF	; little more good
-.byte DUTY_1_4,$09,$FF
+.byte DUTY_1_4,$2B,$14
 .byte VOL15
 .byte TEMPO,$96
 BGM_AIRSHIP_CH0_R0:
@@ -6290,9 +6290,9 @@ BGM_AIRSHIP_CH0_R0:
 
 .byte F1_4,OT2,LH1_4,X1_8,OT3,D1_8,R1_4
 .byte R1_2,OT2,LH1_4,OT3,R1_4
-.byte D3_8,OT2,L1_8,L1_2
+.byte D3_8,OT2,L1_8,L1
 ;.byte X1_2,X1_8,OT3,R1_8,R1_8,M1_8
-.byte A1_2,X1_8,OT3,R1_8,R1_8,M1_8
+.byte X1_8,OT3,R1_8,R1_8,M1_8
 
 .byte F1_4,OT2,LH1_4,X1_8,OT3,D1_8,R1_4
 .byte R1_2,M1_4,F1_4
@@ -10228,6 +10228,7 @@ VolEnvTbl:
 .word VE_9E7D	;7D 9E - $28
 .word VE_NEW1	; - $29
 .word VE_NEW2	; - $2A
+.word VE_NEW3	; - $2B
 
 ; Attack : volumes(low nibble) : if -(negative) is attack terminate(to decay)
 ; Decay/Release : 1st : volume envelope rate, (low val = slow, high val = fast)
@@ -10790,6 +10791,41 @@ VE_NEW2_R:
 .byte $30,$00
 ;.byte $00,$01,$FC,$01,$FA,$01,$F8,$01,$F6,$00
 
+;----------
+VE_NEW3:					; $2B - test airship
+.word VE_NEW3_ATK
+.word VE_NEW3_D
+.word VE_NEW3_R
+.word VE_NEW3_DR
+VE_NEW3_ATK:
+.if 0	; Full ver
+.byte $0F,$06,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F,$0E,$0E
+.byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
+.byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
+.byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
+.byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
+.byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
+.byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
+.byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
+.byte $0B,$0B,$0B,$09,$09,$09,$07,$07,$07,$05,$05,$05
+.byte $03,$03,$03,$01,$01,$01,$00,$FF
+.endif
+.byte $0F,$06,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F,$0E,$0E,$FF
+VE_NEW3_D:
+.byte $00,$02,$FF,$02,$00,$02,$01,$02,$00,$F8
+VE_NEW3_R:
+.byte $00,$03,$FE,$03,$FC,$03,$FA,$03,$F8,$03,$F6,$03,$F4,$01,$F5,$FE
+VE_NEW3_DR:
+.byte $00,$00
+.if 0
+VPBDD2:
+.byte $1F,$16,$18,$19,$1A,$1B,$1C,$1D,$1E,$2F,$2E,$2D,$2E,$2F
+.byte $2E,$2D,$2E,$2F,$2E,$2D,$2E,$2F,$2E,$2D,$2E,$2F,$2E,$2D,$2E,$2F
+.byte $2E,$2D,$2E,$2F,$2E,$2D,$2E,$2F,$2E,$3B,$39,$37,$35,$33,$31,$10
+;; [$BE00 :: 0x37E00]
+.byte $00
+.endif
+
 ; 6DEBBh ($36:9EABh) - pointers to pitch envelope data
 ;Pitch envelop address (16)
 PitEnvTbl:
@@ -10866,6 +10902,8 @@ PE_NEW4:					; $13 - test GOOD for The Magic House
 .byte $20,$00,$03,$FE,$03,$02,$FC		; GOOD
 ;.byte $F0,$49,$42,$4A,$42,$4A,$42,$4B,$44,$4C,$02
 PE_NEW5:					; $14 - test airship not good
-.byte $04,$FF,$04,$01,$FC
+;.byte $0F,$00,$04,$FF,$04,$01,$FC
+.byte $0F,$00,$04,$FF,$04,$01,$FC
+;.byte $04,$FF,$04,$01,$FC
 .endif
 ; End of FF3_DRIVER
