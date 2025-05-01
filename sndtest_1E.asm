@@ -42,13 +42,13 @@ Sound_proc:
 	STA $7F49          		; 36/800C: 8D 49 7F  
 	BEQ B8014          		; 36/800F: F0 03     
 B8011:
-	;JSR $8B9D          		; 36/8011: 20 9D 8B   update sound effects
+	JSR UpdateSndEft		; 36/8011: 20 9D 8B   update sound effects
 B8014:
 	JSR UpdateMusic       		; 36/8014: 20 25 89   update music
 	LDA ApuStatus_4015     		; 36/8017: AD 15 40  
 	ORA #$0F           		; 36/801A: 09 0F     
 	STA ApuStatus_4015     		; 36/801C: 8D 15 40   enable all channels except dmc
-	;JSR $8030          		; 36/801F: 20 30 80   update apu (sound effects)
+	JSR UpdateAPUfx			; 36/801F: 20 30 80   update apu (sound effects)
 	JSR UpdataAPU          		; 36/8022: 20 AB 80   update apu (music)
 	ASL $7F40          		; 36/8025: 0E 40 7F  
 	LDA $7F42          		; 36/8028: AD 42 7F   roll "enable music" bit into $7F40
@@ -57,58 +57,62 @@ B8014:
 	RTS                		; 36/802F: 60        
 ; End of Sound_proc(update sound)
 
-.if 0
 ; Name	: UpdateAPUfx
-; [ update apu (sound effects) ]
+; Marks	: update apu (sound effects)
+;	  It use Square pulse channel 1 [0,1]
 UpdateAPUfx:
-36/8030: AD 49 7F  LDA $7F49
-36/8033: F0 75     BEQ $80AA          ; return if no sound effect
-36/8035: AD 4F 7F  LDA $7F4F          ; pulse 2 (sound effect)
-36/8038: 10 3F     BPL $8079
-36/803A: 29 01     AND #$01
-36/803C: F0 26     BEQ $8064
-36/803E: AD 4F 7F  LDA $7F4F
-36/8041: 29 FE     AND #$FE
-36/8043: 8D 4F 7F  STA $7F4F
-36/8046: AD 8E 7F  LDA $7F8E
-36/8049: 0D 80 7F  ORA $7F80
-36/804C: 8D 04 40  STA $4004
-36/804F: AD 87 7F  LDA $7F87
-36/8052: 8D 05 40  STA $4005
-36/8055: AD 72 7F  LDA $7F72
-36/8058: 8D 06 40  STA $4006
-36/805B: AD 79 7F  LDA $7F79
-36/805E: 8D 07 40  STA $4007
-36/8061: 4C 79 80  JMP $8079
-36/8064: AD 8E 7F  LDA $7F8E
-36/8067: 0D 80 7F  ORA $7F80
-36/806A: 8D 04 40  STA $4004
-36/806D: AD 87 7F  LDA $7F87
-36/8070: 0A        ASL 
-36/8071: B0 06     BCS $8079
-36/8073: AD 72 7F  LDA $7F72
-36/8076: 8D 06 40  STA $4006
-36/8079: AD 50 7F  LDA $7F50          ; noise (sound effect)
-36/807C: 10 2C     BPL $80AA
-36/807E: 29 01     AND #$01
-36/8080: F0 1A     BEQ $809C
-36/8082: AD 50 7F  LDA $7F50
-36/8085: 29 FE     AND #$FE
-36/8087: 8D 50 7F  STA $7F50
-36/808A: AD 81 7F  LDA $7F81
-36/808D: 09 30     ORA #$30
-36/808F: 8D 0C 40  STA $400C
-36/8092: AD 73 7F  LDA $7F73
-36/8095: 8D 0E 40  STA $400E
-36/8098: 8D 0F 40  STA $400F
-36/809B: 60        RTS 
-36/809C: AD 81 7F  LDA $7F81
-36/809F: 09 30     ORA #$30
-36/80A1: 8D 0C 40  STA $400C
-36/80A4: AD 73 7F  LDA $7F73
-36/80A7: 8D 0E 40  STA $400E
-36/80AA: 60        RTS 
-.endif
+	LDA $7F49			; 36/8030: AD 49 7F
+	BEQ UpdateAPUfxEnd		; 36/8033: F0 75	return if no sound effect
+	LDA $7F4F			; 36/8035: AD 4F 7F	pulse 2 (sound effect)
+	BPL UpdateAPUfxNoise		; 36/8038: 10 3F
+	AND #$01			; 36/803A: 29 01
+	BEQ UpdateAPUfxCh1P		; 36/803C: F0 26
+	LDA $7F4F			; 36/803E: AD 4F 7F	pulse 2(Ch1) initialization
+	AND #$FE			; 36/8041: 29 FE   
+	STA $7F4F			; 36/8043: 8D 4F 7F
+	LDA $7F8E			; 36/8046: AD 8E 7F
+	ORA $7F80			; 36/8049: 0D 80 7F
+	STA Sq1Duty_4004		; 36/804C: 8D 04 40
+	LDA $7F87			; 36/804F: AD 87 7F
+	STA Sq1Sweep_4005		; 36/8052: 8D 05 40
+	LDA $7F72			; 36/8055: AD 72 7F
+	STA Sq1Timer_4006		; 36/8058: 8D 06 40
+	LDA $7F79			; 36/805B: AD 79 7F
+	STA Sq1Length_4007		; 36/805E: 8D 07 40
+	JMP UpdateAPUfxNoise		; 36/8061: 4C 79 80
+UpdateAPUfxCh1P:
+	LDA $7F8E			; 36/8064: AD 8E 7F
+	ORA $7F80			; 36/8067: 0D 80 7F
+	STA Sq1Duty_4004		; 36/806A: 8D 04 40
+	LDA $7F87			; 36/806D: AD 87 7F
+	ASL				; 36/8070: 0A
+	BCS UpdateAPUfxNoise		; 36/8071: B0 06
+	LDA $7F72			; 36/8073: AD 72 7F
+	STA Sq1Timer_4006		; 36/8076: 8D 06 40
+UpdateAPUfxNoise:
+	LDA $7F50			; 36/8079: AD 50 7F	noise (sound effect)
+	BPL UpdateAPUfxEnd		; 36/807C: 10 2C
+	AND #$01			; 36/807E: 29 01
+	BEQ UpdateAPUfxNoiseP		; 36/8080: F0 1A
+	LDA $7F50			; 36/8082: AD 50 7F	noise initialization
+	AND #$FE			; 36/8085: 29 FE
+	STA $7F50			; 36/8087: 8D 50 7F
+	LDA $7F81			; 36/808A: AD 81 7F
+	ORA #$30			; 36/808D: 09 30	volume 0
+	STA NoiseVolume_400C		; 36/808F: 8D 0C 40
+	LDA $7F73			; 36/8092: AD 73 7F
+	STA NoisePeriod_400E		; 36/8095: 8D 0E 40
+	STA NoiseLength_400F		; 36/8098: 8D 0F 40
+	RTS				; 36/809B: 60
+UpdateAPUfxNoiseP:
+	LDA $7F81			; 36/809C: AD 81 7F
+	ORA #$30			; 36/809F: 09 30
+	STA NoiseVolume_400C		; 36/80A1: 8D 0C 40
+	LDA $7F73			; 36/80A4: AD 73 7F
+	STA NoisePeriod_400E		; 36/80A7: 8D 0E 40
+UpdateAPUfxEnd:
+	RTS				; 36/80AA: 60
+; End of UpdateAPUfx
 
 ; Name	: UpdataAPU
 ; Marks	: update apu (music)
@@ -230,6 +234,7 @@ B81AC:
 B81C2:
 	RTS             		; 36/81C2: 60        
 ; End of UpdateAPU
+
 .endif
 ; End of FF3_DRIVER
 
@@ -1428,7 +1433,8 @@ Update_APU_reg_next:
 
 
 ; ================================================== End of code ==================================================
-.else
+.else	; FF3_DRIVER
+
 ; Name	: Init_sound
 ; Marks	:
 Init_sound:
@@ -2705,6 +2711,134 @@ B8B86:
 	JSR UpdateChEnv       		; 36/8B99: 20 7D 85     ; update channel envelopes
 	RTS             		; 36/8B9C: 60        
 ; End of UpdateMusicCh
+
+; Name	: UpdateSndEft
+; Marks	: update sound effects
+UpdateSndEft:
+	LDA $7F49			; 36/8B9D: AD 49 7F
+	BEQ UpdateSndEftEnd		; 36/8BA0: F0 15	return if no sound effect
+	CMP #$FF			; 36/8BA2: C9 FF
+	BEQ UpdateSndEftDone		; 36/8BA4: F0 0B
+	ASL				; 36/8BA6: 0A
+	BCS UpdateSndEftInit		; 36/8BA7: B0 04
+	JSR UpdateSndEftCh		; 36/8BA9: 20 58 8C	update sound effect channels
+	RTS				; 36/8BAC: 60
+UpdateSndEftInit:
+	JSR InitSndEft			; 36/8BAD: 20 B8 8B	init sound effect
+	RTS				; 36/8BB0: 60
+; End of UpdateSndEft
+UpdateSndEftDone:
+	INC $7F49			; 36/8BB1: EE 49 7F
+	JSR MuteSndEft			; 36/8BB4: 20 29 8C	mute music channels for sound effect
+UpdateSndEftEnd:
+	RTS				; 36/8BB7: 60
+; End of UpdateSndEft
+
+; Name	: InitSndEft
+; Marks	: init sound effect
+InitSndEft:
+	JSR MuteSndEft			; 36/8BB8: 20 29 8C	mute music channels for sound effect
+	LDX #$01			; 36/8BBB: A2 01
+InitSndEftInit:
+	LDA #$00			; 36/8BBD: A9 00
+	STA $7F4F,X			; 36/8BBF: 9D 4F 7F
+	STA $7F64,X			; 36/8BC2: 9D 64 7F
+	STA $7F80,X			; 36/8BC5: 9D 80 7F
+	LDA #$08			; 36/8BC8: A9 08
+	STA $7F87,X			; 36/8BCA: 9D 87 7F
+	LDA #$30			; 36/8BCD: A9 30
+	STA $7F8E,X			; 36/8BCF: 9D 8E 7F
+	LDA #$0F			; 36/8BD2: A9 0F
+	STA $7F95,X			; 36/8BD4: 9D 95 7F
+	LDA #$FF			; 36/8BD7: A9 FF
+	STA $7FC6,X			; 36/8BD9: 9D C6 7F
+	STA $7FF0,X			; 36/8BDC: 9D F0 7F
+	STA $7FAA,X			; 36/8BDF: 9D AA 7F
+	STA $7FBF,X			; 36/8BE2: 9D BF 7F
+	DEX				; 36/8BE5: CA
+	BPL InitSndEftInit 		; 36/8BE6: 10 D5	loop
+	LDA $7F49  			; 36/8BE8: AD 49 7F
+	ASL				; 36/8BEB: 0A
+	TAX				; 36/8BEC: AA
+	LDA SndEftTbl,X			; 36/8BED: BD C5 92	pointers to sound effects
+	STA $D8				; 36/8BF0: 85 D8
+	LDA SndEftTbl+1,X		; 36/8BF2: BD C6 92
+	STA $D9				; 36/8BF5: 85 D9
+	LDX #$01			; 36/8BF7: A2 01
+	LDY #$03			; 36/8BF9: A0 03
+InitSndEftSetScript:
+	LDA ($D8),Y			; 36/8BFB: B1 D8	set script pointers
+	STA $7F5D,X			; 36/8BFD: 9D 5D 7F
+	DEY				; 36/8C00: 88
+	LDA ($D8),Y			; 36/8C01: B1 D8
+	STA $7F56,X			; 36/8C03: 9D 56 7F
+	DEY				; 36/8C06: 88
+	DEX				; 36/8C07: CA
+	BPL InitSndEftSetScript		; 36/8C08: 10 F1	loop
+	LDX #$01			; 36/8C0A: A2 01
+InitSndEftEn:
+	LDA #$FF			; 36/8C0C: A9 FF	channel disabled if pointer is $FFFF
+	CMP $7F56,X			; 36/8C0E: DD 56 7F
+	BNE InitSndEftEn1		; 36/8C11: D0 05
+	CMP $7F5D,X			; 36/8C13: DD 5D 7F
+	BEQ InitSndEftEnNext		; 36/8C16: F0 08
+InitSndEftEn1:
+	LDA $7F4F,X			; 36/8C18: BD 4F 7F	enable channel
+	ORA #$80			; 36/8C1B: 09 80
+	STA $7F4F,X			; 36/8C1D: 9D 4F 7F
+InitSndEftEnNext:
+	DEX				; 36/8C20: CA
+	BPL InitSndEftEn		; 36/8C21: 10 E9	loop
+	LDA #$40			; 36/8C23: A9 40
+	STA $7F49			; 36/8C25: 8D 49 7F	sound effect is playing
+	RTS				; 36/8C28: 60
+; End of InitSndEft
+
+; Name	: MuteSndEft
+; Marks	: mute music channels for sound effect
+MuteSndEft:
+	LDA $7F4F			; 36/8C29: AD 4F 7F
+	BPL MuteSndEftNoise		; 36/8C2C: 10 12	branch if pulse 2 is disabled
+	AND #$7F			; 36/8C2E: 29 7F
+	STA $7F4F			; 36/8C30: 8D 4F 7F
+	LDA #$30			; 36/8C33: A9 30
+	STA Sq1Duty_4004		; 36/8C35: 8D 04 40
+	LDA $7F4B			; 36/8C38: AD 4B 7F	mute pulse 2 for sound effect
+	ORA #$02			; 36/8C3B: 09 02
+	STA $7F4B			; 36/8C3D: 8D 4B 7F
+MuteSndEftNoise:
+	LDA $7F50			; 36/8C40: AD 50 7F
+	BPL MuteSndEftEnd		; 36/8C43: 10 12	branch if noise is disabled
+	AND #$7F			; 36/8C45: 29 7F
+	STA $7F50			; 36/8C47: 8D 50 7F
+	LDA #$30			; 36/8C4A: A9 30
+	STA NoiseVolume_400C		; 36/8C4C: 8D 0C 40
+	LDA $7F4D			; 36/8C4F: AD 4D 7F	mute noise channel for sound effect
+	ORA #$02			; 36/8C52: 09 02
+	STA $7F4D			; 36/8C54: 8D 4D 7F
+MuteSndEftEnd:
+	RTS				; 36/8C57: 60
+; End of MuteSndEft
+
+; Name	: UpdateSndEftCh
+; Marks	: update sound effect channels
+UpdateSndEftCh:
+	LDA #$FF			; 36/8C58: A9 FF
+	STA $D2				; 36/8C5A: 85 D2
+	LDA #$05			; 36/8C5C: A9 05	sound effect 1
+	STA $D0				; 36/8C5E: 85 D0
+	LDA #$03			; 36/8C60: A9 03	pulse 2
+	STA $D1				; 36/8C62: 85 D1
+	JSR UpdateChScript		; 36/8C64: 20 E6 81	update channel script
+	JSR UpdateChEnv			; 36/8C67: 20 7D 85	update channel envelopes
+	INC $D0				; 36/8C6A: E6 D0	sound effect 2
+	LDA #$01			; 36/8C6C: A9 01	noise
+	STA $D1				; 36/8C6E: 85 D1
+	JSR UpdateChScript		; 36/8C70: 20 E6 81	update channel script
+	JSR UpdateChEnv			; 36/8C73: 20 7D 85	update channel envelopes
+	RTS				; 36/8C76: 60
+; End of UpdateSndEftCh
+
 .endif
 ; End of FF3_DRIVER
 
@@ -10182,6 +10316,851 @@ F5 0B FF EB F2 48 38 48 38 46 F1 95 DB C2 F2 48
 
 
 .if FF3_DRIVER
+; Sound effect pointer table(97)
+SndEftTbl:
+.word SNDE_00				; 87 93
+.word SNDE_01				; 9a 93
+.word SNDE_02				; a8 93
+.word SNDE_03				; c2 93
+.word SNDE_04				; cc 93
+.word SNDE_05				; df 93
+.word SNDE_06				; ec 93
+.word SNDE_07				; ff 93
+.word SNDE_08				; 11 94
+.word SNDE_09				; 20 94
+.word SNDE_10				; 2c 94
+.word SNDE_11				; 40 94
+.word SNDE_12				; 4f 94
+.word SNDE_13				; 63 94
+.word SNDE_14				; 7f 94
+.word SNDE_15				; b3 94
+.word SNDE_16				; c6 94
+.word SNDE_17				; dd 94
+.word SNDE_18				; e7 94
+.word SNDE_19				; f2 94
+.word SNDE_20				; fe 94
+.word SNDE_21				; 0a 95
+.word SNDE_22				; 20 95
+.word SNDE_23				; 2c 95
+.word SNDE_24				; 3a 95
+.word SNDE_25				; 46 95
+.word SNDE_26				; 50 95
+.word SNDE_27				; 60 95
+.word SNDE_28				; 6b 95
+.word SNDE_29				; 7f 95
+.word SNDE_30				; 8e 95
+.word SNDE_31				; 99 95
+.word SNDE_32				; b4 95
+.word SNDE_33				; c3 95
+.word SNDE_34				; d7 95
+.word SNDE_35				; e6 95
+.word SNDE_36				; f8 95
+.word SNDE_37				; 04 96
+.word SNDE_38				; 12 96
+.word SNDE_39				; 20 96
+.word SNDE_40				; 2f 96
+.word SNDE_41				; 3e 96
+.word SNDE_42				; 53 96
+.word SNDE_43				; 6c 96
+.word SNDE_44				; 7d 96
+.word SNDE_45				; 9c 96
+.word SNDE_46				; 87 93
+.word SNDE_47				; a8 96
+.word SNDE_48				; c5 96
+.word SNDE_49				; d4 96
+.word SNDE_50				; fc 96
+.word SNDE_51				; 0e 97
+.word SNDE_52				; 1e 97
+.word SNDE_53				; 2e 97
+.word SNDE_54				; 4a 97
+.word SNDE_55				; 5e 97
+.word SNDE_56				; 79 97
+.word SNDE_57				; 95 97
+.word SNDE_58				; 87 93
+.word SNDE_59				; a1 97
+.word SNDE_60				; bf 97
+.word SNDE_61				; de 97
+.word SNDE_62				; 06 98
+.word SNDE_63				; 1d 98
+.word SNDE_64				; 29 98
+.word SNDE_65				; 36 98
+.word SNDE_66				; 45 98
+.word SNDE_67				; 5d 98
+.word SNDE_68				; 6e 98
+.word SNDE_69				; 81 98
+.word SNDE_70				; 8f 98
+.word SNDE_71				; 9a 98
+.word SNDE_72				; ab 98
+.word SNDE_73				; bd 98
+.word SNDE_74				; d1 98
+.word SNDE_75				; e9 98
+.word SNDE_76				; f6 98
+.word SNDE_77				; 03 99
+.word SNDE_78				; 0f 99
+.word SNDE_79				; 22 99
+.word SNDE_80				; 38 99
+.word SNDE_81				; 51 99
+.word SNDE_82				; 75 99
+.word SNDE_83				; 89 99
+.word SNDE_84				; a3 99
+.word SNDE_85				; b2 99
+.word SNDE_86				; c3 99
+.word SNDE_87				; cd 99
+.word SNDE_88				; e4 99
+.word SNDE_89				; f2 99
+.word SNDE_90				; ba 96
+.word SNDE_91				; ad 97
+.word SNDE_92				; ff 99
+.word SNDE_93				; 3b 9a
+.word SNDE_94				; 4e 9a
+.word SNDE_95				; 5b 9a
+.word SNDE_96				; 66 9a
+
+; Sound effect data(97)
+;----------
+SNDE_00:				; 9387
+SNDE_46:				; 9387
+SNDE_58:				; 9387
+.word SNDE_00_CH1			; 8B 93
+.word SNDE_00_NOI			; 93 93
+SNDE_00_CH1:
+.byte $f7,$1f,$ff,$f8,$bd,$f2,$84,$ff
+SNDE_00_NOI:
+.byte $f5,$1b,$ff,$c4,$f0,$10,$ff
+
+;----------
+SNDE_01:				; 939A
+.word SNDE_01_CH1			; 9E 93
+.word $FFFF				; FF Ff
+SNDE_01_CH1:
+.byte $f6,$23,$0a,$f3,$0b,$4b,$2b,$6b,$b3,$ff
+
+;----------
+SNDE_02:				; 93A8
+.word SNDE_02_CH1			; AC 93
+.word SNDE_02_NOI			; B8 93
+SNDE_02_CH1:
+.byte $f7,$1c,$ff,$f8,$b5,$f4,$83,$db,$63,$db,$42,$ff
+SNDE_02_NOI:
+.byte $f5,$17,$ff,$ef,$43,$db,$63,$db,$72,$ff
+
+;----------
+SNDE_03:				; 93C2
+.word $FFFF				; FF Ff
+.word SNDE_03_NOI			; C6 93
+SNDE_03_NOI:
+.byte $f5,$15,$ff,$f0,$12,$ff
+
+;----------
+SNDE_04:				; 93CC
+.word $FFFF				; FF FF
+.word SNDE_04_NOI			; D0 93
+SNDE_04_NOI:
+.byte $f5,$18,$ff,$ef,$82,$d8,$f5,$15,$ff,$82,$d8,$c2,$fe,$d0,$93
+
+;----------
+SNDE_05:				; 93DF
+.word SNDE_05_CH1			; E3 93
+.word $FFFF				; FF FF
+SNDE_05_CH1:
+.byte $eb,$f6,$10,$ff,$f8,$9a,$f2,$95,$ff
+
+;----------
+SNDE_06:				; 93EC
+.word SNDE_06_CH1			; F0 93
+.word $FFFF				; FF FF
+SNDE_06_CH1:
+.byte $f2,$fb,$06,$f7,$16,$ff,$9f,$f6,$16,$ff,$9f,$fc,$f3,$93,$ff
+
+;----------
+SNDE_07:				; 93FF
+.word SNDE_07_CH1			; 03 94
+.word SNDE_07_NOI			; 0B 94
+SNDE_07_CH1:
+.byte $f6,$1c,$ff,$f8,$8c,$ef,$01,$ff
+SNDE_07_NOI:
+.byte $f5,$18,$ff,$ef,$51,$ff
+
+;----------
+SNDE_08:				; 9411
+.word SNDE_08_CH1			; 15 94
+.word $FFFF				; FF FF
+SNDE_08_CH1:
+.byte $f6,$22,$ff,$f8,$f9,$f2,$b8,$a8,$98,$87,$ff
+
+;----------
+SNDE_09:				; 9420
+.word SNDE_09_CH1			; 24 94
+.word $FFFF				; FF FF
+SNDE_09_CH1:
+.byte $f7,$1d,$0b,$f4,$0b,$6b,$b5,$ff
+
+;----------
+SNDE_10:				; 942C
+.word $FFFF				; FF FF
+.word SNDE_10_NOI			; 30 94
+SNDE_10_NOI:
+.byte $f5,$15,$ff,$fb,$03,$ef,$bf,$3f,$be,$f0,$1e,$09,$fc,$35,$94,$ff
+
+;----------
+SNDE_11:				; 9440
+.word SNDE_11_CH1			; 44 94
+.word $FFFF				; FF FF
+SNDE_11_CH1:
+.byte $f7,$1d,$0b,$f3,$0c,$2c,$4c,$6c,$8c,$a5,$ff
+
+;----------
+SNDE_12:				; 944F
+.word SNDE_12_CH1			; 53 94
+.word SNDE_12_NOI			; 5B 94
+SNDE_12_CH1:
+.byte $f7,$1c,$ff,$f8,$b5,$f3,$04,$ff
+SNDE_12_NOI:
+.byte $f5,$15,$ff,$c4,$ef,$3c,$16,$ff
+
+;----------
+SNDE_13:				; 9463
+.word SNDE_13_CH1			; 67 94
+.word SNDE_13_NOI			; 76 94
+SNDE_13_CH1:
+.byte $f7,$1f,$ff,$f8,$bd,$f2,$01,$f7,$21,$ff,$f8,$b5,$32,$d8,$ff
+SNDE_13_NOI:
+.byte $ea,$f5,$20,$ff,$ef,$c1,$52,$d8,$ff
+
+;----------
+SNDE_14:				; 947F
+.word SNDE_14_CH1			; 83 94
+.word SNDE_14_NOI			; 9A 94
+SNDE_14_CH1:
+.byte $f5,$24,$ff,$ef,$e7,$61,$e8,$61,$e9,$61,$ea,$61,$eb,$61,$ec,$61,$ed,$61,$ee,$61,$61,$61,$ff
+SNDE_14_NOI:
+.byte $f5,$16,$ff,$f0,$e7,$60,$e8,$60,$e9,$60,$ea,$60,$eb,$60,$ec,$60,$ed,$60,$ee,$60,$f5,$0b,$ff,$20,$ff
+
+;----------
+SNDE_15:				; 94B3
+.word SNDE_15_CH1			; B7 94
+.word SNDE_15_NOI			; BE 94
+SNDE_15_CH1:
+.byte $f6,$1e,$0c,$f3,$53,$de,$ff
+SNDE_15_NOI:
+.byte $ec,$f5,$1e,$ff,$f1,$83,$de,$ff
+
+;----------
+SNDE_16:				; 94C6
+.word SNDE_16_CH1			; CA 94
+.word SNDE_16_NOI			; D3 94
+SNDE_16_CH1:
+.byte $f7,$1c,$ff,$f8,$b5,$f4,$c3,$82,$ff
+SNDE_16_NOI:
+.byte $f5,$1b,$ff,$f0,$2b,$1b,$01,$48,$11,$ff
+
+;----------
+SNDE_17:				; 94DD
+.word $FFFF				; FF FF
+.word SNDE_17_NOI			; E1 94
+SNDE_17_NOI:
+.byte $f5,$1b,$ff,$f2,$02,$ff
+
+;----------
+SNDE_18:				; 94E7
+.word $FFFF				; FF FF
+.word SNDE_18_NOI			; EB 94
+SNDE_18_NOI:
+.byte $f5,$14,$ff,$ef,$6b,$7c,$ff
+
+;----------
+SNDE_19:				; 94F2
+.word SNDE_19_CH1			; F6 94
+.word $FFFF				; FF FF
+SNDE_19_CH1:
+.byte $f5,$25,$ff,$f8,$e4,$f2,$02,$ff
+
+;----------
+SNDE_20:				; 94FE
+.word SNDE_20_CH1			; 02 95
+.word $FFFF				; FF FF
+SNDE_20_CH1:
+.byte $f5,$25,$ff,$f8,$9c,$f1,$02,$ff
+
+;----------
+SNDE_21:				; 950A
+.word SNDE_21_CH1			; 0E 95
+.word SNDE_21_NOI			; 17 95
+SNDE_21_CH1:
+.byte $f5,$25,$ff,$f8,$9c,$f3,$15,$22,$ff
+SNDE_21_NOI:
+.byte $f5,$1b,$ff,$ef,$bd,$b5,$bc,$b0,$ff
+
+;----------
+SNDE_22:				; 9520
+.word $FFFF				; FF FF
+.word SNDE_22_NOI			; 24 95
+SNDE_22_NOI:
+.byte $f5,$15,$ff,$e9,$f1,$ac,$5e,$ff
+
+;----------
+SNDE_23:				; 952C
+.word SNDE_23_CH1			; 30 95
+.word $FFFF				; FF FF
+SNDE_23_CH1:
+.byte $f6,$14,$ff,$f2,$3c,$5c,$3c,$5c,$ac,$ff
+
+;----------
+SNDE_24:				; 953A
+.word SNDE_24_CH1			; 3E 95
+.word $FFFF				; FF FF
+SNDE_24_CH1:
+.byte $f5,$10,$ff,$f8,$9a,$f3,$95,$ff
+
+;----------
+SNDE_25:				; 9546
+.word SNDE_25_CH1			; 4a 95
+.word $FFFF				; ff ff
+SNDE_25_CH1:
+.byte $f5,$19,$ff,$f0,$12,$ff
+
+;----------
+SNDE_26:				; 9550
+.word SNDE_26_CH1			; 54 95
+.word SNDE_26_NOI			; 5A 95
+SNDE_26_CH1:
+.byte $f6,$1b,$ff,$f3,$b3,$ff
+SNDE_26_NOI:
+.byte $f5,$1b,$ff,$f1,$53,$ff
+
+;----------
+SNDE_27:				; 9560
+.word $FFFF				; FF FF
+.word SNDE_27_NOI			; 64 95
+SNDE_27_NOI:
+.byte $f5,$1b,$ff,$f0,$17,$12,$ff
+
+;----------
+SNDE_28:				; 956B
+.word SNDE_28_CH1			; 6F 95
+.word SNDE_28_NOI			; 79 95
+SNDE_28_CH1:
+.byte $f6,$1b,$ff,$f8,$9a,$f1,$1b,$2b,$30,$ff
+SNDE_28_NOI:
+.byte $f5,$25,$ff,$ef,$36,$ff
+
+;----------
+SNDE_29:				; 957F
+.word SNDE_29_CH1			; 83 95
+.word $FFFF				; FF FF
+SNDE_29_CH1:
+.byte $f7,$19,$0d,$f3,$9b,$8c,$73,$9b,$8c,$70,$ff
+
+;----------
+SNDE_30:				; 958E
+.word SNDE_30_CH1			; 92 95
+.word $FFFF				; FF FF
+SNDE_30_CH1:
+.byte $f7,$15,$ff,$f4,$bc,$51,$ff
+
+;----------
+SNDE_31:				; 9599
+.word SNDE_31_CH1			; 9D 95
+.word SNDE_31_NOI			; A8 95
+SNDE_31_CH1:
+.byte $f7,$19,$0d,$f0,$53,$f6,$1b,$ff,$f4,$60,$ff
+SNDE_31_NOI:
+.byte $ef,$c0,$f5,$25,$ff,$15,$c6,$f5,$23,$ff,$b8,$ff
+
+;----------
+SNDE_32:				; 95B4
+.word SNDE_32_CH1			; B8 95
+.word $FFFF				; FF FF
+SNDE_32_CH1:
+.byte $f7,$15,$ff,$f4,$0c,$1c,$2c,$3c,$4c,$71,$ff
+
+;----------
+SNDE_33:				; 95C3
+.word SNDE_33_CH1			; C7 95
+.word SNDE_33_NOI			; CD 95
+SNDE_33_CH1:
+.byte $f7,$19,$0d,$f0,$b0,$ff
+SNDE_33_NOI:
+.byte $f5,$19,$ff,$f0,$13,$f5,$1a,$ff,$bb,$ff
+
+;----------
+SNDE_34:				; 95D7
+.word $FFFF				; FF FF
+.word SNDE_34_NOI			; DB 95
+SNDE_34_NOI:
+.byte $f5,$1b,$ff,$ef,$ba,$a9,$ba,$a9,$ba,$a9,$ff
+
+;----------
+SNDE_35:				; 95E6
+.word $FFFF				; FF FF
+.word SNDE_35_NOI			; EA 95
+SNDE_35_NOI:
+.byte $f5,$18,$ff,$f0,$02,$f5,$16,$ff,$00,$f5,$15,$ff,$00,$ff
+
+;----------
+SNDE_36:				; 95F8
+.word SNDE_36_CH1			; FC 95
+.word $FFFF				; FF FF
+SNDE_36_CH1:
+.byte $f5,$25,$ff,$f8,$e4,$f0,$03,$ff
+
+;----------
+SNDE_37:				; 9604
+.word $FFFF				; FF FF
+.word SNDE_37_NOI			; 08 96
+SNDE_37_NOI:
+.byte $f5,$24,$ff,$ef,$ab,$cf,$fe,$0c,$96,$ff
+
+;----------
+SNDE_38:				; 9612
+.word $FFFF				; FF FF
+.word SNDE_38_NOI			; 16 96
+SNDE_38_NOI:
+.byte $f5,$23,$ff,$ef,$ab,$cf,$fe,$1a,$96,$ff
+
+;----------
+SNDE_39:				; 9620
+.word $FFFF				; FF FF
+.word SNDE_39_NOI			; 24 96
+SNDE_39_NOI:
+.byte $f5,$19,$ff,$f1,$9d,$6d,$cf,$fe,$28,$96,$ff
+
+;----------
+SNDE_40:				; 962F
+.word $FFFF				; FF FF
+.word SNDE_40_NOI			; 33 96
+SNDE_40_NOI:
+.byte $eb,$f5,$25,$ff,$f0,$b8,$cf,$fe,$38,$96,$ff
+
+;----------
+SNDE_41:				; 963E
+.word SNDE_41_CH1			; 42 96
+.word SNDE_41_NOI			; 4B 96
+SNDE_41_CH1:
+.byte $e9,$f5,$25,$ff,$f8,$e4,$f2,$b5,$ff
+SNDE_41_NOI:
+.byte $f5,$1b,$ff,$e9,$ef,$c5,$60,$ff
+
+;----------
+SNDE_42:				; 9653
+.word SNDE_42_CH1			; 57 96
+.word SNDE_42_NOI			; 62 96
+SNDE_42_CH1:
+.byte $f5,$25,$ff,$f8,$e4,$f1,$b5,$b5,$b5,$b5,$ff
+SNDE_42_NOI:
+.byte $f5,$24,$ff,$f1,$85,$85,$85,$85,$b0,$ff
+
+;----------
+SNDE_43:				; 966C
+.word $FFFF				; FF FF
+.word SNDE_43_NOI			; 70 96
+SNDE_43_NOI:
+.byte $f5,$1b,$ff,$f1,$eb,$33,$de,$e8,$30,$cb,$fe,$74,$96
+
+;----------
+SNDE_44:				; 967D
+.word SNDE_44_CH1			; 81 96
+.word SNDE_44_NOI			; 8E 96
+SNDE_44_CH1:
+.byte $f5,$25,$ff,$f8,$9c,$ef,$02,$c5,$f8,$e4,$f2,$00,$ff
+SNDE_44_NOI:
+.byte $f5,$18,$ff,$f0,$02,$f5,$25,$ff,$05,$f5,$15,$ff,$00,$ff
+
+;----------
+SNDE_45:				; 969C
+.word SNDE_45_CH1			; A0 96
+.word $FFFF				; FF FF
+SNDE_45_CH1:
+.byte $f5,$25,$ff,$f8,$9c,$ef,$03,$ff
+
+;----------
+SNDE_47:				; 96A8
+.word SNDE_47_CH1			; AC 96
+.word SNDE_47_NOI			; B4 96
+SNDE_47_CH1:
+.byte $f6,$14,$ff,$f8,$8b,$f1,$86,$ff
+SNDE_47_NOI:
+.byte $f5,$14,$ff,$ef,$67,$ff
+
+;----------
+SNDE_90:				;96BA
+.word $FFFF				; FF FF
+.word SNDE_90_NOI			; BE 96
+SNDE_90_NOI:
+.byte $f5,$14,$ff,$ef,$9d,$0d,$ff
+
+;----------
+SNDE_48:				; 96C5
+.word $FFFF				; FF FF
+.word SNDE_48_NOI			; C9 96
+SNDE_48_NOI:
+.byte $f5,$10,$ff,$f0,$0c,$ef,$4c,$f2,$ac,$19,$ff
+
+;----------
+SNDE_49:				; 96D4
+.word SNDE_49_CH1			; D8 96
+.word SNDE_49_NOI			; EB 96
+SNDE_49_CH1:
+.byte $f6,$14,$ff,$f8,$8b,$f1,$c7,$1a,$ec,$1a,$e9,$1a,$e7,$1a,$e5,$1a,$e3,$1a,$ff
+SNDE_49_NOI:
+.byte $f5,$14,$ff,$f2,$c7,$1a,$ec,$1a,$e9,$1a,$e7,$1a,$e5,$1a,$e3,$1a,$ff
+
+;----------
+SNDE_50:				; 96FC
+.word $FFFF				; FF FF
+.word SNDE_50_NOI			; 00 97
+SNDE_50_NOI:
+.byte $f5,$1b,$ff,$ef,$1a,$59,$59,$59,$59,$f5,$23,$ff,$72,$ff
+
+;----------
+SNDE_51:				; 970E
+.word $FFFF				; FF FF
+.word SNDE_51_NOI			; 12 97
+SNDE_51_NOI:
+.byte $f5,$14,$ff,$ef,$ba,$eb,$ba,$e8,$ba,$e5,$ba,$ff
+
+;----------
+SNDE_52:				; 971E
+.word SNDE_52_CH1			; 22 97
+.word $FFFF				; FF FF
+SNDE_52_CH1:
+.byte $f6,$26,$ff,$f8,$c4,$f3,$bc,$bc,$cc,$bc,$bc,$ff
+
+;----------
+SNDE_53:				; 972E
+.word SNDE_53_CH1			; 32 97
+.word SNDE_53_NOI			; 3C 97
+SNDE_53_CH1:
+.byte $f6,$1b,$ff,$f8,$8b,$e9,$c8,$ef,$08,$ff
+SNDE_53_NOI:
+.byte $f5,$26,$ff,$ef,$9c,$ca,$f5,$1b,$ff,$38,$c9,$f1,$12,$ff
+
+;----------
+SNDE_54:				; 974A
+.word SNDE_54_CH1			; 4E 97
+.word SNDE_54_NOI			; 57 97
+SNDE_54_CH1:
+.byte $f6,$1b,$ff,$f8,$8b,$ef,$ec,$08,$ff
+SNDE_54_NOI:
+.byte $f5,$1b,$ff,$ef,$bd,$39,$ff
+
+;----------
+SNDE_55:				; 975E
+.word SNDE_55_CH1			; 62 97
+.word SNDE_55_NOI			; 6A 97
+SNDE_55_CH1:
+.byte $f5,$23,$ff,$f8,$8d,$f3,$65,$ff
+SNDE_55_NOI:
+.byte $f5,$23,$ff,$ef,$33,$f5,$14,$ff,$f1,$2c,$f5,$1b,$ff,$10,$ff
+
+;----------
+SNDE_56:				; 9779
+.word SNDE_56_CH1			; 7D 97
+.word SNDE_56_NOI			; 8A 97
+SNDE_56_CH1:
+.byte $f6,$26,$ff,$f8,$8a,$f0,$08,$19,$2a,$3b,$5c,$6d,$ff
+SNDE_56_NOI:
+.byte $f5,$23,$ff,$ef,$08,$19,$2a,$8b,$8c,$bd,$ff
+
+;----------
+SNDE_57:				; 9795
+.word $FFFF				; FF FF
+.word SNDE_57_NOI			; 99 97
+SNDE_57_NOI:
+.byte $f5,$10,$ff,$f2,$18,$18,$18,$ff
+
+;----------
+SNDE_59:				; 97A1
+.word $FFFF				; FF FF
+.word SNDE_59_NOI			; A5 97
+SNDE_59_NOI:
+.byte $f5,$26,$ff,$ef,$39,$39,$39,$ff
+
+;----------
+SNDE_91:				; 97AD
+.word SNDE_91_CH1			; B1 97
+.word SNDE_91_NOI			; B9 97
+SNDE_91_CH1:
+.byte $f6,$26,$ff,$f8,$8a,$f0,$1a,$ff
+SNDE_91_NOI:
+.byte $f5,$26,$ff,$ef,$ba,$ff
+
+;----------
+SNDE_60:				; 97BF
+.word SNDE_60_CH1			; c3 97
+.word SNDE_60_NOI			; D1 97
+SNDE_60_CH1:
+.byte $f6,$14,$ff,$f8,$82,$f1,$69,$69,$69,$69,$69,$e6,$69,$ff
+SNDE_60_NOI:
+.byte $f5,$26,$ff,$ef,$a9,$a9,$a9,$a9,$a9,$a9,$e6,$a9,$ff
+
+;----------
+SNDE_61:				; 97DE
+.word SNDE_61_CH1			; F8 97
+.word SNDE_61_NOI			; E2 97
+SNDE_61_NOI:
+.byte $f5,$16,$ff,$f0,$b1,$e8,$75,$e3,$25,$ee,$f5,$23,$ff,$7d,$04,$7d,$04,$7d,$04,$7d,$04,$ff
+SNDE_61_CH1:
+.byte $c0,$c5,$f5,$23,$ff,$f8,$8d,$f4,$e5,$93,$93,$93,$93,$ff
+
+;----------
+SNDE_62:				; 9806
+.word SNDE_62_CH1			; 0A 98
+.word SNDE_62_NOI			; 16 98
+SNDE_62_CH1:
+.byte $f7,$17,$ff,$f8,$a4,$f1,$b9,$e9,$f4,$82,$db,$ff
+SNDE_62_NOI:
+.byte $f5,$17,$ff,$ef,$98,$32,$ff
+
+;----------
+SNDE_63:				; 981D
+.word SNDE_63_CH1			; 21 98
+.word $FFFF				; FF FF
+SNDE_63_CH1:
+.byte $f7,$15,$ff,$f8,$ab,$f3,$07,$ff
+
+;----------
+SNDE_64:				; 9829
+.word $FFFF				; FF FF
+.word SNDE_64_NOI			; 2D 98
+SNDE_64_NOI:
+.byte $f5,$15,$ff,$e7,$ef,$7a,$f0,$bc,$ff
+
+;----------
+SNDE_65:				; 9836
+.word $FFFF				; FF FF
+.word SNDE_65_NOI			; 3A 98
+SNDE_65_NOI:
+.byte $f5,$18,$ff,$ef,$a8,$f5,$16,$ff,$f0,$14,$ff
+
+;----------
+SNDE_66:				; 9845
+.word $FFFF				; FF FF
+.word SNDE_66_NOI			; 49 98
+SNDE_66_NOI:
+.byte $f5,$1b,$ff,$ef,$99,$f5,$16,$ff,$f2,$19,$5a,$19,$5a,$19,$5a,$19,$5a,$19,$5a,$ff
+
+;----------
+SNDE_67:				; 985D
+.word $FFFF				; FF FF
+.word SNDE_67_NOI			; 61 98
+SNDE_67_NOI:
+.byte $f5,$15,$ff,$ef,$58,$b5,$f5,$10,$ff,$f0,$58,$58,$ff
+
+;----------
+SNDE_68:				; 986E
+.word SNDE_68_CH1			; 72 98
+.word SNDE_68_NOI			; 7B 98
+SNDE_68_CH1:
+.byte $f7,$15,$ff,$f8,$9d,$f3,$cc,$02,$ff
+SNDE_68_NOI:
+.byte $f5,$14,$ff,$ef,$bd,$ff
+
+;----------
+SNDE_69:				; 9881
+.word $FFFF				; FF FF
+.word SNDE_69_NOI			; 85 98
+SNDE_69_NOI:
+.byte $f5,$1b,$ff,$ef,$5d,$5d,$99,$99,$99,$ff
+
+;----------
+SNDE_70:				; 988F
+.word $FFFF				; FF FF
+.word SNDE_70_NOI			; 93 98
+SNDE_70_NOI:
+.byte $f5,$15,$ff,$f0,$19,$0b,$ff
+
+;----------
+SNDE_71:				; 989A
+.word SNDE_71_CH1			; 9E 98
+.word SNDE_71_NOI			; A5 98
+SNDE_71_CH1:
+.byte $f7,$18,$ff,$f4,$e6,$71,$ff
+SNDE_71_NOI:
+.byte $f5,$1b,$ff,$f2,$00,$ff
+
+;----------
+SNDE_72:				; 98AB
+.word SNDE_72_CH1			; AF 98
+.word SNDE_72_NOI			; B6 98
+SNDE_72_CH1:
+.byte $f6,$1b,$ff,$f4,$e9,$bb,$ff
+SNDE_72_NOI:
+.byte $f5,$1b,$ff,$ef,$88,$0b,$ff
+
+;----------
+SNDE_73:				; 98BD
+.word SNDE_73_CH1			; C1 98
+.word SNDE_73_NOI			; C7 98
+SNDE_73_CH1:
+.byte $f5,$23,$ff,$ef,$b1,$ff
+SNDE_73_NOI:
+.byte $f5,$1b,$ff,$ef,$3b,$68,$4b,$78,$b6,$ff
+
+;----------
+SNDE_74:				; 98D1
+.word SNDE_74_CH1			; D5 98
+.word SNDE_74_NOI			; E0 98
+SNDE_74_CH1:
+.byte $f5,$19,$ff,$f8,$8f,$f0,$05,$25,$45,$65,$ff
+SNDE_74_NOI:
+.byte $f5,$16,$ff,$c0,$f0,$1c,$0b,$74,$ff
+
+;----------
+SNDE_75:				; 98E9
+.word SNDE_75_CH1			; ED 98
+.word $FFFF				; FF FF
+SNDE_75_CH1:
+.byte $f7,$1d,$0b,$f4,$06,$08,$0b,$06,$ff
+
+;----------
+SNDE_76:				; 98F6
+.word $FFFF				; FF FF
+.word SNDE_76_NOI			; FA 98
+SNDE_76_NOI:
+.byte $f5,$1b,$ff,$f0,$12,$e5,$ef,$92,$ff
+
+;----------
+SNDE_77:				; 9903
+.word $FFFF				; FF FF
+.word SNDE_77_NOI			; 07 99
+SNDE_77_NOI:
+.byte $f5,$1b,$ff,$f0,$11,$11,$11,$ff
+
+;----------
+SNDE_78:				; 990F
+.word $FFFF				; FF FF
+.word SNDE_78_NOI			; 13 99
+SNDE_78_NOI:
+.byte $f5,$1b,$ff,$f0,$fb,$04,$48,$38,$28,$18,$00,$fc,$19,$99,$ff
+
+;----------
+SNDE_79:				; 9922
+.word SNDE_79_CH1			; 26 99
+.word SNDE_79_NOI			; 30 99
+SNDE_79_CH1:
+.byte $f7,$1c,$ff,$f8,$b5,$f4,$83,$db,$62,$ff
+SNDE_79_NOI:
+.byte $f5,$17,$ff,$ef,$43,$db,$62,$ff
+
+;----------
+SNDE_80:				; 9938
+.word SNDE_80_CH1			; 3C 99
+.word SNDE_80_NOI			; 47 99
+SNDE_80_CH1:
+.byte $f7,$1f,$ff,$f8,$bd,$f2,$80,$80,$82,$81,$ff
+SNDE_80_NOI:
+.byte $f5,$1b,$ff,$c0,$c0,$c2,$c1,$f0,$10,$ff
+
+;----------
+SNDE_81:				; 9951
+.word SNDE_81_CH1			; 55 99
+.word SNDE_81_NOI			; 6B 99
+SNDE_81_CH1:
+.byte $f6,$ff,$ff,$f8,$8c,$f1,$08,$f7,$1d,$0b,$f8,$08,$f2,$b5,$f7,$21,$ff,$f8,$ca,$f1,$12,$ff
+SNDE_81_NOI:
+.byte $f5,$15,$ff,$e9,$f2,$c8,$0b,$1b,$29,$ff
+
+;----------
+SNDE_82:				; 9975
+.word SNDE_82_CH1			; 79 99
+.word SNDE_82_NOI			; 82 99
+SNDE_82_CH1:
+.byte $e7,$f5,$16,$ff,$f8,$ce,$f2,$00,$ff
+SNDE_82_NOI:
+.byte $f5,$1b,$ff,$ef,$c0,$40,$ff
+
+;----------
+SNDE_83:				; 9989
+.word SNDE_83_CH1			; 8D 99
+.word SNDE_83_NOI			; 99 99
+SNDE_83_CH1:
+.byte $f5,$25,$ff,$f8,$9c,$f1,$c2,$b5,$b5,$b5,$b5,$ff
+SNDE_83_NOI:
+.byte $f5,$24,$ff,$f1,$b2,$85,$85,$85,$85,$ff
+
+;----------
+SNDE_84:				; 99A3
+.word SNDE_84_CH1			; A7 99
+.word $FFFF				; FF FF
+SNDE_84_CH1:
+.byte $f5,$25,$ff,$f8,$e4,$f0,$38,$48,$58,$68,$ff
+
+;----------
+SNDE_85:				; 99B2
+.word $FFFF				; FF FF
+.word SNDE_85_NOI			; B6 99
+SNDE_85_NOI:
+.byte $f5,$1a,$ff,$f0,$b9,$b9,$b9,$b9,$f5,$10,$ff,$00,$ff
+
+;----------
+SNDE_86:				; 99C3
+.word $FFFF				; FF FF
+.word SNDE_86_NOI			; C7 99
+SNDE_86_NOI:
+.byte $f5,$24,$ff,$ef,$50,$ff
+
+;----------
+SNDE_87:				; 99CD
+.word SNDE_87_CH1			; D1 99
+.word SNDE_87_NOI			; D9 99
+SNDE_87_CH1:
+.byte $f6,$1a,$ff,$f8,$c4,$f4,$04,$ff
+SNDE_87_NOI:
+.byte $f5,$1b,$ff,$ea,$ef,$c4,$b4,$b4,$b4,$b4,$ff
+
+;----------
+SNDE_88:				; 99E4
+.word $FFFF				; FF FF
+.word SNDE_88_NOI			; E8 99
+SNDE_88_NOI:
+.byte $f5,$1a,$ff,$f0,$b9,$b9,$b9,$b9,$b9,$ff
+
+;----------
+SNDE_89:				; 99F2
+.word $FFFF				; FF FF
+.word SNDE_89_NOI			; F6 99
+SNDE_89_NOI:
+.byte $f5,$15,$ff,$ef,$4a,$b9,$8a,$b5,$ff
+
+;----------
+SNDE_92:				; 99FF
+.word SNDE_92_CH1			; 03 9A
+.word SNDE_92_NOI			; 1D 9A
+SNDE_92_CH1:
+.byte $f5,$1a,$ff,$f8,$cb,$ef,$04,$f6,$1a,$ff,$eb,$f0,$04,$f5,$1a,$ff,$e8,$f1,$04,$f6,$1a,$ff,$e5,$f2,$04,$ff
+SNDE_92_NOI:
+.byte $f5,$1b,$ff,$c4,$e3,$f1,$ba,$e4,$aa,$e5,$9a,$e6,$8a,$e7,$7a,$e8,$6a,$e9,$5a,$ea,$4a,$eb,$3a,$ec,$2a,$ed,$1a,$ee,$0a,$ff
+
+;----------
+SNDE_93:				; 9A3B
+.word SNDE_93_CH1			; 3F 9A
+.word $FFFF				; FF FF
+SNDE_93_CH1:
+.byte $f7,$02,$ff,$f1,$0c,$4c,$6c,$9c,$f2,$0c,$6c,$9c,$f3,$0c,$ff
+
+;----------
+SNDE_94:				; 9A4E
+.word SNDE_94_CH1			; 52 9A
+.word $FFFF				; FF FF
+SNDE_94_CH1:
+.byte $f5,$22,$ff,$f8,$bf,$f1,$86,$85,$ff
+
+;----------
+SNDE_95:				; 9A5B
+.word SNDE_95_CH1			; 5F 9A
+.word $FFFF				; FF FF
+SNDE_95_CH1:
+.byte $f5,$28,$0f,$f2,$02,$02,$ff
+
+;----------
+SNDE_96:				; 9A66
+.word SNDE_96_CH1			; 6A 9A
+.word $FFFF				; FF FF
+SNDE_96_CH1:
+.byte $f7,$15,$ff,$f8,$8c,$f1,$05,$eb,$05,$e9,$05,$e7,$05,$e5,$05,$e3,$04,$ff
+
+
 ; 6DA80h ($36:9A7C) - pointers to volume envelope data
 ;Volume envelope Address (41)
 VolEnvTbl:
@@ -10794,11 +11773,12 @@ VE_NEW2_R:
 ;----------
 VE_NEW3:					; $2B - test airship
 .word VE_NEW3_ATK
-.word VE_NEW3_D
-.word VE_NEW3_R
+;.word VE_NEW3_D
+;.word VE_NEW3_R
+.word VE_NEW3_DR
 .word VE_NEW3_DR
 VE_NEW3_ATK:
-.if 0	; Full ver
+.if 1	; Full ver
 .byte $0F,$06,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F,$0E,$0E
 .byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
 .byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
@@ -10809,15 +11789,16 @@ VE_NEW3_ATK:
 .byte $0D,$0D,$0E,$0E,$0F,$0F,$0E,$0E
 .byte $0B,$0B,$0B,$09,$09,$09,$07,$07,$07,$05,$05,$05
 .byte $03,$03,$03,$01,$01,$01,$00,$FF
-.endif
+.else	; Partial ver
 .byte $0F,$06,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F,$0E,$0E,$FF
+.endif	; End of ver
 VE_NEW3_D:
 .byte $00,$02,$FF,$02,$00,$02,$01,$02,$00,$F8
 VE_NEW3_R:
 .byte $00,$03,$FE,$03,$FC,$03,$FA,$03,$F8,$03,$F6,$03,$F4,$01,$F5,$FE
 VE_NEW3_DR:
 .byte $00,$00
-.if 0
+.if 0	; deprecated
 VPBDD2:
 .byte $1F,$16,$18,$19,$1A,$1B,$1C,$1D,$1E,$2F,$2E,$2D,$2E,$2F
 .byte $2E,$2D,$2E,$2F,$2E,$2D,$2E,$2F,$2E,$2D,$2E,$2F,$2E,$2D,$2E,$2F
