@@ -441,7 +441,13 @@ Key_proc:
 	ADC #$01
 	STA $82
 	JSR Set_OAM_AS_BGM
+	JMP Key_proc_L
 EFFECT_PROC_R:
+	LDA $83
+	CLC
+	ADC #$01
+	STA $83
+	JSR Set_OAM_AS_EFFECT
 Key_proc_L:
 	LDA key1p
 	AND #$02
@@ -454,7 +460,13 @@ Key_proc_L:
 	SBC #$01
 	STA $82
 	JSR Set_OAM_AS_BGM
+	JMP Key_proc_D
 EFFECT_PROC_L:
+	LDA $83
+	SEC
+	SBC #$01
+	STA $83
+	JSR Set_OAM_AS_EFFECT
 Key_proc_D:
 	LDA key1p
 	AND #$04
@@ -504,7 +516,11 @@ Key_proc_A:
 	LDA #$01
 	STA $7F42			; bit.0 is new song found
 .endif
+	JMP Key_proc_B
 PROC_A_EFFECT:
+	LDA $83
+	ORA #$80
+	STA $7F49
 Key_proc_B:
 	LDA key1p
 	AND #$40
@@ -543,8 +559,9 @@ Set_OAM:
 	RTS
 ; End of Set_OAM
 
-; Name	:
-; Marks	:
+; Name	: Set_OAM_AS_BGM
+; Marks	: Set BGM number OAM
+;	  $82 = BGM number
 Set_OAM_AS_BGM:
 	LDA $82
 	LSR A
@@ -560,8 +577,9 @@ Set_OAM_AS_BGM:
 	RTS
 ; End of Set_OAM_AS_BGM
 
-; Name	:
-; Marks	:
+; Name	: Set_OAM_AS_EFFECT
+; Marks	: Set Sound effect number OAM
+;	  $82 = Sound effect number
 Set_OAM_AS_EFFECT:
 	LDA $83
 	LSR A
@@ -6317,17 +6335,19 @@ BF81	;81 BF - $18 = Prince Allus's Theme (effect)
 ;----------
 ;A032 - $00 = Resting At The Inn
 M_A032:
-.word M_A032_CH0
-.word M_A032_CH1
-.word M_A032_TRI
-;.byte $3C,$A0,$5F,$A0,$67,$A0,
+.word M_A032_CH0			; 3C A0
+.word M_A032_CH1			; 5F A0
+.word M_A032_TRI			; 67 A0
 .byte $FF,$FF,$FF,$FF
-M_A032_CH0:
+M_A032_CH0:				; A03C
 .byte $F7,$04,$07,$EC
+M_A032_CH0_S:
 .byte $E0,$5A,$C5,$F2,$08,$F1,$A8,$F2,$38,$18,$F1,$88,$58,$E0,$56,$48
 .byte $E0,$52,$F2,$08,$E0,$4E,$F1,$78,$E0,$4A,$A8,$E0,$46,$92,$FF
 M_A032_CH1:
-.byte $F7,$04,$09,$E8,$CB,$FE,$40,$A0
+.byte $F7,$04,$09,$E8,$CB
+.byte JUMP				; FE 40 A0
+.word M_A032_CH0_S
 M_A032_TRI:
 .byte $F1,$18,$88,$F2,$08,$C8,$F1,$68,$A8
 .byte $F2,$18,$C8,$F1,$08,$78,$F2,$08,$C8,$F1,$52,$FF
@@ -10417,7 +10437,7 @@ SndEftTbl:
 .word SNDE_96				; 66 9a
 
 ; Sound effect data(97)
-;----------
+;---------- Cannon shot
 SNDE_00:				; 9387
 SNDE_46:				; 9387
 SNDE_58:				; 9387
@@ -10428,14 +10448,14 @@ SNDE_00_CH1:
 SNDE_00_NOI:
 .byte $f5,$1b,$ff,$c4,$f0,$10,$ff
 
-;----------
+;---------- Magic confuse ??
 SNDE_01:				; 939A
 .word SNDE_01_CH1			; 9E 93
 .word $FFFF				; FF Ff
 SNDE_01_CH1:
 .byte $f6,$23,$0a,$f3,$0b,$4b,$2b,$6b,$b3,$ff
 
-;----------
+;---------- Magic Meteo
 SNDE_02:				; 93A8
 .word SNDE_02_CH1			; AC 93
 .word SNDE_02_NOI			; B8 93
@@ -10444,35 +10464,47 @@ SNDE_02_CH1:
 SNDE_02_NOI:
 .byte $f5,$17,$ff,$ef,$43,$db,$63,$db,$72,$ff
 
-;----------
+;---------- Door open
 SNDE_03:				; 93C2
 .word $FFFF				; FF Ff
 .word SNDE_03_NOI			; C6 93
 SNDE_03_NOI:
 .byte $f5,$15,$ff,$f0,$12,$ff
 
-;----------
+;---------- Sea wind
 SNDE_04:				; 93CC
 .word $FFFF				; FF FF
 .word SNDE_04_NOI			; D0 93
 SNDE_04_NOI:
-.byte $f5,$18,$ff,$ef,$82,$d8,$f5,$15,$ff,$82,$d8,$c2,$fe,$d0,$93
+.byte $f5,$18,$ff
+.byte $ef,$82,$d8,$f5,$15,$ff,$82,$d8,$c2
+.byte JUMP				; $fe $d0 $93
+.word SNDE_04_NOI
 
-;----------
+;--------- Cursor choose effect
 SNDE_05:				; 93DF
 .word SNDE_05_CH1			; E3 93
 .word $FFFF				; FF FF
 SNDE_05_CH1:
 .byte $eb,$f6,$10,$ff,$f8,$9a,$f2,$95,$ff
 
-;----------
+;---------- Cursor error effect
 SNDE_06:				; 93EC
 .word SNDE_06_CH1			; F0 93
 .word $FFFF				; FF FF
 SNDE_06_CH1:
-.byte $f2,$fb,$06,$f7,$16,$ff,$9f,$f6,$16,$ff,$9f,$fc,$f3,$93,$ff
+.byte OT3				; $f2
+.byte BACK_CNT,$06			; $fb $06
+SNDE_06_CH1_R0:
+.byte DUTY_1_2,$16,$FF			; $f7 $16 $ff
+.byte L1_96				; $9f
+.byte DUTY_1_4,$16,$FF			; $f6 $16 $ff
+.byte L1_96				; $9f
+.byte BACK_N				; $fc $f3 $93
+.word SNDE_06_CH1_R0
+.byte $FF				; $ff
 
-;----------
+;---------- Summon monster
 SNDE_07:				; 93FF
 .word SNDE_07_CH1			; 03 94
 .word SNDE_07_NOI			; 0B 94
@@ -10481,35 +10513,41 @@ SNDE_07_CH1:
 SNDE_07_NOI:
 .byte $f5,$18,$ff,$ef,$51,$ff
 
-;----------
+;---------- Magic drain
 SNDE_08:				; 9411
 .word SNDE_08_CH1			; 15 94
 .word $FFFF				; FF FF
 SNDE_08_CH1:
 .byte $f6,$22,$ff,$f8,$f9,$f2,$b8,$a8,$98,$87,$ff
 
-;----------
+;---------- Magic cure
 SNDE_09:				; 9420
 .word SNDE_09_CH1			; 24 94
 .word $FFFF				; FF FF
 SNDE_09_CH1:
 .byte $f7,$1d,$0b,$f4,$0b,$6b,$b5,$ff
 
-;----------
+;---------- Monster physical attack
 SNDE_10:				; 942C
 .word $FFFF				; FF FF
 .word SNDE_10_NOI			; 30 94
 SNDE_10_NOI:
-.byte $f5,$15,$ff,$fb,$03,$ef,$bf,$3f,$be,$f0,$1e,$09,$fc,$35,$94,$ff
+.byte $f5,$15,$ff
+.byte BACK_CNT,$03			; $fb $03
+SNDE_10_NOI_R0:
+.byte $ef,$bf,$3f,$be,$f0,$1e,$09
+.byte BACK_N				; $fc $35 $94
+.word SNDE_10_NOI_R0
+.byte $FF				; $ff
 
-;----------
+;---------- Magic cure 2 ?? esna ??
 SNDE_11:				; 9440
 .word SNDE_11_CH1			; 44 94
 .word $FFFF				; FF FF
 SNDE_11_CH1:
 .byte $f7,$1d,$0b,$f3,$0c,$2c,$4c,$6c,$8c,$a5,$ff
 
-;----------
+;---------- Throw into water ??
 SNDE_12:				; 944F
 .word SNDE_12_CH1			; 53 94
 .word SNDE_12_NOI			; 5B 94
@@ -10518,7 +10556,7 @@ SNDE_12_CH1:
 SNDE_12_NOI:
 .byte $f5,$15,$ff,$c4,$ef,$3c,$16,$ff
 
-;----------
+;---------- Gatter something ??
 SNDE_13:				; 9463
 .word SNDE_13_CH1			; 67 94
 .word SNDE_13_NOI			; 76 94
@@ -10527,7 +10565,7 @@ SNDE_13_CH1:
 SNDE_13_NOI:
 .byte $ea,$f5,$20,$ff,$ef,$c1,$52,$d8,$ff
 
-;----------
+;---------- Flood world recovery effect ??
 SNDE_14:				; 947F
 .word SNDE_14_CH1			; 83 94
 .word SNDE_14_NOI			; 9A 94
@@ -10536,7 +10574,7 @@ SNDE_14_CH1:
 SNDE_14_NOI:
 .byte $f5,$16,$ff,$f0,$e7,$60,$e8,$60,$e9,$60,$ea,$60,$eb,$60,$ec,$60,$ed,$60,$ee,$60,$f5,$0b,$ff,$20,$ff
 
-;----------
+;---------- Gysal villeage sheep warn
 SNDE_15:				; 94B3
 .word SNDE_15_CH1			; B7 94
 .word SNDE_15_NOI			; BE 94
@@ -10545,7 +10583,7 @@ SNDE_15_CH1:
 SNDE_15_NOI:
 .byte $ec,$f5,$1e,$ff,$f1,$83,$de,$ff
 
-;----------
+;---------- Cannon shot to water ??
 SNDE_16:				; 94C6
 .word SNDE_16_CH1			; CA 94
 .word SNDE_16_NOI			; D3 94
@@ -10554,35 +10592,35 @@ SNDE_16_CH1:
 SNDE_16_NOI:
 .byte $f5,$1b,$ff,$f0,$2b,$1b,$01,$48,$11,$ff
 
-;----------
+;---------- Death ??
 SNDE_17:				; 94DD
 .word $FFFF				; FF FF
 .word SNDE_17_NOI			; E1 94
 SNDE_17_NOI:
 .byte $f5,$1b,$ff,$f2,$02,$ff
 
-;----------
+;---------- Trap ??
 SNDE_18:				; 94E7
 .word $FFFF				; FF FF
 .word SNDE_18_NOI			; EB 94
 SNDE_18_NOI:
 .byte $f5,$14,$ff,$ef,$6b,$7c,$ff
 
-;----------
+;---------- Slate in
 SNDE_19:				; 94F2
 .word SNDE_19_CH1			; F6 94
 .word $FFFF				; FF FF
 SNDE_19_CH1:
 .byte $f5,$25,$ff,$f8,$e4,$f2,$02,$ff
 
-;----------
+;---------- Slate out
 SNDE_20:				; 94FE
 .word SNDE_20_CH1			; 02 95
 .word $FFFF				; FF FF
 SNDE_20_CH1:
 .byte $f5,$25,$ff,$f8,$9c,$f1,$02,$ff
 
-;----------
+;---------- Monster encounter
 SNDE_21:				; 950A
 .word SNDE_21_CH1			; 0E 95
 .word SNDE_21_NOI			; 17 95
@@ -10591,35 +10629,35 @@ SNDE_21_CH1:
 SNDE_21_NOI:
 .byte $f5,$1b,$ff,$ef,$bd,$b5,$bc,$b0,$ff
 
-;----------
+;---------- Poisoned walk
 SNDE_22:				; 9520
 .word $FFFF				; FF FF
 .word SNDE_22_NOI			; 24 95
 SNDE_22_NOI:
 .byte $f5,$15,$ff,$e9,$f1,$ac,$5e,$ff
 
-;----------
+;---------- Character change on map
 SNDE_23:				; 952C
 .word SNDE_23_CH1			; 30 95
 .word $FFFF				; FF FF
 SNDE_23_CH1:
 .byte $f6,$14,$ff,$f2,$3c,$5c,$3c,$5c,$ac,$ff
 
-;----------
+;---------- Cursor move
 SNDE_24:				; 953A
 .word SNDE_24_CH1			; 3E 95
 .word $FFFF				; FF FF
 SNDE_24_CH1:
 .byte $f5,$10,$ff,$f8,$9a,$f3,$95,$ff
 
-;----------
+;---------- echo ??
 SNDE_25:				; 9546
 .word SNDE_25_CH1			; 4a 95
 .word $FFFF				; ff ff
 SNDE_25_CH1:
 .byte $f5,$19,$ff,$f0,$12,$ff
 
-;----------
+;---------- Magic break(stone)
 SNDE_26:				; 9550
 .word SNDE_26_CH1			; 54 95
 .word SNDE_26_NOI			; 5A 95
@@ -10628,14 +10666,14 @@ SNDE_26_CH1:
 SNDE_26_NOI:
 .byte $f5,$1b,$ff,$f1,$53,$ff
 
-;----------
+;---------- Explosion
 SNDE_27:				; 9560
 .word $FFFF				; FF FF
 .word SNDE_27_NOI			; 64 95
 SNDE_27_NOI:
 .byte $f5,$1b,$ff,$f0,$17,$12,$ff
 
-;----------
+;---------- Magic blizzard
 SNDE_28:				; 956B
 .word SNDE_28_CH1			; 6F 95
 .word SNDE_28_NOI			; 79 95
@@ -10644,21 +10682,21 @@ SNDE_28_CH1:
 SNDE_28_NOI:
 .byte $f5,$25,$ff,$ef,$36,$ff
 
-;----------
+;---------- Strange wind ??
 SNDE_29:				; 957F
 .word SNDE_29_CH1			; 83 95
 .word $FFFF				; FF FF
 SNDE_29_CH1:
 .byte $f7,$19,$0d,$f3,$9b,$8c,$73,$9b,$8c,$70,$ff
 
-;----------
+;---------- Shing something ??
 SNDE_30:				; 958E
 .word SNDE_30_CH1			; 92 95
 .word $FFFF				; FF FF
 SNDE_30_CH1:
 .byte $f7,$15,$ff,$f4,$bc,$51,$ff
 
-;----------
+;---------- Magic summon
 SNDE_31:				; 9599
 .word SNDE_31_CH1			; 9D 95
 .word SNDE_31_NOI			; A8 95
@@ -10667,14 +10705,14 @@ SNDE_31_CH1:
 SNDE_31_NOI:
 .byte $ef,$c0,$f5,$25,$ff,$15,$c6,$f5,$23,$ff,$b8,$ff
 
-;----------
+;---------- Defense in battle
 SNDE_32:				; 95B4
 .word SNDE_32_CH1			; B8 95
 .word $FFFF				; FF FF
 SNDE_32_CH1:
 .byte $f7,$15,$ff,$f4,$0c,$1c,$2c,$3c,$4c,$71,$ff
 
-;----------
+;---------- Magic ready
 SNDE_33:				; 95C3
 .word SNDE_33_CH1			; C7 95
 .word SNDE_33_NOI			; CD 95
@@ -10683,56 +10721,76 @@ SNDE_33_CH1:
 SNDE_33_NOI:
 .byte $f5,$19,$ff,$f0,$13,$f5,$1a,$ff,$bb,$ff
 
-;----------
+;---------- Magic minimum ??
 SNDE_34:				; 95D7
 .word $FFFF				; FF FF
 .word SNDE_34_NOI			; DB 95
 SNDE_34_NOI:
 .byte $f5,$1b,$ff,$ef,$ba,$a9,$ba,$a9,$ba,$a9,$ff
 
-;----------
+;---------- Leviathan appeared
 SNDE_35:				; 95E6
 .word $FFFF				; FF FF
 .word SNDE_35_NOI			; EA 95
 SNDE_35_NOI:
 .byte $f5,$18,$ff,$f0,$02,$f5,$16,$ff,$00,$f5,$15,$ff,$00,$ff
 
-;----------
+;---------- Gether wing ??
 SNDE_36:				; 95F8
 .word SNDE_36_CH1			; FC 95
 .word $FFFF				; FF FF
 SNDE_36_CH1:
 .byte $f5,$25,$ff,$f8,$e4,$f0,$03,$ff
 
-;----------
+;---------- Airship prop
 SNDE_37:				; 9604
 .word $FFFF				; FF FF
 .word SNDE_37_NOI			; 08 96
 SNDE_37_NOI:
-.byte $f5,$24,$ff,$ef,$ab,$cf,$fe,$0c,$96,$ff
+.byte $f5,$24,$ff,$ef
+SNDE_37_NOI_R0:
+.byte $ab,$cf
+.byte JUMP				; $fe $0c $96
+.word SNDE_37_NOI_R0
+.byte $FF				; $ff
 
-;----------
+;---------- Airship prop 2
 SNDE_38:				; 9612
 .word $FFFF				; FF FF
 .word SNDE_38_NOI			; 16 96
 SNDE_38_NOI:
-.byte $f5,$23,$ff,$ef,$ab,$cf,$fe,$1a,$96,$ff
+.byte $f5,$23,$ff,$ef
+SNDE_38_NOI_R0:
+.byte $ab,$cf
+.byte JUMP				; $fe $1a $96
+.word SNDE_38_NOI_R0
+.byte $FF				; $ff
 
-;----------
+;---------- Airship prop 3
 SNDE_39:				; 9620
 .word $FFFF				; FF FF
 .word SNDE_39_NOI			; 24 96
 SNDE_39_NOI:
-.byte $f5,$19,$ff,$f1,$9d,$6d,$cf,$fe,$28,$96,$ff
+.byte $f5,$19,$ff,$f1
+SNDE_39_NOI_R0:
+.byte $9d,$6d,$cf
+.byte JUMP				; $fe $28 $96
+.word SNDE_39_NOI_R0
+.byte $FF				; $ff
 
-;----------
+;---------- Airship onto water
 SNDE_40:				; 962F
 .word $FFFF				; FF FF
 .word SNDE_40_NOI			; 33 96
 SNDE_40_NOI:
-.byte $eb,$f5,$25,$ff,$f0,$b8,$cf,$fe,$38,$96,$ff
+.byte $eb,$f5,$25,$ff,$f0
+SNDE_40_NOI_R0:
+.byte $b8,$cf
+.byte JUMP				; $fe $38 $96
+.word SNDE_40_NOI_R0
+.byte $FF				; $ff
 
-;----------
+;---------- Into water
 SNDE_41:				; 963E
 .word SNDE_41_CH1			; 42 96
 .word SNDE_41_NOI			; 4B 96
@@ -10741,7 +10799,7 @@ SNDE_41_CH1:
 SNDE_41_NOI:
 .byte $f5,$1b,$ff,$e9,$ef,$c5,$60,$ff
 
-;----------
+;---------- Nautilus change to airship
 SNDE_42:				; 9653
 .word SNDE_42_CH1			; 57 96
 .word SNDE_42_NOI			; 62 96
@@ -10750,14 +10808,18 @@ SNDE_42_CH1:
 SNDE_42_NOI:
 .byte $f5,$24,$ff,$f1,$85,$85,$85,$85,$b0,$ff
 
-;----------
+;---------- Deep sea echo
 SNDE_43:				; 966C
 .word $FFFF				; FF FF
 .word SNDE_43_NOI			; 70 96
 SNDE_43_NOI:
-.byte $f5,$1b,$ff,$f1,$eb,$33,$de,$e8,$30,$cb,$fe,$74,$96
+.byte $f5,$1b,$ff,$f1
+SNDE_43_NOI_R0:
+.byte $eb,$33,$de,$e8,$30,$cb
+.byte JUMP				; $fe $74 $96
+.word SNDE_43_NOI_R0
 
-;----------
+;---------- Nautilus change to ship fail ??
 SNDE_44:				; 967D
 .word SNDE_44_CH1			; 81 96
 .word SNDE_44_NOI			; 8E 96
@@ -10766,14 +10828,14 @@ SNDE_44_CH1:
 SNDE_44_NOI:
 .byte $f5,$18,$ff,$f0,$02,$f5,$25,$ff,$05,$f5,$15,$ff,$00,$ff
 
-;----------
+;---------- Enter the airship
 SNDE_45:				; 969C
 .word SNDE_45_CH1			; A0 96
 .word $FFFF				; FF FF
 SNDE_45_CH1:
 .byte $f5,$25,$ff,$f8,$9c,$ef,$03,$ff
 
-;----------
+;---------- Arrow
 SNDE_47:				; 96A8
 .word SNDE_47_CH1			; AC 96
 .word SNDE_47_NOI			; B4 96
@@ -10782,21 +10844,21 @@ SNDE_47_CH1:
 SNDE_47_NOI:
 .byte $f5,$14,$ff,$ef,$67,$ff
 
-;----------
+;---------- Tack!! ??
 SNDE_90:				;96BA
 .word $FFFF				; FF FF
 .word SNDE_90_NOI			; BE 96
 SNDE_90_NOI:
 .byte $f5,$14,$ff,$ef,$9d,$0d,$ff
 
-;----------
+;---------- Trap on map ??
 SNDE_48:				; 96C5
 .word $FFFF				; FF FF
 .word SNDE_48_NOI			; C9 96
 SNDE_48_NOI:
 .byte $f5,$10,$ff,$f0,$0c,$ef,$4c,$f2,$ac,$19,$ff
 
-;----------
+;---------- Monster disappear
 SNDE_49:				; 96D4
 .word SNDE_49_CH1			; D8 96
 .word SNDE_49_NOI			; EB 96
@@ -10805,28 +10867,28 @@ SNDE_49_CH1:
 SNDE_49_NOI:
 .byte $f5,$14,$ff,$f2,$c7,$1a,$ec,$1a,$e9,$1a,$e7,$1a,$e5,$1a,$e3,$1a,$ff
 
-;----------
+;---------- Tsunami
 SNDE_50:				; 96FC
 .word $FFFF				; FF FF
 .word SNDE_50_NOI			; 00 97
 SNDE_50_NOI:
 .byte $f5,$1b,$ff,$ef,$1a,$59,$59,$59,$59,$f5,$23,$ff,$72,$ff
 
-;----------
+;---------- Run away from battle
 SNDE_51:				; 970E
 .word $FFFF				; FF FF
 .word SNDE_51_NOI			; 12 97
 SNDE_51_NOI:
 .byte $f5,$14,$ff,$ef,$ba,$eb,$ba,$e8,$ba,$e5,$ba,$ff
 
-;----------
+;---------- Magic silence
 SNDE_52:				; 971E
 .word SNDE_52_CH1			; 22 97
 .word $FFFF				; FF FF
 SNDE_52_CH1:
 .byte $f6,$26,$ff,$f8,$c4,$f3,$bc,$bc,$cc,$bc,$bc,$ff
 
-;----------
+;---------- Magic odin(cut enemy)
 SNDE_53:				; 972E
 .word SNDE_53_CH1			; 32 97
 .word SNDE_53_NOI			; 3C 97
@@ -10835,7 +10897,7 @@ SNDE_53_CH1:
 SNDE_53_NOI:
 .byte $f5,$26,$ff,$ef,$9c,$ca,$f5,$1b,$ff,$38,$c9,$f1,$12,$ff
 
-;----------
+;---------- Cut
 SNDE_54:				; 974A
 .word SNDE_54_CH1			; 4E 97
 .word SNDE_54_NOI			; 57 97
@@ -10844,7 +10906,7 @@ SNDE_54_CH1:
 SNDE_54_NOI:
 .byte $f5,$1b,$ff,$ef,$bd,$39,$ff
 
-;----------
+;---------- Sharp wind ??
 SNDE_55:				; 975E
 .word SNDE_55_CH1			; 62 97
 .word SNDE_55_NOI			; 6A 97
@@ -10853,7 +10915,7 @@ SNDE_55_CH1:
 SNDE_55_NOI:
 .byte $f5,$23,$ff,$ef,$33,$f5,$14,$ff,$f1,$2c,$f5,$1b,$ff,$10,$ff
 
-;----------
+;---------- Magic toad
 SNDE_56:				; 9779
 .word SNDE_56_CH1			; 7D 97
 .word SNDE_56_NOI			; 8A 97
@@ -10862,21 +10924,21 @@ SNDE_56_CH1:
 SNDE_56_NOI:
 .byte $f5,$23,$ff,$ef,$08,$19,$2a,$8b,$8c,$bd,$ff
 
-;----------
+;---------- Knock Knock 
 SNDE_57:				; 9795
 .word $FFFF				; FF FF
 .word SNDE_57_NOI			; 99 97
 SNDE_57_NOI:
 .byte $f5,$10,$ff,$f2,$18,$18,$18,$ff
 
-;----------
+;---------- Passing through glass
 SNDE_59:				; 97A1
 .word $FFFF				; FF FF
 .word SNDE_59_NOI			; A5 97
 SNDE_59_NOI:
 .byte $f5,$26,$ff,$ef,$39,$39,$39,$ff
 
-;----------
+;---------- Wide wing ??
 SNDE_91:				; 97AD
 .word SNDE_91_CH1			; B1 97
 .word SNDE_91_NOI			; B9 97
@@ -10885,7 +10947,7 @@ SNDE_91_CH1:
 SNDE_91_NOI:
 .byte $f5,$26,$ff,$ef,$ba,$ff
 
-;----------
+;---------- Magic flair
 SNDE_60:				; 97BF
 .word SNDE_60_CH1			; c3 97
 .word SNDE_60_NOI			; D1 97
@@ -10894,7 +10956,7 @@ SNDE_60_CH1:
 SNDE_60_NOI:
 .byte $f5,$26,$ff,$ef,$a9,$a9,$a9,$a9,$a9,$a9,$e6,$a9,$ff
 
-;----------
+;---------- Fire or flair great effect ??
 SNDE_61:				; 97DE
 .word SNDE_61_CH1			; F8 97
 .word SNDE_61_NOI			; E2 97
@@ -10903,7 +10965,7 @@ SNDE_61_NOI:
 SNDE_61_CH1:
 .byte $c0,$c5,$f5,$23,$ff,$f8,$8d,$f4,$e5,$93,$93,$93,$93,$ff
 
-;----------
+;---------- Exit from invincible
 SNDE_62:				; 9806
 .word SNDE_62_CH1			; 0A 98
 .word SNDE_62_NOI			; 16 98
@@ -10912,42 +10974,42 @@ SNDE_62_CH1:
 SNDE_62_NOI:
 .byte $f5,$17,$ff,$ef,$98,$32,$ff
 
-;----------
+;---------- Recovery from ??
 SNDE_63:				; 981D
 .word SNDE_63_CH1			; 21 98
 .word $FFFF				; FF FF
 SNDE_63_CH1:
 .byte $f7,$15,$ff,$f8,$ab,$f3,$07,$ff
 
-;----------
+;---------- Tack effect ??
 SNDE_64:				; 9829
 .word $FFFF				; FF FF
 .word SNDE_64_NOI			; 2D 98
 SNDE_64_NOI:
 .byte $f5,$15,$ff,$e7,$ef,$7a,$f0,$bc,$ff
 
-;----------
+;---------- Magic fire 3 ??
 SNDE_65:				; 9836
 .word $FFFF				; FF FF
 .word SNDE_65_NOI			; 3A 98
 SNDE_65_NOI:
 .byte $f5,$18,$ff,$ef,$a8,$f5,$16,$ff,$f0,$14,$ff
 
-;----------
+;---------- Magic earth quake ??
 SNDE_66:				; 9845
 .word $FFFF				; FF FF
 .word SNDE_66_NOI			; 49 98
 SNDE_66_NOI:
 .byte $f5,$1b,$ff,$ef,$99,$f5,$16,$ff,$f2,$19,$5a,$19,$5a,$19,$5a,$19,$5a,$19,$5a,$ff
 
-;----------
+;---------- Magic thunder
 SNDE_67:				; 985D
 .word $FFFF				; FF FF
 .word SNDE_67_NOI			; 61 98
 SNDE_67_NOI:
 .byte $f5,$15,$ff,$ef,$58,$b5,$f5,$10,$ff,$f0,$58,$58,$ff
 
-;----------
+;---------- Jump on battle
 SNDE_68:				; 986E
 .word SNDE_68_CH1			; 72 98
 .word SNDE_68_NOI			; 7B 98
@@ -10956,21 +11018,21 @@ SNDE_68_CH1:
 SNDE_68_NOI:
 .byte $f5,$14,$ff,$ef,$bd,$ff
 
-;----------
+;---------- Magic airo
 SNDE_69:				; 9881
 .word $FFFF				; FF FF
 .word SNDE_69_NOI			; 85 98
 SNDE_69_NOI:
 .byte $f5,$1b,$ff,$ef,$5d,$5d,$99,$99,$99,$ff
 
-;----------
+;---------- Hit critical attack from monster ??
 SNDE_70:				; 988F
 .word $FFFF				; FF FF
 .word SNDE_70_NOI			; 93 98
 SNDE_70_NOI:
 .byte $f5,$15,$ff,$f0,$19,$0b,$ff
 
-;----------
+;---------- Magic banish
 SNDE_71:				; 989A
 .word SNDE_71_CH1			; 9E 98
 .word SNDE_71_NOI			; A5 98
@@ -10979,7 +11041,7 @@ SNDE_71_CH1:
 SNDE_71_NOI:
 .byte $f5,$1b,$ff,$f2,$00,$ff
 
-;----------
+;---------- Magic poison
 SNDE_72:				; 98AB
 .word SNDE_72_CH1			; AF 98
 .word SNDE_72_NOI			; B6 98
@@ -10988,7 +11050,7 @@ SNDE_72_CH1:
 SNDE_72_NOI:
 .byte $f5,$1b,$ff,$ef,$88,$0b,$ff
 
-;----------
+;---------- Magic blind
 SNDE_73:				; 98BD
 .word SNDE_73_CH1			; C1 98
 .word SNDE_73_NOI			; C7 98
@@ -10997,7 +11059,7 @@ SNDE_73_CH1:
 SNDE_73_NOI:
 .byte $f5,$1b,$ff,$ef,$3b,$68,$4b,$78,$b6,$ff
 
-;----------
+;---------- Magic dark cloud wave
 SNDE_74:				; 98D1
 .word SNDE_74_CH1			; D5 98
 .word SNDE_74_NOI			; E0 98
@@ -11006,35 +11068,41 @@ SNDE_74_CH1:
 SNDE_74_NOI:
 .byte $f5,$16,$ff,$c0,$f0,$1c,$0b,$74,$ff
 
-;----------
+;---------- Magic ?? recovery from something ??
 SNDE_75:				; 98E9
 .word SNDE_75_CH1			; ED 98
 .word $FFFF				; FF FF
 SNDE_75_CH1:
 .byte $f7,$1d,$0b,$f4,$06,$08,$0b,$06,$ff
 
-;----------
+;---------- Explosion ??
 SNDE_76:				; 98F6
 .word $FFFF				; FF FF
 .word SNDE_76_NOI			; FA 98
 SNDE_76_NOI:
 .byte $f5,$1b,$ff,$f0,$12,$e5,$ef,$92,$ff
 
-;----------
+;---------- Canon shot x 3
 SNDE_77:				; 9903
 .word $FFFF				; FF FF
 .word SNDE_77_NOI			; 07 99
 SNDE_77_NOI:
 .byte $f5,$1b,$ff,$f0,$11,$11,$11,$ff
 
-;----------
+;---------- Hidden passage open x 4
 SNDE_78:				; 990F
 .word $FFFF				; FF FF
 .word SNDE_78_NOI			; 13 99
 SNDE_78_NOI:
-.byte $f5,$1b,$ff,$f0,$fb,$04,$48,$38,$28,$18,$00,$fc,$19,$99,$ff
+.byte $f5,$1b,$ff,$f0
+.byte BACK_CNT,$04			; $fb $04
+SNDE_78_NOI_R0:
+.byte $48,$38,$28,$18,$00
+.byte BACK_N				; $fc $19 $99
+.word SNDE_78_NOI_R0
+.byte $FF				; $ff
 
-;----------
+;---------- Magic meteo short version ??
 SNDE_79:				; 9922
 .word SNDE_79_CH1			; 26 99
 .word SNDE_79_NOI			; 30 99
@@ -11043,7 +11111,7 @@ SNDE_79_CH1:
 SNDE_79_NOI:
 .byte $f5,$17,$ff,$ef,$43,$db,$62,$ff
 
-;----------
+;---------- Magic water different version ??
 SNDE_80:				; 9938
 .word SNDE_80_CH1			; 3C 99
 .word SNDE_80_NOI			; 47 99
@@ -11052,7 +11120,7 @@ SNDE_80_CH1:
 SNDE_80_NOI:
 .byte $f5,$1b,$ff,$c0,$c0,$c2,$c1,$f0,$10,$ff
 
-;----------
+;---------- Magic water revival
 SNDE_81:				; 9951
 .word SNDE_81_CH1			; 55 99
 .word SNDE_81_NOI			; 6B 99
@@ -11061,7 +11129,7 @@ SNDE_81_CH1:
 SNDE_81_NOI:
 .byte $f5,$15,$ff,$e9,$f2,$c8,$0b,$1b,$29,$ff
 
-;----------
+;---------- Into water ??
 SNDE_82:				; 9975
 .word SNDE_82_CH1			; 79 99
 .word SNDE_82_NOI			; 82 99
@@ -11070,7 +11138,7 @@ SNDE_82_CH1:
 SNDE_82_NOI:
 .byte $f5,$1b,$ff,$ef,$c0,$40,$ff
 
-;----------
+;---------- Enterprise dive ??
 SNDE_83:				; 9989
 .word SNDE_83_CH1			; 8D 99
 .word SNDE_83_NOI			; 99 99
@@ -11079,28 +11147,28 @@ SNDE_83_CH1:
 SNDE_83_NOI:
 .byte $f5,$24,$ff,$f1,$b2,$85,$85,$85,$85,$ff
 
-;----------
+;---------- Animal cry ??
 SNDE_84:				; 99A3
 .word SNDE_84_CH1			; A7 99
 .word $FFFF				; FF FF
 SNDE_84_CH1:
 .byte $f5,$25,$ff,$f8,$e4,$f0,$38,$48,$58,$68,$ff
 
-;----------
+;---------- Hidden passage open
 SNDE_85:				; 99B2
 .word $FFFF				; FF FF
 .word SNDE_85_NOI			; B6 99
 SNDE_85_NOI:
 .byte $f5,$1a,$ff,$f0,$b9,$b9,$b9,$b9,$f5,$10,$ff,$00,$ff
 
-;----------
+;---------- Small wings ??
 SNDE_86:				; 99C3
 .word $FFFF				; FF FF
 .word SNDE_86_NOI			; C7 99
 SNDE_86_NOI:
 .byte $f5,$24,$ff,$ef,$50,$ff
 
-;----------
+;---------- Throw water some four things
 SNDE_87:				; 99CD
 .word SNDE_87_CH1			; D1 99
 .word SNDE_87_NOI			; D9 99
@@ -11109,21 +11177,21 @@ SNDE_87_CH1:
 SNDE_87_NOI:
 .byte $f5,$1b,$ff,$ea,$ef,$c4,$b4,$b4,$b4,$b4,$ff
 
-;----------
+;---------- Hidden passage open short version
 SNDE_88:				; 99E4
 .word $FFFF				; FF FF
 .word SNDE_88_NOI			; E8 99
 SNDE_88_NOI:
 .byte $f5,$1a,$ff,$f0,$b9,$b9,$b9,$b9,$b9,$ff
 
-;----------
+;---------- Magic zone
 SNDE_89:				; 99F2
 .word $FFFF				; FF FF
 .word SNDE_89_NOI			; F6 99
 SNDE_89_NOI:
 .byte $f5,$15,$ff,$ef,$4a,$b9,$8a,$b5,$ff
 
-;----------
+;---------- Warp
 SNDE_92:				; 99FF
 .word SNDE_92_CH1			; 03 9A
 .word SNDE_92_NOI			; 1D 9A
@@ -11132,28 +11200,28 @@ SNDE_92_CH1:
 SNDE_92_NOI:
 .byte $f5,$1b,$ff,$c4,$e3,$f1,$ba,$e4,$aa,$e5,$9a,$e6,$8a,$e7,$7a,$e8,$6a,$e9,$5a,$ea,$4a,$eb,$3a,$ec,$2a,$ed,$1a,$ee,$0a,$ff
 
-;----------
+;---------- Cure on menu
 SNDE_93:				; 9A3B
 .word SNDE_93_CH1			; 3F 9A
 .word $FFFF				; FF FF
 SNDE_93_CH1:
 .byte $f7,$02,$ff,$f1,$0c,$4c,$6c,$9c,$f2,$0c,$6c,$9c,$f3,$0c,$ff
 
-;----------
+;---------- Flog cry on map
 SNDE_94:				; 9A4E
 .word SNDE_94_CH1			; 52 9A
 .word $FFFF				; FF FF
 SNDE_94_CH1:
 .byte $f5,$22,$ff,$f8,$bf,$f1,$86,$85,$ff
 
-;----------
+;---------- Sheep cry on map
 SNDE_95:				; 9A5B
 .word SNDE_95_CH1			; 5F 9A
 .word $FFFF				; FF FF
 SNDE_95_CH1:
 .byte $f5,$28,$0f,$f2,$02,$02,$ff
 
-;----------
+;---------- UFO echo ??
 SNDE_96:				; 9A66
 .word SNDE_96_CH1			; 6A 9A
 .word $FFFF				; FF FF
