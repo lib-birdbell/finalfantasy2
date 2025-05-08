@@ -1,5 +1,6 @@
 .include "Constants.inc"
 .include "variables.inc"
+.include "score.inc"
 
 .import L3FD8C
 .import Ret_to_map			;FA0F
@@ -1631,7 +1632,7 @@ B9FFE:
 	BNE B9FE9			; A00F	$D0 $D8
 	LDA #$00			; A011	$A9 $00
 	STA $73				; A013	$85 $73
-	JSR $A193			; A015	$20 $93 $A1
+	JSR A193			; A015	$20 $93 $A1
 	JSR Wait_MENU_snd		; A018	$20 $5B $FD
 L1601B:
 	JSR Wait_NMI_end		; A01B	$20 $46 $FD
@@ -1845,6 +1846,8 @@ A151:
 ; End of
 
 ;;----------------;;
+; Name	:
+A193:
 	LDA #$00			; A193	$A9 $00
 	STA $72				; A195	$85 $72
 	STA $74				; A197	$85 $74
@@ -1906,7 +1909,7 @@ A1FA:
 	LDA #$09			; A204	$A9 $09
 	STA $74				; A206	$85 $74
 A208:
-	JMP $A3A6			; A208	$4C $A6 $A3
+	JMP A3A6			; A208	$4C $A6 $A3
 A20B:
 	CMP #$40			; A20B	$C9 $40
 	BNE A234			; A20D	$D0 $25
@@ -1930,7 +1933,7 @@ A223:
 	LDA #$09			; A22D	$A9 $09
 	STA $74				; A22F	$85 $74
 A231:
-	JMP $A3A6			; A231	$4C $A6 $A3
+	JMP A3A6			; A231	$4C $A6 $A3
 A234:
 	CMP #$20			; A234	$C9 $20
 	BNE A268			; A236	$D0 $30
@@ -1959,7 +1962,7 @@ A25C:
 	LDA #$0B			; A261	$A9 $0B
 	STA $74				; A263	$85 $74
 A265:
-	JMP $A3A6			; A265	$4C $A6 $A3
+	JMP A3A6			; A265	$4C $A6 $A3
 A268:
 	CMP #$10			; A268	$C9 $10
 	BNE A286			; A26A	$D0 $1A
@@ -1977,11 +1980,11 @@ A27F:
 	LDA #$00			; A27F	$A9 $00
 	STA $74				; A281	$85 $74
 A283:
-	JMP $A3A6			; A283	$4C $A6 $A3
+	JMP A3A6			; A283	$4C $A6 $A3
 A286:
 	CMP #$01			; A286	$C9 $01
 	BEQ A28D			; A288	$F0 $03
-	JMP $A37B			; A28A	$4C $7B $A3
+	JMP A37B			; A28A	$4C $7B $A3
 A28D:
 	LDA $50				; A28D	$A5 $50
 	BNE A2D7			; A28F	$D0 $46
@@ -1991,7 +1994,7 @@ A28D:
 	CMP #$08			; A297	$C9 $08
 	BNE A2A0			; A299	$D0 $05
 	BNE A2A0			; A29B	$D0 $03
-	JMP $A378			; A29D	$4C $78 $A3
+	JMP A378			; A29D	$4C $78 $A3
 A2A0:
 	CMP #$09			; A2A0	$C9 $09
 	BNE A2A5			; A2A2	$D0 $01
@@ -2026,7 +2029,7 @@ A2C7:
 	CPX #$10			; A2CE	$E0 $10
 	BNE A2C7			; A2D0	$D0 $F5
 	BNE A2D7			; A2D2	$D0 $03
-	JMP $A378			; A2D4	$4C $78 $A3
+	JMP A378			; A2D4	$4C $78 $A3
 A2D7:
 	LDA $72				; A2D7	$A5 $72
 	BNE A305			; A2D9	$D0 $2A
@@ -2043,21 +2046,21 @@ A2D7:
 	BEQ A2F6			; A2ED	$F0 $07
 	CMP #$0F			; A2EF	$C9 $0F
 	BCS A2F6			; A2F1	$B0 $03
-	JMP $A193			; A2F3	$4C $93l$A1
+	JMP A193			; A2F3	$4C $93l$A1
 A2F6:
 	LDA #$00			; A2F6	$A9 $00
 	STA $6060,X			; A2F8	$9D $60 $60
 	LDA $A7				; A2FB	$A5 $A7
 	STA $5C				; A2FD	$85 $5C
 	JSR $A0FA			; A2FF	$20 $FA $A0
-	JMP $A193			; A302	$4C $93 $A1
+	JMP A193			; A302	$4C $93 $A1
 A305:
 	LDA $75				; A305	$A5 $75
 	CMP #$09			; A307	$C9 $09
 	BNE A312			; A309	$D0 $07
 	LDA $72				; A30B	$A5 $72
 	BNE A312			; A30E	$D0 $03
-	JMP $A193			; A30F	$4C $93 $A1
+	JMP A193			; A30F	$4C $93 $A1
 A312:
 	LDA $72				; A312	$A5 $72
 	BNE A33C			; A314	$D0 $26
@@ -2071,7 +2074,7 @@ A312:
 	BEQ A32B			; A322	$F0 $07
 	CMP #$0F			; A324	$C9 $0F
 	BCS A32B			; A326	$B0 $03
-	JMP $A193			; A328	$4C $93 $A1
+	JMP A193			; A328	$4C $93 $A1
 A32B:
 	PHA				; A32B	$48
 	LDA $74				; A32C	$A5 $74
@@ -2080,7 +2083,7 @@ A32B:
 	STA $6060,X			; A332	$9D $60 $60
 	PLA				; A335	$68
 	STA $7B6A,Y			; A336	$99 $6A $7B
-	JMP $A35F			; A339	$4C $5F $A3
+	JMP A35F			; A339	$4C $5F $A3
 A33C:
 	DEC $72				; A33C	$C6 $72
 	LDA $75				; A33E	$A5 $75
@@ -2092,7 +2095,7 @@ A33C:
 	BEQ A351			; A348	$F0 $07
 	CMP #$0F			; A34A	$C9 $0F
 	BCS A351			; A34C	$B0 $03
-	JMP $A193			; A34E	$4C $93 $A1
+	JMP A193			; A34E	$4C $93 $A1
 A351:
 	PHA				; A351	$48
 	LDA $55				; A352	$A5 $55
@@ -2101,6 +2104,7 @@ A351:
 	STA $6060,X			; A358	$9D $60 $60
 	PLA				; A35B	$68
 	STA $7B6A,Y			; A35C	$99 $6A $7B
+A35F:
 	LDA $A7				; A35F	$A5 $A7
 	PHA				; A361	$48
 	LDA #$00			; A362	$A9 $00
@@ -2112,8 +2116,10 @@ A351:
 	STA $A7				; A36E	$85 $A7
 	STA $5C				; A370	$85 $5C
 	JSR $A0FA			; A372	$20 $FA $A0
-	JMP $A193			; A375	$4C $93 $A1
-	JMP $A3A6			; A378	$4C $A6 $A3
+	JMP A193			; A375	$4C $93 $A1
+A378:
+	JMP A3A6			; A378	$4C $A6 $A3
+A37B:
 	CMP #$02			; A37B	$C9 $02
 	BNE A3A3			; A37D	$D0 $24
 	LDA $50				; A37F	$A5 $50
@@ -2122,7 +2128,7 @@ A351:
 	STA $72				; A385	$85 $72
 	LDA #$09			; A387	$A9 $09
 	STA $74				; A389	$85 $74
-	JMP $A3A6			; A38B	$4C $A6 $A3
+	JMP A3A6			; A38B	$4C $A6 $A3
 A38E:
 	LDA #$F0			; A38E	$A9 $F0
 	LDX #$00			; A390	$A2 $00
@@ -2135,19 +2141,21 @@ A392:
 	INX				; A39B	$E8
 	CPX #$10			; A39C	$E0 $10
 	BNE A392			; A39E	$D0 $F2
-	JMP $A193			; A3A0	$4C $93 $A1
+	JMP A193			; A3A0	$4C $93 $A1
 A3A3:
-	JMP $A1D0			; A3A3	$4C $D0 $A1
+	JMP A1D0			; A3A3	$4C $D0 $A1
+A3A6:
 	LDX $72				; A3A6	$A6 $72
 	BEQ A3B4			; A3A8	$F0 $0A
 	CLC				; A3AA	$18
 	LDA $74				; A3AB	$A5 $74
 	ADC $73				; A3AD	$65 $73
 	STA $75				; A3AF	$85 $75
-	JMP $A3B8			; A3B1	$4C $B8 $A3
+	JMP A3B8			; A3B1	$4C $B8 $A3
 A3B4:
 	LDA $74				; A3B4	$A5 $74
 	STA $75				; A3B6	$85 $75
+A3B8:
 	LDA $72				; A3B8	$A5 $72
 	ASL A				; A3BA	$0A
 	ASL A				; A3BB	$0A
@@ -2174,7 +2182,7 @@ A3B4:
 	LDA #$02			; A3DF	$A9 $02
 	STA $65				; A3E1	$85 $65
 	JSR $FB2F			; A3E3	$20 $2F $FB
-	JMP $A1D0			; A3E6	$4C $D0 $A1
+	JMP A1D0			; A3E6	$4C $D0 $A1
 	BNE A3F9			; A3E9	$D0 $0E
 	SEC				; A3EB	$38
 	LDA $A7				; A3EC	$A5 $A7
@@ -2183,7 +2191,7 @@ A3B4:
 	LDA #$00			; A3F2	$A9 $00
 A3F4:
 	STA $A7				; A3F4	$85 $A7
-	JMP $A406			; A3F6	$4C $06 $A4
+	JMP A406			; A3F6	$4C $06 $A4
 A3F9:
 	CLC				; A3F9	$18
 A3FA:
@@ -2196,6 +2204,7 @@ A3FE:
 	LDA #$98			; A402	$A9 $98
 A404:
 	STA $A7				; A404	$85 $A7
+A406:
 	LDX #$03			; A406	$A2 $03
 A408:
 	LDA $A474,X			; A408	$BD $74 $A4
@@ -2652,6 +2661,7 @@ L1672B:
 	LDA #$00			; A74B	$A9 $00		top left window
 	STA $64				; A74D	$85 $64
 	JSR L16A57			; A74F	$20 $57 $AA	open message window
+L16A752:
 	JSR Wait_NMI_end		; A752	$20 $46 $FD	start of message loop
 	JSR $A084			; A755	$20 $84 $A0
 	LDA #$B2			; A758	$A9 $B2		BANK 05/B295 (battle text)
@@ -2714,7 +2724,7 @@ L1679F:
 	JSR $AA48			; A7C6	$20 $48 $AA	close bottom message window
 	LDA $AD				; A7C9	$A5 $AD
 	BEQ L167D0			; A7CB	$F0 $03
-	JMP $A752			; A7CD	$4C $52 $A7
+	JMP L16A752			; A7CD	$4C $52 $A7
 L167D0:
 	JSR Wait_NMI_end		; A7D0	$20 $46 $FD	wait for first battlefield scanline
 	LDA #$00			; A7D3	$A9 $00		top left window
@@ -4124,12 +4134,14 @@ L16B8F:
 ;========== Sound effect code START ($BA00-$BB5E) ==========
 ;; [BA00 : 17A10]
 ; Name	:
-; Marks	:
-	JMP $BA34			; BA00 $4C $34 $BA
+; Marks	: Jump to Sound effect process
+	JMP SndEftProc			; BA00 $4C $34 $BA
 ; End of
 
-; Name	:
-; Marks	:
+; Name	: SetSndEftNum
+; A	: Sound effect number
+; Marks	: Sound effect
+SetSndEftNum:
 	PHA				; BA03	$48
 	LDA $6F60			; BA04	$AD $60 $6F
 	BEQ L17A2F			; BA07	$F0 $26
@@ -4158,29 +4170,45 @@ L17A2F:
 	PLA				; BA2F	$68
 	STA $6F60			; BA30	$8D $60 $6F
 	RTS				; BA33	$60
-; End of
+; End of SetSndEftNum
 
+;;----------------;;
+; Marks	: Sound effect process
+;	  $6F60 = Sound effect status register
+;		  (Bit.7 = Sound effect is playing,
+;		  Bit.6 = Sound effect initialization,
+;		  Bit.5-Bit.0 = Sound effect number)
+SndEftProc:
 	LDA $6F60			; BA34	$AD $60 $6F
 	ASL A				; BA37	$0A
 	BCS L17A40			; BA38	$B0 $06
 	ASL A				; BA3A	$0A
 	BCC L17A43			; BA3B	$90 $06
-	JSR $BA44			; BA3D	$20 $44 $BA
+	JSR GetSndEftChP		; BA3D	$20 $44 $BA	Get channel pointer (For sound effect initialization)
 L17A40:
-	JSR $BA6F			; BA40	$20 $6F $BA
+	JSR SndEftDataProc		; BA40	$20 $6F $BA	Get effect data and process
 L17A43:
 	RTS				; BA43	$60
-; End of
+; End of SndEftProc
 
-; Name	:
-; Marks	:
+; Name	: GetSndEftChP
+; Marks	: Get channel pointer (For sound effect initialization)
+;	  +$CA = current sound effect script pointer
+;	  $6F60 = Sound effect status register
+;	  $6F61 = Sound effect square channel 1 pointer Low
+;	  $6F62 = Sound effect square channel 1 pointer High
+;	  $6F63 = Sound effect noise channel pointer Low
+;	  $6F64 = Sound effect noise channel pointer High
+;	  $6F65 = Sound effect square channel 1 length ??
+;	  $6F66 = Sound effect noise channel length ??
+GetSndEftChP:
 	LDA $6F60			; BA44	$AD $60 $6F
 	AND #$3F			; BA47	$29 $3F
 	ASL				; BA49	$0A
 	TAX				; BA4A	$AA
-	LDA $BB5F,X			; BA4B	$BD $5F $BB
+	LDA SndEftTbl,X			; BA4B	$BD $5F $BB
 	STA $CA				; BA4E	$85 $CA
-	LDA $BB60,X			; BA50	$BD $60 $BB
+	LDA SndEftTbl+1,X		; BA50	$BD $60 $BB
 	STA $CB				; BA53	$85 $CB
 	LDY #$00			; BA55	$A0 $00
 L17A57:
@@ -4188,21 +4216,23 @@ L17A57:
 	STA $6F61,Y			; BA59	$99 $61 $6F
 	INY				; BA5C	$C8
 	CPY #$04			; BA5D	$C0 $04
-	BCC L17A57			; BA5F	$90 $F6
+	BCC L17A57			; BA5F	$90 $F6		loop
 	LDA #$00			; BA61	$A9 $00
 	STA $6F65			; BA63	$8D $65 $6F
 	STA $6F66			; BA66	$8D $66 $6F
 	LDA #$80			; BA69	$A9 $80
 	STA $6F60			; BA6B	$8D $60 $6F
 	RTS				; BA6E	$60
-; End of
+; End of GetSndEftChP
 
-; Name	:
-; Marks	:
+; Name	: SndEftDataProc
+; Marks	: Get effect data and process
+;	  $CC = current sound effect channel id (temp)
+SndEftDataProc:
 	LDA #$00			; BA6F	$A9 $00
-	STA $CC				; BA71	$85 $CC
+	STA $CC				; BA71	$85 $CC		current sound effect channel id
 L17A73:
-	LDA $CC				; BA73	$A5 $CC
+	LDA $CC				; BA73	$A5 $CC		current sound effect channel id
 	ASL				; BA75	$0A
 	TAX				; BA76	$AA
 	LDA $6F61,X			; BA77	$BD $61 $6F
@@ -4211,27 +4241,28 @@ L17A73:
 	STA $CB				; BA7F	$85 $CB
 	CMP #$FF			; BA81	$C9 $FF
 	BEQ L17AC3			; BA83	$F0 $3E
-	LDX $CC				; BA85	$A6 $CC
+	LDX $CC				; BA85	$A6 $CC		current sound effect channel id
 	LDA $6F65,X			; BA87	$BD $65 $6F
 	BNE L17ABE			; BA8A	$D0 $32
-	JSR $BACC			; BA8C	$20 $CC $BA
+L17A8C:
+	JSR GetSndEftData		; BA8C	$20 $CC $BA	Get effect data
 	CMP #$FF			; BA8F	$C9 $FF
 	BNE L17A99			; BA91	$D0 $06
-	JSR $BAD7			; BA93	$20 $D7 $BA
-	JMP $BAC3			; BA96	$4C $C3 $BA
+	JSR SndEftEnd			; BA93	$20 $D7 $BA
+	JMP L17AC3			; BA96	$4C $C3 $BA
 L17A99:
 	CMP #$FE			; BA99	$C9 $FE
 	BNE L17AA3			; BA9B	$D0 $06
-	JSR $BB10			; BA9D	$20 $10 $BB
-	JMP $BA8C			; BAA0	$4C $8C $BA
+	JSR SetSndEftJump		; BA9D	$20 $10 $BB
+	JMP L17A8C			; BAA0	$4C $8C $BA
 L17AA3:
 	CMP #$00			; BAA3	$C9 $00
 	BNE L17AAD			; BAA5	$D0 $06
-	JSR $BB2A			; BAA7	$20 $2A $BB
-	JMP $BA8C			; BAAA	$4C $8C $BA
+	JSR SetSndEftL			; BAA7	$20 $2A $BB	Set effect length
+	JMP L17A8C			; BAAA	$4C $8C $BA
 L17AAD:
-	JSR $BB33			; BAAD	$20 $33 $BB
-	LDA $CC				; BAB0	$A5 $CC
+	JSR SetSndEftReg		; BAAD	$20 $33 $BB	Set APU registers
+	LDA $CC				; BAB0	$A5 $CC		current sound effect channel id
 	ASL				; BAB2	$0A
 	TAX				; BAB3	$AA
 	LDA $CA				; BAB4	$A5 $CA
@@ -4239,18 +4270,19 @@ L17AAD:
 	LDA $CB				; BAB9	$A5 $CB
 	STA $6F62,X			; BABB	$9D $62 $6F
 L17ABE:
-	LDX $CC				; BABE	$A6 $CC
+	LDX $CC				; BABE	$A6 $CC		current sound effect channel id
 	DEC $6F65,X			; BAC0	$DE $65 $6F
 L17AC3:
-	INC $CC				; BAC3	$E6 $CC
-	LDA $CC				; BAC5	$A5 $CC
+	INC $CC				; BAC3	$E6 $CC		current sound effect channel id (Channel 1 -> Noise)
+	LDA $CC				; BAC5	$A5 $CC		current sound effect channel id
 	CMP #$02			; BAC7	$C9 $02
-	BCC L17A73			; BAC9	$90 $A8
+	BCC L17A73			; BAC9	$90 $A8		loop
 	RTS				; BACB	$60
-; End of
+; End of SndEftDataProc
 
-; Name	:
-; Marks	:
+; Name	: GetSndEftData
+; Marks	: Get effect data and increase effect data pointer
+GetSndEftData:
 	LDY #$00			; BACC	$A0 $00
 	LDA ($CA),Y			; BACE	$B1 $CA
 	INC $CA				; BAD0	$E6 $CA
@@ -4260,9 +4292,10 @@ L17AD6:
 	RTS				; BAD6	$60
 ; End of
 
-; Name	:
-; Marks	:
-	LDA $CC				; BAD7	$A5 $CC
+; Name	: SndEftEnd
+; Marks	: Effect end
+SndEftEnd:
+	LDA $CC				; BAD7	$A5 $CC		current sound effect channel id
 	ASL				; BAD9	$0A
 	TAX				; BADA	$AA
 	LDA #$FF			; BADB	$A9 $FF
@@ -4278,28 +4311,31 @@ L17AE5:
 	LDA #$00			; BAEF	$A9 $00
 	STA $6F60			; BAF1	$8D $60 $6F
 L17AF4:
-	LDA $CC				; BAF4	$A5 $CC
+	LDA $CC				; BAF4	$A5 $CC		current sound effect channel id
 	BNE L17AFD			; BAF6	$D0 $05
 	LDX #$04			; BAF8	$A2 $04
-	JMP $BAFF			; BAFA	$4C $FF $BA
+	JMP L17AFF			; BAFA	$4C $FF $BA
 L17AFD:
 	LDX #$0C			; BAFD	$A2 $0C
+L17AFF:
 	LDA #$30			; BAFF	$A9 $30
-	STA $4000,X			; BB01	$9D $00 $40
+	STA Sq0Duty_4000,X		; BB01	$9D $00 $40
 	LDA #$00			; BB04	$A9 $00
-	STA $4001,X			; BB06	$9D $01 $40
-	STA $4002,X			; BB09	$9D $02 $40
-	STA $4003,X			; BB0C	$9D $03 $40
+	STA Sq0Sweep_4001,X		; BB06	$9D $01 $40
+	STA Sq0Timer_4002,X		; BB09	$9D $02 $40
+	STA Sq0Length_4003,X		; BB0C	$9D $03 $40
 	RTS				; BB0F	$60
 ; End of
 
-; Name	:
-; Marks	:
-	JSR $BACC			; BB10	$20 $CC $BA
+; Name	: SetSndEftJump
+; Marks	: Set pointer for JUMP
+;	  $6F67,X = effect repeat count
+SetSndEftJump:
+	JSR GetSndEftData		; BB10	$20 $CC $BA	Get effect data
 	STA $CD				; BB13	$85 $CD
-	JSR $BACC			; BB15	$20 $CC $BA
+	JSR GetSndEftData		; BB15	$20 $CC $BA	Get effect data
 	STA $CE				; BB18	$85 $CE
-	LDX $CC				; BB1A	$A6 $CC
+	LDX $CC				; BB1A	$A6 $CC		current sound effect channel id
 	DEC $6F67,X			; BB1C	$DE $67 $6F
 	BEQ L17B29			; BB1F	$F0 $08
 	LDA $CD				; BB21	$A5 $CD
@@ -4310,35 +4346,41 @@ L17B29:
 	RTS				; BB29	$60
 ; End of
 
-; Name	:
-; Marks	:
-	JSR $BACC			; BB2A	$20 $CC $BA  
-	LDX $CC				; BB2D	$A6 $CC     
+; Name	: SetSndEftL
+; Marks	: Set effect length
+;	  $6F67,X = effect length
+SetSndEftL:
+	JSR GetSndEftData		; BB2A	$20 $CC $BA	Get effect data
+	LDX $CC				; BB2D	$A6 $CC		current sound effect channel id     
 	STA $6F67,X			; BB2F	$9D $67 $6F  
 	RTS				; BB32	$60        
 ; End of
 
-; Name	:
-; Marks	:
-	LDX $CC				; BB33	$A6 $CC
+; Name	: SetSndEftReg
+; A	: Sound effect data($01-$FD)
+; Marks	: Set APU registers
+;	  $CD = loop counter temp
+SetSndEftReg:
+	LDX $CC				; BB33	$A6 $CC		current sound effect channel id
 	BNE L17B39			; BB35	$D0 $02
-	STA $E5				; BB37	$85 $E5
+	STA $E5				; BB37	$85 $E5		Sound effect counter (mute square 2 music channel)
 L17B39:
 	STA $6F65,X			; BB39	$9D $65 $6F
-	LDA $4015			; BB3C	$AD $15 $40
+	LDA ApuStatus_4015		; BB3C	$AD $15 $40
 	ORA #$0F			; BB3F	$09 $0F
-	STA $4015			; BB41	$8D $15 $40
-	LDA $CC				; BB44	$A5 $CC
+	STA ApuStatus_4015		; BB41	$8D $15 $40
+	LDA $CC				; BB44	$A5 $CC		current sound effect channel id
 	BNE L17B4D			; BB46	$D0 $05
 	LDX #$04			; BB48	$A2 $04
-	JMP $BB4F			; BB4A	$4C $4F $BB
+	JMP L17B4F			; BB4A	$4C $4F $BB
 L17B4D:
 	LDX #$0C			; BB4D	$A2 $0C
+L17B4F:
 	LDA #$04			; BB4F	$A9 $04
 	STA $CD				; BB51	$85 $CD
 L17B53:
-	JSR $BACC			; BB53	$20 $CC $BA
-	STA $4000,X			; BB56	$9D $00 $40
+	JSR GetSndEftData		; BB53	$20 $CC $BA	Get effect data
+	STA Sq0Duty_4000,X		; BB56	$9D $00 $40
 	INX				; BB59	$E8
 	DEC $CD				; BB5A	$C6 $CD
 	BNE L17B53			; BB5C	$D0 $F5
@@ -4350,165 +4392,412 @@ L17B53:
 
 
 ; ========== Pointers to sound effect scripts ($BB5F-$BBA0) START ==========
-.byte $A1,$BB				; 0
-.byte $B0,$BB				; 1
-.byte $C5,$BB				; 2
-.byte $DF,$BB				; 3
-.byte $FE,$BB				; 4
-.byte $36,$BC				; 5
-.byte $5A,$BC				; 6
-.byte $6F,$BC				; 7
-.byte $A7,$BC				; 8
-.byte $DF,$BC				; 9
-.byte $17,$BD				; 10
-.byte $36,$BD				; 11
-.byte $54,$BD				; 12
-.byte $87,$BD				; 13
-.byte $A0,$BD				; 14
-.byte $B9,$BD				; 15
-.byte $D2,$BD				; 16
-.byte $E7,$BD				; 17
+SndEftTbl:
+.word SNDE_00				;.byte $A1,$BB				; 0
+.word SNDE_01				;.byte $B0,$BB				; 1
+.word SNDE_02				;.byte $C5,$BB				; 2
+.word SNDE_03				;.byte $DF,$BB				; 3
+.word SNDE_04				;.byte $FE,$BB				; 4
+.word SNDE_05				;.byte $36,$BC				; 5
+.word SNDE_06				;.byte $5A,$BC				; 6
+.word SNDE_07				;.byte $6F,$BC				; 7
+.word SNDE_08				;.byte $A7,$BC				; 8
+.word SNDE_09				;.byte $DF,$BC				; 9
+.word SNDE_10				;.byte $17,$BD				; 10
+.word SNDE_11				;.byte $36,$BD				; 11
+.word SNDE_12				;.byte $54,$BD				; 12
+.word SNDE_13				;.byte $87,$BD				; 13
+.word SNDE_14				;.byte $A0,$BD				; 14
+.word SNDE_15				;.byte $B9,$BD				; 15
+.word SNDE_16				;.byte $D2,$BD				; 16
+.word SNDE_17				;.byte $E7,$BD				; 17
 .byte $00,$00				; 18
-.byte $00,$BE				; 19
-.byte $19,$BE				; 20
-.byte $37,$BE				; 21
-.byte $55,$BE				; 22
-.byte $8D,$BE				; 23
-.byte $C5,$BE				; 24
-.byte $F3,$BE				; 25
+.word SNDE_19				;.byte $00,$BE				; 19
+.word SNDE_20				;.byte $19,$BE				; 20
+.word SNDE_21				;.byte $37,$BE				; 21
+.word SNDE_22				;.byte $55,$BE				; 22
+.word SNDE_23				;.byte $8D,$BE				; 23
+.word SNDE_24				;.byte $C5,$BE				; 24
+.word SNDE_25				;.byte $F3,$BE				; 25
 .byte $00,$00				; 26
 .byte $00,$00				; 27
-.byte $2B,$BF				; 28
-.byte $44,$BF				; 29
+.word SNDE_28				;.byte $2B,$BF				; 28
+.word SNDE_29				;.byte $44,$BF				; 29
 .byte $00,$00				; 30
-.byte $62,$BF				; 31
-.byte $CC,$BF				; 32
+.word SNDE_31				;.byte $62,$BF				; 31
+.word SNDE_32				;.byte $CC,$BF				; 32
 ; ========== Pointers to sound effect scripts ($BB5F-$BBA0) END ==========
 
 
 ; ========== sound effect scripts (33 items) ($BBA1-$BBFF) START ==========
-; $BBA1- = 00
-.byte $FF,$FF,$A5,$BB,$03,$3F,$00,$09,$08,$04,$3F,$00,$03,$08,$FF
-; $BBB0- = 01
-.byte $B4,$BB,$BA,$BB,$04,$BF,$81,$B0,$08,$FF,$04,$3F,$00,$06,$08,$04
-.byte $3E,$00,$03,$08,$FF
-; $BBC5- = 02
-.byte $C9,$BB,$D4,$BB,$04,$BE,$83,$7F,$09,$03,$3D
-.byte $81,$25,$0B,$FF,$04,$3F,$00,$0E,$08,$04,$3F,$00,$07,$08,$FF
-; $BBDF- = 03
-.byte $E3
-.byte $BB,$EE,$BB,$05,$3F,$91,$00,$09,$06,$FF,$8B,$90,$0A,$FF,$03,$3F
-.byte $00,$06,$08,$05,$3F,$00,$0E,$08,$05,$3F,$00,$05,$08,$FF
-; $BBFE0 = 04
-.byte $02,$BC
-.byte $1C,$BC,$0A,$7F,$83,$10,$09,$0A,$7D,$83,$10,$09,$0A,$7A,$83,$10
-.byte $09,$0A,$76,$83,$10,$09,$0A,$73,$83,$10,$09,$FF,$0A,$3F,$00,$02
-.byte $08,$0A,$3D,$00,$02,$08,$0A,$3A,$00,$02,$08,$0A,$38,$00,$02,$08
+;----------
+SNDE_00:				; $BBA1- = 00 - Hit
+.byte $FF,$FF				; Channel 1 pointer
+.word SNDE_00_NOI			; $A5 $BB - Noise pointer
+SNDE_00_NOI:				; Length(if not 00h), $4004(C),$4005(D),$4006(E),$4007(F),FFh is end
+.byte $03,$3F,$00,$09,$08
+.byte $04,$3F,$00,$03,$08,$FF
+;----------
+SNDE_01:				; $BBB0- = 01 - Hit
+.word SNDE_01_CH1			; $B4,$BB
+.word SNDE_01_NOI			; $BA,$BB
+SNDE_01_CH1:
+.byte $04,$BF,$81,$B0,$08,$FF
+SNDE_01_NOI:
+.byte $04,$3F,$00,$06,$08
+.byte $04,$3E,$00,$03,$08,$FF
+;----------
+SNDE_02:				; $BBC5- = 02 - Hit
+.word SNDE_02_CH1			; $C9 $BB
+.word SNDE_02_NOI			; $D4 $BB
+SNDE_02_CH1:
+.byte $04,$BE,$83,$7F,$09
+.byte $03,$3D,$81,$25,$0B,$FF
+SNDE_02_NOI:
+.byte $04,$3F,$00,$0E,$08
+.byte $04,$3F,$00,$07,$08,$FF
+;----------
+SNDE_03:				; $BBDF- = 03 - Hit with sword
+.word SNDE_03_CH1			; $E3 $BB
+.word SNDE_03_NOI			; $EE $BB
+SNDE_03_CH1:
+.byte $05,$3F,$91,$00,$09
+.byte $06,$FF,$8B,$90,$0A,$FF
+SNDE_03_NOI:
+.byte $03,$3F,$00,$06,$08
+.byte $05,$3F,$00,$0E,$08
+.byte $05,$3F,$00,$05,$08,$FF
+;----------
+SNDE_04:				; $BBFE0 = 04 - Monster eliminating
+.word SNDE_04_CH1			; $02 $BC
+.word SNDE_04_NOI			; $1C $BC
+SNDE_04_CH1:
+.byte $0A,$7F,$83,$10,$09
+.byte $0A,$7D,$83,$10,$09
+.byte $0A,$7A,$83,$10,$09
+.byte $0A,$76,$83,$10,$09
+.byte $0A,$73,$83,$10,$09,$FF
+SNDE_04_NOI:
+.byte $0A,$3F,$00,$02,$08
+.byte $0A,$3D,$00,$02,$08
+.byte $0A,$3A,$00,$02,$08
+.byte $0A,$38,$00,$02,$08
 .byte $0A,$34,$00,$02,$08,$FF
-; $BC36- = 05
-.byte $3A,$BC,$4A,$BC,$05,$3F,$81,$3A,$08,$04
-.byte $BD,$83,$4A,$08,$05,$F4,$8A,$30,$08,$FF,$01,$30,$00,$00,$08,$01
-.byte $30,$00,$00,$08,$03,$3E,$00,$05,$08,$FF
-; $BC5A- = 06
-.byte $5E,$BC,$64,$BC,$04,$3F
-.byte $82,$E0,$08,$FF,$04,$3F,$00,$09,$08,$02,$3F,$00,$03,$08,$FF
-; $BC6F- = 07
-.byte $73
-.byte $BC,$8D,$BC,$03,$7D,$8B,$80,$09,$05,$FF,$92,$50,$0A,$06,$00,$00
-.byte $00,$08,$03,$FD,$83,$00,$09,$06,$FF,$8B,$00,$0B,$FF,$03,$3F,$00
-.byte $0B,$08,$04,$3F,$00,$06,$08,$07,$00,$00,$00,$08,$04,$3F,$00,$0D
-.byte $08,$06,$3F,$00,$06,$08,$FF
-; $BCA7- = 08
-.byte $AB,$BC,$C5,$BC,$06,$74,$9A,$20,$0A
-.byte $06,$76,$9A,$00,$09,$06,$79,$9A,$BA,$09,$06,$7D,$9A,$85,$09,$06
-.byte $7F,$9A,$50,$09,$FF,$05,$36,$00,$0B,$08,$05,$36,$00,$09,$08,$06
-.byte $35,$00,$07,$08,$06,$37,$00,$05,$08,$06,$3F,$00,$03,$08,$FF
-; $BCDF- = 09
-.byte $E3
-.byte $BC,$FD,$BC,$04,$3F,$9B,$20,$08,$04,$3F,$83,$20,$08,$04,$3F,$9B
-.byte $20,$08,$04,$3F,$83,$20,$08,$04,$3F,$9B,$20,$08,$FF,$04,$37,$00
-.byte $05,$08,$04,$39,$00,$03,$08,$04,$3C,$00,$05,$08,$04,$3E,$00,$03
-.byte $08,$04,$3F,$00,$05,$08,$FF
-; $BD17- = 10
-.byte $1B,$BD,$2B,$BD,$05,$BF,$83,$A0,$0A
-.byte $05,$BC,$83,$C0,$0A,$05,$B7,$83,$00,$0B,$FF,$03,$3A,$00,$0D,$08
+;----------
+SNDE_05:				; $BC36- = 05 - Bow shot
+.word SNDE_05_CH1			; $3A $BC
+.word SNDE_05_NOI			; $4A $BC
+SNDE_05_CH1:
+.byte $05,$3F,$81,$3A,$08
+.byte $04,$BD,$83,$4A,$08
+.byte $05,$F4,$8A,$30,$08,$FF
+SNDE_05_NOI:
+.byte $01,$30,$00,$00,$08
+.byte $01,$30,$00,$00,$08
+.byte $03,$3E,$00,$05,$08,$FF
+;----------
+SNDE_06:				; $BC5A- = 06 - Hit arrow
+.word SNDE_06_CH1			; $5E $BC
+.word SNDE_06_NOI			; $64 $BC
+SNDE_06_CH1:
+.byte $04,$3F,$82,$E0,$08,$FF
+SNDE_06_NOI:
+.byte $04,$3F,$00,$09,$08
+.byte $02,$3F,$00,$03,$08,$FF
+;----------
+SNDE_07:				; $BC6F- = 07 - Hit from enemy attacks as critical
+.word SNDE_07_CH1			; $73 $BC
+.word SNDE_07_NOI			; $8D $BC
+SNDE_07_CH1:
+.byte $03,$7D,$8B,$80,$09
+.byte $05,$FF,$92,$50,$0A
+.byte $06,$00,$00,$00,$08
+.byte $03,$FD,$83,$00,$09
+.byte $06,$FF,$8B,$00,$0B,$FF
+SNDE_07_NOI:
+.byte $03,$3F,$00,$0B,$08
+.byte $04,$3F,$00,$06,$08
+.byte $07,$00,$00,$00,$08
+.byte $04,$3F,$00,$0D,$08
+.byte $06,$3F,$00,$06,$08,$FF
+;----------
+SNDE_08:				; $BCA7- = 08 - Magic ready
+.word SNDE_08_CH1			; $AB,$BC
+.word SNDE_08_NOI			; $C5,$BC
+SNDE_08_CH1:
+.byte $06,$74,$9A,$20,$0A
+.byte $06,$76,$9A,$00,$09
+.byte $06,$79,$9A,$BA,$09
+.byte $06,$7D,$9A,$85,$09
+.byte $06,$7F,$9A,$50,$09,$FF
+SNDE_08_NOI:
+.byte $05,$36,$00,$0B,$08
+.byte $05,$36,$00,$09,$08
+.byte $06,$35,$00,$07,$08
+.byte $06,$37,$00,$05,$08
+.byte $06,$3F,$00,$03,$08,$FF
+;----------
+SNDE_09:				; $BCDF- = 09 - Magic blizzard
+.word SNDE_09_CH1			; $E3 $BC
+.word SNDE_09_NOI			; $FD $BC
+SNDE_09_CH1:
+.byte $04,$3F,$9B,$20,$08
+.byte $04,$3F,$83,$20,$08
+.byte $04,$3F,$9B,$20,$08
+.byte $04,$3F,$83,$20,$08
+.byte $04,$3F,$9B,$20,$08,$FF
+SNDE_09_NOI:
+.byte $04,$37,$00,$05,$08
+.byte $04,$39,$00,$03,$08
+.byte $04,$3C,$00,$05,$08
+.byte $04,$3E,$00,$03,$08
+.byte $04,$3F,$00,$05,$08,$FF
+;----------
+SNDE_10:				; $BD17- = 10 - Hit from enemy
+.word SNDE_10_CH1			; $1B $BD
+.word SNDE_10_NOI			; $2B $BD
+SNDE_10_CH1:
+.byte $05,$BF,$83,$A0,$0A
+.byte $05,$BC,$83,$C0,$0A
+.byte $05,$B7,$83,$00,$0B,$FF
+SNDE_10_NOI:
+.byte $03,$3A,$00,$0D,$08
 .byte $04,$3C,$00,$0F,$08,$FF
-; $BD36- = 11
-.byte $FF,$FF,$3A,$BD,$09,$39,$00,$0E,$08,$09
-.byte $3C,$00,$0E,$08,$09,$3F,$00,$0E,$08,$09,$3C,$00,$0E,$08,$09,$39
-.byte $00,$0E,$08,$FF
-; $BD54- = 12
-.byte $58,$BD,$6D,$BD,$13,$00,$00,$00,$08,$05,$BC,$92
-.byte $50,$09,$00,$03,$02,$BC,$92,$50,$09,$FE,$64,$BD,$FF,$07,$3F,$00
-.byte $0E,$08,$07,$3D,$00,$06,$08,$07,$3F,$00,$0A,$08,$00,$02,$07,$3F
-.byte $00,$0D,$08,$FE,$7E,$BD,$FF
-; $BD87- = 13
-.byte $8B,$BD,$FF,$FF,$08,$BF,$8C,$5B,$08
-.byte $06,$7B,$8C,$47,$08,$06,$78,$8C,$39,$08,$06,$35,$8C,$33,$08,$FF
-; $BDA0- = 14
-.byte $A4,$BD,$FF,$FF,$09,$BF,$BA,$50,$08,$09,$BF,$BA,$3A,$08,$09,$BF
-.byte $BA,$2A,$08,$09,$BF,$BA,$1A,$08,$FF
-; $BDB9- = 15
-.byte $BD,$BD,$FF,$FF,$05,$BF,$00
-.byte $40,$0A,$08,$7C,$00,$40,$0A,$08,$77,$00,$40,$0A,$08,$74,$00,$40
-.byte $0A,$FF
-; $BDD2- = 16
-.byte $D6,$BD,$DC,$BD,$06,$FF,$83,$B0,$09,$FF,$0A,$3F,$00,$0E
-.byte $08,$0A,$3F,$00,$0F,$08,$FF
-; $BDE7- = 17
-.byte $EB,$BD,$FF,$FF,$0B,$78,$8B,$30,$09
-.byte $07,$78,$8B,$10,$09,$04,$7F,$8B,$F0,$08,$03,$7F,$8B,$C0,$08,$FF
-; $BE00- = 19
-.byte $04,$BE,$FF,$FF,$08,$76,$A2,$70,$0B,$08,$7F,$A2,$70,$0B,$08,$7F
-.byte $A2,$70,$0B,$08,$76,$A2,$70,$0B,$FF
-; $BE19- = 20
-.byte $1D,$BE,$FF,$FF,$04,$F5,$83
-.byte $E0,$08,$05,$F5,$83,$E0,$08,$06,$FA,$83,$E0,$08,$07,$FA,$83,$E0
-.byte $08,$07,$FF,$83,$E0,$08,$FF
-; $BE37- = 21
-.byte $3B,$BE,$FF,$FF,$01,$7F,$A4,$1A,$09
-.byte $10,$3F,$A4,$1A,$09,$10,$3B,$A4,$1A,$09,$10,$37,$A4,$1A,$09,$10
-.byte $33,$A4,$1A,$09,$FF
-; $BE55- = 22
-.byte $59,$BE,$73,$BE,$0A,$3F,$AB,$00,$0B,$0A,$3F
-.byte $AB,$00,$0B,$0A,$3F,$AB,$00,$0B,$0A,$3F,$AB,$00,$0B,$0A,$3F,$AB
-.byte $00,$0B,$FF,$0A,$33,$00,$09,$08,$0A,$36,$00,$08,$08,$0A,$37,$00
-.byte $0A,$08,$0A,$3C,$00,$0C,$08,$0A,$3F,$00,$0F,$08,$FF
-; $BE8D- = 23
-.byte $91,$BE,$AB
-.byte $BE,$10,$B9,$85,$2B,$08,$06,$B0,$00,$00,$08,$10,$BC,$85,$2B,$08
-.byte $06,$B0,$00,$00,$08,$10,$BF,$85,$2B,$08,$FF,$0C,$3F,$00,$00,$08
-.byte $0C,$3F,$00,$02,$08,$0C,$3F,$00,$04,$08,$0C,$3F,$00,$06,$08,$0C
-.byte $3F,$00,$08,$08,$FF
-; $BEC5- = 24
-.byte $C9,$BE,$DE,$BE,$08,$7F,$C2,$00,$0C,$03,$3F
-.byte $9B,$00,$0A,$01,$7F,$9C,$00,$0B,$09,$3F,$95,$00,$09,$FF,$04,$3F
-.byte $00,$0F,$08,$04,$3F,$00,$09,$08,$04,$3F,$00,$0D,$08,$08,$3F,$00
-.byte $05,$08,$FF
-; $BEF3- = 25
-.byte $F7,$BE,$11,$BF,$06,$F6,$B2,$00,$0A,$06,$BB,$92,$90
-.byte $09,$08,$3F,$9B,$A0,$0A,$06,$BB,$92,$90,$09,$06,$F6,$D2,$00,$0A
-.byte $FF,$06,$35,$00,$04,$08,$06,$38,$00,$06,$08,$08,$3D,$00,$0B,$08
-.byte $06,$38,$00,$06,$08,$06,$35,$00,$04,$08,$FF
-; $BF2B- = 28
-.byte $2F,$BF,$FF,$FF,$0F
-.byte $BF,$9B,$00,$0F,$0F,$7F,$9B,$00,$0D,$0F,$3F,$9B,$00,$0B,$0F,$BF
-.byte $9B,$00,$09,$FF
-; $BF44- = 29
-.byte $FF,$FF,$48,$BF,$06,$00,$00,$05,$08,$06,$00,$00
-.byte $04,$08,$06,$00,$00,$03,$08,$06,$00,$00,$02,$08,$06,$00,$00,$01
-.byte $08,$FF
-; $BF62- = 31
-.byte $66,$BF,$99,$BF,$05,$F6,$8B,$80,$0C,$0B,$77,$93,$00,$0A
-.byte $05,$F8,$8B,$80,$0C,$0B,$7B,$93,$00,$0A,$05,$FD,$8B,$80,$0C,$0B
-.byte $7F,$93,$00,$0A,$05,$FC,$8B,$80,$0C,$0B,$7A,$93,$00,$0A,$05,$F7
-.byte $8B,$80,$0C,$0B,$74,$93,$00,$0A,$FF,$07,$33,$00,$0F,$08,$07,$35
-.byte $00,$0C,$08,$07,$37,$00,$0F,$08,$07,$39,$00,$0C,$08,$07,$3C,$00
-.byte $0F,$08,$07,$3F,$00,$0C,$08,$07,$3B,$00,$0F,$08,$07,$39,$00,$0C
-.byte $08,$07,$36,$00,$0F,$08,$07,$33,$00,$0C,$08,$FF
-; $BFCC- = 32
-.byte $D0,$BF,$E5,$BF
-.byte $00,$03,$02,$08,$DB,$00,$09,$02,$F6,$94,$03,$0B,$06,$BD,$94,$65
-.byte $0A,$FE,$D2,$BF,$FF,$00,$03,$09,$0C,$00,$09,$08,$03,$04,$00,$0E
-.byte $08,$02,$0D,$00,$09,$08,$FE,$E7,$BF,$FF,$FF,$7F,$FF,$FD,$7D,$FF
+;----------
+SNDE_11:				; $BD36- = 11 - Magic fire
+.word $FFFF				; $FF $FF
+.word SNDE_11_NOI			; $3A $BD
+SNDE_11_NOI:
+.byte $09,$39,$00,$0E,$08
+.byte $09,$3C,$00,$0E,$08
+.byte $09,$3F,$00,$0E,$08
+.byte $09,$3C,$00,$0E,$08
+.byte $09,$39,$00,$0E,$08,$FF
+;----------
+SNDE_12:				; $BD54- = 12 - Magic Thunder
+.word SNDE_12_CH1			; $58 $BD
+.word SNDE_12_NOI			; $6D $BD
+SNDE_12_CH1:
+.byte $13,$00,$00,$00,$08
+.byte $05,$BC,$92,$50,$09
+.byte $00,$03
+SNDE_12_CH1_R:
+.byte $02,$BC,$92,$50,$09
+.byte JUMP				; $FE $64 $BD
+.word SNDE_12_CH1_R
+.byte $FF
+SNDE_12_NOI:
+.byte $07,$3F,$00,$0E,$08
+.byte $07,$3D,$00,$06,$08
+.byte $07,$3F,$00,$0A,$08
+.byte $00,$02
+SNDE_12_NOI_R:
+.byte $07,$3F,$00,$0D,$08
+.byte JUMP				; $FE $7E $BD
+.word SNDE_12_NOI_R
+.byte $FF
+;----------
+SNDE_13:				; $BD87- = 13
+.word SNDE_13_CH1			; $8B $BD
+.word $FFFF				; $FF $FF
+SNDE_13_CH1:
+.byte $08,$BF,$8C,$5B,$08
+.byte $06,$7B,$8C,$47,$08
+.byte $06,$78,$8C,$39,$08
+.byte $06,$35,$8C,$33,$08,$FF
+;----------
+SNDE_14:				; $BDA0- = 14 - Magic cure
+.word SNDE_14_CH1			; $A4 $BD
+.word $FFFF				; $FF $FF
+SNDE_14_CH1:
+.byte $09,$BF,$BA,$50,$08
+.byte $09,$BF,$BA,$3A,$08
+.byte $09,$BF,$BA,$2A,$08
+.byte $09,$BF,$BA,$1A,$08,$FF
+;----------
+SNDE_15:				; $BDB9- = 15
+.word SNDE_15_CH1			; $BD $BD
+.word $FFFF				; $FF $FF
+SNDE_15_CH1:
+.byte $05,$BF,$00,$40,$0A
+.byte $08,$7C,$00,$40,$0A
+.byte $08,$77,$00,$40,$0A
+.byte $08,$74,$00,$40,$0A,$FF
+;----------
+SNDE_16:				; $BDD2- = 16 - Magic explosion ??
+.word SNDE_16_CH1			; $D6 $BD
+.word SNDE_16_NOI			; $DC $BD
+SNDE_16_CH1:
+.byte $06,$FF,$83,$B0,$09,$FF
+SNDE_16_NOI:
+.byte $0A,$3F,$00,$0E,$08
+.byte $0A,$3F,$00,$0F,$08,$FF
+;----------
+SNDE_17:				; $BDE7- = 17 - Magic toad ??
+.word SNDE_17_CH1			; $EB $BD
+.word $FFFF				; $FF $FF
+SNDE_17_CH1:
+.byte $0B,$78,$8B,$30,$09
+.byte $07,$78,$8B,$10,$09
+.byte $04,$7F,$8B,$F0,$08
+.byte $03,$7F,$8B,$C0,$08,$FF
+;----------
+SNDE_19:				; $BE00- = 19
+.word SNDE_19_CH1			; $04 $BE
+.word $FFFF				; $FF $FF
+SNDE_19_CH1:
+.byte $08,$76,$A2,$70,$0B
+.byte $08,$7F,$A2,$70,$0B
+.byte $08,$7F,$A2,$70,$0B
+.byte $08,$76,$A2,$70,$0B,$FF
+;----------
+SNDE_20:				; $BE19- = 20 - Magic sleep/blind
+.word SNDE_20_CH1			; $1D $BE
+.word $FFFF				; $FF $FF
+SNDE_20_CH1:
+.byte $04,$F5,$83,$E0,$08
+.byte $05,$F5,$83,$E0,$08
+.byte $06,$FA,$83,$E0,$08
+.byte $07,$FA,$83,$E0,$08
+.byte $07,$FF,$83,$E0,$08,$FF
+;----------
+SNDE_21:				; $BE37- = 21 - UFO ??
+.word SNDE_21_CH1			; $3B $BE
+.word $FFFF				; $FF $FF
+SNDE_21_CH1:
+.byte $01,$7F,$A4,$1A,$09
+.byte $10,$3F,$A4,$1A,$09
+.byte $10,$3B,$A4,$1A,$09
+.byte $10,$37,$A4,$1A,$09
+.byte $10,$33,$A4,$1A,$09,$FF
+;----------
+SNDE_22:				; $BE55- = 22 - Explosion ??
+.word SNDE_22_CH1			; $59 $BE
+.word SNDE_22_NOI			; $73 $BE
+SNDE_22_CH1:
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B,$FF
+SNDE_22_NOI:
+.byte $0A,$33,$00,$09,$08
+.byte $0A,$36,$00,$08,$08
+.byte $0A,$37,$00,$0A,$08
+.byte $0A,$3C,$00,$0C,$08
+.byte $0A,$3F,$00,$0F,$08,$FF
+;----------
+SNDE_23:				; $BE8D- = 23 - Meteo ??
+.word SNDE_23_CH1			; $91 $BE
+.word SNDE_23_NOI			; $AB $BE
+SNDE_23_CH1:
+.byte $10,$B9,$85,$2B,$08
+.byte $06,$B0,$00,$00,$08
+.byte $10,$BC,$85,$2B,$08
+.byte $06,$B0,$00,$00,$08
+.byte $10,$BF,$85,$2B,$08,$FF
+SNDE_23_NOI:
+.byte $0C,$3F,$00,$00,$08
+.byte $0C,$3F,$00,$02,$08
+.byte $0C,$3F,$00,$04,$08
+.byte $0C,$3F,$00,$06,$08
+.byte $0C,$3F,$00,$08,$08,$FF
+;----------
+SNDE_24:				; $BEC5- = 24 - Explosion ??
+.word SNDE_24_CH1			; $C9 $BE
+.word SNDE_24_NOI			; $DE $BE
+SNDE_24_CH1:
+.byte $08,$7F,$C2,$00,$0C
+.byte $03,$3F,$9B,$00,$0A
+.byte $01,$7F,$9C,$00,$0B
+.byte $09,$3F,$95,$00,$09,$FF
+SNDE_24_NOI:
+.byte $04,$3F,$00,$0F,$08
+.byte $04,$3F,$00,$09,$08
+.byte $04,$3F,$00,$0D,$08
+.byte $08,$3F,$00,$05,$08,$FF
+;----------
+SNDE_25:				; $BEF3- = 25 - Magic flair ??
+.word SNDE_25_CH1			; $F7 $BE
+.word SNDE_25_NOI			; $11 $BF
+SNDE_25_CH1:
+.byte $06,$F6,$B2,$00,$0A
+.byte $06,$BB,$92,$90,$09
+.byte $08,$3F,$9B,$A0,$0A
+.byte $06,$BB,$92,$90,$09
+.byte $06,$F6,$D2,$00,$0A,$FF
+SNDE_25_NOI:
+.byte $06,$35,$00,$04,$08
+.byte $06,$38,$00,$06,$08
+.byte $08,$3D,$00,$0B,$08
+.byte $06,$38,$00,$06,$08
+.byte $06,$35,$00,$04,$08,$FF
+;----------
+SNDE_28:				; $BF2B- = 28 - Upward ??
+.word SNDE_28_CH1			; $2F $BF
+.word $FFFF				; $FF $FF
+SNDE_28_CH1:
+.byte $0F,$BF,$9B,$00,$0F
+.byte $0F,$7F,$9B,$00,$0D
+.byte $0F,$3F,$9B,$00,$0B
+.byte $0F,$BF,$9B,$00,$09,$FF
+;----------
+SNDE_29:				; $BF44- = 29 - Run away
+.word $FFFF				; $FF $FF
+.word SNDE_29_NOI			; $48 $BF
+SNDE_29_NOI:
+.byte $06,$00,$00,$05,$08
+.byte $06,$00,$00,$04,$08
+.byte $06,$00,$00,$03,$08
+.byte $06,$00,$00,$02,$08
+.byte $06,$00,$00,$01,$08,$FF
+;----------
+SNDE_31:				; $BF62- = 31 - Explosion ??
+.word SNDE_31_CH1			; $66 $BF
+.word SNDE_31_NOI			; $99 $BF
+SNDE_31_CH1:
+.byte $05,$F6,$8B,$80,$0C
+.byte $0B,$77,$93,$00,$0A
+.byte $05,$F8,$8B,$80,$0C
+.byte $0B,$7B,$93,$00,$0A
+.byte $05,$FD,$8B,$80,$0C
+.byte $0B,$7F,$93,$00,$0A
+.byte $05,$FC,$8B,$80,$0C
+.byte $0B,$7A,$93,$00,$0A
+.byte $05,$F7,$8B,$80,$0C
+.byte $0B,$74,$93,$00,$0A,$FF
+SNDE_31_NOI:
+.byte $07,$33,$00,$0F,$08
+.byte $07,$35,$00,$0C,$08
+.byte $07,$37,$00,$0F,$08
+.byte $07,$39,$00,$0C,$08
+.byte $07,$3C,$00,$0F,$08
+.byte $07,$3F,$00,$0C,$08
+.byte $07,$3B,$00,$0F,$08
+.byte $07,$39,$00,$0C,$08
+.byte $07,$36,$00,$0F,$08
+.byte $07,$33,$00,$0C,$08,$FF
+;----------
+SNDE_32:				; $BFCC- = 32 - Magic flair
+.word SNDE_32_CH1			; $D0 $BF
+.word SNDE_32_NOI			; $E5 $BF
+SNDE_32_CH1:
+.byte $00,$03
+SNDE_32_CH1_R:
+.byte $02,$08,$DB,$00,$09
+.byte $02,$F6,$94,$03,$0B
+.byte $06,$BD,$94,$65,$0A
+.byte JUMP				; $FE,$D2,$BF
+.word SNDE_32_CH1_R
+.byte $FF
+SNDE_32_NOI:				; $BFE5
+.byte $00,$03
+SNDE_32_NOI_R:
+.byte $09,$0C,$00,$09,$08
+.byte $03,$04,$00,$0E,$08
+.byte $02,$0D,$00,$09,$08
+.byte JUMP				; $FE,$E7,$BF
+.word SNDE_32_NOI_R
+.byte $FF
+.byte $FF,$7F,$FF,$FD,$7D,$FF		; $BFFA- dummy ??
 ; ========== sound effect scripts (33 items) ($BBA1-$BBFF) END ==========

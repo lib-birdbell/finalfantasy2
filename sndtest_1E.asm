@@ -12,6 +12,9 @@ SONG_NO		= 2
 .import Clear_Nametable0		;F321
 .import Wait_NMI			;FE00
 
+.import MusicTbl_0A
+.import MusicTbl_0B
+
 .segment "BANK_1E"
 
 
@@ -392,7 +395,7 @@ SET_SPRITE:
 	LDA #$18			; Show sprites/background
 	STA PpuMask_2001		; ????  $8D $01 $20
 .if FF3_DRIVER
-	LDA #$01 
+	LDA #$01			; Init SONG_NO
 .else
 	LDA #$41
 .endif
@@ -402,17 +405,33 @@ SET_SPRITE:
 	STA oam_y
 	;added for FF3
 .if FF3_DRIVER
+;
+	LDA #$07
+	STA $8000
+	LDA #$2B
+	STA $8001
+;
 	JSR Init_sound
 	LDA #$00			; no sound effect
 	STA $7F49
+.if 1	; temp silence debug
 	LDA #SONG_NO			; 7 is Dreadful fight
 	STA $7F43			; song id
 	LDA #$01			; play new song
 	STA $7F42
+.else	; temp silence debug
+	LDA #$00
+	STA $7F43			; song id
+	LDA #$00			; silence
+	STA $7F42
+.endif
 	;LDA #$01
 	;STA $7F40
 	;
-.endif
+.else	; FF2
+	LDA #$00
+	STA $6F60
+.endif	; End of FF3_DRIVER
 MAIN_LOOP:
 	JSR Wait_NMI
 	LDA #$02			; 811A  $A9 $02		copy OAM buffer(200h) to PPU
@@ -519,8 +538,13 @@ Key_proc_A:
 	JMP Key_proc_B
 PROC_A_EFFECT:
 	LDA $83
+.if FF3_DRIVER
 	ORA #$80
 	STA $7F49
+.else	; FF2
+	ORA #$40
+	JSR SetSndEftNum
+.endif
 Key_proc_B:
 	LDA key1p
 	AND #$40
@@ -706,6 +730,7 @@ Get_udlr:
 ;	  $6F00 = tempo
 ;	  $6F06 = Sum of tempo
 Sound_proc:
+	JSR SndEftProc
 	LDA #$00			; 9800	$A9 $00
 	STA $C0				; 9802	$85 $C0
 	STA $C1				; 9804	$85 $C1
@@ -1448,6 +1473,677 @@ Update_APU_reg_next:
 	BCC Update_APU_reg_loop		; 9C6A	$90 $C3
 	RTS				; 9C6C	$60
 ; End of
+
+; BANK 05
+;========== Sound effect code START ($BA00-$BB5E) ==========
+;; [BA00 : 17A10]
+; Name	:
+; Marks	:
+	JMP $BA34			; BA00 $4C $34 $BA
+; End of
+
+; Name	:
+; A	: Sound effect number
+; Marks	: Sound effect
+SetSndEftNum:
+	PHA				; BA03	$48
+	LDA $6F60			; BA04	$AD $60 $6F
+	BEQ L17A2F			; BA07	$F0 $26
+	LDX #$00			; BA09	$A2 $00
+	LDY #$04			; BA0B	$A0 $04
+L17A0D:
+	LDA $6F62,X			; BA0D	$BD $62 $6F
+	CMP #$FF			; BA10	$C9 $FF
+	BEQ L17A24			; BA12	$F0 $10
+	LDA #$30			; BA14	$A9 $30
+	STA Sq0Duty_4000,Y		; BA16	$99 $00 $40
+	LDA #$00			; BA19	$A9 $00
+	STA Sq0Sweep_4001,Y		; BA1B	$99 $01 $40
+	STA Sq0Timer_4002,Y		; BA1E	$99 $02 $40
+	STA Sq0Length_4003,Y		; BA21	$99 $03 $40
+L17A24:
+	TYA				; BA24	$98
+	CLC				; BA25	$18
+	ADC #$08			; BA26	$69 $08
+	TAY				; BA28	$A8
+	INX				; BA29	$E8
+	INX				; BA2A	$E8
+	CPX #$04			; BA2B	$E0 $04
+	BCC L17A0D			; BA2D	$90 $DE
+L17A2F:
+	PLA				; BA2F	$68
+	STA $6F60			; BA30	$8D $60 $6F
+	RTS				; BA33	$60
+; End of
+
+;;----------------;;
+; Marks	: $6F60 = Sound effect status register
+;		  (Bit.7 = Sound effect is playing,
+;		  Bit.6 = Sound effect initialization,
+;		  Bit.5-Bit.0 = Sound effect number)
+SndEftProc:
+	LDA $6F60			; BA34	$AD $60 $6F
+	ASL A				; BA37	$0A
+	BCS L17A40			; BA38	$B0 $06
+	ASL A				; BA3A	$0A
+	BCC L17A43			; BA3B	$90 $06
+	JSR GetSndEftChP		; BA3D	$20 $44 $BA	Get channel pointer (For sound effect initialization)
+L17A40:
+	JSR SndEftDataProc		; BA40	$20 $6F $BA	Get effect data and process
+L17A43:
+	RTS				; BA43	$60
+; End of
+
+; Name	:
+; Marks	: Get channel pointer (For sound effect initialization)
+;	  +$CA = current sound effect script pointer
+;	  $6F60 = Sound effect status register
+;	  $6F61 = Sound effect square channel 1 pointer Low
+;	  $6F62 = Sound effect square channel 1 pointer High
+;	  $6F63 = Sound effect noise channel pointer Low
+;	  $6F64 = Sound effect noise channel pointer High
+;	  $6F65 = Sound effect square channel 1 length ??
+;	  $6F66 = Sound effect noise channel length ??
+GetSndEftChP:
+	LDA $6F60			; BA44	$AD $60 $6F
+	AND #$3F			; BA47	$29 $3F
+	ASL				; BA49	$0A
+	TAX				; BA4A	$AA
+	LDA SndEftTbl,X			; BA4B	$BD $5F $BB
+	STA $CA				; BA4E	$85 $CA
+	LDA SndEftTbl+1,X		; BA50	$BD $60 $BB
+	STA $CB				; BA53	$85 $CB
+	LDY #$00			; BA55	$A0 $00
+L17A57:
+	LDA ($CA),Y			; BA57	$B1 $CA
+	STA $6F61,Y			; BA59	$99 $61 $6F
+	INY				; BA5C	$C8
+	CPY #$04			; BA5D	$C0 $04
+	BCC L17A57			; BA5F	$90 $F6		loop
+	LDA #$00			; BA61	$A9 $00
+	STA $6F65			; BA63	$8D $65 $6F
+	STA $6F66			; BA66	$8D $66 $6F
+	LDA #$80			; BA69	$A9 $80
+	STA $6F60			; BA6B	$8D $60 $6F
+	RTS				; BA6E	$60
+; End of
+
+; Name	:
+; Marks	: Get effect data and process
+;	  $CC = current sound effect channel id (temp)
+SndEftDataProc:
+	LDA #$00			; BA6F	$A9 $00
+	STA $CC				; BA71	$85 $CC		current sound effect channel id
+L17A73:
+	LDA $CC				; BA73	$A5 $CC		current sound effect channel id
+	ASL				; BA75	$0A
+	TAX				; BA76	$AA
+	LDA $6F61,X			; BA77	$BD $61 $6F
+	STA $CA				; BA7A	$85 $CA
+	LDA $6F62,X			; BA7C	$BD $62 $6F
+	STA $CB				; BA7F	$85 $CB
+	CMP #$FF			; BA81	$C9 $FF
+	BEQ L17AC3			; BA83	$F0 $3E
+	LDX $CC				; BA85	$A6 $CC		current sound effect channel id
+	LDA $6F65,X			; BA87	$BD $65 $6F
+	BNE L17ABE			; BA8A	$D0 $32
+L17A8C:
+	JSR GetSndEftData		; BA8C	$20 $CC $BA	Get effect data
+	CMP #$FF			; BA8F	$C9 $FF
+	BNE L17A99			; BA91	$D0 $06
+	JSR SndEftEnd			; BA93	$20 $D7 $BA
+	JMP L17AC3			; BA96	$4C $C3 $BA
+L17A99:
+	CMP #$FE			; BA99	$C9 $FE
+	BNE L17AA3			; BA9B	$D0 $06
+	JSR SetSndEftJump		; BA9D	$20 $10 $BB
+	JMP L17A8C			; BAA0	$4C $8C $BA
+L17AA3:
+	CMP #$00			; BAA3	$C9 $00
+	BNE L17AAD			; BAA5	$D0 $06
+	JSR SetSndEftL			; BAA7	$20 $2A $BB	Set effect length
+	JMP L17A8C			; BAAA	$4C $8C $BA
+L17AAD:
+	JSR SetSndEftReg		; BAAD	$20 $33 $BB	Set APU registers
+	LDA $CC				; BAB0	$A5 $CC		current sound effect channel id
+	ASL				; BAB2	$0A
+	TAX				; BAB3	$AA
+	LDA $CA				; BAB4	$A5 $CA
+	STA $6F61,X			; BAB6	$9D $61 $6F
+	LDA $CB				; BAB9	$A5 $CB
+	STA $6F62,X			; BABB	$9D $62 $6F
+L17ABE:
+	LDX $CC				; BABE	$A6 $CC		current sound effect channel id
+	DEC $6F65,X			; BAC0	$DE $65 $6F
+L17AC3:
+	INC $CC				; BAC3	$E6 $CC		current sound effect channel id (Channel 1 -> Noise)
+	LDA $CC				; BAC5	$A5 $CC		current sound effect channel id
+	CMP #$02			; BAC7	$C9 $02
+	BCC L17A73			; BAC9	$90 $A8		loop
+	RTS				; BACB	$60
+; End of
+
+; Name	: GetSndEftData
+; Marks	: Get effect data and increase effect data pointer
+GetSndEftData:
+	LDY #$00			; BACC	$A0 $00
+	LDA ($CA),Y			; BACE	$B1 $CA
+	INC $CA				; BAD0	$E6 $CA
+	BNE L17AD6			; BAD2	$D0 $02
+	INC $CB				; BAD4	$E6 $CB
+L17AD6:
+	RTS				; BAD6	$60
+; End of
+
+; Name	: SndEftEnd
+; Marks	: Effect end
+SndEftEnd:
+	LDA $CC				; BAD7	$A5 $CC		current sound effect channel id
+	ASL				; BAD9	$0A
+	TAX				; BADA	$AA
+	LDA #$FF			; BADB	$A9 $FF
+	STA $6F61,X			; BADD	$9D $61 $6F
+	STA $6F62,X			; BAE0	$9D $62 $6F
+	LDX #$00			; BAE3	$A2 $00
+L17AE5:
+	CMP $6F61,X			; BAE5	$DD $61 $6F
+	BNE L17AF4			; BAE8	$D0 $0A
+	INX				; BAEA	$E8
+	CPX #$04			; BAEB	$E0 $04
+	BCC L17AE5			; BAED	$90 $F6
+	LDA #$00			; BAEF	$A9 $00
+	STA $6F60			; BAF1	$8D $60 $6F
+L17AF4:
+	LDA $CC				; BAF4	$A5 $CC		current sound effect channel id
+	BNE L17AFD			; BAF6	$D0 $05
+	LDX #$04			; BAF8	$A2 $04
+	JMP L17AFF			; BAFA	$4C $FF $BA
+L17AFD:
+	LDX #$0C			; BAFD	$A2 $0C
+L17AFF:
+	LDA #$30			; BAFF	$A9 $30
+	STA Sq0Duty_4000,X		; BB01	$9D $00 $40
+	LDA #$00			; BB04	$A9 $00
+	STA Sq0Sweep_4001,X		; BB06	$9D $01 $40
+	STA Sq0Timer_4002,X		; BB09	$9D $02 $40
+	STA Sq0Length_4003,X		; BB0C	$9D $03 $40
+	RTS				; BB0F	$60
+; End of
+
+; Name	: SetSndEftJump
+; Marks	: Set pointer for JUMP
+;	  $6F67,X = effect length ?? count ??
+SetSndEftJump:
+	JSR GetSndEftData		; BB10	$20 $CC $BA	Get effect data
+	STA $CD				; BB13	$85 $CD
+	JSR GetSndEftData		; BB15	$20 $CC $BA	Get effect data
+	STA $CE				; BB18	$85 $CE
+	LDX $CC				; BB1A	$A6 $CC		current sound effect channel id
+	DEC $6F67,X			; BB1C	$DE $67 $6F
+	BEQ L17B29			; BB1F	$F0 $08
+	LDA $CD				; BB21	$A5 $CD
+	STA $CA				; BB23	$85 $CA
+	LDA $CE				; BB25	$A5 $CE
+	STA $CB				; BB27	$85 $CB
+L17B29:
+	RTS				; BB29	$60
+; End of
+
+; Name	: SetSndEftL
+; Marks	: Set effect length
+;	  $6F67,X = effect length
+SetSndEftL:
+	JSR GetSndEftData		; BB2A	$20 $CC $BA	Get effect data
+	LDX $CC				; BB2D	$A6 $CC		current sound effect channel id     
+	STA $6F67,X			; BB2F	$9D $67 $6F  
+	RTS				; BB32	$60        
+; End of
+
+; Name	: SetSndEftReg
+; A	: Sound effect data($01-$FD)
+; Marks	: Set APU registers
+;	  $CD = loop counter temp
+SetSndEftReg:
+	LDX $CC				; BB33	$A6 $CC		current sound effect channel id
+	BNE L17B39			; BB35	$D0 $02
+	STA $E5				; BB37	$85 $E5		Sound effect counter (mute square 2 music channel)
+L17B39:
+	STA $6F65,X			; BB39	$9D $65 $6F
+	LDA ApuStatus_4015		; BB3C	$AD $15 $40
+	ORA #$0F			; BB3F	$09 $0F
+	STA ApuStatus_4015		; BB41	$8D $15 $40
+	LDA $CC				; BB44	$A5 $CC		current sound effect channel id
+	BNE L17B4D			; BB46	$D0 $05
+	LDX #$04			; BB48	$A2 $04
+	JMP L17B4F			; BB4A	$4C $4F $BB
+L17B4D:
+	LDX #$0C			; BB4D	$A2 $0C
+L17B4F:
+	LDA #$04			; BB4F	$A9 $04
+	STA $CD				; BB51	$85 $CD
+L17B53:
+	JSR GetSndEftData		; BB53	$20 $CC $BA	Get effect data
+	STA Sq0Duty_4000,X		; BB56	$9D $00 $40
+	INX				; BB59	$E8
+	DEC $CD				; BB5A	$C6 $CD
+	BNE L17B53			; BB5C	$D0 $F5
+	RTS				; BB5E	$60
+; End of
+
+;========== Sound effect code END ($BA00-$BB5E) ==========
+;----------------------------------------------------------------------
+
+
+; ========== Pointers to sound effect scripts ($BB5F-$BBA0) START ==========
+SndEftTbl:
+.word SNDE_00				;.byte $A1,$BB				; 0
+.word SNDE_01				;.byte $B0,$BB				; 1
+.word SNDE_02				;.byte $C5,$BB				; 2
+.word SNDE_03				;.byte $DF,$BB				; 3
+.word SNDE_04				;.byte $FE,$BB				; 4
+.word SNDE_05				;.byte $36,$BC				; 5
+.word SNDE_06				;.byte $5A,$BC				; 6
+.word SNDE_07				;.byte $6F,$BC				; 7
+.word SNDE_08				;.byte $A7,$BC				; 8
+.word SNDE_09				;.byte $DF,$BC				; 9
+.word SNDE_10				;.byte $17,$BD				; 10
+.word SNDE_11				;.byte $36,$BD				; 11
+.word SNDE_12				;.byte $54,$BD				; 12
+.word SNDE_13				;.byte $87,$BD				; 13
+.word SNDE_14				;.byte $A0,$BD				; 14
+.word SNDE_15				;.byte $B9,$BD				; 15
+.word SNDE_16				;.byte $D2,$BD				; 16
+.word SNDE_17				;.byte $E7,$BD				; 17
+.byte $00,$00				; 18
+.word SNDE_19				;.byte $00,$BE				; 19
+.word SNDE_20				;.byte $19,$BE				; 20
+.word SNDE_21				;.byte $37,$BE				; 21
+.word SNDE_22				;.byte $55,$BE				; 22
+.word SNDE_23				;.byte $8D,$BE				; 23
+.word SNDE_24				;.byte $C5,$BE				; 24
+.word SNDE_25				;.byte $F3,$BE				; 25
+.byte $00,$00				; 26
+.byte $00,$00				; 27
+.word SNDE_28				;.byte $2B,$BF				; 28
+.word SNDE_29				;.byte $44,$BF				; 29
+.byte $00,$00				; 30
+.word SNDE_31				;.byte $62,$BF				; 31
+.word SNDE_32				;.byte $CC,$BF				; 32
+; ========== Pointers to sound effect scripts ($BB5F-$BBA0) END ==========
+
+
+; ========== sound effect scripts (33 items) ($BBA1-$BFFF) START ==========
+;----------
+SNDE_00:				; $BBA1- = 00 - Hit
+.byte $FF,$FF				; Channel 1 pointer
+.word SNDE_00_NOI			; $A5 $BB - Noise pointer
+SNDE_00_NOI:				; Length(if not 00h), $4004(C),$4005(D),$4006(E),$4007(F),FFh is end
+.byte $03,$3F,$00,$09,$08
+.byte $04,$3F,$00,$03,$08,$FF
+;----------
+SNDE_01:				; $BBB0- = 01 - Hit
+.word SNDE_01_CH1			; $B4,$BB
+.word SNDE_01_NOI			; $BA,$BB
+SNDE_01_CH1:
+.byte $04,$BF,$81,$B0,$08,$FF
+SNDE_01_NOI:
+.byte $04,$3F,$00,$06,$08
+.byte $04,$3E,$00,$03,$08,$FF
+;----------
+SNDE_02:				; $BBC5- = 02 - Hit
+.word SNDE_02_CH1			; $C9 $BB
+.word SNDE_02_NOI			; $D4 $BB
+SNDE_02_CH1:
+.byte $04,$BE,$83,$7F,$09
+.byte $03,$3D,$81,$25,$0B,$FF
+SNDE_02_NOI:
+.byte $04,$3F,$00,$0E,$08
+.byte $04,$3F,$00,$07,$08,$FF
+;----------
+SNDE_03:				; $BBDF- = 03 - Hit with sword
+.word SNDE_03_CH1			; $E3 $BB
+.word SNDE_03_NOI			; $EE $BB
+SNDE_03_CH1:
+.byte $05,$3F,$91,$00,$09
+.byte $06,$FF,$8B,$90,$0A,$FF
+SNDE_03_NOI:
+.byte $03,$3F,$00,$06,$08
+.byte $05,$3F,$00,$0E,$08
+.byte $05,$3F,$00,$05,$08,$FF
+;----------
+SNDE_04:				; $BBFE0 = 04 - Monster eliminating
+.word SNDE_04_CH1			; $02 $BC
+.word SNDE_04_NOI			; $1C $BC
+SNDE_04_CH1:
+.byte $0A,$7F,$83,$10,$09
+.byte $0A,$7D,$83,$10,$09
+.byte $0A,$7A,$83,$10,$09
+.byte $0A,$76,$83,$10,$09
+.byte $0A,$73,$83,$10,$09,$FF
+SNDE_04_NOI:
+.byte $0A,$3F,$00,$02,$08
+.byte $0A,$3D,$00,$02,$08
+.byte $0A,$3A,$00,$02,$08
+.byte $0A,$38,$00,$02,$08
+.byte $0A,$34,$00,$02,$08,$FF
+;----------
+SNDE_05:				; $BC36- = 05 - Bow shot
+.word SNDE_05_CH1			; $3A $BC
+.word SNDE_05_NOI			; $4A $BC
+SNDE_05_CH1:
+.byte $05,$3F,$81,$3A,$08
+.byte $04,$BD,$83,$4A,$08
+.byte $05,$F4,$8A,$30,$08,$FF
+SNDE_05_NOI:
+.byte $01,$30,$00,$00,$08
+.byte $01,$30,$00,$00,$08
+.byte $03,$3E,$00,$05,$08,$FF
+;----------
+SNDE_06:				; $BC5A- = 06 - Hit arrow
+.word SNDE_06_CH1			; $5E $BC
+.word SNDE_06_NOI			; $64 $BC
+SNDE_06_CH1:
+.byte $04,$3F,$82,$E0,$08,$FF
+SNDE_06_NOI:
+.byte $04,$3F,$00,$09,$08
+.byte $02,$3F,$00,$03,$08,$FF
+;----------
+SNDE_07:				; $BC6F- = 07 - Hit from enemy attacks as critical
+.word SNDE_07_CH1			; $73 $BC
+.word SNDE_07_NOI			; $8D $BC
+SNDE_07_CH1:
+.byte $03,$7D,$8B,$80,$09
+.byte $05,$FF,$92,$50,$0A
+.byte $06,$00,$00,$00,$08
+.byte $03,$FD,$83,$00,$09
+.byte $06,$FF,$8B,$00,$0B,$FF
+SNDE_07_NOI:
+.byte $03,$3F,$00,$0B,$08
+.byte $04,$3F,$00,$06,$08
+.byte $07,$00,$00,$00,$08
+.byte $04,$3F,$00,$0D,$08
+.byte $06,$3F,$00,$06,$08,$FF
+;----------
+SNDE_08:				; $BCA7- = 08 - Magic ready
+.word SNDE_08_CH1			; $AB,$BC
+.word SNDE_08_NOI			; $C5,$BC
+SNDE_08_CH1:
+.byte $06,$74,$9A,$20,$0A
+.byte $06,$76,$9A,$00,$09
+.byte $06,$79,$9A,$BA,$09
+.byte $06,$7D,$9A,$85,$09
+.byte $06,$7F,$9A,$50,$09,$FF
+SNDE_08_NOI:
+.byte $05,$36,$00,$0B,$08
+.byte $05,$36,$00,$09,$08
+.byte $06,$35,$00,$07,$08
+.byte $06,$37,$00,$05,$08
+.byte $06,$3F,$00,$03,$08,$FF
+;----------
+SNDE_09:				; $BCDF- = 09 - Magic blizzard
+.word SNDE_09_CH1			; $E3 $BC
+.word SNDE_09_NOI			; $FD $BC
+SNDE_09_CH1:
+.byte $04,$3F,$9B,$20,$08
+.byte $04,$3F,$83,$20,$08
+.byte $04,$3F,$9B,$20,$08
+.byte $04,$3F,$83,$20,$08
+.byte $04,$3F,$9B,$20,$08,$FF
+SNDE_09_NOI:
+.byte $04,$37,$00,$05,$08
+.byte $04,$39,$00,$03,$08
+.byte $04,$3C,$00,$05,$08
+.byte $04,$3E,$00,$03,$08
+.byte $04,$3F,$00,$05,$08,$FF
+;----------
+SNDE_10:				; $BD17- = 10 - Hit from enemy
+.word SNDE_10_CH1			; $1B $BD
+.word SNDE_10_NOI			; $2B $BD
+SNDE_10_CH1:
+.byte $05,$BF,$83,$A0,$0A
+.byte $05,$BC,$83,$C0,$0A
+.byte $05,$B7,$83,$00,$0B,$FF
+SNDE_10_NOI:
+.byte $03,$3A,$00,$0D,$08
+.byte $04,$3C,$00,$0F,$08,$FF
+;----------
+SNDE_11:				; $BD36- = 11 - Magic fire
+.word $FFFF				; $FF $FF
+.word SNDE_11_NOI			; $3A $BD
+SNDE_11_NOI:
+.byte $09,$39,$00,$0E,$08
+.byte $09,$3C,$00,$0E,$08
+.byte $09,$3F,$00,$0E,$08
+.byte $09,$3C,$00,$0E,$08
+.byte $09,$39,$00,$0E,$08,$FF
+;----------
+SNDE_12:				; $BD54- = 12 - Magic Thunder
+.word SNDE_12_CH1			; $58 $BD
+.word SNDE_12_NOI			; $6D $BD
+SNDE_12_CH1:
+.byte $13,$00,$00,$00,$08
+.byte $05,$BC,$92,$50,$09
+.byte $00,$03
+SNDE_12_CH1_R:
+.byte $02,$BC,$92,$50,$09
+.byte JUMP				; $FE $64 $BD
+.word SNDE_12_CH1_R
+.byte $FF
+SNDE_12_NOI:
+.byte $07,$3F,$00,$0E,$08
+.byte $07,$3D,$00,$06,$08
+.byte $07,$3F,$00,$0A,$08
+.byte $00,$02
+SNDE_12_NOI_R:
+.byte $07,$3F,$00,$0D,$08
+.byte JUMP				; $FE $7E $BD
+.word SNDE_12_NOI_R
+.byte $FF
+;----------
+SNDE_13:				; $BD87- = 13
+.word SNDE_13_CH1			; $8B $BD
+.word $FFFF				; $FF $FF
+SNDE_13_CH1:
+.byte $08,$BF,$8C,$5B,$08
+.byte $06,$7B,$8C,$47,$08
+.byte $06,$78,$8C,$39,$08
+.byte $06,$35,$8C,$33,$08,$FF
+;----------
+SNDE_14:				; $BDA0- = 14 - Magic cure
+.word SNDE_14_CH1			; $A4 $BD
+.word $FFFF				; $FF $FF
+SNDE_14_CH1:
+.byte $09,$BF,$BA,$50,$08
+.byte $09,$BF,$BA,$3A,$08
+.byte $09,$BF,$BA,$2A,$08
+.byte $09,$BF,$BA,$1A,$08,$FF
+;----------
+SNDE_15:				; $BDB9- = 15
+.word SNDE_15_CH1			; $BD $BD
+.word $FFFF				; $FF $FF
+SNDE_15_CH1:
+.byte $05,$BF,$00,$40,$0A
+.byte $08,$7C,$00,$40,$0A
+.byte $08,$77,$00,$40,$0A
+.byte $08,$74,$00,$40,$0A,$FF
+;----------
+SNDE_16:				; $BDD2- = 16 - Magic explosion ??
+.word SNDE_16_CH1			; $D6 $BD
+.word SNDE_16_NOI			; $DC $BD
+SNDE_16_CH1:
+.byte $06,$FF,$83,$B0,$09,$FF
+SNDE_16_NOI:
+.byte $0A,$3F,$00,$0E,$08
+.byte $0A,$3F,$00,$0F,$08,$FF
+;----------
+SNDE_17:				; $BDE7- = 17 - Magic toad ??
+.word SNDE_17_CH1			; $EB $BD
+.word $FFFF				; $FF $FF
+SNDE_17_CH1:
+.byte $0B,$78,$8B,$30,$09
+.byte $07,$78,$8B,$10,$09
+.byte $04,$7F,$8B,$F0,$08
+.byte $03,$7F,$8B,$C0,$08,$FF
+;----------
+SNDE_19:				; $BE00- = 19
+.word SNDE_19_CH1			; $04 $BE
+.word $FFFF				; $FF $FF
+SNDE_19_CH1:
+.byte $08,$76,$A2,$70,$0B
+.byte $08,$7F,$A2,$70,$0B
+.byte $08,$7F,$A2,$70,$0B
+.byte $08,$76,$A2,$70,$0B,$FF
+;----------
+SNDE_20:				; $BE19- = 20 - Magic sleep/blind
+.word SNDE_20_CH1			; $1D $BE
+.word $FFFF				; $FF $FF
+SNDE_20_CH1:
+.byte $04,$F5,$83,$E0,$08
+.byte $05,$F5,$83,$E0,$08
+.byte $06,$FA,$83,$E0,$08
+.byte $07,$FA,$83,$E0,$08
+.byte $07,$FF,$83,$E0,$08,$FF
+;----------
+SNDE_21:				; $BE37- = 21 - UFO ??
+.word SNDE_21_CH1			; $3B $BE
+.word $FFFF				; $FF $FF
+SNDE_21_CH1:
+.byte $01,$7F,$A4,$1A,$09
+.byte $10,$3F,$A4,$1A,$09
+.byte $10,$3B,$A4,$1A,$09
+.byte $10,$37,$A4,$1A,$09
+.byte $10,$33,$A4,$1A,$09,$FF
+;----------
+SNDE_22:				; $BE55- = 22 - Explosion ??
+.word SNDE_22_CH1			; $59 $BE
+.word SNDE_22_NOI			; $73 $BE
+SNDE_22_CH1:
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B
+.byte $0A,$3F,$AB,$00,$0B,$FF
+SNDE_22_NOI:
+.byte $0A,$33,$00,$09,$08
+.byte $0A,$36,$00,$08,$08
+.byte $0A,$37,$00,$0A,$08
+.byte $0A,$3C,$00,$0C,$08
+.byte $0A,$3F,$00,$0F,$08,$FF
+;----------
+SNDE_23:				; $BE8D- = 23 - Meteo ??
+.word SNDE_23_CH1			; $91 $BE
+.word SNDE_23_NOI			; $AB $BE
+SNDE_23_CH1:
+.byte $10,$B9,$85,$2B,$08
+.byte $06,$B0,$00,$00,$08
+.byte $10,$BC,$85,$2B,$08
+.byte $06,$B0,$00,$00,$08
+.byte $10,$BF,$85,$2B,$08,$FF
+SNDE_23_NOI:
+.byte $0C,$3F,$00,$00,$08
+.byte $0C,$3F,$00,$02,$08
+.byte $0C,$3F,$00,$04,$08
+.byte $0C,$3F,$00,$06,$08
+.byte $0C,$3F,$00,$08,$08,$FF
+;----------
+SNDE_24:				; $BEC5- = 24 - Explosion ??
+.word SNDE_24_CH1			; $C9 $BE
+.word SNDE_24_NOI			; $DE $BE
+SNDE_24_CH1:
+.byte $08,$7F,$C2,$00,$0C
+.byte $03,$3F,$9B,$00,$0A
+.byte $01,$7F,$9C,$00,$0B
+.byte $09,$3F,$95,$00,$09,$FF
+SNDE_24_NOI:
+.byte $04,$3F,$00,$0F,$08
+.byte $04,$3F,$00,$09,$08
+.byte $04,$3F,$00,$0D,$08
+.byte $08,$3F,$00,$05,$08,$FF
+;----------
+SNDE_25:				; $BEF3- = 25 - Magic flair ??
+.word SNDE_25_CH1			; $F7 $BE
+.word SNDE_25_NOI			; $11 $BF
+SNDE_25_CH1:
+.byte $06,$F6,$B2,$00,$0A
+.byte $06,$BB,$92,$90,$09
+.byte $08,$3F,$9B,$A0,$0A
+.byte $06,$BB,$92,$90,$09
+.byte $06,$F6,$D2,$00,$0A,$FF
+SNDE_25_NOI:
+.byte $06,$35,$00,$04,$08
+.byte $06,$38,$00,$06,$08
+.byte $08,$3D,$00,$0B,$08
+.byte $06,$38,$00,$06,$08
+.byte $06,$35,$00,$04,$08,$FF
+;----------
+SNDE_28:				; $BF2B- = 28 - Upward ??
+.word SNDE_28_CH1			; $2F $BF
+.word $FFFF				; $FF $FF
+SNDE_28_CH1:
+.byte $0F,$BF,$9B,$00,$0F
+.byte $0F,$7F,$9B,$00,$0D
+.byte $0F,$3F,$9B,$00,$0B
+.byte $0F,$BF,$9B,$00,$09,$FF
+;----------
+SNDE_29:				; $BF44- = 29 - Run away
+.word $FFFF				; $FF $FF
+.word SNDE_29_NOI			; $48 $BF
+SNDE_29_NOI:
+.byte $06,$00,$00,$05,$08
+.byte $06,$00,$00,$04,$08
+.byte $06,$00,$00,$03,$08
+.byte $06,$00,$00,$02,$08
+.byte $06,$00,$00,$01,$08,$FF
+;----------
+SNDE_31:				; $BF62- = 31 - Explosion ??
+.word SNDE_31_CH1			; $66 $BF
+.word SNDE_31_NOI			; $99 $BF
+SNDE_31_CH1:
+.byte $05,$F6,$8B,$80,$0C
+.byte $0B,$77,$93,$00,$0A
+.byte $05,$F8,$8B,$80,$0C
+.byte $0B,$7B,$93,$00,$0A
+.byte $05,$FD,$8B,$80,$0C
+.byte $0B,$7F,$93,$00,$0A
+.byte $05,$FC,$8B,$80,$0C
+.byte $0B,$7A,$93,$00,$0A
+.byte $05,$F7,$8B,$80,$0C
+.byte $0B,$74,$93,$00,$0A,$FF
+SNDE_31_NOI:
+.byte $07,$33,$00,$0F,$08
+.byte $07,$35,$00,$0C,$08
+.byte $07,$37,$00,$0F,$08
+.byte $07,$39,$00,$0C,$08
+.byte $07,$3C,$00,$0F,$08
+.byte $07,$3F,$00,$0C,$08
+.byte $07,$3B,$00,$0F,$08
+.byte $07,$39,$00,$0C,$08
+.byte $07,$36,$00,$0F,$08
+.byte $07,$33,$00,$0C,$08,$FF
+;----------
+SNDE_32:				; $BFCC- = 32 - Magic flair
+.word SNDE_32_CH1			; $D0 $BF
+.word SNDE_32_NOI			; $E5 $BF
+SNDE_32_CH1:
+.byte $00,$03
+SNDE_32_CH1_R:
+.byte $02,$08,$DB,$00,$09
+.byte $02,$F6,$94,$03,$0B
+.byte $06,$BD,$94,$65,$0A
+.byte JUMP				; $FE,$D2,$BF
+.word SNDE_32_CH1_R
+.byte $FF
+SNDE_32_NOI:				; $BFE5
+.byte $00,$03
+SNDE_32_NOI_R:
+.byte $09,$0C,$00,$09,$08
+.byte $03,$04,$00,$0E,$08
+.byte $02,$0D,$00,$09,$08
+.byte JUMP				; $FE,$E7,$BF
+.word SNDE_32_NOI_R
+.byte $FF
+.byte $FF,$7F,$FF,$FD,$7D,$FF		; $BFFA- dummy ??
+; ========== sound effect scripts (33 items) ($BBA1-$BFFF) END ==========
 
 
 ; ================================================== End of code ==================================================
@@ -2389,67 +3085,96 @@ VolTbl:
 ; Name	: UpdateMusic
 ; Marks	: update music
 UpdateMusic:
-	;JSR $899F          		; 36/8925: 20 9F 89   switch to song bank
-	LDA $7F42          		; 36/8928: AD 42 7F  
-	TAX                		; 36/892B: AA        
-	AND #$01           		; 36/892C: 29 01     
-	BEQ B895D          		; 36/892E: F0 2D      branch if not playing a new song
-	LDA $7F40          		; 36/8930: AD 40 7F  
-	BPL B8949          		; 36/8933: 10 14     
-	AND #$7F           		; 36/8935: 29 7F     
-	CMP $7F43          		; 36/8937: CD 43 7F  
-	BEQ B8956          		; 36/893A: F0 1A     
-	CMP #$37           		; 36/893C: C9 37     
-	BNE B8949          		; 36/893E: D0 09     
-	STA $7F43          		; 36/8940: 8D 43 7F  
-	;JSR $899F          		; 36/8943: 20 9F 89   switch to song bank
-	JMP B8956          		; 36/8946: 4C 56 89  
+	;JSR SwitchSongBank		; 36/8925: 20 9F 89   switch to song bank
+	LDA $7F42			; 36/8928: AD 42 7F  
+	TAX				; 36/892B: AA        
+	AND #$01			; 36/892C: 29 01     
+	BEQ B895D			; 36/892E: F0 2D      branch if not playing a new song
+	LDA $7F40			; 36/8930: AD 40 7F  
+	BPL B8949			; 36/8933: 10 14     
+	AND #$7F			; 36/8935: 29 7F     
+	CMP $7F43			; 36/8937: CD 43 7F  
+	BEQ B8956			; 36/893A: F0 1A     
+	CMP #$37			; 36/893C: C9 37     
+	BNE B8949			; 36/893E: D0 09     
+	STA $7F43			; 36/8940: 8D 43 7F  
+	;JSR SwitchSongBank		; 36/8943: 20 9F 89   switch to song bank
+	JMP B8956			; 36/8946: 4C 56 89  
 B8949:
-	STA $7F41          		; 36/8949: 8D 41 7F  
-	LDA $7F43          		; 36/894C: AD 43 7F  
-	STA $7F40          		; 36/894F: 8D 40 7F  
-	JSR InitSong          		; 36/8952: 20 C3 89   init song
-	RTS                		; 36/8955: 60        
+	STA $7F41			; 36/8949: 8D 41 7F  
+	LDA $7F43			; 36/894C: AD 43 7F  
+	STA $7F40			; 36/894F: 8D 40 7F  
+	JSR InitSong			; 36/8952: 20 C3 89   init song
+	RTS				; 36/8955: 60        
 B8956:
-	LDA #$80           		; 36/8956: A9 80     
-	STA $7F42          		; 36/8958: 8D 42 7F  
-	BMI B899B          		; 36/895B: 30 3E     
+	LDA #$80			; 36/8956: A9 80     
+	STA $7F42			; 36/8958: 8D 42 7F  
+	BMI B899B			; 36/895B: 30 3E     
 B895D:
-	TXA                		; 36/895D: 8A        
-	AND #$02           		; 36/895E: 29 02     
-	BEQ B8977          		; 36/8960: F0 15      branch if not resuming music
-	LDA $7F41          		; 36/8962: AD 41 7F  
-	STA $7F40          		; 36/8965: 8D 40 7F  
-	STA $7F43          		; 36/8968: 8D 43 7F  
-	LDA #$01           		; 36/896B: A9 01      play new song
-	STA $7F42          		; 36/896D: 8D 42 7F  
-	;JSR $899F          		; 36/8970: 20 9F 89   switch to song bank
-	JSR InitSong          		; 36/8973: 20 C3 89   init song
-	RTS                		; 36/8976: 60        
+	TXA				; 36/895D: 8A        
+	AND #$02			; 36/895E: 29 02     
+	BEQ B8977			; 36/8960: F0 15      branch if not resuming music
+	LDA $7F41			; 36/8962: AD 41 7F  
+	STA $7F40			; 36/8965: 8D 40 7F  
+	STA $7F43			; 36/8968: 8D 43 7F  
+	LDA #$01			; 36/896B: A9 01      play new song
+	STA $7F42			; 36/896D: 8D 42 7F  
+	;JSR SwitchSongBank		; 36/8970: 20 9F 89   switch to song bank
+	JSR InitSong			; 36/8973: 20 C3 89   init song
+	RTS				; 36/8976: 60        
 B8977:
-	TXA                		; 36/8977: 8A        
-	AND #$04           		; 36/8978: 29 04     
-	BEQ B897F          		; 36/897A: F0 03      branch if not stopping music
+	TXA				; 36/8977: 8A        
+	AND #$04			; 36/8978: 29 04     
+	BEQ B897F			; 36/897A: F0 03      branch if not stopping music
 	JSR SetVolT			; 36/897C: 20 A7 8A   set volume for stopping music
 B897F:
-	LDA $7F42          		; 36/897F: AD 42 7F  
-	AND #$20           		; 36/8982: 29 20     
-	BEQ B898C          		; 36/8984: F0 06      branch if not fading in
-	JSR UpdateFadeIn      		; 36/8986: 20 F0 8A   update fade in
-	JMP B8996          		; 36/8989: 4C 96 89  
+	LDA $7F42			; 36/897F: AD 42 7F  
+	AND #$20			; 36/8982: 29 20     
+	BEQ B898C			; 36/8984: F0 06      branch if not fading in
+	JSR UpdateFadeIn		; 36/8986: 20 F0 8A   update fade in
+	JMP B8996			; 36/8989: 4C 96 89  
 B898C:
-	LDA $7F42          		; 36/898C: AD 42 7F  
-	AND #$40           		; 36/898F: 29 40     
-	BEQ B8996          		; 36/8991: F0 03      branch if not fading out
-	JSR UpdateFadeOut      		; 36/8993: 20 11 8B   update fade out
+	LDA $7F42			; 36/898C: AD 42 7F  
+	AND #$40			; 36/898F: 29 40     
+	BEQ B8996			; 36/8991: F0 03      branch if not fading out
+	JSR UpdateFadeOut		; 36/8993: 20 11 8B   update fade out
 B8996:
-	LDA $7F42          		; 36/8996: AD 42 7F  
-	BPL B899E          		; 36/8999: 10 03     
+	LDA $7F42			; 36/8996: AD 42 7F  
+	BPL B899E			; 36/8999: 10 03     
 B899B:
-	JSR UpdateMusicCh      		; 36/899B: 20 2D 8B   update music channels
+	JSR UpdateMusicCh		; 36/899B: 20 2D 8B   update music channels
 B899E:
-	RTS                		; 36/899E: 60        
+	RTS				; 36/899E: 60        
 ; End of UpdateMusic
+
+; Name	: SwitchSongBank
+; Marks	: switch to song bank
+SwitchSongBank:
+	LDA #$07			; 36/899F: A9 07	switch prg bank 1
+	STA $8000			; 36/89A1: 8D 00 80
+	LDX #$00			; 36/89A4: A2 00
+	LDA $7F43			; 36/89A6: AD 43 7F	song id
+	CMP #$19			; 36/89A9: C9 19
+	BCC SwitchSongBankSet		; 36/89AB: 90 0B
+	INX				; 36/89AD: E8
+	CMP #$2B			; 36/89AE: C9 2B
+	BCC SwitchSongBankSet		; 36/89B0: 90 06
+	INX				; 36/89B2: E8
+	CMP #$3B			; 36/89B3: C9 3B
+	BCC SwitchSongBankSet		; 36/89B5: 90 01
+	INX				; 36/89B7: E8
+SwitchSongBankSet:
+	LDA SongBankTbl,X		; 36/89B8: BD BF 89
+	STA $8001			; 36/89BB: 8D 01 80	set bank id
+	RTS				; 36/89BE: 60
+; End of SwitchSongBank
+
+; song banks
+SongBankTbl:
+.byte $2B				; 36/89BF: 37  ; songs $00-$18
+.byte $2A				; 36/89C0: 38  ; songs $19-$2A -> $05:$0A ($15:$2A is temp)
+.byte $2B				; 36/89C1: 39  ; songs $37-$3A ($2B-$36 use bank $36) -> $05:$0B ($15:$2B is temp)
+.byte $00				; 36/89C2: 09  ; songs $3B-$40
 
 ; Name	: InitSong
 ; Marks	: init song
@@ -2491,9 +3216,9 @@ B89C8:
 B8A0E:
 	ASL 				; 36/8A0E: 0A        
 	TAX                             ; 36/8A0F: AA        
-	LDA MusicTbl,X                  ; 36/8A10: BD 00 A0  
+	LDA MusicTbl_0B,X                  ; 36/8A10: BD 00 A0  
 	STA $D8                         ; 36/8A13: 85 D8     
-	LDA MusicTbl+1,X                ; 36/8A15: BD 01 A0  
+	LDA MusicTbl_0B+1,X                ; 36/8A15: BD 01 A0  
 	STA $D9                         ; 36/8A18: 85 D9     
 	JMP B8A57                       ; 36/8A1A: 4C 57 8A  
 ; songs $2B-36
@@ -2504,9 +3229,11 @@ B8A1D:
 	SBC #$2B                        ; 36/8A22: E9 2B     
 	ASL                             ; 36/8A24: 0A        
 	TAX                             ; 36/8A25: AA        
-	LDA $8C77,X                     ; 36/8A26: BD 77 8C  
+	LDA MusicTbl_0A,X
+	;LDA $8C77,X                     ; 36/8A26: BD 77 8C  
 	STA $D8                         ; 36/8A29: 85 D8     
-	LDA $8C78,X                     ; 36/8A2B: BD 78 8C  
+	LDA MusicTbl_0A+1,X
+	;LDA $8C78,X                     ; 36/8A2B: BD 78 8C  
 	STA $D9                         ; 36/8A2E: 85 D9     
 	JMP B8A57                       ; 36/8A30: 4C 57 8A  
 ; songs $37-$3A
@@ -2911,7 +3638,7 @@ UpdateSndEftCh:
 ; ==================================================
 ; chocobo (FF3 version) - good
 ; octave +1
-
+.if 0	; commented by memory shortage
 BGM_FF3_CHOCOBO:
 .word BGM_FF3_CHOCOBO_CH0		; .byte $8B,$AA
 .word AB3D		; .byte $3D,$AB
@@ -3018,6 +3745,7 @@ ABD4:
 .byte $F1,$98,$F2,$4B,$CB,$9B,$CB,$7B,$CB,$6B,$C6,$25
 .byte $FE		; repeat
 .word AB81		; .byte $81,$AB
+.endif
 ; ==================================================
 
 
@@ -5360,7 +6088,7 @@ BGM_FIELD_TRI_NEW_R1:
 
 
 
-.segment "DATA_SND"
+;.segment "DATA_SND"
 
 ; All FF2 sound
 .if FF3_DRIVER < 1
@@ -6290,19 +7018,20 @@ $7FF9-$7FFD : pitch envelope counter
 
 
 .if FF3_DRIVER
+.if 0	; Commented out due to data size
 ;SONG_NO
 ;$00-$18 - $A000($A032-$BF81=1F50h)
 MusicTbl:
-.word M_A032	;32 A0 - $00 = Resting At The Inn
-.word M_A07C	;7C A0 - $01 = The Prelude
-.word BGM_AIRSHIP		; 2
-.word BGM_FIELD			; 3
-.word BGM_FFL1_FIELD		; 4
-.word BGM_FF2_SHOP		; 5
-.word BGM_FF2_BATTLE_A		; 6
-.word BGM_FF4_FOUR_FIENDS	; 7
-.word BGM_FF2_THE_MAGIC_HOUSE	; 8
-.word BGM_FF3_JOINING_PARTY	; 9
+;.word M_A032	;32 A0 - $00 = Resting At The Inn
+;.word M_A07C	;7C A0 - $01 = The Prelude
+;.word BGM_AIRSHIP		; 2
+;.word BGM_FIELD			; 3
+;.word BGM_FFL1_FIELD		; 4
+;.word BGM_FF2_SHOP		; 5
+;.word BGM_FF2_BATTLE_A		; 6
+;.word BGM_FF4_FOUR_FIENDS	; 7
+;.word BGM_FF2_THE_MAGIC_HOUSE	; 8
+;.word BGM_FF3_JOINING_PARTY	; 9
 .if 0
 A1D2	;D2 A1 - $02 = Crystal Cave
 A444	;44 A4 - $03 = Elia, the Maiden of Water
@@ -6694,6 +7423,7 @@ BGM_FIELD_NOI_S:
 
 
 
+.if 0	; Commented out due to lack of capacity
 ; ==================================================
 ; Final Fantasy Legend 1 Main theme(Field)
 BGM_FFL1_FIELD:
@@ -6836,6 +7566,7 @@ BGM_FFL1_FIELD_TRI:
 
 .byte JUMP
 .word BGM_FFL1_FIELD_TRI
+.endif
 
 
 
@@ -7049,457 +7780,6 @@ BGM_FF2_BATTLE_A_TRI_S:
 .byte JUMP
 .word BGM_FF2_BATTLE_A_TRI_S
 
-
-; ==================================================
-; Final Fantasy 4 The Dreadful Fight(Golbeza's Four Fiends)
-BGM_FF4_FOUR_FIENDS:
-.word BGM_FF4_FOUR_FIENDS_CH0
-.if 1
-.word BGM_FF4_FOUR_FIENDS_CH1
-.else
-.byte $FF,$FF
-.endif
-.if 1
-.word BGM_FF4_FOUR_FIENDS_TRI
-.else
-.byte $FF,$FF
-.endif
-.if 1
-.word BGM_FF4_FOUR_FIENDS_NOI
-.else
-.byte $FF,$FF		; Noise
-.endif
-.byte $FF,$FF		; DMC
-
-BGM_FF4_FOUR_FIENDS_CH0:
-;.byte DUTY_1_4,$04,$07
-.byte DUTY_1_4,$04,$FF
-;.byte VOL2	; temp
-.byte VOL15	; temp commented
-;.byte TEMPO,$96	; test tempo
-.byte TEMPO,$A4	; Real tempo
-;BGM_FF4_FOUR_FIENDS_CH0_S:	;temp
-BGM_FF4_FOUR_FIENDS_CH0_S_INIT:	;temp
-.byte OT1,SH1_8,L1_8,C1_8,OT2,D1_8,A1_8,OT1,C1_8,OT2,D1_8,R1_8
-.byte M1_4,RH1_8,F1_8,A1_8,M1_8,L1_8,SH1_8
-.byte OT3,D1_8,OT2,SH1_8,L1_8,OT3,F1_8,M1_8,L1_8,SH1_8,OT4,D1_8
-.byte OT3,C1
-.byte A1
-
-BGM_FF4_FOUR_FIENDS_CH0_S:	;; ori
-.byte L1_8,X3_8,OT2,L1_8,X3_8
-.byte OT3,L1_8,X1_8,OT2,L1_8,X3_8	; 3/4
-.byte OT3,C1_8,X3_8,OT2,C1_8,X3_8
-.byte OT3,C1_8,X1_8,OT2,C1_8,X3_8,   OT1,L1_16,C1_16,OT2,D1_16,M1_16 	;;;
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_CH0_R0:
-.byte S1_4,FH1_8,X3_8			; 3/4
-.byte FH1_4,F1_8,X3_8			; 3/4
-.byte F1_4,M1_8,X3_8			; 3/4
-.byte RH1_4,M1_4,F1_16,M1_16,RH1_16,M1_16,F1_4
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_CH0_R0
-
-;;;
-
-.byte C3_8,OT3,D1_8,R3_8,M1_8
-.byte F3_8,M1_8,R3_8,OT2,C1_8
-.byte OT3,D3_8,R1_8,M3_8,F1_8
-.byte S3_8,F1_8,M3_8,D1_8
-
-.byte OT2,C3_8,OT3,D1_8,R3_8,M1_8
-.byte F3_8,M1_8,R3_8,OT2,C1_8
-.byte OT3,D3_8,R1_8,M3_8,F1_8
-.byte S1_16,L1_16,S1_16,F1_16,S1_16,F1_16,M1_16,F1_16,M1_16,R1_16,M1_16,R1_16,D1_16,R1_16,D1_16,OT2,L1_16
-
-;BGM_FF4_FOUR_FIENDS_CH0_R1:
-.byte OT2,C1_8,OT3,S1_16,X1_16,S1_16,X1_16,OT2,L1_8,OT3,F1_16,X1_16,F1_16,X1_16,OT2,SH1_8,OT3,M1_16,X1_16
-.byte M1_16,X1_16,X3_8,OT1,C1_16,OT2,D1_16,R1_16,M1_16,R1_4
-.byte C1_8,OT3,S1_16,X1_16,S1_16,X1_16,OT2,L1_8,OT3,F1_16,X1_16,F1_16,X1_16,OT2,SH1_8,OT3,M1_16,X1_16	; repeat
-.byte M1_16,X1_16,X3_8,SH1_16,F1_16,M1_16,R1_16,D1_16,OT2,C1_16,L1_16,SH1_16
-
-.byte L3_4,L1_8,LH1_8		; make countinue ??
-.byte LH3_4,LH1_8,L1_8
-.byte L3_4,L1_8,S1_8
-.byte S1
-
-.byte L3_4,L1_8,LH1_8
-.byte LH3_4,LH1_8,L1_8
-.byte A3_4,A1_8,X1_8
-;;;
-.byte OT3,M1_4,RH1_4,F1_4,M1_4
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_CH0_R2:
-.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4
-.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,OT2,C1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
-.byte RH1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,RH1_4
-
-.byte D1_16,X1_16,R1_16,X1_16,M1_4,D1_16,X1_16,R1_16,X1_16,M1_4
-.byte D1_16,X1_16,R1_16,X1_16,M1_16,X1_16,R1_16,X1_16,D1_16,X1_16,R1_16,X1_16,M1_16,X1_16,S1_16,X1_16
-.byte FH1_4,FH1_4,D1_16,X1_16,R1_16,X1_16,M1_16,X1_16,S1_16,X1_16
-
-.byte FH1_4,RH1_8,F1_8,A1_8,R1_8, M1_4
-.byte DH1_8, RH1_4,D1_8, R1_8,OT2,C1_8,OT3,DH1_8,OT2,LH1_8
-.byte OT3,D1_8,OT2,L1_8,C1_8,SH1_8	; 2/4
-.byte OT3,M1_8,D1_16,X3_16,M1_8,RH1_8,X1_8,D1_8,OT2,L1_8
-.byte OT3,D1_8,OT2,L1_8,X1_4,X1_2
-
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_CH0_R2
-
-.byte OT3,F1_2,M1_2
-.byte RH1_2,M1_2
-.byte F1_2,S1_4,F1_4
-.byte M1
-
-.byte F1_2,M1_2
-.byte RH1_2,M1_2
-.byte F1_2,S1_4,F1_4
-.byte M1
-
-.byte JUMP
-.word BGM_FF4_FOUR_FIENDS_CH0_S
-
-;;;;;;;;;;
-
-BGM_FF4_FOUR_FIENDS_CH1:
-.byte DUTY_1_4,$04,$07
-;.byte DUTY_1_2,$04,$FF
-;.byte VOL15
-.byte VOL12
-BGM_FF4_FOUR_FIENDS_CH1_INTRO:
-.byte X1
-.byte X1_4,X1_8,OT1,F1_8,A1_8,M1_8,L1_8,SH1_8
-.byte OT2,D1_8,OT1,SH1_8,L1_8,OT2,F1_8,M1_8,L1_8,SH1_8,OT3,D1_8
-;.byte OT2,FH1
-;.byte SH1	; 5 point per 10
-.byte F1
-.byte A1
-
-BGM_FF4_FOUR_FIENDS_CH1_S:
-.if 0	; init v
-.byte OT2
-.byte LH1_8,X3_8,OT1,LH1_8,X3_8
-.byte OT2,LH1_8,X1_8,OT1,LH1_8,X3_8	; 3/4
-.byte OT2,F1_8,X3_8,OT1,F1_8,X3_8
-.byte OT2,F1_8,X1_8,OT1,F1_8,X3_8,OT1,M1_16,L1_16,OT0,D1_16,C1_16
-.else
-;; need new version
-.byte RH1_8,X3_8,OT2,RH1_8,X3_8
-.byte OT3,RH1_8,X1_8,OT2,RH1_8,X3_8	; 3/4
-.byte OT3,F1_8,X3_8,OT2,F1_8,X3_8
-.byte OT3,F1_8,X1_8,OT2,F1_8,X3_8,OT1,M1_16,L1_16,OT0,D1_16,C1_16
-.if 0	; XXX
-.byte C1_8,X3_8,OT2,C1_8,X3_8
-.byte OT3,C1_8,X1_8,OT2,C1_8,X3_8	; 3/4
-.byte OT4,D1_8,X3_8,OT3,D1_8,X3_8
-.byte OT4,D1_8,X1_8,OT3,D1_8,X3_8,OT1,C1_16,OT2,D1_16,DH1_16,R1_16
-.endif
-.endif
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_CH1_R0:
-.byte OT2,D1_4,D1_8,X3_8		; 3/4
-.byte D1_4,D1_8,X3_8			; 3/4
-.byte D1_4,D1_8,X3_8			; 3/4
-.byte D1_4,D1_4,F1_4,D1_4
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_CH1_R0
-
-.byte SH3_8,L1_8,C3_8,OT3,D1_8
-.byte R3_8,D1_8,OT2,C3_8,SH1_8
-.byte L3_8,C1_8,OT3,D3_8,R1_8
-.byte M3_8,R1_8,D3_8,OT2,L1_8
-
-.byte SH3_8,L1_8,C3_8,OT3,D1_8
-.byte R3_8,D1_8,OT2,C3_8,SH1_8
-.byte L3_8,C1_8,OT3,D3_8,R1_8
-.byte S1_16,L1_16,S1_16,F1_16,S1_16,F1_16,M1_16,F1_16,M1_16,R1_16,M1_16,R1_16,D1_16,R1_16,D1_16,OT2,L1_16
-
-;BGM_FF4_FOUR_FIENDS_CH1_R1:
-.byte S1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,F1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,M1_8,OT3,R1_16,X1_16
-.byte R1_16,X1_16,X3_8,OT1,SH1_16,L1_16,C1_16,OT2,D1_16,OT1,C1_4
-.byte S1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,F1_8,OT3,R1_16,X1_16,R1_16,X1_16,OT2,M1_8,OT3,R1_16,X1_16
-.byte R1_16,X1_16,X3_8,SH1_16,F1_16,M1_16,R1_16,D1_16,OT2,C1_16,L1_16,SH1_16
-; delete cut ??
-
-.byte M3_4,M1_8,R1_8
-.byte R3_4,R1_8,D1_8
-.byte D3_4,D1_8,OT1,C1_8
-.byte C1
-
-.byte OT2,M3_4,M1_8,R1_8
-.byte R3_4,R1_8,D1_8
-.byte D3_4,D1_8,X1_8
-;;;
-.byte S1_16,OT3,D1_16,M1_16,S1_16,OT2,FH1_16,C1_16,OT3,R1_16,FH1_16,OT2,SH1_16,OT3,DH1_16,M1_16,SH1_16,OT2,S1_16,OT3,D1_16,M1_16,S1_16
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_CH1_R2:
-.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4
-.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,OT2,C1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
-.byte OT2,C1_4,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16,OT2,C1_4
-
-.byte L1_16,X1_16,C1_16,X1_16,OT3,D1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_4
-.byte OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,OT2,C1_16,X1_16,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
-.byte RH1_4,RH1_4,OT2,L1_16,X1_16,C1_16,X1_16,OT3,D1_16,X1_16,M1_16,X1_16
-
-.byte RH1_4,OT2,C1_8,OT3,R1_8,A1_8,OT2,LH1_8,OT3,DH1_4
-.byte OT2,L1_8,OT3,D1_4,OT2,SH1_8, C1_8,S1_8,LH1_8,FH1_8
-.byte L1_8,F1_8,SH1_8,M1_8	; 2/4
-.byte OT3,D1_8,OT2,L1_16,X3_16,M1_8,RH1_16,X3_16,D1_8,OT1,L1_16,X1_16
-.byte OT2,D1_8,OT1,L1_16,X1_16,X1_4,X1_2
-
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_CH1_R2
-
-.byte X1_8,OT2,S1_8,L1_8,S1_8,X1_8,S1_8,L1_8,S1_8
-.byte X1_8,S1_8,L1_8,S1_8,C1_8,S1_8,L1_8,S1_8
-.byte OT3,D1_2,R1_4,D1_4
-.byte OT2,C1
-
-;.byte F1_4,L1_,OT3,D1_,R1_,F1_4,OT2,M1_4,SH1_,C1_,OT3,R1_,M1_4
-;.byte L1_12,OT3,D1_12,R1_12,F1_4,OT2,SH1_12,C1_12,OT3,R1_12,M1_4
-.byte L1_16,C1_32,OT3,D1_32,R1_32,M1_32,F1_32,S1_32,L1_4, OT2,SH1_16,LH1_32,C1_32,OT3,DH1_32,LH1_32,M1_32,FH1_32,SH1_4
-.byte OT2
-.byte S1_16,L1_32,LH1_32,OT3,D1_32,R1_32,RH1_32,F1_32,S1_4, OT2,SH1_16,LH1_32,C1_32,OT3,DH1_32,RH1_32,M1_32,FH1_32,SH1_4
-.byte OT2
-;.byte OT2,F1_12,LH1_12,OT3,DH1_12,R1_4,OT2,SH1_12,C1_12,OT3,R1_12,M1_4
-.byte D1_2,R1_4,D1_4
-.byte M1_4,R1_4,D1_4,OT2,C1_4
-
-.byte JUMP
-.word BGM_FF4_FOUR_FIENDS_CH1_S
-
-;;;;;;;;;;
-
-BGM_FF4_FOUR_FIENDS_TRI:
-;.byte OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8	; ori
-;.byte L1_8,OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8,OT2,L1_8,OT1,L1_8
-;.byte OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8,L1_8,OT2,L1_8,OT1,L1_8
-.byte OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16	; cut
-.byte L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_8,OT2,L1_8,OT1,L1_8
-.byte OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_16,X1_16,L1_16,X1_16,OT2,L1_8,OT1,L1_8
-.byte OT2,M3_4,C1_4	; ori
-;.byte OT2,M3_16,X1_16,M1_16,X1_16,M1_4,F1_8,C1_4
-;.byte OT2,M1_8,X1_8,M1_16,X1_16,M1_4,F1_8,C1_4
-
-.byte OT3,D1_2,OT2,SH1_2	; ori
-;.byte OT3,D1_2,OT2,SH1_8,X1_8,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48,SH1_48,X1_48
-
-BGM_FF4_FOUR_FIENDS_TRI_S:
-.if 0	; ori
-.byte OT2,L1_8,X3_8,OT1,L1_8,X3_8
-.byte OT2,L1_8,X1_8,OT1,L1_8,X3_8	; 3/4
-.byte OT2,C1_8,X3_8,OT1,C1_8,X3_8
-.byte OT2,C1_8,X1_8,OT1,C1_8,X3_8,OT2,R1_16,DH1_16,D1_16,OT1,C1_16
-.else
-.byte OT1,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16,L1_16,X1_16
-.byte L1_8,X1_8,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16	; 3/4
-.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16,L1_16,X1_16
-.byte L1_8,X1_8,L1_16,X1_16,L1_8,X1_8,L1_16,X1_16,OT2,R1_16,DH1_16,D1_16,OT1,C1_16
-.endif
-
-.if 0	; decompressed
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_TRI_R0:
-.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16	; 3/4
-.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16	; 3/4
-.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16	; 3/4
-.byte L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16,L1_16,X1_16
-.else	; compressed
-.byte BACK_CNT,$34	; 26 * 2 = 52(34h)
-BGM_FF4_FOUR_FIENDS_TRI_R0:
-.byte L1_16,X1_16
-.endif
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_TRI_R0
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_TRI_R1:
-.byte OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8
-.byte OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8,OT2,M1_8,OT1,C1_8
-.byte OT2,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8
-.byte OT2,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8,F1_8,D1_8
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_TRI_R1
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_TRI_R2:
-.byte OT1,S1_8,OT2,S1_16,X1_16,S1_16,X1_16,OT1,F1_8,OT2,F1_16,X1_16,F1_16,X1_16,OT1,M1_8,OT2,M1_16,X1_16
-.byte M1_16,X3_16,X3_4
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_TRI_R2
-
-.if 0	; decompressed
-BGM_FF4_FOUR_FIENDS_TRI_R3:
-.byte OT1,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.byte L1_8,X1_8,L1_8,X1_8,L1_8,X1_8,L1_8,X1_8
-.else	; compressed
-.byte OT1
-.byte BACK_CNT,$20	; 32(20h)
-BGM_FF4_FOUR_FIENDS_TRI_R3:
-.byte L1_8,X1_8
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_TRI_R3
-.endif
-
-.byte BACK_CNT,$02	; will be more compressed as JUMP_Z
-BGM_FF4_FOUR_FIENDS_TRI_R4:
-.byte L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
-.byte OT1,L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
-.byte OT1,C1_4,L1_8,OT2,D1_8,M1_8,S1_8,FH1_4
-.byte OT1,L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
-.byte OT1,L1_16,X1_16,L1_16,X1_16,OT2,S1_8,FH1_4,M1_8,RH1_8,M1_8
-.byte OT1,C1_8,X1_8,C1_8,X1_8,L1_8,OT2,D1_8,M1_8,S1_8
-
-.byte OT1,C3_8,LH3_8	; 3/4
-.byte L3_8,SH3_8	; 3/4
-.byte S1_4,FH1_4,F1_4,M1_4	; 2/4 + 2/4
-.byte OT2,D1_8,OT1,L1_8,X1_8,OT2,M1_8,RH1_8,X1_8,D1_8,OT1,L1_8
-;.byte OT2,D1_8,OT1,L1_8,X1_2,M1_4	; A
-.byte OT2,D1_8,OT1,L1_8,X1_2,OT2,M1_96,X1_96,M1_96,X1_96,RH1_96,X1_96,RH1_96,X1_96,R1_96,X1_96,R1_96,X1_96,DH1_96,X1_96,DH1_96,X1_96,D1_96,X1_96,D1_96,X1_96,OT1,C1_96,X1_96,C1_96,X1_96	; B
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_TRI_R4
-
-.byte F1_8,L1_8,OT2,D1_8,F1_4,D1_8,F1_8,D1_8
-.byte OT1,F1_8,L1_8,OT2,D1_8,F1_4,D1_8,F1_8,M1_8
-.byte R3_8,OT1,R3_16,X1_16,R1_8,M1_8,F1_8
-.byte M1_16,X1_16,M1_16,X1_16,OT2,S1_8,OT1,M1_8,OT2,F1_8,S1_8,F1_8,OT1,M1_8
-
-.byte F1_16,X1_16,F1_16,X1_16,OT2,F1_4,OT1,M1_16,X1_16,M1_16,X1_16,OT2,M1_4
-.byte OT1,RH1_16,X1_16,RH1_16,X1_16,OT2,RH1_4,OT1,M1_16,X1_16,M1_16,X1_16,OT2,M1_4
-.byte OT1,R1_16,X1_16,R1_16,X1_16,OT2,R1_8,OT1,R1_16,X1_16,R1_16,X1_16,OT2,R1_8,OT1,R1_16,X1_16,R1_16,X1_16
-.byte M1_16,X1_16,M1_16,X1_16,OT2,M1_8,OT1,M1_16,X1_16,M1_16,X1_16,OT2,M1_8,OT1,M1_16,X1_16,M1_16,X1_16
-
-.byte JUMP
-.word BGM_FF4_FOUR_FIENDS_TRI_S
-
-;;;;;;;;;;
-
-BGM_FF4_FOUR_FIENDS_NOI:
-.byte $FA		; FA = snare drum preset
-.byte D1,X1,X1,D1_4,D1_8,D1_4,D1_8,D1_4
-.byte D1_8,D1_4,D1_8,D1_8,X1_8,D1_24,D1_24,D1_24,D1_24,D1_24,D1_24
-
-BGM_FF4_FOUR_FIENDS_NOI_S:
-.byte $FA		; FA = snare drum preset
-.byte D1_8,D1_8,D1_8,D1_8,D1_8,X1_8,D1_8,D1_8
-.byte D1_4,D1_8,D1_4,D1_8		; 3/4
-.byte D1_8,D1_8,D1_8,D1_8,D1_8,X1_8,D1_8,D1_8
-.byte D1_8,X1_8,D1_8,D1_4,D1_8,D1_8,X1_8
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_NOI_R1:	;CH0_R0
-.byte X1_2,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 4/4
-.byte X1_4,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 3/4
-.byte X1_4,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 3/4
-.byte X1_4,D1_16,D1_16,D1_16,D1_16,D1_8,X1_8		; 3/4
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_NOI_R1
-
-.if 1
-.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
-.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
-.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
-.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
-
-.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
-.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
-.byte D1_4,$F9,D1_4,$FA,D1_4,$F9,D1_4
-.byte $FA,D1_4,D1_4,$F9,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
-
-.byte $F9				; F9 = hi-hat preset
-.else	; init v
-.byte $F9				; F9 = hi-hat preset
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.endif
-
-.if 0	; init v
-.byte X1,X1,X1,X1
-.else
-.byte $FA				; FA = snare drum preset
-.byte D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8
-.byte D1_8,X3_8,X1_2
-.byte D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8,D1_8
-.byte D1_8,X3_8,X1_2
-.byte $F9				; F9 = hi-hat preset
-.endif
-
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.if 0	; init v
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.else
-;.byte $FA				; FA = snare drum preset
-.byte D1_4,D1_4,D1_4,$FA,D1_24,D1_24,D1_24,D1_24,D1_24,D1_24
-.byte D1_4,D1_4,D1_4,D1_4
-.byte $F9				; F9 = hi-hat preset
-.endif
-
-.byte BACK_CNT,$02
-BGM_FF4_FOUR_FIENDS_NOI_R4:	;CH0_R2
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
-
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16
-
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16	; 3/4
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16	; 3/4
-.byte D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16, D1_16,X1_16,D1_16,D1_16,D1_16,X1_16,D1_16,D1_16	; 2/4 + 2/4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_8,D1_16,D1_16,X1_4
-
-.byte BACK_N
-.word BGM_FF4_FOUR_FIENDS_NOI_R4
-
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-.byte D1_4,D1_4,D1_4,D1_4
-
-.if 0	; init v
-.byte D1_8,D1_8,X1_4,D1_8,D1_8,X1_4
-.byte D1_8,D1_8,X1_4,D1_8,D1_8,X1_4
-.else
-.byte D1_8,D1_8,$FA,D1_4,$F9,D1_8,D1_8,$FA,D1_4
-.byte $F9,D1_8,D1_8,$FA,D1_4,$F9,D1_8,D1_8,$FA,D1_4
-.byte $F9
-.endif
-.byte D1_4,D1_4,D1_4,D1_4
-.if 0	; init v
-.byte D1_4,D1_4,D1_4,D1_4
-.else
-.byte D1_4,D1_4,D1_4,$FA,D1_16,D1_16,D1_16,D1_16
-.endif
-
-.byte JUMP
-.word BGM_FF4_FOUR_FIENDS_NOI_S
 
 
 ;========== Compressed 749 bytes(2EDh)
@@ -7859,12 +8139,14 @@ BGM_FF2_THE_MAGIC_HOUSE_TRI_J0:
 .word BGM_FF2_THE_MAGIC_HOUSE_TRI_S
 .endif	; End of compress
 
+.endif	; Commented out due to data size
+
 .endif	; End of FF3_DRIVER
 
 
 
 
-.if 0
+.if 0	; FF3 sound commented
 ;----------
 ;A1D2 - $02 = Crystal Cave
 M_A1D2:
@@ -10331,13 +10613,14 @@ F5 0B FF EB F2 48 38 48 38 46 F1 95 DB C2 F2 48
 
 
 
-.endif
+.endif	; End of FF3 commented
 
 
 
 .if FF3_DRIVER
 ; Sound effect pointer table(97)
 SndEftTbl:
+.if 0	; FF3 SndEft
 .word SNDE_00				; 87 93
 .word SNDE_01				; 9a 93
 .word SNDE_02				; a8 93
@@ -10435,6 +10718,7 @@ SndEftTbl:
 .word SNDE_94				; 4e 9a
 .word SNDE_95				; 5b 9a
 .word SNDE_96				; 66 9a
+.word SNDE_97				; Magic ready (FF2 version)
 
 ; Sound effect data(97)
 ;---------- Cannon shot
@@ -10454,6 +10738,8 @@ SNDE_01:				; 939A
 .word $FFFF				; FF Ff
 SNDE_01_CH1:
 .byte $f6,$23,$0a,$f3,$0b,$4b,$2b,$6b,$b3,$ff
+.word SNDE_01_CH1			; 9E 93
+.word $FFFF
 
 ;---------- Magic Meteo
 SNDE_02:				; 93A8
@@ -11228,6 +11514,41 @@ SNDE_96:				; 9A66
 SNDE_96_CH1:
 .byte $f7,$15,$ff,$f8,$8c,$f1,$05,$eb,$05,$e9,$05,$e7,$05,$e5,$05,$e3,$04,$ff
 
+;---------- Magic ready (FF2 version)
+SNDE_97:				;
+.word SNDE_97_CH1
+.word SNDE_97_NOI
+SNDE_97_CH1:
+.byte DUTY_1_4,$2C,$FF
+.byte $F8,$9A				; 9A sweep
+.byte VOL5
+.byte OT1,S1_16
+.byte VOL7
+.byte OT2,SH1_16
+.byte VOL10
+.byte OT1,C1_16
+.byte VOL14
+.byte OT2,DH1_16
+.byte VOL15
+.byte M1_16
+.byte $FF
+SNDE_97_NOI:
+.byte DUTY_1_8,$15,$ff
+.byte VOL6
+.byte OT0,C1_24
+.byte VOL6
+.byte L1_24
+.byte VOL5
+.byte S1_16
+.byte VOL7
+.byte F1_16
+.byte VOL15
+.byte RH1_16
+.byte $FF
+
+.endif	; End of SndEft FF3
+
+
 
 ; 6DA80h ($36:9A7C) - pointers to volume envelope data
 ;Volume envelope Address (41)
@@ -11276,6 +11597,7 @@ VolEnvTbl:
 .word VE_NEW1	; - $29
 .word VE_NEW2	; - $2A
 .word VE_NEW3	; - $2B
+.word VE_NEW4	; - $2C
 
 ; Attack : volumes(low nibble) : if -(negative) is attack terminate(to decay)
 ; Decay/Release : 1st : volume envelope rate, (low val = slow, high val = fast)
@@ -11875,6 +12197,18 @@ VPBDD2:
 .byte $00
 .endif
 
+;----------
+VE_NEW4:					; $2C
+.word VE_NEW4_ATK
+.word VE_NEW4_D
+.word VE_NEW4_R
+VE_NEW4_ATK:
+.byte $0F,$FF
+VE_NEW4_D:
+.byte $00,$0F,$00,$FE
+VE_NEW4_R:
+.byte $00,$00
+
 ; 6DEBBh ($36:9EABh) - pointers to pitch envelope data
 ;Pitch envelop address (16)
 PitEnvTbl:
@@ -11899,6 +12233,7 @@ PitEnvTbl:
 .word PE_NEW3	; - $12
 .word PE_NEW4	; - $13
 .word PE_NEW5	; - $14 - test airship not good
+.word PE_NEW6	; - $15
 
 ; plus : count, pitch +,- [byte1, byte2] = plus is low base, minus is high tone
 ; minus : count back [byte]
@@ -11954,5 +12289,15 @@ PE_NEW5:					; $14 - test airship not good
 ;.byte $0F,$00,$04,$FF,$04,$01,$FC
 .byte $0F,$00,$04,$FF,$04,$01,$FC
 ;.byte $04,$FF,$04,$01,$FC
+PE_NEW6:					; $15 - test for sound effect
+.byte $01,$FE,$01,$FC,$01,$FA,$01,$F8
+.byte $01,$F6,$01,$F4,$01,$F2,$01,$F0
+.byte $01,$EE,$01,$EC,$01,$EA,$01,$E8
+.byte $01,$E6,$01,$E4,$01,$E2,$01,$E0
+.byte $01,$DE,$01,$DC,$01,$DA,$01,$D8
+.byte $01,$D6,$01,$D4,$01,$D2,$01,$D0
+.byte $01,$CE,$01,$CC,$01,$CA,$01,$C8
+.byte $01,$C6,$01,$C4,$01,$C2,$01,$C0
+.byte $FE
 .endif
 ; End of FF3_DRIVER
