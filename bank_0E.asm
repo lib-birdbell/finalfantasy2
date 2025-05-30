@@ -13,6 +13,8 @@
 .import Wait_NMI		;FE00
 .import	Init_variables		;FFB0
 
+DEBUG_SOUND = 1				; debug sound
+
 
 .segment "BANK_0E"
 
@@ -2245,7 +2247,7 @@ L395E7:
 	STA text_offset		; 960B	$85 $94
 	LDA #$84		; 960D	$A9 $84
 	STA $95			; 960F	$85 $95
-	JMP $EA8C		; 9611	$4C $8C $EA
+	JMP $EA8C		; 9611	$4C $8C $EA	load text
 ; End of
 
 ; Name	:
@@ -6160,7 +6162,7 @@ L3B3C7:
 	STA text_offset		; B3F8	$85 $94
 	LDA #$0A		; B3FA	$A9 $0A		text 2 bank
 	STA bank_tmp		; B3FC	$85 $93
-	JMP $EA8C		; B3FE	$4C $8C $EA	text process ??
+	JMP $EA8C		; B3FE	$4C $8C $EA	text process ?? load text
 ; End of
 
 ; Name	:
@@ -6911,15 +6913,29 @@ L3B8C9:
 ;	  PPU init OAM to #$F0
 ;	  BGM set prelude
 NT0_OAM_init:
+.if DEBUG_SOUND
+	;LDA #$01		; 8 bytes : 4
+	;LDA #$01		;
+	;STA $7F42		; play new song
+	;STA $7F43		; song id
+	;ASL
 	LDA #BGM_prelude	; B906 $A9 $41
 	STA current_song_ID	; B908 $85 $E0
+.else
+	LDA #BGM_prelude	; B906 $A9 $41
+	STA current_song_ID	; B908 $85 $E0
+.endif	; End of DEBUG_SOUND
 	JSR Clear_Nametable0	; B90A $20 $21 $F3
 	LDA #$88		; B90D $A9 $88
 	STA $FF			; B90F $85 $FF
 	STA PpuControl_2000	; B911 $8D $00 $20
 	LDA #$01		; B914 $A9 $01
 	STA $37			; B916 $85 $37
+.if DEBUG_SOUND
 	JSR Get_udlr		; B918 $20 $B6 $8E
+.else
+	JSR Get_udlr		; B918 $20 $B6 $8E
+.endif	; End of DEBUG_SOUND
 	LDA #$00		; B91B $A9 $00
 	STA $A2			; B91D $85 $A2
 	STA $A3			; B91F $85 $A3
