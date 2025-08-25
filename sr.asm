@@ -684,3 +684,21 @@ Next_target_player:
 	AND #$03
 	STA ($9F),Y
 	JMP L328D4		; - 9 bytes + 17
+
+;----------------------------------------------------
+; RAM MAP
+[Sounc effect]
+$7F49 : Sound effect enable
+	Bit7-Bit0 = Sound effect enable(1=Enable, 0=Disable)
+$7F4F : Sound effect Channel 1
+	Bit7 = Square Channel 1 Enable(1=Enable, 0=Disable). Bit0 = Init(1=Initialization, 0=Continue)
+$7F50 : Sound effect Noise
+	Bit7 = Noise Channel Enable(1=Enable, 0=Disable). Bit0 = Init(1=Initialization, 0=Continue)
+$7F72 : Sq1Timer($4006) temp
+$7F73 : NoisePeriod($400E) temp
+$7F79 : Sq1Length($4007) temp
+$7F80 : Sq1
+$7F81 : NoiseVolume($400C) temp
+	Bit5 = length counter half. Bit4 = constant volume
+$7F87 : Sq1Timer($4005) temp
+$7F8E : Sq1

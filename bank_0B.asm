@@ -29,6 +29,7 @@
 .import	Set_mob_gfx		;FB62
 .import	Load_text_gfx		;FB84
 .import	Copy_char_tile		;FBBA	- not character tile
+.import	LoadBattleAniFX		;FBC3
 .import	Set_wpn_pal		;FC03
 .import	Multi			;FC79
 .import	Multi16			;FC98
@@ -711,7 +712,7 @@ Battle_defeat_0B:
 Init_battle:
 	JSR Init_ppu		; 9639	$20 $C3 $96	init ppu
 	JSR Make_rng_tbl	; 963C	$20 $D5 $97	init rng
-	JSR $FBC3		; 963F	$20 $C3 $FB	load battle animation graphics ??
+	JSR LoadBattleAniFX	; 963F	$20 $C3 $FB	load battle animation(fx) graphics
 	JSR Load_battle_prop	; 9642	$20 $3D $98	load battle properties
 	JSR SR_Init_battle_stats	; 9645	$20 $17 $FB
 	LDA $7B4C		; 9648	$AD $4C $7B	monster graphics set

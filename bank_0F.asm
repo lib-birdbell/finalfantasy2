@@ -35,6 +35,7 @@
 .export	Set_mob_gfx			;FB62
 .export	Load_text_gfx			;FB84
 .export	Copy_char_tile			;FBBA
+.export	LoadBattleAniFX			;FBC3
 .export	Get_data_BANK_0C		;FBE6
 .export	Set_wpn_pal			;FC03
 .export	Multi				;FC79
@@ -9284,24 +9285,27 @@ Copy_char_tile:
 	JMP Swap_ret_bank		; FBC0  $4C $84 $FA
 ; End of Copy_char_tile
 
-; Name	:
-; Marks	: Load battle animation graphics ??
+; Name	: LoadBattleAniFX
+; Marks	: Load battle animation effects graphics
+;	  +$00: destination(PPU $0500-$06BF)
+;	  +$02: source(BANK 09 $9A00-$9BBF)
 ;; sub start ;;
-    JSR Swap_bank_09                ; FBC3  $20 $75 $FA
-    LDA #$00                 ; FBC6  $A9 $00
-    STA $02                  ; FBC8  $85 $02
-    LDA #$9A                 ; FBCA  $A9 $9A	BANK 09/9A00
-    STA $03                  ; FBCC  $85 $03
-    LDA #$05                 ; FBCE  $A9 $05
-    STA $01                  ; FBD0  $85 $01
-    LDA #$00                 ; FBD2  $A9 $00	ppu $0500
-    STA $00                  ; FBD4  $85 $00
-    TAX                      ; FBD6  $AA
-    JSR Set_buf_to_Ppu               ; FBD7  $20 $6F $FD
-    INC $01                  ; FBDA  $E6 $01	ppu $0600
-    INC $03                  ; FBDC  $E6 $03	BANK 09/9B00
-    LDX #$C0                 ; FBDE  $A2 $C0
-    JSR Set_buf_to_Ppu               ; FBE0  $20 $6F $FD
+LoadBattleAniFX:
+	JSR Swap_bank_09		; FBC3  $20 $75 $FA
+	LDA #$00			; FBC6  $A9 $00
+	STA $02				; FBC8  $85 $02
+	LDA #$9A			; FBCA  $A9 $9A		BANK 09/9A00
+	STA $03				; FBCC  $85 $03
+	LDA #$05			; FBCE  $A9 $05
+	STA $01				; FBD0  $85 $01
+	LDA #$00			; FBD2  $A9 $00		ppu $0500
+	STA $00				; FBD4  $85 $00
+	TAX				; FBD6  $AA
+	JSR Set_buf_to_Ppu		; FBD7  $20 $6F $FD
+	INC $01				; FBDA  $E6 $01		ppu $0600
+	INC $03				; FBDC  $E6 $03		BANK 09/9B00
+	LDX #$C0			; FBDE  $A2 $C0
+	JSR Set_buf_to_Ppu		; FBE0  $20 $6F $FD
 	JMP Swap_ret_bank		; FBE3  $4C $84 $FA
 ; End of
 
@@ -9635,8 +9639,8 @@ Wait_MENU_snd:
 	JMP L3FA48			; FD6C  $4C $48 $FA	sound ??
 ; End of Wait_MENU_snd
 
-; Name	: Set_buf_to_Ppu
-; X	: Size to copy
+; Name	: Set_buf_to_Ppu(CpPRGtoPPU_Xlen)
+; X	: Size to copy(X=0 -> 256)
 ; DEST	: $00(ADDR)
 ; SRC	: $02(ADDR)
 ; Marks	: Used on BANK 0B, BANK 0F
