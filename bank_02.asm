@@ -3,6 +3,12 @@
 
 .segment "BANK_02"
 
+; nes address	| rom address	| description
+;---------------+---------------+-------------------------------------------+
+; 028000-028FFF | 008010-00900F | world bg graphics
+; 029000-029AFF | 009010-009B0F | world sprite graphics
+; 029B00-02BFFF | 009B10-00C00F | map sprite graphics
+
 ;; [$8000 :: 0x08000]
 
 .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$01,$00,$03,$07,$01,$00,$03,$00

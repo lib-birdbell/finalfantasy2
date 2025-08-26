@@ -6,6 +6,25 @@
 
 .segment "BANK_09"
 
+; nes address	| rom address	| description
+;---------------+---------------+-------------------------------------------+
+; 098000-09883F | 024010-02484F | portrait graphics (11 * 192 bytes)
+; 098840-       | 024850-       | misc. menu/battle sprite graphics ???
+; 0989C0-0989FF | 0249D0-024A0F | cursor graphics (battle/menu)
+; 098A00-09931F | 024A10-02532F | window/text graphics
+; 099320-099DFF | 025330-025E0F | battle animation graphics
+; 099E00-09AFFF | 025E10-02700F | battle character graphics (9 * 512 bytes)
+; 09B000-09B3FF | 027010-02740F | ending graphics
+; 09B400-09B7FF | 027410-02780F | minimap name table
+;               |               |
+; 09BA00-09BDD0 | 027A10-027DE0 | minimap code
+; 09BDD1-09BEFF | 027DE1-027F0F | stale data
+; 09BF00-09BF4F | 027F10-027F5F | minimap sprite graphics
+; 09BF50-09BF5F | 027F60-027F6F | minimap palettes
+; 09BF60-09BF6F | 027F70-027F7F | minimap sprite data
+; 09BF70-09BF7F | 027F80-027F8F | unused
+; 09BF80-09BFFF | 027F90-02800F |
+
 ; Tiles
 ;; [$8000 :: 0x24000]
 ;Battle_char_gfx

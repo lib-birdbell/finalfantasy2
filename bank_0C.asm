@@ -11,7 +11,7 @@
 .export Get_win_pos_datap_bank0C	;8F58
 .export Move_OAM_XY_bank0C	;8F5B
 
-.import Set_IRQ_JMP		;FA2A
+.import Wait_NMI_set		;FA2A
 .import	SR_Battle_pose		;FABC
 .import	SR_Battle_target	;FAC0
 .import	SR_Battle_front		;FAC4
@@ -1318,7 +1318,7 @@ Open_win_draw:
 	LDA #$03		; 9319	$A9 $03
 	STA $44			; 931B	$85 $44
 Open_win_draw_loop:
-	JSR Set_IRQ_JMP		; 931D	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 931D	$20 $2A $FA	Wait NMI
 	LDA $44			; 9320	$A5 $44
 	CMP #$03		; 9322	$C9 $03		bottom border ??
 	BNE L3132E		; 9324	$D0 $08
@@ -2134,7 +2134,7 @@ Divide_cnt:
 ;	  copy oam data to ppu
 Apply_OAM:
 	JSR Wait_MENU_snd	; 980C	$20 $5B $FD
-	JSR Set_IRQ_JMP		; 980F	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 980F	$20 $2A $FA	Wait NMI
 	LDA #$00		; 9812	$A9 $00
 	STA $2003		; 9814	$8D $03 $20
 	LDA #$02		; 9817	$A9 $02
@@ -2652,7 +2652,7 @@ Remove_tile:
 	STA $66			; 9B53	$85 $66
 L31B55:
 	JSR Wait_MENU_snd	; 9B55	$20 $5B $FD
-	JSR Set_IRQ_JMP		; 9B58	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 9B58	$20 $2A $FA	Wait NMI
 	JSR Set_ppu_addr	; 9B5B	$20 $02 $94
 	LDY #$18		; 9B5E	$A0 $18
 	LDA #$FF		; 9B60	$A9 $FF
@@ -4293,7 +4293,7 @@ Get_mob_act_end:
 L32630:
 	LDA NMI_done_flag	; A630	$A5 $AC
 	BNE L32630		; A632	$D0 $FC		LOOP Wait NMI IRQ
-	JSR Set_IRQ_JMP		; A634	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; A634	$20 $2A $FA	Wait NMI
 	JMP Wait_NMIe_MENUs	; A637	$4C $5D $9A
 ; End of Get_mob_act
 
@@ -4816,7 +4816,7 @@ L3298C:
 L32990:
 	LDA NMI_done_flag	; A990	$A5 $AC
 	BNE L32990		; A992	$D0 $FC		LOOP Wait NMI IRQ
-	JSR Set_IRQ_JMP		; A994	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; A994	$20 $2A $FA	Wait NMI
 	JSR Wait_NMI_end	; A997	$20 $46 $FD
 	LDA #$00		; A99A	$A9 $00		top left window
 	STA $4F			; A99C	$85 $4F

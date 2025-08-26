@@ -9,11 +9,31 @@
 .import	Multi16				;FC98
 .import Random				;FD11
 .import Wait_NMI_end			;FD46
-.import L3FA2A
+.import Wait_NMI_set			;FA2A
 .import	Wait_MENU_snd			;FD5B
 .import DoDivision
 
 .segment "BANK_05"
+
+; nes address	| rom address	| description
+;---------------+---------------+-------------------------------------------+
+; 058000-05807F | 014010-01408F | pointers to map bg tilemaps 2
+; 058080-059D7F | 014090-015D8F | map bg tilemaps 2
+; 059D80-059EFF | 015D90-015F0F | unused
+; 059F00-05AC43 | 015F10-016C53 | battle message code
+; 05AC44-05AD43 | 016C54-016D53 | pointers to monster names
+; 05AD44-05B0BA | 016D54-0170CA | monster names (128 items)
+; 05B0BB-05B146 | 0170CB-017156 | pointers to attack names
+; 05B147-05B294 | 017157-0172A4 | attack names (70 items)
+; 05B295-05B37C | 0172A5-01738C | pointers to battle text
+; 05B37D-05B6FF | 01738D-01770F | battle text (116 items)
+; 05B700-05B77F | 017710-01778F | monster levels
+; 05B780-05B7FF | 017790-01780F | item set for each monster
+; 05B800-05B9DF | 017810-0179EF | monster item sets (28 * 8 bytes)
+; 05B9E0-05B9FF | 0179F0-017A0F | monster gil (16 * 2 bytes)
+; 05BA00-05BB5E | 017A10-017B6E | sound effect code
+; 05BB5F-05BBA0 | 017B6F-017BB0 | pointers to sound effect scripts
+; 05BBA1-05BFFF | 017BB1-01800F | sound effect scripts (33 items)
 
 ; ========== pointers to map bg tilemaps 2 ($8000-$807F) START ==========
 .byte $80,$80,$28,$81,$FB,$81,$B7,$82,$49,$83,$FD,$83,$8E,$84,$E3,$84
@@ -1524,7 +1544,7 @@ L15F1B:
 	BNE L15F1B			; 9F23	$D0 $F6
 	JMP L1601B			; 9F25	$4C $1B $A0
 L15F28:
-	JSR L3FA2A			; 9F28	$20 $2A $FA
+	JSR Wait_NMI_set		; 9F28	$20 $2A $FA
 	LDA #$F0			; 9F2B	$A9 $F0
 	STA $0203			; 9F2D	$8D $03 $02
 	LDA #$02			; 9F30	$A9 $02
@@ -2269,7 +2289,7 @@ L1645E:
 	JSR Wait_MENU_snd		; A464	$20 $5B $FD
  	JMP Wait_NMI_end		; A467	$4C $46 $FD
 	JSR L1645E			; A46A	$20 $5E $A4
- 	JMP L3FA2A			; A46D	$4C $2A $FA
+ 	JMP Wait_NMI_set		; A46D	$4C $2A $FA
 ; End of
 
 ;A470 - data block = loot menu window positions (remove/exit)
@@ -2628,7 +2648,7 @@ L16706:
 L1670A:
 	LDA $AC				; A70A	$A5 $AC
 	BNE L1670A			; A70C	$D0 $FC
-	JSR L3FA2A			; A70E	$20 $2A $FA
+	JSR Wait_NMI_set		; A70E	$20 $2A $FA
 	JSR Wait_NMI_end		; A711	$20 $46 $FD
 	LDA $E1				; A714	$A5 $E1
 	CMP #$FF			; A716	$C9 $FF
@@ -3388,7 +3408,7 @@ L16B8F:
 ; Name	:
 ; Marks	: wait for vblank
 	JSR Wait_MENU_snd		; ABD2	$20 $5B $FD	wait for first menu scanline
-	JMP L3FA2A			; ABD5	$4C $2A $FA	wait for vblank
+	JMP Wait_NMI_set		; ABD5	$4C $2A $FA	wait for vblank
 ; End of
 
 ; Name	:

@@ -22,7 +22,7 @@
 .export	Init_battle		;9639
 
 .import	Ret_to_map		;FA0F
-.import Set_IRQ_JMP		;FA2A
+.import Wait_NMI_set		;FA2A
 .import	SR_BattleMain		;FB06
 .import	SR_SortVal		;FB0C
 .import	SR_Init_battle_stats	;FB17
@@ -40,7 +40,7 @@
 .import	Weapon_type		;FDC7
 .import Wait_NMI_end		;FD46
 .import	Wait_MENU_snd		;FD5B
-.import	Set_buf_to_Ppu		;FD6F
+.import	CpPRGtoPPU_Xlen		;FD6F
 .import	Set_PpuAddr_00		;FD7E
 .import	OnReset			;FE2E
 
@@ -771,7 +771,7 @@ L2D686:
 ; Marks	: init ppu
 Init_ppu:
 	JSR Reset_all_pal	; 96C3	$20 $3E $97
-	JSR Set_IRQ_JMP		; 96C6	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 96C6	$20 $2A $FA	Wait NMI
 	JSR Apply_palettes	; 96C9	$20 $7C $9D
 	LDA #$90		; 96CC	$A9 $90
 	STA PpuControl_2000	; 96CE	$8D $00 $20
@@ -1893,7 +1893,7 @@ Set_PpuAddr_3F00:
 ; Marks	: Tile copy to PPU $00(ADDR) size is #$7F
 Copy_tile_ppu:
 	LDY #$00		; 9DA2	$A0 $00
-	JSR Set_IRQ_JMP		; 9DA4	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 9DA4	$20 $2A $FA	Wait NMI
 	LDA $01			; 9DA7	$A5 $01
 	STA PpuAddr_2006	; 9DA9	$8D $06 $20
 	LDA $00			; 9DAC	$A5 $00
@@ -1916,9 +1916,9 @@ Apply_OAM_tile:
 ; Name	: Apply_OAM_buf
 ; Marks	: not set graphics buffer, just copy
 Apply_OAM_buf:
-	JSR Set_IRQ_JMP		; 9DBD	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 9DBD	$20 $2A $FA	Wait NMI
 	JSR Copy_OAM_dma_	; 9DC0	$20 $60 $9E
-	JMP Set_buf_to_Ppu	; 9DC3	$4C $6F $FD
+	JMP CpPRGtoPPU_Xlen	; 9DC3	$4C $6F $FD
 ; End of Apply_OAM_buf
 ; End of Apply_OAM_tile
 
@@ -2087,14 +2087,14 @@ Apply_OAM_pal:
 ; Marks	: Wait MENU with sound -> Wait NMI
 Wait_MENUs_NMI:
 	JSR Wait_MENU_snd	; 9E3F	$20 $5B $FD
-	JMP Set_IRQ_JMP		; 9E42	$4C $2A $FA	Wait NMI
+	JMP Wait_NMI_set	; 9E42	$4C $2A $FA	Wait NMI
 ; End of Wait_MENUs_NMI
 
 
 
 ;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ;9E45 - unused
-	JSR Set_IRQ_JMP		; 9E45	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 9E45	$20 $2A $FA	Wait NMI
 	JSR $9E36		; 9E48	$20 $36 $9E
 	JMP $FA48		; 9E4B	$4C $48 $FA	update sound
 ;xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -2104,7 +2104,7 @@ Wait_MENUs_NMI:
 ; Name	: Copy_OAM
 ; Marks	:
 Copy_OAM:
-	JSR Set_IRQ_JMP		; 9E4E	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 9E4E	$20 $2A $FA	Wait NMI
 	JMP Copy_OAM_dma_	; 9E51	$4C $60 $9E
 ; End of Copy_OAM
 
@@ -2271,7 +2271,7 @@ Init_mob_tilemap:
 	STA $02			; 9F34	$85 $02
 	LDA mob_heights,Y	; 9F36	$B9 $82 $7B
 	STA $03			; 9F39	$85 $03
-	JSR Set_IRQ_JMP		; 9F3B	$20 $2A $FA	Wait NMI
+	JSR Wait_NMI_set	; 9F3B	$20 $2A $FA	Wait NMI
 L2DF3E:
 	LDY $05			; 9F3E	$A4 $05		start value
 	LDX $02			; 9F40	$A6 $02		size - monster width
@@ -2318,7 +2318,7 @@ Init_boss_tilemap:
 	DEC $00			; 9F83	C6 00
 L2DF85:
 	LDX mob_widths		; 9F85	AE 8A 7B
-	JSR Set_buf_to_Ppu	; 9F88	20 6F FD	copy data to ppu
+	JSR CpPRGtoPPU_Xlen	; 9F88	20 6F FD	copy data to ppu
 	TYA			; 9F8B	98
 	CLC			; 9F8C	18
 	ADC $02			; 9F8D	65 02
@@ -2738,7 +2738,7 @@ Copy_attr_to_ppu:
 	LDA #$C0		; A1F0	$A9 $C0
 	STA $00			; A1F2	$85 $00
 	LDX #$40		; A1F4	$A2 $40		size to copy
-	JMP Set_buf_to_Ppu	; A1F6	$4C $6F $FD
+	JMP CpPRGtoPPU_Xlen	; A1F6	$4C $6F $FD
 ; End of Copy_l_attr
 ; End of Copy_r_attr
 

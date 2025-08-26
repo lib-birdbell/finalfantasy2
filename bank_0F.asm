@@ -2,8 +2,7 @@
 .include "variables.inc"
 
 .export L3FD8C
-.export L3FA2A				;FA2A
-.export Set_IRQ_JMP			;FA2A
+.export Wait_NMI_set			;FA2A
 .export	Do_009880			;FAFB
 .export Init_Page2			;C46E
 ;C74F
@@ -47,7 +46,7 @@
 .export	Weapon_type			;FDC7
 .export Wait_NMI_end			;FD46
 .export	Wait_MENU_snd			;FD5B
-.export	Set_buf_to_Ppu			;FD6F
+.export	CpPRGtoPPU_Xlen			;FD6F
 .export	Set_PpuAddr_00			;FD7E
 .export Wait_NMI			;FE00
 .export Swap_PRG_			;FE03
@@ -8893,33 +8892,49 @@ L3FA21:
     RTS                      ; FA29  $60
 ; End of Zpage_store
 
-; Name	: Set_IRQ_JMP
+; Name	: Wait_NMI_set
 ; Marks	: Set IRQ instruction JMP
 ;	  Set JMP address to $FA3C
-Set_IRQ_JMP:
-L3FA2A:
-    LDA #$3C                 ; FA2A  $A9 $3C
-    STA $0101                ; FA2C  $8D $01 $01
-    LDA #$FA                 ; FA2F  $A9 $FA
-    STA $0102                ; FA31  $8D $02 $01
-    LDA #$4C                 ; FA34  $A9 $4C
-    STA $0100                ; FA36  $8D $00 $01
-L3FA39:
-    JMP L3FA39               ; FA39  $4C $39 $FA
-; End of Set_IRQ_JMP
+;	  Similar to  $FEAD
+;----------------------------------------------------------------------------
+;	  Wait_NMI_set / One-shot WFI using soft vector at $0100
+;	  - Plant "JMP $FA3C" into $0100..$0102 (stack page RAM).
+;	  - Spin until an interrupt hits; NMI/IRQ vector must point to $0100.
+;	  - On interrupt, JMP $FA3C runs:
+;	   * $0100 ← $40 (RTI), so later interrupts just RTI (ignore).
+;	   * read $2002 to clear vblank/NMI latch.
+;	   * PLA>3 to discard pushed (PC_hi, PC_lo, P).
+;	   * RTS to return to the caller (escape the spin).
+;	   * WFI(Wait-For-Interrupt)
+;	  Notes:
+;	  - Requires vectors FFFA/FFFE → $0100 (soft vector trampoline design).
+;	  - If NMI/IRQ disabled here, this will hang in the loop.
+;----------------------------------------------------------------------------
+;	  Used on bank 05, 0B, 0C
+Wait_NMI_set:
+	LDA #<Wait_NMI_handler		; FA2A  $A9 $3C
+	STA $0101			; FA2C  $8D $01 $01
+	LDA #>Wait_NMI_handler		; FA2F  $A9 $FA
+	STA $0102			; FA31  $8D $02 $01
+	LDA #$4C			; FA34  $A9 $4C		asm JMP
+	STA $0100			; FA36  $8D $00 $01
+Wait_NMI_set_loop:
+	JMP Wait_NMI_set_loop		; FA39  $4C $39 $FA
+; End of Wait_NMI_set
 
 ; < NMI routine >
-; Name	:
-; Marks	: IRQ subroutine
-L3FA3C:
-    LDA #$40                 ; FA3C  $A9 $40
-    STA $0100                ; FA3E  $8D $00 $01
-    LDA PpuStatus_2002       ; FA41  $AD $02 $20
-    PLA                      ; FA44  $68
-    PLA                      ; FA45  $68
-    PLA                      ; FA46  $68
-    RTS                      ; FA47  $60
-; End of
+; Name	: Wait_NMI_handler
+; Marks	: NMI(IRQ) subroutine
+;	  Similar to $FEA1
+Wait_NMI_handler:
+	LDA #$40			; FA3C  $A9 $40		asm RTI
+	STA $0100			; FA3E  $8D $00 $01
+	LDA PpuStatus_2002		; FA41  $AD $02 $20	cleaer VBlank flag/NMI latch
+	PLA				; FA44  $68
+	PLA				; FA45  $68
+	PLA				; FA46  $68
+	RTS				; FA47  $60
+; End of Wait_NMI_handler
 
 ; Name	:
 ; Marks	: sound
@@ -9212,7 +9227,7 @@ Set_mob_gfx:
 	STA $04				; FB6A  $85 $04
 L3FB6C:
 	LDX #$00			; FB6C  $A2 $00
-	JSR Set_buf_to_Ppu		; FB6E  $20 $6F $FD
+	JSR CpPRGtoPPU_Xlen		; FB6E  $20 $6F $FD
 	INC $01				; FB71  $E6 $01
 	INC $03				; FB73  $E6 $03
 	DEC $04				; FB75  $C6 $04
@@ -9253,21 +9268,21 @@ Load_text_gfx:
 	LDA #$09			; FB97  $A9 $09		$0900 bytes
 	STA $04				; FB99  $85 $04
 Load_text_gfx_loop:
-	JSR Set_buf_to_Ppu		; FB9B  $20 $6F $FD
+	JSR CpPRGtoPPU_Xlen		; FB9B  $20 $6F $FD
 	INC $01				; FB9E  $E6 $01
 	INC $03				; FBA0  $E6 $03
 	DEC $04				; FBA2  $C6 $04
 	BNE Load_text_gfx_loop		; FBA4  $D0 $F5
 	LDX #$20			; FBA6  $A2 $20		remaining $20 bytes out of $0920 bytes
-	JSR Set_buf_to_Ppu		; FBA8  $20 $6F $FD
+	JSR CpPRGtoPPU_Xlen		; FBA8  $20 $6F $FD
 	JMP Swap_ret_bank		; FBAB  $4C $84 $FA
 ; End of Load_text_gfx
 
 ; Marks	: Used on BANK 0B
 L3FBAE:
     JSR Swap_bank_09                ; FBAE  $20 $75 $FA
-    JSR Set_IRQ_JMP			; JSR L3FA2A               ; FBB1  $20 $2A $FA
-    JSR Set_buf_to_Ppu               ; FBB4  $20 $6F $FD
+    JSR Wait_NMI_set			; JSR L3FA2A               ; FBB1  $20 $2A $FA
+    JSR CpPRGtoPPU_Xlen               ; FBB4  $20 $6F $FD
 	JMP Swap_ret_bank		; FBB7  $4C $84 $FA
 ; End of
 
@@ -9289,6 +9304,9 @@ Copy_char_tile:
 ; Marks	: Load battle animation effects graphics
 ;	  +$00: destination(PPU $0500-$06BF)
 ;	  +$02: source(BANK 09 $9A00-$9BBF)
+;	  weapon effect (9A00-) ??
+;	  defeat effect (9A00-)
+;	  explosion effect (9B00h-)
 ;; sub start ;;
 LoadBattleAniFX:
 	JSR Swap_bank_09		; FBC3  $20 $75 $FA
@@ -9301,11 +9319,11 @@ LoadBattleAniFX:
 	LDA #$00			; FBD2  $A9 $00		ppu $0500
 	STA $00				; FBD4  $85 $00
 	TAX				; FBD6  $AA
-	JSR Set_buf_to_Ppu		; FBD7  $20 $6F $FD
+	JSR CpPRGtoPPU_Xlen		; FBD7  $20 $6F $FD
 	INC $01				; FBDA  $E6 $01		ppu $0600
 	INC $03				; FBDC  $E6 $03		BANK 09/9B00
 	LDX #$C0			; FBDE  $A2 $C0
-	JSR Set_buf_to_Ppu		; FBE0  $20 $6F $FD
+	JSR CpPRGtoPPU_Xlen		; FBE0  $20 $6F $FD
 	JMP Swap_ret_bank		; FBE3  $4C $84 $FA
 ; End of
 
@@ -9639,22 +9657,22 @@ Wait_MENU_snd:
 	JMP L3FA48			; FD6C  $4C $48 $FA	sound ??
 ; End of Wait_MENU_snd
 
-; Name	: Set_buf_to_Ppu(CpPRGtoPPU_Xlen)
+; Name	: CpPRGtoPPU_Xlen(CpPRGtoPPU_Xlen)
 ; X	: Size to copy(X=0 -> 256)
 ; DEST	: $00(ADDR)
 ; SRC	: $02(ADDR)
 ; Marks	: Used on BANK 0B, BANK 0F
-Set_buf_to_Ppu:
+CpPRGtoPPU_Xlen:
 	JSR Set_PpuAddr_00		; FD6F  $20 $7E $FD
 	LDY #$00			; FD72  $A0 $00
-Set_buf_to_Ppu_loop:
+CpPRGtoPPU_Xlen_loop:
 	LDA ($02),Y			; FD74  $B1 $02
 	STA PpuData_2007		; FD76  $8D $07 $20
 	INY				; FD79  $C8
 	DEX				; FD7A  $CA
-	BNE Set_buf_to_Ppu_loop		; FD7B  $D0 $F7		loop
+	BNE CpPRGtoPPU_Xlen_loop	; FD7B  $D0 $F7		loop
 	RTS				; FD7D  $60
-; End of Set_buf_to_Ppu
+; End of CpPRGtoPPU_Xlen
 
 ; Name	: Set_PpuAddr_00
 ; SRC	: +$00 = ppu address
@@ -9885,17 +9903,19 @@ OnReset:
 ; < NMI routine >
 ; Marks	: set RTI on $0100(NMI) and Return
 ;	  NMI routine(Wait NMI) and return
+;	  Similar to $FA3C
 NMI_routine:
-	LDA PpuStatus_2002       ; FEA1  $AD $02 $20
-	LDA #$40                 ; FEA4  $A9 $40	Set instruction to RTI
-	STA $0100                ; FEA6  $8D $00 $01
-	PLA                      ; FEA9  $68
-	PLA                      ; FEAA  $68
-	PLA                      ; FEAB  $68
-	RTS                      ; FEAC  $60
+	LDA PpuStatus_2002		; FEA1  $AD $02 $20
+	LDA #$40			; FEA4  $A9 $40		Set instruction to RTI(asm)
+	STA $0100			; FEA6  $8D $00 $01
+	PLA				; FEA9  $68
+	PLA				; FEAA  $68
+	PLA				; FEAB  $68
+	RTS				; FEAC  $60
 ; End of NMI
 
 ; Marks	: set JMP to $FEA1 on $0100(NMI) and wait NMI
+;	  Similar to $FA2A
 Wait_NMI_:
 	LDA #<NMI_routine		; FEAD  $A9 $A1
 	STA $0101			; FEAF  $8D $01 $01
