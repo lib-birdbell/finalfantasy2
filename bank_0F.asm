@@ -189,16 +189,16 @@ SAVEFILE_SEL:
 	LDX #$00			; C097  $A2 $00
 	LDA #$00			; C099  $A9 $00
 	JSR Swap_PRG_			; C09B  $20 $03 $FE
-	LDA $B400,X			; C09E  $BD $00 $B4
+	LDA $B400,X			; C09E  $BD $00 $B4	world map entrance x position
 	SEC				; C0A1  $38
 	SBC #$07			; C0A2  $E9 $07
 	AND #$3F			; C0A4  $29 $3F
 	STA $29				; C0A6  $85 $29		x position
-	LDA $B440,X			; C0A8  $BD $40 $B4
+	LDA $B440,X			; C0A8  $BD $40 $B4	world map entrance y position
 	SEC				; C0AB  $38
 	SBC #$07			; C0AC  $E9 $07
 	STA $2A				; C0AE  $85 $2A		y position
-	LDA $B480,X			; C0B0  $BD $80 $B4
+	LDA $B480,X			; C0B0  $BD $80 $B4	world map entrance map ids
 	STA $48				; C0B3  $85 $48		map id
 	JSR L3CA41			; C0B5  $20 $41 $CA	map main
 ; world map main
@@ -3879,7 +3879,7 @@ L3D7C5:
 ; Marks	: $84 = ??, $85 = ??
 ;	  $84 = visible area, $85 = invisible area(dark)
 ;	  slate out effect
-;	  screen wipe out (world map)
+;	  screen wipe out (world map) - ex> world map -> in map
 ;; sub start ;;
 	JSR $D990			; D7CB  $20 $90 $D9	Init sprites(hide) / make sound ??
 	LDA #$70			; D7CE  $A9 $70

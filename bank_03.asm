@@ -672,6 +672,7 @@
 .byte $6C,$A0,$F5,$A4,$6B,$A4,$E3,$A0,$1B	; A027
 .byte $A7,$2F,$A6,$59,$A0			; A030
 
+; X	: event number
 ; $80(ADDR) = event code subroutine address
 	TXA			; A035	$8A
 	ASL A			; A036	$0A
@@ -1930,7 +1931,7 @@ L0E8E0:
 ; +$80: pointer to tile ids and palette/flags
 ;  $82: tile offset
 	LDY #$00		; A902	$A0 $00
-	LDX $26			; A904	$A6 $26		pointer to next available sprite ?? 
+	LDX $26			; A904	$A6 $26		pointer to next available sprite ?? - OAM offset ??
 	LDA oam_y		; A906	$A5 $41
 	STA $0200,X		; A908	$9D $00 $02	Y(LT) ??
 	STA $0208,X		; A90B	$9D $08 $02	Y(RT) ??
