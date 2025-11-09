@@ -5019,7 +5019,7 @@ L3DE61:
 ; End of
 
 ; Name	:
-; Marks	: Sound effect ?? - caution
+; Marks	: Sound effect(Manually) - caution
 ;	  play error sound effect
 L3DE67:
 	LDA #$01			; DE67  $A9 $01
@@ -5042,7 +5042,7 @@ L3DE78:
 
 ; Name	:
 ; Marks	:
-;	  update error sound effect
+;	  update error sound effect:(Manually)
 ;; sub start ;;
 	JSR Wait_NMI			; DE89  $20 $00 $FE
 	LDA #$7C                 ; DE8C  $A9 $7C
@@ -8948,7 +8948,8 @@ L3FA48:
 	JMP Swap_ret_bank		; FA56  $4C $84 $FA
 ; End of
 
-; X	:
+; X	: Sound effect number
+; Marks	: Play sound effect
 L3FA59:
 	JSR Swap_bank_05		; FA59  $20 $6D $FA
 	TXA				; FA5C  $8A
