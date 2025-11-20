@@ -30,6 +30,7 @@ _2C_unknown		= $2C	; next overworld y position ??
 
 ;---- --hn
 scroll_dir_map		= $2D
+; name table y position
 nt_y_pos		= $2F
 
 _30_unknown		= $30
@@ -272,6 +273,7 @@ msg_spd			= $601F
 ;chocobo_stat		= $6008
 ;chocobo_x		= $6009
 ;chocobo_y		= $600A
+; $6012-
 chocobo_x_		= $623E
 chocobo_y_		= $623F
 
@@ -283,6 +285,7 @@ treasure_sw		= $6020
 ; $604C-$6057(60-BF=96bit): npcs with dialogue only
 ; $6058-$605B(C0-DF=32bit): shop/ferry/inn/revive npcs
 ; $605C-$605F(E0-FF=32bit): event switches
+; $605C.bit1-0 : altea intro
 event_npc_sw		= $6040
 ;inventory		= $6060
 acq_keyword		= $6080
@@ -516,6 +519,14 @@ SQ2_Note_Value		 = $6F1F
 current_BGM_ID		 = $6F25
 _6F26_unknown		= $6F26	; Register backup from $6F26-$6F5D ??
 
+
+
+;;======================================================================
+;; Field
+;; Zero page
+p_evt_scr_L		= $72
+p_evt_scr_H		= $73
+
 ; general buffer: map bg tilemap($7000-$7FFF)
 
 obj_properties		= $7400
@@ -527,12 +538,14 @@ rnd_mov_freq		= $7403
 npc_properties		= $7500
 npc_id			= $7500
 npc_un1			= $7501
+; $7502,$7502 npc position (screen position ??)
 npc_x			= $7504
 npc_y			= $7505
 npc_x_stile_pos		= $7506
 npc_y_stile_pos		= $7507
 ; a--- ---t interacted with player(a), touched by player(udlr)
 npc_und			= $750D
+; +$750E animation pointer
 npc_ani_L		= $750E
 npc_ani_H		= $750F
 
@@ -651,6 +664,7 @@ palette_RAM_idx		= $3F00
 
 
 
+;;======================================================================
 ;; NES Registers ;;
 
 PpuControl_2000          = $2000

@@ -686,6 +686,69 @@ Next_target_player:
 	JMP L328D4		; - 9 bytes + 17
 
 ;----------------------------------------------------
+; Marks	: BANK 03 event switch calc
+; ========== SET (ON = 1) ==========
+SetEventBit:
+    STY $80                ; save n
+    TYA
+    AND #$07               ; index 0..7
+    TAX
+    LDA BitMasks,X         ; A = mask
+    STA $81
+    LDY $80
+    TYA
+    LSR A
+    LSR A
+    LSR A                  ; A = n>>3
+    TAY                    ; Y = byteOfs
+    LDA $6040,Y
+    ORA $81                ; set bit(s)
+    STA $6040,Y
+    LDY $80                ; restore Y
+    RTS
+
+; ========== CLEAR (OFF = 0) ==========
+ClearEventBit:
+    STY $80
+    TYA
+    AND #$07
+    TAX
+    LDA BitMasks,X         ; A = mask
+    STA $81
+    LDY $80
+    TYA
+    LSR A
+    LSR A
+    LSR A
+    TAY
+    LDA $81
+    EOR #$FF               ; ~mask
+    AND $6040,Y            ; mem &= ~mask
+    STA $6040,Y
+    LDY $80
+    RTS
+
+; ========== TOGGLE (^=) ==========
+ToggleEventBit:
+    STY $80
+    TYA
+    AND #$07
+    TAX
+    LDA BitMasks,X         ; A = mask
+    STA $81
+    LDY $80
+    TYA
+    LSR A
+    LSR A
+    LSR A
+    TAY
+    LDA $6040,Y
+    EOR $81                ; mem ^= mask
+    STA $6040,Y
+    LDY $80
+    RTS
+
+;----------------------------------------------------
 ; RAM MAP
 [Sounc effect]
 $7F49 : Sound effect enable

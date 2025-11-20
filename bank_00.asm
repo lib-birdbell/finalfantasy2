@@ -1,15 +1,16 @@
 .include "Constants.inc"
 .include "variables.inc"
 
-.export	Update_char_equip 	;9880
-.export	Init_map		;9C00
-.export	Init_wmap		;9C03
-.export	Set_wmap_palettes	;9C06
-.export	Init_var		;9C09
-.export bg_tilemap_id		;B200
-.export wmap_ent_x		;B400
-.export wmap_ent_y		;B440
-.export wmap_ent_id		;B480
+.export	BattleBG_map			;9400
+.export	Update_char_equip 		;9880
+.export	Init_map			;9C00
+.export	Init_wmap			;9C03
+.export	Set_wmap_palettes		;9C06
+.export	Init_var			;9C09
+.export bg_tilemap_id			;B200
+.export wmap_ent_x			;B400
+.export wmap_ent_y			;B440
+.export wmap_ent_id			;B480
 
 .segment "BANK_00"
 
@@ -491,7 +492,7 @@ Leon_properties:
 
 ; ========== battle bg for each map ($9400-$94FF) START ==========
 ;; [$9400 :: 0x01400]
-
+BattleBG_map:
 .byte $80,$80,$80,$87,$80,$80,$00,$00,$00,$80,$00,$00,$00,$00,$81,$80
 .byte $80,$80,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$80,$80,$80,$00
 .byte $00,$00,$07,$00,$00,$00,$00,$80,$00,$00,$00,$80,$80,$87,$87,$87

@@ -4,6 +4,7 @@
 .export L3FD8C
 .export Wait_NMI_set			;FA2A
 .export	Do_009880			;FAFB
+.export	ChkCharRows			;C015
 .export Init_Page2			;C46E
 ;C74F
 .export Check_savefile			;DAC1
@@ -53,6 +54,7 @@
 .export	OnReset				;FE2E
 .export	Init_variables			;FFB0
 
+.import	BattleBG_map			;9400 - bank_00
 .import	Update_char_equip 		;9880 - bank_00
 .import	Init_map			;9C00 - bank_00
 .import	Init_wmap			;9C03 - bank_00
@@ -110,7 +112,8 @@ L3C009:
 	JMP Key_process			; C00C  $4C $A2 $DB	update joypad input
     JMP Palette_copy			; JMP $DC30                ; C00F  $4C $30 $DC
     JMP $C018                ; C012  $4C $18 $C0	load guest character properties
-    JMP $F2C8                ; C015  $4C $C8 $F2	validata character rows
+ChkCharRows:
+	JMP ChkRows			; C015  $4C $C8 $F2	validata character rows
 
 ; Name	: Load_guest_char
 ; Marks	: load guest character properties
@@ -1177,6 +1180,9 @@ C6B9:
 
 ; A	: event id
 ; Marks	: init event
+;	  $17: event repeat count ??
+;	  $6C:
+;	 +$72:
 L3C6F4:
     ASL A                    ; C6F4  $0A
     TAX                      ; C6F5  $AA
@@ -1189,7 +1195,7 @@ L3C6F4:
     LDA #$01                 ; C705  $A9 $01		event script
     STA $6C                  ; C707  $85 $6C
     LDA #$00                 ; C709  $A9 $00
-    STA $17                  ; C70B  $85 $17
+    STA $17                  ; C70B  $85 $17		event repeat count ??
     RTS                      ; C70D  $60
 ; End of Check ship ?? - init event
 
@@ -1715,7 +1721,7 @@ L3CA7A:
 L3CA7D:
 	LDA $76				; CA7D  $A5 $76		pending event dialogue
 	BEQ L3CA84			; CA7F  $F0 $03		if A == 00h - branch if no event dialogue
-	JSR $E8AA			; CA81  $20 $AA $E8	display event dialogue
+	JSR ShowEvtDlg			; CA81  $20 $AA $E8	display event dialogue
 L3CA84:
 	JSR Init_Page2			; CA84  $20 $6E $C4
 	JSR $E30C			; CA87  $20 $0C $E3	update sprites - event ?? npc process ??
@@ -1960,7 +1966,9 @@ L3CC21:
 L3CC2E:
     CLC                      ; CC2E  $18
     RTS                      ; CC2F  $60
-; trigger tile
+; Name	:
+; Marks	:
+;	  trigger tile
 L3CC30:
     LDA $6C                  ; CC30  $A5 $6C
     BNE L3CC2E               ; CC32  $D0 $FA
@@ -2456,6 +2464,7 @@ L3CEE8:
 .byte $CF,$50,$CF,$50,$CF,$50,$CF,$50,$CF,$50,$CF,$50,$CF
 
 ; Marks	: 0, 1, 2: no trigger (passable)
+;	  $45:
 L3CF0D:
     CLC                      ; CF0D  $18
     RTS                      ; CF0E  $60
@@ -2680,7 +2689,7 @@ L3D05A:
 ; Name	:
 ; Marks	: load map
 ;; sub start ;;
-	JSR $D083			; D06F  $20 $83 $D0	load map
+	JSR $D083			; D06F  $20 $83 $D0	load normal map
 	JSR $D09A			; D072  $20 $9A $D0	init map - battle rate ?? battle bg ??
 	JSR $D13C			; D075  $20 $3C $D1	no effect - ?? dummy code ??
 	JMP L3D8C9			; D078  $4C $C9 $D8	screen wipe in
@@ -2695,7 +2704,7 @@ L3D07B:
 ; End of
 
 ; Name	:
-; Marks	: load map
+; Marks	: load normal map
    ;; sub start ;;
 	LDA #$01			; D083  $A9 $01
 	STA scroll_dir_map		; D085  $85 $2D		Set to normal map
@@ -2711,7 +2720,11 @@ L3D07B:
 
 ; Name	:
 ; Marks	: Init variables
+;	  $19: battle background(Bit.7 only)
+;	  $45:
+;	  $48: world map entrance ID ??
 ;	  $68, $84 = X ??, $69, $85 = Y ??
+;	  $F8: map random battle rate
 ;	  init map
 ;	  use BANK 00, BANK 0B
 ;; sub start ;;
@@ -2779,7 +2792,7 @@ L3D07B:
 	LDA tile_prop			; D114  $A5 $44
 	AND #$08			; D116  $29 $08
 	BEQ L3D11D			; D118  $F0 $03
-	JSR L3CC30			; D11A  $20 $30 $CC
+	JSR L3CC30			; D11A  $20 $30 $CC	trigger tile ??
 L3D11D:
 	LDA #$00			; D11D  $A9 $00
 	STA tile_prop			; D11F  $85 $44
@@ -2787,13 +2800,13 @@ L3D11D:
 	LDA #BANK_RATE_GRP		; D123  $A9 $0B		BANK 0B -> BATTLE PROPERTIES
 	JSR Swap_PRG_			; D125  $20 $03 $FE
 	LDX $48				; D128  $A6 $48		world map entrance ID - map id
-	LDA Map_rnd_battle_rate,X		; D12A  $BD $00 $80	BANK 0B/8000 (map random battle rates)
+	LDA Map_rnd_battle_rate,X	; D12A  $BD $00 $80	BANK 0B/8000 (map random battle rates)
 	STA $F8				; D12D  $85 $F8		set random battle rate
 	LDA #$00			; D12F  $A9 $00
 	JSR Swap_PRG_			; D131  $20 $03 $FE
-	LDA $9400,X			; D134  $BD $00 $94	BANK 00/9400 - battle bg for each map ??
+	LDA BattleBG_map,X		; D134  $BD $00 $94	BANK 00/9400 - battle bg for each map
 	AND #$80			; D137  $29 $80
-	STA $19				; D139  $85 $19		battle bg ??
+	STA $19				; D139  $85 $19		battle bg
 	RTS				; D13B  $60
 ; End of
 
@@ -4499,43 +4512,48 @@ SndE_cur_mov:
 ; Name	:
 ; Marks	: event ?? if no event, check key
 ;	  execute event script / update joypad input
+;	  $17:
+;	  $6C: event script id
+;	  $70: event script 1 (temp)
+;	  $71: event script 2 (temp)
+;	 +$72: event script pointer
 ;; sub start ;;
 	LDA event			; DB5C  $A5 $6C
-	BEQ Key_process			; DB5E  $F0 $42		if A == 00h(no event)
-    CMP #$01                 ; DB60  $C9 $01
-    BNE L3DB95               ; DB62  $D0 $31
-    LDA $17                  ; DB64  $A5 $17	check event repeat count
-    BNE L3DB95               ; DB66  $D0 $2D
-    LDA #$0D                 ; DB68  $A9 $0D
-    JSR Swap_PRG_               ; DB6A  $20 $03 $FE
-    LDY #$00                 ; DB6D  $A0 $00
-    LDA ($72),Y              ; DB6F  $B1 $72	event command
-    CMP #$F9                 ; DB71  $C9 $F9
-    BNE L3DB8E               ; DB73  $D0 $19	branch if not repeat
-    INY                      ; DB75  $C8
-    LDA ($72),Y              ; DB76  $B1 $72	set event repeat counter
-    STA $17                  ; DB78  $85 $17
-    DEC $17                  ; DB7A  $C6 $17
-    LDA $72                  ; DB7C  $A5 $72	increment event scrpit pointer
-    CLC                      ; DB7E  $18
-    ADC #$02                 ; DB7F  $69 $02
-    STA $72                  ; DB81  $85 $72
-    LDA $73                  ; DB83  $A5 $73
-    ADC #$00                 ; DB85  $69 $00
-    STA $73                  ; DB87  $85 $73
-    LDA #$0E                 ; DB89  $A9 $0E
-    JMP Swap_PRG_               ; DB8B  $4C $03 $FE
+	BEQ Key_process			; DB5E  $F0 $42		branch if A == 00h(no event)
+	CMP #$01			; DB60  $C9 $01
+	BNE L3DB95			; DB62  $D0 $31		branch if A != 01h
+	LDA $17				; DB64  $A5 $17		check event repeat count
+	BNE L3DB95			; DB66  $D0 $2D
+	LDA #BANK_EVENT			; DB68  $A9 $0D
+	JSR Swap_PRG_			; DB6A  $20 $03 $FE
+	LDY #$00			; DB6D  $A0 $00
+	LDA ($72),Y			; DB6F  $B1 $72		event script
+	CMP #$F9			; DB71  $C9 $F9
+	BNE L3DB8E			; DB73  $D0 $19		branch if not repeat
+	INY				; DB75  $C8
+	LDA ($72),Y			; DB76  $B1 $72		set event repeat counter
+	STA $17				; DB78  $85 $17
+	DEC $17				; DB7A  $C6 $17
+	LDA $72				; DB7C  $A5 $72		increment +2 event scrpit pointer
+	CLC				; DB7E  $18
+	ADC #$02			; DB7F  $69 $02
+	STA $72				; DB81  $85 $72
+	LDA $73				; DB83  $A5 $73
+	ADC #$00			; DB85  $69 $00
+	STA $73				; DB87  $85 $73
+	LDA #$0E			; DB89  $A9 $0E
+	JMP Swap_PRG_			; DB8B  $4C $03 $FE
 L3DB8E:
-    STA $70                  ; DB8E  $85 $70
-    INY                      ; DB90  $C8
-    LDA ($72),Y              ; DB91  $B1 $72
-    STA $71                  ; DB93  $85 $71
+	STA $70				; DB8E  $85 $70
+	INY				; DB90  $C8
+	LDA ($72),Y			; DB91  $B1 $72		next event script
+	STA $71				; DB93  $85 $71
 L3DB95:
-    LDA #$03                 ; DB95  $A9 $03
-    JSR Swap_PRG_               ; DB97  $20 $03 $FE
-    JSR $A000                ; DB9A  $20 $00 $A0	BANK 03/A000 (execute event command)
-    LDA #$0E                 ; DB9D  $A9 $0E
-    JMP Swap_PRG_               ; DB9F  $4C $03 $FE
+	LDA #BANK_EVENT_CODE		; DB95  $A9 $03
+	JSR Swap_PRG_			; DB97  $20 $03 $FE
+	JSR $A000			; DB9A  $20 $00 $A0	BANK 03/A000 (execute event script)
+	LDA #$0E			; DB9D  $A9 $0E
+	JMP Swap_PRG_			; DB9F  $4C $03 $FE
 ; End of event ??
 
 ; Name	: Key_process
@@ -6597,24 +6615,30 @@ L3E88A:
 ;; [$E8A4-
 .byte $57,$D7,$D7,$87,$57,$D7
 
+; Name	: ShowEvtDlg
 ; Marks	: display event dialogue
+;	  $76: event dialogue number
+;	  $93: BANK number
+;	  $94: pointer(Low) to event dialogue
+;	  $95: pointer(High) to event dialogue
 ;; sub start ;;
-    LDA $76                  ; E8AA  $A5 $76
-    STA $92                  ; E8AC  $85 $92
-    LDA #$0D                 ; E8AE  $A9 $0D		BANK 0D/BF00 (pointers to event dialogue)
-    STA $93                  ; E8B0  $85 $93
-    LDA #$00                 ; E8B2  $A9 $00
-    STA $94                  ; E8B4  $85 $94
-    LDA #$BF                 ; E8B6  $A9 $BF
-    STA $95                  ; E8B8  $85 $95
-    LDA #$00                 ; E8BA  $A9 $00
-    STA $96                  ; E8BC  $85 $96
-    STA $76                  ; E8BE  $85 $76
-    STA $24                  ; E8C0  $85 $24
-    STA $25                  ; E8C2  $85 $25
-    JSR L3E91E               ; E8C4  $20 $1E $E9	open window
-    JMP L3E8E5               ; E8C7  $4C $E5 $E8
-; End of
+ShowEvtDlg:
+	LDA $76				; E8AA  $A5 $76
+	STA $92				; E8AC  $85 $92
+	LDA #$0D			; E8AE  $A9 $0D		BANK 0D/BF00 (pointers to event dialogue)
+	STA $93				; E8B0  $85 $93
+	LDA #$00			; E8B2  $A9 $00
+	STA $94				; E8B4  $85 $94
+	LDA #$BF			; E8B6  $A9 $BF
+	STA $95				; E8B8  $85 $95
+	LDA #$00			; E8BA  $A9 $00
+	STA $96				; E8BC  $85 $96
+	STA $76				; E8BE  $85 $76
+	STA $24				; E8C0  $85 $24
+	STA $25				; E8C2  $85 $25
+	JSR L3E91E			; E8C4  $20 $1E $E9	open window
+	JMP L3E8E5			; E8C7  $4C $E5 $E8
+; End of ShowEvtDlg
 
 ; Name	: Init_win_type
 ; Marks	: Init text window type and key reset
@@ -8147,44 +8171,51 @@ F2B4:
 
     AND $75,X                ; F2C4  $35 $75
     LDA $F5,X                ; F2C6  $B5 $F5
-    LDA $62F5                ; F2C8  $AD $F5 $62
-    BPL F2CF                 ; F2CB  $10 $02
-    LDA #$00                 ; F2CD  $A9 $00
-F2CF:
-    ORA $62B5                ; F2CF  $0D $B5 $62
-    ORA $6275                ; F2D2  $0D $75 $62
-    ORA $6235                ; F2D5  $0D $35 $62
-    LSR A                    ; F2D8  $4A
-    BCS F2E7                 ; F2D9  $B0 $0C
-    LDA $6101                ; F2DB  $AD $01 $61
-    AND #$C0                 ; F2DE  $29 $C0
-    BNE F2E8                 ; F2E0  $D0 $06
-    LDA #$01                 ; F2E2  $A9 $01
-    STA $6235                ; F2E4  $8D $35 $62
-F2E7:
-    RTS                      ; F2E7  $60
+; Name	: ChkRows
+; Marks	: $62F5: Bit.7 = 1=remove guest character
+;	  sort the rows
+ChkRows:
+	LDA $62F5			; F2C8  $AD $F5 $62	character 4 properties 2
+	BPL ChkRowsP4			; F2CB  $10 $02		branch if guest character(p4) exist(present)
+	LDA #$00			; F2CD  $A9 $00
+ChkRowsP4:
+	ORA $62B5			; F2CF  $0D $B5 $62	character 3 properties 2
+	ORA $6275			; F2D2  $0D $75 $62	character 2 properties 2
+	ORA $6235			; F2D5  $0D $35 $62	character 1 properties 2
+	LSR A				; F2D8  $4A		at least 1 character is in the front line
+	BCS ChkRowsE			; F2D9  $B0 $0C		branch if character exist in front row
+	LDA $6101			; F2DB  $AD $01 $61
+	AND #$C0			; F2DE  $29 $C0		dead + stone
+	BNE ChkRowsP2			; F2E0  $D0 $06
+	LDA #$01			; F2E2  $A9 $01
+	STA $6235			; F2E4  $8D $35 $62
+ChkRowsE:
+	RTS				; F2E7  $60
 
-F2E8:
-    LDA $6141                ; F2E8  $AD $41 $61
-    AND #$C0                 ; F2EB  $29 $C0
-    BNE F2F5                 ; F2ED  $D0 $06
-    LDA #$01                 ; F2EF  $A9 $01
-    STA $6275                ; F2F1  $8D $75 $62
-    RTS                      ; F2F4  $60
+ChkRowsP2:
+	LDA $6141			; F2E8  $AD $41 $61
+	AND #$C0			; F2EB  $29 $C0		dead + stone
+	BNE ChkRowsP3			; F2ED  $D0 $06
+	LDA #$01			; F2EF  $A9 $01
+	STA $6275			; F2F1  $8D $75 $62	character 2 properties 2
+	RTS				; F2F4  $60
 
-F2F5:
-    LDA $6181                ; F2F5  $AD $81 $61
-    AND #$C0                 ; F2F8  $29 $C0
-    BNE F302                 ; F2FA  $D0 $06
-    LDA #$01                 ; F2FC  $A9 $01
-    STA $62B5                ; F2FE  $8D $B5 $62
-    RTS                      ; F301  $60
+ChkRowsP3:
+	LDA $6181			; F2F5  $AD $81 $61
+	AND #$C0			; F2F8  $29 $C0		dead + stone
+	BNE ChkRowsP4F			; F2FA  $D0 $06
+	LDA #$01			; F2FC  $A9 $01
+	STA $62B5			; F2FE  $8D $B5 $62	character 3 properties 2
+	RTS				; F301  $60
 
-F302:
-    LDA #$01                 ; F302  $A9 $01
-    STA $62F5                ; F304  $8D $F5 $62
-    RTS                      ; F307  $60
+ChkRowsP4F:
+	LDA #$01			; F302  $A9 $01
+	STA $62F5			; F304  $8D $F5 $62	character 4 properties 2
+	RTS				; F307  $60
+; End of ChkRows
 
+; Name	:
+; Marks	:
     LDA $6101                ; F308  $AD $01 $61
     AND #$E0                 ; F30B  $29 $E0
     BEQ F31F                 ; F30D  $F0 $10

@@ -3,8 +3,37 @@
 
 .segment "BANK_0D"
 
+
+; can be rom size modifing(event switch table to calc)
+
 ; ========== event scripts (26 items) ($8000-$87E0) START ==========
 ;; [$8000 :: 0x34000]
+; event type 1
+; $E6: flash screen
+; $F0: dialogue
+; $F5: play song
+; $F6: set event switch
+; $F7: clear event switch
+; $F8,$XX: wait XX
+; $00-$BF: npc commands
+; $ND: N = npc number
+;	D(0-3) = move direction
+;	D(4-7) = facing direction
+;	D(8-B) = show npc and set facing direction
+;	D(C) = start animation
+;	D(D) = stop animation
+;	D(E-F) = hide npc
+; ex>
+; $13: npc 1, move direction 3(up)
+; $22: npc 2, move direction 2(down)
+; $10: npc 1, move direction 0(right)
+; $21: npc 2, move direction 1(left)
+; $16: npc 1, facing direction 6(down)
+; $C0-$CF: player commands
+; $C4: player, facing direction 4(right)
+; $C5: player, facing direction 5(left)
+; $C6: player, facing direction 6(down)
+; $C7: player, facing direction 7(up)
 S00_8000h:
 .byte $C2,$F9,$07,$C0,$F9,$02,$C2,$F9,$04,$C0,$C0,$C1,$C2,$F9,$05,$F8
 .byte $40,$E6,$E6,$F4,$0A,$0A,$F8,$40,$8B,$85,$F8,$20,$7B,$74,$F8,$20
@@ -201,6 +230,7 @@ S24_8790h:
 S25_87C5h:
 .byte $2C,$22,$22,$F9,$03,$20,$25,$2D,$F8,$40,$C2
 .byte $F9,$04,$C4,$F0,$50,$24,$F8,$80,$F0,$23,$2F,$F5,$56,$F7,$26,$FF
+; $87E0
 .byte $F5,$56,$F7,$26,$FF,$A2,$9A,$46,$FF,$00,$A9,$3E
 ; ========== event scripts (26 items) ($8000-$87E0) END ==========
 ; stale data ?? ($87E0-$87EB)
@@ -1040,9 +1070,9 @@ L35A07:
 	ADC $C9				; 9A31	$65 $C9
 	ASL A				; 9A33	$0A
 	TAX				; 9A34	$AA
-	LDA $9C6D,X			; 9A35	$BD $6D $9C
+	LDA TIMER_TBL,X			; 9A35	$BD $6D $9C
 	STA $C8				; 9A38	$85 $C8
-	LDA $9C6E,X			; 9A3A	$BD $6E $9C
+	LDA TIMER_TBL+1,X		; 9A3A	$BD $6E $9C
 	STA $C9				; 9A3D	$85 $C9
 	LDX $C7				; 9A3F	$A6 $C7
 	LDA $C8				; 9A41	$A5 $C8
@@ -1425,10 +1455,12 @@ L35C63:
 	RTS				; 9C6C	$60
 ; End of
 
+; ==================================================
 ; data block - total size is 8850 bytes
-; $9C6D - 
+; $9C6D - $9CFC - apu timer register table
 ; even: Sq0Timer_4002,X
 ; odd: Sq0Length_4003,X
+TIMER_TBL:
 .byte $AB,$06,$4D
 .byte $06,$F3,$05,$9D,$05,$4C,$05,$01,$05,$B8,$04,$74,$04,$34,$04,$F7
 .byte $03,$BE,$03,$88,$03,$55,$03,$26,$03,$F9,$02,$CE,$02,$A6,$02,$80
@@ -2467,6 +2499,7 @@ APBEF9:
 .word S25_87C5h				; 0xBFF2	$C5 $87
 
 ;; [$BFF4
+;; -$37FFF]
 .byte $00,$02,$00,$02,$00,$02,$00,$02,$00,$02,$00,$02
 ;; ========== pointers to event scripts ( 26 items) ($BFC0-$BFFF) END ==========
 

@@ -1,7 +1,12 @@
 .include "Constants.inc"
 .include "variables.inc"
 
-.import Wait_NMI		;FE00
+
+
+.import	ChkCharRows			;C015
+.import Wait_NMI			;FE00
+
+
 
 .segment "BANK_03"
 
@@ -635,32 +640,36 @@
 ;========== Event code ($A000-$B99F) START ==========
 
 ; Marks	:
-	JMP $A006		; A000	$4C $06 $A0	execute event command
+	JMP $A006			; A000	$4C $06 $A0	execute event command
 ; End of
 
 ; Name	:
 ; Marks	:
 ; X	: event number
-	JMP $A035		; A003	$4C $35 $A0	execute object command
+	JMP $A035			; A003	$4C $35 $A0	execute object command
 ; End of
 
 ; Marks	: execute event command
-	LDA $6C			; A006	$A5 $6C
-	SEC			; A008	$38
-	SBC #$01		; A009	$E9 $01
-	ASL			; A00B	$0A
-	TAX			; A00C	$AA
-	LDA $A027,X		; A00D	$BD $27 $A0
-	STA $80			; A010	$85 $80
-	LDA $A028,X		; A012	$BD $28 $A0
-	STA $81			; A015	$85 $81
-	LDA #$00		; A017	$A9 $00
-	STA $24			; A019	$85 $24
-	STA $25			; A01B	$85 $25
-	STA $23			; A01D	$85 $23
-	STA $22			; A01F	$85 $22
-	STA $20			; A021	$85 $20
-	JMP ($0080)		; A023	$6C $80 $00
+;	  $6C: event type ??
+;	  $70: event script 1 (temp)
+;	  $71: event script 2 (temp)
+;	 +$80: subroutine jump table
+	LDA $6C				; A006	$A5 $6C
+	SEC				; A008	$38
+	SBC #$01			; A009	$E9 $01
+	ASL				; A00B	$0A
+	TAX				; A00C	$AA
+	LDA SR_EventT17,X		; A00D	$BD $27 $A0
+	STA $80				; A010	$85 $80
+	LDA SR_EventT17+1,X		; A012	$BD $28 $A0
+	STA $81				; A015	$85 $81
+	LDA #$00			; A017	$A9 $00
+	STA $24				; A019	$85 $24
+	STA $25				; A01B	$85 $25
+	STA $23				; A01D	$85 $23
+	STA $22				; A01F	$85 $22
+	STA $20				; A021	$85 $20
+	JMP ($0080)			; A023	$6C $80 $00
 ;
 
 ; unused object command
@@ -669,11 +678,17 @@
 
 ; event jump table (starts at type 1)
 ;A06C A4F5 A46B A0E3 A71B A62F A059
-.byte $6C,$A0,$F5,$A4,$6B,$A4,$E3,$A0,$1B	; A027
-.byte $A7,$2F,$A6,$59,$A0			; A030
+SR_EventT17:
+.word SR_EventT1			; A027	$6C $A0
+.word SR_EventT2			; A029	$F5 $A4
+.word SR_EventT3			; A02B	$6B $A4
+.word SR_EventT4			; A02D	$E3 $A0
+.word SR_EventT5			; A02F	$1B $A7
+.word SR_EventT6			; A031	$2F $A6
+.word SR_EvnetT7			; A033	$59 $A0
 
 ; X	: event number
-; $80(ADDR) = event code subroutine address
+;	  +$80(ADDR) = event code subroutine address
 	TXA			; A035	$8A
 	ASL A			; A036	$0A
 	TAX			; A037	$AA
@@ -693,6 +708,7 @@
 .byte $79,$AF,$B8,$A5					; A055
 
 ; Marks	: event type 7:
+SR_EvnetT7:
 	LDA #$00		; A059	$A9 $00		no event
 	STA $6C			; A05B	$85 $6C
 	LDA $62BF		; A05D	$AD $BF $62
@@ -702,50 +718,54 @@
 	LDX #$00		; A066	$A2 $00
 	JSR $A003		; A068	$20 $03 $A0
 	RTS			; A06B	$60
-; End of
+; End of SR_EvnetT7
 
 ; Marks	: event type 1: event script
-	LDA $70			; A06C	$A5 $70
-	CMP #$C0		; A06E	$C9 $C0
-	BCS L0E075		; A070	$B0 $03
-	JMP $AD48		; A072	$4C $48 $AD
-L0E075:
-	CMP #$D0		; A075	$C9 $D0
-	BCS L0E07C		; A077	$B0 $03
-	JMP $A07F		; A079	$4C $7F $A0
-L0E07C:
-	JMP $B4F7		; A07C	$4C $F7 $B4
+;	  $17:
+SR_EventT1:
+	LDA $70				; A06C	$A5 $70		event script 1 (temp)
+	CMP #$C0			; A06E	$C9 $C0
+	BCS SR_EventT1_CMPD0		; A070	$B0 $03		branch if event command 1 >= C0h
+	JMP SR_EventT1_00BF		; A072	$4C $48 $AD
+SR_EventT1_CMPD0:
+	CMP #$D0			; A075	$C9 $D0
+	BCS SR_EventT1_JMPD0DF		; A077	$B0 $03		branch if event command 1 >= D0h
+	JMP SR_EventT1_C0CF		; A079	$4C $7F $A0
+SR_EventT1_JMPD0DF:
+	JMP SR_EventT1_D0DF		; A07C	$4C $F7 $B4
 ; $C0-$CF: player commands
-	LDA $17			; A07F	$A5 $17
-	BEQ L0E088		; A081	$F0 $05
-	DEC $17			; A083	$C6 $17
-	JMP $A095		; A085	$4C $95 $A0
+SR_EventT1_C0CF:
+	LDA $17				; A07F	$A5 $17
+	BEQ L0E088			; A081	$F0 $05
+	DEC $17				; A083	$C6 $17
+	JMP L0E095			; A085	$4C $95 $A0
 L0E088:
-	LDA $72			; A088	$A5 $72
-	CLC			; A08A	$18
-	ADC #$01		; A08B	$69 $01
-	STA $72			; A08D	$85 $72
-	LDA $73			; A08F	$A5 $73
-	ADC #$00		; A091	$69 $00
-	STA $73			; A093	$85 $73
+	LDA p_evt_scr_L			; A088	$A5 $72		increment +1 event script pointer
+	CLC				; A08A	$18
+	ADC #$01			; A08B	$69 $01
+	STA p_evt_scr_L			; A08D	$85 $72
+	LDA p_evt_scr_H			; A08F	$A5 $73
+	ADC #$00			; A091	$69 $00
+	STA p_evt_scr_H			; A093	$85 $73
+L0E095:
 	LDA $70			; A095	$A5 $70
 	AND #$0F		; A097	$29 $0F
 	CMP #$04		; A099	$C9 $04
 	BCS L0E0A4		; A09B	$B0 $07
 ; $C0-$C3: press direction button
 	TAX			; A09D	$AA
-	LDA $A0DF,X		; A09E	$BD $DF $A0	press button
+	LDA DirectionTbl,X		; A09E	$BD $DF $A0	press button
 	STA $20			; A0A1	$85 $20
 	RTS			; A0A3	$60
 ; $C4-$C7: change facing direction
 L0E0A4:
-	CMP #$08		; A0A4	$C9 $08
-	BCS L0E0B1		; A0A6	$B0 $09
-	AND #$03		; A0A8	$29 $03
-	TAX			; A0AA	$AA
-	LDA $A0DF,X		; A0AB	$BD $DF $A0
-	STA $33			; A0AE	$85 $33
-	RTS			; A0B0	$60
+	CMP #$08			; A0A4	$C9 $08
+	BCS L0E0B1			; A0A6	$B0 $09
+	AND #$03			; A0A8	$29 $03
+	TAX				; A0AA	$AA
+	LDA DirectionTbl,X		; A0AB	$BD $DF $A0
+	STA player_dir			; A0AE	$85 $33
+	RTS				; A0B0	$60
 ; $C8: press A button
 L0E0B1:
 	CMP #$08		; A0B1	$C9 $08
@@ -788,13 +808,15 @@ L0E0DA:
 	LDA #$00		; A0DA	$A9 $00		clear buttons pressed
 	STA $20			; A0DC	$85 $20
 	RTS			; A0DE	$60
-; End of
+; End of SR_EventT1
 
 ; directions (right, left, down, up)
+DirectionTbl:
 .byte $01,$02,$04,$08		; A0DF	$01 $02 $04 $08
 
 ; Marks	: event type 4: update ferry movement
 ; move left and then down to get to ferry destination
+SR_EventT4:
 	LDX #$01		; A0E3	$A2 $01		right
 	LDA $27			; A0E5	$A5 $27		world map left position
 	CLC			; A0E7	$18
@@ -951,9 +973,9 @@ L0E1B5:
 	STA $6006		; A1DE	$8D $06 $60
 L0E1E1:
 	LDA #$3F		; A1E1	$A9 $3F
-	STA $400C		; A1E3	$8D $0C $40
+	STA NoiseVolume_400C		; A1E3	$8D $0C $40
 	LDA #$0E		; A1E6	$A9 $0E
-	STA $400E		; A1E8	$8D $0E $40
+	STA NoisePeriod_400E		; A1E8	$8D $0E $40
 	CLC			; A1EB	$18
 	RTS			; A1EC	$60
 L0E1ED:
@@ -981,7 +1003,7 @@ L0E1F1:
 	LDA $6239		; A219	$AD $39 $62
 	STA $62FD		; A21C	$8D $FD $62
 	LDA #$00		; A21F	$A9 $00
-	STA $400C		; A221	$8D $0C $40
+	STA NoiseVolume_400C		; A221	$8D $0C $40
 	LDA #$00		; A224	$A9 $00
 	STA $6014		; A226	$8D $14 $60
 	SEC			; A229	$38
@@ -1007,11 +1029,11 @@ L0E22F:
 	CPX #$40		; A249	$E0 $40
 	BCC L0E22F		; A24B	$90 $E2
 	LDA #$3F		; A24D	$A9 $3F
-	STA $400C		; A24F	$8D $0C $40
+	STA NoiseVolume_400C		; A24F	$8D $0C $40
 	LDA $F0			; A252	$A5 $F0
 	AND #$03		; A254	$29 $03
 	ORA #$0C		; A256	$09 $0C
-	STA $400E		; A258	$8D $0E $40
+	STA NoisePeriod_400E		; A258	$8D $0E $40
 	CLC			; A25B	$18
 	RTS			; A25C	$60
 ; End of
@@ -1043,7 +1065,7 @@ L0E22F:
 L0E292:
 	JSR Wait_NMI		; A292	$20 $00 $FE	wait for vblank
 	LDA #$02		; A295	$A9 $02
-	STA $4014		; A297	$8D $14 $40	copy oam data to ppu
+	STA SpriteDma_4014		; A297	$8D $14 $40	copy oam data to ppu
 	INC $F0			; A29A	$E6 $F0
 	LDX #$1E		; A29C	$A2 $1E
 	LDA $65			; A29E	$A5 $65
@@ -1054,7 +1076,7 @@ L0E292:
 	BNE L0E2AC		; A2A8	$D0 $02
 	LDX #$1F		; A2AA	$A2 $1F
 L0E2AC:
-	STX $2001		; A2AC	$8E $01 $20
+	STX PpuMask_2001		; A2AC	$8E $01 $20
 	JSR $A342		; A2AF	$20 $42 $A3
 	JSR $A3BB		; A2B2	$20 $BB $A3
 	LDA $65			; A2B5	$A5 $65
@@ -1066,7 +1088,7 @@ L0E2BE:
 	LSR			; A2C0	$4A
 	LSR			; A2C1	$4A
 	LSR			; A2C2	$4A
-	STA $400E		; A2C3	$8D $0E $40
+	STA NoisePeriod_400E		; A2C3	$8D $0E $40
 	LDA $65			; A2C6	$A5 $65
 	CLC			; A2C8	$18
 	ADC #$01		; A2C9	$69 $01
@@ -1074,7 +1096,7 @@ L0E2BE:
 	CMP #$80		; A2CD	$C9 $80
 	BCC L0E292		; A2CF	$90 $C1
 	LDA #$00		; A2D1	$A9 $00
-	STA $4015		; A2D3	$8D $15 $40
+	STA ApuStatus_4015		; A2D3	$8D $15 $40
 	RTS			; A2D6	$60
 ; End of
 
@@ -1127,13 +1149,13 @@ L0E327:
 	INX			; A32A	$E8
 	BNE L0E327		; A32B	$D0 $FA
 	LDA #$08		; A32D	$A9 $08
-	STA $4015		; A32F	$8D $15 $40
+	STA ApuStatus_4015		; A32F	$8D $15 $40
 	LDA #$3F		; A332	$A9 $3F
-	STA $400C		; A334	$8D $0C $40
+	STA NoiseVolume_400C		; A334	$8D $0C $40
 	LDA #$01		; A337	$A9 $01
-	STA $400E		; A339	$8D $0E $40
+	STA NoisePeriod_400E		; A339	$8D $0E $40
 	LDA #$00		; A33C	$A9 $00
-	STA $400F		; A33E	$8D $0F $40
+	STA NoiseLength_400F		; A33E	$8D $0F $40
 	RTS			; A341	$60
 ; End of
 
@@ -1256,10 +1278,11 @@ L0E3C6:
 
 ; Name	: event type 3: crystal rod
 ; Marks	:
+SR_EventT3:
 	LDA #$08		; A46B	$A9 $08
-	STA $4015		; A46D	$8D $15 $40
+	STA ApuStatus_4015		; A46D	$8D $15 $40
 	LDA #$00		; A470	$A9 $00
-	STA $400C		; A472	$8D $0C $40
+	STA NoiseVolume_400C		; A472	$8D $0C $40
 	LDA #$00		; A475	$A9 $00
 	STA $66			; A477	$85 $66
 L0E479:
@@ -1268,7 +1291,7 @@ L0E479:
 	JSR $A4CB		; A47F	$20 $CB $A4
 	JSR Wait_NMI		; A482	$20 $00 $FE	wait for vblank
 	LDA #$02		; A485	$A9 $02
-	STA $4014		; A487	$8D $14 $40
+	STA SpriteDma_4014		; A487	$8D $14 $40
 	JSR $A4A6		; A48A	$20 $A6 $A4
 	INC $66			; A48D	$E6 $66
 	BNE L0E479		; A48F	$D0 $E8
@@ -1280,9 +1303,9 @@ L0E479:
 	LDA #$80		; A49B	$A9 $80
 	STA $0400,X		; A49D	$9D $00 $04
 	LDA #$1E		; A4A0	$A9 $1E
-	STA $2001		; A4A2	$8D $01 $20
+	STA PpuMask_2001		; A4A2	$8D $01 $20
 	RTS			; A4A5	$60
-; End of
+; End of SR_EventT3
 
 ; Name	:
 ; Marks	:
@@ -1297,16 +1320,16 @@ L0E479:
 	ORA #$1E		; A4B4	$09 $1E
 	TAX			; A4B6	$AA
 L0E4B7:
-	STX $2001		; A4B7	$8E $01 $20
+	STX PpuMask_2001		; A4B7	$8E $01 $20
 	LDA $66			; A4BA	$A5 $66
 	LSR			; A4BC	$4A
 	LSR			; A4BD	$4A
 	LSR			; A4BE	$4A
 	LSR			; A4BF	$4A
 	ORA #$09		; A4C0	$09 $09
-	STA $400E		; A4C2	$8D $0E $40
+	STA NoisePeriod_400E		; A4C2	$8D $0E $40
 	LDA #$00		; A4C5	$A9 $00
-	STA $400F		; A4C7	$8D $0F $40
+	STA NoiseLength_400F		; A4C7	$8D $0F $40
 	RTS			; A4CA	$60
 	LDX $26			; A4CB	$A6 $26
 	LDA #$A6		; A4CD	$A9 $A6
@@ -1337,12 +1360,13 @@ L0E4F2:
 
 ; Name	: event type 2: wyvern
 ; Marks	:
+SR_EventT2:
 	LDA #$09		; A4F5	$A9 $09
-	STA $4015		; A4F7	$8D $15 $40
+	STA ApuStatus_4015		; A4F7	$8D $15 $40
 	LDA #$00		; A4FA	$A9 $00
-	STA $400C		; A4FC	$8D $0C $40
-	STA $4000		; A4FF	$8D $00 $40
-	STA $4001		; A502	$8D $01 $40
+	STA NoiseVolume_400C		; A4FC	$8D $0C $40
+	STA Sq0Duty_4000		; A4FF	$8D $00 $40
+	STA Sq0Sweep_4001		; A502	$8D $01 $40
 	LDA #$70		; A505	$A9 $70
 	STA $64			; A507	$85 $64
 	LDA #$6C		; A509	$A9 $6C
@@ -1356,7 +1380,7 @@ L0E511:
 	JSR $A56A		; A518	$20 $6A $A5
 	JSR Wait_NMI		; A51B	$20 $00 $FE	wait for vblank
 	LDA #$02		; A51E	$A9 $02
-	STA $4014		; A520	$8D $14 $40
+	STA SpriteDma_4014		; A520	$8D $14 $40
 	INC $F0			; A523	$E6 $F0
 	LDA $F0			; A525	$A5 $F0
 	LSR			; A527	$4A
@@ -1376,7 +1400,7 @@ L0E511:
 L0E543:
 	JSR $A549		; A543	$20 $49 $A5
 	JMP $A511		; A546	$4C $11 $A5
-; End of
+; End of SR_EventT2
 
 
 ; Mame	:
@@ -1410,14 +1434,14 @@ L0E569:
 	ASL			; A56C	$0A
 	ASL			; A56D	$0A
 	AND #$3F		; A56E	$29 $3F
-	STA $4002		; A570	$8D $02 $40
+	STA Sq0Timer_4002		; A570	$8D $02 $40
 	LDA #$00		; A573	$A9 $00
-	STA $4003		; A575	$8D $03 $40
+	STA Sq0Length_4003		; A575	$8D $03 $40
 	LDA $F0			; A578	$A5 $F0
 	AND #$03		; A57A	$29 $03
-	STA $400E		; A57C	$8D $0E $40
+	STA NoisePeriod_400E		; A57C	$8D $0E $40
 	LDA #$00		; A57F	$A9 $00
-	STA $400F		; A581	$8D $0F $40
+	STA NoiseLength_400F		; A581	$8D $0F $40
 	LDA $64			; A584	$A5 $64
 	STA $40			; A586	$85 $40
 	LDA $65			; A588	$A5 $65
@@ -1452,13 +1476,13 @@ L0E5B7:
 ; Name	:
 ; Marks	: object command 9: dreadnought launch animation
 	LDA #$08		; A5B8	$A9 $08
-	STA $4015		; A5BA	$8D $15 $40
+	STA ApuStatus_4015		; A5BA	$8D $15 $40
 	LDA #$3F		; A5BD	$A9 $3F
-	STA $400C		; A5BF	$8D $0C $40
+	STA NoiseVolume_400C		; A5BF	$8D $0C $40
 	LDA #$0E		; A5C2	$A9 $0E
-	STA $400E		; A5C4	$8D $0E $40
+	STA NoisePeriod_400E		; A5C4	$8D $0E $40
 	LDA #$00		; A5C7	$A9 $00
-	STA $400F		; A5C9	$8D $0F $40
+	STA NoiseLength_400F		; A5C9	$8D $0F $40
 	LDA #$50		; A5CC	$A9 $50
 	STA $6015		; A5CE	$8D $15 $60
 	LDA #$70		; A5D1	$A9 $70
@@ -1472,7 +1496,7 @@ L0E5B7:
 	JSR $A7E8		; A5E5	$20 $E8 $A7
 	JSR Wait_NMI		; A5E8	$20 $00 $FE	wait for vblank
 	LDA #$02		; A5EB	$A9 $02
-	STA $4014		; A5ED	$8D $14 $40
+	STA SpriteDma_4014		; A5ED	$8D $14 $40
 	INC $F0			; A5F0	$E6 $F0
 	JSR $A6B3		; A5F2	$20 $B3 $A6
 	JMP $A5D6		; A5F5	$4C $D6 $A5
@@ -1480,9 +1504,9 @@ L0E5F8:
 	LDA #$00		; A5F8	$A9 $00
 	STA $6C			; A5FA	$85 $6C
 	STA $6014		; A5FC	$8D $14 $60
-	STA $400C		; A5FF	$8D $0C $40
+	STA NoiseVolume_400C		; A5FF	$8D $0C $40
 	LDA #$0F		; A602	$A9 $0F
-	STA $4015		; A604	$8D $15 $40
+	STA ApuStatus_4015		; A604	$8D $15 $40
 	JSR $A710		; A607	$20 $10 $A7	reset oam data
 	RTS			; A60A	$60
 	LDA $6016		; A60B	$AD $16 $60
@@ -1499,7 +1523,7 @@ L0E61B:
 	STA $6015		; A621	$8D $15 $60
 	BCS L0E62D		; A624	$B0 $07
 	LDA #$00		; A626	$A9 $00
-	STA $400C		; A628	$8D $0C $40
+	STA NoiseVolume_400C		; A628	$8D $0C $40
 	SEC			; A62B	$38
 	RTS			; A62C	$60
 L0E62D:
@@ -1510,14 +1534,15 @@ L0E62D:
 
 ; Name	:
 ; Marks	: event type 6:
+SR_EventT6:
 	LDA #$08		; A62F	$A9 $08
-	STA $4015		; A631	$8D $15 $40
+	STA ApuStatus_4015		; A631	$8D $15 $40
 	LDA #$3F		; A634	$A9 $3F
-	STA $400C		; A636	$8D $0C $40
+	STA NoiseVolume_400C		; A636	$8D $0C $40
 	LDA #$0E		; A639	$A9 $0E
-	STA $400E		; A63B	$8D $0E $40
+	STA NoisePeriod_400E		; A63B	$8D $0E $40
 	LDA #$00		; A63E	$A9 $00
-	STA $400F		; A640	$8D $0F $40
+	STA NoiseLength_400F		; A640	$8D $0F $40
 	LDA #$FF		; A643	$A9 $FF
 	STA $6015		; A645	$8D $15 $60
 	LDA #$00		; A648	$A9 $00
@@ -1543,7 +1568,7 @@ L0E657:
 	JSR $A79A		; A679	$20 $9A $A7
 	JSR Wait_NMI		; A67C	$20 $00 $FE	wait for vblank
 	LDA #$02		; A67F	$A9 $02
-	STA $4014		; A681	$8D $14 $40
+	STA SpriteDma_4014		; A681	$8D $14 $40
 	INC $F0			; A684	$E6 $F0
 	JSR $A6B3		; A686	$20 $B3 $A6
 	LDA $6015		; A689	$AD $15 $60
@@ -1552,9 +1577,9 @@ L0E657:
 	STA $6004		; A690	$8D $04 $60
 	STA $6C			; A693	$85 $6C
 	LDA #$00		; A695	$A9 $00
-	STA $400C		; A697	$8D $0C $40
+	STA NoiseVolume_400C		; A697	$8D $0C $40
 	LDA #$0F		; A69A	$A9 $0F
-	STA $4015		; A69C	$8D $15 $40
+	STA ApuStatus_4015		; A69C	$8D $15 $40
 	LDA #$01		; A69F	$A9 $01
 	STA $6014		; A6A1	$8D $14 $60
 	LDA $623A		; A6A4	$AD $3A $62	move dreadnought to dock at (232,239)
@@ -1562,14 +1587,14 @@ L0E657:
 	LDA $623B		; A6AA	$AD $3B $62
 	STA $6016		; A6AD	$8D $16 $60
 	JMP $A710		; A6B0	$4C $10 $A7	reset oam data
-; End of
+; End of SR_EventT6
 
 ; Name	:
 ; Marks	:
 	LDA $F0			; A6B3	$A5 $F0
 	AND #$0F		; A6B5	$29 $0F
 	ORA #$03		; A6B7	$09 $03
-	STA $400E		; A6B9	$8D $0E $40
+	STA NoisePeriod_400E		; A6B9	$8D $0E $40
 	RTS			; A6BC	$60
 	DEC $6015		; A6BD	$CE $15 $60
 	LDA $6016		; A6C0	$AD $16 $60
@@ -1610,7 +1635,7 @@ L0E6E8:
 	LDA $623D		; A6FE	$AD $3D $62
 	STA $6006		; A701	$8D $06 $60
 	LDA #$00		; A704	$A9 $00		stop sound effect
-	STA $400C		; A706	$8D $0C $40
+	STA NoiseVolume_400C		; A706	$8D $0C $40
 	SEC			; A709	$38
 	RTS			; A70A	$60
 L0E70B:
@@ -1631,14 +1656,15 @@ L0E714:
 ; End of
 
 ; Marks	: event type 5: dreadnought explosion animation
+SR_EventT5:
 	LDA #$08		; A71B	$A9 $08
-	STA $4015		; A71D	$8D $15 $40
+	STA ApuStatus_4015		; A71D	$8D $15 $40
 	LDA #$3F		; A720	$A9 $3F
-	STA $400C		; A722	$8D $0C $40
+	STA NoiseVolume_400C		; A722	$8D $0C $40
 	LDA #$0E		; A725	$A9 $0E
-	STA $400E		; A727	$8D $0E $40
+	STA NoisePeriod_400E		; A727	$8D $0E $40
 	LDA #$00		; A72A	$A9 $00
-	STA $400F		; A72C	$8D $0F $40
+	STA NoiseLength_400F		; A72C	$8D $0F $40
 	LDA #$80		; A72F	$A9 $80
 	STA $6015		; A731	$8D $15 $60
 	LDA #$5F		; A734	$A9 $5F
@@ -1656,7 +1682,7 @@ L0E714:
 L0E752:
 	JSR Wait_NMI		; A752	$20 $00 $FE	wait for vblank
 	LDA #$02		; A755	$A9 $02
-	STA $4014		; A757	$8D $14 $40
+	STA SpriteDma_4014		; A757	$8D $14 $40
 	INC $F0			; A75A	$E6 $F0
 	LDA #$00		; A75C	$A9 $00
 	STA $26			; A75E	$85 $26
@@ -1672,7 +1698,7 @@ L0E764:
 	JSR $A1CE		; A772	$20 $CE $A1
 	BCC L0E752		; A775	$90 $DB
 	JMP $A710		; A777	$4C $10 $A7	reset oam data
-; End of
+; End of SR_EventT5
 
 ; Name	:
 ; Marks	:
@@ -2075,7 +2101,7 @@ L0ED32:
 	JSR $AF79		; AD36	$20 $79 $AF
 	JSR Wait_NMI		; AD39	$20 $00 $FE	wait for vblank
 	LDA #$02		; AD3C	$A9 $02
-	STA $4014		; AD3E	$8D $14 $40
+	STA SpriteDma_4014		; AD3E	$8D $14 $40
 	JSR $C009		; AD41	$20 $09 $C0
 	PLP			; AD44	$28
 	BCC L0ED32		; AD45	$90 $EB
@@ -2083,80 +2109,90 @@ L0ED32:
 ; End of
 
 ; Marks	: event command $00-$BF: npc commands
-	LDA $70			; AD48	$A5 $70
-	AND #$F0		; AD4A	$29 $F0
-	TAX			; AD4C	$AA
-	LDA $750C,X		; AD4D	$BD $0C $75
-	BNE L0ED93		; AD50	$D0 $41		return if npc is moving
-	LDA $17			; AD52	$A5 $17
-	BEQ L0ED5B		; AD54	$F0 $05
-	DEC $17			; AD56	$C6 $17
-	JMP $AD68		; AD58	$4C $68 $AD
-L0ED5B:
-	LDA $72			; AD5B	$A5 $72		increment event script pointer
-	CLC			; AD5D	$18
-	ADC #$01		; AD5E	$69 $01
-	STA $72			; AD60	$85 $72
-	LDA $73			; AD62	$A5 $73
-	ADC #$00		; AD64	$69 $00
-	STA $73			; AD66	$85 $73
-	LDA $70			; AD68	$A5 $70
-	AND #$0F		; AD6A	$29 $0F
-	CMP #$04		; AD6C	$C9 $04
+;	  $17:
+;	  $84:
+;	  $85:
+;	  event script 1 = $00-$BF: nnnn ???? n is npc number
+SR_EventT1_00BF:
+	LDA $70				; AD48	$A5 $70		event script 1 (temp)
+	AND #$F0			; AD4A	$29 $F0
+	TAX				; AD4C	$AA
+	LDA $750C,X			; AD4D	$BD $0C $75
+	BNE SR_EventT1_00BF_E		; AD50	$D0 $41		return if npc is moving
+	LDA $17				; AD52	$A5 $17
+	BEQ SR_EventT1_00BF_INC_SP1	; AD54	$F0 $05		branch if $17 == 0 (event process done)
+	DEC $17				; AD56	$C6 $17
+	JMP SR_EventT1_00BF_PROC	; AD58	$4C $68 $AD
+SR_EventT1_00BF_INC_SP1:
+	LDA p_evt_scr_L			; AD5B	$A5 $72		increment +1 event script pointer
+	CLC				; AD5D	$18
+	ADC #$01			; AD5E	$69 $01
+	STA p_evt_scr_L			; AD60	$85 $72
+	LDA p_evt_scr_H			; AD62	$A5 $73
+	ADC #$00			; AD64	$69 $00
+	STA p_evt_scr_H			; AD66	$85 $73
+SR_EventT1_00BF_PROC:
+	LDA $70				; AD68	$A5 $70		event script 1 (temp)
+	AND #$0F			; AD6A	$29 $0F
+	CMP #$04			; AD6C	$C9 $04
 ; $00-$03: move npc
-	BCS L0ED7F		; AD6E	$B0 $0F
-	LDA $7502,X		; AD70	$BD $02 $75	npc position
-	STA $84			; AD73	$85 $84
-	LDA $7503,X		; AD75	$BD $03 $75
-	STA $85			; AD78	$85 $85
-	LDA $70			; AD7A	$A5 $70
-	JMP $AFD2		; AD7C	$4C $D2 $AF	move npc
+	BCS SR_EventT1_00BF_FACE_D	; AD6E	$B0 $0F		branch if A >= 4 (facing direction)
+	LDA $7502,X			; AD70	$BD $02 $75	npc position
+	STA $84				; AD73	$85 $84
+	LDA $7503,X			; AD75	$BD $03 $75
+	STA $85				; AD78	$85 $85
+	LDA $70				; AD7A	$A5 $70		event script 1 (temp)
+	JMP L0EFD2			; AD7C	$4C $D2 $AF	move npc
 ; $04-$07: set npc facing direct; 
-L0ED7F:
-	CMP #$08		; AD7F	$C9 $08
-	BCS L0ED94		; AD81	$B0 $11
-	AND #$03		; AD83	$29 $03
-	ASL			; AD85	$0A
-	TAY			; AD86	$A8
-	LDA $ADC2,Y		; AD87	$B9 $C2 $AD
-	STA $750E,X		; AD8A	$9D $0E $75
-	LDA $ADC3,Y		; AD8D	$B9 $C3 $AD
-	STA $750F,X		; AD90	$9D $0F $75
-L0ED93:
-	RTS			; AD93	$60
+SR_EventT1_00BF_FACE_D:
+	CMP #$08			; AD7F	$C9 $08
+	BCS SR_EventT1_00BF_ANI_S	; AD81	$B0 $11
+SR_EventT1_00BF_FACE_D_:
+	AND #$03			; AD83	$29 $03
+	ASL				; AD85	$0A
+	TAY				; AD86	$A8
+	LDA NPC_ANI,Y			; AD87	$B9 $C2 $AD
+	STA $750E,X			; AD8A	$9D $0E $75
+	LDA NPC_ANI+1,Y			; AD8D	$B9 $C3 $AD
+	STA $750F,X			; AD90	$9D $0F $75
+SR_EventT1_00BF_E:
+	RTS				; AD93	$60
 ; $0C: start animation
-L0ED94:
-	CMP #$0C		; AD94	$C9 $0C
-	BCC L0EDB6		; AD96	$90 $1E
-	BNE L0EDA3		; AD98	$D0 $09
-	LDA $7501,X		; AD9A	$BD $01 $75
-	ORA #$40		; AD9D	$09 $40
-	STA $7501,X		; AD9F	$9D $01 $75
-	RTS			; ADA2	$60
+SR_EventT1_00BF_ANI_S:
+	CMP #$0C			; AD94	$C9 $0C
+	BCC SR_EventT1_00BF_SHOW	; AD96	$90 $1E
+	BNE SR_EventT1_00BF_ANI_E	; AD98	$D0 $09
+	LDA $7501,X			; AD9A	$BD $01 $75
+	ORA #$40			; AD9D	$09 $40
+	STA $7501,X			; AD9F	$9D $01 $75
+	RTS				; ADA2	$60
 ; $0D: stop animation
-L0EDA3:
-	CMP #$0D		; ADA3	$C9 $0D
-	BNE L0EDB0		; ADA5	$D0 $09
-	LDA $7501,X		; ADA7	$BD $01 $75
-	AND #$A0		; ADAA	$29 $A0
-	STA $7501,X		; ADAC	$9D $01 $75
-	RTS			; ADAF	$60
+SR_EventT1_00BF_ANI_E:
+	CMP #$0D			; ADA3	$C9 $0D
+	BNE SR_EventT1_00BF_HIDE	; ADA5	$D0 $09
+	LDA $7501,X			; ADA7	$BD $01 $75
+	AND #$A0			; ADAA	$29 $A0
+	STA $7501,X			; ADAC	$9D $01 $75
+	RTS				; ADAF	$60
 ; $0E-$0F: hide npc
-L0EDB0:
-	LDA #$00		; ADB0	$A9 $00
-	STA $7500,X		; ADB2	$9D $00 $75
-	RTS			; ADB5	$60
+SR_EventT1_00BF_HIDE:
+	LDA #$00			; ADB0	$A9 $00
+	STA $7500,X			; ADB2	$9D $00 $75
+	RTS				; ADB5	$60
 ; $08-$0B: show npc and set facing direction
-L0EDB6:
-	LDA $750A,X		; ADB6	$BD $0A $75
-	STA $7500,X		; ADB9	$9D $00 $75
-	LDA $70			; ADBC	$A5 $70
-	JMP $AD83		; ADBE	$4C $83 $AD
-	RTS			; ADC1	$60
-; End of
+SR_EventT1_00BF_SHOW:
+	LDA $750A,X			; ADB6	$BD $0A $75
+	STA $7500,X			; ADB9	$9D $00 $75
+	LDA $70				; ADBC	$A5 $70		event script 1 (temp)
+	JMP SR_EventT1_00BF_FACE_D_	; ADBE	$4C $83 $AD
+	RTS				; ADC1	$60
+; End of SR_EventT1
 
-; B22F B23F B24F B25F
-.byte $2F,$B2,$3F,$B2,$4F,$B2,$5F,$B2	; ADC2
+NPC_ANI:
+.word NPC_ANI_B22F		; ADC2	$2F $B2
+.word NPC_ANI_B23F		; ADC4	$3F $B2
+.word NPC_ANI_B24F		; ADC6	$4F $B2
+.word NPC_ANI_B25F		; ADC8	$5F $B2
 
 ; Name	: update npc dance
 ; Marks	:
@@ -2192,9 +2228,9 @@ L0EDF2:
 	ASL			; AE01	$0A
 	STY $80			; AE02	$84 $80
 	TAY			; AE04	$A8
-	LDA $ADC2,Y		; AE05	$B9 $C2 $AD
+	LDA NPC_ANI,Y		; AE05	$B9 $C2 $AD
 	STA $750E,X		; AE08	$9D $0E $75
-	LDA $ADC3,Y		; AE0B	$B9 $C3 $AD
+	LDA NPC_ANI+1,Y		; AE0B	$B9 $C3 $AD
 	STA $750F,X		; AE0E	$9D $0F $75
 	LDY $80			; AE11	$A4 $80
 	TXA			; AE13	$8A
@@ -2321,7 +2357,7 @@ L0EF87:
 
 ; Marks	: update random npc movement
 	LDA event		; AF91	$A5 $6C
-	BNE L0EFB4		; AF93	$D0 $1F		if event == 00h
+	BNE L0EFB4		; AF93	$D0 $1F		branch if event != 00h
 	LDA $4A			; AF95	$A5 $4A
 	CLC			; AF97	$18
 	ADC #$10		; AF98	$69 $10
@@ -2358,11 +2394,12 @@ L0EFC1:
 	LDY $F4			; AFCD	$A4 $F4
 	LDA $F900,Y		; AFCF	$B9 $00 $F9	rng table
 ; Marks	: move npc
+L0EFD2:
 	AND #$03		; AFD2	$29 $03
 	CMP #$02		; AFD4	$C9 $02
-	BCC L0F031		; AFD6	$90 $59
-	BNE L0F002		; AFD8	$D0 $28
-	LDA $85			; AFDA	$A5 $85
+	BCC L0F031		; AFD6	$90 $59		branch if A < 2
+	BNE L0F002		; AFD8	$D0 $28		branch if A != 0
+	LDA $85			; AFDA	$A5 $85		npc position
 	CLC			; AFDC	$18
 	ADC #$01		; AFDD	$69 $01
 	AND #$3F		; AFDF	$29 $3F
@@ -2378,31 +2415,31 @@ L0EFC1:
 	LDA #$4F		; AFF7	$A9 $4F
 	STA $750E,X		; AFF9	$9D $0E $75
 	LDA #$B2		; AFFC	$A9 $B2
-	JMP $B088		; AFFE	$4C $88 $B0
+	JMP L0F088		; AFFE	$4C $88 $B0
 L0F001:
 	RTS			; B001	$60
 ; End of
 L0F002:
-	LDA $85			; B002	$A5 $85
-	SEC			; B004	$38
-	SBC #$01		; B005	$E9 $01
-	AND #$3F		; B007	$29 $3F
-	STA $85			; B009	$85 $85
-	JSR $B0C0		; B00B	$20 $C0 $B0
-	BCS L0F001		; B00E	$B0 $F1
-	LDA $85			; B010	$A5 $85
-	STA $7503,X		; B012	$9D $03 $75
-	STA $7505,X		; B015	$9D $05 $75
-	LDA #$FF		; B018	$A9 $FF
-	STA $7509,X		; B01A	$9D $09 $75
-	LDA #$0F		; B01D	$A9 $0F
-	STA $7507,X		; B01F	$9D $07 $75
-	LDA #$04		; B022	$A9 $04
-	STA $750C,X		; B024	$9D $0C $75
-	LDA #$5F		; B027	$A9 $5F
-	STA $750E,X		; B029	$9D $0E $75
-	LDA #$B2		; B02C	$A9 $B2
-	JMP $B088		; B02E	$4C $88 $B0
+	LDA $85				; B002	$A5 $85		npc position
+	SEC				; B004	$38
+	SBC #$01			; B005	$E9 $01
+	AND #$3F			; B007	$29 $3F
+	STA $85				; B009	$85 $85		npc position
+	JSR $B0C0			; B00B	$20 $C0 $B0
+	BCS L0F001			; B00E	$B0 $F1
+	LDA $85				; B010	$A5 $85
+	STA $7503,X			; B012	$9D $03 $75
+	STA $7505,X			; B015	$9D $05 $75
+	LDA #$FF			; B018	$A9 $FF
+	STA $7509,X			; B01A	$9D $09 $75
+	LDA #$0F			; B01D	$A9 $0F
+	STA $7507,X			; B01F	$9D $07 $75
+	LDA #$04			; B022	$A9 $04
+	STA $750C,X			; B024	$9D $0C $75
+	LDA #$5F			; B027	$A9 $5F
+	STA $750E,X			; B029	$9D $0E $75
+	LDA #$B2			; B02C	$A9 $B2
+	JMP L0F088			; B02E	$4C $88 $B0
 L0F031:
 	CMP #$00		; B031	$C9 $00
 	BEQ L0F064		; B033	$F0 $2F
@@ -2425,7 +2462,7 @@ L0F031:
 	LDA #$3F		; B05A	$A9 $3F
 	STA $750E,X		; B05C	$9D $0E $75
 	LDA #$B2		; B05F	$A9 $B2
-	JMP $B088		; B061	$4C $88 $B0
+	JMP L0F088		; B061	$4C $88 $B0
 L0F064:
 	LDA $84			; B064	$A5 $84
 	CLC			; B066	$18
@@ -2443,6 +2480,7 @@ L0F064:
 	LDA #$2F		; B081	$A9 $2F
 	STA $750E,X		; B083	$9D $0E $75
 	LDA #$B2		; B086	$A9 $B2
+L0F088:
 	STA $750F,X		; B088	$9D $0F $75
 	LDA $7403,X		; B08B	$BD $03 $74
 	STA $750B,X		; B08E	$9D $0B $75
@@ -2450,35 +2488,40 @@ L0F064:
 ; End of
 
 ; Name	:
+; Ret	: A=
 ; Marks	: check npc passability
-	LDY #$70		; B092	$A0 $70
-	LDA $84			; B094	$A5 $84
-	ORA $85			; B096	$05 $85
-	AND #$20		; B098	$29 $20
-	BNE L0F0B8		; B09A	$D0 $1C
-	LDA $85			; B09C	$A5 $85
-	LSR A			; B09E	$4A
-	LSR A			; B09F	$4A
-	LSR A			; B0A0	$4A
-	ORA #$70		; B0A1	$09 $70
-	STA $81			; B0A3	$85 $81
-	LDA $85			; B0A5	$A5 $85
-	ASL A			; B0A7	$0A
-	ASL A			; B0A8	$0A
-	ASL A			; B0A9	$0A
-	ASL A			; B0AA	$0A
-	ASL A			; B0AB	$0A
-	ORA $84			; B0AC	$05 $84
-	STA $80			; B0AE	$85 $80
-	LDY #$00		; B0B0	$A0 $00
-	LDA ($80),Y		; B0B2	$B1 $80
-	ASL A			; B0B4	$0A
-	TAY			; B0B5	$A8
-	STY $67			; B0B6	$84 $67
+;	  $67: tile id index
+;	 +$80: tile id = $7000 + (Y*32) + X
+;	  $84:
+;	  $85: npc position
+	LDY #$70			; B092	$A0 $70
+	LDA $84				; B094	$A5 $84
+	ORA $85				; B096	$05 $85
+	AND #$20			; B098	$29 $20
+	BNE L0F0B8			; B09A	$D0 $1C		branch if X or Y > 32
+	LDA $85				; B09C	$A5 $85
+	LSR A				; B09E	$4A
+	LSR A				; B09F	$4A
+	LSR A				; B0A0	$4A
+	ORA #$70			; B0A1	$09 $70
+	STA $81				; B0A3	$85 $81
+	LDA $85				; B0A5	$A5 $85
+	ASL A				; B0A7	$0A
+	ASL A				; B0A8	$0A
+	ASL A				; B0A9	$0A
+	ASL A				; B0AA	$0A
+	ASL A				; B0AB	$0A
+	ORA $84				; B0AC	$05 $84
+	STA $80				; B0AE	$85 $80
+	LDY #$00			; B0B0	$A0 $00
+	LDA ($80),Y			; B0B2	$B1 $80
+	ASL A				; B0B4	$0A
+	TAY				; B0B5	$A8
+	STY $67				; B0B6	$84 $67
 L0F0B8:
-	LDA $0400,Y		; B0B8	$B9 $00 $04
-	AND #$F9		; B0BB	$29 $F9
-	RTS			; B0BD	$60
+	LDA $0400,Y			; B0B8	$B9 $00 $04
+	AND #$F9			; B0BB	$29 $F9
+	RTS				; B0BD	$60
 ; End of
 
 L0F0BE:
@@ -2487,11 +2530,11 @@ L0F0BE:
 ; End of
 
 ; Name	:
-; Marks	:
+; Marks	: $6C: event type ??
 	LDA $6C			; B0C0	$A5 $6C
 	BEQ L0F0CA		; B0C2	$F0 $06
 	JSR $B092		; B0C4	$20 $92 $B0
-	JMP $B101		; B0C7	$4C $01 $B1  
+	JMP L0F101		; B0C7	$4C $01 $B1  
 L0F0CA:
 	LDA $84			; B0CA	$A5 $84
 	CMP $68			; B0CC	$C5 $68
@@ -2525,7 +2568,8 @@ L0F0F8:
 	TAY			; B0FC	$A8
 	CMP #$C0		; B0FD	$C9 $C0
 	BCC L0F0DD		; B0FF	$90 $DC
-	LDY $67			; B101	$A4 $67
+L0F101:
+	LDY $67			; B101	$A4 $67		tile id index ??
 	LDA $0400,Y		; B103	$B9 $00 $04
 	AND #$06		; B106	$29 $06
 	STA $7400,X		; B108	$9D $00 $74
@@ -2700,17 +2744,20 @@ L0F228:
 	JMP $AF1A		; B22C	$4C $1A $AF	set sprite ??
 ; End of
 
-;; [$B22F :: 0x0F22F] data block
+;; [$B22F :: 0x0F22F] data block - npc animation sprite data ??
+; 4 * 16 bytes
+NPC_ANI_B22F:				; B22F
 .byte $09
-.byte $42,$0B,$43,$08,$42,$0A,$43,$0D,$42,$0F,$43,$0C,$42,$0E,$43,$08
-.byte $02,$0A,$03,$09,$02,$0B,$03,$0C,$02,$0E,$03,$0D,$02,$0F,$03,$00
-; sprite data ??
-.byte $02,$02,$03,$01,$02,$03,$03,$00,$02,$03,$43,$01,$02,$02,$43,$04
+.byte $42,$0B,$43,$08,$42,$0A,$43,$0D,$42,$0F,$43,$0C,$42,$0E,$43
+NPC_ANI_B23F:				; B23F
+.byte $08
+.byte $02,$0A,$03,$09,$02,$0B,$03,$0C,$02,$0E,$03,$0D,$02,$0F,$03
+NPC_ANI_B24F:				; B24F
+.byte $00
+.byte $02,$02,$03,$01,$02,$03,$03,$00,$02,$03,$43,$01,$02,$02,$43
+NPC_ANI_B25F:				; B25F
+.byte $04
 .byte $02,$06,$03,$05,$02,$07,$03,$04,$02,$07,$43,$05,$02,$06,$43
-; B22F 09 42 0B 43 08 42 0A 43 0D 42 0F 43 0C 42 0E 43
-; B23F 08 02 0A 03 09 02 0B 03 0C 02 0E 03 0D 02 0F 03
-; B24F 00 02 02 03 01 02 03 03 00 02 03 43 01 02 02 43
-; B25F 04 02 06 03 05 02 07 03 04 02 07 43 05 02 06 43
 
 ; Name	:
 ; Marks	: event number 7
@@ -2740,6 +2787,7 @@ L0F283:
 ; End of event 7 ??
 
 ; Name	:
+; A	: npc id
 ; Marks	: init value ??
 ;	  load npc
 ; npc properties format (3 bytes each)
@@ -2751,7 +2799,7 @@ L0F283:
 	LDY #$0A		; B296	$A0 $0A
 	STA ($8E),Y		; B298	$91 $8E		$750A: npc id
 	TAY			; B29A	$A8
-	JSR $B328		; B29B	$20 $28 $B3	check npc switch
+	JSR ChkNpcSW		; B29B	$20 $28 $B3	check npc switch
 	BEQ L0F2A1		; B29E	$F0 $01		npc is hidden if bit is 0
 	TYA			; B2A0	$98
 L0F2A1:
@@ -2761,7 +2809,7 @@ L0F2A1:
 	LDA ($8C),Y		; B2A6	$B1 $8C
 	STA $86			; B2A8	$85 $86
 	AND #$E0		; B2AA	$29 $E0
-	STA ($8E),Y		; B2AC	$91 $8E		$7501 (mpvement flags)
+	STA ($8E),Y		; B2AC	$91 $8E		$7501 (movement flags)
 	INY			; B2AE	$C8
 	LDA ($8C),Y		; B2AF	$B1 $8C
 	STA $87			; B2B1	$85 $87
@@ -2830,25 +2878,28 @@ L0F2A1:
 	RTS			; B327	$60
 ; End of
 
-; Name	:
+; Name	: ChkNpcSW
+; A	: npc id
+; Ret	: A=0 npc is hidden
 ; Marks	: npc ??
 ;	  check npc switch
-	STA $80			; B328	$85 $80
-	AND #$07		; B32A	$29 $07
-	TAX			; B32C	$AA
-	LDA $B33E,X		; B32D	$BD $3E $B3	bit mask
-	STA $81			; B330	$85 $81
-	LDA $80			; B332	$A5 $80
-	LSR A			; B334	$4A
-	LSR A			; B335	$4A
-	LSR A			; B336	$4A
-	TAX			; B337	$AA
-	LDA $6040,X		; B338	$BD $40 $60	event/npc switchesa - check event switch
-	AND $81			; B33B	$25 $81
-	RTS			; B33D	$60
-; End of
+ChkNpcSW:
+	STA $80				; B328	$85 $80		npc id
+	AND #$07			; B32A	$29 $07
+	TAX				; B32C	$AA
+	LDA BitMasks,X			; B32D	$BD $3E $B3	bit mask
+	STA $81				; B330	$85 $81
+	LDA $80				; B332	$A5 $80
+	LSR A				; B334	$4A
+	LSR A				; B335	$4A
+	LSR A				; B336	$4A
+	TAX				; B337	$AA
+	LDA $6040,X			; B338	$BD $40 $60	event/npc switchesa - check event switch
+	AND $81				; B33B	$25 $81
+	RTS				; B33D	$60
+; End of ChkNpcSW
 
-; B33E - data table = bit masks
+BitMasks:				; B33E - data table = bit masks - same as 0F/F029
 .byte $01,$02
 .byte $04,$08,$10,$20,$40,$80
 
@@ -2898,9 +2949,9 @@ L0F2A1:
 	LDA #$00		; B398	$A9 $00
 	STA $03			; B39A	$85 $03
 	LDA #$08		; B39C	$A9 $08
-	STA $4015		; B39E	$8D $15 $40
+	STA ApuStatus_4015		; B39E	$8D $15 $40
 	LDA #$00		; B3A1	$A9 $00
-	STA $400C		; B3A3	$8D $0C $40
+	STA NoiseVolume_400C		; B3A3	$8D $0C $40
 L0F3A6:
 	LDA #$00		; B3A6	$A9 $00
 	JSR $B3E2		; B3A8	$20 $E2 $B3
@@ -2929,7 +2980,7 @@ L0F3C7:
 	ORA #$04		; B3D7	$09 $04
 	STA $6013		; B3D9	$8D $13 $60
 	LDA #$0F		; B3DC	$A9 $0F
-	STA $4015		; B3DE	$8D $15 $40
+	STA ApuStatus_4015		; B3DE	$8D $15 $40
 	RTS			; B3E1	$60
 ; End of
 
@@ -2938,7 +2989,7 @@ L0F3C7:
 	TAX 			; B3E2	$AA
 	JSR Wait_NMI		; B3E3	$20 $00 $FE	wait for vblank
 	LDA #$02		; B3E6	$A9 $02
-	STA $4014		; B3E8	$8D $14 $40
+	STA SpriteDma_4014		; B3E8	$8D $14 $40
 	LDA $03			; B3EB	$A5 $03
 	AND #$03		; B3ED	$29 $03
 	BNE L0F3F5		; B3EF	$D0 $04
@@ -2950,14 +3001,14 @@ L0F3F5:
 	JSR $B411		; B3F6	$20 $11 $B4
 	LDA #$00		; B3F9	$A9 $00
 	STA $80			; B3FB	$85 $80
-	JSR $B6BD		; B3FD	$20 $BD $B6
+	JSR UpdPPUScroll	; B3FD	$20 $BD $B6
 	INC $F0			; B400	$E6 $F0
 	LDA $F0			; B402	$A5 $F0
 	AND #$01		; B404	$29 $01
 	ORA #$0E		; B406	$09 $0E
-	STA $400E		; B408	$8D $0E $40
+	STA NoisePeriod_400E		; B408	$8D $0E $40
 	LDA #$00		; B40B	$A9 $00
-	STA $400F		; B40D	$8D $0F $40
+	STA NoiseLength_400F		; B40D	$8D $0F $40
 	RTS			; B410	$60
 ; End of
 
@@ -2995,24 +3046,24 @@ L0F417:
 
 ; Name	:
 ; Marks	:
-	BIT $2002		; B464	$2C $02 $20
+	BIT PpuStatus_2002		; B464	$2C $02 $20
 	LDA $62			; B467	$A5 $62
-	STA $2006		; B469	$8D $06 $20
+	STA PpuAddr_2006		; B469	$8D $06 $20
 	LDA $61			; B46C	$A5 $61
-	STA $2006		; B46E	$8D $06 $20
+	STA PpuAddr_2006		; B46E	$8D $06 $20
 	LDA $0500,Y		; B471	$B9 $00 $05
-	STA $2007		; B474	$8D $07 $20
+	STA PpuData_2007		; B474	$8D $07 $20
 	LDA $0580,Y		; B477	$B9 $80 $05
-	STA $2007		; B47A	$8D $07 $20
+	STA PpuData_2007		; B47A	$8D $07 $20
 	LDA $62			; B47D	$A5 $62
-	STA $2006		; B47F	$8D $06 $20
+	STA PpuAddr_2006		; B47F	$8D $06 $20
 	LDA $61			; B482	$A5 $61
 	ORA #$20		; B484	$09 $20
-	STA $2006		; B486	$8D $06 $20
+	STA PpuAddr_2006		; B486	$8D $06 $20
 	LDA $0600,Y		; B489	$B9 $00 $06
-	STA $2007		; B48C	$8D $07 $20
+	STA PpuData_2007		; B48C	$8D $07 $20
 	LDA $0680,Y		; B48F	$B9 $80 $06
-	STA $2007		; B492	$8D $07 $20
+	STA PpuData_2007		; B492	$8D $07 $20
 	RTS			; B495	$60
 ; End of
 
@@ -3067,322 +3118,395 @@ L0F4BD:
 ; --------------------------------------------------------------------------
 
 ; Marks	: event commands $D0-$FF
+;	  $70:
+;	 +$72: event command(script) pointer
 ; $D0-$DF: 
-	CMP #$E0		; B4F7	$C9 $E0
-	BCS L0F51A		; B4F9	$B0 $1F
-	LDA $72			; B4FB	$A5 $72		increment event script pointer
-	CLC			; B4FD	$18
-	ADC #$01		; B4FE	$69 $01
-	STA $72			; B500	$85 $72
-	LDA $73			; B502	$A5 $73
-	ADC #$00		; B504	$69 $00
-	STA $73			; B506	$85 $73
-	LDA $70			; B508	$A5 $70
-	AND #$0F		; B50A	$29 $0F		low nybble of event opcode
-	TAY			; B50C	$A8
-	LDA $B795,Y		; B50D	$B9 $95 $B7	bit mask
-	LDX $B895,Y		; B510	$BE $95 $B8	byte offset (either 0 or 1)
-	EOR $6012,X		; B513	$5D $12 $60	toggle ??? bit
-	STA $6012,X		; B516	$9D $12 $60
-	RTS			; B519	$60
+SR_EventT1_D0DF:
+	CMP #$E0			; B4F7	$C9 $E0
+	BCS SR_EventT1_F0FF		; B4F9	$B0 $1F		branch if event command >= E0h
+	LDA p_evt_scr_L			; B4FB	$A5 $72		increment +1 event script pointer
+	CLC				; B4FD	$18
+	ADC #$01			; B4FE	$69 $01
+	STA p_evt_scr_L			; B500	$85 $72
+	LDA p_evt_scr_H			; B502	$A5 $73
+	ADC #$00			; B504	$69 $00
+	STA p_evt_scr_H			; B506	$85 $73
+	LDA $70				; B508	$A5 $70
+	AND #$0F			; B50A	$29 $0F		low nybble of event opcode
+	TAY				; B50C	$A8
+	LDA BitMask,Y			; B50D	$B9 $95 $B7	bit mask
+	LDX ByteOfs,Y			; B510	$BE $95 $B8	byte offset (either 0 or 1)
+	EOR $6012,X			; B513	$5D $12 $60	toggle ??? bit
+	STA $6012,X			; B516	$9D $12 $60
+	RTS				; B519	$60
 ; End of
-; $F0-$FF: 
-L0F51A:
-	CMP #$F0		; B51A	$C9 $F0
-	BCC L0F545		; B51C	$90 $27
-	LDX #$02		; B51E	$A2 $02		$F0-$FC have a 1-byte parameter
-	CMP #$FD		; B520	$C9 $FD
-	BCC L0F526		; B522	$90 $02
-	LDX #$01		; B524	$A2 $01
-L0F526:
-	TXA			; B526	$8A
-	CLC			; B527	$18
-	ADC $72			; B528	$65 $72		increment event script pointer
-	STA $72			; B52A	$85 $72
-	LDA $73			; B52C	$A5 $73
-	ADC #$00		; B52E	$69 $00
-	STA $73			; B530	$85 $73
-	LDA $70			; B532	$A5 $70
-	AND #$0F		; B534	$29 $0F
-	ASL			; B536	$0A
-	TAX			; B537	$AA
-	LDA $B5D0,X		; B538	$BD $D0 $B5
-	STA $80			; B53B	$85 $80
-	LDA $B5D1,X		; B53D	$BD $D1 $B5
-	STA $81			; B540	$85 $81
-	JMP ($0080)		; B542	$6C $80 $00
+SR_EventT1_F0FF:			; event script $F0-$FF
+	CMP #$F0			; B51A	$C9 $F0
+	BCC SR_EventT1_E0EF		; B51C	$90 $27
+	LDX #$02			; B51E	$A2 $02		$F0-$FC have a 1-byte parameter
+	CMP #$FD			; B520	$C9 $FD
+	BCC SR_EventT1_F0FC		; B522	$90 $02		branch if event script $F0-$FC
+	LDX #$01			; B524	$A2 $01
+; $F0-$FC
+SR_EventT1_F0FC:
+	TXA				; B526	$8A
+	CLC				; B527	$18
+	ADC p_evt_scr_L			; B528	$65 $72		increment event script pointer
+	STA p_evt_scr_L			; B52A	$85 $72
+	LDA p_evt_scr_H				; B52C	$A5 $73
+	ADC #$00			; B52E	$69 $00
+	STA p_evt_scr_H				; B530	$85 $73
+	LDA $70				; B532	$A5 $70		event script 1 (temp)
+	AND #$0F			; B534	$29 $0F
+	ASL				; B536	$0A
+	TAX				; B537	$AA
+	LDA SR_EventF0FF,X		; B538	$BD $D0 $B5
+	STA $80				; B53B	$85 $80
+	LDA SR_EventF0FF+1,X		; B53D	$BD $D1 $B5
+	STA $81				; B540	$85 $81
+	JMP ($0080)			; B542	$6C $80 $00
 ; $E0-$EF: 
-L0F545:
-	LDA $72			; B545	$A5 $72		increment event script pointer
-	CLC                     ; B547	$18
-	ADC #$01                ; B548	$69 $01
-	STA $72                 ; B54A	$85 $72
-	LDA $73                 ; B54C	$A5 $73
-	ADC #$00                ; B54E	$69 $00
-	STA $73                 ; B550	$85 $73
-	LDA $70                 ; B552	$A5 $70
-	AND #$0F                ; B554	$29 $0F
-	ASL                     ; B556	$0A
-	TAX                     ; B557	$AA
-	LDA $B565,X             ; B558	$BD $65 $B5
-	STA $80                 ; B55B	$85 $80
-	LDA $B566,X             ; B55D	$BD $66 $B5
-	STA $81                 ; B560	$85 $81
-	JMP ($0080)             ; B562	$6C $80 $00
-; End of
+SR_EventT1_E0EF:
+	LDA p_evt_scr_L			; B545	$A5 $72		increment +1 event script pointer
+	CLC				; B547	$18
+	ADC #$01			; B548	$69 $01
+	STA p_evt_scr_L			; B54A	$85 $72
+	LDA p_evt_scr_H			; B54C	$A5 $73
+	ADC #$00			; B54E	$69 $00
+	STA p_evt_scr_H			; B550	$85 $73
+	LDA $70				; B552	$A5 $70		event script 1 (temp)
+	AND #$0F			; B554	$29 $0F
+	ASL				; B556	$0A
+	TAX				; B557	$AA
+	LDA SR_EventE0EF,X		; B558	$BD $65 $B5
+	STA $80				; B55B	$85 $80
+	LDA SR_EventE0EF+1,X		; B55D	$BD $66 $B5
+	STA $81				; B560	$85 $81
+	JMP ($0080)			; B562	$6C $80 $00
+; End of SR_EventT1
 
-; jump table for event command $E0-$EF
-.byte $85,$B5,$88,$B5,$91,$B5,$9A,$B5,$9E,$B5,$A1
-.byte $B5,$A4,$B5,$A7,$B5	; B565	$B585 B588 B591 B59A B59E B5A1 B5A4 B5A7
-
-.byte $AA,$B5,$AE,$B5,$B3,$B5,$B3,$B5,$B3,$B5,$B6
-.byte $B5,$C0,$B5,$C7,$B5	; B575	$B5AA B5AE B5B3 B5B3 B5B3 B5B6 B5C0 B5C7
+; jump table for event command $E0-$EF - How about jumping directly to each subroutine
+SR_EventE0EF:
+.word SR_EventE0			; B565	$85 $B5
+.word SR_EventE1			; B567	$88 $B5
+.word SR_EventE2			; B569	$91 $B5
+.word SR_EventE3			; B56B	$9A $B5
+.word SR_EventE4			; B56D	$9E $B5
+.word SR_EventE5			; B56F	$A1 $B5
+.word SR_EventE6			; B571	$A4 $B5
+.word SR_EventE7			; B573	$A7 $B5
+.word SR_EventE8			; B575	$AA $B5
+.word SR_EventE9			; B577	$AE $B5
+.word SR_EventEA			; B579	$B3 $B5
+.word SR_EventEB			; B57B	$B3 $B5
+.word SR_EventEC			; B57D	$B3 $B5
+.word SR_EventED			; B57F	$B6 $B5
+.word SR_EventEE			; B581	$C0 $B5
+.word SR_EventEF			; B583	$C7 $B5
 
 ; Marks	:
 ; $E0: shake screen
+SR_EventE0:
 	JMP $B691		; B585	$4C $91 $B6  
-; End of
+; End of SR_EventE0
 
 ; Marks	:
 ; $E1: dreadnought launch animation
+SR_EventE1:
 	LDA #$00		; B588	$A9 $00
 	STA $6C			; B58A	$85 $6C
 	LDX #$09		; B58C	$A2 $09
 	JMP $A003		; B58E	$4C $03 $A0
-; End of
+; End of SR_EventE1
 
 ; Marks	:
 ; $E2: dreadnought explosion animation
+SR_EventE2:
 	LDA #$40		; B591	$A9 $40		exit (to previous map)
 	STA $44			; B593	$85 $44
 	LDA #$05		; B595	$A9 $05		event type 5 (dreadnought explosion animation)
 	STA $6C			; B597	$85 $6C
 	RTS			; B599	$60
-; End of
+; End of SR_EventE2
 
 ; Marks	:
 ; $E3: filter map bg palette (red)
+SR_EventE3:
 	CLC 			; B59A	$18
 	JMP $C003		; B59B	$4C $03 $C0	filter map bg palette
-; End of
+; End of SR_EventE3
 
 ; Marks	:
 ; $E4: npc dance
+SR_EventE4:
 	JMP $AD28		; B59E	$4C $28 $AD
-; End of
+; End of SR_EventE4
 
 ; Marks	:
 ; $E5: pandaemonium castle animation
+SR_EventE5:
 	JMP $B398		; B5A1	$4C $98 $B3  
-; End of
+; End of SR_EventE5
 
 ; Marks	:
 ; $E6: flash screen
+SR_EventE6:
 	JMP $B669		; B5A4	4C $69 $B6
-; End of
+; End of SR_EventE6
 
 ; Marks	:
 ; $E7: end credits
+SR_EventE7:
 	JMP $C006		; B5A7	$4C $06 $C0
-; End of
+; End of SR_EventE7
 
 ; Marks	:
 ; $E8: filter map bg palette (blue)
+SR_EventE8:
 	SEC 			; B5AA	$38
 	JMP $C003		; B5AB	$4C $03 $C0	filter map bg palette
-; End of
+; End of SR_EventE8
 
 ; Marks	:
 ; $E9: leviathan waves animation
+SR_EventE9:
 	LDX #$00		; B5AE	$A2 $00
 	JMP $A003               ; B5B0	$4C $03 $A0
-; End of
+; End of SR_EventE9
 
 ; Marks	:
 ; $EA-$EC
+SR_EventEA:
+SR_EventEB:
+SR_EventEC:
 	JMP $B717		; B5B3	$4C $17 $B7	restore saved guest character properties
-; End of
+; End of SR_EventEC
+; End of SR_EventEB
+; End of SR_EventEA
 
 ; Marks	:
 ; $ED: add leila to party
+SR_EventED:
 	JSR $B6F5		; B5B6	$20 $F5 $B6	save guest character properties
 	LDA #$07		; B5B9	$A9 $07
 	STA $61			; B5BB	$85 $61
 	JMP $B6EF		; B5BD	$4C $EF $B6	load guest character properties
-; End of
+; End of SR_EventED
 
 ; Marks	:
 ; $EE: add leon to party
+SR_EventEE:
 	LDA #$09		; B5C0	$A9 $09
 	STA $61			; B5C2	$85 $61
 	JMP $B6EF		; B5C4	$4C $EF $B6	load guest character properties
-; End of
+; End of SR_EventEE
 
 ; Marks	:
 ; $EF: remove guest character
-	LDA #$80		; B5C7	$A9 $80
-	STA $62F5		; B5C9	$8D $F5 $62
-	JMP $B6F2		; B5CC	$4C $F2 $B6	validate character rows
-; End of
+SR_EventEF:
+	LDA #$80			; B5C7	$A9 $80		make character 4 absent (Bit.7 = 1)
+	STA $62F5			; B5C9	$8D $F5 $62	character 4 properties 2
+	JMP ChkCharRows_		; B5CC	$4C $F2 $B6	validate character rows
+; End of SR_EventEF
 
 ; Marks	:
 ; unused
-	RTS 			; B5CF	$60
+	RTS 				; B5CF	$60
 ; End of unused
 
-; jump table for event command $F0-$FF
-.byte $F0,$B5,$F5,$B5,$FE,$B5,$07,$B6,$10,$B6,$19,$B6,$1E,$B6,$23,$B6	; B5D0
-;B5F0 B5F5 B5FE B607 B610 B619 B61E B623
-.byte $28,$B6,$50,$B6,$50,$B6,$50,$B6,$50,$B6,$51,$B6,$56,$B6,$64,$B6	; B5E0
-;B628 B650 B650 B650 B650 B651 B656 B664
+; jump table for event script $F0-$FF
+SR_EventF0FF:
+.word SR_EventF0			; B5D0	$F0 $B5
+.word SR_EventF1			; B5D2	$F5 $B5
+.word SR_EventF2			; B5D4	$FE $B5
+.word SR_EventF3			; B5D6	$07 $B6
+.word SR_EventF4			; B5D8	$10 $B6
+.word SR_EventF5			; B5DA	$19 $B6
+.word SR_EventF6			; B5DC	$1E $B6
+.word SR_EventF7			; B5DE	$23 $B6
+.word SR_EventF8			; B5F0	$28 $B6
+.word SR_EventF9			; B5F2	$50 $B6
+.word SR_EventFA			; B5F4	$50 $B6
+.word SR_EventFB			; B5F6	$50 $B6
+.word SR_EventFC			; B5F8	$50 $B6
+.word SR_EventFD			; B5FA	$51 $B6
+.word SR_EventFE			; B5FC	$56 $B6
+.word SR_EventFF			; B5FE	$64 $B6
+
 
 ; Marks	:
 ; $F0: event dialogue
-	LDA $71			; B5F0	$A5 $71
-	STA $76			; B5F2	$85 $76
-	RTS			; B5F4	$60
-; End of
+SR_EventF0:
+	LDA $71				; B5F0	$A5 $71
+	STA $76				; B5F2	$85 $76
+	RTS				; B5F4	$60
+; End of SR_EventF0
 
 ; Marks	:
 ; $F1: exit (to world map)
+SR_EventF1:
 	LDA $71			; B5F5	$A5 $71
 	STA $45			; B5F7	$85 $45
 	LDA #$C0		; B5F9	$A9 $C0
 	STA $44			; B5FB	$85 $44
 	RTS			; B5FD	$60
-; End of
+; End of SR_EventF1
 
 ; Marks	:
 ; $F2: entrance
+SR_EventF2:
 	LDA $71			; B5FE	$A5 $71
 	STA $45			; B600	$85 $45
 	LDA #$80		; B602	$A9 $80
 	STA $44			; B604	$85 $44
 	RTS			; B606	$60
-; End of
+; End of SR_EventF2
 
 ; Marks	:
 ; $F3: battle
+SR_EventF3:
 	LDA $71			; B607	$A5 $71
 	STA $6A			; B609	$85 $6A
 	LDA #$20		; B60B	$A9 $20
 	STA $44			; B60D	$85 $44
 	RTS			; B60F	$60
-; End of
+; End of SR_EventF3
 
 ; Marks	:
 ; $F4: entrance
+SR_EventF4:
 	LDA $71			; B610	$A5 $71
 	STA $45			; B612	$85 $45
 	LDA #$80		; B614	$A9 $80
 	STA $44			; B616	$85 $44
 	RTS			; B618	$60
-; End of
+; End of SR_EventF4
 
 ; $F5: play song
-	LDA $71			; B619	$A5 $71
-	STA $E0			; B61B	$85 $E0		play song
-	RTS			; B61D	$60
-; End of
+SR_EventF5:
+	LDA $71				; B619	$A5 $71		event script 2 (temp)
+	STA $E0				; B61B	$85 $E0		play song
+	RTS				; B61D	$60
+; End of SR_EventF5
 
 ; Marks	:
 ; $F6: set event switch
+SR_EventF6:
 	LDY $71			; B61E	$A4 $71
-	JMP $B759		; B620	$4C $59 $B7
-; End of
+	JMP L0F759		; B620	$4C $59 $B7
+; End of SR_EventF6
 
 ; Marks	:
-; $F7: toggle event switch
-	LDY $71			; B623	$A4 $71
-	JMP $B77D		; B625	$4C $7D $B7
-; End of
+; $F7: clear event switch
+SR_EventF7:
+	LDY $71				; B623	$A4 $71		event script 2 (temp)
+	JMP L0F77D			; B625	$4C $7D $B7
+; End of SR_EventF7
 
-; Marks	:
-; $F8: wait
-	LDA $75			; B628	$A5 $75
-	BMI L0F634		; B62A	$30 $08		branch if already waiting
-	LDA #$80		; B62C	$A9 $80
-	STA $75			; B62E	$85 $75
-	LDA $71			; B630	$A5 $71
-	STA $74			; B632	$85 $74		set wait counter
-L0F634:
-	LDA $74			; B634	$A5 $74
-	SEC			; B636	$38
-	SBC #$01		; B637	$E9 $01
-	STA $74			; B639	$85 $74
-	BCS L0F642		; B63B	$B0 $05
-	LDA #$00		; B63D	$A9 $00
-	STA $75			; B63F	$85 $75
-	RTS			; B641	$60
-;
-L0F642:
-	LDA $72			; B642	$A5 $72
-	SEC			; B644	$38
-	SBC #$02		; B645	$E9 $02
-	STA $72			; B647	$85 $72
-	LDA $73			; B649	$A5 $73
-	SBC #$00		; B64B	$E9 $00
-	STA $73			; B64D	$85 $73
-	RTS			; B64F	$60
-; End of
+; Marks	: 
+;	  $71: event script 2 (temp) - repeat count
+;	 +$72: event script pointer
+;	  $74: event wait counter
+;	  $75: event value (80h-FFh: negative is event init already done. else: event initialization required)
+; event script F8h = wait
+SR_EventF8:
+	LDA $75				; B628	$A5 $75
+	BMI SR_EventF8_skip_init	; B62A	$30 $08		branch if already waiting
+	LDA #$80			; B62C	$A9 $80
+	STA $75				; B62E	$85 $75
+	LDA $71				; B630	$A5 $71		event script 2 (temp)
+	STA $74				; B632	$85 $74		set wait counter
+SR_EventF8_skip_init:
+	LDA $74				; B634	$A5 $74
+	SEC				; B636	$38
+	SBC #$01			; B637	$E9 $01
+	STA $74				; B639	$85 $74
+	BCS SR_EventF8_wait		; B63B	$B0 $05		branch if $74 >= 0
+	LDA #$00			; B63D	$A9 $00
+	STA $75				; B63F	$85 $75
+	RTS				; B641	$60
+SR_EventF8_wait:
+	LDA p_evt_scr_L			; B642	$A5 $72		decrease -2 event script pointer
+	SEC				; B644	$38
+	SBC #$02			; B645	$E9 $02
+	STA p_evt_scr_L			; B647	$85 $72
+	LDA p_evt_scr_H				; B649	$A5 $73
+	SBC #$00			; B64B	$E9 $00
+	STA p_evt_scr_H				; B64D	$85 $73
+	RTS				; B64F	$60
+; End of SR_EventF8
 
 ; Marks	:
 ; $F9-FC: no effect
+SR_EventF9:
+SR_EventFA:
+SR_EventFB:
+SR_EventFC:
 	RTS 			; B650	$60
-; End of
+; End of SR_EventFC
+; End of SR_EventFB
+; End of SR_EventFA
+; End of SR_EventF9
 
 ; Marks	:
 ; $FD: exit (to previous map)
+SR_EventFD:
 	LDA #$40		; B651	$A9 $40
 	STA $44			; B653	$85 $44
 	RTS			; B655	$60
-; End of
+; End of SR_EventFD
 
 ; Marks	:
 ; $FE: repeat forever ??? (unused)
-	LDA $72			; B656	$A5 $72		decrement event script pointer
+SR_EventFE:
+	LDA p_evt_scr_L			; B656	$A5 $72		decrement -1 event script pointer
 	SEC			; B658	$38
 	SBC #$01		; B659	$E9 $01
-	STA $72			; B65B	$85 $72
-	LDA $73			; B65D	$A5 $73
+	STA p_evt_scr_L			; B65B	$85 $72
+	LDA p_evt_scr_H			; B65D	$A5 $73
 	SBC #$00		; B65F	$E9 $00
-	STA $73			; B661	$85 $73
+	STA p_evt_scr_H			; B661	$85 $73
 	RTS			; B663	$60
-; End of
+; End of SR_EventFE
 
 ; Marks	:
 ; $FF: end of script
+SR_EventFF:
 	LDA #$00		; B664	$A9 $00
 	STA $6C			; B666	$85 $6C
 	RTS			; B668	$60
-; End of
+; End of SR_EventFF
 
 ; Marks	: event command $E6: flash screen
-	LDA #$00		; B669	$A9 $00
+	LDA #$00			; B669	$A9 $00
 L0F66B:
-	PHA			; B66B	$48
-	JSR $B678		; B66C	$20 $78 $B6	update flash screen
-	PLA			; B66F	$68
-	CLC			; B670	$18
-	ADC #$01		; B671	$69 $01
-	CMP #$11		; B673	$C9 $11
-	BCC L0F66B		; B675	$90 $F4
-	RTS			; B677	$60
+	PHA				; B66B	$48
+	JSR SetGeryScreen		; B66C	$20 $78 $B6	update flash screen
+	PLA				; B66F	$68
+	CLC				; B670	$18
+	ADC #$01			; B671	$69 $01
+	CMP #$11			; B673	$C9 $11
+	BCC L0F66B			; B675	$90 $F4
+	RTS				; B677	$60
 ; End of
 
-; Name	:
+; Name	: SetGeryScreen
+; A	: bit.1 = (0: normal color, 1: greyscale)
 ; Marks	: update flash screen
-	LSR 			; B678	$4A
-	AND #$01		; B679	$29 $01
-	STA $80			; B67B	$85 $80
-	JSR Wait_NMI		; B67D	$20 $00 $FE	wait for vblank
-	LDA $80			; B680	$A5 $80
-	ORA #$1E		; B682	$09 $1E
-	STA $2001		; B684	$8D $01 $20
-	LDA #$00		; B687	$A9 $00
-	STA $80			; B689	$85 $80
-	JSR $B6BD		; B68B	$20 $BD $B6
-	JMP $B6E8		; B68E	$4C $E8 $B6
+;	  PpuMask_2001.bit0 = Greyscale (0: normal color, 1: greyscale)
+SetGeryScreen:
+	LSR 				; B678	$4A
+	AND #$01			; B679	$29 $01
+	STA $80				; B67B	$85 $80
+	JSR Wait_NMI			; B67D	$20 $00 $FE	wait for vblank
+	LDA $80				; B680	$A5 $80
+	ORA #$1E			; B682	$09 $1E
+	STA PpuMask_2001		; B684	$8D $01 $20
+	LDA #$00			; B687	$A9 $00
+	STA $80				; B689	$85 $80
+	JSR UpdPPUScroll		; B68B	$20 $BD $B6
+	JMP $B6E8			; B68E	$4C $E8 $B6
+; End of SetGeryScreen
 
 ; Marks	: event command $E0: shake screen
 	LDA #$00		; B691	$A9 $00
@@ -3397,51 +3521,55 @@ L0F693:
 	RTS			; B69F	$60
 ; End of
 
-; Name	:
+; Name	: UpdShakeScreen
 ; Marks	: update shake screen
+UpdShakeScreen:
 	AND #$02		; B6A0	$29 $02
 	STA $80			; B6A2	$85 $80
 	JSR Wait_NMI		; B6A4	$20 $00 $FE	wait for vblank
-	JSR $B6BD		; B6A7	$20 $BD $B6  
+	JSR UpdPPUScroll	; B6A7	$20 $BD $B6  
 	JSR $B6E8		; B6AA	$20 $E8 $B6  
 	LDA #$08		; B6AD	$A9 $08
-	STA $400C		; B6AF	$8D $0C $40  
+	STA NoiseVolume_400C		; B6AF	$8D $0C $40  
 	LDA #$0E		; B6B2	$A9 $0E
-	STA $400E		; B6B4	$8D $0E $40  
+	STA NoisePeriod_400E		; B6B4	$8D $0E $40  
 	LDA #$00		; B6B7	$A9 $00
-	STA $400F		; B6B9	$8D $0F $40  
+	STA NoiseLength_400F		; B6B9	$8D $0F $40  
 	RTS			; B6BC	$60
-; End of
+; End of UpdShakeScreen
 
-; Name	:
-; Marks	:
-	BIT $2002		; B6BD	$2C $02 $20
-	LDA $FD			; B6C0	$A5 $FD
-	STA $FF			; B6C2	$85 $FF
-	STA $2000		; B6C4	$8D $00 $20
-	LDX $27			; B6C7	$A6 $27
-	LDA $2D			; B6C9	$A5 $2D
-	LSR			; B6CB	$4A
-	BCC L0F6D0		; B6CC	$90 $02
-	LDX $29			; B6CE	$A6 $29
-L0F6D0:
-	TXA			; B6D0	$8A
-	ASL			; B6D1	$0A
-	ASL			; B6D2	$0A
-	ASL			; B6D3	$0A
-	ASL			; B6D4	$0A
-	ORA $35			; B6D5	$05 $35
-	EOR $80			; B6D7	$45 $80
-	STA $2005		; B6D9	$8D $05 $20
-	LDA $2F			; B6DC	$A5 $2F
-	ASL			; B6DE	$0A
-	ASL			; B6DF	$0A
-	ASL			; B6E0	$0A
-	ASL			; B6E1	$0A
-	ORA $36			; B6E2	$05 $36
-	STA $2005		; B6E4	$8D $05 $20
-	RTS			; B6E7	$60
-; End of
+; Name	: UpdPPUScroll
+; Marks	: update PPU scroll
+;	  move to left effect
+;	  $80: shake pixel value(X)
+UpdPPUScroll:
+	BIT PpuStatus_2002		; B6BD	$2C $02 $20
+	LDA ppu_con_p			; B6C0	$A5 $FD
+	STA ppu_con_c			; B6C2	$85 $FF
+	STA PpuControl_2000		; B6C4	$8D $00 $20
+	LDX ow_x_pos			; B6C7	$A6 $27		overworld x position
+	LDA scroll_dir_map		; B6C9	$A5 $2D
+	LSR				; B6CB	$4A
+	BCC UpdPPUScrollProc		; B6CC	$90 $02		branch if overworld
+	LDX in_x_pos			; B6CE	$A6 $29		indoor map x position
+UpdPPUScrollProc:
+	TXA				; B6D0	$8A
+	ASL				; B6D1	$0A
+	ASL				; B6D2	$0A
+	ASL				; B6D3	$0A
+	ASL				; B6D4	$0A
+	ORA hor_stile_pos		; B6D5	$05 $35
+	EOR $80				; B6D7	$45 $80
+	STA PpuScroll_2005		; B6D9	$8D $05 $20
+	LDA nt_y_pos			; B6DC	$A5 $2F
+	ASL				; B6DE	$0A
+	ASL				; B6DF	$0A
+	ASL				; B6E0	$0A
+	ASL				; B6E1	$0A
+	ORA ver_stile_pos		; B6E2	$05 $36
+	STA PpuScroll_2005		; B6E4	$8D $05 $20
+	RTS				; B6E7	$60
+; End of UpdPPUScroll
 
 ; Name	:
 ; Marks	:
@@ -3452,7 +3580,8 @@ L0F6D0:
 
 	JMP $C012		; B6EF	$4C 12 $C0	load guest character properties
 ;
-	JMP $C015		; B6F2	$4C 15 $C0	validate character rows
+ChkCharRows_:
+	JMP ChkCharRows		; B6F2	$4C 15 $C0	validate character rows -> jump to 0F/F2C8
 ;
 
 
@@ -3517,17 +3646,18 @@ L0F73F:
 ; End of
 
 ; Marks	: set event switch
+L0F759:
 	STY $80			; B759	$84 $80
-	LDA $B795,Y		; B75B	$B9 $95 $B7
+	LDA BitMask,Y		; B75B	$B9 $95 $B7
 	STA $81			; B75E	$85 $81
-	LDA $B895,Y		; B760	$B9 $95 $B8
+	LDA ByteOfs,Y		; B760	$B9 $95 $B8
 	TAY			; B763	$A8
 	LDA $6040,Y		; B764	$B9 $40 $60
 	ORA $81			; B767	$05 $81
 	STA $6040,Y		; B769	$99 $40 $60
 	LDY $80			; B76C	$A4 $80
 	RTS			; B76E	$60
-; End of
+; End of SR_EventF6
 
 ; Marks	: battle
 ;	  unused
@@ -3545,21 +3675,26 @@ L0F73F:
 	RTS			; B77C	$60
 ; End of unused
 
-; Marks	: toggle event switch
-	STY $80			; B77D	$84 $80
-	LDA $B795,Y		; B77F	$B9 $95 $B7	bit mask
-	STA $81			; B782	$85 $81
-	LDA $B895,Y		; B784	$B9 $95 $B8	byte offset
-	TAY			; B787	$A8
-	LDA $81			; B788	$A5 $81
-	EOR #$FF		; B78A	$49 $FF
-	AND $6040,Y		; B78C	$39 $40 $60
-	STA $6040,Y		; B78F	$99 $40 $60
-	LDY $80			; B792	$A4 $80
-	RTS			; B794	$60
-; End of
+; Y	: event script
+; Ret	: Y = event script
+; Marks	: clear event switch
+;	  $80:
+;	  $81:
+L0F77D:
+	STY $80				; B77D	$84 $80		event script
+	LDA BitMask,Y			; B77F	$B9 $95 $B7	bit mask
+	STA $81				; B782	$85 $81
+	LDA ByteOfs,Y			; B784	$B9 $95 $B8	byte offset
+	TAY				; B787	$A8
+	LDA $81				; B788	$A5 $81
+	EOR #$FF			; B78A	$49 $FF
+	AND $6040,Y			; B78C	$39 $40 $60
+	STA $6040,Y			; B78F	$99 $40 $60
+	LDY $80				; B792	$A4 $80
+	RTS				; B794	$60
+; End of SR_EventF7
 
-;B795 - data block = bit masks
+BitMask:				; B795 - data block = bit masks (256 bytes)
 .byte $01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
@@ -3581,7 +3716,7 @@ L0F73F:
 .byte $08,$10,$20,$40,$80,$01,$02,$04,$08,$10,$20,$40,$80,$01,$02,$04
 .byte $08,$10,$20,$40,$80
 
-;B895 - data block = byte offsets
+ByteOfs:				; B895 - data block = byte offsets (256 bytes)
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$01,$01,$01
 .byte $01,$01,$01,$01,$01,$02,$02,$02,$02,$02,$02,$02,$02,$03,$03,$03
 .byte $03,$03,$03,$03,$03,$04,$04,$04,$04,$04,$04,$04,$04,$05,$05,$05
@@ -3691,6 +3826,7 @@ L0F73F:
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
+;========== movement/animation speeds for each npc id ($BE00-$BEFF) START ==========
 ;; [$BE00 :: 0x0FE00]
 
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -3709,6 +3845,8 @@ L0F73F:
 .byte $00,$00,$00,$00,$00,$00,$00,$71,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 .byte $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+;========== movement/animation speeds for each npc id ($BE00-$BEFF) END ==========
 
 ;; [$BF00 :: 0x0FF00]
 

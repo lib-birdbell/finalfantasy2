@@ -2,6 +2,7 @@
 ;; Based only on observing gameplay ;;
 
 BANK_OVERWORLD       = $03
+BANK_EVENT_CODE		= $03
 
 BANK_LEVELUP         = $05	; battle message code
 
@@ -23,6 +24,7 @@ BANK_RATE_GRP		= $0B	; map battle random rate / map battle group
 
 BANK_BATTLE		= $0C	; battle main code
 
+BANK_EVENT		= $0D	; event scripts / dialogue
 BANK_MUSIC           = $0D
 
 BANK_INTRO           = $0E
